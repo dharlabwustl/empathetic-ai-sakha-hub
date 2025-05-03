@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ChevronRight, 
   CheckCircle, 
@@ -29,9 +31,11 @@ import {
   Target,
   TrendingUp,
   Shield,
-  AlertCircle
+  AlertCircle,
+  AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -73,11 +77,24 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
     navigation: false
   });
   const [allTabsVisited, setAllTabsVisited] = useState(false);
+  const [showSkipWarning, setShowSkipWarning] = useState(false);
+  const { toast } = useToast();
+  
+  // Tab order for navigation
+  const tabOrder = ["founder", "resources", "features", "navigation"];
   
   // Check if all tabs have been visited
   useEffect(() => {
     const allVisited = Object.values(visitedTabs).every(visited => visited);
     setAllTabsVisited(allVisited);
+    
+    if (allVisited && !allTabsVisited) {
+      toast({
+        title: "All sections viewed!",
+        description: "You can now complete the tour.",
+        variant: "default"
+      });
+    }
   }, [visitedTabs]);
   
   // Handle tab change
@@ -87,6 +104,30 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       ...prev,
       [value]: true
     }));
+    setShowSkipWarning(false);
+  };
+
+  // Navigate to the next tab
+  const handleNextTab = () => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    if (currentIndex < tabOrder.length - 1) {
+      const nextTab = tabOrder[currentIndex + 1];
+      handleTabChange(nextTab);
+    }
+  };
+  
+  // Handle tour skip with warning if not all tabs visited
+  const handleSkipAttempt = () => {
+    if (!allTabsVisited) {
+      setShowSkipWarning(true);
+    } else {
+      onSkipTour();
+    }
+  };
+  
+  // Confirm skipping despite warning
+  const handleConfirmSkip = () => {
+    onSkipTour();
   };
   
   useEffect(() => {
@@ -97,17 +138,17 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       setUserData(parsedData);
       
       // Customize study stats based on user data if available
-      if (parsedData.goals && parsedData.goals.length > 0) {
+      if (parsedData.goal) {
         setStudyStats(prev => ({
           ...prev,
-          examGoal: parsedData.goals[0].title || 'NEET'
+          examGoal: parsedData.goal
         }));
       }
       
-      if (parsedData.preferences && parsedData.preferences.learningStyle) {
+      if (parsedData.personalityType) {
         setStudyStats(prev => ({
           ...prev,
-          learningStyle: parsedData.preferences.learningStyle
+          learningStyle: parsedData.personalityType
         }));
       }
     }
@@ -119,12 +160,38 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       .filter(([_, visited]) => !visited)
       .map(([tabName, _]) => tabName);
   };
+
+  // Is current tab the last tab?
+  const isLastTab = activeTab === tabOrder[tabOrder.length - 1];
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Prevent dialog from closing if trying to close with unvisited tabs
+      if (!newOpen && !allTabsVisited) {
+        setShowSkipWarning(true);
+        return;
+      }
+      onOpenChange(newOpen);
+    }}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Welcome to PREPZR</DialogTitle>
+          <DialogTitle className="text-2xl flex items-center justify-between">
+            <span>Welcome to PREPZR</span>
+            <div className="flex items-center text-sm font-normal">
+              {Object.entries(visitedTabs).map(([tab, visited]) => (
+                <Badge 
+                  key={tab} 
+                  variant={visited ? "default" : "outline"}
+                  className={`mx-1 ${visited ? "bg-green-600" : "text-gray-400"}`}
+                >
+                  {visited && <CheckCircle className="h-3 w-3 mr-1" />}
+                  {tab === "founder" ? "1" : 
+                   tab === "resources" ? "2" : 
+                   tab === "features" ? "3" : "4"}
+                </Badge>
+              ))}
+            </div>
+          </DialogTitle>
           <DialogDescription className="text-base">
             {isFirstTimeUser
               ? "Let's help you get started with your learning journey!"
@@ -134,10 +201,30 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
 
         <Tabs defaultValue="founder" className="mt-2" value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="grid grid-cols-4">
-            <TabsTrigger value="founder">Welcome</TabsTrigger>
-            <TabsTrigger value="resources">Your Resources</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="navigation">Getting Started</TabsTrigger>
+            <TabsTrigger value="founder" className="relative">
+              Welcome
+              {visitedTabs.founder && (
+                <CheckCircle className="h-3 w-3 absolute -top-1 -right-1 text-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="relative">
+              Resources
+              {visitedTabs.resources && (
+                <CheckCircle className="h-3 w-3 absolute -top-1 -right-1 text-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="features" className="relative">
+              Features
+              {visitedTabs.features && (
+                <CheckCircle className="h-3 w-3 absolute -top-1 -right-1 text-green-500" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="navigation" className="relative">
+              Getting Started
+              {visitedTabs.navigation && (
+                <CheckCircle className="h-3 w-3 absolute -top-1 -right-1 text-green-500" />
+              )}
+            </TabsTrigger>
           </TabsList>
           
           {/* Founder Message Tab */}
@@ -181,6 +268,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                   </blockquote>
                 </motion.div>
               </div>
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleNextTab} className="flex items-center">
+                Next <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           </TabsContent>
           
@@ -302,6 +395,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 </div>
               </div>
             </motion.div>
+
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleNextTab} className="flex items-center">
+                Next <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
           </TabsContent>
           
           {/* Features Tab */}
@@ -391,186 +490,149 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 <div>
                   <h4 className="font-medium">AI Tutor</h4>
                   <p className="text-sm text-muted-foreground">
-                    Get personalized help with difficult concepts, step-by-step problem solving,
-                    and detailed explanations whenever you're stuck.
+                    Get instant help with concepts, problem-solving, and study strategies from our AI tutor that
+                    understands your learning style and academic goals.
                   </p>
                 </div>
               </motion.div>
+            </div>
 
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6, duration: 0.4 }}
-                className="flex gap-3 items-start"
-              >
-                <div className="p-2 rounded-full bg-rose-100 dark:bg-rose-900/30">
-                  <UserRound className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium">Wellness & Mood Tracking</h4>
-                  <p className="text-sm text-muted-foreground">
-                    We care about your wellbeing! Track your mood, get personalized wellness tips,
-                    and access resources to help you maintain a healthy study-life balance.
-                  </p>
-                </div>
-              </motion.div>
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleNextTab} className="flex items-center">
+                Next <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           </TabsContent>
           
           {/* Navigation Tab */}
           <TabsContent value="navigation" className="max-h-[50vh] overflow-y-auto">
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium mb-3 flex items-center">
-                  <Lightbulb className="h-5 w-5 text-amber-500 mr-2" />
-                  Getting Started
-                </h4>
-                <div className="ml-7 space-y-4">
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="space-y-1.5"
-                  >
-                    <h5 className="font-medium text-sm">1. Visit Today's Plan</h5>
+            <div className="space-y-6 py-2">
+              <h3 className="text-lg font-medium">Getting Started with PREPZR</h3>
+              
+              <div className="space-y-4">
+                <div className="flex gap-3 items-start p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800">
+                    <span className="font-semibold text-blue-600 dark:text-blue-300">1</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Complete Your Profile</h4>
                     <p className="text-sm text-muted-foreground">
-                      Start with your Today's Plan to see what's scheduled for today. Complete the
-                      tasks to stay on track with your study goals.
+                      Ensure your learning preferences, goals, and exam details are up to date 
+                      for the most personalized experience.
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                      onClick={() => {
-                        onCompleteTour();
-                        window.location.href = '/dashboard/student/today';
-                      }}
-                    >
-                      Go to Today's Plan
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </motion.div>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.4 }}
-                    className="space-y-1.5"
-                  >
-                    <h5 className="font-medium text-sm">2. Review Your Study Plan</h5>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 items-start p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-800">
+                    <span className="font-semibold text-indigo-600 dark:text-indigo-300">2</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Review Your Study Plan</h4>
                     <p className="text-sm text-muted-foreground">
-                      Check your study plan in the Academic Advisor section. You can view your
-                      progress, make adjustments, or create a new plan if needed.
+                      Check your personalized study plan in the Academic Advisor section and make 
+                      adjustments if needed.
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-1 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                      onClick={() => {
-                        onCompleteTour();
-                        window.location.href = '/dashboard/student/academic';
-                      }}
-                    >
-                      Go to Academic Advisor
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </motion.div>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.4 }}
-                    className="space-y-1.5"
-                  >
-                    <h5 className="font-medium text-sm">3. Practice with Learning Resources</h5>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 items-start p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-800">
+                    <span className="font-semibold text-purple-600 dark:text-purple-300">3</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Start with Today's Tasks</h4>
                     <p className="text-sm text-muted-foreground">
-                      Use our flashcards, concept cards, and practice exams to test your knowledge
-                      and improve your understanding of key concepts.
+                      Begin your learning journey with the scheduled tasks in Today's Plan for 
+                      optimal progress.
                     </p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-                        onClick={() => {
-                          onCompleteTour();
-                          window.location.href = '/dashboard/student/flashcards';
-                        }}
-                      >
-                        Flashcards
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                        onClick={() => {
-                          onCompleteTour();
-                          window.location.href = '/dashboard/student/practice-exam';
-                        }}
-                      >
-                        Practice Exams
-                      </Button>
-                    </div>
-                  </motion.div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 items-start p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-800">
+                    <span className="font-semibold text-rose-600 dark:text-rose-300">4</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Track Your Progress</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Monitor your learning progress on the dashboard and adjust your pace based 
+                      on your performance metrics.
+                    </p>
+                  </div>
                 </div>
               </div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
-              >
-                <h4 className="font-medium flex items-center gap-2 mb-2">
-                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  Pro Tips
-                </h4>
-                <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
-                  <li className="flex items-start gap-2">
-                    <div className="min-w-5 pt-0.5">•</div>
-                    <p>Complete at least one flashcard session daily to strengthen your memory</p>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="min-w-5 pt-0.5">•</div>
-                    <p>Use the AI Tutor whenever you get stuck on a difficult concept</p>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="min-w-5 pt-0.5">•</div>
-                    <p>Track your mood daily for personalized wellness tips</p>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="min-w-5 pt-0.5">•</div>
-                    <p>Take practice tests regularly to identify knowledge gaps</p>
-                  </li>
-                </ul>
-              </motion.div>
+
+              {suggestedNextAction && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg border border-blue-100 dark:border-blue-800"
+                >
+                  <h4 className="font-medium mb-1 flex items-center">
+                    <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                    Suggested Next Step
+                  </h4>
+                  <p className="text-sm">{suggestedNextAction}</p>
+                </motion.div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
 
-        {!allTabsVisited && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 p-3 mb-4 rounded-lg border border-amber-200 dark:border-amber-800 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <div className="text-sm text-amber-800 dark:text-amber-300">
-              <span className="font-medium">Please visit all tabs</span> - You need to explore all tabs before completing the tour. 
+        {showSkipWarning && (
+          <Alert variant="warning" className="mt-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertDescription className="text-amber-700 dark:text-amber-300">
+              You haven't viewed all sections yet. Please visit the remaining tabs to get the complete understanding.
               {getRemainingTabs().length > 0 && (
-                <span> Remaining: {getRemainingTabs().map(tab => tab.charAt(0).toUpperCase() + tab.slice(1)).join(', ')}</span>
+                <p className="mt-1 text-sm">
+                  <span className="font-semibold">Remaining sections:</span>{" "}
+                  {getRemainingTabs().map(tab => 
+                    tab === "founder" ? "Welcome" : 
+                    tab === "resources" ? "Resources" : 
+                    tab === "features" ? "Features" : "Getting Started"
+                  ).join(", ")}
+                </p>
               )}
-            </div>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-4">
-          <Button variant="outline" onClick={onSkipTour}>
-            Skip Tour
-          </Button>
-          <Button 
-            onClick={onCompleteTour} 
-            className="flex items-center gap-2"
-            disabled={!allTabsVisited}
-          >
-            Let's Begin <ChevronRight className="h-4 w-4" />
-          </Button>
+        <DialogFooter className="flex flex-row justify-between sm:justify-between gap-2 mt-4">
+          {!showSkipWarning ? (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={handleSkipAttempt}
+              >
+                {allTabsVisited ? "Skip Tour" : "Skip for Now"}
+              </Button>
+              <Button 
+                onClick={onCompleteTour} 
+                disabled={!allTabsVisited}
+                className={!allTabsVisited ? "opacity-50 cursor-not-allowed" : ""}
+              >
+                {allTabsVisited ? "Complete Tour" : "View All Sections to Complete"}
+                {allTabsVisited && <CheckCircle className="ml-2 h-4 w-4" />}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSkipWarning(false)}
+              >
+                Continue Tour
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleConfirmSkip}
+              >
+                Skip Anyway
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

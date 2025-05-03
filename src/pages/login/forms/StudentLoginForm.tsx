@@ -89,21 +89,38 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               timestamp: new Date().toISOString()
             };
             
+            // Preserve onboarding flags if not already set
+            const isNewUser = parsedData.isNewUser !== undefined ? parsedData.isNewUser : false;
+            const sawWelcomeTour = parsedData.sawWelcomeTour !== undefined ? parsedData.sawWelcomeTour : false;
+            
             localStorage.setItem("userData", JSON.stringify({
               ...parsedData,
               loginCount,
               lastActivity,
-              lastLogin: new Date().toISOString()
+              lastLogin: new Date().toISOString(),
+              isNewUser,
+              sawWelcomeTour
             }));
             
-            // Always direct to the pending activities screen first
-            navigate("/dashboard/student/today");
+            // Check if user has completed onboarding
+            const completedOnboarding = parsedData.completedOnboarding === true;
+            const seenTour = parsedData.sawWelcomeTour === true;
+            
+            // If they haven't completed onboarding or seen the welcome tour, send to welcome-back
+            if (!completedOnboarding || !seenTour) {
+              navigate("/welcome-back");
+            } else {
+              // Regular users go directly to the dashboard
+              navigate("/dashboard/student/today");
+            }
+            
           } catch (error) {
             console.error("Error updating user data:", error);
-            navigate("/dashboard/student/today");
+            navigate("/welcome-back");
           }
         } else {
-          navigate("/dashboard/student/today");
+          // No user data, treat as first-time login
+          navigate("/welcome-back");
         }
       } else {
         setLoginError("Invalid email or password");

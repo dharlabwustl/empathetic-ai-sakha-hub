@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: string;
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -74,19 +76,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: UserRole.Student
           };
           
-          // Save user data to localStorage
-          localStorage.setItem('userData', JSON.stringify({
+          // Check if user already exists in localStorage
+          const existingUserData = localStorage.getItem('userData');
+          let isReturningUser = false;
+          let userData = {
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
             role: newUser.role,
             lastLogin: new Date().toISOString(),
             loginCount: 1,
-            mood: 'Motivated'
-          }));
+            mood: 'Motivated',
+            completedOnboarding: false,
+            isNewUser: true,
+            sawWelcomeTour: false
+          };
+          
+          if (existingUserData) {
+            try {
+              const parsedData = JSON.parse(existingUserData);
+              isReturningUser = true;
+              
+              // Update existing user data
+              userData = {
+                ...parsedData,
+                lastLogin: new Date().toISOString(),
+                loginCount: (parsedData.loginCount || 0) + 1
+              };
+            } catch (error) {
+              console.error('Error parsing existing user data:', error);
+            }
+          }
+          
+          // Save user data to localStorage
+          localStorage.setItem('userData', JSON.stringify(userData));
           
           setUser(newUser);
           setLoading(false);
+          
+          // Toast message for returning users
+          if (isReturningUser) {
+            toast({
+              title: "Welcome back!",
+              description: "You're now signed in to your account."
+            });
+          }
+          
           resolve(true);
         } else {
           setLoading(false);
@@ -114,6 +149,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
     setUser(null);
+    
+    toast({
+      title: "Logged out",
+      description: "You've been successfully logged out."
+    });
   };
   
   return (
