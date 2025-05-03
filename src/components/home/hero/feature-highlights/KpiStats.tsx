@@ -1,15 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { adminService } from '@/services/adminService';
 import { 
   Users, Brain, CheckCircle, BookOpen, 
-  ScrollText, ClipboardList, Clock, 
-  Target, SmilePlus, HeartPulse
+  ScrollText, ClipboardList
 } from 'lucide-react';
 
-// Define the stats based on the admin data structure
+// Define the stats based on the admin data structure - removed Weekly Study Time, Practice Questions, Target Exams, Users Log Weekly Moods
 const defaultStats = [
   { 
     id: 1, 
@@ -42,16 +40,6 @@ const defaultStats = [
     adminKey: "successRate"
   },
   { 
-    id: 4, 
-    value: 500000, 
-    label: "Practice Questions", 
-    prefix: "", 
-    suffix: "+", 
-    decimals: 0,
-    icon: <BookOpen className="text-blue-500" />,
-    adminKey: "totalQuestions"
-  },
-  { 
     id: 5, 
     value: 2000000, 
     label: "Flashcards Reviewed", 
@@ -72,43 +60,13 @@ const defaultStats = [
     adminKey: "totalStudyPlans"
   },
   { 
-    id: 7, 
-    value: 6.5, 
-    label: "Weekly Study Time", 
-    prefix: "", 
-    suffix: " hrs/week", 
-    decimals: 1,
-    icon: <Clock className="text-amber-500" />,
-    adminKey: "averageStudyTimePerUser"
-  },
-  { 
-    id: 8, 
-    value: 20, 
-    label: "Target Exams Covered", 
-    prefix: "", 
-    suffix: "+", 
-    decimals: 0,
-    icon: <Target className="text-rose-500" />,
-    adminKey: "targetExams"
-  },
-  { 
-    id: 9, 
-    value: 85, 
-    label: "Users Log Weekly Moods", 
-    prefix: "", 
-    suffix: "%", 
-    decimals: 0,
-    icon: <SmilePlus className="text-teal-500" />,
-    adminKey: "studentsWithMoodTracking"
-  },
-  { 
     id: 10, 
     value: 72, 
     label: "Feel Reduced Anxiety", 
     prefix: "", 
     suffix: "%", 
     decimals: 0,
-    icon: <HeartPulse className="text-fuchsia-500" />,
+    icon: <BookOpen className="text-fuchsia-500" />,
     adminKey: "verifiedMoodImprovement"
   }
 ];

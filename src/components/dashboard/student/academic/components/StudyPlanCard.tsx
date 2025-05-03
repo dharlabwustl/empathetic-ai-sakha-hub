@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle, ArrowRight } from 'lucide-react';
+import { CalendarDays, Clock, BookOpen, ArrowRight } from 'lucide-react';
 import { StudyPlan } from '@/types/user/studyPlan';
+import { Progress } from '@/components/ui/progress';
+import { formatDistance } from 'date-fns';
 
 interface StudyPlanCardProps {
   plan: StudyPlan;
@@ -12,74 +13,83 @@ interface StudyPlanCardProps {
 }
 
 const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
-  const getStatusColor = () => {
-    switch (plan.status) {
-      case 'active':
-        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900';
-      case 'completed':
-        return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700';
+  const getDaysRemainingText = () => {
+    try {
+      let examDate: Date;
+      if (plan.examDate instanceof Date) {
+        examDate = plan.examDate;
+      } else {
+        examDate = new Date(plan.examDate);
+      }
+      
+      const now = new Date();
+      if (examDate > now) {
+        return formatDistance(examDate, now, { addSuffix: true });
+      } else {
+        return "Exam date passed";
+      }
+    } catch (error) {
+      return "Date unknown";
     }
   };
 
-  const formatDate = (dateString: string | Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
+    <Card className={`h-full ${
+      plan.status === 'active' 
+        ? 'border-blue-300 dark:border-blue-800 shadow-sm' 
+        : 'border-gray-200 dark:border-gray-800'
+    }`}>
+      <CardContent className="p-5 pb-0">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{plan.title}</CardTitle>
-          <Badge variant="outline" className={getStatusColor()}>
-            {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
-          </Badge>
-        </div>
-        <CardDescription className="flex items-center gap-1">
-          <Calendar className="h-3.5 w-3.5" />
-          <span>Target: {formatDate(plan.examDate)}</span>
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="pb-2">
-        <div className="space-y-3">
           <div>
-            <div className="text-sm font-medium mb-1">Subjects: {plan.subjects.length}</div>
-            <div className="text-xs text-gray-500">
-              {plan.subjects.slice(0, 3).map(subject => subject.name).join(', ')}
-              {plan.subjects.length > 3 ? ' and more...' : ''}
-            </div>
+            <h3 className="font-medium text-lg">{plan.examGoal}</h3>
+            <p className="text-sm text-muted-foreground">{plan.status === 'active' ? 'Active Plan' : plan.status}</p>
           </div>
-          
-          <div>
-            <div className="text-sm font-medium mb-1">Completion</div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full" 
-                style={{ width: `${plan.progress || 0}%` }}
-              ></div>
-            </div>
-            <div className="text-xs text-right mt-1 text-gray-500">
-              {plan.progress || 0}% Complete
-            </div>
+          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+            plan.status === 'active' 
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+              : plan.status === 'completed'
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+          }`}>
+            {plan.status}
+          </div>
+        </div>
+        
+        <div className="mt-3">
+          <Progress 
+            value={plan.progress || 0} 
+            className="h-2" 
+            indicatorClassName={plan.status === 'active' ? 'bg-blue-500' : 'bg-gray-400'} 
+          />
+          <p className="text-xs text-right mt-1 text-muted-foreground">
+            {plan.progress || 0}% complete
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap gap-3 mt-4">
+          <div className="flex items-center text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            {plan.studyHoursPerDay} hrs/day
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground">
+            <CalendarDays className="h-3.5 w-3.5 mr-1" />
+            {getDaysRemainingText()}
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground">
+            <BookOpen className="h-3.5 w-3.5 mr-1" />
+            {plan.subjects.length} subjects
           </div>
         </div>
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="pb-4 pt-6">
         <Button 
           variant="ghost" 
-          className="w-full justify-between" 
+          className="w-full justify-between hover:bg-blue-50 dark:hover:bg-blue-950"
           onClick={() => onViewDetails(plan.id)}
         >
-          <span>View Details</span>
-          <ArrowRight className="h-4 w-4" />
+          View Details <ArrowRight className="h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>

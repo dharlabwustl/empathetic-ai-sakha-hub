@@ -82,7 +82,7 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
     
     // Move previous active plans to pending/completed
     const allPreviousPlans = [...updatedActivePlans, ...completedPlans];
-    setCompletedPlans(allPreviousPlans);
+    setCompletedPlans(allPreviousPlans as StudyPlan[]);
   };
 
   return {

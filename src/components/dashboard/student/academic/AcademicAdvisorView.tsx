@@ -1,214 +1,226 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { UserProfileBase } from '@/types/user/base';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { useToast } from '@/hooks/use-toast';
-import { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
-import { PlusCircle } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-import { format, differenceInCalendarDays } from 'date-fns';
-import CreateStudyPlanWizard from './CreateStudyPlanWizard';
-import StudyPlanVisualizer from './StudyPlanVisualizer';
-import ActivePlansList from './ActivePlansList';
-import CompletedPlansList from './CompletedPlansList';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
+import { UserProfileType } from "@/types/user";
+import { useAcademicPlans } from './hooks/useAcademicPlans';
+import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
+import StudyPlanSections from "./components/StudyPlanSections";
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-const AcademicAdvisorView: React.FC = () => {
-  const { toast } = useToast();
-  const { userProfile } = useUserProfile();
+interface AcademicAdvisorViewProps {
+  userProfile: UserProfileType;
+}
+
+const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   
-  // Mock active study plan
-  const activePlan: StudyPlan = {
-    id: "plan-1",
-    examGoal: userProfile?.goals?.[0]?.title || "IIT-JEE",
-    examDate: "2024-12-15",
-    daysLeft: 240,
-    createdAt: "2024-04-10T12:00:00Z",
-    status: 'active',
-    progressPercentage: 35,
-    subjects: [
-      {
-        name: "Physics",
-        progress: 45,
-        proficiency: 'moderate',
-        topics: [
-          { name: "Mechanics", status: 'in-progress', priority: 'high' },
-          { name: "Thermodynamics", status: 'pending', priority: 'medium' },
-          { name: "Electrostatics", status: 'completed', priority: 'high' }
-        ]
-      },
-      {
-        name: "Chemistry",
-        progress: 25,
-        proficiency: 'weak',
-        topics: [
-          { name: "Organic Chemistry", status: 'pending', priority: 'high' },
-          { name: "Chemical Bonding", status: 'in-progress', priority: 'medium' },
-          { name: "Equilibrium", status: 'pending', priority: 'low' }
-        ]
-      },
-      {
-        name: "Mathematics",
-        progress: 72,
-        proficiency: 'strong',
-        topics: [
-          { name: "Calculus", status: 'completed', priority: 'high' },
-          { name: "Coordinate Geometry", status: 'completed', priority: 'high' },
-          { name: "Probability", status: 'in-progress', priority: 'medium' }
-        ]
-      }
-    ],
-    studyHoursPerDay: 6,
-    preferredStudyTime: 'evening',
-    learningPace: 'moderate'
+  // Mock study plans for demo
+  const demoStudyPlans: StudyPlan[] = [
+    {
+      id: "plan-1",
+      title: "NEET Preparation",
+      examGoal: "NEET",
+      examDate: new Date(2025, 4, 15).toISOString(),
+      status: "active",
+      progress: 35,
+      subjects: [
+        {
+          id: "subj-1",
+          name: "Physics",
+          difficulty: "medium",
+          completed: false,
+          status: "in-progress",
+          priority: "high",
+          hoursPerWeek: 6
+        },
+        {
+          id: "subj-2",
+          name: "Chemistry",
+          difficulty: "easy",
+          completed: false,
+          status: "pending",
+          priority: "medium",
+          hoursPerWeek: 4
+        },
+        {
+          id: "subj-3",
+          name: "Biology",
+          difficulty: "hard",
+          completed: false,
+          status: "completed",
+          priority: "high",
+          hoursPerWeek: 8
+        }
+      ],
+      studyHoursPerDay: 4,
+      preferredStudyTime: "evening",
+      learningPace: "moderate",
+      createdAt: new Date(2023, 9, 10).toISOString(),
+    },
+    {
+      id: "plan-2",
+      title: "JEE Advanced Preparation",
+      examGoal: "JEE Advanced",
+      examDate: new Date(2024, 11, 10).toISOString(),
+      status: "pending",
+      progress: 62,
+      subjects: [
+        {
+          id: "subj-4",
+          name: "Physics",
+          difficulty: "hard",
+          completed: false,
+          status: "pending",
+          priority: "high",
+          hoursPerWeek: 8
+        },
+        {
+          id: "subj-5",
+          name: "Chemistry",
+          difficulty: "medium",
+          completed: false,
+          status: "in-progress",
+          priority: "medium",
+          hoursPerWeek: 6
+        },
+        {
+          id: "subj-6",
+          name: "Mathematics",
+          difficulty: "hard",
+          completed: false,
+          status: "pending",
+          priority: "low",
+          hoursPerWeek: 10
+        }
+      ],
+      studyHoursPerDay: 6,
+      preferredStudyTime: "morning",
+      learningPace: "fast",
+      createdAt: new Date(2023, 8, 15).toISOString(),
+    },
+    {
+      id: "plan-3",
+      title: "UPSC Preparation",
+      examGoal: "UPSC",
+      examDate: new Date(2024, 5, 20).toISOString(),
+      status: "completed",
+      progress: 100,
+      subjects: [
+        {
+          id: "subj-7",
+          name: "History",
+          difficulty: "medium",
+          completed: true,
+          status: "completed",
+          priority: "high",
+          hoursPerWeek: 5
+        },
+        {
+          id: "subj-8",
+          name: "Geography",
+          difficulty: "easy",
+          completed: true,
+          status: "completed",
+          priority: "high",
+          hoursPerWeek: 4
+        },
+        {
+          id: "subj-9",
+          name: "Economics",
+          difficulty: "hard",
+          completed: true,
+          status: "in-progress",
+          priority: "medium",
+          hoursPerWeek: 6
+        }
+      ],
+      studyHoursPerDay: 5,
+      preferredStudyTime: "evening",
+      learningPace: "moderate",
+      createdAt: new Date(2023, 1, 10).toISOString(),
+    },
+  ];
+
+  // Split plans by status
+  const activePlans = demoStudyPlans.filter(plan => plan.status === "active");
+  const completedPlans = demoStudyPlans.filter(plan => plan.status === "completed" || plan.status === "pending");
+  
+  const handleCreatePlanClick = () => {
+    setShowCreateDialog(true);
   };
 
-  // Mock completed plans
-  const completedPlans: StudyPlan[] = [{
-    id: "plan-old-1",
-    examGoal: "IIT-JEE",
-    examDate: "2024-03-15",
-    daysLeft: 0,
-    createdAt: "2024-01-01T12:00:00Z",
-    status: 'completed',
-    progressPercentage: 100,
-    subjects: [
-      {
-        name: "Physics",
-        progress: 65,
-        proficiency: 'weak',
-        topics: [
-          { name: "Mechanics", status: 'completed', priority: 'high' },
-          { name: "Waves", status: 'completed', priority: 'medium' }
-        ]
-      },
-      {
-        name: "Chemistry",
-        progress: 60,
-        proficiency: 'weak',
-        topics: [
-          { name: "Periodic Table", status: 'completed', priority: 'medium' }
-        ]
-      },
-      {
-        name: "Mathematics",
-        progress: 70,
-        proficiency: 'moderate',
-        topics: [
-          { name: "Algebra", status: 'completed', priority: 'high' }
-        ]
-      }
-    ],
-    studyHoursPerDay: 5,
-    preferredStudyTime: 'morning',
-    learningPace: 'slow'
-  }];
-
-  // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    let topics = [];
-    const priorities = ['high', 'medium', 'low'];
-    const statuses = ['pending', 'in-progress'];
-    
-    // Generate topics based on subject
-    switch(subject.toLowerCase()) {
-      case 'physics':
-        topics = [
-          { name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
-        ];
-        break;
-      case 'chemistry':
-        topics = [
-          { name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
-        ];
-        break;
-      case 'mathematics':
-        topics = [
-          { name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
-        ];
-        break;
-      default:
-        topics = [
-          { name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
-        ];
-    }
-    
-    return topics;
+  const handleViewPlanDetails = (planId: string) => {
+    setSelectedPlanId(planId);
+    // In a real app, this would navigate to a detailed view or open a modal
+    console.log(`Viewing plan details for ${planId}`);
   };
 
-  const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // In a real app, this would call an API to create the plan
-    toast({
-      title: "Success",
-      description: "Your new study plan has been created!",
-    });
-    
+  const handleCreatePlan = (newPlan: NewStudyPlan) => {
+    console.log("New study plan created:", newPlan);
     setShowCreateDialog(false);
+    // In a real app, this would save the plan to the database
   };
 
   return (
-    <div className="space-y-10">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">Academic Advisor</h1>
-          <p className="text-muted-foreground">
-            Manage your study plans and track your academic progress
-          </p>
+    <SharedPageLayout
+      title="Academic Advisor"
+      subtitle="Get personalized guidance for your academic journey"
+    >
+      <div className="space-y-8">
+        {/* Overview Card */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-medium">Academic Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Current Goal</span>
+                <span className="font-medium text-lg">{userProfile.goals?.[0]?.title || "NEET"}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Subjects</span>
+                <span className="font-medium text-lg">7 Subjects</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Progress</span>
+                <span className="font-medium text-lg">48% Complete</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Study Plans Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Study Plans</h2>
+            <Button onClick={handleCreatePlanClick} className="flex gap-1 items-center">
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Create New Plan
+            </Button>
+          </div>
+
+          <StudyPlanSections 
+            activePlans={activePlans}
+            completedPlans={completedPlans}
+            onCreatePlan={handleCreatePlanClick}
+            onViewPlanDetails={handleViewPlanDetails}
+          />
         </div>
-        <Button 
-          onClick={() => setShowCreateDialog(true)}
-          className="bg-gradient-to-r from-blue-600 to-violet-600 text-white"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create New Plan
-        </Button>
-      </div>
-      
-      {/* Current Plan Visualization */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Current Study Plan</h2>
-        <StudyPlanVisualizer 
-          examGoal={activePlan.examGoal}
-          progressPercentage={activePlan.progressPercentage}
-          daysLeft={activePlan.daysLeft}
-          totalSubjects={activePlan.subjects.length}
-          conceptCards={120}
-          flashcards={250}
-          practiceExams={30}
-          studyHoursPerDay={activePlan.studyHoursPerDay}
-          focusArea="Mathematics"
+
+        {/* Create Study Plan Dialog */}
+        <CreateStudyPlanWizard 
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onCreatePlan={handleCreatePlan}
+          examGoal={userProfile.goals?.[0]?.title}
         />
-      </section>
-      
-      {/* Active Plans List */}
-      <section className="grid grid-cols-1 gap-6">
-        <h2 className="text-2xl font-semibold mb-0">Active Study Plans</h2>
-        <ActivePlansList plans={[activePlan]} />
-      </section>
-      
-      {/* Completed Plans List */}
-      <section className="grid grid-cols-1 gap-6">
-        <h2 className="text-2xl font-semibold mb-0">Completed Plans</h2>
-        <CompletedPlansList plans={completedPlans} />
-      </section>
-      
-      {/* Create Plan Dialog */}
-      <CreateStudyPlanWizard 
-        open={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        examGoal={userProfile?.goals?.[0]?.title || "IIT-JEE"}
-        onCreatePlan={handleNewPlanCreated}
-      />
-    </div>
+      </div>
+    </SharedPageLayout>
   );
 };
 
