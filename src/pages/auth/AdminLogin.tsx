@@ -28,7 +28,8 @@ const AdminLogin = () => {
     
     setIsLoading(true);
     
-    try {
+    // Simulate API login call with a delay
+    setTimeout(() => {
       // For demo purposes, accept any admin login with admin email
       if (email.includes("admin")) {
         // Store admin login state in localStorage
@@ -53,16 +54,9 @@ const AdminLogin = () => {
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast({
-        title: "Login error",
-        description: "An error occurred during login. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
+      
       setIsLoading(false);
-    }
+    }, 1500);
   };
 
   return (

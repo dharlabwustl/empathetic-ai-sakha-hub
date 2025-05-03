@@ -22,8 +22,8 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
   });
   
   // Convert to percentage, ensuring we avoid division by zero
-  const score = totalWeight > 0 
-    ? Math.round((totalScore / totalWeight) * 100) 
+  const score = answers.length > 0 
+    ? Math.floor((totalScore / (answers.length * 3)) * 100) 
     : 0;
   
   // Determine level based on score

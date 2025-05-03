@@ -9,7 +9,7 @@ const Login = () => {
 
   // In a real application, you would handle login logic here
   // For now, just redirect to the welcome-back page with the returnTo parameter
-  return <Navigate to={`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`} replace />;
+  return <Navigate to={`/welcome-back?returnTo=${returnTo}`} replace />;
 };
 
 export default Login;
