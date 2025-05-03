@@ -23,8 +23,8 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   subtitle,
   activeTab = 'overview',
   children,
-  backButtonUrl,
-  showBackButton = false,
+  backButtonUrl = '/dashboard/student',
+  showBackButton = true, // Set to true by default
   hideSidebar = false,
   hideTabsNav = false
 }) => {
@@ -53,11 +53,11 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => navigate(backButtonUrl || '/dashboard/student')}
+            onClick={() => navigate(backButtonUrl)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            Back to Dashboard
           </Button>
         )}
       </div>

@@ -9,6 +9,7 @@ import PlanHeader from './PlanHeader';
 import NewTodaysPlanView from './NewTodaysPlanView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -46,7 +47,12 @@ const RedesignedTodaysPlan: React.FC = () => {
   }
 
   return (
-    <>
+    <SharedPageLayout
+      title="Today's Plan"
+      subtitle="Your personalized daily study schedule"
+      showBackButton={true}
+      backButtonUrl="/dashboard/student"
+    >
       <Helmet>
         <title>Today's Plan - PREPZR</title>
       </Helmet>
@@ -62,7 +68,7 @@ const RedesignedTodaysPlan: React.FC = () => {
           planData={planData}
         />
       </div>
-    </>
+    </SharedPageLayout>
   );
 };
 

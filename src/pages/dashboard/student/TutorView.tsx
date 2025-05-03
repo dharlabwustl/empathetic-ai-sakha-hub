@@ -3,12 +3,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Send, Bot, User, Info, Download, BookOpen, Brain } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Info, Download, BookOpen, Brain, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useNavigate } from 'react-router-dom';
 
 const TutorView = () => {
   const [question, setQuestion] = React.useState('');
+  const navigate = useNavigate();
   
   const mockMessages = [
     {
@@ -28,6 +30,7 @@ const TutorView = () => {
     <SharedPageLayout
       title="24/7 AI Tutor"
       subtitle="Get immediate help with your studies anytime"
+      showBackButton={true}
     >
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2">

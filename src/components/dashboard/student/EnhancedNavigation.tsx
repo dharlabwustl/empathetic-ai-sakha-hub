@@ -123,21 +123,24 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                       item.isPriority && !isActive(item.id) && "bg-violet-50 dark:bg-violet-900/30"
                     )}
                     onClick={() => handleTabClick(item.id)}
+                    asChild
                   >
-                    <item.icon className="h-4 w-4" />
-                    {showLabels && <span className="text-xs">{item.label}</span>}
-                    
-                    {/* Badge for notifications or new items */}
-                    {item.badge && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0">
-                        {item.badge}
-                      </Badge>
-                    )}
-                    
-                    {/* New label */}
-                    {item.isNew && !item.badge && (
-                      <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full" />
-                    )}
+                    <Link to={item.path}>
+                      <item.icon className="h-4 w-4" />
+                      {showLabels && <span className="text-xs">{item.label}</span>}
+                      
+                      {/* Badge for notifications or new items */}
+                      {item.badge && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0">
+                          {item.badge}
+                        </Badge>
+                      )}
+                      
+                      {/* New label */}
+                      {item.isNew && !item.badge && (
+                        <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full" />
+                      )}
+                    </Link>
                   </Button>
                 </motion.div>
               </TooltipTrigger>
