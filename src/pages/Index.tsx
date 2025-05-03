@@ -74,8 +74,12 @@ const Index = () => {
     setShowExamAnalyzer(true);
     
     // Dispatch event to close voice announcer when opening analyzer
-    const event = new CustomEvent('close-voice-announcer');
-    window.dispatchEvent(event);
+    try {
+      const event = new CustomEvent('close-voice-announcer');
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("Error dispatching close voice announcer event:", error);
+    }
   };
   
   const handleCloseExamAnalyzer = () => {
@@ -87,8 +91,13 @@ const Index = () => {
     const timer = setTimeout(() => {
       // Only trigger on homepage, not other routes
       if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-        const event = new CustomEvent('open-voice-announcer');
-        window.dispatchEvent(event);
+        try {
+          console.log("Index: Triggering voice announcer after delay");
+          const event = new CustomEvent('open-voice-announcer');
+          window.dispatchEvent(event);
+        } catch (error) {
+          console.error("Error dispatching open voice announcer event:", error);
+        }
       }
     }, 5000); // 5 second delay before showing
     

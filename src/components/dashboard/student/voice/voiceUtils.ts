@@ -186,8 +186,12 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     console.error("Speech synthesis error:", event);
   };
 
-  // Speak the message
-  window.speechSynthesis.speak(utterance);
+  // Speak the message - with error handling
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch (error) {
+    console.error("Error calling speak method:", error);
+  }
 };
 
 // Helper function to get greeting based on time of day and user's mood
@@ -238,7 +242,7 @@ export const getTaskCountAnnouncement = (count: number, examGoal?: string) => {
 };
 
 // Helper function for specific task announcements
-export const getTaskAnnouncement = (task: any): string => {
+export const getSpecificTaskAnnouncement = (task: any): string => {
   const timeStr = task.timeEstimate ? `This will take about ${task.timeEstimate} minutes.` : '';
   
   if (task.priority === 'high') {

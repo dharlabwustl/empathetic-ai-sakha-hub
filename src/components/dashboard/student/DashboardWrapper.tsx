@@ -19,9 +19,9 @@ const VoiceWrapper = ({ children }: { children: React.ReactNode }) => {
     const initializeVoices = async () => {
       try {
         // Force voice list to load
-        window.speechSynthesis.getVoices();
+        window.speechSynthesis?.getVoices();
         
-        // Test if speech synthesis is available
+        // Check if speech synthesis is available
         if (!window.speechSynthesis) {
           console.error("Speech synthesis not available");
           toast({
@@ -48,7 +48,11 @@ const VoiceWrapper = ({ children }: { children: React.ReactNode }) => {
           });
         };
         
-        window.speechSynthesis.speak(testUtterance);
+        try {
+          window.speechSynthesis.speak(testUtterance);
+        } catch (error) {
+          console.error("Error during test utterance:", error);
+        }
         
         // Safety timeout - mark as initialized after 3 seconds even if onend doesn't fire
         setTimeout(() => {
@@ -71,7 +75,11 @@ const VoiceWrapper = ({ children }: { children: React.ReactNode }) => {
     
     // Clean up on unmount
     return () => {
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis?.cancel();
+      } catch (error) {
+        console.error("Error cancelling speech synthesis:", error);
+      }
     };
   }, []);
   

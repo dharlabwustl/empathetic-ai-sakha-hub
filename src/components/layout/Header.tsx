@@ -1,16 +1,26 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, Volume2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
-import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  
+  useEffect(() => {
+    // Check if we need to preload speech synthesis
+    if (window.speechSynthesis) {
+      try {
+        window.speechSynthesis.getVoices();
+      } catch (error) {
+        console.error("Error preloading voice:", error);
+      }
+    }
+  }, []);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,9 +28,14 @@ const Header = () => {
   
   // Function to trigger voice announcer popup
   const handleOpenVoice = () => {
-    // Create and dispatch a custom event to open the voice announcer
-    const event = new CustomEvent('open-voice-announcer');
-    window.dispatchEvent(event);
+    try {
+      // Create and dispatch a custom event to open the voice announcer
+      console.log("Header: Triggering voice announcer");
+      const event = new CustomEvent('open-voice-announcer');
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("Error dispatching voice event:", error);
+    }
   };
   
   return (
@@ -113,9 +128,6 @@ const Header = () => {
           </div>
         )}
       </div>
-      
-      {/* Add FloatingVoiceAnnouncer component */}
-      <FloatingVoiceAnnouncer />
     </header>
   );
 };

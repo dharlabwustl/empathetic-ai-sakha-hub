@@ -11,6 +11,7 @@ export const useVoiceAnnouncer = () => {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [lastInteraction, setLastInteraction] = useState<Date>(new Date());
   const [examGoal, setExamGoal] = useState<string>("");
+  const [voicesLoaded, setVoicesLoaded] = useState<boolean>(false);
   
   // Try to get the user's exam goal from localStorage
   useEffect(() => {
@@ -49,43 +50,90 @@ export const useVoiceAnnouncer = () => {
   
   // Initialize voices when component mounts
   useEffect(() => {
-    // Load voices
-    const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
+    // Pre-load voice system
+    const initializeVoiceSystem = async () => {
+      try {
+        // Try to get voices
+        const loadVoices = () => {
+          const voices = window.speechSynthesis.getVoices();
+          console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
+          setVoicesLoaded(true);
+        };
+        
+        // Load voices immediately if possible
+        if (window.speechSynthesis) {
+          const voices = window.speechSynthesis.getVoices();
+          if (voices && voices.length > 0) {
+            loadVoices();
+          }
+          
+          // Setup event listener for voiceschanged
+          window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+        } else {
+          console.error("Speech synthesis not available");
+        }
+        
+        // Force voice initialization by attempting a silent utterance
+        const silentUtterance = new SpeechSynthesisUtterance("");
+        silentUtterance.volume = 0;
+        silentUtterance.rate = 1;
+        silentUtterance.onend = () => setVoicesLoaded(true);
+        silentUtterance.onerror = (e) => console.error("Silent utterance error:", e);
+        
+        try {
+          window.speechSynthesis.speak(silentUtterance);
+        } catch (error) {
+          console.error("Error speaking silent utterance:", error);
+        }
+        
+        // Safety timeout - mark as loaded after 3 seconds even if event doesn't fire
+        setTimeout(() => {
+          if (!voicesLoaded) {
+            console.log("Voice initialization timeout - marking as initialized anyway");
+            setVoicesLoaded(true);
+          }
+        }, 3000);
+        
+        // Track speech status
+        const handleSpeechStart = () => setIsSpeaking(true);
+        const handleSpeechEnd = () => setIsSpeaking(false);
+        
+        window.speechSynthesis.addEventListener('start', handleSpeechStart);
+        window.speechSynthesis.addEventListener('end', handleSpeechEnd);
+        window.speechSynthesis.addEventListener('pause', handleSpeechEnd);
+        window.speechSynthesis.addEventListener('resume', handleSpeechStart);
+        
+        // Set default to loud volume if not already set
+        setSettings(current => {
+          if (current.volume < 0.8) {
+            const updated = { ...current, volume: 0.9 };
+            saveVoiceSettings(updated);
+            return updated;
+          }
+          return current;
+        });
+        
+        return () => {
+          window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+          window.speechSynthesis.removeEventListener('start', handleSpeechStart);
+          window.speechSynthesis.removeEventListener('end', handleSpeechEnd);
+          window.speechSynthesis.removeEventListener('pause', handleSpeechEnd);
+          window.speechSynthesis.removeEventListener('resume', handleSpeechStart);
+        };
+      } catch (error) {
+        console.error("Error initializing voice system:", error);
+      }
     };
     
-    // Try loading voices immediately
-    loadVoices();
+    initializeVoiceSystem();
     
-    // Some browsers need this event to get voices
-    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
-    
-    // Set default to loud volume if not already set
-    setSettings(current => {
-      if (current.volume < 0.8) {
-        const updated = { ...current, volume: 0.9 };
-        saveVoiceSettings(updated);
-        return updated;
-      }
-      return current;
-    });
-    
-    // Track speech status
-    const handleSpeechStart = () => setIsSpeaking(true);
-    const handleSpeechEnd = () => setIsSpeaking(false);
-    
-    window.speechSynthesis.addEventListener('start', handleSpeechStart);
-    window.speechSynthesis.addEventListener('end', handleSpeechEnd);
-    window.speechSynthesis.addEventListener('pause', handleSpeechEnd);
-    window.speechSynthesis.addEventListener('resume', handleSpeechStart);
-    
+    // Clean up on unmount
     return () => {
-      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
-      window.speechSynthesis.removeEventListener('start', handleSpeechStart);
-      window.speechSynthesis.removeEventListener('end', handleSpeechEnd);
-      window.speechSynthesis.removeEventListener('pause', handleSpeechEnd);
-      window.speechSynthesis.removeEventListener('resume', handleSpeechStart);
+      try {
+        window.speechSynthesis?.cancel();
+      } catch (error) {
+        console.error("Error canceling speech:", error);
+      }
     };
   }, []);
 
@@ -252,7 +300,11 @@ export const useVoiceAnnouncer = () => {
       return;
     }
     
-    speakMessage(message, force);
+    try {
+      speakMessage(message, force);
+    } catch (error) {
+      console.error("Error in speak function:", error);
+    }
   }, [settings.enabled, processQuery, updateInteractionTime]);
   
   // Test the current voice settings
@@ -263,7 +315,11 @@ export const useVoiceAnnouncer = () => {
   
   // Stop any ongoing speech
   const stopSpeaking = useCallback(() => {
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (error) {
+      console.error("Error stopping speech:", error);
+    }
     updateInteractionTime();
   }, [updateInteractionTime]);
 
@@ -285,6 +341,7 @@ export const useVoiceAnnouncer = () => {
     updateInteractionTime,
     examGoal,
     updateExamGoal,
+    voicesLoaded,
     getAvailableVoices: () => window.speechSynthesis.getVoices(),
   };
 };

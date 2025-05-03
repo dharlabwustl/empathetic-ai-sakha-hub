@@ -11,6 +11,7 @@ const FloatingVoiceAnnouncer = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
   const speakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
@@ -26,8 +27,27 @@ const FloatingVoiceAnnouncer = () => {
     "PREPZR's digital assistant provides motivation and guidance throughout your exam preparation journey."
   ];
 
+  // Ensure voices are loaded
+  useEffect(() => {
+    // Load voices
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+      setVoicesLoaded(true);
+    };
+    
+    // Try loading voices immediately
+    loadVoices();
+    
+    // Some browsers need this event to get voices
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+    };
+  }, []);
+
   const speakMessage = (message: string) => {
-    if (isMuted) return;
+    if (isMuted || !voicesLoaded) return;
     
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
@@ -69,7 +89,12 @@ const FloatingVoiceAnnouncer = () => {
       setIsSpeaking(false);
     };
     
-    window.speechSynthesis.speak(utterance);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error('Error speaking message:', error);
+      setIsSpeaking(false);
+    }
   };
   
   const toggleMute = () => {
