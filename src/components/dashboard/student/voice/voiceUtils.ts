@@ -52,8 +52,10 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   
   // First priority: Find female Indian English voice
   const femaleIndianVoice = voices.find(voice => 
-    voice.lang === 'en-IN' && 
-    (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman'))
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl'))
   );
   
   if (femaleIndianVoice) {
@@ -62,7 +64,11 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   }
   
   // Second priority: Find any Indian English voice
-  const indianVoice = voices.find(voice => voice.lang === 'en-IN');
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' || 
+    voice.lang === 'hi-IN' || 
+    voice.name.toLowerCase().includes('indian')
+  );
   
   if (indianVoice) {
     console.log("Found Indian voice:", indianVoice.name);
@@ -153,7 +159,7 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   utterance.rate = settings.speed > 1.0 ? settings.speed * 0.9 : settings.speed;
   
   // Add a pitch increase for more pleasant, energetic Indian female voice sound
-  utterance.pitch = 1.2;
+  utterance.pitch = 1.3; // Increased pitch for more distinctly female voice
   
   // Speak the message
   window.speechSynthesis.speak(utterance);

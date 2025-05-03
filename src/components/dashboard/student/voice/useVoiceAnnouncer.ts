@@ -80,6 +80,14 @@ export const useVoiceAnnouncer = () => {
       return "I can announce your daily tasks, read important information, motivate you when you're feeling down, and answer basic questions about your studies. Just ask away!";
     }
     
+    if (lowerQuery.includes("what is prepzr") || lowerQuery.includes("about prepzr") || lowerQuery.includes("tell me about prepzr")) {
+      return "Prepzr is your complete preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests. With AI-powered learning tools, personalized study plans, and interactive content, Prepzr makes your academic journey smoother and more effective.";
+    }
+    
+    if (lowerQuery.includes("how to start") || lowerQuery.includes("getting started") || lowerQuery.includes("begin") || lowerQuery.includes("first time")) {
+      return "Welcome to Prepzr! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
+    }
+    
     if (lowerQuery.includes("time") || lowerQuery.includes("what time")) {
       const now = new Date();
       return `The current time is ${now.toLocaleTimeString()}`;
@@ -117,6 +125,32 @@ export const useVoiceAnnouncer = () => {
     return "I'm not sure how to help with that specific query. You can ask me about your schedule, for motivation, or for help with your studies.";
   }, []);
   
+  // Get welcome message for first time or returning users
+  const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0): string => {
+    if (isFirstTime) {
+      return `Namaste and a warm welcome to Prepzr, ${userName}! I am your personal voice assistant with a friendly Indian accent. Prepzr is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more. To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
+    } else {
+      // For returning users
+      const welcomeBack = `Welcome back to Prepzr, ${userName}! This is your ${getOrdinal(loginCount)} login.`;
+      
+      // Suggestions based on login count
+      if (loginCount < 5) {
+        return `${welcomeBack} I suggest exploring the Academic Advisor to set up or update your study plan today. Remember to use the AI Tutor whenever you have questions about concepts.`;
+      } else if (loginCount < 10) {
+        return `${welcomeBack} You might want to check your progress in the dashboard and continue with today's scheduled tasks. Don't forget to take short breaks between study sessions!`;
+      } else {
+        return `${welcomeBack} It's great to see your consistency! Your scheduled tasks for today are ready. Would you like me to remind you of your current focus areas?`;
+      }
+    }
+  }, []);
+  
+  // Helper function to get ordinal suffix
+  const getOrdinal = (n: number): string => {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+  };
+  
   // Speak with current settings
   const speak = useCallback((message: string, force: boolean = false) => {
     if (!settings.enabled && !force) return;
@@ -149,6 +183,7 @@ export const useVoiceAnnouncer = () => {
     stopSpeaking,
     isSpeaking,
     processQuery,
+    getWelcomeMessage,
     getAvailableVoices: () => window.speechSynthesis.getVoices(),
   };
 };

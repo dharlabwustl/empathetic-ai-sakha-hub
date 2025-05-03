@@ -177,7 +177,8 @@ export function StudentSidebar({
                 className={({ isActive: active }) =>
                   cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                    isActive(item.path)
+                    currentPath.startsWith(item.path) && 
+                    (!item.queryParam || location.search.includes(item.queryParam.substring(1)))
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                     collapsed && "flex-col py-3 px-0 text-[10px]"
