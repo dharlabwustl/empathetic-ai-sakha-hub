@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Calendar, Clock, BookOpen, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Clock, BookOpen, ArrowRight } from 'lucide-react';
-import { StudyPlan } from '@/types/user/studyPlan';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { formatDistance } from 'date-fns';
+import { format } from 'date-fns';
+import { StudyPlan } from '@/types/user/studyPlan';
 
 interface StudyPlanCardProps {
   plan: StudyPlan;
@@ -13,83 +14,105 @@ interface StudyPlanCardProps {
 }
 
 const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
-  const getDaysRemainingText = () => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500';
+      case 'completed':
+        return 'bg-blue-500';
+      case 'archived':
+        return 'bg-gray-400';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  // Format the exam date
+  const formatExamDate = () => {
+    if (!plan.examDate) return 'Not specified';
+    
     try {
-      let examDate: Date;
-      if (plan.examDate instanceof Date) {
-        examDate = plan.examDate;
+      if (typeof plan.examDate === 'string') {
+        return format(new Date(plan.examDate), 'PP');
       } else {
-        examDate = new Date(plan.examDate);
-      }
-      
-      const now = new Date();
-      if (examDate > now) {
-        return formatDistance(examDate, now, { addSuffix: true });
-      } else {
-        return "Exam date passed";
+        return format(plan.examDate as Date, 'PP');
       }
     } catch (error) {
-      return "Date unknown";
+      return String(plan.examDate);
+    }
+  };
+
+  // Calculate days left
+  const getDaysLeft = () => {
+    if (!plan.examDate) return '—';
+    if (plan.daysLeft !== undefined) return plan.daysLeft;
+    
+    try {
+      const examDate = typeof plan.examDate === 'string' ? new Date(plan.examDate) : plan.examDate;
+      const today = new Date();
+      const diffTime = examDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(0, diffDays);
+    } catch (error) {
+      return '—';
     }
   };
 
   return (
-    <Card className={`h-full ${
-      plan.status === 'active' 
-        ? 'border-blue-300 dark:border-blue-800 shadow-sm' 
-        : 'border-gray-200 dark:border-gray-800'
-    }`}>
-      <CardContent className="p-5 pb-0">
+    <Card className="h-full transition-all hover:shadow-md">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-medium text-lg">{plan.examGoal}</h3>
-            <p className="text-sm text-muted-foreground">{plan.status === 'active' ? 'Active Plan' : plan.status}</p>
+            <h3 className="text-lg font-semibold">{plan.examGoal}</h3>
+            <p className="text-sm text-muted-foreground">{plan.subjects.length} subjects</p>
           </div>
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-            plan.status === 'active' 
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
-              : plan.status === 'completed'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-          }`}>
+          <Badge className={`${getStatusColor(plan.status)} text-white`}>
             {plan.status}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-3 pb-2">
+        <div className="flex justify-between text-sm">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span>{formatExamDate()}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span>{getDaysLeft()} days left</span>
           </div>
         </div>
         
-        <div className="mt-3">
-          <Progress 
-            value={plan.progress || 0} 
-            className="h-2" 
-            indicatorClassName={plan.status === 'active' ? 'bg-blue-500' : 'bg-gray-400'} 
-          />
-          <p className="text-xs text-right mt-1 text-muted-foreground">
-            {plan.progress || 0}% complete
-          </p>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">Progress</span>
+          <span className="text-sm font-medium">{plan.progressPercentage || 0}%</span>
         </div>
         
-        <div className="flex flex-wrap gap-3 mt-4">
-          <div className="flex items-center text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 mr-1" />
-            {plan.studyHoursPerDay} hrs/day
-          </div>
-          <div className="flex items-center text-xs text-muted-foreground">
-            <CalendarDays className="h-3.5 w-3.5 mr-1" />
-            {getDaysRemainingText()}
-          </div>
-          <div className="flex items-center text-xs text-muted-foreground">
-            <BookOpen className="h-3.5 w-3.5 mr-1" />
-            {plan.subjects.length} subjects
-          </div>
+        <Progress value={plan.progressPercentage || 0} className="h-2" />
+        
+        <div className="flex flex-wrap gap-1 pt-2">
+          {plan.subjects.slice(0, 3).map(subject => (
+            <Badge key={subject.id} variant="outline" className="text-xs">
+              {subject.name}
+            </Badge>
+          ))}
+          {plan.subjects.length > 3 && (
+            <Badge variant="outline" className="text-xs">
+              +{plan.subjects.length - 3} more
+            </Badge>
+          )}
         </div>
       </CardContent>
       
-      <CardFooter className="pb-4 pt-6">
+      <CardFooter className="pt-2">
         <Button 
           variant="ghost" 
-          className="w-full justify-between hover:bg-blue-50 dark:hover:bg-blue-950"
+          className="w-full text-sm flex items-center gap-1"
           onClick={() => onViewDetails(plan.id)}
         >
-          View Details <ArrowRight className="h-4 w-4" />
+          <BookOpen className="h-4 w-4" />
+          View Details
         </Button>
       </CardFooter>
     </Card>

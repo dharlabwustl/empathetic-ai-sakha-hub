@@ -40,13 +40,12 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         color: "#3b82f6",
         hoursPerWeek: 14,
         priority: "high",
-        proficiency: "moderate",
-        difficulty: "hard",
+        proficiency: "medium",
         completed: false,
         topics: [
-          { id: "mech-1", name: "Mechanics", status: 'in-progress', difficulty: 'medium', completed: false, priority: 'high' },
-          { id: "thermo-1", name: "Thermodynamics", status: 'pending', difficulty: 'hard', completed: false, priority: 'medium' },
-          { id: "electro-1", name: "Electrostatics", status: 'completed', difficulty: 'hard', completed: true, priority: 'high' }
+          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
+          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
+          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
         ]
       },
       {
@@ -56,12 +55,11 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         hoursPerWeek: 12,
         priority: "medium",
         proficiency: "weak",
-        difficulty: "medium",
         completed: false,
         topics: [
-          { id: "org-1", name: "Organic Chemistry", status: 'pending', difficulty: 'hard', completed: false, priority: 'high' },
-          { id: "bond-1", name: "Chemical Bonding", status: 'in-progress', difficulty: 'medium', completed: false, priority: 'medium' },
-          { id: "equil-1", name: "Equilibrium", status: 'pending', difficulty: 'easy', completed: false, priority: 'low' }
+          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
+          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
+          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
         ]
       },
       {
@@ -71,12 +69,11 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         hoursPerWeek: 16,
         priority: "high",
         proficiency: "strong",
-        difficulty: "hard",
         completed: false,
         topics: [
-          { id: "calc-1", name: "Calculus", status: 'completed', difficulty: 'hard', completed: true, priority: 'high' },
-          { id: "coord-1", name: "Coordinate Geometry", status: 'completed', difficulty: 'medium', completed: true, priority: 'high' },
-          { id: "prob-1", name: "Probability", status: 'in-progress', difficulty: 'medium', completed: false, priority: 'medium' }
+          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
+          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
+          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
         ]
       }
     ],
@@ -106,11 +103,10 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         hoursPerWeek: 10,
         priority: "medium",
         proficiency: "weak",
-        difficulty: "hard",
         completed: true,
         topics: [
-          { id: "mech-old", name: "Mechanics", status: 'completed', difficulty: 'medium', completed: true, priority: 'high' },
-          { id: "waves-old", name: "Waves", status: 'completed', difficulty: 'medium', completed: true }
+          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
+          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
         ]
       },
       {
@@ -120,10 +116,9 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         hoursPerWeek: 12,
         priority: "low",
         proficiency: "weak",
-        difficulty: "medium",
         completed: true,
         topics: [
-          { id: "period-old", name: "Periodic Table", status: 'completed', difficulty: 'medium', completed: true }
+          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
         ]
       },
       {
@@ -132,11 +127,10 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         color: "#8b5cf6",
         hoursPerWeek: 13,
         priority: "high",
-        proficiency: "moderate",
-        difficulty: "hard",
+        proficiency: "medium",
         completed: true,
         topics: [
-          { id: "alg-old", name: "Algebra", status: 'completed', difficulty: 'hard', completed: true }
+          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
         ]
       }
     ],
@@ -157,7 +151,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
     let topics = [];
     const priorities = ['high', 'medium', 'low'];
     const statuses = ['pending', 'in-progress'];
@@ -206,7 +200,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       status: 'active',
-      weeklyHours: plan.weeklyHours,
+      weeklyHours: plan.weeklyHours || 20,
       progressPercentage: 0,
       daysLeft: typeof plan.examDate === 'string' 
         ? differenceInCalendarDays(new Date(plan.examDate), new Date())
@@ -220,7 +214,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
           hoursPerWeek: subject.hoursPerWeek || 10,
           priority: subject.priority || "medium",
           proficiency: subject.proficiency || "medium",
-          difficulty: subject.difficulty || "medium",
           completed: false,
           topics: generateTopicsForSubject(subject.name, subject.proficiency || "medium")
         };

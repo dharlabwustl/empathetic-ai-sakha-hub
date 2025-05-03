@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import { NewStudyPlan } from '@/types/user/studyPlan';
+import { NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -57,7 +56,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   
-  const availableSubjects = subjects[examGoal as keyof typeof subjects] || subjects.default;
+  const availableSubjects = examGoal && subjects[examGoal as keyof typeof subjects] || subjects.default;
   
   const resetForm = () => {
     setStep(1);
@@ -101,6 +100,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     const newPlan: NewStudyPlan = {
       examGoal,
       examDate: examDate || new Date(),
+      status: 'active',
       studyHoursPerDay,
       preferredStudyTime,
       learningPace,

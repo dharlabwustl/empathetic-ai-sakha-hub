@@ -10,7 +10,7 @@ interface UseStudyPlanWizardProps {
 }
 
 // Define proper types for the study plan
-type ProficiencyType = 'strong' | 'weak' | 'medium';
+type ProficiencyType = 'strong' | 'medium' | 'weak';
 
 interface CustomStudyPlanSubject {
   name: string;
@@ -56,7 +56,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       ...strongSubjects.map(subject => ({
         id: `s-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
         name: subject.name,
-        proficiency: subject.proficiency as ('strong' | 'medium' | 'weak'),
+        proficiency: subject.proficiency as ProficiencyType,
         priority: 'high' as 'high',
         color: '#4CAF50',
         hoursPerWeek: 6,
@@ -65,7 +65,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       ...weakSubjects.map(subject => ({
         id: `w-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
         name: subject.name,
-        proficiency: subject.proficiency as ('strong' | 'medium' | 'weak'),
+        proficiency: subject.proficiency as ProficiencyType,
         priority: 'high' as 'high',
         color: '#F44336',
         hoursPerWeek: 8,

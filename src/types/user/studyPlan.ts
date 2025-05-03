@@ -5,8 +5,7 @@ export interface StudyPlanSubject {
   color: string;
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'medium';
-  difficulty?: 'easy' | 'medium' | 'hard';
+  proficiency: 'strong' | 'medium' | 'weak';
   completed: boolean;
   topics?: Array<{
     id: string;
@@ -23,15 +22,14 @@ export type Subject = StudyPlanSubject;
 
 export interface StudyPlan {
   id: string;
-  userId: string;
-  goal: string;
   examGoal?: string;
-  examDate?: string;
+  examDate?: string | Date;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   subjects: StudyPlanSubject[];
-  weeklyHours: number;
-  status: 'active' | 'archived' | 'completed';
+  status: 'active' | 'completed' | 'archived';
+  progress?: number;
+  weeklyHours?: number;
   studyHoursPerDay?: number;
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace?: 'slow' | 'moderate' | 'fast';
@@ -39,4 +37,13 @@ export interface StudyPlan {
   daysLeft?: number;
 }
 
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+export interface NewStudyPlan {
+  examGoal: string;
+  examDate: string | Date;
+  subjects: StudyPlanSubject[];
+  status?: 'active' | 'completed' | 'archived';
+  studyHoursPerDay?: number;
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace?: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
+}

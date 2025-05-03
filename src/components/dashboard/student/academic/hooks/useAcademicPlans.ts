@@ -49,9 +49,9 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
     const plan: StudyPlan = {
       id: generateId(),
       examGoal: newPlan.examGoal || '',
-      examDate: newPlan.examDate instanceof Date 
-        ? newPlan.examDate.toISOString() 
-        : newPlan.examDate,
+      examDate: typeof newPlan.examDate === 'string' 
+        ? newPlan.examDate 
+        : newPlan.examDate.toISOString(),
       status: 'active',
       progress: 0,
       subjects: newPlan.subjects.map(subject => ({
@@ -64,6 +64,7 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
       preferredStudyTime: newPlan.preferredStudyTime || 'morning',
       studyHoursPerDay: newPlan.studyHoursPerDay || 4,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     
     // Add the new plan to active plans
@@ -131,6 +132,7 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
           preferredStudyTime: (userProfile.studyTime || 'morning').toLowerCase(),
           studyHoursPerDay: userProfile.dailyStudyHours || 4,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
         
         setActivePlans([defaultPlan]);
