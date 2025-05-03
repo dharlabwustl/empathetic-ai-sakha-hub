@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -15,7 +16,6 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
-  const [dashboardLoaded, setDashboardLoaded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -45,25 +45,12 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Mark dashboard as loaded after initial rendering
-  useEffect(() => {
-    if (!loading && userProfile && !showOnboarding) {
-      // Add a small delay to ensure the dashboard is fully rendered
-      const timer = setTimeout(() => {
-        setDashboardLoaded(true);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [loading, userProfile, showOnboarding]);
-
   const DashboardWithVoice = () => {
     const voiceAnnouncer = useVoiceAnnouncerContext();
-    const [greetingSpoken, setGreetingSpoken] = useState(false);
 
-    // Handle voice welcome when dashboard is loaded - with a delay
+    // Handle voice welcome when dashboard is loaded
     useEffect(() => {
-      if (dashboardLoaded && userProfile && !showOnboarding && !greetingSpoken) {
+      if (!showSplash && userProfile && !showOnboarding) {
         const settings = getVoiceSettings();
         if (settings.enabled && settings.announceGreetings) {
           const isFirstTimeUser = userProfile.loginCount === 1 || localStorage.getItem('new_user_signup') === 'true';
@@ -75,16 +62,13 @@ const StudentDashboard = () => {
             userProfile.loginCount || 1
           );
           
-          // Add a delay to ensure everything is loaded
-          const timer = setTimeout(() => {
+          // Small delay to ensure everything is loaded
+          setTimeout(() => {
             voiceAnnouncer.speak(welcomeMessage, true);
-            setGreetingSpoken(true);
-          }, 2000); // Longer delay for greeting
-          
-          return () => clearTimeout(timer);
+          }, 1500);
         }
       }
-    }, [dashboardLoaded, userProfile, showOnboarding, voiceAnnouncer, greetingSpoken]);
+    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
     
     return null;
   };
@@ -96,24 +80,29 @@ const StudentDashboard = () => {
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
     // Check if user has already seen the tour
-    const hasSeenTour = localStorage.getItem("sawWelcomeTour") === "true";
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
     console.log("Checking tour status:", { isNewUser, completedOnboarding, hasSeenTour });
     
-    // FIXED LOGIC: Only show tour for completely new users who haven't seen it yet
-    if (isNewUser && !hasSeenTour) {
+    // For new users or those who completed onboarding, show the tour
+    if ((isNewUser || completedOnboarding) && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
       // Don't set hasSeenTour yet, will set after tour completion
     } 
-    // For returning users or those who have seen the tour
+    // For returning users
     else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // Don't show tour for returning users who have already seen it
-      setShowTourModal(false);
+      // For returning users who haven't seen the tour but should
+      if (!hasSeenTour && showWelcomeTour) {
+        // Short timeout just to let the dashboard render first
+        setTimeout(() => {
+          setShowTourModal(true);
+        }, 500);
+      }
     }
     
     // Try to get saved mood from local storage
@@ -121,7 +110,7 @@ const StudentDashboard = () => {
     if (savedMood) {
       setCurrentMood(savedMood);
     }
-  }, [location]);
+  }, [location, showWelcomeTour]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -141,38 +130,28 @@ const StudentDashboard = () => {
     // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
     
-    // Voice feedback when mood changes - get the exam goal if available
-    let examGoal = "";
-    try {
-      if (userProfile?.goals?.[0]?.title) {
-        examGoal = userProfile.goals[0].title;
-      }
-    } catch (error) {
-      console.error("Error getting exam goal:", error);
-    }
-    
     // Voice feedback when mood changes
     const settings = getVoiceSettings();
     if (settings.enabled && settings.announceGreetings) {
       let message = "";
       switch(mood) {
         case MoodType.Motivated:
-          message = `Great motivation! This energy is perfect for tackling difficult ${examGoal || "exam"} topics today.`;
+          message = "You're motivated today! That's great. Let's make the most of your energy.";
           break;
         case MoodType.Tired:
-          message = `When tired, focus on ${examGoal || "exam"} revision rather than new concepts.`;
+          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
           break;
         case MoodType.Focused:
-          message = `With your focused state, try solving complex ${examGoal || "practice"} problems today.`;
+          message = "You're focused today! Perfect for tackling challenging material.";
           break;
         case MoodType.Anxious:
-          message = `For exam anxiety, breaking ${examGoal || "topics"} into smaller sections helps. Let's plan step by step.`;
+          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
           break;
         case MoodType.Stressed:
-          message = `To manage stress, let's prioritize your ${examGoal || "exam"} topics and tackle them one at a time.`;
+          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
           break;
         default:
-          message = `Your mood is noted. I'll adjust suggestions for your ${examGoal || "exam"} preparation accordingly.`;
+          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
       }
       
       speakMessage(message);
@@ -182,14 +161,14 @@ const StudentDashboard = () => {
   const handleSkipTourWrapper = () => {
     handleSkipTour();
     setShowTourModal(false);
-    localStorage.setItem("sawWelcomeTour", "true");
+    localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
   const handleCompleteTourWrapper = () => {
     handleCompleteTour();
     setShowTourModal(false);
-    localStorage.setItem("sawWelcomeTour", "true");
+    localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
@@ -267,7 +246,7 @@ const StudentDashboard = () => {
         onOpenChange={setShowTourModal}
         onSkipTour={handleSkipTourWrapper}
         onCompleteTour={handleCompleteTourWrapper}
-        isFirstTimeUser={Boolean(isNewUser)} 
+        isFirstTimeUser={true}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}

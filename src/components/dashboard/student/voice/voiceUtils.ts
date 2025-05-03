@@ -15,7 +15,7 @@ export interface VoiceSettings {
 // Default voice settings
 export const defaultVoiceSettings: VoiceSettings = {
   enabled: true,
-  volume: 1.0, // Maximum volume by default
+  volume: 1.0, // Loud voice by default
   speed: 1.0,
   voice: 'en-IN',
   announceGreetings: true,
@@ -45,64 +45,73 @@ export const saveVoiceSettings = (settings: VoiceSettings): void => {
   localStorage.setItem('voiceSettings', JSON.stringify(settings));
 };
 
-// Set of voice names that are likely to be Indian female voices
-const likelyIndianFemaleVoiceNames = new Set([
-  'lekha', 'veena', 'kalpana', 'meena', 'priya', 'ananya', 'aditi', 'isha', 'deepa',
-  'kavya', 'anjali', 'divya', 'sonia', 'indira', 'tara', 'nandini', 'lakshmi',
-  'female indian', 'indian female', 'indian english female', 'hindi female'
-]);
-
 // Helper to get the best voice for Indian English - strictly prioritizing female Indian voices
 export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   const voices = window.speechSynthesis.getVoices();
   console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
   
-  // HIGHEST priority: Find female Indian English voice with known Indian female names
-  for (const voice of voices) {
-    const nameLower = voice.name.toLowerCase();
-    if ((voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
-        (nameLower.includes('female') || Array.from(likelyIndianFemaleVoiceNames).some(name => nameLower.includes(name)))
-       ) {
-      console.log("Found ideal female Indian voice:", voice.name);
-      return voice;
-    }
+  // HIGHEST priority: Find female Indian English voice with certain keywords
+  const idealFemaleIndianVoice = voices.find(voice => 
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl') ||
+     voice.name.toLowerCase().includes('lekha') ||  // Common Indian female voice name
+     voice.name.toLowerCase().includes('kalpana') ||
+     voice.name.toLowerCase().includes('veena') ||
+     voice.name.toLowerCase().includes('meena'))
+  );
+  
+  if (idealFemaleIndianVoice) {
+    console.log("Found ideal female Indian voice:", idealFemaleIndianVoice.name);
+    return idealFemaleIndianVoice;
   }
   
-  // Second priority: Any female voice with Indian language code
-  for (const voice of voices) {
-    if ((voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
-        !voice.name.toLowerCase().includes('male') &&
-        !voice.name.toLowerCase().includes('man')) {
-      console.log("Found likely female Indian voice:", voice.name);
-      return voice;
-    }
+  // Second priority: Any female Indian English voice
+  const femaleIndianVoice = voices.find(voice => 
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    !voice.name.toLowerCase().includes('male') &&
+    !voice.name.toLowerCase().includes('man')
+  );
+  
+  if (femaleIndianVoice) {
+    console.log("Found likely female Indian voice:", femaleIndianVoice.name);
+    return femaleIndianVoice;
   }
   
-  // Third priority: Any Indian language code
-  for (const voice of voices) {
-    if (voice.lang === 'en-IN' || voice.lang === 'hi-IN') {
-      console.log("Found Indian voice:", voice.name);
-      return voice;
-    }
+  // Third priority: Find any Indian English voice
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' || 
+    voice.lang === 'hi-IN' || 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  if (indianVoice) {
+    console.log("Found Indian voice:", indianVoice.name);
+    return indianVoice;
   }
   
-  // Fourth priority: Voice with "Indian" in name
-  for (const voice of voices) {
-    if (voice.name.toLowerCase().includes('indian')) {
-      console.log("Found voice with Indian in name:", voice.name);
-      return voice;
-    }
+  // Fourth priority: Find any voice with "Indian" in name
+  const voiceWithIndian = voices.find(voice => 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  if (voiceWithIndian) {
+    console.log("Found voice with Indian in name:", voiceWithIndian.name);
+    return voiceWithIndian;
   }
   
-  // Fifth priority: Female English voice
-  for (const voice of voices) {
-    if (voice.lang.startsWith('en') && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('woman') ||
-         voice.name.toLowerCase().includes('girl'))) {
-      console.log("Falling back to female English voice:", voice.name);
-      return voice;
-    }
+  // Fifth priority: Any female English voice
+  const femaleEnglishVoice = voices.find(voice => 
+    voice.lang.startsWith('en') && 
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl'))
+  );
+  
+  if (femaleEnglishVoice) {
+    console.log("Falling back to female English voice:", femaleEnglishVoice.name);
+    return femaleEnglishVoice;
   }
   
   // Last resort: Any English voice
@@ -117,15 +126,9 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
 
 // Improve pronunciation of specific words
 const improvePronunciation = (text: string): string => {
-  // Replace common exam names with better pronunciation
+  // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-EEZ-er")
   return text
     .replace(/PREPZR|Prepzr|prepzr/g, 'prep-eez-er')
-    .replace(/NEET/g, 'neet')
-    .replace(/JEE/g, 'J E E')
-    .replace(/AIIMS/g, 'aims')
-    .replace(/UPSC/g, 'U P S C')
-    .replace(/CAT exam/g, 'C A T exam')
-    .replace(/GATE/g, 'gate')
     .replace(/studying/g, 'study ing') // Better pronunciation of "studying"
     .replace(/efficient/g, 'ef fish ent') // Clearer pronunciation
     .replace(/congratulations/g, 'con grat you lay shuns'); // Clearer pronunciation
@@ -181,21 +184,12 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   // Add a pitch increase for more pleasant, energetic Indian female voice sound
   utterance.pitch = 1.4; // Higher pitch for more distinctly female and energetic voice
   
-  // Error handling
-  utterance.onerror = (event) => {
-    console.error("Speech synthesis error:", event);
-  };
-
-  // Speak the message - with error handling
-  try {
-    window.speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.error("Error calling speak method:", error);
-  }
+  // Speak the message
+  window.speechSynthesis.speak(utterance);
 };
 
 // Helper function to get greeting based on time of day and user's mood
-export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
+export const getGreeting = (mood?: MoodType): string => {
   const hour = new Date().getHours();
   let timeGreeting = 'Hello';
   
@@ -210,48 +204,24 @@ export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
   // Add enthusiastic exclamation for all greetings
   timeGreeting += '!';
   
-  const examContext = examGoal ? ` for your ${examGoal} preparation` : '';
-  
-  // Add mood-specific additions with more energetic and exam-focused tone
+  // Add mood-specific additions with more energetic and happier tone
   if (mood) {
     switch(mood) {
       case 'motivated':
-        return `${timeGreeting} Great energy${examContext}! Focus on hard topics today.`;
+        return `${timeGreeting} I'm absolutely thrilled to see your wonderful enthusiasm today! Let's make something amazing happen together!`;
       case 'tired':
-        return `${timeGreeting} When tired${examContext}, revision is better than new concepts.`;
+        return `${timeGreeting} I understand you're feeling a bit tired. Let's take some gentle steps today with calming study sessions. You'll feel refreshed very soon!`;
       case 'focused':
-        return `${timeGreeting} Your focus is perfect${examContext}. Try advanced problems.`;
+        return `${timeGreeting} I'm so happy to see you so wonderfully focused today! Let's channel that fantastic concentration into brilliant learning experiences!`;
       case 'anxious':
-        return `${timeGreeting} For exam anxiety, break${examContext} into small goals.`;
+        return `${timeGreeting} Let's take a nice, calming breath together. I'm right here to help you organize everything step by step. You're doing amazingly well!`;
       case 'stressed':
-        return `${timeGreeting} To manage stress${examContext}, prioritize topics systematically.`;
+        return `${timeGreeting} I notice you're feeling stressed. Let's work together with positive energy and organize your priorities. Everything will feel much better soon!`;
       default:
-        return `${timeGreeting} Ready for today's${examContext} study session?`;
+        return `${timeGreeting} I'm absolutely delighted you're here! Ready for an amazing study session? I know you'll do wonderfully today!`;
     }
   }
   
-  return `${timeGreeting} Ready for today's${examContext} study session?`;
+  return `${timeGreeting} I'm absolutely delighted you're here! Ready for an amazing study session? I know you'll do wonderfully today!`;
 };
 
-// Helper function for task count announcements
-export const getTaskCountAnnouncement = (count: number, examGoal?: string) => {
-  const examContext = examGoal ? ` for ${examGoal}` : '';
-  
-  if (count === 0) return `You have no tasks${examContext} today. Good time for revision!`;
-  return `You have ${count} task${count === 1 ? '' : 's'}${examContext} scheduled today.`;
-};
-
-// Helper function for specific task announcements
-export const getSpecificTaskAnnouncement = (task: any): string => {
-  const timeStr = task.timeEstimate ? `This will take about ${task.timeEstimate} minutes.` : '';
-  
-  if (task.priority === 'high') {
-    return `Priority task: ${task.title}. ${timeStr} This topic frequently appears in exams.`;
-  }
-  
-  return `Next task: ${task.title}. ${timeStr}`;
-};
-
-export const getReminderAnnouncement = (subject: string, time: string) => {
-  return `Reminder: ${subject} session at ${time}.`;
-};

@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, MessageSquare, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Volume2 } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
 import ProfileVoiceTooltip from '../profile/ProfileVoiceTooltip';
 
@@ -26,7 +26,7 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isPulsing, setIsPulsing] = useState(true);
-  const { speak, processQuery, testVoice, isSpeaking, settings, stopSpeaking, examGoal } = useVoiceAnnouncerContext();
+  const { speak, processQuery, testVoice, isSpeaking, settings } = useVoiceAnnouncerContext();
   
   // Animation effect to draw attention to the voice icon when it first appears
   useEffect(() => {
@@ -73,23 +73,11 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
       // For now, we'll just simulate it and set a timeout to turn it off
       setTimeout(() => {
         setIsListening(false);
-        setQuery(`What features help with ${examGoal || "exam"} preparation?`); // Simulate a recognized query
+        setQuery("What features are available in PREPZR?"); // Simulate a recognized query
       }, 2000);
     } else {
       setIsListening(false);
     }
-  };
-
-  const handleToggleMute = () => {
-    // Toggle enabled setting
-    if (settings.enabled) {
-      // Stop any ongoing speech
-      stopSpeaking();
-    }
-    
-    // Update the settings
-    const newSettings = { ...settings, enabled: !settings.enabled };
-    useVoiceAnnouncerContext().updateSettings(newSettings);
   };
   
   return (
@@ -104,15 +92,11 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
             }`}
             aria-label="Voice Assistant"
           >
-            {settings.enabled ? (
-              <Volume2 
-                className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
-                  isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
-                }`} 
-              />
-            ) : (
-              <VolumeX className="h-5 w-5 text-muted-foreground" />
-            )}
+            <Volume2 
+              className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
+                isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+              }`} 
+            />
             {settings.enabled && (
               <span className={`absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full ${
                 isPulsing ? 'animate-ping' : ''
@@ -124,44 +108,22 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-sm">Voice Assistant</h4>
-              <div className="flex space-x-2">
-                <Button 
-                  variant={settings.enabled ? "outline" : "destructive"} 
-                  size="sm" 
-                  onClick={handleToggleMute}
-                  className="h-8 text-xs flex items-center gap-1"
-                >
-                  {settings.enabled ? (
-                    <>
-                      <Volume2 className="h-3 w-3" />
-                      <span>Enabled</span>
-                    </>
-                  ) : (
-                    <>
-                      <VolumeX className="h-3 w-3" />
-                      <span>Muted</span>
-                    </>
-                  )}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={testVoice}
-                  className="h-8 text-xs"
-                  disabled={!settings.enabled}
-                >
-                  Test Voice
-                </Button>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={testVoice}
+                className="h-8 text-xs"
+              >
+                Test Voice
+              </Button>
             </div>
             
             <form onSubmit={handleSubmitQuery} className="flex gap-2">
               <Input
-                placeholder={`Ask about ${examGoal || "exam"} prep...`}
+                placeholder="Ask me anything..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="flex-1"
-                disabled={!settings.enabled}
               />
               <TooltipProvider>
                 <Tooltip>
@@ -171,7 +133,6 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
                       size="icon" 
                       variant={isListening ? "destructive" : "outline"} 
                       onClick={toggleListening}
-                      disabled={!settings.enabled}
                     >
                       {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                     </Button>
@@ -187,7 +148,7 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
                     <Button 
                       type="submit" 
                       size="icon"
-                      disabled={!settings.enabled || !query.trim()}
+                      disabled={!query.trim()}
                     >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
@@ -200,35 +161,10 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
             <div className="text-xs text-muted-foreground">
               <p>Try asking:</p>
               <ul className="list-disc pl-4 space-y-1 mt-1">
-                {examGoal === "NEET" ? (
-                  <>
-                    <li>"What NEET topics should I focus on?"</li>
-                    <li>"How to improve my Biology score?"</li>
-                    <li>"Tips for NEET Chemistry MCQs"</li>
-                    <li>"Best way to memorize NCERT content"</li>
-                  </>
-                ) : examGoal === "JEE" ? (
-                  <>
-                    <li>"How to tackle JEE Math problems?"</li>
-                    <li>"Most important JEE Physics formulas"</li>
-                    <li>"Tips for solving JEE numerical questions"</li>
-                    <li>"How to manage JEE preparation time?"</li>
-                  </>
-                ) : examGoal === "UPSC" ? (
-                  <>
-                    <li>"How to prepare for UPSC prelims?"</li>
-                    <li>"Tips for UPSC essay writing"</li>
-                    <li>"How to cover UPSC current affairs?"</li>
-                    <li>"Best strategy for UPSC optional subjects"</li>
-                  </>
-                ) : (
-                  <>
-                    <li>"What topics should I focus on today?"</li>
-                    <li>"How many tasks do I have pending?"</li>
-                    <li>"Tips for better exam preparation"</li>
-                    <li>"How to improve my problem-solving speed?"</li>
-                  </>
-                )}
+                <li>"What's my next task?"</li>
+                <li>"How many tasks do I have today?"</li>
+                <li>"Tell me about PREPZR"</li>
+                <li>"What can you do?"</li>
               </ul>
             </div>
           </div>

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -8,65 +8,33 @@ import { Slider } from '@/components/ui/slider';
 import { useVoiceAnnouncerContext } from '../voice/VoiceAnnouncer';
 import { Volume2, Volume, VolumeX, PlayCircle, Mic } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
 
 const VoiceSettingsTab = () => {
-  const { settings, updateSettings, testVoice, stopSpeaking, isSpeaking, processQuery, voicesLoaded } = useVoiceAnnouncerContext();
+  const { settings, updateSettings, testVoice, stopSpeaking, isSpeaking, processQuery } = useVoiceAnnouncerContext();
   const [testQuery, setTestQuery] = React.useState("");
-  const { toast } = useToast();
-
-  // Check if voice synthesis is available
-  useEffect(() => {
-    if (!window.speechSynthesis) {
-      toast({
-        title: "Voice System Unavailable",
-        description: "Your browser doesn't support speech synthesis. Voice features will not work.",
-        variant: "destructive",
-      });
-    } else if (!voicesLoaded) {
-      // Force preload voices
-      try {
-        window.speechSynthesis.getVoices();
-      } catch (error) {
-        console.error("Error getting voices:", error);
-      }
-    }
-  }, []);
   
-  const handleQuerySubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleQuerySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testQuery) return;
     
-    if (!testQuery.trim()) return;
+    const response = processQuery(testQuery);
+    console.log("Query:", testQuery);
+    console.log("Response:", response);
     
-    try {
-      // Process the query and get a response
-      const response = processQuery(testQuery);
-      console.log("Query:", testQuery);
-      console.log("Response:", response);
-      
-      // Speak the response with force=true to ensure it's spoken
-      updateSettings({ enabled: true }); // Temporarily enable if disabled
-      stopSpeaking();
-      
-      // Update UI with response
+    // Speak the response
+    updateSettings({ enabled: true }); // Temporarily enable if disabled
+    stopSpeaking();
+    setTimeout(() => {
       const element = document.getElementById("voice-response");
       if (element) {
         element.textContent = response;
       }
-      
-      // Speak the response with a slight delay
+      testVoice(); // First test the voice
       setTimeout(() => {
         const announcer = useVoiceAnnouncerContext();
         announcer.speak(response, true);
-      }, 200);
-    } catch (error) {
-      console.error("Error processing voice query:", error);
-      toast({
-        title: "Voice Error",
-        description: "There was a problem processing your voice request.",
-        variant: "destructive",
-      });
-    }
+      }, 500);
+    }, 100);
     
     setTestQuery("");
   };
@@ -83,19 +51,6 @@ const VoiceSettingsTab = () => {
     if (settings.volume === 0) return <VolumeX className="h-4 w-4" />;
     if (settings.volume < 0.5) return <Volume className="h-4 w-4" />;
     return <Volume2 className="h-4 w-4" />;
-  };
-
-  const handleTestVoice = () => {
-    try {
-      testVoice();
-    } catch (error) {
-      console.error("Error testing voice:", error);
-      toast({
-        title: "Voice Test Failed",
-        description: "There was a problem testing the voice. Please try refreshing the page.",
-        variant: "destructive",
-      });
-    }
   };
   
   return (
@@ -160,7 +115,7 @@ const VoiceSettingsTab = () => {
             
             <div className="pt-2">
               <Button 
-                onClick={handleTestVoice} 
+                onClick={testVoice} 
                 variant="outline" 
                 className="w-full"
                 disabled={!settings.enabled || isSpeaking}

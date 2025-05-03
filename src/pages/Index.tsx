@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import Header from '@/components/layout/Header';
+import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
@@ -16,50 +16,6 @@ import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
 
-// Add CSS for the floating announcer animation
-const animateCSS = `
-@keyframes progress {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-bounce {
-  animation: bounce 2s infinite;
-}
-
-.animate-progress {
-  animation: progress 20s linear;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-`;
-
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
@@ -72,37 +28,11 @@ const Index = () => {
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
-    
-    // Dispatch event to close voice announcer when opening analyzer
-    try {
-      const event = new CustomEvent('close-voice-announcer');
-      window.dispatchEvent(event);
-    } catch (error) {
-      console.error("Error dispatching close voice announcer event:", error);
-    }
   };
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
-  
-  // Trigger voice announcer after a slight delay on homepage
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Only trigger on homepage, not other routes
-      if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-        try {
-          console.log("Index: Triggering voice announcer after delay");
-          const event = new CustomEvent('open-voice-announcer');
-          window.dispatchEvent(event);
-        } catch (error) {
-          console.error("Error dispatching open voice announcer event:", error);
-        }
-      }
-    }, 5000); // 5 second delay before showing
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   // Listen for the custom event to open the exam analyzer
   useEffect(() => {
@@ -119,9 +49,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
-      {/* Add the CSS for animations */}
-      <style>{animateCSS}</style>
-      
       <Header />
       
       <main>
