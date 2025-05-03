@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,21 @@ import {
   Bell,
   Settings,
   Home,
-  BookMarked
+  BookMarked,
+  User,
+  LogOut,
+  ChevronDown
 } from 'lucide-react';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarNavProps {
   userType: 'student' | 'admin';
@@ -28,11 +41,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
   className,
   onTabChange,
   activeTab = 'overview',
-  userName
+  userName = 'Student'
 }) => {
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const currentPath = pathSegments.at(-1) || '';
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const studentNavItems = [
     {
@@ -116,6 +130,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     return activeTab === id || currentPath === id;
   };
 
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : 'S';
+
   return (
     <div
       className={cn(
@@ -124,32 +140,57 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       )}
     >
       <div className="flex flex-col h-full">
-        {/* Sidebar Header */}
-        <div className="p-4 border-b">
+        {/* Sidebar Header with Logo */}
+        <div className="p-4 border-b flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <Home className="h-5 w-5" />
-            <span className="font-semibold">PREPZR</span>
+            <PrepzrLogo width={120} height="auto" className="mx-auto" />
           </Link>
         </div>
 
-        {/* User Info */}
-        {userName && (
-          <div className="p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-primary">
-                  {userName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {userType === 'student' ? 'Student' : 'Administrator'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* User Profile Menu */}
+        <div className="p-4 border-b">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start p-2">
+                <div className="flex items-center space-x-2">
+                  <Avatar className="h-8 w-8 bg-primary/10">
+                    <AvatarFallback className="text-primary">{userInitial}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col text-left">
+                    <span className="text-sm font-medium">{userName}</span>
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {userType}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/student/profile" className="flex cursor-pointer">
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/student/settings" className="flex cursor-pointer">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/login" className="flex cursor-pointer text-red-500 hover:text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Navigation Links */}
         <nav className="p-4 space-y-2 flex-grow overflow-y-auto">
@@ -158,7 +199,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
               key={item.id}
               variant={isActive(item.id) ? 'secondary' : 'ghost'}
               className={cn(
-                "w-full justify-start",
+                "w-full justify-start text-base", // Increased font size for readability
                 isActive(item.id) && "bg-secondary/80"
               )}
               asChild

@@ -5,7 +5,7 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
@@ -15,6 +15,7 @@ const StudentDashboard = () => {
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -51,17 +52,14 @@ const StudentDashboard = () => {
     // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
+    // For new users who just completed onboarding, show the tour
+    if (isNewUser && completedOnboarding && !hasSeenTour) {
       setShowSplash(false);
-      
-      // Only show tour for new users if they haven't seen it
-      if (!hasSeenTour) {
-        setShowTourModal(true);
-        // Mark that the user has seen the tour
-        localStorage.setItem("hasSeenTour", "true");
-      }
-    } else {
+      setShowTourModal(true);
+      localStorage.setItem("hasSeenTour", "true");
+    } 
+    // For returning users
+    else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
@@ -79,9 +77,13 @@ const StudentDashboard = () => {
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
+      try {
+        const parsedData = JSON.parse(savedUserData);
+        if (parsedData.mood) {
+          setCurrentMood(parsedData.mood);
+        }
+      } catch (err) {
+        console.error("Error parsing user data from localStorage:", err);
       }
     }
   }, [location, showWelcomeTour]);
@@ -96,10 +98,35 @@ const StudentDashboard = () => {
       setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = MoodType.Motivated;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
+        try {
+          const parsedData = JSON.parse(userData);
+          parsedData.mood = MoodType.Motivated;
+          localStorage.setItem("userData", JSON.stringify(parsedData));
+        } catch (err) {
+          console.error("Error updating mood in localStorage:", err);
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
+        }
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
       }
+    }
+  };
+
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    // Store mood in localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = mood;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      } catch (err) {
+        console.error("Error updating mood in localStorage:", err);
+        localStorage.setItem("userData", JSON.stringify({ mood }));
+      }
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
 
@@ -113,6 +140,12 @@ const StudentDashboard = () => {
     handleCompleteTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
+  };
+
+  const handleCompleteOnboardingWrapper = () => {
+    handleCompleteOnboarding();
+    // Redirect to the welcome flow after onboarding
+    navigate('/welcome-flow');
   };
 
   // Show splash screen if needed
@@ -134,7 +167,7 @@ const StudentDashboard = () => {
       <OnboardingFlow 
         userProfile={userProfile} 
         goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
+        onComplete={handleCompleteOnboardingWrapper}
       />
     );
   }
@@ -171,6 +204,7 @@ const StudentDashboard = () => {
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         currentMood={currentMood}
+        onMoodChange={handleMoodChange}
       >
         {getTabContent()}
       </DashboardLayout>
@@ -184,6 +218,7 @@ const StudentDashboard = () => {
         isFirstTimeUser={true}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
       />
     </>
   );

@@ -1,5 +1,5 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
@@ -48,8 +48,10 @@ import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
 import PostSignupWelcome from './components/signup/PostSignupWelcome';
+import WelcomeFlow from './components/signup/WelcomeFlow';
 
-const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+// Lazy load the admin dashboard
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 
 function App() {
   return (
@@ -72,6 +74,7 @@ function App() {
               {/* Post-signup flow - Welcome flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               <Route path="/post-signup" element={<PostSignupWelcome />} />
+              <Route path="/welcome-flow" element={<WelcomeFlow />} />
               
               {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcome />} />

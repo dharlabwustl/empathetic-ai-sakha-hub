@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GraduationCap } from 'lucide-react';
 import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
+import { StudyPlan } from '@/types/user/studyPlan';
 
 const AcademicAdvisorView: React.FC = () => {
   const {
@@ -16,8 +17,14 @@ const AcademicAdvisorView: React.FC = () => {
     handleViewPlanDetails,
     handleNewPlanCreated,
     setShowCreateDialog,
-    setSelectedPlan
+    setSelectedPlan,
+    loadSignupStudyPlan
   } = useAcademicPlans();
+
+  // Load signup study plan when component mounts
+  useEffect(() => {
+    loadSignupStudyPlan();
+  }, []);
 
   return (
     <div className="space-y-12">

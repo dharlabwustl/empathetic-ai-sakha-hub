@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
@@ -210,17 +209,14 @@ export const KpiStats = () => {
       </motion.div>
       
       <ScrollArea className="w-full max-w-7xl mx-auto h-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="flex gap-4 md:gap-6 pb-4 px-2"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-2">
           {stats.map((stat) => (
             <motion.div 
-              key={stat.id} 
+              key={stat.id}
               variants={itemVariants}
-              className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+              className="flex flex-col items-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
               whileHover={{ 
                 y: -5, 
                 boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
@@ -229,7 +225,7 @@ export const KpiStats = () => {
               }}
             >
               <motion.div 
-                className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
+                className="text-3xl mb-3 p-3 rounded-full bg-gray-50 dark:bg-gray-700"
                 whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
                 transition={{ 
                   type: "spring", 
@@ -250,7 +246,7 @@ export const KpiStats = () => {
                 {stat.label}
               </h3>
               <motion.div 
-                className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
+                className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
@@ -272,7 +268,7 @@ export const KpiStats = () => {
               </motion.div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </ScrollArea>
     </div>
   );

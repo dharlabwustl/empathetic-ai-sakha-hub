@@ -5,7 +5,7 @@ import { Smile } from "lucide-react";
 import { MoodType } from "@/types/user/base";
 import { MoodSelectionDialog } from "./MoodSelectionDialog";
 import { motion } from "framer-motion";
-import { getMoodDisplayName, getMoodColor } from "./moodUtils";
+import { getMoodDisplayName, getMoodColor, storeMoodInLocalStorage } from "./moodUtils";
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
@@ -21,6 +21,12 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
   };
 
   const handleClose = () => {
+    setShowMoodDialog(false);
+  };
+
+  const handleMoodSelect = (mood: MoodType) => {
+    onMoodChange(mood);
+    storeMoodInLocalStorage(mood);
     setShowMoodDialog(false);
   };
 
@@ -45,10 +51,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
         isOpen={showMoodDialog}
         onClose={handleClose}
         selectedMood={currentMood}
-        onSelectMood={(mood) => {
-          onMoodChange(mood);
-          setShowMoodDialog(false);
-        }}
+        onSelectMood={handleMoodSelect}
       />
     </>
   );
