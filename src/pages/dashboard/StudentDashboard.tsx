@@ -16,7 +16,6 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
-  const [dashboardLoaded, setDashboardLoaded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -51,35 +50,25 @@ const StudentDashboard = () => {
 
     // Handle voice welcome when dashboard is loaded
     useEffect(() => {
-      // Only proceed if dashboard is fully loaded and not in splash/onboarding screens
-      if (dashboardLoaded && userProfile && !showSplash && !showOnboarding && !showTourModal) {
+      if (!showSplash && userProfile && !showOnboarding) {
         const settings = getVoiceSettings();
-        
         if (settings.enabled && settings.announceGreetings) {
           const isFirstTimeUser = userProfile.loginCount === 1 || localStorage.getItem('new_user_signup') === 'true';
-          const examGoal = userProfile?.goals?.[0]?.title || '';
           
-          // Delay greeting to allow UI to fully render first
+          // Get appropriate welcome message
+          const welcomeMessage = voiceAnnouncer.getWelcomeMessage(
+            isFirstTimeUser, 
+            userProfile.name || '', 
+            userProfile.loginCount || 1
+          );
+          
+          // Small delay to ensure everything is loaded
           setTimeout(() => {
-            if (isFirstTimeUser) {
-              // Brief first-time greeting after tour 
-              const message = `Welcome to PREPZR! I'm your voice assistant for ${examGoal || 'exam'} preparation. Click the voice icon when you need help.`;
-              voiceAnnouncer.speak(message, true);
-            } else {
-              // For returning users, use context-aware greeting
-              const welcomeMessage = voiceAnnouncer.getWelcomeMessage(
-                false, 
-                userProfile.name || '', 
-                userProfile.loginCount || 1,
-                examGoal
-              );
-              
-              voiceAnnouncer.speak(welcomeMessage, true);
-            }
-          }, 2000); // 2 second delay after dashboard loads
+            voiceAnnouncer.speak(welcomeMessage, true);
+          }, 1500);
         }
       }
-    }, [dashboardLoaded, showSplash, userProfile, showOnboarding, showTourModal, voiceAnnouncer]);
+    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
     
     return null;
   };
@@ -99,6 +88,7 @@ const StudentDashboard = () => {
     if ((isNewUser || completedOnboarding) && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
+      // Don't set hasSeenTour yet, will set after tour completion
     } 
     // For returning users
     else {
@@ -122,15 +112,6 @@ const StudentDashboard = () => {
     }
   }, [location, showWelcomeTour]);
   
-  // Mark dashboard as loaded when it renders
-  useEffect(() => {
-    if (!loading && userProfile && !showSplash && !showOnboarding) {
-      setTimeout(() => {
-        setDashboardLoaded(true);
-      }, 500); // Small delay to ensure everything is rendered
-    }
-  }, [loading, userProfile, showSplash, showOnboarding]);
-  
   const handleSplashComplete = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
@@ -152,27 +133,25 @@ const StudentDashboard = () => {
     // Voice feedback when mood changes
     const settings = getVoiceSettings();
     if (settings.enabled && settings.announceGreetings) {
-      const examGoal = userProfile?.goals?.[0]?.title || '';
-      
       let message = "";
       switch(mood) {
         case MoodType.Motivated:
-          message = `Great motivation! Perfect for tackling difficult ${examGoal || 'exam'} topics today.`;
+          message = "You're motivated today! That's great. Let's make the most of your energy.";
           break;
         case MoodType.Tired:
-          message = `When tired, focus on revision rather than new topics for your ${examGoal || 'exam'}.`;
+          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
           break;
         case MoodType.Focused:
-          message = `While focused, target complex problems for your ${examGoal || 'exam'} preparation.`;
+          message = "You're focused today! Perfect for tackling challenging material.";
           break;
         case MoodType.Anxious:
-          message = `For anxiety, break ${examGoal || 'exam'} preparation into small achievements today.`;
+          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
           break;
         case MoodType.Stressed:
-          message = `When stressed, focus on one ${examGoal || 'exam'} topic at a time. You'll do great!`;
+          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
           break;
         default:
-          message = `I'll customize your ${examGoal || 'exam'} study suggestions based on your mood.`;
+          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
       }
       
       speakMessage(message);
@@ -223,9 +202,6 @@ const StudentDashboard = () => {
     );
   }
 
-  // Get primary exam goal
-  const examGoal = userProfile?.goals?.[0]?.title || '';
-
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
@@ -260,7 +236,6 @@ const StudentDashboard = () => {
         suggestedNextAction={suggestedNextAction}
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
-        examGoal={examGoal}
       >
         {getTabContent()}
       </DashboardLayout>

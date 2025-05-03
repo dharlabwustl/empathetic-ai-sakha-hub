@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,102 +13,40 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, MessageSquare, Volume2, VolumeX, AlertTriangle, HelpCircle } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Volume2 } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
 import ProfileVoiceTooltip from '../profile/ProfileVoiceTooltip';
-import { getVoiceDiagnostics, fixVoiceSystem } from './voiceUtils';
 
 interface VoiceQueryControlProps {
   className?: string;
-  examGoal?: string;
 }
 
-const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ 
-  className,
-  examGoal = "exam"
-}) => {
+const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [isPulsing, setIsPulsing] = useState(false);
-  const [voiceStatus, setVoiceStatus] = useState<'checking' | 'working' | 'error'>('checking');
+  const [isPulsing, setIsPulsing] = useState(true);
+  const { speak, processQuery, testVoice, isSpeaking, settings } = useVoiceAnnouncerContext();
   
-  const { 
-    speak, 
-    processQuery, 
-    testVoice, 
-    isSpeaking, 
-    settings,
-    updateSettings,
-    stopSpeaking 
-  } = useVoiceAnnouncerContext();
-  
-  const mountedRef = useRef(false);
-  const voiceCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Check voice system status
+  // Animation effect to draw attention to the voice icon when it first appears
   useEffect(() => {
-    const checkVoiceSystem = async () => {
-      try {
-        setVoiceStatus('checking');
-        const diagnostics = await getVoiceDiagnostics();
-        
-        if (diagnostics.available && diagnostics.supported) {
-          setVoiceStatus('working');
-        } else {
-          console.warn("Voice system not working:", diagnostics);
-          setVoiceStatus('error');
-          
-          // Try to fix automatically
-          await fixVoiceSystem();
-        }
-      } catch (err) {
-        console.error("Error checking voice system:", err);
-        setVoiceStatus('error');
-      }
-    };
+    // Start the pulsing animation
+    setIsPulsing(true);
     
-    // Check on mount
-    checkVoiceSystem();
+    // Stop the pulsing animation after 10 seconds
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 10000);
     
-    // Set up periodic check
-    voiceCheckTimerRef.current = setInterval(checkVoiceSystem, 30000); // Check every 30 seconds
-    
-    return () => {
-      if (voiceCheckTimerRef.current) {
-        clearInterval(voiceCheckTimerRef.current);
-      }
-    };
+    return () => clearTimeout(timer);
   }, []);
   
-  // Only show pulsing animation for first-time users or when speaking
+  // Additional pulsing effect when speaking
   useEffect(() => {
-    // Check if this is first mount
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      
-      // Check if user is new (first session)
-      const isNewUser = localStorage.getItem('new_user_signup') === 'true' || 
-                       !localStorage.getItem('hasSeenVoiceTooltip');
-      
-      if (isNewUser) {
-        // Start pulsing for new users to draw attention
-        setIsPulsing(true);
-        
-        // Stop pulsing after 10 seconds
-        const timer = setTimeout(() => {
-          setIsPulsing(false);
-          localStorage.setItem('hasSeenVoiceTooltip', 'true');
-        }, 10000);
-        
-        return () => clearTimeout(timer);
-      }
+    // Reset pulsing state when speaking changes
+    if (isSpeaking) {
+      setIsPulsing(true);
     }
-  }, []);
-  
-  // Pulse when speaking
-  useEffect(() => {
-    setIsPulsing(isSpeaking);
   }, [isSpeaking]);
   
   // Handle voice input processing
@@ -135,61 +73,10 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
       // For now, we'll just simulate it and set a timeout to turn it off
       setTimeout(() => {
         setIsListening(false);
-        setQuery(`Tell me about ${examGoal || 'exam'} preparation`); // Simulate a recognized query
+        setQuery("What features are available in PREPZR?"); // Simulate a recognized query
       }, 2000);
     } else {
       setIsListening(false);
-    }
-  };
-  
-  // Toggle mute function
-  const toggleMute = () => {
-    if (isSpeaking) {
-      stopSpeaking();
-    }
-    updateSettings({ enabled: !settings.enabled });
-  };
-  
-  // Fix voice system
-  const handleFixVoice = async () => {
-    setVoiceStatus('checking');
-    const fixed = await fixVoiceSystem();
-    
-    if (fixed) {
-      setVoiceStatus('working');
-      // Test voice
-      updateSettings({ volume: 1.0 });
-      setTimeout(() => {
-        speak("Voice system is now fixed and working", true);
-      }, 500);
-    } else {
-      setVoiceStatus('error');
-    }
-  };
-  
-  // Get exam-appropriate suggestions
-  const getSuggestions = () => {
-    if (examGoal?.toLowerCase().includes('jee')) {
-      return [
-        "How to solve JEE Physics problems?",
-        "What's the best way to learn Organic Chemistry?",
-        "Tips for JEE Math preparation",
-        "How many practice tests should I take?"
-      ];
-    } else if (examGoal?.toLowerCase().includes('neet')) {
-      return [
-        "How to memorize Biology diagrams?",
-        "Tips for NEET Chemistry preparation",
-        "How to improve my NCERT concepts?",
-        "How to manage time during NEET exam?"
-      ];
-    } else {
-      return [
-        "What's my next task?",
-        `How to prepare for ${examGoal || 'my exam'}?`,
-        "Help me create a study plan",
-        "Give me a motivational quote"
-      ];
     }
   };
   
@@ -202,31 +89,18 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
             size="icon" 
             className={`relative ${className} ${isSpeaking ? 'bg-primary/10' : ''} ${
               isPulsing ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-background' : ''
-            } ${voiceStatus === 'error' ? 'bg-destructive/10 text-destructive' : ''}`}
+            }`}
             aria-label="Voice Assistant"
           >
-            {settings.enabled ? (
-              <>
-                {voiceStatus === 'error' ? (
-                  <AlertTriangle className={`h-5 w-5 ${isPulsing ? 'animate-pulse' : ''}`} />
-                ) : (
-                  <Volume2 
-                    className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
-                      isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
-                    }`} 
-                  />
-                )}
-              </>
-            ) : (
-              <VolumeX className="h-5 w-5" />
-            )}
-            {settings.enabled && voiceStatus === 'working' && (
+            <Volume2 
+              className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
+                isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+              }`} 
+            />
+            {settings.enabled && (
               <span className={`absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full ${
                 isPulsing ? 'animate-ping' : ''
               }`}></span>
-            )}
-            {voiceStatus === 'error' && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             )}
           </Button>
         </PopoverTrigger>
@@ -234,47 +108,19 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-sm">Voice Assistant</h4>
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={toggleMute}
-                  className={`h-8 w-8 p-0 ${!settings.enabled ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : ''}`}
-                >
-                  {settings.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={testVoice}
-                  className="h-8 text-xs"
-                  disabled={!settings.enabled}
-                >
-                  Test Voice
-                </Button>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={testVoice}
+                className="h-8 text-xs"
+              >
+                Test Voice
+              </Button>
             </div>
-            
-            {voiceStatus === 'error' && (
-              <Alert variant="destructive" className="py-2">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  <span className="text-xs">Voice system not working</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-7 ml-auto text-xs"
-                    onClick={handleFixVoice}
-                  >
-                    Fix Voice
-                  </Button>
-                </div>
-              </Alert>
-            )}
             
             <form onSubmit={handleSubmitQuery} className="flex gap-2">
               <Input
-                placeholder={`Ask about ${examGoal || 'exam'} preparation...`}
+                placeholder="Ask me anything..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="flex-1"
@@ -315,26 +161,12 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
             <div className="text-xs text-muted-foreground">
               <p>Try asking:</p>
               <ul className="list-disc pl-4 space-y-1 mt-1">
-                {getSuggestions().map((suggestion, index) => (
-                  <li key={index}>{suggestion}</li>
-                ))}
+                <li>"What's my next task?"</li>
+                <li>"How many tasks do I have today?"</li>
+                <li>"Tell me about PREPZR"</li>
+                <li>"What can you do?"</li>
               </ul>
             </div>
-            
-            {voiceStatus === 'error' && (
-              <div className="text-xs border-t pt-2 text-muted-foreground">
-                <div className="flex items-center gap-1 mb-1">
-                  <HelpCircle className="h-3 w-3" />
-                  <span className="font-medium">Troubleshooting</span>
-                </div>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>Check if your device volume is turned up</li>
-                  <li>Try the "Fix Voice" button above</li>
-                  <li>Try using Chrome browser</li>
-                  <li>Check browser permissions for sound</li>
-                </ul>
-              </div>
-            )}
           </div>
         </PopoverContent>
       </Popover>

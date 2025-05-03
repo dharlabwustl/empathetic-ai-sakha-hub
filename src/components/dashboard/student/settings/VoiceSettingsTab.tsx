@@ -1,96 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { useVoiceAnnouncerContext } from '../voice/VoiceAnnouncer';
-import { Volume2, Volume, VolumeX, PlayCircle, Mic, Info, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Volume2, Volume, VolumeX, PlayCircle, Mic } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { findBestIndianVoice, testVoiceSystem, getVoiceDiagnostics, fixVoiceSystem } from '../voice/voiceUtils';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const VoiceSettingsTab = () => {
   const { settings, updateSettings, testVoice, stopSpeaking, isSpeaking, processQuery } = useVoiceAnnouncerContext();
-  const [testQuery, setTestQuery] = useState("");
-  const [voiceInfo, setVoiceInfo] = useState<string>("");
-  const [voiceStatus, setVoiceStatus] = useState<'loading' | 'success' | 'error' | null>(null);
-  const [diagnostics, setDiagnostics] = useState<any>(null);
-  const [isFixing, setIsFixing] = useState(false);
+  const [testQuery, setTestQuery] = React.useState("");
   
-  // Get information about the current voice
-  useEffect(() => {
-    checkVoice();
-  }, []);
-  
-  const checkVoice = async () => {
-    setVoiceStatus('loading');
-    
-    try {
-      // Short delay to allow voices to load
-      setTimeout(async () => {
-        const bestVoice = findBestIndianVoice();
-        const voiceSystemWorking = await testVoiceSystem();
-        
-        // Get detailed diagnostics
-        const diag = await getVoiceDiagnostics();
-        setDiagnostics(diag);
-        
-        if (!voiceSystemWorking) {
-          setVoiceInfo("Voice system may not be available in your browser.");
-          setVoiceStatus('error');
-          return;
-        }
-        
-        if (bestVoice) {
-          setVoiceInfo(`Using ${bestVoice.name} (${bestVoice.lang}) with Indian accent.`);
-          setVoiceStatus('success');
-        } else {
-          setVoiceInfo("Could not find ideal Indian voice. Using browser default.");
-          setVoiceStatus('error');
-        }
-      }, 1000);
-    } catch (err) {
-      console.error("Error checking voice:", err);
-      setVoiceInfo("Error checking voice system");
-      setVoiceStatus('error');
-    }
-  };
-  
-  const handleFixVoice = async () => {
-    setIsFixing(true);
-    setVoiceStatus('loading');
-    setVoiceInfo("Fixing voice system...");
-    
-    try {
-      const fixed = await fixVoiceSystem();
-      
-      if (fixed) {
-        setVoiceInfo("Voice system fixed! Please test to confirm it's working.");
-        setVoiceStatus('success');
-        
-        // Update diagnostics
-        const diag = await getVoiceDiagnostics();
-        setDiagnostics(diag);
-        
-        // Increase volume to maximum
-        updateSettings({ volume: 1.0 });
-      } else {
-        setVoiceInfo("Could not fix voice system. Try refreshing the page.");
-        setVoiceStatus('error');
-      }
-    } catch (err) {
-      console.error("Error fixing voice:", err);
-      setVoiceInfo("Error while trying to fix voice system");
-      setVoiceStatus('error');
-    } finally {
-      setIsFixing(false);
-    }
-  };
-
   const handleQuerySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!testQuery) return;
@@ -137,77 +59,6 @@ const VoiceSettingsTab = () => {
       <p className="text-muted-foreground">
         Customize how your energetic Indian female voice assistant works in the PREP-EH-ZER platform
       </p>
-      
-      {voiceStatus && (
-        <Alert 
-          variant={voiceStatus === 'error' ? 'destructive' : 'default'} 
-          className="mb-4"
-        >
-          <div className="flex items-center gap-2">
-            {voiceStatus === 'error' ? <AlertTriangle className="h-4 w-4" /> : <Info className="h-4 w-4" />}
-            <AlertDescription className="flex-1">{voiceInfo}</AlertDescription>
-            
-            <Button 
-              onClick={handleFixVoice} 
-              variant="outline" 
-              size="sm"
-              disabled={isFixing}
-              className={voiceStatus === 'error' ? "bg-destructive/10" : ""}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isFixing ? 'animate-spin' : ''}`} />
-              Fix Voice
-            </Button>
-          </div>
-        </Alert>
-      )}
-      
-      {diagnostics && (
-        <div className="text-sm mb-4 p-3 bg-muted/50 rounded-md space-y-1">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant={diagnostics.available ? "default" : "destructive"}>
-              {diagnostics.available ? "Voice API Available" : "Voice API Unavailable"}
-            </Badge>
-            
-            <Badge variant={diagnostics.voiceCount > 0 ? "default" : "destructive"}>
-              {diagnostics.voiceCount} Voices Found
-            </Badge>
-            
-            <Badge variant={diagnostics.hasIndianVoice ? "default" : "outline"}>
-              {diagnostics.hasIndianVoice ? "Indian Voice Found" : "No Indian Voice"}
-            </Badge>
-            
-            <Badge variant={diagnostics.supported ? "default" : "destructive"}>
-              {diagnostics.supported ? "Voice Test Passed" : "Voice Test Failed"}
-            </Badge>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className="cursor-help">
-                    {diagnostics.bestVoiceName || "No Voice Selected"}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Currently selected voice</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant={settings.volume > 0.7 ? "default" : "outline"} className="cursor-help">
-                    Volume: {Math.round(settings.volume * 100)}%
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>For best results, set volume to 100%</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-      )}
       
       <Card>
         <CardHeader>
@@ -262,24 +113,15 @@ const VoiceSettingsTab = () => {
               />
             </div>
             
-            <div className="pt-2 flex gap-2">
+            <div className="pt-2">
               <Button 
                 onClick={testVoice} 
                 variant="outline" 
-                className="flex-1"
+                className="w-full"
                 disabled={!settings.enabled || isSpeaking}
               >
                 <PlayCircle className="h-4 w-4 mr-2" /> 
                 Test Voice
-              </Button>
-              
-              <Button
-                onClick={checkVoice}
-                variant="outline"
-                className="flex-shrink-0"
-                disabled={voiceStatus === 'loading'}
-              >
-                <RefreshCw className={`h-4 w-4 ${voiceStatus === 'loading' ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -357,39 +199,6 @@ const VoiceSettingsTab = () => {
               </ul>
             </div>
           </form>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Voice Troubleshooting</CardTitle>
-          <CardDescription>If you're having trouble hearing the voice assistant</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm">Try these steps if you cannot hear the voice:</p>
-            <ul className="list-disc pl-6 space-y-1 text-sm">
-              <li>Make sure your device volume is turned up</li>
-              <li>Click the "Fix Voice" button at the top of this page</li>
-              <li>Set the volume slider to maximum (100%)</li>
-              <li>Try clicking "Test Voice" multiple times</li>
-              <li>Refresh the page and try again</li>
-              <li>Try using a different browser (Chrome works best)</li>
-              <li>Check if your browser blocks autoplay sound</li>
-            </ul>
-          </div>
-          
-          <Button 
-            onClick={() => {
-              updateSettings({ volume: 1.0, speed: 1.0 });
-              setTimeout(testVoice, 100);
-            }}
-            className="w-full"
-            variant="default"
-          >
-            <Volume2 className="h-4 w-4 mr-2" />
-            Reset & Test at Maximum Volume
-          </Button>
         </CardContent>
       </Card>
     </div>

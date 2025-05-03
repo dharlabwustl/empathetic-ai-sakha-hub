@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -19,8 +18,6 @@ import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
 import { VoiceAnnouncerProvider } from "@/components/dashboard/student/voice/VoiceAnnouncer";
-import VoiceQueryControl from "@/components/dashboard/student/voice/VoiceQueryControl";
-import DashboardWrapper from "@/components/dashboard/student/DashboardWrapper";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -43,7 +40,6 @@ interface DashboardLayoutProps {
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
-  examGoal?: string;
   children?: React.ReactNode;
 }
 
@@ -68,7 +64,6 @@ const DashboardLayout = ({
   suggestedNextAction,
   currentMood,
   onMoodChange,
-  examGoal,
   children
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
@@ -145,12 +140,12 @@ const DashboardLayout = ({
 
   // Sample upcoming events (in a real app, these would come from a backend)
   const upcomingEvents = [
-    { title: `${examGoal || 'NEET'} Practice Test`, time: 'Today, 4:00 PM', type: 'exam' },
-    { title: `${examGoal?.includes('JEE') ? 'Physics' : 'Biology'} Revision`, time: 'Tomorrow, 9:00 AM', type: 'task' }
+    { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' },
+    { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' }
   ];
 
   return (
-    <DashboardWrapper onOpenTour={handleOpenTour}>
+    <VoiceAnnouncerProvider>
       <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
         {/* Single Sidebar Navigation */}
         <SidebarNav 
@@ -161,18 +156,13 @@ const DashboardLayout = ({
         />
         
         <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-          <div className="flex justify-between items-center">
-            <TopNavigationControls 
-              hideSidebar={hideSidebar}
-              onToggleSidebar={onToggleSidebar}
-              formattedDate={formattedDate}
-              formattedTime={formattedTime}
-              onOpenTour={handleOpenTour}
-            />
-            
-            {/* Voice Query Control with exam context */}
-            <VoiceQueryControl className="ml-2" examGoal={examGoal} />
-          </div>
+          <TopNavigationControls 
+            hideSidebar={hideSidebar}
+            onToggleSidebar={onToggleSidebar}
+            formattedDate={formattedDate}
+            formattedTime={formattedTime}
+            onOpenTour={handleOpenTour}
+          />
 
           {/* Subscription Banner - Add at the top of dashboard */}
           <SubscriptionBanner 
@@ -225,7 +215,6 @@ const DashboardLayout = ({
                 hideTabsNav={hideTabsNav || isMobile}
                 lastActivity={lastActivity}
                 suggestedNextAction={suggestedNextAction}
-                examGoal={examGoal}
               />
             </div>
           )}
@@ -251,7 +240,7 @@ const DashboardLayout = ({
           onOpenChange={setShowTour}
         />
       </div>
-    </DashboardWrapper>
+    </VoiceAnnouncerProvider>
   );
 };
 

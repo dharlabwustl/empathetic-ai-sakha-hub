@@ -9,7 +9,6 @@ export const useVoiceAnnouncer = () => {
   const [settings, setSettings] = useState<VoiceSettings>(getVoiceSettings);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [lastInteraction, setLastInteraction] = useState<Date>(new Date());
-  const [hasSentWelcomeMessage, setHasSentWelcomeMessage] = useState<boolean>(false);
   
   // Update settings locally and in storage
   const updateSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
@@ -74,11 +73,11 @@ export const useVoiceAnnouncer = () => {
       // After 5 minutes of inactivity, offer assistance
       if (minutesSinceLastActivity > 5) {
         const inactivityPrompts = [
-          "Do you need any help with your studies?",
-          "Need assistance finding study materials?",
-          "Any questions about your upcoming exams?",
-          "Need help navigating the platform?",
-          "Would you like to review your progress?"
+          "It's been a while since your last activity. Is there anything I can help you with?",
+          "Do you need any help finding study materials or planning your sessions?",
+          "Feel free to ask me any questions about your study plan or upcoming tasks.",
+          "If you need assistance navigating the platform, you can click the voice icon at the top of the screen.",
+          "Would you like to review your upcoming tasks or check your progress on any subjects?"
         ];
         
         // Randomly select a prompt
@@ -98,110 +97,132 @@ export const useVoiceAnnouncer = () => {
     setLastInteraction(new Date());
   }, []);
   
-  // Process a text query and respond with voice
+  // Process a text query and respond with voice - with more enthusiastic responses
   const processQuery = useCallback((query: string): string => {
     // Mark that user interacted
     updateInteractionTime();
     
     const lowerQuery = query.toLowerCase();
     
-    // Exam-focused responses
-    if (lowerQuery.includes("exam") || lowerQuery.includes("test") || lowerQuery.includes("neet") || lowerQuery.includes("jee")) {
-      const examResponses = [
-        "Focus on practice tests to improve your exam readiness. The more questions you solve, the better your performance will be.",
-        "For exam preparation, I recommend creating flashcards for quick concept review before your test.",
-        "Studies show that taking mock tests improves actual exam scores by up to 15%. Have you taken your practice test today?",
-        "To excel in your exams, review your weak areas identified in previous practice tests."
-      ];
-      return examResponses[Math.floor(Math.random() * examResponses.length)];
-    }
-    
-    // Flashcard-focused responses
-    if (lowerQuery.includes("flashcard") || lowerQuery.includes("remember") || lowerQuery.includes("memorize")) {
-      const flashcardResponses = [
-        "Flashcards are excellent for quick recall of key concepts before exams. Consider reviewing them daily.",
-        "Try the spaced repetition technique with your flashcards - review them at increasing intervals for better retention.",
-        "Combine visual elements with text in your flashcards for better memory retention.",
-        "Did you know creating your own flashcards improves understanding by 70%? Try creating some today."
-      ];
-      return flashcardResponses[Math.floor(Math.random() * flashcardResponses.length)];
-    }
-    
-    // Basic intent detection
+    // Basic intent detection with more enthusiastic responses
     if (lowerQuery.includes("hello") || lowerQuery.includes("hi") || lowerQuery.includes("namaste")) {
-      return "Namaste! How may I help with your studies today?";
+      return "Namaste! I'm so excited to be your study assistant today! How may I help you with your learning journey?";
     }
     
     if (lowerQuery.includes("who are you") || lowerQuery.includes("what are you")) {
-      return "I am your voice assistant with an Indian accent. I'm here to help with your exam preparation.";
+      return "I am your friendly AI voice assistant with a pleasant Indian accent! I'm here to help you with your studies, provide cheerful reminders, and motivate you to achieve your academic goals with prep-eez-er!";
     }
     
     if (lowerQuery.includes("how are you")) {
-      return "I'm ready to help you achieve your academic goals! What would you like to focus on today?";
+      return "I'm feeling absolutely wonderful today, thank you for asking! I'm ready and excited to assist you with your academic journey!";
     }
     
     if (lowerQuery.includes("help") || lowerQuery.includes("what can you do")) {
-      return "I can help with your study plan, remind you of tasks, provide exam tips, and answer questions about your studies.";
+      return "I'd be delighted to help you! I can announce your daily tasks with enthusiasm, read important information, motivate you when you're feeling down, and answer questions about your studies. Just ask me anything!";
     }
     
-    if (lowerQuery.includes("what is prepzr") || lowerQuery.includes("about prepzr")) {
-      return "PREPZR is your preparation platform for competitive exams like JEE and NEET with AI-powered learning tools and personalized study plans.";
+    if (lowerQuery.includes("what is prepzr") || lowerQuery.includes("about prepzr") || lowerQuery.includes("tell me about prepzr")) {
+      return "prep-eez-er is your amazing preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests! With AI-powered learning tools, personalized study plans, and interactive content, prep-eez-er makes your academic journey smoother and more effective!";
     }
     
-    if (lowerQuery.includes("how to start")) {
-      return "To get started, set your study goals in the profile section, then use the academic advisor to create a personalized study plan. Use flashcards for quick revision and take practice tests regularly.";
+    if (lowerQuery.includes("how to start") || lowerQuery.includes("getting started") || lowerQuery.includes("begin") || lowerQuery.includes("first time")) {
+      return "Welcome to prep-eez-er! I'm so excited you're here! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
     }
     
-    if (lowerQuery.includes("time")) {
+    if (lowerQuery.includes("time") || lowerQuery.includes("what time")) {
       const now = new Date();
-      return `The current time is ${now.toLocaleTimeString()}.`;
+      return `The current time is ${now.toLocaleTimeString()}! Hope you're having a productive day!`;
     }
     
-    if (lowerQuery.includes("date")) {
+    if (lowerQuery.includes("date") || lowerQuery.includes("what day")) {
       const now = new Date();
-      return `Today is ${now.toLocaleDateString()}.`;
+      return `Today is ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}! A perfect day for learning something new!`;
     }
     
     if (lowerQuery.includes("motivate") || lowerQuery.includes("inspire")) {
       const motivationalQuotes = [
-        "Success comes to those who work hard and stays with those who don't rest on their past laurels.",
-        "Your NEET/JEE rank is determined by what you do today, not tomorrow.",
-        "The difference between ordinary and extraordinary is practice.",
-        "Every hour of focused study brings you closer to your dream college.",
-        "Remember why you started when you feel like giving up."
+        "Success is not final, failure is not fatal: it is the courage to continue that counts! You've got this!",
+        "Education is the most powerful weapon which you can use to change the world! And you're doing amazingly well!",
+        "The beautiful thing about learning is that no one can take it away from you! Keep shining bright!",
+        "The more that you read, the more things you will know. The more that you learn, the more places you'll go! Your journey is incredible!",
+        "Believe you can and you're halfway there! I know you'll achieve great things today!",
+        "Your education is a dress rehearsal for a life that is yours to lead! And you're performing brilliantly!"
       ];
       return motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     }
     
+    if (lowerQuery.includes("joke") || lowerQuery.includes("funny")) {
+      const jokes = [
+        "Why did the student eat his homework? Because the teacher told him it was a piece of cake! Haha!",
+        "What do you call a boomerang that doesn't come back? A stick! That always makes me laugh!",
+        "Why don't scientists trust atoms? Because they make up everything! Isn't that clever?",
+        "What's the best thing about Switzerland? I don't know, but their flag is a big plus! Hehe!",
+        "I told my wife she was drawing her eyebrows too high. She looked surprised! Wasn't that funny?"
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    if (lowerQuery.includes("voice settings") || lowerQuery.includes("change voice")) {
+      return "To change voice settings, go to Profile and select the Voice Control tab. There you can adjust volume, speed, and other voice preferences. I'm happy to help you customize my voice to your liking!";
+    }
+
+    if (lowerQuery.includes("next task") || lowerQuery.includes("todo")) {
+      return "Your next scheduled task is a Physics revision session at 4 PM today! I'm excited for you to master those concepts! Would you like me to remind you when it's time?";
+    }
+
     if (lowerQuery.includes("study plan") || lowerQuery.includes("calendar")) {
-      return "Your study plan today focuses on high-yield topics for your upcoming exams. Remember to balance theory with practice questions.";
+      return "Your study plan for today includes 2 hours of Physics focused on kinematics, 1 hour of Chemistry covering chemical bonding, and a 30-minute quiz on Biology. Would you like me to help you get started with the first subject?";
     }
     
     // Default response
-    return "I'm here to help with your exam preparation. You can ask me about your study plan, flashcards, or practice tests.";
+    return "I'm not sure how to help with that specific query, but I'm eager to assist you! You can ask me about your schedule, for motivation, or for help with your studies!";
   }, [updateInteractionTime]);
   
-  // Get welcome message with appropriate context
-  const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0, examGoal?: string): string => {
+  // Get welcome message for first time or returning users - with more varied greetings
+  const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0): string => {
     // Update interaction time whenever welcome message is shown
     updateInteractionTime();
-    setHasSentWelcomeMessage(true);
-    
-    const goalText = examGoal ? ` for your ${examGoal} preparation` : '';
 
     if (isFirstTime) {
-      return `Welcome ${userName}! I'm your study assistant${goalText}. Click the voice icon when you need help.`;
+      return `Namaste ${userName}! Welcome to prep-eez-er! I'm your personal voice assistant. To get started, I recommend creating your personalized study plan in the Academic Advisor section. You can always ask me for help by clicking the voice icon at the top of the screen. Would you like me to explain any specific feature?`;
     } 
     
-    // For returning users - shorter, goal-focused messages
+    // For returning users - more varied messages based on login count
     if (loginCount < 5) {
-      return `Welcome back ${userName}! Ready to continue${goalText}? Remember to check your notifications.`;
+      const messages = [
+        `Welcome back ${userName}! To make the most of prep-eez-er today, try exploring the Academic Advisor to set up your study plan.`,
+        `Hello again ${userName}! Have you checked your notifications today? There might be important updates waiting for you.`,
+        `Great to see you ${userName}! Feel free to use the voice assistant anytime by clicking the icon at the top of the screen.`,
+        `Welcome back to prep-eez-er! Remember you can adjust your study preferences in the profile section for a more personalized experience.`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
+    } else if (loginCount < 10) {
+      const messages = [
+        `Welcome back ${userName}! Your consistency is impressive. Today's tasks are ready in your dashboard.`,
+        `Hello ${userName}! Did you know you can track your progress in the analytics section? It's a great way to stay motivated!`,
+        `Good to see you again ${userName}! Remember to take short breaks between study sessions for maximum effectiveness.`,
+        `Welcome back! You've been making great progress. Consider trying the Feel Good Corner when you need a study break.`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
     } else {
-      return `Welcome back ${userName}! Your study plan${goalText} is ready. Focus on practice tests today for better results.`;
+      const messages = [
+        `Welcome back ${userName}! You're doing great with your consistent study habits!`,
+        `Hello again ${userName}! Your dedication to learning is truly admirable.`,
+        `Great to see you ${userName}! Your scheduled tasks for today are ready and waiting.`,
+        `Welcome back! Have you checked your exam readiness score lately? You might be surprised by your progress!`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
     }
   }, [updateInteractionTime]);
   
-  // Speak with current settings, but only when appropriate
+  // Helper function to get ordinal suffix
+  const getOrdinal = (n: number): string => {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+  };
+  
+  // Speak with current settings
   const speak = useCallback((message: string, force: boolean = false) => {
     if (!settings.enabled && !force) return;
     
@@ -218,9 +239,9 @@ export const useVoiceAnnouncer = () => {
     speakMessage(message, force);
   }, [settings.enabled, processQuery, updateInteractionTime]);
   
-  // Test the current voice settings
+  // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
-    speak("Namaste! I'm your study companion. I'm here to help you achieve excellent results in your exams!", true);
+    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice! I'm absolutely delighted to make your learning journey with prep-eez-er joyful and successful!", true);
     updateInteractionTime();
   }, [speak, updateInteractionTime]);
   
@@ -229,11 +250,6 @@ export const useVoiceAnnouncer = () => {
     window.speechSynthesis.cancel();
     updateInteractionTime();
   }, [updateInteractionTime]);
-  
-  // Check if it's appropriate to send a welcome message (used by components)
-  const shouldSendWelcomeMessage = useCallback(() => {
-    return settings.enabled && settings.announceGreetings && !hasSentWelcomeMessage;
-  }, [settings.enabled, settings.announceGreetings, hasSentWelcomeMessage]);
   
   return {
     settings,
@@ -246,7 +262,6 @@ export const useVoiceAnnouncer = () => {
     getWelcomeMessage,
     getGreeting,
     updateInteractionTime,
-    shouldSendWelcomeMessage,
     getAvailableVoices: () => window.speechSynthesis.getVoices(),
   };
 };
