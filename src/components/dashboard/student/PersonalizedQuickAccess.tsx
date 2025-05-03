@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Smile, Sparkles } from 'lucide-react';
+import { MessageSquare, Smile, Sparkles, Brain, BookOpen } from 'lucide-react';
 
 interface PersonalizedQuickAccessProps {
   userName?: string;
@@ -32,6 +32,26 @@ const PersonalizedQuickAccess: React.FC<PersonalizedQuickAccessProps> = ({ userN
       color: 'from-green-500 to-emerald-600',
       textColor: 'text-emerald-50',
       priority: 2
+    },
+    {
+      id: 'concepts',
+      title: 'Concept Cards',
+      description: 'Study key concepts',
+      icon: BookOpen,
+      path: '/dashboard/student/concepts',
+      color: 'from-amber-500 to-orange-600',
+      textColor: 'text-amber-50',
+      priority: 3
+    },
+    {
+      id: 'flashcards',
+      title: 'Flashcards',
+      description: 'Review with flashcards',
+      icon: Brain,
+      path: '/dashboard/student/flashcards',
+      color: 'from-purple-500 to-pink-600',
+      textColor: 'text-purple-50',
+      priority: 4
     }
   ];
 
@@ -44,7 +64,7 @@ const PersonalizedQuickAccess: React.FC<PersonalizedQuickAccessProps> = ({ userN
         </div>
       )}
       
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
         {quickAccessItems.sort((a, b) => a.priority - b.priority).map((item) => (
           <Card 
             key={item.id}

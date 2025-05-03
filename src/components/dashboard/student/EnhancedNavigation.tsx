@@ -56,7 +56,6 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   const allNavItems: NavItem[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview", description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today", description: "Daily tasks and schedule", badge: 3 },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic", description: "Personalized academic guidance" },
     { 
       id: "tutor", 
       label: "24/7 AI Tutor", 
@@ -66,6 +65,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isNew: true,
       isPriority: true
     },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic", description: "Personalized academic guidance" },
     { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts", description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards", description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam", description: "Mock tests and exam preparation" },
