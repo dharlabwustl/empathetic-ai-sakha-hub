@@ -1,243 +1,327 @@
 
-import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Slider } from '@/components/ui/slider';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { StudyPlan } from '@/types/user/studyPlan';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { NewStudyPlan } from '@/types/user/studyPlan';
+
+// Step components will be defined below
+const Step1ExamGoal = ({ examGoal, onSelect }: { examGoal: string | undefined, onSelect: (goal: string) => void }) => {
+  const goals = ['NEET', 'JEE', 'UPSC', 'CAT', 'GATE', 'Other'];
+  
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">Select the exam you are preparing for:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {goals.map((goal) => (
+          <Button
+            key={goal}
+            variant={examGoal === goal ? "default" : "outline"}
+            className={cn(
+              "h-16",
+              examGoal === goal ? "border-primary" : ""
+            )}
+            onClick={() => onSelect(goal)}
+          >
+            {goal}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Step2ExamDate = ({ date, onDateChange }: { date: Date | undefined, onDateChange: (date: Date) => void }) => {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">When is your exam scheduled?</p>
+      <div className="grid place-items-center">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-[280px] justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={onDateChange as any}
+              initialFocus
+              disabled={(d) => d < new Date()}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </div>
+  );
+};
+
+const Step3Subjects = ({ 
+  strongSubjects, 
+  weakSubjects, 
+  examGoal, 
+  onToggle 
+}: { 
+  strongSubjects: string[], 
+  weakSubjects: string[], 
+  examGoal: string,
+  onToggle: (subject: string, type: 'strong' | 'weak') => void 
+}) => {
+  // Sample subjects based on exam goal
+  const getSubjects = () => {
+    switch (examGoal) {
+      case 'NEET':
+        return ['Physics', 'Chemistry', 'Biology', 'Botany', 'Zoology', 'Organic Chemistry'];
+      case 'JEE':
+        return ['Physics', 'Chemistry', 'Mathematics', 'Algebra', 'Calculus', 'Mechanics'];
+      case 'UPSC':
+        return ['History', 'Geography', 'Polity', 'Economy', 'Science & Tech', 'Current Affairs'];
+      case 'CAT':
+        return ['Quantitative Aptitude', 'Data Interpretation', 'Verbal Ability', 'Logical Reasoning'];
+      case 'GATE':
+        return ['Engineering Mathematics', 'Computer Science', 'Data Structures', 'Algorithms', 'Digital Logic'];
+      default:
+        return ['Mathematics', 'Science', 'English', 'Social Studies'];
+    }
+  };
+
+  const subjects = getSubjects();
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">Select your strong and weak subjects:</p>
+      
+      <div>
+        <h3 className="text-sm font-medium mb-2">Strong Subjects:</h3>
+        <div className="flex flex-wrap gap-2">
+          {subjects.map((subject) => (
+            <Button
+              key={`strong-${subject}`}
+              variant={strongSubjects.includes(subject) ? "default" : "outline"}
+              size="sm"
+              onClick={() => onToggle(subject, 'strong')}
+            >
+              {subject}
+            </Button>
+          ))}
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-sm font-medium mb-2">Weak Subjects:</h3>
+        <div className="flex flex-wrap gap-2">
+          {subjects.map((subject) => (
+            <Button
+              key={`weak-${subject}`}
+              variant={weakSubjects.includes(subject) ? "destructive" : "outline"}
+              size="sm"
+              onClick={() => onToggle(subject, 'weak')}
+            >
+              {subject}
+            </Button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Step4StudyTime = ({ 
+  selectedTime, 
+  onSelectTime 
+}: { 
+  selectedTime: "Morning" | "Afternoon" | "Evening" | "Night", 
+  onSelectTime: (time: "Morning" | "Afternoon" | "Evening" | "Night") => void 
+}) => {
+  const timeOptions = [
+    { label: "Morning", description: "6 AM - 12 PM" },
+    { label: "Afternoon", description: "12 PM - 5 PM" },
+    { label: "Evening", description: "5 PM - 9 PM" },
+    { label: "Night", description: "9 PM - 6 AM" }
+  ];
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">When do you prefer to study?</p>
+      <div className="grid grid-cols-1 gap-3">
+        {timeOptions.map((option) => (
+          <Button
+            key={option.label}
+            variant={selectedTime === option.label ? "default" : "outline"}
+            className={cn(
+              "h-16 justify-start",
+              selectedTime === option.label ? "border-primary" : ""
+            )}
+            onClick={() => onSelectTime(option.label as any)}
+          >
+            <div className="text-left">
+              <div className="font-medium">{option.label}</div>
+              <div className="text-xs text-muted-foreground">{option.description}</div>
+            </div>
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Step5StudyPace = ({ 
+  selectedPace, 
+  onSelectPace 
+}: { 
+  selectedPace: "Aggressive" | "Balanced" | "Relaxed", 
+  onSelectPace: (pace: "Aggressive" | "Balanced" | "Relaxed") => void 
+}) => {
+  const paceOptions = [
+    { label: "Aggressive", description: "Intense study schedule, faster progress" },
+    { label: "Balanced", description: "Moderate pace with good work-life balance" },
+    { label: "Relaxed", description: "Slower pace with more flexibility" }
+  ];
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">What learning pace do you prefer?</p>
+      <div className="grid grid-cols-1 gap-3">
+        {paceOptions.map((option) => (
+          <Button
+            key={option.label}
+            variant={selectedPace === option.label ? "default" : "outline"}
+            className={cn(
+              "h-16 justify-start",
+              selectedPace === option.label ? "border-primary" : ""
+            )}
+            onClick={() => onSelectPace(option.label as any)}
+          >
+            <div className="text-left">
+              <div className="font-medium">{option.label}</div>
+              <div className="text-xs text-muted-foreground">{option.description}</div>
+            </div>
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Step6StudyHours = ({ 
+  hours, 
+  onHoursChange 
+}: { 
+  hours: number, 
+  onHoursChange: (hours: number) => void 
+}) => {
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">How many hours can you study daily?</p>
+      
+      <div className="space-y-4">
+        <div className="flex justify-between">
+          <span className="text-sm">Hours per day: <strong>{hours}</strong></span>
+        </div>
+        
+        <Slider
+          value={[hours]}
+          min={1}
+          max={12}
+          step={1}
+          onValueChange={(value) => onHoursChange(value[0])}
+        />
+        
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>1 hour</span>
+          <span>6 hours</span>
+          <span>12 hours</span>
+        </div>
+      </div>
+      
+      <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-md text-sm">
+        <p className="text-blue-800 dark:text-blue-400">
+          {hours < 4 
+            ? "A minimum of 4 hours per day is recommended for optimal preparation."
+            : hours > 8 
+              ? "Make sure to include breaks in your schedule to avoid burnout."
+              : "This is a good balanced schedule for effective learning."
+          }
+        </p>
+      </div>
+    </div>
+  );
+};
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
   onClose: () => void;
   examGoal?: string;
-  onCreatePlan: (plan: StudyPlan) => void;
+  onCreatePlan: (plan: NewStudyPlan) => void;
 }
 
 const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   isOpen,
   onClose,
-  examGoal = '',
+  examGoal: initialExamGoal,
   onCreatePlan
 }) => {
-  const [step, setStep] = useState(1);
-  const [selectedExamGoal, setSelectedExamGoal] = useState(examGoal);
-  const [examDate, setExamDate] = useState<Date | undefined>(undefined);
-  const [studyPace, setStudyPace] = useState<'slow' | 'moderate' | 'fast'>('moderate');
-  const [studyTime, setStudyTime] = useState<'morning' | 'afternoon' | 'evening' | 'night'>('evening');
-  const [studyHours, setStudyHours] = useState(3);
+  const {
+    step,
+    formData,
+    strongSubjects,
+    weakSubjects,
+    handleToggleSubject,
+    handlePaceChange,
+    handleStudyTimeChange,
+    handleExamGoalSelect,
+    handleNext,
+    handleBack,
+    setFormData
+  } = useStudyPlanWizard({
+    examGoal: initialExamGoal || '',
+    onCreatePlan,
+    onClose
+  });
 
-  const examGoals = [
-    "NEET", "JEE Mains", "JEE Advanced", "CAT", "GATE", "UPSC", 
-    "GRE", "GMAT", "SAT", "TOEFL", "IELTS", "Other"
-  ];
-
-  const handlePrevStep = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleNextStep = () => {
-    if (step < 3) {
-      setStep(step + 1);
-    } else {
-      handleCreatePlan();
-    }
-  };
-
-  const handleCreatePlan = () => {
-    // Create a new study plan object
-    const newPlan: StudyPlan = {
-      id: `plan_${Date.now()}`,
-      userId: 'user123',
-      goal: selectedExamGoal,
-      examDate: examDate ? examDate.toISOString() : new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      subjects: [
-        {
-          id: `subject_${Date.now()}_1`,
-          name: 'Subject 1',
-          color: '#8B5CF6',
-          hoursPerWeek: 5,
-          priority: 'high',
-          completed: false
-        }
-      ],
-      weeklyHours: studyHours * 7,
-      status: 'active',
-      studyHoursPerDay: studyHours,
-      preferredStudyTime: studyTime,
-      learningPace: studyPace,
-      progressPercentage: 0,
-      daysLeft: examDate ? Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 90
-    };
-    
-    onCreatePlan(newPlan);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setStep(1);
-    setSelectedExamGoal(examGoal);
-    setExamDate(undefined);
-    setStudyPace('moderate');
-    setStudyTime('evening');
-    setStudyHours(3);
-  };
-
-  const renderStep = () => {
+  // Helper to get current step title
+  const getStepTitle = () => {
     switch (step) {
-      case 1:
-        return (
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="exam-goal">Select Exam Goal</Label>
-              <Select 
-                value={selectedExamGoal} 
-                onValueChange={setSelectedExamGoal}
-              >
-                <SelectTrigger id="exam-goal">
-                  <SelectValue placeholder="Select an exam" />
-                </SelectTrigger>
-                <SelectContent>
-                  {examGoals.map((goal) => (
-                    <SelectItem key={goal} value={goal}>
-                      {goal}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Exam Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !examDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {examDate ? format(examDate, "PPP") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={examDate}
-                    onSelect={setExamDate}
-                    initialFocus
-                    disabled={(date) => date < new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-        );
-        
-      case 2:
-        return (
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Preferred Study Time</Label>
-              <RadioGroup 
-                value={studyTime} 
-                onValueChange={(value) => setStudyTime(value as 'morning' | 'afternoon' | 'evening' | 'night')}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="morning" id="morning" />
-                  <Label htmlFor="morning">Morning</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="afternoon" id="afternoon" />
-                  <Label htmlFor="afternoon">Afternoon</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="evening" id="evening" />
-                  <Label htmlFor="evening">Evening</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="night" id="night" />
-                  <Label htmlFor="night">Night</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Study Pace</Label>
-              <RadioGroup 
-                value={studyPace} 
-                onValueChange={(value) => setStudyPace(value as 'slow' | 'moderate' | 'fast')}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="slow" id="slow" />
-                  <Label htmlFor="slow">Relaxed</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="moderate" id="moderate" />
-                  <Label htmlFor="moderate">Balanced</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fast" id="fast" />
-                  <Label htmlFor="fast">Intensive</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
-        );
-        
-      case 3:
-        return (
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="study-hours">Daily Study Hours</Label>
-              <div className="flex items-center gap-4">
-                <Input
-                  id="study-hours"
-                  type="range"
-                  min="1"
-                  max="12"
-                  value={studyHours}
-                  onChange={(e) => setStudyHours(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span className="font-medium text-lg">{studyHours} hrs</span>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-md p-4">
-              <h4 className="font-medium text-blue-700 dark:text-blue-400 mb-2">Your Study Plan Summary</h4>
-              <ul className="space-y-2 text-sm text-blue-600 dark:text-blue-300">
-                <li><span className="font-medium">Exam Goal:</span> {selectedExamGoal || 'Not selected'}</li>
-                <li><span className="font-medium">Exam Date:</span> {examDate ? format(examDate, "PPP") : 'Not set'}</li>
-                <li><span className="font-medium">Preferred Study Time:</span> {studyTime.charAt(0).toUpperCase() + studyTime.slice(1)}</li>
-                <li><span className="font-medium">Study Pace:</span> {studyPace.charAt(0).toUpperCase() + studyPace.slice(1)}</li>
-                <li><span className="font-medium">Daily Study Hours:</span> {studyHours} hours</li>
-              </ul>
-            </div>
-          </div>
-        );
-      
-      default:
-        return null;
+      case 1: return "Select Exam Goal";
+      case 2: return "Set Exam Date";
+      case 3: return "Subject Proficiency";
+      case 4: return "Study Time Preference";
+      case 5: return "Learning Pace";
+      case 6: return "Study Hours";
+      default: return "Create Study Plan";
+    }
+  };
+
+  // Helper to convert from state value to UI selection
+  const getSelectedPace = (): "Aggressive" | "Balanced" | "Relaxed" => {
+    switch (formData.learningPace) {
+      case 'fast': return "Aggressive";
+      case 'slow': return "Relaxed";
+      default: return "Balanced";
+    }
+  };
+
+  // Helper to convert from state value to UI selection
+  const getSelectedTime = (): "Morning" | "Afternoon" | "Evening" | "Night" => {
+    switch (formData.preferredStudyTime) {
+      case 'morning': return "Morning";
+      case 'afternoon': return "Afternoon";
+      case 'night': return "Night";
+      default: return "Evening";
     }
   };
 
@@ -245,49 +329,93 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Study Plan</DialogTitle>
-          <DialogDescription>
-            Set up a personalized study plan to achieve your exam goals.
-          </DialogDescription>
+          <DialogTitle>{getStepTitle()}</DialogTitle>
         </DialogHeader>
         
-        <div className="flex items-center justify-center my-2">
-          <div className="flex items-center">
-            {[1, 2, 3].map((i) => (
-              <React.Fragment key={i}>
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center",
-                  i === step
-                    ? "bg-blue-600 text-white"
-                    : i < step
-                    ? "bg-blue-200 text-blue-800"
-                    : "bg-gray-200 text-gray-500"
-                )}>
-                  {i}
-                </div>
-                {i < 3 && (
-                  <div className={cn(
-                    "w-10 h-1",
-                    i < step ? "bg-blue-600" : "bg-gray-200"
-                  )}></div>
-                )}
-              </React.Fragment>
+        <div className="py-4">
+          {/* Stepper display */}
+          <div className="flex justify-between mb-8">
+            {[1, 2, 3, 4, 5, 6].map((s) => (
+              <div 
+                key={s} 
+                className={`w-9 h-1 rounded-full ${
+                  s === step 
+                    ? "bg-primary" 
+                    : s < step 
+                      ? "bg-primary/40"
+                      : "bg-gray-200 dark:bg-gray-700"
+                }`}
+              />
             ))}
           </div>
-        </div>
-        
-        {renderStep()}
-        
-        <DialogFooter className="flex gap-2">
-          {step > 1 && (
-            <Button variant="outline" onClick={handlePrevStep}>
-              Back
+
+          {/* Step content */}
+          <div className="min-h-[300px]">
+            {step === 1 && (
+              <Step1ExamGoal 
+                examGoal={formData.examGoal} 
+                onSelect={handleExamGoalSelect} 
+              />
+            )}
+            
+            {step === 2 && (
+              <Step2ExamDate 
+                date={formData.examDate instanceof Date ? formData.examDate : new Date()} 
+                onDateChange={(date) => setFormData({ ...formData, examDate: date })} 
+              />
+            )}
+            
+            {step === 3 && (
+              <Step3Subjects 
+                strongSubjects={strongSubjects.map(s => s.name)} 
+                weakSubjects={weakSubjects.map(s => s.name)} 
+                examGoal={formData.examGoal}
+                onToggle={handleToggleSubject} 
+              />
+            )}
+            
+            {step === 4 && (
+              <Step4StudyTime 
+                selectedTime={getSelectedTime()} 
+                onSelectTime={handleStudyTimeChange} 
+              />
+            )}
+            
+            {step === 5 && (
+              <Step5StudyPace 
+                selectedPace={getSelectedPace()} 
+                onSelectPace={handlePaceChange} 
+              />
+            )}
+            
+            {step === 6 && (
+              <Step6StudyHours 
+                hours={formData.studyHoursPerDay} 
+                onHoursChange={(hours) => setFormData({ ...formData, studyHoursPerDay: hours })} 
+              />
+            )}
+          </div>
+
+          {/* Navigation buttons */}
+          <div className="flex justify-between mt-8">
+            <Button 
+              variant="outline" 
+              onClick={handleBack}
+            >
+              {step === 1 ? "Cancel" : "Back"}
             </Button>
-          )}
-          <Button onClick={handleNextStep}>
-            {step === 3 ? "Create Plan" : "Next"}
-          </Button>
-        </DialogFooter>
+            
+            <Button 
+              onClick={handleNext}
+              disabled={
+                (step === 1 && !formData.examGoal) || 
+                (step === 2 && !formData.examDate)
+              }
+            >
+              {step === 6 ? "Create Plan" : "Continue"}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,12 +1,20 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
+import type { NewStudyPlan, StudyPlanSubject } from "@/types/user/studyPlan";
 
 interface UseStudyPlanWizardProps {
   examGoal: string;
   onCreatePlan: (plan: NewStudyPlan) => void;
   onClose: () => void;
+}
+
+// Define proper types for the study plan
+type ProficiencyType = 'strong' | 'weak' | 'medium';
+
+interface CustomStudyPlanSubject {
+  name: string;
+  proficiency: ProficiencyType;
 }
 
 export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
@@ -21,37 +29,49 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     learningPace: 'moderate'
   });
 
-  const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
-  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
+  const [strongSubjects, setStrongSubjects] = useState<CustomStudyPlanSubject[]>([]);
+  const [weakSubjects, setWeakSubjects] = useState<CustomStudyPlanSubject[]>([]);
 
   const handleToggleSubject = (subject: string, type: 'strong' | 'weak') => {
     if (type === 'strong') {
-      if (strongSubjects.includes(subject)) {
-        setStrongSubjects(strongSubjects.filter(s => s !== subject));
+      if (strongSubjects.some(s => s.name === subject)) {
+        setStrongSubjects(strongSubjects.filter(s => s.name !== subject));
       } else {
-        if (weakSubjects.includes(subject)) {
-          setWeakSubjects(weakSubjects.filter(s => s !== subject));
-        }
-        setStrongSubjects([...strongSubjects, subject]);
+        setWeakSubjects(weakSubjects.filter(s => s.name !== subject));
+        setStrongSubjects([...strongSubjects, { name: subject, proficiency: 'strong' }]);
       }
     } else {
-      if (weakSubjects.includes(subject)) {
-        setWeakSubjects(weakSubjects.filter(s => s !== subject));
+      if (weakSubjects.some(s => s.name === subject)) {
+        setWeakSubjects(weakSubjects.filter(s => s.name !== subject));
       } else {
-        if (strongSubjects.includes(subject)) {
-          setStrongSubjects(strongSubjects.filter(s => s !== subject));
-        }
-        setWeakSubjects([...weakSubjects, subject]);
+        setStrongSubjects(strongSubjects.filter(s => s.name !== subject));
+        setWeakSubjects([...weakSubjects, { name: subject, proficiency: 'weak' }]);
       }
     }
   };
 
-  const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
-    const subjectsList: NewStudyPlanSubject[] = [
-      ...strongSubjects.map(subject => ({ name: subject, proficiency: 'strong' as const })),
-      ...weakSubjects.map(subject => ({ name: subject, proficiency: 'weak' as const }))
+  const getSubjectsProficiencyList = (): StudyPlanSubject[] => {
+    // Convert our simple subjects to the StudyPlanSubject format
+    return [
+      ...strongSubjects.map(subject => ({
+        id: `s-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
+        name: subject.name,
+        proficiency: subject.proficiency as ('strong' | 'medium' | 'weak'),
+        priority: 'high' as 'high',
+        color: '#4CAF50',
+        hoursPerWeek: 6,
+        completed: false
+      })),
+      ...weakSubjects.map(subject => ({
+        id: `w-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
+        name: subject.name,
+        proficiency: subject.proficiency as ('strong' | 'medium' | 'weak'),
+        priority: 'high' as 'high',
+        color: '#F44336',
+        hoursPerWeek: 8,
+        completed: false
+      }))
     ];
-    return subjectsList;
   };
 
   const handlePaceChange = (pace: "Aggressive" | "Balanced" | "Relaxed") => {

@@ -9,8 +9,8 @@ import ConceptsLandingPage from '@/components/dashboard/student/concepts/Concept
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
-import WelcomeTourReminderBanner from '@/components/dashboard/student/WelcomeTourReminderBanner';
-import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisorView';
+import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 
 interface RedesignedTodaysPlanProps {
   userProfile: UserProfileBase;
@@ -100,7 +100,7 @@ export const generateTabContents = ({
     "today": <RedesignedTodaysPlan userProfile={userProfile} />,
     
     // Academic Advisor tab
-    "academic": <AcademicAdvisor />,
+    "academic": <AcademicAdvisorView />,
     
     // Concept Cards tab
     "concepts": <ConceptsLandingPage />,
