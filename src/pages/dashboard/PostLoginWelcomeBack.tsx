@@ -33,13 +33,15 @@ const PostLoginWelcomeBack = () => {
     // For new users (who came from signup), go directly to dashboard
     // This is because they would have gone through the welcome-flow already
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
-    if (isNewUser) {
-      navigate('/dashboard/student');
+    const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
+    
+    if (isNewUser && sawWelcomeSlider) {
+      setShowSlider(false);
+      setShowTour(true);
       return;
     }
     
     // For returning users who have seen both, skip directly to dashboard
-    const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
     if (sawWelcomeSlider && sawWelcomeTour) {

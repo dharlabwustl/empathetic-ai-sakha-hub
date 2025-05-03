@@ -40,10 +40,24 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // State for controlling welcome tour visibility
+  const [shouldShowTour, setShouldShowTour] = useState(false);
+
   // Check URL parameters for onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    
+    // Check if the user should see the welcome tour
+    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
+    const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+    
+    // Show tour for new users or users that haven't seen the tour
+    if ((isNewUser && !sawWelcomeTour) || isFirstTimeUser) {
+      console.log("Setting shouldShowTour to true");
+      setShouldShowTour(true);
+    }
     
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
@@ -143,8 +157,8 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Disable welcome tour popup
-  const modifiedShowWelcomeTour = false;
+  // Use our internal state to control welcome tour visibility
+  const modifiedShowWelcomeTour = shouldShowTour;
 
   return (
     <DashboardLayout

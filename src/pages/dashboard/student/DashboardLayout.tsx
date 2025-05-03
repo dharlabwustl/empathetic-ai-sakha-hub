@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -73,7 +72,22 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
+  
+  // Initialize showTour state from props but also check local storage
   const [showTour, setShowTour] = useState(showWelcomeTour);
+  
+  useEffect(() => {
+    // Check for new user flag and welcome tour status
+    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
+    
+    if (isNewUser && !sawWelcomeTour) {
+      console.log("DashboardLayout: Opening tour automatically for new user");
+      setShowTour(true);
+    } else if (showWelcomeTour) {
+      setShowTour(true);
+    }
+  }, [showWelcomeTour]);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
@@ -85,12 +99,14 @@ const DashboardLayout = ({
   const handleCloseTour = () => {
     setShowTour(false);
     localStorage.removeItem('new_user_signup');
+    localStorage.setItem('sawWelcomeTour', 'true');
     onSkipTour();
   };
   
   const handleCompleteTourAndClose = () => {
     setShowTour(false);
     localStorage.removeItem('new_user_signup');
+    localStorage.setItem('sawWelcomeTour', 'true');
     onCompleteTour();
   };
 

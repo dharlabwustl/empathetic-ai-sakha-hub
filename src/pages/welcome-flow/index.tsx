@@ -19,6 +19,12 @@ const WelcomeFlow = () => {
     } else {
       // Mark that they've completed the welcome flow
       localStorage.setItem('welcomeFlowCompleted', 'true');
+      
+      // Set flags to ensure the welcome tour shows up
+      localStorage.setItem('new_user_signup', 'true');
+      localStorage.setItem('sawWelcomeSlider', 'true');
+      localStorage.setItem('sawWelcomeTour', 'false');
+      
       // On completion, navigate to dashboard with tour flag
       navigate('/dashboard/student?new=true&completedOnboarding=true');
     }
