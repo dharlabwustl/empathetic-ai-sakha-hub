@@ -134,9 +134,9 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="name">Full Name</Label>
-          <div className="mb-2 text-sm text-gray-600">
-            <strong>Question 1:</strong> Identify yourself - Who are you?
+          <div className="mb-2">
+            <h3 className="font-semibold text-base">Question 1: Identify yourself</h3>
+            <Label htmlFor="name">Full Name</Label>
           </div>
           <Input 
             id="name" 
@@ -190,9 +190,9 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         )}
         
         <div>
-          <Label htmlFor="examGoal">Exam Preparing For</Label>
-          <div className="mb-2 text-sm text-gray-600">
-            <strong>Question 2:</strong> Which exam are you preparing for?
+          <div className="mb-2">
+            <h3 className="font-semibold text-base">Question 2: Which exam are you preparing for?</h3>
+            <Label htmlFor="examGoal">Exam Preparing For</Label>
           </div>
         </div>
         
