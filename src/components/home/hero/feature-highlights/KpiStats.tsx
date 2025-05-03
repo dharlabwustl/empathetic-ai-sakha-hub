@@ -7,6 +7,7 @@ import {
   Users, Brain, CheckCircle, BookOpen, 
   ScrollText, ClipboardList
 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Define the stats based on the admin data structure
 const defaultStats = [
@@ -184,100 +185,97 @@ export const KpiStats = () => {
   return (
     <div 
       id="kpi-stats-section" 
-      className="relative py-8 md:py-12 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl"
+      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
     >
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-950/30 rounded-2xl overflow-hidden">
-        <div className="absolute w-full h-full">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 -right-4 w-72 h-72 bg-purple-200/20 rounded-full blur-3xl"></div>
-        </div>
-      </div>
+      <motion.div
+        variants={titleVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        className="text-center mb-8"
+      >
+        <h2 className="text-2xl font-bold relative">
+          {titleChars.map((char, i) => (
+            <motion.span
+              key={i}
+              custom={i}
+              variants={charVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+              className={char === "." ? "text-purple-600 font-bold" : "bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </h2>
+      </motion.div>
       
-      <div className="relative z-10 container mx-auto px-4">
-        <motion.div 
-          className="text-center mb-8" 
-          initial="hidden"
-          animate="visible"
-          variants={titleVariants}
-        >
-          <motion.h2 
-            className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2"
-          >
-            {titleChars.map((char, index) => (
-              <motion.span
-                key={index}
-                custom={index}
-                variants={charVariants}
-                initial="hidden"
-                animate={inView ? "visible" : "hidden"}
-                className="inline-block"
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-          </motion.h2>
-          
-          <motion.div 
-            className="h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mx-auto mb-4"
-            initial={{ width: 0 }}
-            animate={inView ? { width: 96 } : { width: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
+      <ScrollArea className="w-full max-w-7xl mx-auto h-auto">
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
+          className="flex gap-4 md:gap-6 pb-4 px-2"
         >
           {stats.map((stat) => (
-            <motion.div
-              key={stat.id}
+            <motion.div 
+              key={stat.id} 
               variants={itemVariants}
-              whileHover={{ scale: 1.03 }}
-              className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all"
+              className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+              whileHover={{ 
+                y: -5, 
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                scale: 1.02,
+                transition: { duration: 0.3 }
+              }}
             >
-              <div className="flex items-center mb-4">
-                <motion.div
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 mr-4"
-                  animate={{
-                    boxShadow: ["0 0 0 rgba(129, 140, 248, 0)", "0 0 20px rgba(129, 140, 248, 0.5)", "0 0 0 rgba(129, 140, 248, 0)"]
-                  }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 3,
-                    repeatType: "reverse"
-                  }}
-                >
-                  {stat.icon}
-                </motion.div>
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">{stat.label}</h3>
-              </div>
-              
-              <div className="flex items-baseline">
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.prefix}</span>
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mx-1">
-                  {inView ? (
-                    <CountUp
-                      start={0}
-                      end={stat.value}
-                      duration={2.5}
-                      separator=","
-                      decimals={stat.decimals}
-                      delay={0.5}
-                    />
-                  ) : (
-                    0
-                  )}
-                </div>
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.suffix}</span>
-              </div>
+              <motion.div 
+                className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
+                whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400,
+                  damping: 10
+                }}
+                animate={{
+                  boxShadow: ["0 0 0 rgba(129, 140, 248, 0)", "0 0 20px rgba(129, 140, 248, 0.5)", "0 0 0 rgba(129, 140, 248, 0)"]
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 3,
+                }}
+              >
+                {stat.icon}
+              </motion.div>
+              <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">
+                {stat.label}
+              </h3>
+              <motion.div 
+                className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <span>{stat.prefix}</span>
+                {inView ? (
+                  <CountUp 
+                    start={0} 
+                    end={stat.value} 
+                    duration={2.5} 
+                    separator="," 
+                    decimals={stat.decimals}
+                    decimal="."
+                    useEasing={true}
+                  />
+                ) : (
+                  <span>0</span>
+                )}
+                <span>{stat.suffix}</span>
+              </motion.div>
             </motion.div>
           ))}
         </motion.div>
-      </div>
+      </ScrollArea>
     </div>
   );
 };
+
+export default KpiStats;
