@@ -5,7 +5,7 @@ export interface StudyPlanSubject {
   color: string;
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'medium';
+  proficiency?: 'strong' | 'medium' | 'weak';
   difficulty?: 'easy' | 'medium' | 'hard';
   completed: boolean;
   topics?: Array<{
@@ -40,3 +40,12 @@ export interface StudyPlan {
 }
 
 export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+
+export type Topic = {
+  id: string;
+  name: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  priority: 'high' | 'medium' | 'low';
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+};

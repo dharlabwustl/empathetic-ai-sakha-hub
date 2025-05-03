@@ -1,31 +1,19 @@
 
 import React from 'react';
-import { UserProfileBase } from "@/types/user/base";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { useNavigate } from 'react-router-dom';
+import { UserProfileType } from "@/types/user";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
+import TodayPlanView from "@/components/dashboard/student/todays-plan/TodaysPlanView";
+import ConceptsView from "@/components/dashboard/student/concepts/ConceptCardsView";
+import FlashcardsView from "@/components/dashboard/student/flashcards/FlashcardsView";
+import PracticeExamsView from "@/components/dashboard/student/practice-exam/PracticeExamsView";
+import NotificationsView from "@/components/dashboard/student/notifications/NotificationsView";
+import WelcomeTourReminderBanner from "@/components/dashboard/student/WelcomeTourReminderBanner";
+import AcademicAdvisor from "@/components/dashboard/student/AcademicAdvisor";
 
-import { TodayPlanView, StudyPlanView, ConceptsView, FlashcardsView, PracticeExamsView, NotificationsView } from '@/pages/dashboard/student/TabContentViews';
-import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
-import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
-import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
-
-interface RedesignedTodaysPlanProps {
-  userProfile: UserProfileBase;
-}
-
-const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile }) => {
-  // Simplified component that renders the redesigned Today's Plan
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
-      <p>Your personalized study schedule is ready!</p>
-    </div>
-  );
-};
-
-interface TabContentGeneratorProps {
-  userProfile: UserProfileBase;
+interface TabContentManagerProps {
+  userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
@@ -48,51 +36,52 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentGeneratorProps) => {
+}: TabContentManagerProps): Record<string, React.ReactNode> => {
   const navigate = useNavigate();
 
-  // Pre-generated tab contents that will be used in different parts of the app
+  // Handler for navigating to concept cards section
+  const handleViewConcepts = () => {
+    navigate('/dashboard/student/concepts');
+  };
+
+  // Handler for navigating to flashcards section
+  const handleViewFlashcards = () => {
+    navigate('/dashboard/student/flashcards');
+  };
+
+  // Handler for navigating to practice exam section
+  const handleViewPracticeExams = () => {
+    navigate('/dashboard/student/practice-exam');
+  };
+
   return {
-    // Home/Overview tab
     "overview": (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Dashboard Overview</h2>
-        <p>Welcome back, {userProfile.name}!</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {kpis.map(kpi => (
-            <div key={kpi.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-              <h3 className="font-medium">{kpi.title}</h3>
-              <p className="text-2xl">{kpi.value} {kpi.unit}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <>
+        {showWelcomeTour && (
+          <WelcomeTourReminderBanner
+            onSkipTour={handleSkipTour}
+            onStartTour={handleCompleteTour}
+          />
+        )}
+        <DashboardOverview
+          userProfile={userProfile}
+          kpis={kpis}
+          nudges={nudges}
+          markNudgeAsRead={markNudgeAsRead}
+          features={features}
+          onViewConcepts={handleViewConcepts}
+          onViewFlashcards={handleViewFlashcards}
+          onViewPracticeExams={handleViewPracticeExams}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
+        />
+      </>
     ),
-    
-    // Today's Plan tab
-    "today": <RedesignedTodaysPlan userProfile={userProfile} />,
-    
-    // Study Plan tab
-    "study-plan": <StudyPlanView />,
-    
-    // Academic Advisor tab
-    "academic": (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Academic Advisor</h2>
-        <p>Get personalized guidance for your academic journey.</p>
-      </div>
-    ),
-    
-    // Concept Cards tab
-    "concepts": <ConceptsLandingPage />,
-    
-    // Flashcards tab
-    "flashcards": <FlashcardsLandingPage />,
-    
-    // Practice Exams tab
-    "practice-exam": <PracticeExamLandingPage />,
-    
-    // Notifications tab
-    "notifications": <NotificationsPage />
+    "today": <TodayPlanView userProfile={userProfile} />,
+    "academic": <AcademicAdvisor userProfile={userProfile} />,
+    "concepts": <ConceptsView />,
+    "flashcards": <FlashcardsView />,
+    "practice-exam": <PracticeExamsView />,
+    "notifications": <NotificationsView nudges={nudges} markNudgeAsRead={markNudgeAsRead} />
   };
 };

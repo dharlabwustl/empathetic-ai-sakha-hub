@@ -1,518 +1,383 @@
+
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { Slider } from '@/components/ui/slider';
-import { ChevronRight } from 'lucide-react';
-import { StudyPlanSubject, NewStudyPlan } from '@/types/user/studyPlan';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, CalendarPlus } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
+import { NewStudyPlan } from '@/types/user/studyPlan';
 
 interface CreateStudyPlanWizardProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
-  examGoal?: string;
+  examGoal: string;
   onCreatePlan: (plan: NewStudyPlan) => void;
 }
 
-const subjectOptions = [
-  { name: 'Physics', color: '#3b82f6', difficulty: 'hard' as const, proficiency: 'weak' as const },
-  { name: 'Chemistry', color: '#10b981', difficulty: 'medium' as const, proficiency: 'medium' as const },
-  { name: 'Biology', color: '#f97316', difficulty: 'medium' as const, proficiency: 'strong' as const },
-  { name: 'Mathematics', color: '#8b5cf6', difficulty: 'hard' as const, proficiency: 'weak' as const },
-  { name: 'English', color: '#ec4899', difficulty: 'easy' as const, proficiency: 'strong' as const },
-  { name: 'History', color: '#f43f5e', difficulty: 'medium' as const, proficiency: 'medium' as const },
-  { name: 'Geography', color: '#14b8a6', difficulty: 'easy' as const, proficiency: 'medium' as const },
-  { name: 'Computer Science', color: '#6366f1', difficulty: 'hard' as const, proficiency: 'weak' as const }
-];
-
-const defaultPriorities = {
-  'weak': 'high',
-  'medium': 'medium',
-  'strong': 'low'
-};
-
-const timePreferences = [
-  { value: 'morning', label: 'Morning (6AM - 12PM)' },
-  { value: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
-  { value: 'evening', label: 'Evening (5PM - 10PM)' },
-  { value: 'night', label: 'Night (10PM - 6AM)' }
-];
-
-const learningPaces = [
-  { value: 'slow', label: 'Slow - I prefer thorough understanding' },
-  { value: 'moderate', label: 'Moderate - Balanced pace' },
-  { value: 'fast', label: 'Fast - I grasp concepts quickly' }
+// List of available exams
+const availableExams = [
+  "NEET", 
+  "JEE Main", 
+  "JEE Advanced", 
+  "AIIMS", 
+  "UPSC CSE", 
+  "GATE", 
+  "CAT", 
+  "CLAT", 
+  "NDA", 
+  "SSC CGL"
 ];
 
 const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
-  isOpen,
+  open,
   onClose,
-  examGoal = 'NEET',
-  onCreatePlan
+  examGoal: initialExamGoal,
+  onCreatePlan,
 }) => {
-  const [step, setStep] = useState(0);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [examDate, setExamDate] = useState<Date | undefined>(undefined);
-  const [studyHoursPerDay, setStudyHoursPerDay] = useState(4);
-  const [preferredStudyTime, setPreferredStudyTime] = useState<string>('evening');
-  const [learningPace, setLearningPace] = useState<string>('moderate');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    step,
+    formData,
+    setFormData,
+    strongSubjects,
+    weakSubjects,
+    handleToggleSubject,
+    handlePaceChange,
+    handleStudyTimeChange,
+    handleExamGoalSelect,
+    handleNext,
+    handleBack,
+  } = useStudyPlanWizard({ 
+    examGoal: initialExamGoal,
+    onCreatePlan,
+    onClose
+  });
 
-  const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, 3));
-  };
+  // Date state for exam date
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
-  const handleBack = () => {
-    setStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleToggleSubject = (subjectName: string) => {
-    setSelectedSubjects((prev) => {
-      if (prev.includes(subjectName)) {
-        return prev.filter(name => name !== subjectName);
-      } else {
-        return [...prev, subjectName];
-      }
-    });
-  };
-
-  const getTopicsForSubject = (name: string) => {
-    // Generate sample topics for each subject
-    switch(name.toLowerCase()) {
-      case 'physics':
-        return [
-          { 
-            id: `topic-${Date.now()}-1`, 
-            name: "Mechanics", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "in-progress" as const, 
-            priority: "high" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-2`, 
-            name: "Thermodynamics", 
-            difficulty: "hard" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "medium" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-3`, 
-            name: "Electrostatics", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "high" as const 
-          }
-        ];
-      case 'chemistry':
-        return [
-          { 
-            id: `topic-${Date.now()}-1`, 
-            name: "Organic Chemistry", 
-            difficulty: "hard" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "high" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-2`, 
-            name: "Chemical Bonding", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "in-progress" as const, 
-            priority: "medium" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-3`, 
-            name: "Equilibrium", 
-            difficulty: "easy" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "low" as const 
-          }
-        ];
-      case 'biology':
-        return [
-          { 
-            id: `topic-${Date.now()}-1`, 
-            name: "Cell Biology", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "in-progress" as const, 
-            priority: "high" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-2`, 
-            name: "Human Physiology", 
-            difficulty: "hard" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "high" as const 
-          },
-          { 
-            id: `topic-${Date.now()}-3`, 
-            name: "Genetics", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "medium" as const 
-          }
-        ];
-      default:
-        return [
-          { 
-            id: `topic-${Date.now()}-1`, 
-            name: "Basic Concepts", 
-            difficulty: "medium" as const, 
-            completed: false, 
-            status: "pending" as const, 
-            priority: "high" as const 
-          }
-        ];
+  // Handler for exam date change
+  const handleDateChange = (date: Date | undefined) => {
+    setDate(date);
+    if (date) {
+      setFormData(prev => ({
+        ...prev,
+        examDate: format(date, "yyyy-MM-dd")
+      }));
     }
   };
-
-  const handleCreate = () => {
-    setIsSubmitting(true);
-    
-    // Create subjects array from selected subjects
-    const subjects: StudyPlanSubject[] = selectedSubjects.map(name => {
-      const subject = subjectOptions.find(option => option.name === name);
-      // Map 'moderate' to 'medium' for proficiency to match the expected type
-      const proficiency = subject?.proficiency || 'medium';
-      
-      return {
-        id: `subject-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        name,
-        color: subject?.color || '#6366f1',
-        hoursPerWeek: proficiency === 'weak' ? 8 : proficiency === 'medium' ? 6 : 4,
-        priority: defaultPriorities[proficiency] as 'high' | 'medium' | 'low',
-        proficiency,
-        difficulty: subject?.difficulty || 'medium',
-        completed: false,
-        topics: getTopicsForSubject(name)
-      };
-    });
-    
-    // Create the study plan
-    const plan: NewStudyPlan = {
-      goal: examGoal, // Add the goal property to satisfy the type
-      examGoal,
-      examDate: examDate ? format(examDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
-      status: 'active',
-      subjects,
-      weeklyHours: studyHoursPerDay * 7,
-      studyHoursPerDay,
-      preferredStudyTime: preferredStudyTime as 'morning' | 'afternoon' | 'evening' | 'night',
-      learningPace: learningPace as 'slow' | 'moderate' | 'fast'
-    };
-    
-    // Call the create handler
-    onCreatePlan(plan);
-    
-    // Reset state and close dialog
-    setIsSubmitting(false);
-    setStep(0);
-    setSelectedSubjects([]);
-    setExamDate(undefined);
-    setStudyHoursPerDay(4);
-    setPreferredStudyTime('evening');
-    setLearningPace('moderate');
-  };
-
-  const isNextDisabled = () => {
-    if (step === 0 && !examDate) return true;
-    if (step === 1 && selectedSubjects.length === 0) return true;
-    return false;
-  };
-
-  // Render steps
-  const renderStepContent = () => {
-    switch (step) {
-      case 0:
-        return (
-          <div className="space-y-6 py-4">
-            <div>
-              <Label htmlFor="exam-goal">Exam Goal</Label>
-              <Input id="exam-goal" value={examGoal} readOnly className="mt-2 bg-gray-50" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="exam-date">Exam Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                    id="exam-date"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {examDate ? format(examDate, 'PPP') : <span>Select your exam date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={examDate}
-                    onSelect={setExamDate}
-                    initialFocus
-                    disabled={(date) => date < new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
-              <p className="text-xs text-muted-foreground mt-1">Choose your expected exam date to plan accordingly</p>
-            </div>
-          </div>
-        );
-      
-      case 1:
-        return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
-              <Label>Select Subjects</Label>
-              <p className="text-sm text-muted-foreground mb-4">Choose the subjects you want to include in your study plan</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {subjectOptions.map((subject) => (
-                  <div
-                    key={subject.name}
-                    className={`p-3 rounded-md border-2 cursor-pointer transition-colors ${
-                      selectedSubjects.includes(subject.name)
-                        ? `border-primary bg-primary/10`
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => handleToggleSubject(subject.name)}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                        className="w-4 h-4 rounded-full mr-2" 
-                        style={{ backgroundColor: subject.color }}
-                      ></div>
-                      <span className="font-medium">{subject.name}</span>
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      <span className="capitalize">{subject.difficulty} difficulty</span>
-                      <span className="mx-1">•</span>
-                      <span className="capitalize">{subject.proficiency} proficiency</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {selectedSubjects.length === 0 && (
-                <p className="text-sm text-amber-600 dark:text-amber-400 mt-2">
-                  Please select at least one subject
-                </p>
-              )}
-            </div>
-          </div>
-        );
-      
-      case 2:
-        return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <div>
-                <Label>Study Hours Per Day</Label>
-                <div className="flex items-center gap-4 mt-2">
-                  <Slider
-                    value={[studyHoursPerDay]}
-                    min={1}
-                    max={10}
-                    step={1}
-                    onValueChange={(values) => setStudyHoursPerDay(values[0])}
-                    className="flex-1"
-                  />
-                  <span className="font-medium w-8 text-center">{studyHoursPerDay}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  How many hours can you dedicate to studying each day?
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="preferred-time">Preferred Study Time</Label>
-                <Select
-                  value={preferredStudyTime}
-                  onValueChange={setPreferredStudyTime}
-                >
-                  <SelectTrigger id="preferred-time" className="w-full">
-                    <SelectValue placeholder="Select preferred study time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timePreferences.map((time) => (
-                      <SelectItem key={time.value} value={time.value}>
-                        {time.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="learning-pace">Learning Pace</Label>
-                <Select
-                  value={learningPace}
-                  onValueChange={setLearningPace}
-                >
-                  <SelectTrigger id="learning-pace" className="w-full">
-                    <SelectValue placeholder="Select your learning pace" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {learningPaces.map((pace) => (
-                      <SelectItem key={pace.value} value={pace.value}>
-                        {pace.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 3:
-        return (
-          <div className="space-y-6 py-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
-              <h3 className="font-medium text-blue-700 dark:text-blue-400 mb-2">Study Plan Summary</h3>
-              
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Exam Goal:</span>
-                  <span className="font-medium">{examGoal}</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Exam Date:</span>
-                  <span className="font-medium">{examDate ? format(examDate, 'PPP') : 'Not set'}</span>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-muted-foreground">Subjects:</span>
-                    <span className="font-medium">{selectedSubjects.length} selected</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 ml-4">
-                    {selectedSubjects.map((subject) => (
-                      <span key={subject} className="text-xs bg-blue-100 dark:bg-blue-800/50 px-2 py-0.5 rounded">
-                        {subject}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Daily Study Hours:</span>
-                  <span className="font-medium">{studyHoursPerDay} hours</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Preferred Study Time:</span>
-                  <span className="font-medium capitalize">{preferredStudyTime}</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Learning Pace:</span>
-                  <span className="font-medium capitalize">{learningPace}</span>
-                </div>
-              </div>
-            </div>
-            
-            <p className="text-center text-sm text-muted-foreground">
-              Your personalized study plan will be created based on these preferences
-            </p>
-          </div>
-        );
-      
-      default:
-        return null;
-    }
-  };
-
-  // Step indicator
-  const steps = ['Exam Details', 'Subjects', 'Preferences', 'Review'];
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {
-      setStep(0);
-      onClose();
-    }}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create New Study Plan</DialogTitle>
           <DialogDescription>
-            Set up a personalized study plan for your {examGoal} preparation
+            Let's create a personalized study plan to help you succeed
           </DialogDescription>
         </DialogHeader>
         
-        {/* Step Indicator */}
-        <div className="flex justify-between mb-6">
-          {steps.map((stepName, idx) => (
-            <div key={idx} className="flex items-center">
-              <div 
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm ${
-                  idx <= step
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-gray-200 dark:bg-gray-700 text-muted-foreground'
-                }`}
-              >
-                {idx + 1}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`step-${step}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {step === 1 && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="examGoal">Select Your Exam Goal</Label>
+                  <Select
+                    value={formData.examGoal || initialExamGoal}
+                    onValueChange={handleExamGoalSelect}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an exam" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableExams.map((exam) => (
+                        <SelectItem key={exam} value={exam}>
+                          {exam}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="examDate">Exam Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Select exam date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent
+                        mode="single"
+                        selected={date}
+                        onSelect={handleDateChange}
+                        initialFocus
+                        disabled={(date) => date < new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="goal">Study Plan Goal (Optional)</Label>
+                  <Textarea
+                    id="goal"
+                    placeholder="E.g., Score 650+ in NEET, Focus on Physics and Chemistry, etc."
+                    value={formData.goal || ''}
+                    onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
+                    className="min-h-[100px]"
+                  />
+                </div>
               </div>
-              {idx < steps.length - 1 && (
-                <div
-                  className={`h-1 w-12 sm:w-16 md:w-24 mx-1 ${
-                    idx < step
-                      ? 'bg-primary'
-                      : 'bg-gray-200 dark:bg-gray-700'
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
-        </div>
+            )}
+            
+            {step === 2 && (
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label className="mb-2 block">Select your strong subjects</Label>
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {getSubjectsForExam(formData.examGoal || initialExamGoal).map(subject => (
+                      <Button
+                        key={`strong-${subject}`}
+                        type="button"
+                        variant={strongSubjects.includes(subject) ? "default" : "outline"}
+                        onClick={() => handleToggleSubject(subject, 'strong')}
+                        className={strongSubjects.includes(subject) ? "bg-green-600 hover:bg-green-700 text-white" : ""}
+                      >
+                        {subject}
+                      </Button>
+                    ))}
+                  </div>
+                  <Label className="mb-2 block">Select your weak subjects</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {getSubjectsForExam(formData.examGoal || initialExamGoal).map(subject => (
+                      <Button
+                        key={`weak-${subject}`}
+                        type="button"
+                        variant={weakSubjects.includes(subject) ? "default" : "outline"}
+                        onClick={() => handleToggleSubject(subject, 'weak')}
+                        className={weakSubjects.includes(subject) ? "bg-red-600 hover:bg-red-700 text-white" : ""}
+                      >
+                        {subject}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Continue with existing steps */}
+            {step === 3 && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label className="block mb-2">Select your preferred study time</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={formData.preferredStudyTime === "morning" ? "default" : "outline"}
+                      onClick={() => handleStudyTimeChange("Morning")}
+                      className={formData.preferredStudyTime === "morning" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                    >
+                      Morning
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.preferredStudyTime === "afternoon" ? "default" : "outline"}
+                      onClick={() => handleStudyTimeChange("Afternoon")}
+                      className={formData.preferredStudyTime === "afternoon" ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                    >
+                      Afternoon
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.preferredStudyTime === "evening" ? "default" : "outline"}
+                      onClick={() => handleStudyTimeChange("Evening")}
+                      className={formData.preferredStudyTime === "evening" ? "bg-orange-600 hover:bg-orange-700" : ""}
+                    >
+                      Evening
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.preferredStudyTime === "night" ? "default" : "outline"}
+                      onClick={() => handleStudyTimeChange("Night")}
+                      className={formData.preferredStudyTime === "night" ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+                    >
+                      Night
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {step === 4 && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label className="block mb-2">Select your study pace</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button
+                      type="button"
+                      variant={formData.learningPace === "fast" ? "default" : "outline"}
+                      onClick={() => handlePaceChange("Aggressive")}
+                      className={formData.learningPace === "fast" ? "bg-purple-600 hover:bg-purple-700" : ""}
+                    >
+                      Aggressive (8+ hours daily)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.learningPace === "moderate" ? "default" : "outline"}
+                      onClick={() => handlePaceChange("Balanced")}
+                      className={formData.learningPace === "moderate" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                    >
+                      Balanced (5-7 hours daily)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.learningPace === "slow" ? "default" : "outline"}
+                      onClick={() => handlePaceChange("Relaxed")}
+                      className={formData.learningPace === "slow" ? "bg-green-600 hover:bg-green-700" : ""}
+                    >
+                      Relaxed (3-4 hours daily)
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="studyHoursPerDay">Daily study hours</Label>
+                  <Input
+                    id="studyHoursPerDay"
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={formData.studyHoursPerDay}
+                    onChange={(e) => setFormData({ ...formData, studyHoursPerDay: parseInt(e.target.value) || 0 })}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            )}
+            
+            {step === 5 && (
+              <div className="space-y-4 py-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h3 className="font-medium text-lg mb-2">Your Study Plan Summary</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Exam Goal:</span>
+                      <span className="text-sm">{formData.examGoal}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Exam Date:</span>
+                      <span className="text-sm">{date ? format(date, "PP") : "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Daily Study Hours:</span>
+                      <span className="text-sm">{formData.studyHoursPerDay} hours</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Study Time:</span>
+                      <span className="text-sm">{formData.preferredStudyTime}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Learning Pace:</span>
+                      <span className="text-sm">{formData.learningPace}</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">Strong Subjects:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {strongSubjects.map(subject => (
+                          <span key={subject} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            {subject}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">Weak Subjects:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {weakSubjects.map(subject => (
+                          <span key={subject} className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                            {subject}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
         
-        {renderStepContent()}
-        
-        {/* Navigation buttons */}
-        <div className="flex justify-between mt-6">
-          {step > 0 ? (
-            <Button variant="outline" onClick={handleBack}>
-              Back
-            </Button>
-          ) : (
-            <div></div>
-          )}
-          
-          {step < steps.length - 1 ? (
-            <Button 
-              onClick={handleNext} 
-              disabled={isNextDisabled()}
-              className="flex items-center"
-            >
-              Next
-              <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button 
-              onClick={handleCreate} 
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Study Plan'}
-            </Button>
-          )}
+        <div className="flex justify-between mt-4">
+          <Button variant="outline" onClick={handleBack}>
+            {step === 1 ? "Cancel" : "Back"}
+          </Button>
+          <Button onClick={handleNext}>
+            {step < 5 ? "Next" : "Create Study Plan"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+
+// Helper function to get subjects based on exam
+function getSubjectsForExam(examGoal: string): string[] {
+  switch (examGoal) {
+    case "NEET":
+      return ["Physics", "Chemistry", "Biology", "Botany", "Zoology"];
+    case "JEE Main":
+    case "JEE Advanced":
+      return ["Physics", "Chemistry", "Mathematics"];
+    case "UPSC CSE":
+      return ["General Studies", "History", "Geography", "Polity", "Economics", "Science & Tech"];
+    case "GATE":
+      return ["Engineering Mathematics", "General Aptitude", "Subject Specific"];
+    case "CAT":
+      return ["Quantitative Ability", "Verbal Ability", "Data Interpretation", "Logical Reasoning"];
+    case "CLAT":
+      return ["English", "Logical Reasoning", "Legal Reasoning", "General Knowledge", "Quantitative Techniques"];
+    case "NDA":
+      return ["Mathematics", "General Ability Test"];
+    case "SSC CGL":
+      return ["General Intelligence", "General Awareness", "Quantitative Aptitude", "English Comprehension"];
+    case "AIIMS":
+      return ["Physics", "Chemistry", "Biology", "General Knowledge", "Aptitude & Logical Thinking"];
+    default:
+      return ["Subject 1", "Subject 2", "Subject 3", "Subject 4"];
+  }
+}
 
 export default CreateStudyPlanWizard;

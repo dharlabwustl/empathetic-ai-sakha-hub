@@ -47,6 +47,8 @@ import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
+import WelcomeBack from './pages/auth/WelcomeBack';
+import ThreeStepWelcome from './components/signup/ThreeStepWelcome';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -70,9 +72,17 @@ function App() {
 
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
+              <Route path="/welcome-tour" element={
+                <ThreeStepWelcome 
+                  userName="New Student" 
+                  examGoal="NEET" 
+                  onComplete={() => window.location.href = "/dashboard/student?showTour=true"}
+                />
+              } />
               
               {/* Post-login welcome back screen */}
-              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
+              <Route path="/welcome-back" element={<WelcomeBack />} />
+              <Route path="/post-login" element={<PostLoginWelcomeBack />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
