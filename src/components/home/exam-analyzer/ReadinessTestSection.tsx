@@ -34,11 +34,20 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
   const [questionCategories, setQuestionCategories] = useState<{
     conceptCompletion: number,
     practicePerformance: number,
-    timeManagement: number
+    timeManagement: number,
+    overallConfidence: number
   }>({
     conceptCompletion: 0,
     practicePerformance: 0, 
-    timeManagement: 0
+    timeManagement: 0,
+    overallConfidence: 0
+  });
+  
+  // Category-specific scores
+  const [categoryScores, setCategoryScores] = useState({
+    conceptCoverage: 0,
+    practiceScore: 0,
+    studyHabits: 0
   });
   
   const startTest = () => {
@@ -57,12 +66,19 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
       setQuestionCategories(prev => ({...prev, practicePerformance: prev.practicePerformance + 1}));
     } else if (currentQuestion.category === 'Time Management') {
       setQuestionCategories(prev => ({...prev, timeManagement: prev.timeManagement + 1}));
+    } else if (currentQuestion.category === 'Overall Confidence') {
+      setQuestionCategories(prev => ({...prev, overallConfidence: prev.overallConfidence + 1}));
     }
+    
+    // Calculate score based on answer index (0-3)
+    // Format of answer is the full text of the option
+    const optionIndex = currentQuestion.options.findIndex(option => option === answer);
     
     const newAnswer: UserAnswer = {
       questionId: currentQuestion.id,
-      answer,
+      answer: (optionIndex + 1).toString(), // Store as "1", "2", "3", "4"
       timeToAnswer: 0, // Time doesn't matter for self-assessment
+      category: currentQuestion.category
     };
     
     setUserAnswers(prev => [...prev, newAnswer]);
@@ -71,9 +87,40 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prevIndex => prevIndex + 1);
     } else {
+      // Calculate category scores before completing
+      calculateCategoryScores([...userAnswers, newAnswer]);
       setIsTestActive(false);
-      onCompleteTest(userAnswers);
+      onCompleteTest([...userAnswers, newAnswer]);
     }
+  };
+  
+  const calculateCategoryScores = (answers: UserAnswer[]) => {
+    // Group answers by category
+    const conceptAnswers = answers.filter(a => a.category === 'Concept Completion');
+    const practiceAnswers = answers.filter(a => a.category === 'Practice Performance');
+    const timeAnswers = answers.filter(a => a.category === 'Time Management');
+    
+    // Calculate scores (option index 0-3 represents readiness level)
+    const getScoreFromAnswers = (categoryAnswers: UserAnswer[]) => {
+      if (categoryAnswers.length === 0) return 0;
+      
+      const total = categoryAnswers.reduce((sum, answer) => {
+        const score = parseInt(answer.answer) - 1; // Convert "1"-"4" to 0-3
+        return sum + score;
+      }, 0);
+      
+      return Math.floor((total / (categoryAnswers.length * 3)) * 100); // Scale to percentage
+    };
+    
+    const conceptScore = getScoreFromAnswers(conceptAnswers);
+    const practiceScore = getScoreFromAnswers(practiceAnswers);
+    const studyScore = getScoreFromAnswers(timeAnswers);
+    
+    setCategoryScores({
+      conceptCoverage: conceptScore,
+      practiceScore: practiceScore,
+      studyHabits: studyScore
+    });
   };
   
   const renderQuestion = () => {
@@ -183,15 +230,15 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
             <div className="grid grid-cols-3 gap-2 mt-4">
               <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Concept Coverage</p>
-                <p className="font-medium">{Math.round(results.score * 0.7 + Math.random() * 15)}%</p>
+                <p className="font-medium">{categoryScores.conceptCoverage}%</p>
               </div>
               <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Practice Score</p>
-                <p className="font-medium">{Math.round(results.score * 0.8 + Math.random() * 10)}%</p>
+                <p className="font-medium">{categoryScores.practiceScore}%</p>
               </div>
               <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Study Habits</p>
-                <p className="font-medium">{Math.round(results.score * 0.6 + Math.random() * 20)}%</p>
+                <p className="font-medium">{categoryScores.studyHabits}%</p>
               </div>
             </div>
           </div>

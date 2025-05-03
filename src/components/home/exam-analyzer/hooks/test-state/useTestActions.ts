@@ -1,27 +1,28 @@
 
 import { useState } from 'react';
-import { TestType, UserAnswer, TestCompletionState, ExamResults } from '../../types';
+import { TestType, UserAnswer } from '../../types';
 import { generateReadinessReport } from '../../utils/readinessReportGenerator';
-import { generateConceptReport } from '../../utils/conceptReportGenerator';
-import { generateOverallReport } from '../../utils/overallReportGenerator';
+import { generateConceptMasteryReport } from '../../utils/conceptMasteryReportGenerator';
+import { generateCognitiveStressReport } from '../../utils/cognitiveStressReportGenerator';
 
-interface TestActionsProps {
+interface UseTestActionsProps {
   selectedExam: string;
-  setSelectedExam: (value: string) => void;
+  setSelectedExam: (exam: string) => void;
   currentTest: TestType;
   setCurrentTest: (test: TestType) => void;
   progress: number;
-  setProgress: (value: number) => void;
+  setProgress: (progress: number) => void;
   loading: boolean;
-  setLoading: (value: boolean) => void;
-  testCompleted: TestCompletionState;
-  setTestCompleted: (value: TestCompletionState) => void;
-  results: ExamResults;
-  setResults: (value: ExamResults) => void;
+  setLoading: (loading: boolean) => void;
+  testCompleted: boolean;
+  setTestCompleted: (completed: boolean) => void;
+  results: any;
+  setResults: (results: any) => void;
 }
 
 export const useTestActions = ({
   selectedExam,
+  setSelectedExam,
   currentTest,
   setCurrentTest,
   progress,
@@ -32,110 +33,117 @@ export const useTestActions = ({
   setTestCompleted,
   results,
   setResults
-}: TestActionsProps) => {
+}: UseTestActionsProps) => {
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
 
-  // Start the test flow
   const handleStartTest = () => {
-    setCurrentTest('readiness');
-    setProgress(25);
+    if (!selectedExam) {
+      return;
+    }
+    setCurrentTest('readiness-test');
+    setProgress(0);
+    setTestCompleted(false);
+    setResults(null);
   };
 
-  // Readiness Test actions
+  const handleNavigation = (nextTest: TestType) => {
+    setCurrentTest(nextTest);
+    setProgress(0);
+    setTestCompleted(false);
+    setResults(null);
+  };
+
+  const handleStartOver = () => {
+    setCurrentTest('welcome');
+    setProgress(0);
+    setTestCompleted(false);
+    setSelectedExam('');
+    setResults(null);
+    setUserAnswers([]);
+  };
+
+  // Simulate a readiness test completion
   const simulateReadinessTest = () => {
     setLoading(true);
+    
     setTimeout(() => {
       setLoading(false);
+      setTestCompleted(true);
     }, 1500);
   };
 
   const handleReadinessTestComplete = (answers: UserAnswer[]) => {
-    // Generate readiness report
-    const readinessResult = generateReadinessReport(answers, selectedExam);
-    
-    // Update completed tests
-    setTestCompleted({
-      ...testCompleted,
-      readiness: true
-    });
-    
-    // Update results
-    setResults({
-      ...results,
-      readiness: readinessResult
-    });
-    
-    // Update progress
-    setProgress(50);
-  };
-
-  // Concept Test actions
-  const simulateConceptTest = () => {
+    setUserAnswers(answers);
     setLoading(true);
+    
     setTimeout(() => {
+      const readinessResults = generateReadinessReport(answers, selectedExam);
+      setResults(readinessResults);
       setLoading(false);
+      setTestCompleted(true);
     }, 1500);
   };
 
+  // Simulate a concept mastery test completion
+  const simulateConceptTest = () => {
+    setLoading(true);
+    
+    setTimeout(() => {
+      setLoading(false);
+      setTestCompleted(true);
+    }, 2000);
+  };
+
   const handleConceptTestComplete = (answers: UserAnswer[]) => {
-    // Generate concept test report
-    const conceptResult = generateConceptReport(answers, selectedExam);
+    setLoading(true);
     
-    // Update completed tests
-    setTestCompleted({
-      ...testCompleted,
-      concept: true
-    });
-    
-    // Update results
-    setResults({
-      ...results,
-      concept: conceptResult,
-      // Generate overall report based on all test results
-      overall: generateOverallReport({
-        readiness: results.readiness,
-        concept: conceptResult,
-        // We're not using stress test anymore
-        stress: results.stress 
-      }, selectedExam)
-    });
-    
-    // Update progress
-    setProgress(75);
+    setTimeout(() => {
+      const conceptResults = generateConceptMasteryReport(answers, selectedExam);
+      
+      // Match up concept test results with readiness results
+      if (results && results.categoryScores) {
+        conceptResults.readinessMatch = {
+          conceptCoverageAccuracy: 
+            100 - Math.abs(results.categoryScores.conceptCoverage - conceptResults.score),
+          practiceReadinessMatch:
+            100 - Math.abs(results.categoryScores.practiceScore - conceptResults.score)
+        };
+      }
+      
+      setResults(conceptResults);
+      setLoading(false);
+      setTestCompleted(true);
+    }, 2000);
   };
 
-  // Handle navigation between tests
-  const handleNavigation = (test: TestType) => {
-    setCurrentTest(test);
+  // Simulate a stress test completion
+  const simulateStressTest = () => {
+    setLoading(true);
     
-    // Update progress based on test
-    switch (test) {
-      case 'readiness':
-        setProgress(25);
-        break;
-      case 'concept':
-        setProgress(50);
-        break;
-      case 'report':
-        setProgress(100);
-        break;
-      default:
-        setProgress(0);
-    }
+    setTimeout(() => {
+      const stressResults = generateCognitiveStressReport(userAnswers, selectedExam);
+      setResults(stressResults);
+      setLoading(false);
+      setTestCompleted(true);
+    }, 1500);
   };
 
-  // Reset and start over
-  const handleStartOver = () => {
-    setCurrentTest('intro');
-    setTestCompleted({
-      readiness: false,
-      stress: false, // keep for backward compatibility
-      concept: false
-    });
-    setProgress(0);
+  const handleStressTestComplete = (answers: UserAnswer[]) => {
+    setUserAnswers(answers);
+    setLoading(true);
+    
+    setTimeout(() => {
+      const stressResults = generateCognitiveStressReport(answers, selectedExam);
+      setResults(stressResults);
+      setLoading(false);
+      setTestCompleted(true);
+    }, 1500);
   };
 
   return {
     handleStartTest,
+    simulateStressTest,
+    handleStressTestComplete,
     simulateReadinessTest,
     handleReadinessTestComplete,
     simulateConceptTest,
