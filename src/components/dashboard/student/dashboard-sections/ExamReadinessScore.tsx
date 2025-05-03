@@ -49,32 +49,14 @@ const ReadinessScoreMeter = ({ score }: { score: number }) => {
   );
 };
 
-interface CategoryScores {
-  conceptCoverage: number;
-  practiceScore: number;
-  studyHabits: number;
-}
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-const getDefaultCategoryScores = (): CategoryScores => {
-  return {
-    conceptCoverage: 75,
-    practiceScore: 68,
-    studyHabits: 60
-  };
-};
-
-// Get stored readiness scores from localStorage or use defaults
-const getStoredCategoryScores = (): CategoryScores => {
-  try {
-    const stored = localStorage.getItem('readinessCategoryScores');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (error) {
-    console.error('Error parsing stored readiness scores:', error);
-  }
-  return getDefaultCategoryScores();
-};
+const data = [
+  { name: 'Concepts', value: 75 },
+  { name: 'Practice Tests', value: 68 },
+  { name: 'Flashcards', value: 82 },
+  { name: 'Revision', value: 60 }
+];
 
 interface ExamReadinessScoreProps {
   overallScore: number;
@@ -88,16 +70,6 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
   daysUntilExam = 85
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const categoryScores = getStoredCategoryScores();
-  
-  const data = [
-    { name: 'Concepts', value: categoryScores.conceptCoverage },
-    { name: 'Practice Tests', value: categoryScores.practiceScore },
-    { name: 'Study Habits', value: categoryScores.studyHabits },
-    { name: 'Revision', value: Math.round((categoryScores.conceptCoverage + categoryScores.practiceScore) / 2) }
-  ];
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <Card className="overflow-hidden">
@@ -206,9 +178,9 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
               <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
                 <h5 className="font-medium mb-2">Recommendations:</h5>
                 <ul className="space-y-1 text-muted-foreground list-disc list-inside">
-                  <li>Focus more on Study Habits: {categoryScores.studyHabits}%</li>
-                  <li>Increase Practice Test frequency: {categoryScores.practiceScore}%</li>
-                  <li>Keep up the good work with Concept Coverage: {categoryScores.conceptCoverage}%</li>
+                  <li>Focus more on Revision sessions</li>
+                  <li>Increase Practice Test frequency</li>
+                  <li>Keep up the good work with Flashcards!</li>
                 </ul>
               </div>
             </div>

@@ -6,14 +6,6 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
   let totalWeight = 0;
   let totalScore = 0;
   
-  // Initialize category scores
-  let conceptCompletionScore = 0;
-  let conceptCompletionCount = 0;
-  let practicePerformanceScore = 0;
-  let practicePerformanceCount = 0;
-  let timeManagementScore = 0;
-  let timeManagementCount = 0;
-  
   answers.forEach(answer => {
     // Get the question categories and weight differently
     if (answer.questionId.includes('rt-')) {
@@ -26,37 +18,12 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
       
       // Add points based on selected option (higher index = better readiness)
       totalScore += optionIndex;
-      
-      // Track scores by category
-      if (answer.category === 'Concept Completion') {
-        conceptCompletionScore += optionIndex;
-        conceptCompletionCount++;
-      } else if (answer.category === 'Practice Performance') {
-        practicePerformanceScore += optionIndex;
-        practicePerformanceCount++;
-      } else if (answer.category === 'Time Management') {
-        timeManagementScore += optionIndex;
-        timeManagementCount++;
-      }
     }
   });
   
   // Convert to percentage, ensuring we avoid division by zero
   const score = answers.length > 0 
     ? Math.floor((totalScore / (answers.length * 3)) * 100) 
-    : 0;
-  
-  // Calculate category-specific scores
-  const conceptCoverageScore = conceptCompletionCount > 0
-    ? Math.floor((conceptCompletionScore / (conceptCompletionCount * 3)) * 100)
-    : 0;
-  
-  const practiceScore = practicePerformanceCount > 0
-    ? Math.floor((practicePerformanceScore / (practicePerformanceCount * 3)) * 100)
-    : 0;
-  
-  const studyHabitsScore = timeManagementCount > 0
-    ? Math.floor((timeManagementScore / (timeManagementCount * 3)) * 100)
     : 0;
   
   // Determine level based on score
@@ -140,19 +107,11 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
     ];
   }
   
-  // Add category scores to the results
-  const categoryScores = {
-    conceptCoverage: conceptCoverageScore,
-    practiceScore: practiceScore,
-    studyHabits: studyHabitsScore
-  };
-  
   return {
     score,
     level,
     analysis,
     strengths,
-    improvements,
-    categoryScores
+    improvements
   };
 };
