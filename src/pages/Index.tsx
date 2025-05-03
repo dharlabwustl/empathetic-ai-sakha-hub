@@ -14,6 +14,7 @@ import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import AchievementsSection from '@/components/home/AchievementsSection';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -56,6 +57,11 @@ const Index = () => {
           scrollToForWhom={() => {}}
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
+        
+        {/* KPI Stats is inside HeroSection */}
+        
+        {/* Add the new AchievementsSection right after KPI Stats */}
+        <AchievementsSection />
         
         <WhatIsSection />
         
