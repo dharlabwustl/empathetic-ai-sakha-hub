@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -50,6 +51,7 @@ import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import PostSignupWelcome from '@/components/signup/PostSignupWelcome';
 import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
+import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 
 // Lazy load the admin dashboard
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -70,6 +72,9 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
+              
+              {/* Public Flask Guide route */}
+              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
               {adminRoutes.map((route, index) => (
