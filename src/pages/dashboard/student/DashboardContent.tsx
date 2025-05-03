@@ -76,9 +76,11 @@ const DashboardContent = ({
     "overview": "Dashboard Overview",
     "today": "Today's Plan",
     "academic": "Academic Advisor",
+    "tutor": "24/7 AI Tutor",
     "concepts": "Concept Cards",
     "flashcards": "Flashcards",
     "practice-exam": "Practice Exams",
+    "feel-good-corner": "Feel Good Corner",
     "notifications": "Notifications"
   };
 
@@ -86,9 +88,11 @@ const DashboardContent = ({
     "overview": "Your personalized learning dashboard",
     "today": "Your personalized daily study schedule",
     "academic": "Get guidance for your academic journey",
+    "tutor": "Get 24/7 help with your studies from our AI tutor",
     "concepts": "Master key concepts and fundamentals",
     "flashcards": "Review and memorize with smart flashcards",
     "practice-exam": "Test your knowledge and track progress",
+    "feel-good-corner": "Take a break and boost your motivation",
     "notifications": "Stay updated with important alerts"
   };
 

@@ -10,7 +10,9 @@ import {
   Brain, 
   FileText,
   Bell,
-  ChevronRight
+  ChevronRight,
+  Smile,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -30,6 +32,7 @@ interface NavItem {
   description: string;
   badge?: number | string;
   isNew?: boolean;
+  isPriority?: boolean;
 }
 
 interface EnhancedNavigationProps {
@@ -53,10 +56,27 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   const allNavItems: NavItem[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview", description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today", description: "Daily tasks and schedule", badge: 3 },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic", description: "Personalized academic guidance", isNew: true },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic", description: "Personalized academic guidance" },
+    { 
+      id: "tutor", 
+      label: "24/7 AI Tutor", 
+      icon: MessageSquare, 
+      path: "/dashboard/student/tutor", 
+      description: "Get help from our AI tutor anytime", 
+      isNew: true,
+      isPriority: true
+    },
     { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts", description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards", description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam", description: "Mock tests and exam preparation" },
+    { 
+      id: "feel-good-corner", 
+      label: "Feel Good Corner", 
+      icon: Smile, 
+      path: "/dashboard/student/feel-good-corner", 
+      description: "Take a break and boost your mood", 
+      isPriority: true 
+    },
     { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications", description: "Important updates and alerts", badge: 2 }
   ];
   
@@ -74,11 +94,18 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     onTabChange(id);
   };
 
+  // Sort items to put priority ones first
+  const sortedNavItems = [...allNavItems].sort((a, b) => {
+    if (a.isPriority && !b.isPriority) return -1;
+    if (!a.isPriority && b.isPriority) return 1;
+    return 0;
+  });
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10 mb-6">
         <div className="flex items-center justify-between overflow-x-auto gap-1">
-          {allNavItems.map((item) => (
+          {sortedNavItems.map((item) => (
             <Tooltip key={item.id}>
               <TooltipTrigger asChild>
                 <motion.div
@@ -92,7 +119,8 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                       "flex flex-col items-center gap-1 py-2 px-3 h-auto relative",
                       isActive(item.id) 
                         ? "bg-primary/90 text-primary-foreground" 
-                        : "text-muted-foreground hover:bg-accent"
+                        : "text-muted-foreground hover:bg-accent",
+                      item.isPriority && !isActive(item.id) && "bg-violet-50 dark:bg-violet-900/30"
                     )}
                     onClick={() => handleTabClick(item.id)}
                   >
@@ -117,6 +145,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                 <p>{item.description}</p>
                 {item.badge && <p className="text-primary font-semibold mt-1">{item.badge} new items</p>}
                 {item.isNew && <p className="text-green-500 font-semibold mt-1">New feature</p>}
+                {item.isPriority && <p className="text-violet-500 font-semibold mt-1">Recommended feature</p>}
               </TooltipContent>
             </Tooltip>
           ))}
