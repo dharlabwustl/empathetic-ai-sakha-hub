@@ -66,19 +66,17 @@ export const generateTabContents = ({
         <DashboardOverview
           userProfile={userProfile}
           kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
           features={features}
           onViewConcepts={handleViewConcepts}
           onViewFlashcards={handleViewFlashcards}
           onViewPracticeExams={handleViewPracticeExams}
           lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
+          suggestedNextAction={suggestedNextAction || ""}
         />
       </>
     ),
     "today": <TodayPlanView userProfile={userProfile} />,
-    "academic": <AcademicAdvisor userProfile={userProfile} />,
+    "academic": <AcademicAdvisor userProfile={{ examPreparation: userProfile.examPreparation }} />,
     "concepts": <ConceptsView />,
     "flashcards": <FlashcardsView />,
     "practice-exam": <PracticeExamsView />,
