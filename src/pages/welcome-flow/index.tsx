@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import WelcomeFlow from '@/components/signup/WelcomeFlow';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
+import { useToast } from "@/hooks/use-toast";
 
 const WelcomeFlowPage = () => {
   const navigate = useNavigate();
   const [showTour, setShowTour] = useState(false);
   const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const completedOnboarding = searchParams.get('completedOnboarding') === 'true';
   const isNewUser = searchParams.get('new') === 'true';
 
@@ -15,8 +17,12 @@ const WelcomeFlowPage = () => {
     // If user completes the welcome flow, show the tour
     if (completedOnboarding) {
       setShowTour(true);
-      // Mark that this user has seen the tour
-      localStorage.setItem("hasSeenTour", "true");
+      // Mark that this user has seen the onboarding
+      const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") || "{}") : {};
+      localStorage.setItem("userData", JSON.stringify({
+        ...userData,
+        completedOnboarding: true
+      }));
     }
 
     // Check if this is the first time user is visiting after signup
@@ -34,14 +40,28 @@ const WelcomeFlowPage = () => {
     localStorage.removeItem('new_user_signup');
     // Navigate to dashboard
     navigate('/dashboard/student');
+    toast({
+      title: "Welcome to your dashboard!",
+      description: "You can always access the tour again from the navigation menu."
+    });
   };
 
   const handleCompleteTour = () => {
     setShowTour(false);
     // Remove the new user flag
     localStorage.removeItem('new_user_signup');
+    // Mark that the user has seen the welcome tour
+    const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") || "{}") : {};
+    localStorage.setItem("userData", JSON.stringify({
+      ...userData,
+      sawWelcomeTour: true
+    }));
     // Navigate to dashboard
     navigate('/dashboard/student');
+    toast({
+      title: "Tour Completed!",
+      description: "You're all set to start using PREPZR. Happy studying!"
+    });
   };
 
   return (

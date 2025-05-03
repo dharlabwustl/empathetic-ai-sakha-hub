@@ -41,7 +41,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
         setStrongSubjects([...strongSubjects, { name: subject, proficiency: 'strong' }]);
       }
     } else {
-      if (weakSubjects.some(s => s.name === subject)) {
+      if (weakSubjects.some(s => s.name !== subject)) {
         setWeakSubjects(weakSubjects.filter(s => s.name !== subject));
       } else {
         setStrongSubjects(strongSubjects.filter(s => s.name !== subject));

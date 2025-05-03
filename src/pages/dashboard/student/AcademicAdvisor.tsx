@@ -45,7 +45,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         onViewPlanDetails={handleViewPlanDetails}
       />
 
-      {/* Study Plan Creation Dialog - Using the isOpen prop instead of open */}
+      {/* Study Plan Creation Dialog */}
       <CreateStudyPlanWizard
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}

@@ -35,6 +35,7 @@ export interface StudyPlan {
   learningPace?: 'slow' | 'moderate' | 'fast';
   progressPercentage?: number;
   daysLeft?: number;
+  goal?: string;
 }
 
 export interface NewStudyPlan {
@@ -46,4 +47,5 @@ export interface NewStudyPlan {
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace?: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
+  goal?: string;
 }

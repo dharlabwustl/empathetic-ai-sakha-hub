@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book, Calendar, ClipboardList, ArrowRight, CheckCircle } from 'lucide-react';
+import { Book, Calendar, ClipboardList, ArrowRight, CheckCircle, GraduationCap, Clock, Brain } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const WelcomeFlow = () => {
@@ -28,29 +28,29 @@ const WelcomeFlow = () => {
         return (
           <Card className="w-full max-w-xl bg-white shadow-lg border-0">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl font-bold">Your Study Plan</CardTitle>
-              <CardDescription className="text-lg">Personalized and adaptive learning path</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold">Welcome to PREPZR</CardTitle>
+              <CardDescription className="text-lg">Your AI-powered study companion</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="p-4 rounded-full bg-primary/10 mb-6">
-                <Calendar className="h-16 w-16 text-primary" />
+                <GraduationCap className="h-16 w-16 text-primary" />
               </div>
               <div className="space-y-4">
                 <p className="text-center">
-                  We've created a personalized study plan based on your goals and learning preferences.
+                  PREPZR helps you excel in your exams with personalized study plans and AI-powered adaptive learning.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start space-x-2">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Daily and weekly study targets customized to your schedule</span>
+                    <span>Personalized study plans tailored to your goals and learning style</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Dynamic pacing that adapts to your progress</span>
+                    <span>AI tutor that adapts to your strengths and weaknesses</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Subject prioritization based on your strengths and weaknesses</span>
+                    <span>Track your progress with detailed analytics and insights</span>
                   </li>
                 </ul>
               </div>
@@ -66,31 +66,41 @@ const WelcomeFlow = () => {
         return (
           <Card className="w-full max-w-xl bg-white shadow-lg border-0">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl font-bold">Smart Flashcards</CardTitle>
-              <CardDescription className="text-lg">Master concepts faster and more effectively</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold">Your Study Plan</CardTitle>
+              <CardDescription className="text-lg">Optimized time allocation for your success</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="p-4 rounded-full bg-primary/10 mb-6">
-                <Book className="h-16 w-16 text-primary" />
+                <Clock className="h-16 w-16 text-primary" />
               </div>
               <div className="space-y-4">
                 <p className="text-center">
-                  Our AI-powered flashcards adapt to your learning pace and help identify knowledge gaps.
+                  Your time is precious. Our AI allocates study hours based on your learning pace and exam timeline.
                 </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Spaced repetition for long-term retention</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Visual learning with diagrams and illustrations</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Track your recall accuracy and memory strength</span>
-                  </li>
-                </ul>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-center mb-2">Optimized Time Allocation</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center justify-between">
+                      <span>Strong Subjects:</span>
+                      <span className="font-medium">30% of study time</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Medium Proficiency:</span>
+                      <span className="font-medium">40% of study time</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Weak Areas:</span>
+                      <span className="font-medium">50% of study time</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Regular Breaks:</span>
+                      <span className="font-medium">Pomodoro technique</span>
+                    </li>
+                  </ul>
+                </div>
+                <p className="text-center text-sm text-muted-foreground">
+                  Your schedule adapts in real-time as you progress through your studies.
+                </p>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
@@ -105,37 +115,35 @@ const WelcomeFlow = () => {
         return (
           <Card className="w-full max-w-xl bg-white shadow-lg border-0">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl font-bold">Practice Exams & Pacing</CardTitle>
-              <CardDescription className="text-lg">Build confidence with realistic exam practice</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-bold">From Our Founder</CardTitle>
+              <CardDescription className="text-lg">A personal message for your learning journey</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
-              <div className="p-4 rounded-full bg-primary/10 mb-6">
-                <ClipboardList className="h-16 w-16 text-primary" />
+              <div className="rounded-full bg-gray-100 w-24 h-24 mb-4 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-3xl font-bold">
+                  DP
+                </div>
               </div>
-              <div className="space-y-4">
-                <p className="text-center">
-                  Prepare for the real exam with timed practice tests and performance analytics.
+              <p className="font-medium text-center mb-1">Dr. Patel</p>
+              <p className="text-sm text-muted-foreground text-center mb-4">Founder, PREPZR</p>
+              
+              <div className="space-y-4 text-center">
+                <p className="italic">
+                  "At PREPZR, we believe every student deserves personalized guidance to reach their full potential. 
+                  Our AI-powered platform is designed to adapt to your unique learning style and help you achieve your academic goals."
                 </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Real exam-style questions and timing</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Detailed performance analysis by topic and question type</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Personalized recommendations for improvement</span>
-                  </li>
-                </ul>
+                <p>
+                  Your journey with PREPZR begins now. We're excited to help you excel in your exams and become the best version of yourself.
+                </p>
+                <div className="pt-4">
+                  <p className="font-medium">Ready to transform your study experience?</p>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
               <Button onClick={handleNext} className="flex items-center gap-2">
-                Go to Dashboard <ArrowRight className="h-4 w-4" />
+                Let's Begin <ArrowRight className="h-4 w-4" />
               </Button>
             </CardFooter>
           </Card>
