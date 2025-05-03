@@ -34,16 +34,12 @@ const getMoodEmoji = (mood?: MoodType) => {
   switch (mood) {
     case MoodType.Motivated:
       return '😀';
-    case MoodType.Confident:
-      return '😎';
     case MoodType.Focused:
       return '🧠';
     case MoodType.Tired:
       return '😴';
     case MoodType.Anxious:
       return '😰';
-    case MoodType.Distracted:
-      return '🤔';
     default:
       return '😐';
   }
@@ -82,11 +78,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
-          {userProfile.profilePicture ? (
-            <AvatarImage src={userProfile.profilePicture} alt={userProfile.name} />
-          ) : (
-            <AvatarFallback className="text-lg bg-primary/10 text-primary">{userInitials}</AvatarFallback>
-          )}
+          <AvatarFallback className="text-lg bg-primary/10 text-primary">{userInitials}</AvatarFallback>
         </Avatar>
         <div>
           <h1 className="text-xl font-semibold">Hello, {userProfile.name || 'Student'} 
@@ -102,9 +94,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                   <DropdownMenuItem onClick={() => handleMoodChange(MoodType.Motivated)}>
                     <span className="mr-2">😀</span> Motivated
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleMoodChange(MoodType.Confident)}>
-                    <span className="mr-2">😎</span> Confident
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleMoodChange(MoodType.Focused)}>
                     <span className="mr-2">🧠</span> Focused
                   </DropdownMenuItem>
@@ -113,9 +102,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleMoodChange(MoodType.Anxious)}>
                     <span className="mr-2">😰</span> Anxious
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleMoodChange(MoodType.Distracted)}>
-                    <span className="mr-2">🤔</span> Distracted
                   </DropdownMenuItem>
                 </div>
               </DropdownMenuContent>
