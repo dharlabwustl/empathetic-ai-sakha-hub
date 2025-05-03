@@ -34,7 +34,7 @@ const AcademicAdvisorView: React.FC = () => {
           <GraduationCap className="h-8 w-8 text-indigo-600" />
           Academic Advisor
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 mt-1 text-base">
           Your personalized study plans and academic progress tracking
         </p>
       </div>

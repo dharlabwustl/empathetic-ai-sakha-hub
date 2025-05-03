@@ -75,17 +75,22 @@ const DashboardLayout = ({
   const features = getFeatures();
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
+  // Check if user is brand new
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  
   const handleOpenTour = () => {
     setShowTour(true);
   };
   
   const handleCloseTour = () => {
     setShowTour(false);
+    localStorage.removeItem('new_user_signup');
     onSkipTour();
   };
   
   const handleCompleteTourAndClose = () => {
     setShowTour(false);
+    localStorage.removeItem('new_user_signup');
     onCompleteTour();
   };
 
@@ -127,7 +132,7 @@ const DashboardLayout = ({
         activeTab={activeTab}
       />
       
-      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
+      <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
         <TopNavigationControls 
           hideSidebar={hideSidebar}
           onToggleSidebar={onToggleSidebar}
@@ -207,7 +212,7 @@ const DashboardLayout = ({
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+        isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}

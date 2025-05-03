@@ -90,6 +90,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       title: 'Notifications',
       href: '/dashboard/student/notifications',
       icon: <Bell className="h-5 w-5" />
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      href: '/dashboard/student/settings',
+      icon: <Settings className="h-5 w-5" />
     }
   ];
 
@@ -212,15 +218,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
           ))}
         </nav>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t mt-auto">
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/settings">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Link>
-          </Button>
-        </div>
+        {/* Remove the settings footer section */}
       </div>
     </div>
   );
