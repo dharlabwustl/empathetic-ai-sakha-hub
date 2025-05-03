@@ -11,6 +11,7 @@ import { UserAnswer } from './types';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Timer } from 'lucide-react';
 import { examSpecificDetails } from './testDataService';
+import StressTestSection from './stress-test/StressTestSection';
 
 interface TestContainerProps {
   currentTest: TestType;
@@ -22,10 +23,12 @@ interface TestContainerProps {
   results: ExamResults;
   examTypes: ExamType[];
   simulateReadinessTest: () => void;
+  simulateStressTest: () => void;
   simulateConceptTest: () => void;
   handleStartTest: () => void;
   handleStartOver: () => void;
   handleReadinessTestComplete: (answers: UserAnswer[]) => void;
+  handleStressTestComplete: (answers: UserAnswer[]) => void;
   handleConceptTestComplete: (answers: UserAnswer[]) => void;
   handleNavigation: (test: TestType) => void;
 }
@@ -40,10 +43,12 @@ const TestContainer: React.FC<TestContainerProps> = ({
   results,
   examTypes,
   simulateReadinessTest,
+  simulateStressTest,
   simulateConceptTest,
   handleStartTest,
   handleStartOver,
   handleReadinessTestComplete,
+  handleStressTestComplete,
   handleConceptTestComplete,
   handleNavigation,
 }) => {
@@ -93,6 +98,19 @@ const TestContainer: React.FC<TestContainerProps> = ({
             results={results.readiness}
             simulateTest={simulateReadinessTest}
             onCompleteTest={handleReadinessTestComplete}
+            onContinue={() => handleNavigation('stress')}
+            examDetails={isNEET ? examDetails : undefined}
+          />
+        )}
+        
+        {currentTest === 'stress' && (
+          <StressTestSection 
+            loading={loading}
+            testCompleted={testCompleted.stress}
+            selectedExam={selectedExam}
+            results={results.stress}
+            simulateTest={simulateStressTest}
+            onCompleteTest={handleStressTestComplete}
             onContinue={() => handleNavigation('concept')}
             examDetails={isNEET ? examDetails : undefined}
           />

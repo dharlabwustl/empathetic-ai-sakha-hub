@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { TestType, UserAnswer, TestCompletionState, ExamResults } from '../../types';
-import { generateReadinessReport } from '../../utils/readinessReportGenerator';
-import { generateConceptReport } from '../../utils/conceptReportGenerator';
-import { generateOverallReport } from '../../utils/overallReportGenerator';
+import { TestType, UserAnswer, TestCompletionState, ExamResults } from '../types';
+import { generateReadinessReport } from '../utils/readinessReportGenerator';
+import { generateStressReport } from '../utils/stressReportGenerator';
+import { generateConceptReport } from '../utils/conceptReportGenerator';
+import { generateOverallReport } from '../utils/overallReportGenerator';
 
 interface TestActionsProps {
   selectedExam: string;
@@ -77,10 +78,19 @@ export const useTestActions = ({
   };
 
   const handleStressTestComplete = (answers: UserAnswer[]) => {
-    // No longer used, but kept for backward compatibility
+    // Generate stress test report
+    const stressResult = generateStressReport(answers, selectedExam);
+    
+    // Update completed tests
     setTestCompleted({
       ...testCompleted,
       stress: true
+    });
+    
+    // Update results
+    setResults({
+      ...results,
+      stress: stressResult
     });
     
     // Update progress
@@ -112,8 +122,8 @@ export const useTestActions = ({
       // Generate overall report based on all test results
       overall: generateOverallReport({
         readiness: results.readiness,
-        concept: conceptResult,
-        stress: results.stress 
+        stress: results.stress,
+        concept: conceptResult
       }, selectedExam)
     });
     
