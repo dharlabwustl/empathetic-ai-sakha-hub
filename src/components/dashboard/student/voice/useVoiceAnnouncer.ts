@@ -59,95 +59,95 @@ export const useVoiceAnnouncer = () => {
     };
   }, []);
   
-  // Process a text query and respond with voice
+  // Process a text query and respond with voice - with more enthusiastic responses
   const processQuery = useCallback((query: string): string => {
     const lowerQuery = query.toLowerCase();
     
-    // Basic intent detection
+    // Basic intent detection with more enthusiastic responses
     if (lowerQuery.includes("hello") || lowerQuery.includes("hi") || lowerQuery.includes("namaste")) {
-      return "Namaste! I'm here to assist you with your studies. How may I help you today?";
+      return "Namaste! I'm so excited to be your study assistant today! How may I help you with your learning journey?";
     }
     
     if (lowerQuery.includes("who are you") || lowerQuery.includes("what are you")) {
-      return "I am your AI voice assistant with a pleasant Indian accent. I'm here to help you with your studies, provide reminders, and motivate you to achieve your academic goals with prep-eez-er.";
+      return "I am your friendly AI voice assistant with a pleasant Indian accent! I'm here to help you with your studies, provide cheerful reminders, and motivate you to achieve your academic goals with prep-eez-er!";
     }
     
     if (lowerQuery.includes("how are you")) {
-      return "I'm functioning perfectly well, thank you! Ready to assist you with your academic journey.";
+      return "I'm feeling absolutely wonderful today, thank you for asking! I'm ready and excited to assist you with your academic journey!";
     }
     
     if (lowerQuery.includes("help") || lowerQuery.includes("what can you do")) {
-      return "I can announce your daily tasks, read important information, motivate you when you're feeling down, and answer basic questions about your studies. Just ask away!";
+      return "I'd be delighted to help you! I can announce your daily tasks with enthusiasm, read important information, motivate you when you're feeling down, and answer questions about your studies. Just ask me anything!";
     }
     
     if (lowerQuery.includes("what is prepzr") || lowerQuery.includes("about prepzr") || lowerQuery.includes("tell me about prepzr")) {
-      return "prep-eez-er is your complete preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests. With AI-powered learning tools, personalized study plans, and interactive content, prep-eez-er makes your academic journey smoother and more effective.";
+      return "prep-eez-er is your amazing preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests! With AI-powered learning tools, personalized study plans, and interactive content, prep-eez-er makes your academic journey smoother and more effective!";
     }
     
     if (lowerQuery.includes("how to start") || lowerQuery.includes("getting started") || lowerQuery.includes("begin") || lowerQuery.includes("first time")) {
-      return "Welcome to prep-eez-er! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
+      return "Welcome to prep-eez-er! I'm so excited you're here! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
     }
     
     if (lowerQuery.includes("time") || lowerQuery.includes("what time")) {
       const now = new Date();
-      return `The current time is ${now.toLocaleTimeString()}`;
+      return `The current time is ${now.toLocaleTimeString()}! Hope you're having a productive day!`;
     }
     
     if (lowerQuery.includes("date") || lowerQuery.includes("what day")) {
       const now = new Date();
-      return `Today is ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+      return `Today is ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}! A perfect day for learning something new!`;
     }
     
     if (lowerQuery.includes("motivate") || lowerQuery.includes("inspire")) {
       const motivationalQuotes = [
-        "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-        "Education is the most powerful weapon which you can use to change the world.",
-        "The beautiful thing about learning is that no one can take it away from you.",
-        "The more that you read, the more things you will know. The more that you learn, the more places you'll go.",
-        "Believe you can and you're halfway there.",
-        "Your education is a dress rehearsal for a life that is yours to lead."
+        "Success is not final, failure is not fatal: it is the courage to continue that counts! You've got this!",
+        "Education is the most powerful weapon which you can use to change the world! And you're doing amazingly well!",
+        "The beautiful thing about learning is that no one can take it away from you! Keep shining bright!",
+        "The more that you read, the more things you will know. The more that you learn, the more places you'll go! Your journey is incredible!",
+        "Believe you can and you're halfway there! I know you'll achieve great things today!",
+        "Your education is a dress rehearsal for a life that is yours to lead! And you're performing brilliantly!"
       ];
       return motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     }
     
     if (lowerQuery.includes("joke") || lowerQuery.includes("funny")) {
       const jokes = [
-        "Why did the student eat his homework? Because the teacher told him it was a piece of cake!",
-        "What do you call a boomerang that doesn't come back? A stick!",
-        "Why don't scientists trust atoms? Because they make up everything!",
-        "What's the best thing about Switzerland? I don't know, but their flag is a big plus!",
-        "I told my wife she was drawing her eyebrows too high. She looked surprised!"
+        "Why did the student eat his homework? Because the teacher told him it was a piece of cake! Haha!",
+        "What do you call a boomerang that doesn't come back? A stick! That always makes me laugh!",
+        "Why don't scientists trust atoms? Because they make up everything! Isn't that clever?",
+        "What's the best thing about Switzerland? I don't know, but their flag is a big plus! Hehe!",
+        "I told my wife she was drawing her eyebrows too high. She looked surprised! Wasn't that funny?"
       ];
       return jokes[Math.floor(Math.random() * jokes.length)];
     }
 
     if (lowerQuery.includes("voice settings") || lowerQuery.includes("change voice")) {
-      return "To change voice settings, go to Profile and select the Voice Control tab. There you can adjust volume, speed, and other voice preferences.";
+      return "To change voice settings, go to Profile and select the Voice Control tab. There you can adjust volume, speed, and other voice preferences. I'm happy to help you customize my voice to your liking!";
     }
 
     if (lowerQuery.includes("next task") || lowerQuery.includes("todo")) {
-      return "Your next scheduled task is a Physics revision session at 4 PM today. Would you like me to remind you when it's time?";
+      return "Your next scheduled task is a Physics revision session at 4 PM today! I'm excited for you to master those concepts! Would you like me to remind you when it's time?";
     }
     
     // Default response
-    return "I'm not sure how to help with that specific query. You can ask me about your schedule, for motivation, or for help with your studies.";
+    return "I'm not sure how to help with that specific query, but I'm eager to assist you! You can ask me about your schedule, for motivation, or for help with your studies!";
   }, []);
   
-  // Get welcome message for first time or returning users
+  // Get welcome message for first time or returning users - with more enthusiasm
   const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0): string => {
     if (isFirstTime) {
-      return `Namaste and a warm welcome to prep-eez-er, ${userName}! I am your personal voice assistant with a friendly Indian accent. prep-eez-er is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more. To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
+      return `Namaste and a very warm welcome to prep-eez-er, ${userName}! I am your personal voice assistant with a friendly Indian accent! prep-eez-er is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more! I'm so excited to start this journey with you! To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
     } else {
-      // For returning users
-      const welcomeBack = `Welcome back to prep-eez-er, ${userName}! This is your ${getOrdinal(loginCount)} login.`;
+      // For returning users - more enthusiastic
+      const welcomeBack = `Welcome back to prep-eez-er, ${userName}! This is your ${getOrdinal(loginCount)} login! I'm thrilled to see you again!`;
       
       // Suggestions based on login count
       if (loginCount < 5) {
-        return `${welcomeBack} I suggest exploring the Academic Advisor to set up or update your study plan today. Remember to use the AI Tutor whenever you have questions about concepts.`;
+        return `${welcomeBack} I'd love to suggest exploring the Academic Advisor to set up or update your study plan today! Remember to use the AI Tutor whenever you have questions about concepts!`;
       } else if (loginCount < 10) {
-        return `${welcomeBack} You might want to check your progress in the dashboard and continue with today's scheduled tasks. Don't forget to take short breaks between study sessions!`;
+        return `${welcomeBack} You might want to check your progress in the dashboard and continue with today's scheduled tasks. Don't forget to take short breaks between study sessions for maximum effectiveness!`;
       } else {
-        return `${welcomeBack} It's great to see your consistency! Your scheduled tasks for today are ready. Would you like me to remind you of your current focus areas?`;
+        return `${welcomeBack} It's great to see your amazing consistency! Your scheduled tasks for today are ready and waiting. Would you like me to remind you of your current focus areas?`;
       }
     }
   }, []);
@@ -175,7 +175,7 @@ export const useVoiceAnnouncer = () => {
   
   // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
-    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice. I'm here to make your learning journey with prep-eez-er joyful and successful!", true);
+    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice! I'm absolutely delighted to make your learning journey with prep-eez-er joyful and successful!", true);
   }, [speak]);
   
   // Stop any ongoing speech

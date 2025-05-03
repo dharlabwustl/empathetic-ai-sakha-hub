@@ -50,20 +50,35 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   const voices = window.speechSynthesis.getVoices();
   console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
   
-  // First priority: Find female Indian English voice
-  const femaleIndianVoice = voices.find(voice => 
+  // HIGHEST priority: Find female Indian English voice with certain keywords
+  const idealFemaleIndianVoice = voices.find(voice => 
     (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
     (voice.name.toLowerCase().includes('female') || 
      voice.name.toLowerCase().includes('woman') ||
-     voice.name.toLowerCase().includes('girl'))
+     voice.name.toLowerCase().includes('girl') ||
+     voice.name.toLowerCase().includes('lekha') ||  // Common Indian female voice name
+     voice.name.toLowerCase().includes('kalpana') ||
+     voice.name.toLowerCase().includes('veena'))
+  );
+  
+  if (idealFemaleIndianVoice) {
+    console.log("Found ideal female Indian voice:", idealFemaleIndianVoice.name);
+    return idealFemaleIndianVoice;
+  }
+  
+  // Second priority: Any female Indian English voice
+  const femaleIndianVoice = voices.find(voice => 
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    !voice.name.toLowerCase().includes('male') &&
+    !voice.name.toLowerCase().includes('man')
   );
   
   if (femaleIndianVoice) {
-    console.log("Found ideal female Indian voice:", femaleIndianVoice.name);
+    console.log("Found likely female Indian voice:", femaleIndianVoice.name);
     return femaleIndianVoice;
   }
   
-  // Second priority: Find any Indian English voice
+  // Third priority: Find any Indian English voice
   const indianVoice = voices.find(voice => 
     voice.lang === 'en-IN' || 
     voice.lang === 'hi-IN' || 
@@ -75,7 +90,7 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
     return indianVoice;
   }
   
-  // Third priority: Find any voice with "Indian" in name
+  // Fourth priority: Find any voice with "Indian" in name
   const voiceWithIndian = voices.find(voice => 
     voice.name.toLowerCase().includes('indian')
   );
@@ -85,20 +100,12 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
     return voiceWithIndian;
   }
   
-  // Fourth priority: Find any Hindi voice
-  const hindiVoice = voices.find(voice => 
-    voice.lang.startsWith('hi-')
-  );
-  
-  if (hindiVoice) {
-    console.log("Found Hindi voice as fallback:", hindiVoice.name);
-    return hindiVoice;
-  }
-  
-  // Last resort: Any female English voice
+  // Fifth priority: Any female English voice
   const femaleEnglishVoice = voices.find(voice => 
     voice.lang.startsWith('en') && 
-    (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman'))
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl'))
   );
   
   if (femaleEnglishVoice) {
@@ -106,7 +113,7 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
     return femaleEnglishVoice;
   }
   
-  // Very last resort: Any English voice
+  // Last resort: Any English voice
   const anyEnglishVoice = voices.find(voice => voice.lang.startsWith('en'));
   if (anyEnglishVoice) {
     console.log("Last resort: using any English voice:", anyEnglishVoice.name);
@@ -119,10 +126,14 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
 // Improve pronunciation of specific words
 const improvePronunciation = (text: string): string => {
   // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-EEZ-er")
-  return text.replace(/PREPZR|Prepzr|prepzr/g, 'prep-eez-er');
+  return text
+    .replace(/PREPZR|Prepzr|prepzr/g, 'prep-eez-er')
+    .replace(/studying/g, 'study ing') // Better pronunciation of "studying"
+    .replace(/efficient/g, 'ef fish ent') // Clearer pronunciation
+    .replace(/congratulations/g, 'con grat you lay shuns'); // Clearer pronunciation
 };
 
-// Function to speak a message with current settings
+// Function to speak a message with current settings - optimized for happy, energetic Indian female voice
 export const speakMessage = (message: string, forceSpeak: boolean = false): void => {
   const settings = getVoiceSettings();
   
@@ -133,6 +144,11 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   
   // Only store non-forced messages in cache
   if (!forceSpeak) {
+    // Check if we've already said this exact message
+    if (spokenMessages.has(message)) {
+      console.log("Skipping already spoken message:", message);
+      return;
+    }
     spokenMessages.add(message);
   }
   
@@ -161,11 +177,11 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   // Set volume to maximum for loudness and clarity
   utterance.volume = Math.min(settings.volume * 1.2, 1.0); // Boost volume but cap at 1.0
   
-  // Set rate slightly slower for clarity if the speed is high
-  utterance.rate = settings.speed > 1.0 ? settings.speed * 0.9 : settings.speed;
+  // Set rate slightly faster for more energetic sound
+  utterance.rate = settings.speed > 1.0 ? settings.speed : Math.max(settings.speed, 1.0);
   
   // Add a pitch increase for more pleasant, energetic Indian female voice sound
-  utterance.pitch = 1.3; // Increased pitch for more distinctly female voice
+  utterance.pitch = 1.4; // Higher pitch for more distinctly female and energetic voice
   
   // Speak the message
   window.speechSynthesis.speak(utterance);

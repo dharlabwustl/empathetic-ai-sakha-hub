@@ -55,9 +55,9 @@ const VoiceSettingsTab = () => {
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Voice Settings</h2>
+      <h2 className="text-2xl font-bold">Indian Voice Assistant</h2>
       <p className="text-muted-foreground">
-        Customize how the voice announcer works in the PREP-EH-ZER platform
+        Customize how your energetic Indian female voice assistant works in the PREP-EH-ZER platform
       </p>
       
       <Card>
@@ -71,7 +71,7 @@ const VoiceSettingsTab = () => {
             />
           </CardTitle>
           <CardDescription>
-            Enable or disable the voice announcer throughout the app
+            Enable or disable the energetic Indian female voice assistant throughout the app
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -130,7 +130,7 @@ const VoiceSettingsTab = () => {
             <h3 className="text-sm font-medium mb-2">Announcement Settings</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="announce-greetings" className="text-sm">Greetings & Welcomes</Label>
+                <Label htmlFor="announce-greetings" className="text-sm">Energetic Greetings & Welcomes</Label>
                 <Switch 
                   id="announce-greetings"
                   checked={settings.announceGreetings} 
@@ -165,7 +165,7 @@ const VoiceSettingsTab = () => {
         <CardHeader>
           <CardTitle>Test Voice Assistant</CardTitle>
           <CardDescription>
-            Ask a question to test the voice assistant
+            Ask a question to test your energetic Indian female voice assistant
           </CardDescription>
         </CardHeader>
         <CardContent>

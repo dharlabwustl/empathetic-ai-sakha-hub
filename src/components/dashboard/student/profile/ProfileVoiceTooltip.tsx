@@ -27,12 +27,12 @@ const ProfileVoiceTooltip: React.FC<ProfileVoiceTooltipProps> = ({ children }) =
           <div className="flex items-start gap-2 p-1">
             <Volume2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
             <div>
-              <p className="font-medium text-sm">Indian Female Voice Assistant</p>
+              <p className="font-medium text-sm">Happy, Energetic Indian Female Voice</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Customize your voice assistant with a pleasant, energetic Indian female voice.
-                Adjust volume, speaking speed, and which events trigger announcements.
+                Experience your personal assistant with a pleasant, enthusiastic Indian female voice.
+                Perfect for clear announcements and motivation while studying!
               </p>
-              <p className="text-xs mt-2 font-medium text-primary">Click to interact with your assistant</p>
+              <p className="text-xs mt-2 font-medium text-primary">Click to adjust your voice settings</p>
             </div>
           </div>
         </TooltipContent>

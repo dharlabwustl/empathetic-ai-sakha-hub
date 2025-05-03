@@ -96,7 +96,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           className={`gap-1 ${!settings.enabled ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' : 'bg-primary/5 hover:bg-primary/10 border-primary/20'}`}
         >
           {settings.enabled ? (
-            <Volume2 className="h-4 w-4 text-primary" />
+            <Volume2 className="h-4 w-4 text-primary animate-[pulse_3s_ease-in-out_infinite]" />
           ) : (
             <VolumeX className="h-4 w-4 text-red-500" />
           )}
@@ -114,7 +114,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <Link to="/dashboard/student/profile?tab=voice">
               <Volume2 className="h-4 w-4 text-primary animate-[pulse_3s_ease-in-out_infinite]" />
               <span className="hidden sm:inline">Voice</span>
-              <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-ping"></span>
+              <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full"></div>
+              <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-ping"></div>
             </Link>
           </Button>
         </ProfileVoiceTooltip>
