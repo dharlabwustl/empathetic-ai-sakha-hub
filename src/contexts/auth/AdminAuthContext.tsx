@@ -64,8 +64,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        // For demo purposes, simple validation
-        if (email.includes('admin') && password.length >= 3) {
+        // For demo purposes, accept any email that includes 'admin'
+        if (email.includes('admin')) {
           const newAdminUser: AdminUser = {
             id: 'admin-1',
             name: 'Admin User',

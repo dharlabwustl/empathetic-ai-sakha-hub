@@ -47,14 +47,12 @@ import FlaskGuidePage from '@/pages/admin/FlaskGuidePage';
 import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from '@/pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from '@/pages/database/DatabaseSchemaCSVPage';
-import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import PostSignupWelcome from '@/components/signup/PostSignupWelcome';
 import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
-
-// Lazy load the admin dashboard
-const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+// Import the AdminDashboard directly instead of lazy loading it
 
 function App() {
   return (
@@ -77,6 +75,11 @@ function App() {
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
+              <Route path="/admin/dashboard" element={
+                <AdminRouteGuard>
+                  <AdminDashboard />
+                </AdminRouteGuard>
+              } />
               {adminRoutes.map((route, index) => (
                 <Route key={index} path={route.path} element={route.element} />
               ))}

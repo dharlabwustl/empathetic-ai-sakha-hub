@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "./OnboardingContext";
@@ -131,7 +131,8 @@ const SignupContent = () => {
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
   };
 
   const handleGoogleSignup = () => {
@@ -160,60 +161,96 @@ const SignupContent = () => {
     <motion.div
       initial="hidden"
       animate="visible"
+      exit="exit"
       variants={cardVariants}
-      transition={{ duration: 0.5 }}
       className="w-full max-w-md mx-auto"
     >
-      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
+      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-2xl rounded-xl border-0 transform transition-all duration-500 hover:shadow-purple-200/30 dark:hover:shadow-purple-500/10">
         <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
         <div className="p-6 md:p-8">
-          <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={120} height={120} />
-            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">Join PREPZR</h1>
-            <p className="text-gray-500 text-sm text-center mt-1">
+          <motion.div 
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex flex-col items-center mb-6"
+          >
+            <PrepzrLogo width={120} height={120} className="animate-pulse" />
+            <motion.h1 
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mt-4 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
+            >
+              Join PREPZR
+            </motion.h1>
+            <motion.p 
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-gray-500 text-sm text-center mt-1"
+            >
               Create your personalized study partner
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           <SignupProgressBar currentStep={currentStep} />
 
-          <div className="mt-6">
-            <StepRenderer 
-              step={currentStep}
-              onboardingData={onboardingData}
-              handlers={handlers}
-              isLoading={isLoading}
-            />
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6"
+            >
+              <StepRenderer 
+                step={currentStep}
+                onboardingData={onboardingData}
+                handlers={handlers}
+                isLoading={isLoading}
+              />
+            </motion.div>
+          </AnimatePresence>
 
           {currentStep === "role" && (
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300"></span>
+                  <span className="w-full border-t border-gray-300 dark:border-gray-700"></span>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or sign up with</span>
+                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">Or sign up with</span>
                 </div>
               </div>
-              <div className="mt-4">
+              <motion.div 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="mt-4"
+              >
                 <button
                   type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 hover:shadow-md dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                   onClick={handleGoogleSignup}
                 >
                   <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
                   Sign up with Google
                 </button>
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
       </Card>
       
-      <div className="mt-6 text-center text-xs text-gray-500">
-        <p>By signing up, you agree to our <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a></p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-6 text-center text-xs text-gray-500"
+      >
+        <p>By signing up, you agree to our <a href="/terms" className="text-blue-600 hover:underline transition-colors">Terms of Service</a> and <a href="/privacy" className="text-blue-600 hover:underline transition-colors">Privacy Policy</a></p>
+      </motion.div>
     </motion.div>
   );
 };
