@@ -13,25 +13,14 @@ interface GoalStepProps {
 const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
+  // Only show NEET as an option
   const studentGoals = [
     {
       id: "NEET",
       title: "NEET",
       description: "National Eligibility cum Entrance Test for Medical Studies",
       color: "bg-green-600",
-    },
-    {
-      id: "IIT-JEE",
-      title: "IIT-JEE",
-      description: "Joint Entrance Examination for Engineering",
-      color: "bg-blue-600",
-    },
-    {
-      id: "UPSC",
-      title: "UPSC",
-      description: "Union Public Service Commission Examinations",
-      color: "bg-purple-600",
-    },
+    }
   ];
 
   const handleGoalSelect = (goalId: string) => {

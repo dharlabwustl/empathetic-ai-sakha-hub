@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,8 @@ interface UpcomingTasksProps {
 }
 
 const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
+  const navigate = useNavigate();
+  
   const getTaskIcon = (type: string) => {
     switch (type) {
       case 'concept':
@@ -31,6 +34,19 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
         return <FileText className="h-5 w-5 text-emerald-500" />;
       default:
         return <BookOpen className="h-5 w-5" />;
+    }
+  };
+
+  const getTaskRoute = (task: Task) => {
+    switch (task.type) {
+      case 'concept':
+        return `/dashboard/student/concepts`;
+      case 'flashcard':
+        return `/dashboard/student/flashcards`;
+      case 'exam':
+        return `/dashboard/student/practice-exam`;
+      default:
+        return `/dashboard/student`;
     }
   };
 
@@ -57,9 +73,10 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
           {tasks.map(task => (
             <div 
               key={task.id} 
-              className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow", 
+              className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer", 
                 getPriorityClass(task.priority)
               )}
+              onClick={() => navigate(getTaskRoute(task))}
             >
               <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-3">
@@ -78,7 +95,16 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
                 <div className="ml-auto text-xs">Due: {task.dueDate}</div>
               </div>
               
-              <Button className="w-full mt-3" size="sm">Start Now</Button>
+              <Button 
+                className="w-full mt-3" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(getTaskRoute(task));
+                }}
+              >
+                Start Now
+              </Button>
             </div>
           ))}
         </div>
