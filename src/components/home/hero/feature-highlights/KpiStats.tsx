@@ -1,280 +1,95 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
-import { adminService } from '@/services/adminService';
-import { 
-  Users, Brain, CheckCircle, BookOpen, 
-  ScrollText, ClipboardList
-} from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { BookOpen, Star, Users, Award, Clock, BarChart } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Define the stats based on the admin data structure
-const defaultStats = [
-  { 
-    id: 1, 
-    value: 10000, 
-    label: "Students Helped", 
-    prefix: "+", 
-    suffix: "", 
-    decimals: 0,
-    icon: <Users className="text-purple-500" />,
-    adminKey: "totalStudents"
-  },
-  { 
-    id: 2, 
-    value: 850, 
-    label: "Concepts Mastered", 
-    prefix: "Avg ", 
-    suffix: "/Student", 
-    decimals: 0,
-    icon: <Brain className="text-indigo-500" />,
-    adminKey: "averageConcepts"
-  },
-  { 
-    id: 3, 
-    value: 95, 
-    label: "Success Rate", 
-    prefix: "", 
-    suffix: "%", 
-    decimals: 0,
-    icon: <CheckCircle className="text-green-500" />,
-    adminKey: "successRate"
-  },
-  { 
-    id: 5, 
-    value: 2000000, 
-    label: "Flashcards Reviewed", 
-    prefix: "", 
-    suffix: "+", 
-    decimals: 0,
-    icon: <ScrollText className="text-cyan-500" />,
-    adminKey: "totalFlashcards"
-  },
-  { 
-    id: 6, 
-    value: 12000, 
-    label: "Study Plans Delivered", 
-    prefix: "", 
-    suffix: "+", 
-    decimals: 0,
-    icon: <ClipboardList className="text-orange-500" />,
-    adminKey: "totalStudyPlans"
-  },
-  { 
-    id: 10, 
-    value: 72, 
-    label: "Feel Reduced Anxiety", 
-    prefix: "", 
-    suffix: "%", 
-    decimals: 0,
-    icon: <BookOpen className="text-fuchsia-500" />,
-    adminKey: "verifiedMoodImprovement"
-  }
+export type KpiStatsType = {
+  className?: string;
+};
+
+const kpiStats = [
+  { icon: BookOpen, label: '15K+', description: 'Active Learning Resources', color: 'bg-blue-500' },
+  { icon: Users, label: '95%', description: 'Success Rate for Students', color: 'bg-violet-500' },
+  { icon: Star, label: '9.8/10', description: 'Student Satisfaction Score', color: 'bg-amber-500' },
+  { icon: Award, label: '98%', description: 'Exam Pass Rate', color: 'bg-emerald-500' },
+  { icon: Clock, label: '35%', description: 'Study Time Optimization', color: 'bg-rose-500' },
+  { icon: BarChart, label: '100K+', description: 'Practice Questions', color: 'bg-indigo-500' }
 ];
 
-export const KpiStats = () => {
-  const [inView, setInView] = useState(false);
-  const [stats, setStats] = useState(defaultStats);
+const KpiStats: React.FC<KpiStatsType> = ({ className }) => {
+  const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        threshold: 0.2,
-      }
-    );
-    
-    const element = document.getElementById('kpi-stats-section');
-    if (element) {
-      observer.observe(element);
-    }
-    
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
+    // Trigger animations when component mounts
+    setIsVisible(true);
   }, []);
-  
-  // Fetch admin statistics when component mounts
-  useEffect(() => {
-    const fetchAdminStats = async () => {
-      try {
-        const adminStats = await adminService.getDashboardStats();
-        
-        if (adminStats) {
-          // Update stats with values from admin dashboard if available
-          setStats(prevStats => 
-            prevStats.map(stat => {
-              const adminValue = adminStats[stat.adminKey as keyof typeof adminStats];
-              // Only update if admin value exists and is a number
-              if (adminValue !== undefined && !isNaN(Number(adminValue))) {
-                return { ...stat, value: Number(adminValue) };
-              }
-              return stat;
-            })
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching admin statistics:", error);
-        // Keep using default values if there's an error
-      }
-    };
-
-    fetchAdminStats();
-  }, []);
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
-      } 
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 100 
-      } 
-    }
-  };
-
-  // Enhanced title animations for a premium feel
-  const titleVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.6
-      }
-    }
-  };
-
-  // Text animation variants for each character
-  const charVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.3
-      }
-    })
-  };
-
-  // Split the title into individual characters for animation
-  const titleText = "Smart Data. Real Impact. Humanizing exam prep.";
-  const titleChars = titleText.split("");
 
   return (
-    <div 
-      id="kpi-stats-section" 
-      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className={cn("max-w-6xl mx-auto px-4 sm:px-6", className)}
     >
-      <motion.div
-        variants={titleVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        className="text-center mb-8"
-      >
-        <h2 className="text-2xl font-bold relative">
-          {titleChars.map((char, i) => (
-            <motion.span
-              key={i}
-              custom={i}
-              variants={charVariants}
-              initial="hidden"
-              animate={inView ? "visible" : "hidden"}
-              className={char === "." ? "text-purple-600 font-bold" : "bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"}
-            >
-              {char}
-            </motion.span>
-          ))}
-        </h2>
-      </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {kpiStats.slice(0, 3).map((stat, index) => (
+          <KpiCard key={index} stat={stat} index={index} isVisible={isVisible} />
+        ))}
+      </div>
       
-      <ScrollArea className="w-full max-w-7xl mx-auto h-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="flex gap-4 md:gap-6 pb-4 px-2"
-        >
-          {stats.map((stat) => (
-            <motion.div 
-              key={stat.id} 
-              variants={itemVariants}
-              className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
-              whileHover={{ 
-                y: -5, 
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                scale: 1.02,
-                transition: { duration: 0.3 }
-              }}
-            >
-              <motion.div 
-                className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
-                whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 400,
-                  damping: 10
-                }}
-                animate={{
-                  boxShadow: ["0 0 0 rgba(129, 140, 248, 0)", "0 0 20px rgba(129, 140, 248, 0.5)", "0 0 0 rgba(129, 140, 248, 0)"]
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 3,
-                }}
-              >
-                {stat.icon}
-              </motion.div>
-              <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">
-                {stat.label}
-              </h3>
-              <motion.div 
-                className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <span>{stat.prefix}</span>
-                {inView ? (
-                  <CountUp 
-                    start={0} 
-                    end={stat.value} 
-                    duration={2.5} 
-                    separator="," 
-                    decimals={stat.decimals}
-                    decimal="."
-                    useEasing={true}
-                  />
-                ) : (
-                  <span>0</span>
-                )}
-                <span>{stat.suffix}</span>
-              </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </ScrollArea>
-    </div>
+      <div className="mt-4 md:mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {kpiStats.slice(3).map((stat, index) => (
+          <KpiCard key={index + 3} stat={stat} index={index + 3} isVisible={isVisible} />
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+interface KpiCardProps {
+  stat: {
+    icon: React.FC<any>;
+    label: string;
+    description: string;
+    color: string;
+  };
+  index: number;
+  isVisible: boolean;
+}
+
+const KpiCard: React.FC<KpiCardProps> = ({ stat, index, isVisible }) => {
+  const IconComponent = stat.icon;
+  
+  return (
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={isVisible ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+      transition={{ delay: 0.1 * index, duration: 0.5 }}
+      whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden"
+    >
+      <div className="p-4 sm:p-6 flex items-center gap-4">
+        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", stat.color)}>
+          <motion.div
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+          >
+            <IconComponent className="h-6 w-6 text-white" />
+          </motion.div>
+        </div>
+        <div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isVisible ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 0.3 + (0.1 * index), duration: 0.5 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stat.label}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{stat.description}</p>
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

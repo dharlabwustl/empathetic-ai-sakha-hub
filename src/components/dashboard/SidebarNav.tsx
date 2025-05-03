@@ -1,19 +1,23 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard,
-  Calendar,
-  GraduationCap,
-  BookOpen,
-  ClipboardCheck,
-  Bell,
-  Settings,
-  Home,
-  BookMarked
+  LayoutDashboard, Calendar, GraduationCap, BookOpen,
+  ClipboardCheck, Bell, Settings, Home, BookMarked,
+  User, LogOut, ChevronDown
 } from 'lucide-react';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarNavProps {
   userType: 'student' | 'admin';
@@ -28,11 +32,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
   className,
   onTabChange,
   activeTab = 'overview',
-  userName
+  userName = 'Student'
 }) => {
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const currentPath = pathSegments.at(-1) || '';
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const studentNavItems = [
     {
@@ -124,41 +129,63 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       )}
     >
       <div className="flex flex-col h-full">
-        {/* Sidebar Header */}
-        <div className="p-4 border-b">
-          <Link to="/" className="flex items-center space-x-2">
-            <Home className="h-5 w-5" />
-            <span className="font-semibold">PREPZR</span>
+        {/* Sidebar Header with PREPZR logo */}
+        <div className="p-4 border-b flex items-center">
+          <Link to="/" className="flex items-center">
+            <PrepzrLogo width={120} height={40} />
           </Link>
         </div>
 
-        {/* User Info */}
-        {userName && (
-          <div className="p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-primary">
-                  {userName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {userType === 'student' ? 'Student' : 'Administrator'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* User Profile Menu */}
+        <div className="p-4 border-b">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full flex items-center justify-between px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="/placeholder-avatar.png" />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {userName?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="text-left">
+                    <p className="text-sm font-medium">{userName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {userType === 'student' ? 'Student' : 'Administrator'}
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <User className="h-4 w-4 mr-2" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="h-4 w-4 mr-2" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <LogOut className="h-4 w-4 mr-2" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Navigation Links */}
         <nav className="p-4 space-y-2 flex-grow overflow-y-auto">
           {navItems.map((item) => (
             <Button
               key={item.id}
-              variant={isActive(item.id) ? 'secondary' : 'ghost'}
+              variant={isActive(item.id) ? "secondary" : "ghost"}
               className={cn(
-                "w-full justify-start",
+                "w-full justify-start text-base", // Increased font size for better readability
                 isActive(item.id) && "bg-secondary/80"
               )}
               asChild

@@ -5,6 +5,8 @@ import CreateStudyPlanWizard from '@/components/dashboard/student/academic/Creat
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useEffect } from 'react';
 
 const AcademicAdvisorView: React.FC = () => {
   const {
@@ -16,45 +18,56 @@ const AcademicAdvisorView: React.FC = () => {
     handleViewPlanDetails,
     handleNewPlanCreated,
     setShowCreateDialog,
-    setSelectedPlan
+    setSelectedPlan,
+    loadSignupStudyPlan
   } = useAcademicPlans();
 
+  // Load study plan from signup data when component mounts
+  useEffect(() => {
+    // Check localStorage for study plan created during signup
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        if (parsedData.studyPlan) {
+          loadSignupStudyPlan(parsedData.studyPlan);
+        }
+      } catch (error) {
+        console.error('Error loading signup study plan:', error);
+      }
+    }
+  }, [loadSignupStudyPlan]);
+
   return (
-    <div className="space-y-12">
-      {/* Header section */}
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <GraduationCap className="h-8 w-8 text-indigo-600" />
-          Academic Advisor
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Your personalized study plans and academic progress tracking
-        </p>
-      </div>
-
-      <StudyPlanSections
-        activePlans={activePlans}
-        completedPlans={completedPlans}
-        onCreatePlan={handleCreatePlan}
-        onViewPlanDetails={handleViewPlanDetails}
-      />
-
-      {/* Study Plan Creation Dialog */}
-      <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        onCreatePlan={handleNewPlanCreated}
-      />
-
-      {/* Study Plan Detail Dialog */}
-      {selectedPlan && (
-        <StudyPlanDetail
-          plan={selectedPlan}
-          isOpen={!!selectedPlan}
-          onClose={() => setSelectedPlan(null)}
+    <SharedPageLayout
+      title="Academic Advisor"
+      subtitle="Your personalized study plans and academic progress tracking"
+    >
+      <div className="space-y-12">
+        <StudyPlanSections
+          activePlans={activePlans}
+          completedPlans={completedPlans}
+          onCreatePlan={handleCreatePlan}
+          onViewPlanDetails={handleViewPlanDetails}
         />
-      )}
-    </div>
+
+        {/* Study Plan Creation Dialog */}
+        <CreateStudyPlanWizard
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onCreatePlan={handleNewPlanCreated}
+        />
+
+        {/* Study Plan Detail Dialog */}
+        {selectedPlan && (
+          <StudyPlanDetail
+            plan={selectedPlan}
+            isOpen={!!selectedPlan}
+            onClose={() => setSelectedPlan(null)}
+          />
+        )}
+      </div>
+    </SharedPageLayout>
   );
 };
 

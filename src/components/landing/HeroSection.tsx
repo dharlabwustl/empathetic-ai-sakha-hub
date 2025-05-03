@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import KpiStats from "../home/hero/feature-highlights/KpiStats";
+import KpiStats from "@/components/home/hero/feature-highlights/KpiStats";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ExamNamesBadge from "../home/hero/ExamNamesBadge";

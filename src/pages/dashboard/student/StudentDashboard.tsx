@@ -8,10 +8,12 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen for now
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
   
   const {
@@ -40,18 +42,19 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check URL parameters for onboarding status
+  // Check URL parameters for tour and onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
+    const showTour = params.get('tour') === 'true';
     
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
-      setShowSplash(false);
-    } else {
-      // Check if the user has seen the splash screen in this session
-      const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(false); // Temporarily disable splash screen
+    // Check if the user has seen the splash screen in this session
+    const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    setShowSplash(false); // Temporarily disable splash screen
+    
+    // If tour parameter is present, show the tour
+    if (showTour) {
+      setShowTourModal(true);
     }
     
     // Try to get saved mood from local storage
@@ -108,6 +111,11 @@ const StudentDashboard = () => {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
+  
+  const handleCloseTour = () => {
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+  };
 
   // Show splash screen if needed
   if (showSplash) {
@@ -143,34 +151,48 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Disable welcome tour popup
+  // Disable welcome tour popup here since we're using our custom modal
   const modifiedShowWelcomeTour = false;
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={modifiedShowWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodChange={handleMoodChange}
-    >
-      {getTabContent()}
-    </DashboardLayout>
+    <>
+      <DashboardLayout
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={modifiedShowWelcomeTour}
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTour}
+        onCompleteTour={handleCompleteTour}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+      >
+        {getTabContent()}
+      </DashboardLayout>
+      
+      {/* Welcome Tour Modal - Show if coming from welcome flow or tour parameter */}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleCloseTour}
+        onCompleteTour={handleCloseTour}
+        isFirstTimeUser={true}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount || 1}
+      />
+    </>
   );
 };
 
