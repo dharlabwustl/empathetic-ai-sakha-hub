@@ -91,9 +91,11 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     const planSubjects = selectedSubjects.map(subject => ({
       id: `subject-${Math.random().toString(36).substr(2, 9)}`,
       name: subject,
-      difficulty: 'medium' as const,
-      completed: false,
-      hoursPerWeek: 4
+      proficiency: 'medium' as const,
+      priority: 'medium' as const,
+      color: '#' + Math.floor(Math.random()*16777215).toString(16), // Random color
+      hoursPerWeek: 4,
+      completed: false
     }));
     
     const newPlan: NewStudyPlan = {

@@ -5,7 +5,6 @@ import CreateStudyPlanWizard from '@/components/dashboard/student/academic/Creat
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
-import { StudyPlan } from '@/types/user/studyPlan';
 
 const AcademicAdvisorView: React.FC = () => {
   const {
@@ -24,7 +23,7 @@ const AcademicAdvisorView: React.FC = () => {
   // Load signup study plan when component mounts
   useEffect(() => {
     loadSignupStudyPlan();
-  }, []);
+  }, [loadSignupStudyPlan]);
 
   return (
     <div className="space-y-12">

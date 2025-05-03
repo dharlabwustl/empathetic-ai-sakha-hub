@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { StudyPlan, NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
+import { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
 import { useToast } from '@/hooks/use-toast';
 
 // This is a mock function to generate a unique ID
@@ -48,17 +48,17 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
     // Convert the new plan data to a full StudyPlan
     const plan: StudyPlan = {
       id: generateId(),
-      title: newPlan.examGoal || 'Study Plan',
       examGoal: newPlan.examGoal || '',
-      examDate: typeof newPlan.examDate === 'string' 
-        ? newPlan.examDate 
-        : newPlan.examDate.toISOString(),
+      examDate: newPlan.examDate instanceof Date 
+        ? newPlan.examDate.toISOString() 
+        : newPlan.examDate,
       status: 'active',
       progress: 0,
       subjects: newPlan.subjects.map(subject => ({
         ...subject,
         color: subject.color || getRandomColor(),
-        priority: subject.priority || 'medium'
+        priority: subject.priority || 'medium',
+        proficiency: subject.proficiency || 'medium'
       })),
       learningPace: newPlan.learningPace || 'moderate',
       preferredStudyTime: newPlan.preferredStudyTime || 'morning',
@@ -72,7 +72,7 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
     // Show success message
     toast({
       title: "Study Plan Created",
-      description: `Your ${plan.title} study plan has been created successfully.`,
+      description: `Your ${plan.examGoal} study plan has been created successfully.`,
     });
   };
   
@@ -88,13 +88,13 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
         const userProfile = userData ? JSON.parse(userData) : {};
         const examGoal = userProfile.examGoal || initialExamGoal || 'NEET';
         
-        const subjects: StudyPlanSubject[] = [
+        const subjects = [
           {
             id: 'subject-1',
             name: 'Physics',
             color: '#8B5CF6',
-            proficiency: 'medium',
-            priority: 'high',
+            proficiency: 'medium' as const,
+            priority: 'high' as const,
             hoursPerWeek: 6,
             completed: false
           },
@@ -102,8 +102,8 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
             id: 'subject-2',
             name: 'Chemistry',
             color: '#10B981',
-            proficiency: 'medium',
-            priority: 'medium',
+            proficiency: 'medium' as const,
+            priority: 'medium' as const,
             hoursPerWeek: 5,
             completed: false
           },
@@ -111,8 +111,8 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
             id: 'subject-3',
             name: 'Biology',
             color: '#EF4444',
-            proficiency: 'medium',
-            priority: 'high',
+            proficiency: 'medium' as const,
+            priority: 'high' as const,
             hoursPerWeek: 7,
             completed: false
           }
@@ -120,9 +120,8 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
         
         const defaultPlan: StudyPlan = {
           id: 'auto-generated-plan',
-          title: `${examGoal} Preparation`,
           examGoal: examGoal,
-          examDate: userProfile.targetExamDate || new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
+          examDate: userProfile.targetExamDate || new Date().toISOString(),
           status: 'active',
           progress: 5,
           subjects,

@@ -9,21 +9,24 @@ const WelcomeFlowPage = () => {
   const [showTour, setShowTour] = useState(false);
   const [searchParams] = useSearchParams();
   const completedOnboarding = searchParams.get('completedOnboarding') === 'true';
+  const isNewUser = searchParams.get('new') === 'true';
 
   useEffect(() => {
     // If user completes the welcome flow, show the tour
     if (completedOnboarding) {
       setShowTour(true);
+      // Mark that this user has seen the tour
+      localStorage.setItem("hasSeenTour", "true");
     }
 
     // Check if this is the first time user is visiting after signup
-    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true' || isNewUser;
     
     // If it's not a new user and not explicitly redirected after onboarding, go to dashboard
-    if (!isNewUser && !completedOnboarding) {
+    if (!isFirstTimeUser && !completedOnboarding) {
       navigate('/dashboard/student');
     }
-  }, [completedOnboarding, navigate]);
+  }, [completedOnboarding, navigate, isNewUser]);
 
   const handleSkipTour = () => {
     setShowTour(false);

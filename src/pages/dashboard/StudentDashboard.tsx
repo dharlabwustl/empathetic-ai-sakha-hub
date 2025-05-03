@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -75,16 +76,9 @@ const StudentDashboard = () => {
     }
     
     // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      try {
-        const parsedData = JSON.parse(savedUserData);
-        if (parsedData.mood) {
-          setCurrentMood(parsedData.mood);
-        }
-      } catch (err) {
-        console.error("Error parsing user data from localStorage:", err);
-      }
+    const savedMood = getCurrentMoodFromLocalStorage();
+    if (savedMood) {
+      setCurrentMood(savedMood);
     }
   }, [location, showWelcomeTour]);
   
@@ -95,39 +89,16 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        try {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.Motivated;
-          localStorage.setItem("userData", JSON.stringify(parsedData));
-        } catch (err) {
-          console.error("Error updating mood in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
-        }
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
-      }
+      const defaultMood = MoodType.Motivated;
+      setCurrentMood(defaultMood);
+      storeMoodInLocalStorage(defaultMood);
     }
   };
 
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
-    // Store mood in localStorage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } catch (err) {
-        console.error("Error updating mood in localStorage:", err);
-        localStorage.setItem("userData", JSON.stringify({ mood }));
-      }
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
+    // Store mood in localStorage using the utility function
+    storeMoodInLocalStorage(mood);
   };
 
   const handleSkipTourWrapper = () => {
@@ -145,7 +116,7 @@ const StudentDashboard = () => {
   const handleCompleteOnboardingWrapper = () => {
     handleCompleteOnboarding();
     // Redirect to the welcome flow after onboarding
-    navigate('/welcome-flow');
+    navigate('/welcome-flow?completedOnboarding=true&new=true');
   };
 
   // Show splash screen if needed

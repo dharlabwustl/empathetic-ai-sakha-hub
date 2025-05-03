@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -48,7 +47,7 @@ import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
 import PostSignupWelcome from './components/signup/PostSignupWelcome';
-import WelcomeFlow from './components/signup/WelcomeFlow';
+import WelcomeFlow from './pages/welcome-flow';
 
 // Lazy load the admin dashboard
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
