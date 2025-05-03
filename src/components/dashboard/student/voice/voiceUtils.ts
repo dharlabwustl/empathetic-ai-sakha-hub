@@ -229,8 +229,8 @@ export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
   return `${timeGreeting} Ready for today's${examContext} study session?`;
 };
 
-// Helper function for task announcements
-export const getTaskAnnouncement = (count: number, examGoal?: string) => {
+// Helper function for task count announcements
+export const getTaskCountAnnouncement = (count: number, examGoal?: string) => {
   const examContext = examGoal ? ` for ${examGoal}` : '';
   
   if (count === 0) return `You have no tasks${examContext} today. Good time for revision!`;
