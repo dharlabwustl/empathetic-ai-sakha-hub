@@ -47,17 +47,19 @@ const StudentDashboard = () => {
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
+    const isNewUser = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
     // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // For new users who just completed onboarding, show the tour
-    if (isNewUser && completedOnboarding && !hasSeenTour) {
+    console.log("Checking tour status:", { isNewUser, completedOnboarding, hasSeenTour });
+    
+    // For new users or those who completed onboarding, show the tour
+    if ((isNewUser || completedOnboarding) && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      localStorage.setItem("hasSeenTour", "true");
+      // Don't set hasSeenTour yet, will set after tour completion
     } 
     // For returning users
     else {
@@ -65,12 +67,11 @@ const StudentDashboard = () => {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // For returning users who haven't seen the tour
+      // For returning users who haven't seen the tour but should
       if (!hasSeenTour && showWelcomeTour) {
         // Short timeout just to let the dashboard render first
         setTimeout(() => {
           setShowTourModal(true);
-          localStorage.setItem("hasSeenTour", "true");
         }, 500);
       }
     }
@@ -105,12 +106,14 @@ const StudentDashboard = () => {
     handleSkipTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
+    localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
   const handleCompleteTourWrapper = () => {
     handleCompleteTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
+    localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
   const handleCompleteOnboardingWrapper = () => {

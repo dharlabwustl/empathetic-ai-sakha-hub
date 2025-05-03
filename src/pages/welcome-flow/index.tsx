@@ -39,6 +39,11 @@ const WelcomeFlowPage = () => {
     if (!isNewUser && !completedOnboarding) {
       navigate('/dashboard/student');
     }
+    
+    // Set flag to trigger welcome tour automatically after signup
+    if (isNewUser || completedOnboarding) {
+      localStorage.setItem('new_user_signup', 'true');
+    }
   }, [completedOnboarding, navigate, isNewUser, userData]);
 
   const handleSkipTour = () => {

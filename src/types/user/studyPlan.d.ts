@@ -1,4 +1,5 @@
 
+
 // Basic study plan types
 export interface StudyPlanSubject {
   id: string;
