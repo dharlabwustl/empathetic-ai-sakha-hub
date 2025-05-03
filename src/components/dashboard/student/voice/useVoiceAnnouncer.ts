@@ -1,12 +1,14 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { getVoiceSettings, saveVoiceSettings, speakMessage } from './voiceUtils';
+import { getVoiceSettings, saveVoiceSettings, speakMessage, getGreeting } from './voiceUtils';
 import type { VoiceSettings } from './voiceUtils';
+import { MoodType } from '@/types/user/base';
 
 // React hook for voice announcer
 export const useVoiceAnnouncer = () => {
   const [settings, setSettings] = useState<VoiceSettings>(getVoiceSettings);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [lastInteraction, setLastInteraction] = useState<Date>(new Date());
   
   // Update settings locally and in storage
   const updateSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
@@ -58,9 +60,48 @@ export const useVoiceAnnouncer = () => {
       window.speechSynthesis.removeEventListener('resume', handleSpeechStart);
     };
   }, []);
+
+  // Check for period of inactivity and provide helpful prompts
+  useEffect(() => {
+    // Only proceed if voice is enabled
+    if (!settings.enabled) return;
+
+    const inactivityTimer = setInterval(() => {
+      const now = new Date();
+      const minutesSinceLastActivity = (now.getTime() - lastInteraction.getTime()) / (1000 * 60);
+
+      // After 5 minutes of inactivity, offer assistance
+      if (minutesSinceLastActivity > 5) {
+        const inactivityPrompts = [
+          "It's been a while since your last activity. Is there anything I can help you with?",
+          "Do you need any help finding study materials or planning your sessions?",
+          "Feel free to ask me any questions about your study plan or upcoming tasks.",
+          "If you need assistance navigating the platform, you can click the voice icon at the top of the screen.",
+          "Would you like to review your upcoming tasks or check your progress on any subjects?"
+        ];
+        
+        // Randomly select a prompt
+        const randomPrompt = inactivityPrompts[Math.floor(Math.random() * inactivityPrompts.length)];
+        speakMessage(randomPrompt);
+        
+        // Reset the timer after speaking
+        setLastInteraction(new Date());
+      }
+    }, 300000); // Check every 5 minutes
+    
+    return () => clearInterval(inactivityTimer);
+  }, [settings.enabled, lastInteraction]);
+
+  // Update last interaction time when user interacts with the app
+  const updateInteractionTime = useCallback(() => {
+    setLastInteraction(new Date());
+  }, []);
   
   // Process a text query and respond with voice - with more enthusiastic responses
   const processQuery = useCallback((query: string): string => {
+    // Mark that user interacted
+    updateInteractionTime();
+    
     const lowerQuery = query.toLowerCase();
     
     // Basic intent detection with more enthusiastic responses
@@ -128,29 +169,51 @@ export const useVoiceAnnouncer = () => {
     if (lowerQuery.includes("next task") || lowerQuery.includes("todo")) {
       return "Your next scheduled task is a Physics revision session at 4 PM today! I'm excited for you to master those concepts! Would you like me to remind you when it's time?";
     }
+
+    if (lowerQuery.includes("study plan") || lowerQuery.includes("calendar")) {
+      return "Your study plan for today includes 2 hours of Physics focused on kinematics, 1 hour of Chemistry covering chemical bonding, and a 30-minute quiz on Biology. Would you like me to help you get started with the first subject?";
+    }
     
     // Default response
     return "I'm not sure how to help with that specific query, but I'm eager to assist you! You can ask me about your schedule, for motivation, or for help with your studies!";
-  }, []);
+  }, [updateInteractionTime]);
   
-  // Get welcome message for first time or returning users - with more enthusiasm
+  // Get welcome message for first time or returning users - with more varied greetings
   const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0): string => {
+    // Update interaction time whenever welcome message is shown
+    updateInteractionTime();
+
     if (isFirstTime) {
-      return `Namaste and a very warm welcome to prep-eez-er, ${userName}! I am your personal voice assistant with a friendly Indian accent! prep-eez-er is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more! I'm so excited to start this journey with you! To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
+      return `Namaste ${userName}! Welcome to prep-eez-er! I'm your personal voice assistant. To get started, I recommend creating your personalized study plan in the Academic Advisor section. You can always ask me for help by clicking the voice icon at the top of the screen. Would you like me to explain any specific feature?`;
+    } 
+    
+    // For returning users - more varied messages based on login count
+    if (loginCount < 5) {
+      const messages = [
+        `Welcome back ${userName}! To make the most of prep-eez-er today, try exploring the Academic Advisor to set up your study plan.`,
+        `Hello again ${userName}! Have you checked your notifications today? There might be important updates waiting for you.`,
+        `Great to see you ${userName}! Feel free to use the voice assistant anytime by clicking the icon at the top of the screen.`,
+        `Welcome back to prep-eez-er! Remember you can adjust your study preferences in the profile section for a more personalized experience.`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
+    } else if (loginCount < 10) {
+      const messages = [
+        `Welcome back ${userName}! Your consistency is impressive. Today's tasks are ready in your dashboard.`,
+        `Hello ${userName}! Did you know you can track your progress in the analytics section? It's a great way to stay motivated!`,
+        `Good to see you again ${userName}! Remember to take short breaks between study sessions for maximum effectiveness.`,
+        `Welcome back! You've been making great progress. Consider trying the Feel Good Corner when you need a study break.`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
     } else {
-      // For returning users - more enthusiastic
-      const welcomeBack = `Welcome back to prep-eez-er, ${userName}! This is your ${getOrdinal(loginCount)} login! I'm thrilled to see you again!`;
-      
-      // Suggestions based on login count
-      if (loginCount < 5) {
-        return `${welcomeBack} I'd love to suggest exploring the Academic Advisor to set up or update your study plan today! Remember to use the AI Tutor whenever you have questions about concepts!`;
-      } else if (loginCount < 10) {
-        return `${welcomeBack} You might want to check your progress in the dashboard and continue with today's scheduled tasks. Don't forget to take short breaks between study sessions for maximum effectiveness!`;
-      } else {
-        return `${welcomeBack} It's great to see your amazing consistency! Your scheduled tasks for today are ready and waiting. Would you like me to remind you of your current focus areas?`;
-      }
+      const messages = [
+        `Welcome back ${userName}! You're doing great with your consistent study habits!`,
+        `Hello again ${userName}! Your dedication to learning is truly admirable.`,
+        `Great to see you ${userName}! Your scheduled tasks for today are ready and waiting.`,
+        `Welcome back! Have you checked your exam readiness score lately? You might be surprised by your progress!`
+      ];
+      return messages[Math.floor(Math.random() * messages.length)];
     }
-  }, []);
+  }, [updateInteractionTime]);
   
   // Helper function to get ordinal suffix
   const getOrdinal = (n: number): string => {
@@ -163,6 +226,9 @@ export const useVoiceAnnouncer = () => {
   const speak = useCallback((message: string, force: boolean = false) => {
     if (!settings.enabled && !force) return;
     
+    // Update interaction time whenever something is spoken
+    updateInteractionTime();
+    
     // If we want to process a query instead of just announcing
     if (force && message.trim().endsWith("?")) {
       const response = processQuery(message);
@@ -171,17 +237,19 @@ export const useVoiceAnnouncer = () => {
     }
     
     speakMessage(message, force);
-  }, [settings.enabled, processQuery]);
+  }, [settings.enabled, processQuery, updateInteractionTime]);
   
   // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
     speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice! I'm absolutely delighted to make your learning journey with prep-eez-er joyful and successful!", true);
-  }, [speak]);
+    updateInteractionTime();
+  }, [speak, updateInteractionTime]);
   
   // Stop any ongoing speech
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
-  }, []);
+    updateInteractionTime();
+  }, [updateInteractionTime]);
   
   return {
     settings,
@@ -192,6 +260,8 @@ export const useVoiceAnnouncer = () => {
     isSpeaking,
     processQuery,
     getWelcomeMessage,
+    getGreeting,
+    updateInteractionTime,
     getAvailableVoices: () => window.speechSynthesis.getVoices(),
   };
 };

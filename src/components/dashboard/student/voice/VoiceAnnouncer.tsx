@@ -1,11 +1,19 @@
+
 import React, { createContext, useContext } from 'react';
 import { useVoiceAnnouncer } from './useVoiceAnnouncer';
 
 // Re-export all utilities from their respective files
-export { getVoiceSettings, saveVoiceSettings, speakMessage, type VoiceSettings, defaultVoiceSettings } from './voiceUtils';
+export { 
+  getVoiceSettings, 
+  saveVoiceSettings, 
+  speakMessage, 
+  getGreeting,
+  type VoiceSettings, 
+  defaultVoiceSettings 
+} from './voiceUtils';
 
 // Voice announcer context
-const VoiceAnnouncerContext = React.createContext<ReturnType<typeof useVoiceAnnouncer> | undefined>(undefined);
+const VoiceAnnouncerContext = createContext<ReturnType<typeof useVoiceAnnouncer> | undefined>(undefined);
 
 export const VoiceAnnouncerProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const voiceAnnouncer = useVoiceAnnouncer();
@@ -25,20 +33,7 @@ export const useVoiceAnnouncerContext = () => {
   return context;
 };
 
-// Helper functions for message generation - This will keep the basic functions available even if the import fails
-export const getGreeting = (name?: string) => {
-  const hour = new Date().getHours();
-  let greeting = "Good evening";
-  
-  if (hour < 12) {
-    greeting = "Good morning";
-  } else if (hour < 18) {
-    greeting = "Good afternoon";
-  }
-  
-  return name ? `${greeting}, ${name}!` : greeting;
-};
-
+// Helper functions for task announcement
 export const getTaskAnnouncement = (count: number) => {
   if (count === 0) return "You have no tasks for today. Enjoy your free time!";
   return `You have ${count} task${count === 1 ? '' : 's'} scheduled for today.`;
