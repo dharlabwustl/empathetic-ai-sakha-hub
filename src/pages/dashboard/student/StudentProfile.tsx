@@ -28,8 +28,8 @@ const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile: propUserPr
     const tab = searchParams.get('tab');
     
     if (tab === 'voice') {
-      setPageTitle("Voice Control");
-      setPageSubtitle("Customize your AI voice announcer settings");
+      setPageTitle("Voice Control Settings");
+      setPageSubtitle("Customize your AI voice announcer preferences");
     } else {
       setPageTitle("My Profile");
       setPageSubtitle("Manage your personal information and preferences");

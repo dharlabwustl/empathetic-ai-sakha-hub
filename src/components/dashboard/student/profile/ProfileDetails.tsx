@@ -56,6 +56,23 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
     }
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    // Update URL when tab changes
+    const searchParams = new URLSearchParams(location.search);
+    if (value === 'voice') {
+      searchParams.set('tab', 'voice');
+    } else {
+      searchParams.delete('tab');
+    }
+    
+    navigate({
+      pathname: location.pathname,
+      search: searchParams.toString()
+    });
+  };
+
   const renderPersonalInfo = () => {
     const personalInfo = [
       { label: "Name", value: userProfile.name },
@@ -111,7 +128,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full space-y-6">
       <TabsList className="grid grid-cols-3 w-full max-w-md">
         <TabsTrigger value="personal" className="flex gap-2 items-center">
           <User className="h-4 w-4" />
