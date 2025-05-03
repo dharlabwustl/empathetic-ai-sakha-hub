@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { ExamResults } from './types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CustomProgress } from '@/components/ui/custom-progress';
-import { Separator } from '@/components/ui/separator';
-import { FileText, Timer } from 'lucide-react';
+import { Card } from "@/components/ui/card";
+import { CheckCircle, FileText, BookOpen, Download, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ReportSectionProps {
   results: ExamResults;
@@ -19,147 +18,137 @@ interface ReportSectionProps {
   };
 }
 
-const ReportSection: React.FC<ReportSectionProps> = ({ 
-  results, 
+const ReportSection: React.FC<ReportSectionProps> = ({
+  results,
   onClose,
   selectedExam,
   examDetails
 }) => {
-  const { readiness, concept, overall } = results;
-  const isNEET = selectedExam === "NEET-UG";
+  const navigate = useNavigate();
   
+  const { readiness, concept, overall } = results;
+  
+  const handleSignUp = () => {
+    // Close the dialog first
+    onClose();
+    // Navigate to signup
+    navigate('/signup');
+  };
+  
+  if (!overall) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Not all tests have been completed yet.</p>
+        <Button onClick={onClose} className="mt-4">Return to beginning</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-xl font-bold mb-2">Your {selectedExam} Exam Analysis Report</h3>
+      <div className="text-center py-4">
+        <h2 className="text-2xl font-bold mb-2">Your {selectedExam} Readiness Report</h2>
         <p className="text-muted-foreground">
-          Based on our comprehensive assessment, here's your personalized analysis
+          Based on your performance, we've created a comprehensive analysis
         </p>
       </div>
       
-      {isNEET && examDetails && (
-        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg text-blue-700 dark:text-blue-300">NEET-UG Exam Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Scoring Pattern: {examDetails.scoringPattern}
-                </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 ml-6 mt-1">
-                  +4 marks for correct answers, -1 mark for incorrect answers
-                </p>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl shadow-inner">
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+          <div className="flex-1">
+            <h3 className="text-lg font-medium mb-2 flex items-center">
+              <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+              Overall Readiness Score
+            </h3>
+            <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent mb-1">
+              {overall.score}%
+            </div>
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-300">
+              {overall.level} Level
+            </p>
+          </div>
+          
+          <div className="flex-1">
+            <h3 className="text-md font-medium mb-2">Assessment Results</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm flex items-center">
+                  <BookOpen className="h-4 w-4 mr-1 text-violet-500" />
+                  Readiness Assessment
+                </span>
+                <span className="font-medium">{readiness?.score || 0}%</span>
               </div>
-              <div>
-                <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center">
-                  <Timer className="h-4 w-4 mr-2" />
-                  Timing: {examDetails.timePerQuestion}
-                </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 ml-6 mt-1">
-                  {examDetails.totalTime} for {examDetails.totalQuestions}
-                </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm flex items-center">
+                  <FileText className="h-4 w-4 mr-1 text-pink-500" />
+                  Concept Mastery
+                </span>
+                <span className="font-medium">{concept?.score || 0}%</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card className="border-2 border-purple-100 dark:border-purple-900">
-        <CardHeader className="bg-purple-50 dark:bg-purple-900/20">
-          <CardTitle className="text-lg text-purple-700 dark:text-purple-300 flex items-center justify-between">
-            <span>Overall Readiness Score</span>
-            <span className="text-2xl">{overall.score}%</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <CustomProgress 
-            value={overall.score} 
-            className="h-2 mb-4" 
-            indicatorClassName={`bg-gradient-to-r ${
-              overall.score >= 80 ? 'from-green-400 to-green-600' :
-              overall.score >= 60 ? 'from-blue-400 to-blue-600' :
-              overall.score >= 40 ? 'from-amber-400 to-amber-600' :
-              'from-red-400 to-red-600'
-            }`} 
-          />
-          
-          <div className="text-sm mb-6">
+          </div>
+        </div>
+        
+        <div className="mb-6">
+          <h3 className="text-md font-medium mb-2">Analysis</h3>
+          <p className="text-sm bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
             {overall.analysis}
-          </div>
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-4 bg-white dark:bg-gray-800 shadow-sm">
+            <h4 className="text-sm font-medium mb-2 text-green-600 dark:text-green-500">Your Strengths</h4>
+            <ul className="space-y-2">
+              {overall.strengths.map((strength, index) => (
+                <li key={`strength-${index}`} className="text-sm flex">
+                  <span className="text-green-600 dark:text-green-500 mr-2">✓</span>
+                  {strength}
+                </li>
+              ))}
+            </ul>
+          </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Readiness Score</div>
-              <div className="text-lg font-medium">{readiness.score}%</div>
-              <CustomProgress 
-                value={readiness.score} 
-                className="h-1.5 mt-2" 
-                indicatorClassName="bg-blue-500" 
-              />
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Concept Mastery</div>
-              <div className="text-lg font-medium">{concept.score}%</div>
-              <CustomProgress 
-                value={concept.score} 
-                className="h-1.5 mt-2" 
-                indicatorClassName="bg-purple-500" 
-              />
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Time Management</div>
-              <div className="text-lg font-medium">{Math.round((readiness.score + concept.score) / 2 * 0.9)}%</div>
-              <CustomProgress 
-                value={Math.round((readiness.score + concept.score) / 2 * 0.9)} 
-                className="h-1.5 mt-2" 
-                indicatorClassName="bg-amber-500" 
-              />
-            </div>
-          </div>
+          <Card className="p-4 bg-white dark:bg-gray-800 shadow-sm">
+            <h4 className="text-sm font-medium mb-2 text-amber-600 dark:text-amber-500">Areas for Improvement</h4>
+            <ul className="space-y-2">
+              {overall.improvements.map((improvement, index) => (
+                <li key={`improvement-${index}`} className="text-sm flex">
+                  <span className="text-amber-600 dark:text-amber-500 mr-2">→</span>
+                  {improvement}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      </div>
+      
+      <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-6 rounded-xl">
+        <h3 className="text-lg font-semibold mb-3">Recommended Next Steps</h3>
+        <p className="mb-4 text-sm">
+          Based on your assessment, we recommend creating a personalized study plan to improve your {selectedExam} preparation
+        </p>
+        
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <Button 
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 border-violet-300 dark:border-violet-800"
+          >
+            <Download className="h-4 w-4" />
+            Download Report
+          </Button>
           
-          <Separator className="my-6" />
-          
-          <div className="space-y-4">
-            <h4 className="font-medium text-lg">What to Focus On</h4>
-            <div>
-              <h5 className="font-medium mb-2">Key Strengths</h5>
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                {overall.strengths.split(',').map((strength, idx) => (
-                  <li key={idx}>{strength.trim()}</li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h5 className="font-medium mb-2">Areas for Improvement</h5>
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                {overall.weaknesses.split(',').map((weakness, idx) => (
-                  <li key={idx}>{weakness.trim()}</li>
-                ))}
-              </ul>
-            </div>
-            
-            {isNEET && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h5 className="font-medium mb-2 text-blue-700 dark:text-blue-300">NEET-UG Specific Advice</h5>
-                <ul className="list-disc pl-5 space-y-1 text-sm text-blue-600 dark:text-blue-400">
-                  <li>Focus on Biology section as it carries the maximum weightage (90 questions).</li>
-                  <li>Practice time management - with only 1.06 minutes per question, quick decision-making is crucial.</li>
-                  <li>Master the +4/-1 scoring strategy to optimize your attempt pattern.</li>
-                  <li>Pay special attention to NCERT content which forms the core of NEET-UG questions.</li>
-                </ul>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex justify-end mt-6">
-            <Button onClick={onClose}>Start Over</Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button
+            onClick={handleSignUp}
+            size="lg"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 shadow-md flex items-center gap-2"
+          >
+            <span>Create Your Personalized Study Plan</span>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

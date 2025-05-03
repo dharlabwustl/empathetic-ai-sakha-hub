@@ -21,6 +21,15 @@ const WelcomeToPrepr = () => {
           completedOnboarding: true,
           sawWelcomeTour: true
         }));
+      } else {
+        // If no user data exists, create a default one
+        localStorage.setItem('userData', JSON.stringify({
+          email: 'demo@example.com',
+          name: 'Demo User',
+          authenticated: true,
+          completedOnboarding: true,
+          sawWelcomeTour: true
+        }));
       }
     } catch (error) {
       console.error("Error updating user data:", error);

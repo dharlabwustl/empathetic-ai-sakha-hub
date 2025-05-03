@@ -1,5 +1,5 @@
 
-export type TestType = 'intro' | 'readiness' | 'stress' | 'concept' | 'report';
+export type TestType = 'intro' | 'readiness' | 'concept' | 'report';
 
 export interface TestQuestion {
   id: string;
@@ -33,14 +33,12 @@ export interface TestResults {
 
 export interface ExamResults {
   readiness: TestResults | null;
-  stress: TestResults | null;
   concept: TestResults | null;
   overall: TestResults | null;
 }
 
 export interface TestCompletionState {
   readiness: boolean;
-  stress: boolean;
   concept: boolean;
 }
 

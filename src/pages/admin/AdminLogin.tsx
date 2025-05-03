@@ -1,202 +1,97 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Loader2, Eye, EyeOff } from 'lucide-react';
-import PrepzrLogo from '@/components/common/PrepzrLogo';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext'; 
 
 const AdminLogin = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { adminLogin, adminLoginError, isAdminAuthenticated } = useAdminAuth();
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Check if already authenticated, redirect if true
-  useEffect(() => {
-    if (isAdminAuthenticated) {
-      navigate('/admin/dashboard');
-    }
-  }, [isAdminAuthenticated, navigate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCredentials(prev => ({ ...prev, [name]: value }));
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { login } = useAdminAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!credentials.email || !credentials.password) {
-      toast({
-        title: 'Required fields',
-        description: 'Please enter both email and password',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsLoading(true);
-
+    
     try {
-      const loginSuccess = await adminLogin(credentials.email, credentials.password);
+      // Use the admin auth context to log in
+      await login(email, password);
       
-      if (loginSuccess) {
-        setLoginSuccess(true);
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to the admin dashboard',
-        });
-        
-        // Navigate immediately to prevent UI shake
-        navigate('/admin/dashboard');
-      } else {
-        toast({
-          title: 'Login failed',
-          description: adminLoginError || 'Invalid admin credentials. Email must contain "admin".',
-          variant: 'destructive',
-        });
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error('Admin login error:', error);
       toast({
-        title: 'Login error',
-        description: 'An error occurred during login. Please try again.',
-        variant: 'destructive',
+        title: "Admin login successful",
+        description: "Redirecting to admin dashboard..."
       });
+      
+      // Navigate to admin dashboard with replace to avoid back button issues
+      navigate('/admin/dashboard', { replace: true });
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Invalid credentials. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
     }
   };
 
-  // Auto-fill demo credentials for easier testing
-  const handleDemoLogin = () => {
-    setCredentials({
-      email: 'admin@prepzr.com',
-      password: 'admin123'
-    });
-  };
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-6">
-          <PrepzrLogo width={180} height="auto" className="mx-auto" />
-          <h1 className="mt-4 text-3xl font-bold">Admin Portal</h1>
-          <p className="text-gray-600 mt-1">Access the system administration tools</p>
-        </div>
-
-        <Card className="shadow-lg border-gray-200">
-          <CardHeader className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white">
-            <CardTitle className="text-xl font-medium">Admin Authentication</CardTitle>
-          </CardHeader>
-          
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={credentials.email}
-                  onChange={handleChange}
-                  disabled={isLoading || loginSuccess}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={credentials.password}
-                    onChange={handleChange}
-                    disabled={isLoading || loginSuccess}
-                    className="pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={togglePasswordVisibility}
-                    disabled={isLoading || loginSuccess}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </Button>
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading || loginSuccess}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Authenticating...
-                  </>
-                ) : loginSuccess ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4" />
-                    Authenticated
-                  </>
-                ) : (
-                  'Sign In to Admin Portal'
-                )}
-              </Button>
-
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full mt-2" 
-                onClick={handleDemoLogin}
-              >
-                Use Demo Account
-              </Button>
-
-              <div className="rounded-md bg-blue-50 p-3">
-                <div className="text-sm text-blue-700 font-medium mb-1">Demo Account</div>
-                <div className="text-xs text-gray-600">
-                  <p>For demo purposes, any email containing "admin" will work</p>
-                  <p>Example: admin@prepzr.com / any password (min 3 chars)</p>
-                </div>
-              </div>
-            </CardContent>
-          </form>
-
-          <Separator />
-
-          <CardFooter className="flex justify-between pt-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-              Return to Home
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-100/30 via-white to-indigo-100/30">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <img src="/assets/logo.svg" alt="PREPZR Logo" className="h-10" />
+          </div>
+          <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
+          <CardDescription>Enter your credentials to access the admin panel</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="admin@prepzr.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input 
+                id="password" 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col">
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
-              Student Login
-            </Button>
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              <a href="/" className="hover:underline">
+                Return to main site
+              </a>
+            </div>
           </CardFooter>
-        </Card>
-      </div>
+        </form>
+      </Card>
     </div>
   );
 };

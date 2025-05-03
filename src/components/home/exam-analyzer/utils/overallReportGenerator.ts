@@ -1,71 +1,91 @@
 
-import { ExamResults, TestResults } from '../types';
+import { TestResults } from '../types';
 
-export const generateOverallReport = (results: Partial<ExamResults>, examType: string): TestResults => {
-  // Calculate overall score with weighted average
-  // 70% concept mastery + 30% readiness
-  const conceptWeight = 0.7;
-  const readinessWeight = 0.3;
+interface PartialExamResults {
+  readiness: TestResults | null;
+  concept: TestResults | null;
+}
+
+export const generateOverallReport = (results: PartialExamResults, examType: string): TestResults => {
+  // Check if we have all the required test results
+  if (!results.readiness || !results.concept) {
+    return {
+      score: 0,
+      level: 'Incomplete',
+      analysis: 'Not all tests have been completed yet.',
+      strengths: [],
+      improvements: []
+    };
+  }
   
-  const conceptScore = results.concept?.score || 0;
-  const readinessScore = results.readiness?.score || 0;
+  // Calculate overall score - weighted average
+  // 40% from readiness assessment, 60% from concept test
+  const readinessWeight = 0.4;
+  const conceptWeight = 0.6;
   
   const overallScore = Math.round(
-    (conceptScore * conceptWeight) +
-    (readinessScore * readinessWeight)
+    (results.readiness.score * readinessWeight) +
+    (results.concept.score * conceptWeight)
   );
-  
-  // Determine level based on score
+
+  // Determine overall level based on score
   let level = '';
-  if (overallScore >= 80) {
-    level = 'Excellent';
-  } else if (overallScore >= 60) {
+  if (overallScore >= 85) {
+    level = 'Outstanding';
+  } else if (overallScore >= 70) {
+    level = 'Strong';
+  } else if (overallScore >= 55) {
     level = 'Good';
   } else if (overallScore >= 40) {
     level = 'Average';
   } else {
     level = 'Needs Improvement';
   }
-  
-  // Generate analysis based on score
+
+  // Generate overall analysis text based on score and exam type
   let analysis = '';
-  if (overallScore >= 80) {
-    analysis = `Your overall NEET readiness is excellent! With a strong conceptual foundation and good preparation habits, you're on track for success. Continue your consistent efforts while focusing on any remaining weak areas.`;
-  } else if (overallScore >= 60) {
-    analysis = `You have good NEET readiness overall. With continued focused effort on strengthening concepts and improving study techniques, you can improve your chances of success.`;
-  } else if (overallScore >= 40) {
-    analysis = `Your NEET readiness is at an average level. There's significant room for improvement in both concept mastery and preparation strategy. A structured approach focusing on fundamentals will help you progress.`;
-  } else {
-    analysis = `Your NEET readiness needs substantial improvement. Start with building strong fundamentals and establishing consistent study habits. With dedicated effort and the right guidance, you can make significant progress.`;
-  }
-  
-  // Combine strengths from both assessments
-  const strengths = [
-    ...(results.concept?.strengths || []).slice(0, 2),
-    ...(results.readiness?.strengths || []).slice(0, 2)
-  ];
-  
-  // Combine improvements from both assessments
-  const improvements = [
-    ...(results.concept?.improvements || []).slice(0, 2),
-    ...(results.readiness?.improvements || []).slice(0, 2)
-  ];
-  
-  // Add NEET-specific recommendations
-  if (examType.toLowerCase() === 'neet') {
-    if (overallScore >= 60) {
-      strengths.push('Good foundation for medical/biology subjects');
+  if (examType.toLowerCase().includes('neet')) {
+    if (overallScore >= 85) {
+      analysis = `Your NEET preparation is excellent. With a score of ${overallScore}%, you demonstrate outstanding readiness in both self-assessment and conceptual understanding. Continue your current strategy while focusing on periodic revision.`;
+    } else if (overallScore >= 70) {
+      analysis = `Your NEET preparation is strong with a ${overallScore}% readiness score. You have good conceptual understanding and study habits. Some targeted improvement in specific areas will help you excel further.`;
+    } else if (overallScore >= 55) {
+      analysis = `With a readiness score of ${overallScore}%, your NEET preparation is on the right track. Your foundation is good, but requires more consistent study habits and deeper understanding of key concepts.`;
+    } else if (overallScore >= 40) {
+      analysis = `Your NEET preparation indicates an average readiness level of ${overallScore}%. There are significant gaps in your conceptual understanding and study approach that need to be addressed systematically.`;
     } else {
-      improvements.push('Focus on NCERT textbooks for Biology which form the core of NEET questions');
-      improvements.push('Improve problem-solving speed for Physics and Chemistry');
+      analysis = `With a readiness score of ${overallScore}%, your NEET preparation needs substantial improvement. We recommend restructuring your study plan with focus on fundamentals and consistent practice.`;
+    }
+  } else {
+    // Generic analysis for other exams
+    if (overallScore >= 70) {
+      analysis = `Your overall exam preparation is strong with a ${overallScore}% score. Continue with your current approach while addressing the specific areas for improvement identified.`;
+    } else if (overallScore >= 50) {
+      analysis = `With a ${overallScore}% overall score, your exam preparation is progressing but has room for improvement. Focus on the suggested areas to enhance your readiness.`;
+    } else {
+      analysis = `Your exam readiness score of ${overallScore}% suggests that a significant change in your preparation approach may be beneficial. Consider the recommendations carefully.`;
     }
   }
+
+  // Combine strengths from both tests, removing duplicates
+  const allStrengths = [
+    ...(results.readiness.strengths || []), 
+    ...(results.concept.strengths || [])
+  ];
+  const strengths = Array.from(new Set(allStrengths)).slice(0, 4);
   
+  // Combine areas for improvement, removing duplicates
+  const allImprovements = [
+    ...(results.readiness.improvements || []), 
+    ...(results.concept.improvements || [])
+  ];
+  const improvements = Array.from(new Set(allImprovements)).slice(0, 4);
+
   return {
     score: overallScore,
     level,
     analysis,
-    strengths: [...new Set(strengths)], // Remove any duplicates
-    improvements: [...new Set(improvements)] // Remove any duplicates
+    strengths,
+    improvements
   };
 };

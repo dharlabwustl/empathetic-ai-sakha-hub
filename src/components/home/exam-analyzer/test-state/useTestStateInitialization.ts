@@ -9,11 +9,9 @@ export const useTestStateInitialization = (selectedExamInitial: string = 'neet')
   const [loading, setLoading] = useState(false);
   const [testCompleted, setTestCompleted] = useState<TestCompletionState>({
     readiness: false,
-    stress: false,
     concept: false
   });
   const [results, setResults] = useState<ExamResults>({
-    stress: { score: 0, level: '', analysis: '', strengths: [], improvements: [] },
     readiness: { score: 0, level: '', analysis: '', strengths: [], improvements: [] },
     concept: { score: 0, level: '', analysis: '', strengths: [], improvements: [] },
     overall: { score: 0, level: '', analysis: '', strengths: [], improvements: [] }

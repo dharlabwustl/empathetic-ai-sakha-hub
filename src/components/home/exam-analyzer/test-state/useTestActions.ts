@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { TestType, UserAnswer, TestCompletionState, ExamResults } from '../types';
 import { generateReadinessReport } from '../utils/readinessReportGenerator';
-import { generateStressReport } from '../utils/stressReportGenerator';
 import { generateConceptReport } from '../utils/conceptReportGenerator';
 import { generateOverallReport } from '../utils/overallReportGenerator';
 
@@ -38,7 +37,7 @@ export const useTestActions = ({
   // Start the test flow
   const handleStartTest = () => {
     setCurrentTest('readiness');
-    setProgress(25);
+    setProgress(33);
   };
 
   // Readiness Test actions
@@ -66,35 +65,7 @@ export const useTestActions = ({
     });
     
     // Update progress
-    setProgress(50);
-  };
-
-  // Stress Test actions
-  const simulateStressTest = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-  };
-
-  const handleStressTestComplete = (answers: UserAnswer[]) => {
-    // Generate stress test report
-    const stressResult = generateStressReport(answers, selectedExam);
-    
-    // Update completed tests
-    setTestCompleted({
-      ...testCompleted,
-      stress: true
-    });
-    
-    // Update results
-    setResults({
-      ...results,
-      stress: stressResult
-    });
-    
-    // Update progress
-    setProgress(75);
+    setProgress(66);
   };
 
   // Concept Test actions
@@ -122,7 +93,6 @@ export const useTestActions = ({
       // Generate overall report based on all test results
       overall: generateOverallReport({
         readiness: results.readiness,
-        stress: results.stress,
         concept: conceptResult
       }, selectedExam)
     });
@@ -138,13 +108,10 @@ export const useTestActions = ({
     // Update progress based on test
     switch (test) {
       case 'readiness':
-        setProgress(25);
+        setProgress(33);
         break;
-      case 'stress':
-        setProgress(50);
-        break;  
       case 'concept':
-        setProgress(75);
+        setProgress(66);
         break;
       case 'report':
         setProgress(100);
@@ -159,7 +126,6 @@ export const useTestActions = ({
     setCurrentTest('intro');
     setTestCompleted({
       readiness: false,
-      stress: false,
       concept: false
     });
     setProgress(0);
@@ -169,8 +135,6 @@ export const useTestActions = ({
     handleStartTest,
     simulateReadinessTest,
     handleReadinessTestComplete,
-    simulateStressTest,
-    handleStressTestComplete,
     simulateConceptTest,
     handleConceptTestComplete,
     handleNavigation,
