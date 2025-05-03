@@ -116,6 +116,12 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   return undefined;
 };
 
+// Improve pronunciation of specific words
+const improvePronunciation = (text: string): string => {
+  // Replace "PREPZR" with a phonetic spelling that sounds better
+  return text.replace(/PREPZR|Prepzr|prepzr/g, 'Prep-Z-R');
+};
+
 // Function to speak a message with current settings
 export const speakMessage = (message: string, forceSpeak: boolean = false): void => {
   const settings = getVoiceSettings();
@@ -139,7 +145,7 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   window.speechSynthesis.cancel();
   
   // Create and configure speech synthesis utterance
-  const utterance = new SpeechSynthesisUtterance(message);
+  const utterance = new SpeechSynthesisUtterance(improvePronunciation(message));
   
   // Find the best Indian female voice
   const bestVoice = findBestIndianVoice();
