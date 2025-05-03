@@ -33,42 +33,12 @@ export const useVoiceAnnouncerContext = () => {
   return context;
 };
 
-// Helper functions for task announcement - shorter and more focused
+// Helper functions for task announcement
 export const getTaskAnnouncement = (count: number) => {
-  if (count === 0) return "No tasks scheduled for today.";
-  return `${count} task${count === 1 ? '' : 's'} scheduled today.`;
+  if (count === 0) return "You have no tasks for today. Enjoy your free time!";
+  return `You have ${count} task${count === 1 ? '' : 's'} scheduled for today.`;
 };
 
 export const getReminderAnnouncement = (subject: string, time: string) => {
-  return `Reminder: ${subject} session at ${time}.`;
+  return `Reminder: You have a ${subject} session scheduled at ${time}.`;
 };
-
-// Study recommendation functions - focused on exam goals
-export const getExamFocusedRecommendation = (examName: string): string => {
-  const recommendations = [
-    `For ${examName}, reviewing flashcards now could increase your recall by 30%.`,
-    `Taking a practice exam is the best way to prepare for ${examName}.`,
-    `Your ${examName} preparation needs more focus on concept mastery.`,
-    `Based on your progress, I recommend focusing on weak areas for ${examName}.`
-  ];
-  return recommendations[Math.floor(Math.random() * recommendations.length)];
-};
-
-// Study strategy recommendations based on context
-export const getStudyStrategyTip = (): string => {
-  const tips = [
-    "Active recall is more effective than re-reading. Try flashcards for better retention.",
-    "Consider taking a practice exam to identify knowledge gaps.",
-    "Review challenging concepts before tackling new material.",
-    "Split difficult topics into 25-minute focused sessions with short breaks."
-  ];
-  return tips[Math.floor(Math.random() * tips.length)];
-};
-
-// Export additional helper functions
-export { 
-  getIdleTimeResponse, 
-  getFirstTimeUserGuidance, 
-  getDailyProgressUpdate,
-  getSubjectProgressUpdate 
-} from './messageGenerators';
