@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { TestType, UserAnswer } from '../../types';
 import { generateReadinessReport } from '../../utils/readinessReportGenerator';
-import { generateConceptMasteryReport } from '../../utils/conceptMasteryReportGenerator';
+import { generateConceptReport } from '../../utils/conceptReportGenerator';
 import { generateCognitiveStressReport } from '../../utils/cognitiveStressReportGenerator';
 
 interface UseTestActionsProps {
@@ -98,7 +98,7 @@ export const useTestActions = ({
     setLoading(true);
     
     setTimeout(() => {
-      const conceptResults = generateConceptMasteryReport(answers, selectedExam);
+      const conceptResults = generateConceptReport(answers, selectedExam);
       
       // Match up concept test results with readiness results
       if (results && results.categoryScores) {
