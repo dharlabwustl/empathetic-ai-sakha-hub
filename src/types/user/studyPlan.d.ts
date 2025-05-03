@@ -1,66 +1,51 @@
 
-// Basic study plan types
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  priority: 'high' | 'medium' | 'low';
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+}
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  priority?: 'high' | 'medium' | 'low';
-  status?: 'completed' | 'pending' | 'in-progress' | 'skipped';
-  proficiency?: 'strong' | 'medium' | 'weak';
-  color?: string;
+  color: string;
+  proficiency: 'weak' | 'medium' | 'strong';
+  priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
-  topics?: Array<{
-    id: string;
-    name: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    status?: 'completed' | 'pending' | 'in-progress' | 'skipped';
-    priority?: 'high' | 'medium' | 'low';
-  }>;
-  isWeakSubject?: boolean;
+  completed: boolean;
+  topics?: StudyPlanTopic[]; // Make topics optional
+  difficulty?: 'easy' | 'medium' | 'hard'; // Add difficulty field
 }
 
 export interface StudyPlan {
   id: string;
-  title: string;
-  description?: string;
+  userId?: string; // Add userId field
   examGoal: string;
-  examDate: Date | string;
-  status: 'active' | 'completed' | 'pending' | 'archived';
-  progress?: number;
-  progressPercent?: number;
-  progressPercentage?: number; // For backward compatibility
-  daysLeft?: number;
-  userId?: string;
-  goal?: string;
-  weeklyHours?: number;
+  examDate: string | Date;
+  status: 'active' | 'completed' | 'archived' | 'pending'; // Add 'pending' status
   subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
-  createdAt: Date | string;
-  updatedAt?: Date | string;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  studyHoursPerDay: number;
+  weeklyHours: number;
+  progressPercentage?: number; // Add progressPercentage field
+  progressPercent?: number; // Keep the existing progressPercent field
+  daysLeft?: number; // Add daysLeft field
+  createdAt: string;
+  updatedAt: string;
+  goal?: string; // Add goal field
 }
 
-// Interface for creating new study plans
 export interface NewStudyPlan {
   examGoal: string;
-  examDate: Date | string;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  goal?: string;
-}
-
-// Interface for tracking study sessions
-export interface StudySession {
-  id: string;
-  planId: string;
-  subjectId: string;
-  date: Date | string;
-  duration: number; // in minutes
-  completed: boolean;
-  notes?: string;
+  examDate: string | Date;
+  subjects: Omit<StudyPlanSubject, 'topics'>[];
+  learningPace?: 'slow' | 'moderate' | 'fast';
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  studyHoursPerDay?: number;
+  weeklyHours: number;
+  goal?: string; // Add goal field
 }

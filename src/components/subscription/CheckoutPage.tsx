@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, CreditCard, Tag, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, CheckCircle } from 'lucide-react';
 import { SubscriptionPlan } from '@/types/user/base';
 
 interface CheckoutPageProps {
@@ -23,247 +22,269 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   isGroupPlan = false,
   invitedEmails = []
 }) => {
-  const [paymentMethod, setPaymentMethod] = useState<string>('card');
-  const [promoCode, setPromoCode] = useState<string>('');
-  const [promoApplied, setPromoApplied] = useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  
-  const handleApplyPromo = () => {
-    if (!promoCode) return;
-    
-    // Simulate promo code check
-    if (promoCode.toUpperCase() === 'WELCOME10') {
-      setPromoApplied(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi'>('card');
+  const [cardDetails, setCardDetails] = useState({
+    number: '',
+    name: '',
+    expiry: '',
+    cvv: ''
+  });
+  const [upiId, setUpiId] = useState('');
+  const [emails, setEmails] = useState<string[]>(invitedEmails);
+  const [newEmail, setNewEmail] = useState('');
+
+  const handleAddEmail = () => {
+    if (newEmail && !emails.includes(newEmail) && emails.length < 4) {
+      setEmails([...emails, newEmail]);
+      setNewEmail('');
     }
   };
-  
-  const handlePayment = () => {
+
+  const handleRemoveEmail = (email: string) => {
+    setEmails(emails.filter(e => e !== email));
+  };
+
+  const handlePaymentMethodChange = (method: 'card' | 'upi') => {
+    setPaymentMethod(method);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsProcessing(true);
     
     // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setIsProcessing(false);
+    setIsComplete(true);
+    
+    // Simulate successful payment
     setTimeout(() => {
-      const mockInviteCodes = isGroupPlan ? 
-        invitedEmails.map(() => `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`) : 
-        undefined;
-      
-      onSuccess(
-        selectedPlan,
-        mockInviteCodes,
-        invitedEmails.length > 0 ? invitedEmails : undefined
-      );
-      setIsProcessing(false);
-    }, 2000);
+      const mockInviteCodes = isGroupPlan ? emails.map(() => `PREP-${Math.random().toString(36).substring(2, 8).toUpperCase()}`) : undefined;
+      onSuccess(selectedPlan, mockInviteCodes, isGroupPlan ? emails : undefined);
+    }, 1500);
   };
-  
-  // Calculate prices
-  const basePrice = selectedPlan.price;
-  const discount = promoApplied ? Math.round(basePrice * 0.1) : 0;
-  const gst = Math.round((basePrice - discount) * 0.18);
-  const totalPrice = basePrice - discount + gst;
+
+  if (isComplete) {
+    return (
+      <div className="max-w-md mx-auto">
+        <Card className="border-green-200">
+          <CardContent className="pt-6 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-green-100 p-3">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-6">
+              Your {selectedPlan.name} subscription has been activated.
+            </p>
+            <Button
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+              onClick={() => onSuccess(selectedPlan)}
+            >
+              Continue to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold">Checkout</h2>
-        <Button variant="ghost" size="icon" onClick={onCancel}>
-          <X size={20} />
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+    <div className="container max-w-4xl mx-auto">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Order summary */}
+        <div className="w-full md:w-1/3">
           <Card>
             <CardHeader>
-              <CardTitle>Payment Method</CardTitle>
+              <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs value={paymentMethod} onValueChange={setPaymentMethod} className="w-full">
-                <TabsList className="grid grid-cols-4 mb-4">
-                  <TabsTrigger value="card">Card</TabsTrigger>
-                  <TabsTrigger value="upi">UPI</TabsTrigger>
-                  <TabsTrigger value="netbanking">Netbanking</TabsTrigger>
-                  <TabsTrigger value="paypal">PayPal</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="card" className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <Label htmlFor="card-number">Card Number</Label>
-                      <Input id="card-number" placeholder="4242 4242 4242 4242" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="expiry">Expiry Date</Label>
-                        <Input id="expiry" placeholder="MM/YY" />
-                      </div>
-                      <div>
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input id="cvv" placeholder="123" />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="name">Name on Card</Label>
-                      <Input id="name" placeholder="John Doe" />
-                    </div>
+              <p className="font-bold text-lg">{selectedPlan.name} Plan</p>
+              <p className="text-gray-500">{selectedPlan.description}</p>
+              
+              <div className="mt-4 border-t pt-4">
+                <div className="flex justify-between mb-2">
+                  <span>Subscription</span>
+                  <span>₹{selectedPlan.price}.00</span>
+                </div>
+                {selectedPlan.id.includes('annual') && (
+                  <div className="flex justify-between mb-2 text-green-600">
+                    <span>Savings (2 months)</span>
+                    <span>-₹{Math.round(selectedPlan.price / 6)}.00</span>
                   </div>
-                </TabsContent>
-                
-                <TabsContent value="upi" className="space-y-4">
-                  <div>
-                    <Label htmlFor="upi-id">UPI ID</Label>
-                    <Input id="upi-id" placeholder="yourname@upi" />
-                    <p className="text-sm text-muted-foreground mt-2">Enter your UPI ID to make the payment</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="netbanking" className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <Button variant="outline" className="h-20 flex flex-col">
-                      <div className="h-10 w-10 bg-gray-200 rounded-full mb-2"></div>
-                      <span>SBI</span>
-                    </Button>
-                    <Button variant="outline" className="h-20 flex flex-col">
-                      <div className="h-10 w-10 bg-gray-200 rounded-full mb-2"></div>
-                      <span>HDFC</span>
-                    </Button>
-                    <Button variant="outline" className="h-20 flex flex-col">
-                      <div className="h-10 w-10 bg-gray-200 rounded-full mb-2"></div>
-                      <span>ICICI</span>
-                    </Button>
-                  </div>
-                  <div>
-                    <Label htmlFor="other-bank">Other Banks</Label>
-                    <select id="other-bank" className="w-full border rounded-md p-2">
-                      <option value="">Select Bank</option>
-                      <option value="axis">Axis Bank</option>
-                      <option value="kotak">Kotak Mahindra Bank</option>
-                      <option value="yes">Yes Bank</option>
-                    </select>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="paypal" className="space-y-4">
-                  <p className="text-center text-muted-foreground py-4">
-                    Click the button below to pay with PayPal. You will be redirected to PayPal's website.
-                  </p>
-                  <div className="flex justify-center">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
-                      <div className="mr-2 h-4 w-4 text-white">P</div>
-                      Pay with PayPal
-                    </Button>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                )}
+                <div className="flex justify-between font-bold text-lg border-t border-dashed mt-2 pt-2">
+                  <span>Total</span>
+                  <span>₹{selectedPlan.price}.00</span>
+                </div>
+              </div>
+              
+              <Button
+                variant="outline"
+                className="w-full mt-6"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
             </CardContent>
           </Card>
           
-          {isGroupPlan && invitedEmails.length > 0 && (
-            <Card>
+          {isGroupPlan && (
+            <Card className="mt-4">
               <CardHeader>
-                <CardTitle>Invited Members ({invitedEmails.length})</CardTitle>
+                <CardTitle>Team Members</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="max-h-[200px] overflow-y-auto">
-                  <ul className="space-y-2">
-                    {invitedEmails.map((email, index) => (
-                      <li key={index} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                        {email}
-                      </li>
-                    ))}
-                  </ul>
+                <p className="text-sm text-gray-500 mb-4">Invite up to 4 team members to join your group plan.</p>
+                
+                <div className="space-y-2 mb-4">
+                  {emails.map((email, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                      <span className="flex-1 text-sm truncate">{email}</span>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-6 w-6 p-0"
+                        onClick={() => handleRemoveEmail(email)}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ))}
                 </div>
+                
+                {emails.length < 4 && (
+                  <div className="flex gap-2">
+                    <Input 
+                      type="email" 
+                      placeholder="Enter email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleAddEmail}>Add</Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
         </div>
         
-        <div>
-          <Card className="sticky top-6">
+        {/* Payment form */}
+        <div className="w-full md:w-2/3">
+          <Card>
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle>Payment Method</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Plan</span>
-                  <span className="font-medium">{selectedPlan.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Price</span>
-                  <span>₹{basePrice}</span>
-                </div>
-                {promoApplied && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span>-₹{discount}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span>GST (18%)</span>
-                  <span>₹{gst}</span>
-                </div>
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between font-bold">
-                    <span>Total</span>
-                    <span>₹{totalPrice}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <div className="flex-grow">
-                  <Input
-                    placeholder="Promo code"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    disabled={promoApplied}
-                  />
-                </div>
+            <CardContent>
+              <div className="flex gap-4 mb-6">
                 <Button 
-                  variant="outline" 
-                  onClick={handleApplyPromo}
-                  disabled={!promoCode || promoApplied}
+                  type="button"
+                  variant={paymentMethod === 'card' ? 'default' : 'outline'}
+                  className={`flex-1 ${paymentMethod === 'card' ? 'bg-blue-600' : ''}`}
+                  onClick={() => handlePaymentMethodChange('card')}
                 >
-                  {promoApplied ? (
-                    <>
-                      <Check size={16} className="mr-1" />
-                      Applied
-                    </>
-                  ) : (
-                    <>
-                      <Tag size={16} className="mr-1" />
-                      Apply
-                    </>
-                  )}
+                  Credit/Debit Card
+                </Button>
+                <Button 
+                  type="button"
+                  variant={paymentMethod === 'upi' ? 'default' : 'outline'}
+                  className={`flex-1 ${paymentMethod === 'upi' ? 'bg-blue-600' : ''}`}
+                  onClick={() => handlePaymentMethodChange('upi')}
+                >
+                  UPI
                 </Button>
               </div>
               
-              {promoApplied && (
-                <div className="bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300 p-2 rounded-md text-sm flex items-center">
-                  <Check size={16} className="mr-1.5" />
-                  Code WELCOME10 applied: 10% off
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex-col space-y-2">
-              <Button 
-                className="w-full"
-                onClick={handlePayment}
-                disabled={isProcessing}
-              >
-                {isProcessing ? 'Processing...' : (
-                  <>
-                    <CreditCard size={16} className="mr-2" />
-                    Pay ₹{totalPrice}
-                  </>
+              <form onSubmit={handleSubmit}>
+                {paymentMethod === 'card' ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="card-number">Card Number</Label>
+                      <Input 
+                        id="card-number" 
+                        placeholder="1234 5678 9012 3456"
+                        value={cardDetails.number}
+                        onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
+                        required={paymentMethod === 'card'}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="card-name">Name on Card</Label>
+                      <Input 
+                        id="card-name" 
+                        placeholder="John Doe"
+                        value={cardDetails.name}
+                        onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
+                        required={paymentMethod === 'card'}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="expiry">Expiry Date</Label>
+                        <Input 
+                          id="expiry" 
+                          placeholder="MM/YY"
+                          value={cardDetails.expiry}
+                          onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
+                          required={paymentMethod === 'card'}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cvv">CVV</Label>
+                        <Input 
+                          id="cvv" 
+                          placeholder="123"
+                          value={cardDetails.cvv}
+                          onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
+                          required={paymentMethod === 'card'}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="upi-id">UPI ID</Label>
+                      <Input 
+                        id="upi-id" 
+                        placeholder="your-upi-id@bank"
+                        value={upiId}
+                        onChange={(e) => setUpiId(e.target.value)}
+                        required={paymentMethod === 'upi'}
+                      />
+                    </div>
+                  </div>
                 )}
-              </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                By proceeding, you agree to our Terms of Service and Privacy Policy
-              </p>
-            </CardFooter>
+                
+                <div className="mt-6">
+                  <Button 
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Pay ₹${selectedPlan.price}.00`
+                    )}
+                  </Button>
+                  
+                  <p className="text-xs text-center mt-4 text-gray-500">
+                    Your payment is secure and encrypted. By proceeding, you agree to our Terms of Service.
+                  </p>
+                </div>
+              </form>
+            </CardContent>
           </Card>
         </div>
       </div>

@@ -1,410 +1,224 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Check, Users, X } from 'lucide-react';
-import { SubscriptionType } from '@/types/user/base';
-import { motion } from 'framer-motion';
+import { SubscriptionPlan } from '@/types/user/base';
 
 interface SubscriptionPlansProps {
-  currentPlanId?: string;
-  onSelectPlan: (plan: any, isGroup: boolean) => void;
-  showGroupOption?: boolean;
+  currentPlanId: string;
+  onSelectPlan: (plan: SubscriptionPlan, isGroup: boolean) => void;
 }
 
 const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ 
-  currentPlanId, 
-  onSelectPlan,
-  showGroupOption = true
+  currentPlanId,
+  onSelectPlan
 }) => {
-  // Basic plans
-  const basicPlans = [
+  // Define plans
+  const plans: SubscriptionPlan[] = [
     {
       id: 'free',
-      name: 'Free Plan (7 Days)',
+      type: 'free',
+      name: 'Free',
       price: 0,
+      currency: 'INR',
+      description: 'Basic exam preparation',
       features: [
-        '5 Concept Cards (Auto-generated)',
-        '5 Flashcards',
-        '5 Practice Exams with analytics',
-        '1 Academic Advisor plan',
-        'Basic Smart Study Plan',
-        '10 AI Tutor requests',
-        'Feel Good Corner'
+        'Basic study plans',
+        'Limited flashcards',
+        '5 practice questions/day',
+        'Basic progress tracking'
       ],
-      type: SubscriptionType.Free
+      notIncluded: [
+        'AI tutor sessions',
+        'Personalized study path',
+        'Advanced analytics',
+        'Group study tools'
+      ]
     },
     {
-      id: 'pro_monthly',
-      name: 'Pro Plan (Monthly)',
-      price: 999,
+      id: 'premium-monthly',
+      type: 'premium',
+      name: 'Premium',
+      price: 299,
+      currency: 'INR',
+      interval: 'month',
+      description: 'Advanced preparation tools',
       features: [
-        'Unlimited Concept Cards (via Study Plan)',
-        'Unlimited Flashcards',
-        'Unlimited Practice Exams',
-        'Create Custom Cards (via credits)',
-        '2 Academic Advisor plans/month',
-        'Full + Mood-Based Smart Study Plan',
-        'Unlimited AI Tutor (Fair Use)',
-        'Surrounding Influence',
-        'Feel Good Corner'
+        'Advanced study plans',
+        'Unlimited flashcards',
+        'Unlimited practice questions',
+        'AI tutor access',
+        'Detailed analytics',
+        'Personalized recommendations',
+        'Advanced progress tracking'
       ],
-      type: SubscriptionType.ProMonthly
+      notIncluded: [
+        '1-on-1 coaching',
+        'Exam strategy sessions'
+      ]
     },
     {
-      id: 'pro_annual',
-      name: 'Pro Plan (Annual)',
-      price: 9999,
+      id: 'pro-annual',
+      type: 'pro',
+      name: 'Pro',
+      price: 2499,
+      currency: 'INR',
+      interval: 'year',
+      description: 'Complete exam success package',
       features: [
-        'All Monthly Pro Plan features',
-        '₹2,000 savings compared to monthly',
+        'Everything in Premium',
+        '1-on-1 coaching sessions',
+        'Personalized study path',
+        'Exam strategy sessions',
+        'Premium study materials',
         'Priority support',
-        'Early access to new features'
+        '2 months free'
       ],
-      type: SubscriptionType.ProAnnual
+      notIncluded: []
     }
   ];
 
-  // Group plans
-  const groupPlans = [
+  const groupPlans: SubscriptionPlan[] = [
     {
-      id: 'group_small',
-      name: 'Group Plan (5 Users)',
-      price: 3999,
+      id: 'group-monthly',
+      type: 'group',
+      name: 'Group Plan',
+      price: 999,
+      currency: 'INR',
+      interval: 'month',
+      description: 'For study groups (up to 5 members)',
       features: [
-        '5 Users included (₹799/user extra)',
-        'Unlimited Concept Cards (via Study Plan)',
-        'Unlimited Flashcards',
-        'Unlimited Practice Exams',
-        'Create Custom Cards (shared credit pool)',
-        '4 Academic Advisor plans/month shared',
-        'Full + Mood-Based Smart Study Plan',
-        'Unlimited AI Tutor (Per User)',
-        'Study Groups',
-        'Admin Dashboard',
-        'Batch Manager',
-        'Surrounding Influence',
-        'Feel Good Corner'
+        'All Premium features for 5 users',
+        'Collaborative study tools',
+        'Group analytics dashboard',
+        'Shared study materials',
+        'Group discount (33% off per user)'
       ],
-      type: SubscriptionType.GroupSmall,
-      maxMembers: 5
-    },
-    {
-      id: 'group_annual',
-      name: 'Group Plan (Annual)',
-      price: 39999,
-      features: [
-        'All Monthly Group Plan features',
-        '₹8,000 savings compared to monthly',
-        'Priority group support',
-        'Enhanced analytics',
-        'Customized onboarding session'
-      ],
-      type: SubscriptionType.GroupAnnual,
-      maxMembers: 5
+      notIncluded: [
+        '1-on-1 coaching'
+      ]
     }
   ];
-
-  const handleSelectPlan = (plan: any, isGroup: boolean = false) => {
-    onSelectPlan(plan, isGroup);
-  };
-
-  const formatPrice = (price: number) => {
-    if (price === 0) return 'Free';
-    if (price === 999) return '₹999/month';
-    if (price === 9999) return '₹9,999/year';
-    if (price === 3999) return '₹3,999/month';
-    if (price === 39999) return '₹39,999/year';
-    return `₹${price}`;
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({ 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
-        delay: i * 0.1,
-        duration: 0.5
-      } 
-    })
-  };
 
   return (
-    <div className="space-y-12">
-      <div>
-        <h3 className="text-2xl font-bold mb-6">Individual Plans</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {basicPlans.map((plan, index) => (
-            <motion.div
+    <div className="space-y-10">
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Individual Plans</h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {plans.map(plan => (
+            <Card 
               key={plan.id}
-              custom={index}
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              whileHover={{ translateY: -5 }}
+              className={`p-6 border-2 transition-all duration-300 hover:shadow-lg ${
+                plan.id === currentPlanId 
+                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20' 
+                  : plan.id === 'pro-annual' 
+                    ? 'border-purple-200 hover:border-purple-500' 
+                    : plan.id === 'premium-monthly' 
+                      ? 'border-blue-200 hover:border-blue-500'
+                      : 'border-gray-200 hover:border-gray-400'
+              }`}
             >
-              <Card className={`overflow-hidden h-full flex flex-col ${
-                currentPlanId === plan.id ? 'border-2 border-primary' : ''
-              } ${plan.id === 'pro_monthly' ? 'border-2 border-purple-500 shadow-lg' : ''}`}>
-                {currentPlanId === plan.id && (
-                  <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
-                    Current Plan
-                  </div>
-                )}
-                {plan.id === 'pro_monthly' && currentPlanId !== plan.id && (
-                  <div className="bg-gradient-to-r from-purple-600 to-violet-700 text-white text-center py-1 text-sm font-medium">
-                    MOST POPULAR
-                  </div>
-                )}
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle>{plan.name}</CardTitle>
-                  </div>
-                  <div className="mt-2">
-                    <span className="text-2xl font-bold">{formatPrice(plan.price)}</span>
-                    {plan.id === 'pro_annual' && (
-                      <span className="text-sm text-green-600 ml-2">Save ₹2,000</span>
+              <div className="flex flex-col h-full">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                  <p className="text-3xl font-bold">
+                    {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
+                    {plan.interval && (
+                      <span className="text-sm font-normal text-gray-500">
+                        /{plan.interval}
+                      </span>
                     )}
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <Check size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                </div>
+
+                <div className="flex-grow">
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                    
+                    {plan.notIncluded.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2 text-gray-400">
+                        <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
                         <span className="text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className={`w-full ${
-                      plan.id === 'pro_monthly' 
-                        ? 'bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800' 
-                        : ''
-                    }`}
-                    variant={currentPlanId === plan.id ? 'outline' : 'default'}
-                    disabled={currentPlanId === plan.id}
-                    onClick={() => handleSelectPlan(plan)}
-                  >
-                    {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
+                </div>
+
+                <Button
+                  className={`w-full mt-4 ${
+                    plan.id === 'pro-annual'
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                      : ''
+                  }`}
+                  variant={plan.id === currentPlanId ? "outline" : "default"}
+                  onClick={() => onSelectPlan(plan, false)}
+                  disabled={plan.id === currentPlanId}
+                >
+                  {plan.id === currentPlanId ? 'Current Plan' : 'Choose Plan'}
+                </Button>
+              </div>
+            </Card>
           ))}
         </div>
       </div>
-      
-      {showGroupOption && (
-        <div>
-          <h3 className="text-2xl font-bold mb-6 flex items-center">
-            <Users size={20} className="mr-2" />
-            Group Plans
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {groupPlans.map((plan, index) => (
-              <motion.div
-                key={plan.id}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                whileHover={{ translateY: -5 }}
-              >
-                <Card className={`overflow-hidden h-full flex flex-col ${
-                  currentPlanId === plan.id ? 'border-2 border-primary' : ''
-                }`}>
-                  {currentPlanId === plan.id && (
-                    <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
-                      Current Plan
-                    </div>
-                  )}
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{plan.name}</CardTitle>
-                      {plan.id === 'group_annual' && (
-                        <Badge className="bg-green-500">Best Value</Badge>
-                      )}
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-2xl font-bold">{formatPrice(plan.price)}</span>
-                      {plan.id === 'group_annual' && (
-                        <span className="text-sm text-green-600 ml-2">Save ₹8,000</span>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start">
-                          <Check size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      className="w-full"
-                      variant={currentPlanId === plan.id ? 'outline' : 'default'}
-                      disabled={currentPlanId === plan.id}
-                      onClick={() => handleSelectPlan(plan, true)}
-                    >
-                      {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Credit system section */}
-      <div>
-        <h3 className="text-2xl font-bold mb-6">Card Credit System</h3>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">For Custom Card Generation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium">50 Credits</h4>
-                <p className="text-2xl font-bold mt-1">₹99</p>
-                <p className="text-sm text-muted-foreground mt-2">Create 50 Concept or Flashcards</p>
-              </div>
-              
-              <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                <h4 className="font-medium">100 Credits</h4>
-                <p className="text-2xl font-bold mt-1">₹179</p>
-                <p className="text-sm text-muted-foreground mt-2">Create 100 Concept or Flashcards</p>
-                <Badge className="mt-2 bg-green-100 text-green-800">Best Value</Badge>
-              </div>
-              
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium">250 Credits</h4>
-                <p className="text-2xl font-bold mt-1">₹399</p>
-                <p className="text-sm text-muted-foreground mt-2">Create 250 Concept or Flashcards</p>
-              </div>
-              
-              <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                <h4 className="font-medium">100 Exam Credits</h4>
-                <p className="text-2xl font-bold mt-1">₹499</p>
-                <p className="text-sm text-muted-foreground mt-2">Create 100 exam cards</p>
-              </div>
-            </div>
-            
-            <div className="mt-6 p-4 border rounded-lg bg-purple-50 dark:bg-purple-900/20">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-medium">Exam Card Cost</h4>
-                  <p className="text-sm text-muted-foreground mt-1">More detailed AI generation</p>
+
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Group Plans</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {groupPlans.map(plan => (
+            <Card 
+              key={plan.id}
+              className="p-6 border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 hover:shadow-lg"
+            >
+              <div className="flex flex-col h-full">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                  <p className="text-3xl font-bold">
+                    {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
+                    {plan.interval && (
+                      <span className="text-sm font-normal text-gray-500">
+                        /{plan.interval}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
                 </div>
-                <p className="text-xl font-bold">2 credits</p>
+
+                <div className="flex-grow">
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                    
+                    {plan.notIncluded && plan.notIncluded.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2 text-gray-400">
+                        <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                  onClick={() => onSelectPlan(plan, true)}
+                >
+                  Choose Group Plan
+                </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Features Comparison Section */}
-      <div>
-        <h3 className="text-2xl font-bold mb-6">Plans Comparison</h3>
-        <Card>
-          <CardContent className="p-6 overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="py-3 text-left text-sm font-medium text-gray-500">Feature</th>
-                  <th className="py-3 text-left text-sm font-medium text-gray-500">Free Plan</th>
-                  <th className="py-3 text-left text-sm font-medium text-gray-500">Pro Plan</th>
-                  <th className="py-3 text-left text-sm font-medium text-gray-500">Group Plan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                <tr>
-                  <td className="py-3 text-sm font-medium">Concept Cards</td>
-                  <td className="py-3 text-sm">5 total</td>
-                  <td className="py-3 text-sm">Unlimited (via Study Plan)</td>
-                  <td className="py-3 text-sm">Unlimited (via Study Plan)</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Flashcards</td>
-                  <td className="py-3 text-sm">5 total</td>
-                  <td className="py-3 text-sm">Unlimited</td>
-                  <td className="py-3 text-sm">Unlimited</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Practice Exams</td>
-                  <td className="py-3 text-sm">5 total</td>
-                  <td className="py-3 text-sm">Unlimited</td>
-                  <td className="py-3 text-sm">Unlimited</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Create Custom Cards</td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm">✅ (via credits)</td>
-                  <td className="py-3 text-sm">✅ (shared credit pool)</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Academic Advisor</td>
-                  <td className="py-3 text-sm">1 plan</td>
-                  <td className="py-3 text-sm">2/month</td>
-                  <td className="py-3 text-sm">4/month shared</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Study Plan</td>
-                  <td className="py-3 text-sm">Basic</td>
-                  <td className="py-3 text-sm">Full + Mood-Based</td>
-                  <td className="py-3 text-sm">Full + Mood-Based</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">AI Tutor</td>
-                  <td className="py-3 text-sm">10 requests</td>
-                  <td className="py-3 text-sm">Unlimited (Fair Use)</td>
-                  <td className="py-3 text-sm">Unlimited (Per User)</td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Study Groups</td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Admin Dashboard</td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Batch Manager</td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Feel Good Corner</td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                </tr>
-                <tr>
-                  <td className="py-3 text-sm font-medium">Surrounding Influence</td>
-                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
-                </tr>
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

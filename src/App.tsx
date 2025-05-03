@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -52,7 +51,8 @@ import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
-// Import the AdminDashboard directly instead of lazy loading it
+import SubscriptionPage from './pages/subscription/SubscriptionPage';
+// Import the SubscriptionPage component
 
 function App() {
   return (
