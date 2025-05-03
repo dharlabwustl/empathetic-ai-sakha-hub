@@ -45,59 +45,52 @@ export const saveVoiceSettings = (settings: VoiceSettings): void => {
   localStorage.setItem('voiceSettings', JSON.stringify(settings));
 };
 
-// Helper to get the best voice for Indian English
+// Helper to get the best voice for Indian English - prioritizing female voices
 export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   const voices = window.speechSynthesis.getVoices();
   
-  // Priority for voice selection:
-  // 1. Female Indian English voice
-  // 2. Any voice with "Indian" in the name (preferring female)
-  // 3. Any voice with "Hindi" in the name (preferring female)
-  // 4. Any English voice (preferring female)
-  
-  // First try: Find female Indian English voice
+  // First priority: Find female Indian English voice
   const femaleIndianVoice = voices.find(voice => 
     (voice.lang === 'en-IN' || voice.lang.startsWith('hi-')) && 
     voice.name.toLowerCase().includes('female')
   );
   
-  // Second try: Find female voice with "Indian" in name
-  const femaleVoiceWithIndian = voices.find(voice => 
+  if (femaleIndianVoice) {
+    return femaleIndianVoice;
+  }
+  
+  // Second priority: Find any voice with "Indian" in name and "female"
+  const femaleWithIndianName = voices.find(voice => 
     voice.name.toLowerCase().includes('indian') && 
     voice.name.toLowerCase().includes('female')
   );
   
-  // Third try: Find female voice with "Hindi" in name
-  const femaleVoiceWithHindi = voices.find(voice => 
-    voice.name.toLowerCase().includes('hindi') && 
-    voice.name.toLowerCase().includes('female')
-  );
+  if (femaleWithIndianName) {
+    return femaleWithIndianName;
+  }
   
-  // Fourth try: Find any Indian English voice
-  const indianVoice = voices.find(voice => 
-    voice.lang === 'en-IN' ||
-    voice.lang.startsWith('hi-')
-  );
-  
-  // Fifth try: Find any voice with "Indian" in name
-  const voiceWithIndian = voices.find(voice => 
-    voice.name.toLowerCase().includes('indian')
-  );
-  
-  // Sixth try: Find any voice with "Hindi" in name
-  const voiceWithHindi = voices.find(voice => 
-    voice.name.toLowerCase().includes('hindi')
-  );
-  
-  // Seventh try: Find any female English voice
+  // Third priority: Find any female English voice
   const femaleEnglishVoice = voices.find(voice => 
     voice.lang.startsWith('en') && 
     voice.name.toLowerCase().includes('female')
   );
   
-  // Return the first available voice in priority order
-  return femaleIndianVoice || femaleVoiceWithIndian || femaleVoiceWithHindi || 
-         indianVoice || voiceWithIndian || voiceWithHindi || femaleEnglishVoice;
+  if (femaleEnglishVoice) {
+    return femaleEnglishVoice;
+  }
+  
+  // Fourth priority: Any Indian English voice
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' || 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  if (indianVoice) {
+    return indianVoice;
+  }
+  
+  // Last resort: Any English voice
+  return voices.find(voice => voice.lang.startsWith('en'));
 };
 
 // Function to speak a message with current settings
@@ -122,17 +115,22 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   // Create and configure speech synthesis utterance
   const utterance = new SpeechSynthesisUtterance(message);
   
-  // Try to find the best voice
+  // Find the best Indian female voice
   const bestVoice = findBestIndianVoice();
   
   if (bestVoice) {
     utterance.voice = bestVoice;
+    console.log("Using voice:", bestVoice.name, bestVoice.lang);
   } else {
     utterance.lang = settings.voice;
+    console.log("No best voice found, using language:", settings.voice);
   }
   
   utterance.volume = settings.volume;
   utterance.rate = settings.speed;
+  
+  // Add a slight pitch increase for more pleasant, energetic sound
+  utterance.pitch = 1.1;
   
   // Speak the message
   window.speechSynthesis.cancel(); // Cancel any ongoing speech

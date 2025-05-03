@@ -38,9 +38,9 @@ export const useVoiceAnnouncer = () => {
     speakMessage(message, force);
   }, []);
   
-  // Test the current voice settings
+  // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
-    speak("Hello! I'm your friendly study companion with an Indian accent. I'm here to make your learning experience joyful and energizing!", true);
+    speak("Namaste! I'm your friendly study companion with a pleasant Indian voice. I'm here to make your learning journey joyful, energetic and truly wonderful!", true);
   }, [speak]);
   
   return {

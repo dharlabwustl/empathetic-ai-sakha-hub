@@ -15,17 +15,7 @@ const SettingsPage = () => {
       </div>
       
       <VoiceAnnouncerProvider>
-        <Card>
-          <CardHeader>
-            <CardTitle>Voice Announcements</CardTitle>
-            <CardDescription>
-              Configure your voice announcer preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <VoiceSettingsTab />
-          </CardContent>
-        </Card>
+        <VoiceSettingsTab />
       </VoiceAnnouncerProvider>
     </div>
   );
