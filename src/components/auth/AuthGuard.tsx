@@ -31,7 +31,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
         console.log("AuthGuard verification:", { 
           isAuthenticated, 
           hasToken: !!token, 
-          hasUserData: !!userData 
+          hasUserData: !!userData,
+          path: location.pathname
         });
       } catch (error) {
         console.error("Auth verification error:", error);
@@ -42,7 +43,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
     };
     
     verifyAuth();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, location.pathname]);
 
   // Show loading screen while checking auth status
   if (loading || isVerifying) {
@@ -68,19 +69,28 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
       try {
         const parsedData = JSON.parse(userData);
         
-        // If onboarding isn't complete and we're not already on a welcome route
+        // Check if this is a new signup - prioritize showing the welcome flow
+        const isNewSignup = localStorage.getItem('new_user_signup') === 'true';
+        
+        if (isNewSignup && !location.pathname.includes('welcome-flow')) {
+          console.log("Redirecting new signup to welcome flow");
+          return <Navigate to="/welcome-flow?new=true" replace />;
+        }
+        
+        // If not a new signup, check onboarding status
         const completedOnboarding = parsedData.completedOnboarding === true;
         const isNewUser = parsedData.isNewUser === true;
         const sawWelcomeTour = parsedData.sawWelcomeTour === true;
         
         // Only redirect if we're not already on onboarding related routes
         const isOnWelcomePage = location.pathname.includes('welcome') || 
-                               location.pathname.includes('post-signup') || 
-                               location.pathname.includes('welcome-flow');
+                              location.pathname.includes('post-signup') || 
+                              location.pathname.includes('welcome-flow');
         
-        if ((isNewUser || !completedOnboarding || !sawWelcomeTour) && 
+        if (!isNewSignup && (isNewUser || !completedOnboarding || !sawWelcomeTour) && 
             !isOnWelcomePage && 
             !location.pathname.includes('welcome-back')) {
+          console.log("Redirecting to welcome back flow");
           return <Navigate to="/welcome-back" replace />;
         }
       } catch (error) {

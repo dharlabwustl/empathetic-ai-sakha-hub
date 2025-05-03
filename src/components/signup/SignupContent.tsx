@@ -1,221 +1,302 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2, User } from "lucide-react";
 import { useOnboarding } from "./OnboardingContext";
-import SignupProgressBar from "./SignupProgressBar";
-import StepRenderer from "./StepRenderer";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import PrepzrLogo from "../common/PrepzrLogo";
 
-const SignupContent = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
+const SignUpContent = () => {
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleRoleSelect = (role: UserRole) => {
-    // Only allow student role
-    setOnboardingData({ ...onboardingData, role: UserRole.Student });
-    goToNextStep();
-  };
-
-  const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, examGoal: goal });
-    goToNextStep();
-  };
-
-  const handleDemographicsSubmit = (data: Record<string, string>) => {
-    setOnboardingData({ 
-      ...onboardingData, 
-      demographics: data,
-      targetExamDate: data.examDate // Save exam date specifically
-    });
-    goToNextStep();
-  };
-
-  const handlePersonalitySelect = (personality: PersonalityType) => {
-    setOnboardingData({ ...onboardingData, personalityType: personality });
-    goToNextStep();
-  };
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setOnboardingData({ ...onboardingData, mood });
-    goToNextStep();
-  };
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { onboardingData, updateOnboardingData } = useOnboarding();
   
-  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
-    setOnboardingData({ ...onboardingData, studyTime: time });
-    goToNextStep();
-  };
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   
-  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    setOnboardingData({ ...onboardingData, studyPace: pace });
-    goToNextStep();
-  };
-  
-  const handleStudyHoursSelect = (hours: number) => {
-    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
-    goToNextStep();
-  };
+  const [formErrors, setFormErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const handleHabitsSubmit = (habits: Record<string, string>) => {
-    setOnboardingData({ ...onboardingData, habits });
-    goToNextStep();
-  };
-
-  const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests });
-    goToNextStep();
-  };
-
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
-    setIsLoading(true);
-
-    try {
-      // Set name from form data
-      const finalData = {
-        ...onboardingData,
-        name: formValues.name,
-        mobile: formValues.mobile,
-      };
-
-      setOnboardingData(finalData);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        ...finalData,
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
+  // Update the form data when onboarding data changes
+  useEffect(() => {
+    if (onboardingData.name) {
+      setFormData(prev => ({
+        ...prev,
+        name: onboardingData.name
       }));
+    }
+  }, [onboardingData.name]);
 
-      // Show success message
-      toast({
-        title: "Account created successfully!",
-        description: "Redirecting to your personalized dashboard.",
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear errors when typing
+    if (formErrors[name as keyof typeof formErrors]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
+  // Validate the form
+  const validateForm = () => {
+    const errors = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    };
+    
+    let isValid = true;
+    
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+      isValid = false;
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email is invalid";
+      isValid = false;
+    }
+    
+    if (!formData.password) {
+      errors.password = "Password is required";
+      isValid = false;
+    } else if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+      isValid = false;
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+      isValid = false;
+    }
+    
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // In a real application, this would call an API
+      console.log("Creating account with:", formData);
+      
+      // Update onboarding data with user information
+      updateOnboardingData({
+        ...onboardingData,
+        name: formData.name,
+        email: formData.email,
       });
-
-      // Go directly to welcome screen without study plan creation
-      setTimeout(() => {
-        navigate("/welcome");
-      }, 1000);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Create user account (mock)
+      const token = `token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      
+      // Save auth data
+      localStorage.setItem('sakha_auth_token', token);
+      localStorage.setItem('userData', JSON.stringify({
+        id: `user_${Date.now()}`,
+        name: formData.name,
+        email: formData.email,
+        role: 'student',
+        completedOnboarding: false,
+        isNewUser: true,
+        sawWelcomeTour: false,
+        loginCount: 1,
+        lastLogin: new Date().toISOString()
+      }));
+      
+      // Flag that we're dealing with a new signup - this is crucial for triggering the welcome tour
+      localStorage.setItem('new_user_signup', 'true');
+      
+      toast({
+        title: "Account created!",
+        description: "Your account has been successfully created.",
+      });
+      
+      // Redirect to the welcome flow page with new=true parameter
+      navigate("/welcome-flow?new=true");
+      
     } catch (error) {
       console.error("Error creating account:", error);
       toast({
-        title: "Account creation failed",
-        description: "Please try again later.",
-        variant: "destructive"
+        title: "Error creating account",
+        description: "There was an error creating your account. Please try again.",
+        variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handlers = {
-    handleRoleSelect,
-    handleGoalSelect,
-    handleDemographicsSubmit,
-    handlePersonalitySelect,
-    handleMoodSelect,
-    handleStudyTimeSelect,
-    handleStudyPaceSelect,
-    handleStudyHoursSelect,
-    handleHabitsSubmit,
-    handleInterestsSubmit,
-    handleSignupSubmit,
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google Sign Up",
-      description: "Google authentication would be implemented here.",
-    });
-
-    // Mock successful signup for demonstration
-    setTimeout(() => {
-      // Store mock data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        name: "Google User",
-        email: "googleuser@example.com",
-        role: "student",
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-        onboardingCompleted: false,
-      }));
-
-      navigate("/welcome");
-    }, 2000);
-  };
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={cardVariants}
-      transition={{ duration: 0.5 }}
-      className="w-full max-w-md mx-auto"
-    >
-      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        <div className="p-6 md:p-8">
-          <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={120} height={120} />
-            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">Join PREPZR</h1>
-            <p className="text-gray-500 text-sm text-center mt-1">
-              Create your personalized study partner
-            </p>
+    <div className="w-full max-w-md mx-auto">
+      <Card className="shadow-xl border-0">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <PrepzrLogo width={150} height={40} />
           </div>
-
-          <SignupProgressBar currentStep={currentStep} />
-
-          <div className="mt-6">
-            <StepRenderer 
-              step={currentStep}
-              onboardingData={onboardingData}
-              handlers={handlers}
-              isLoading={isLoading}
-            />
-          </div>
-
-          {currentStep === "role" && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300"></span>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or sign up with</span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <button
-                  type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                  onClick={handleGoogleSignup}
-                >
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
-                  Sign up with Google
-                </button>
-              </div>
+          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
+          <CardDescription>
+            Join PREPZR and start your learning journey today
+          </CardDescription>
+        </CardHeader>
+        
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                required
+              />
+              {formErrors.name && (
+                <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>
+              )}
             </div>
-          )}
-        </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                required
+              />
+              {formErrors.email && (
+                <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Create a password"
+                value={formData.password}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                required
+              />
+              {formErrors.password && (
+                <p className="text-xs text-red-500 mt-1">{formErrors.password}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                required
+              />
+              {formErrors.confirmPassword && (
+                <p className="text-xs text-red-500 mt-1">{formErrors.confirmPassword}</p>
+              )}
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              type="submit" 
+              className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+                </>
+              ) : (
+                <>
+                  <User className="mr-2 h-4 w-4" /> Create Account
+                </>
+              )}
+            </Button>
+            
+            <div className="text-center text-sm">
+              Already have an account?{" "}
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                onClick={() => navigate("/login")}
+                disabled={isLoading}
+              >
+                Log in
+              </Button>
+            </div>
+            
+            <p className="text-xs text-center text-gray-500">
+              By creating an account, you agree to our{" "}
+              <Button variant="link" className="p-0 h-auto text-gray-500 hover:text-gray-800 text-xs">
+                Terms of Service
+              </Button>{" "}
+              and{" "}
+              <Button variant="link" className="p-0 h-auto text-gray-500 hover:text-gray-800 text-xs">
+                Privacy Policy
+              </Button>
+            </p>
+          </CardFooter>
+        </form>
       </Card>
-      
-      <div className="mt-6 text-center text-xs text-gray-500">
-        <p>By signing up, you agree to our <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a></p>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default SignupContent;
+export default SignUpContent;

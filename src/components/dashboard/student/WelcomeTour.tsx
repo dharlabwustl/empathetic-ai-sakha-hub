@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -54,7 +53,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   isFirstTimeUser,
   lastActivity,
   suggestedNextAction,
-  loginCount,
+  loginCount = 1,
   open,
   onOpenChange
 }) => {
@@ -95,7 +94,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
         variant: "default"
       });
     }
-  }, [visitedTabs]);
+  }, [visitedTabs, allTabsVisited, toast]);
   
   // Handle tab change
   const handleTabChange = (value: string) => {
@@ -581,7 +580,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
         </Tabs>
 
         {showSkipWarning && (
-          <Alert variant="warning" className="mt-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+          <Alert className="mt-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
             <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <AlertDescription className="text-amber-700 dark:text-amber-300">
               You haven't viewed all sections yet. Please visit the remaining tabs to get the complete understanding.
