@@ -16,6 +16,7 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [dashboardLoaded, setDashboardLoaded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -45,12 +46,25 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Mark dashboard as loaded after initial rendering
+  useEffect(() => {
+    if (!loading && userProfile && !showOnboarding) {
+      // Add a small delay to ensure the dashboard is fully rendered
+      const timer = setTimeout(() => {
+        setDashboardLoaded(true);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, userProfile, showOnboarding]);
+
   const DashboardWithVoice = () => {
     const voiceAnnouncer = useVoiceAnnouncerContext();
+    const [greetingSpoken, setGreetingSpoken] = useState(false);
 
-    // Handle voice welcome when dashboard is loaded
+    // Handle voice welcome when dashboard is loaded - with a delay
     useEffect(() => {
-      if (!showSplash && userProfile && !showOnboarding) {
+      if (dashboardLoaded && userProfile && !showOnboarding && !greetingSpoken) {
         const settings = getVoiceSettings();
         if (settings.enabled && settings.announceGreetings) {
           const isFirstTimeUser = userProfile.loginCount === 1 || localStorage.getItem('new_user_signup') === 'true';
@@ -62,13 +76,16 @@ const StudentDashboard = () => {
             userProfile.loginCount || 1
           );
           
-          // Small delay to ensure everything is loaded
-          setTimeout(() => {
+          // Add a delay to ensure everything is loaded
+          const timer = setTimeout(() => {
             voiceAnnouncer.speak(welcomeMessage, true);
-          }, 1500);
+            setGreetingSpoken(true);
+          }, 2000); // Longer delay for greeting
+          
+          return () => clearTimeout(timer);
         }
       }
-    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
+    }, [dashboardLoaded, userProfile, showOnboarding, voiceAnnouncer, greetingSpoken]);
     
     return null;
   };
@@ -130,28 +147,38 @@ const StudentDashboard = () => {
     // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
     
+    // Voice feedback when mood changes - get the exam goal if available
+    let examGoal = "";
+    try {
+      if (userProfile?.goals?.[0]?.title) {
+        examGoal = userProfile.goals[0].title;
+      }
+    } catch (error) {
+      console.error("Error getting exam goal:", error);
+    }
+    
     // Voice feedback when mood changes
     const settings = getVoiceSettings();
     if (settings.enabled && settings.announceGreetings) {
       let message = "";
       switch(mood) {
         case MoodType.Motivated:
-          message = "You're motivated today! That's great. Let's make the most of your energy.";
+          message = `Great motivation! This energy is perfect for tackling difficult ${examGoal || "exam"} topics today.`;
           break;
         case MoodType.Tired:
-          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
+          message = `When tired, focus on ${examGoal || "exam"} revision rather than new concepts.`;
           break;
         case MoodType.Focused:
-          message = "You're focused today! Perfect for tackling challenging material.";
+          message = `With your focused state, try solving complex ${examGoal || "practice"} problems today.`;
           break;
         case MoodType.Anxious:
-          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
+          message = `For exam anxiety, breaking ${examGoal || "topics"} into smaller sections helps. Let's plan step by step.`;
           break;
         case MoodType.Stressed:
-          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
+          message = `To manage stress, let's prioritize your ${examGoal || "exam"} topics and tackle them one at a time.`;
           break;
         default:
-          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
+          message = `Your mood is noted. I'll adjust suggestions for your ${examGoal || "exam"} preparation accordingly.`;
       }
       
       speakMessage(message);

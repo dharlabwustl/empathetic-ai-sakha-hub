@@ -8,9 +8,19 @@ export {
   saveVoiceSettings, 
   speakMessage, 
   getGreeting,
+  getTaskAnnouncement,
+  getReminderAnnouncement,
   type VoiceSettings, 
   defaultVoiceSettings 
 } from './voiceUtils';
+
+// Re-export all message generators
+export {
+  getIdleTimeResponse,
+  getFirstTimeUserGuidance,
+  getDailyProgressUpdate,
+  getSubjectProgressUpdate
+} from './messageGenerators';
 
 // Voice announcer context
 const VoiceAnnouncerContext = createContext<ReturnType<typeof useVoiceAnnouncer> | undefined>(undefined);
@@ -31,14 +41,4 @@ export const useVoiceAnnouncerContext = () => {
     throw new Error('useVoiceAnnouncerContext must be used within a VoiceAnnouncerProvider');
   }
   return context;
-};
-
-// Helper functions for task announcement
-export const getTaskAnnouncement = (count: number) => {
-  if (count === 0) return "You have no tasks for today. Enjoy your free time!";
-  return `You have ${count} task${count === 1 ? '' : 's'} scheduled for today.`;
-};
-
-export const getReminderAnnouncement = (subject: string, time: string) => {
-  return `Reminder: You have a ${subject} session scheduled at ${time}.`;
 };

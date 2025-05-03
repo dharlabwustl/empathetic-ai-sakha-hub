@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -85,6 +86,9 @@ const Header = () => {
           </div>
         )}
       </div>
+      
+      {/* Add FloatingVoiceAnnouncer component */}
+      <FloatingVoiceAnnouncer />
     </header>
   );
 };

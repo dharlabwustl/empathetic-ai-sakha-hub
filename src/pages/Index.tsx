@@ -16,6 +16,50 @@ import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
 
+// Add CSS for the floating announcer animation
+const animateCSS = `
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+.animate-progress {
+  animation: progress 20s linear;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`;
+
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
@@ -49,6 +93,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+      {/* Add the CSS for animations */}
+      <style>{animateCSS}</style>
+      
       <Header />
       
       <main>

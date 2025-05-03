@@ -1,8 +1,8 @@
 
 import { MoodType } from '@/types/user/base';
 
-// Helper to get greeting based on time of day and mood - more varied and contextual
-export const getGreeting = (mood?: MoodType): string => {
+// Helper to get greeting based on time of day and mood - more focused on exam preparation
+export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
   const hour = new Date().getHours();
   let timeGreeting = 'Hello';
   
@@ -14,102 +14,112 @@ export const getGreeting = (mood?: MoodType): string => {
     timeGreeting = 'Good evening';
   }
   
-  // Add enthusiastic exclamation for all greetings
-  timeGreeting += '!';
+  const examContext = examGoal ? ` ${examGoal}` : '';
   
-  // Add mood-specific additions with more energetic and happier tone
+  // Add mood-specific additions with exam-focused advice
   if (mood) {
     switch(mood) {
       case 'motivated':
-        return `${timeGreeting} I see you're feeling motivated today! That's wonderful energy to bring to your studies. Let's make the most of it!`;
+        return `${timeGreeting}! With your motivated energy, it's perfect timing for${examContext} practice tests today.`;
       case 'tired':
-        return `${timeGreeting} I understand you're feeling tired today. Let's focus on gentle progress and include some rejuvenating breaks in your schedule.`;
+        return `${timeGreeting}. When tired, focus on revision rather than new${examContext} concepts. Short bursts are more effective.`;
       case 'focused':
-        return `${timeGreeting} You're in a focused state today! Perfect for tackling challenging topics. I'll help you maintain that concentration.`;
+        return `${timeGreeting}! Your focused state is ideal for tackling difficult${examContext} topics. Consider advanced problems today.`;
       case 'anxious':
-        return `${timeGreeting} I notice you're feeling anxious. Let's break things down into small, manageable steps and celebrate each little victory today.`;
+        return `${timeGreeting}. For${examContext} anxiety, breaking topics into smaller sections helps. Let's plan your day step by step.`;
       case 'stressed':
-        return `${timeGreeting} When you're stressed, it helps to prioritize and take things one at a time. Let me help you organize your day for maximum calm and effectiveness.`;
+        return `${timeGreeting}. To manage${examContext} stress, let's organize your priority topics and tackle them one by one.`;
       default:
-        return `${timeGreeting} Welcome to your study session! I'm here to support your learning journey today.`;
+        return `${timeGreeting}! Ready to make progress on your${examContext} preparation today?`;
     }
   }
 
-  // If no mood is specified, use variety of greetings
+  // More concise generic greetings focused on exams
   const genericGreetings = [
-    `${timeGreeting} Welcome back to your study dashboard! What would you like to focus on today?`,
-    `${timeGreeting} Ready for another productive session? Let me know if you need any assistance.`,
-    `${timeGreeting} I'm here to support your learning journey. Feel free to ask questions using the voice icon above.`,
-    `${timeGreeting} I'm your friendly voice assistant. Let me know if you need help with your study plan or have any questions.`,
-    `${timeGreeting} Happy to see you! Remember you can ask me anything by clicking the voice icon at the top of the screen.`
+    `${timeGreeting}! Let's focus on your${examContext} weak areas today.`,
+    `${timeGreeting}! Have you reviewed yesterday's${examContext} concepts yet?`,
+    `${timeGreeting}! Your${examContext} practice test results suggest focusing on calculations today.`,
+    `${timeGreeting}! Remember to include timed${examContext} practice in today's session.`,
+    `${timeGreeting}! Your consistency with${examContext} prep is building strong foundations.`
   ];
   
   return genericGreetings[Math.floor(Math.random() * genericGreetings.length)];
 };
 
-// Generate a task announcement with more energetic and friendly tone
+// Generate a task announcement with more targeted language
 export const getTaskAnnouncement = (task: any): string => {
   const timeStr = task.timeEstimate ? `This will take about ${task.timeEstimate} minutes.` : '';
   
   if (task.priority === 'high') {
-    return `You have an important task to complete: ${task.title}. ${timeStr} I believe in you - you can do this!`;
+    return `Priority task: ${task.title}. ${timeStr} This topic frequently appears in exams.`;
   }
   
-  return `Your next task is: ${task.title}. ${timeStr} I'm here to help you with it if needed.`;
+  return `Next task: ${task.title}. ${timeStr}`;
 };
 
-// Generate a reminder announcement with a happier tone
+// More concise reminder announcement
 export const getReminderAnnouncement = (event: any): string => {
   if (event.type === 'exam') {
-    return `Friendly reminder! You have ${event.title} at ${event.time}. You've prepared well for this!`;
+    return `Reminder for ${event.title} at ${event.time}. Your practice tests indicate you're well prepared.`;
   }
   
-  return `You have ${event.title} scheduled for ${event.time}. I'm here to support you through it!`;
+  return `${event.title} scheduled for ${event.time}.`;
 };
 
-// New helpers for more varied assistant responses
-export const getIdleTimeResponse = (): string => {
+// Exam-specific idle time responses
+export const getIdleTimeResponse = (examGoal?: string): string => {
+  const examContext = examGoal || "exam";
+  
   const responses = [
-    "Is there anything I can help you with today?",
-    "Do you need any guidance with your studies?",
-    "Would you like me to explain any features of the platform?",
-    "Feel free to ask me questions about your study plan or exam preparation.",
-    "Remember you can interact with me anytime by clicking the voice icon at the top of the screen.",
-    "Would you like me to help you schedule your study sessions for today?"
+    `Need help with a difficult ${examContext} concept?`,
+    `Would you like me to suggest high-yield ${examContext} topics to study next?`,
+    `Have you attempted timed ${examContext} practice today?`,
+    `Need help creating flashcards for ${examContext} formulas?`,
+    `Would you like to review your weak areas in ${examContext}?`,
+    `Ready to tackle some ${examContext} practice questions?`
   ];
   
   return responses[Math.floor(Math.random() * responses.length)];
 };
 
-export const getFirstTimeUserGuidance = (): string => {
+// First-time user guidance with exam focus
+export const getFirstTimeUserGuidance = (examGoal?: string): string => {
+  const examContext = examGoal || "competitive exam";
+  
   const guidanceMessages = [
-    "Welcome to PREPZR! To get started, I recommend setting up your study goals in the profile section.",
-    "As a new user, you might want to explore the Academic Advisor first to create your personalized study plan.",
-    "Have you taken a look at the AI tutor feature? It can help answer your subject-specific questions.",
-    "Try tracking your mood daily - it helps us personalize your study experience to match your energy levels.",
-    "The Feel Good Corner is perfect when you need a study break - it has activities designed to refresh your mind."
+    `For ${examContext} preparation, start by assessing your baseline knowledge through the diagnostic tests.`,
+    `Set up daily study goals specifically for ${examContext} topics and track your consistency.`,
+    `The AI tutor can explain difficult ${examContext} concepts - just ask your specific questions.`,
+    `Remember to practice ${examContext} questions under timed conditions to build exam temperament.`,
+    `Creating a study schedule with balanced focus across all ${examContext} subjects is essential.`
   ];
   
   return guidanceMessages[Math.floor(Math.random() * guidanceMessages.length)];
 };
 
-export const getDailyProgressUpdate = (completedTasks: number, totalTasks: number): string => {
+// Exam-specific progress updates
+export const getDailyProgressUpdate = (completedTasks: number, totalTasks: number, examGoal?: string): string => {
+  const examContext = examGoal ? ` for ${examGoal}` : '';
+  
   if (completedTasks === 0) {
-    return "You haven't completed any tasks yet today. Let's get started with your first one!";
+    return `Time to begin your study sessions${examContext}. What topic would you like to start with?`;
   } else if (completedTasks === totalTasks) {
-    return "Amazing job! You've completed all your tasks for today. Would you like to plan for tomorrow?";
+    return `Excellent! All${examContext} tasks completed. Consider taking a practice test to measure progress.`;
   } else {
     const percentage = Math.round((completedTasks / totalTasks) * 100);
-    return `You've completed ${completedTasks} out of ${totalTasks} tasks today - that's ${percentage}% progress! Keep up the great work!`;
+    return `You've completed ${completedTasks} of ${totalTasks}${examContext} tasks - ${percentage}% done. Keep going!`;
   }
 };
 
-export const getSubjectProgressUpdate = (subject: string, progress: number): string => {
+// Subject-specific progress feedback
+export const getSubjectProgressUpdate = (subject: string, progress: number, examGoal?: string): string => {
+  const examContext = examGoal ? ` for ${examGoal}` : '';
+  
   if (progress < 30) {
-    return `You're at the beginning of your ${subject} journey with ${progress}% completion. Every step counts!`;
+    return `Your ${subject}${examContext} is at ${progress}%. Focus on fundamentals before advanced topics.`;
   } else if (progress < 70) {
-    return `You're making solid progress in ${subject} with ${progress}% completion. Keep the momentum going!`;
+    return `${progress}% progress in ${subject}${examContext}. Time to start solving complex problems.`;
   } else {
-    return `You've made excellent progress in ${subject} with ${progress}% completion. You're getting close to mastery!`;
+    return `At ${progress}% in ${subject}${examContext}. Now focus on timed practice and revision.`;
   }
 };
