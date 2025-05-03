@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileBase;
@@ -84,6 +84,8 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     {type: "ANXIOUS", label: "Anxious", emoji: "😰"},
     {type: "DISTRACTED", label: "Distracted", emoji: "🤔"}
   ];
+
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-4">
@@ -192,25 +194,21 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
         {/* Upcoming Events */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">Upcoming Events</h3>
-          {upcomingEvents.length > 0 ? (
-            <div className="space-y-2">
-              {upcomingEvents.slice(0, 2).map((event, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  {event.type === 'exam' && <Calendar className="h-4 w-4 text-red-500" />}
-                  {event.type === 'task' && <ChevronRight className="h-4 w-4 text-blue-500" />}
-                  {event.type === 'deadline' && <Bell className="h-4 w-4 text-amber-500" />}
-                  <span>{event.title}</span>
-                  <span className="text-xs text-muted-foreground ml-auto">{event.time}</span>
+          <div className="space-y-2 mt-3">
+            {upcomingEvents.map((event, index) => (
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-2 bg-card hover:bg-card/80 rounded-md cursor-pointer"
+                onClick={() => navigate(event.type === 'exam' ? '/dashboard/student/practice-exam' : '/dashboard/student/today')}
+              >
+                <div className="flex items-center gap-2">
+                  {event.type === 'exam' ? <ClipboardCheck className="h-4 w-4 text-primary" /> : <Calendar className="h-4 w-4 text-primary" />}
+                  <span className="text-sm font-medium">{event.title}</span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-sm">
-              <Star className="h-4 w-4 text-indigo-500" />
-              <span>NEET Preparation</span>
-              <span className="text-xs text-muted-foreground ml-auto">Ongoing</span>
-            </div>
-          )}
+                <span className="text-xs text-muted-foreground">{event.time}</span>
+              </div>
+            ))}
+          </div>
           <p className="text-xs text-muted-foreground mt-2">
             Click to view your full schedule
           </p>
