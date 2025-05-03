@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { MenuIcon, Bell, Settings, Search, HelpCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { MenuIcon, Bell, Settings, Search, HelpCircle, Calendar as CalendarIcon, Volume2, VolumeX } from 'lucide-react';
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import TimeAndDateDisplay from "./TimeAndDateDisplay";
 import VoiceQueryControl from "./voice/VoiceQueryControl";
+import { useVoiceAnnouncerContext } from './voice/VoiceAnnouncer';
 
 const TopNavigationControls = ({ 
   hideSidebar, 
@@ -26,6 +27,18 @@ const TopNavigationControls = ({
   formattedTime, 
   onOpenTour 
 }) => {
+  const { settings, updateSettings, stopSpeaking } = useVoiceAnnouncerContext();
+  
+  const handleToggleMute = () => {
+    // Stop any ongoing speech
+    stopSpeaking();
+    
+    // Toggle the voice enabled state
+    updateSettings({ 
+      enabled: !settings.enabled
+    });
+  };
+
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center gap-4">
@@ -72,6 +85,27 @@ const TopNavigationControls = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>View Calendar</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Voice Mute Toggle Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={settings.enabled ? "ghost" : "outline"}
+                size="icon"
+                onClick={handleToggleMute}
+                className={`relative ${!settings.enabled ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' : ''}`}
+              >
+                {settings.enabled ? (
+                  <Volume2 className="h-5 w-5 text-primary" />
+                ) : (
+                  <VolumeX className="h-5 w-5 text-red-500" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{settings.enabled ? "Mute Voice Assistant" : "Unmute Voice Assistant"}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
         
