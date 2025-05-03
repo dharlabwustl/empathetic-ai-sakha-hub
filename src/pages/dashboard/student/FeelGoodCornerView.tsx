@@ -6,6 +6,10 @@ import { useToast } from '@/hooks/use-toast';
 import DailyAffirmations from '@/components/dashboard/student/feel-good-corner/DailyAffirmations';
 import ChatTab from '@/components/dashboard/student/feel-good-corner/ChatTab';
 import DailyTeasers from '@/components/dashboard/student/feel-good-corner/DailyTeasers';
+import GratitudeJournal from '@/components/dashboard/student/feel-good-corner/GratitudeJournal';
+import DoodleTab from '@/components/dashboard/student/feel-good-corner/DoodleTab';
+import MoodMusicPlayer from '@/components/dashboard/student/feel-good-corner/MoodMusicPlayer';
+import JokesTab from '@/components/dashboard/student/feel-good-corner/JokesTab';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Music, Pencil, Heart, Smile, MessageSquare, Image } from 'lucide-react';
@@ -106,19 +110,19 @@ const FeelGoodCornerView = () => {
           </TabsContent>
           
           <TabsContent value="gratitude" className="space-y-4 pt-2">
-            {placeholderContent("Gratitude Journal")}
+            <GratitudeJournal onLike={handleLikeActivity} />
           </TabsContent>
           
           <TabsContent value="doodling" className="space-y-4 pt-2">
-            {placeholderContent("Doodling Canvas")}
+            <DoodleTab />
           </TabsContent>
           
           <TabsContent value="mood-music" className="space-y-4 pt-2">
-            {placeholderContent("Mood Music Player")}
+            <MoodMusicPlayer onLike={handleLikeActivity} />
           </TabsContent>
           
           <TabsContent value="jokes" className="space-y-4 pt-2">
-            {placeholderContent("Daily Jokes")}
+            <JokesTab />
           </TabsContent>
         </Tabs>
       </div>
