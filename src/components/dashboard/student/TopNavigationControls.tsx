@@ -75,7 +75,11 @@ const TopNavigationControls = ({
           </Tooltip>
         </TooltipProvider>
         
-        <VoiceQueryControl />
+        {/* Highlighted Voice Query Control */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse -z-10"></div>
+          <VoiceQueryControl className="relative z-10" />
+        </div>
         
         <TooltipProvider>
           <Tooltip>

@@ -3,8 +3,10 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { Bell, Calendar } from "lucide-react";
+import { Bell, Calendar, Volume2 } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
+import { Link } from 'react-router-dom';
+import ProfileVoiceTooltip from '@/components/dashboard/student/profile/ProfileVoiceTooltip';
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -72,6 +74,22 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <Calendar className="h-4 w-4" />
           <span className="hidden sm:inline">Study Plan</span>
         </Button>
+        
+        {/* Voice assistant shortcut button */}
+        <ProfileVoiceTooltip>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 relative bg-primary/5 hover:bg-primary/10 border-primary/20"
+            asChild
+          >
+            <Link to="/dashboard/student/profile?tab=voice">
+              <Volume2 className="h-4 w-4 text-primary animate-[pulse_3s_ease-in-out_infinite]" />
+              <span className="hidden sm:inline">Voice</span>
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-ping"></span>
+            </Link>
+          </Button>
+        </ProfileVoiceTooltip>
         
         {/* Notifications button */}
         <Button
