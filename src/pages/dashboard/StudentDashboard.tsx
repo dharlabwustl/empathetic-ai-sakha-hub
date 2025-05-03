@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -97,29 +96,24 @@ const StudentDashboard = () => {
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
     // Check if user has already seen the tour
-    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
+    const hasSeenTour = localStorage.getItem("sawWelcomeTour") === "true";
     
     console.log("Checking tour status:", { isNewUser, completedOnboarding, hasSeenTour });
     
-    // For new users or those who completed onboarding, show the tour
-    if ((isNewUser || completedOnboarding) && !hasSeenTour) {
+    // FIXED LOGIC: Only show tour for completely new users who haven't seen it yet
+    if (isNewUser && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
       // Don't set hasSeenTour yet, will set after tour completion
     } 
-    // For returning users
+    // For returning users or those who have seen the tour
     else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // For returning users who haven't seen the tour but should
-      if (!hasSeenTour && showWelcomeTour) {
-        // Short timeout just to let the dashboard render first
-        setTimeout(() => {
-          setShowTourModal(true);
-        }, 500);
-      }
+      // Don't show tour for returning users who have already seen it
+      setShowTourModal(false);
     }
     
     // Try to get saved mood from local storage
@@ -127,7 +121,7 @@ const StudentDashboard = () => {
     if (savedMood) {
       setCurrentMood(savedMood);
     }
-  }, [location, showWelcomeTour]);
+  }, [location]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -188,14 +182,14 @@ const StudentDashboard = () => {
   const handleSkipTourWrapper = () => {
     handleSkipTour();
     setShowTourModal(false);
-    localStorage.setItem("hasSeenTour", "true");
+    localStorage.setItem("sawWelcomeTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
   const handleCompleteTourWrapper = () => {
     handleCompleteTour();
     setShowTourModal(false);
-    localStorage.setItem("hasSeenTour", "true");
+    localStorage.setItem("sawWelcomeTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
   };
 
@@ -273,7 +267,7 @@ const StudentDashboard = () => {
         onOpenChange={setShowTourModal}
         onSkipTour={handleSkipTourWrapper}
         onCompleteTour={handleCompleteTourWrapper}
-        isFirstTimeUser={true}
+        isFirstTimeUser={Boolean(isNewUser)} 
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}

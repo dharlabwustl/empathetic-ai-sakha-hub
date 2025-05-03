@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import Header from '@/components/layout/HeaderWithAdmin';
+import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
@@ -72,11 +72,28 @@ const Index = () => {
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
+    
+    // Dispatch event to close voice announcer when opening analyzer
+    const event = new CustomEvent('close-voice-announcer');
+    window.dispatchEvent(event);
   };
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
+  
+  // Trigger voice announcer after a slight delay on homepage
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only trigger on homepage, not other routes
+      if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+        const event = new CustomEvent('open-voice-announcer');
+        window.dispatchEvent(event);
+      }
+    }, 5000); // 5 second delay before showing
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Listen for the custom event to open the exam analyzer
   useEffect(() => {

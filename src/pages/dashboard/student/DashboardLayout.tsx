@@ -82,15 +82,15 @@ const DashboardLayout = ({
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
-    // Only show tour if it's a new user who hasn't seen the tour yet
+    // FIXED LOGIC: Only show tour for new users who haven't seen it yet
     if (isNewUser && !sawWelcomeTour) {
       console.log("DashboardLayout: Opening tour automatically for new user");
       setShowTour(true);
-    } else if (showWelcomeTour && !sawWelcomeTour) {
-      // Only if explicitly requested AND they haven't seen it
-      setShowTour(true);
+    } else {
+      // Don't show the tour automatically for returning users
+      setShowTour(false);
     }
-  }, [showWelcomeTour]);
+  }, []);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';

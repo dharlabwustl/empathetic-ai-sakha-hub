@@ -117,18 +117,24 @@ const FloatingVoiceAnnouncer = () => {
     navigate('/signup');
   };
   
-  // Listen for the custom event to open the voice announcer
+  // Listen for custom events to control the voice announcer
   useEffect(() => {
     const openVoiceAnnouncer = () => {
       handleOpen();
     };
     
+    const closeVoiceAnnouncer = () => {
+      handleClose();
+    };
+    
     window.addEventListener('open-voice-announcer', openVoiceAnnouncer);
-    window.addEventListener('open-exam-analyzer', () => setVisible(false));
+    window.addEventListener('close-voice-announcer', closeVoiceAnnouncer);
+    window.addEventListener('open-exam-analyzer', closeVoiceAnnouncer);
     
     return () => {
       window.removeEventListener('open-voice-announcer', openVoiceAnnouncer);
-      window.removeEventListener('open-exam-analyzer', () => setVisible(false));
+      window.removeEventListener('close-voice-announcer', closeVoiceAnnouncer);
+      window.removeEventListener('open-exam-analyzer', closeVoiceAnnouncer);
       window.speechSynthesis.cancel();
       if (speakTimeoutRef.current) {
         clearTimeout(speakTimeoutRef.current);
