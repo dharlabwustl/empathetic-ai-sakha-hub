@@ -1,87 +1,126 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from '@/hooks/use-toast';
+import DailyAffirmations from '@/components/dashboard/student/feel-good-corner/DailyAffirmations';
+import ChatTab from '@/components/dashboard/student/feel-good-corner/ChatTab';
+import DailyTeasers from '@/components/dashboard/student/feel-good-corner/DailyTeasers';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Coffee, BookOpen, Headphones, Film, Sun } from 'lucide-react';
+import { Music, Pencil, Heart, Smile, MessageSquare, Image } from 'lucide-react';
 
-const FeelGoodCornerView: React.FC = () => {
+const FeelGoodCornerView = () => {
+  const [activeTab, setActiveTab] = useState("affirmations");
+  const { toast } = useToast();
+  
+  const handleLikeActivity = () => {
+    toast({
+      title: "Thank you!",
+      description: "We're glad you enjoyed this activity.",
+    });
+  };
+  
+  const placeholderContent = (title: string) => (
+    <Card className="bg-white">
+      <CardContent className="p-6 text-center space-y-4">
+        <h3 className="text-xl font-medium">Coming Soon: {title}</h3>
+        <p className="text-muted-foreground">This feature will be available soon. Check back later!</p>
+        <Button onClick={() => toast({ title: `${title} Activity`, description: "We'll notify you when this activity is ready." })}>
+          Get Notified
+        </Button>
+      </CardContent>
+    </Card>
+  );
+  
+  // Daily winner for teasers 
+  const dailyWinner = {
+    name: "Ananya Sharma",
+    avatar: "/avatars/01.png", 
+    content: "Physics Teaser"
+  };
+
   return (
     <SharedPageLayout
       title="Feel Good Corner"
-      subtitle="Take a break and recharge your mind"
+      subtitle="Take a break and boost your mood"
       showBackButton={true}
+      backButtonUrl="/dashboard/student"
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-pink-500" />
-                Self-Care Activities
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start text-left">
-                <Coffee className="mr-2 h-4 w-4" /> Quick Mindfulness Break (2 min)
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-left">
-                <Sun className="mr-2 h-4 w-4" /> Guided Breathing Exercise (5 min)
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-left">
-                <Headphones className="mr-2 h-4 w-4" /> Relaxing Study Music
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-left">
-                <Film className="mr-2 h-4 w-4" /> Inspirational Short Video
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-left">
-                <BookOpen className="mr-2 h-4 w-4" /> Quick Study Motivation Tips
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <p className="text-muted-foreground">
+          Welcome to the Feel Good Corner! This is your personal space to take a break from 
+          studying and engage in activities that will help you relax, recharge, and maintain 
+          a positive mindset. Try out different activities to see what works best for you.
+        </p>
         
-        <div className="md:col-span-2">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Daily Motivation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-lg bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/30 dark:to-blue-900/30 p-6 text-center">
-                <h3 className="text-xl font-semibold mb-4">Success is not final, failure is not fatal: It is the courage to continue that counts.</h3>
-                <p className="text-muted-foreground">— Winston Churchill</p>
-                
-                <div className="mt-8 space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Remember that consistent effort over time leads to success. Take breaks when needed, but always return with renewed focus and determination.
-                  </p>
-                  
-                  <Button className="bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600">
-                    Get a New Quote
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-3">Your Progress Streaks</h3>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">7</div>
-                    <div className="text-xs text-muted-foreground">Days studying</div>
-                  </div>
-                  <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                    <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">12</div>
-                    <div className="text-xs text-muted-foreground">Hours this week</div>
-                  </div>
-                  <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">85%</div>
-                    <div className="text-xs text-muted-foreground">Topics mastered</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs 
+          defaultValue="affirmations" 
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+            <TabsTrigger value="affirmations" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Affirmations</span>
+            </TabsTrigger>
+            <TabsTrigger value="chill-chat" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Chill Chat</span>
+            </TabsTrigger>
+            <TabsTrigger value="teasers" className="flex items-center gap-2">
+              <Smile className="h-4 w-4" />
+              <span className="hidden sm:inline">Brain Teasers</span>
+            </TabsTrigger>
+            <TabsTrigger value="gratitude" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Gratitude</span>
+            </TabsTrigger>
+            <TabsTrigger value="doodling" className="flex items-center gap-2">
+              <Pencil className="h-4 w-4" />
+              <span className="hidden sm:inline">Doodling</span>
+            </TabsTrigger>
+            <TabsTrigger value="mood-music" className="flex items-center gap-2">
+              <Music className="h-4 w-4" />
+              <span className="hidden sm:inline">Mood Music</span>
+            </TabsTrigger>
+            <TabsTrigger value="jokes" className="flex items-center gap-2">
+              <Smile className="h-4 w-4" />
+              <span className="hidden sm:inline">Jokes</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="affirmations" className="space-y-4 pt-2">
+            <DailyAffirmations onLike={handleLikeActivity} />
+          </TabsContent>
+          
+          <TabsContent value="chill-chat" className="space-y-4 pt-2">
+            <ChatTab initialMessages={[
+              { text: "Hi there! I'm Sakha in chill mode. How can I brighten your day?", isUser: false }
+            ]} />
+          </TabsContent>
+          
+          <TabsContent value="teasers" className="space-y-4 pt-2">
+            <DailyTeasers onLike={handleLikeActivity} dailyWinner={dailyWinner} />
+          </TabsContent>
+          
+          <TabsContent value="gratitude" className="space-y-4 pt-2">
+            {placeholderContent("Gratitude Journal")}
+          </TabsContent>
+          
+          <TabsContent value="doodling" className="space-y-4 pt-2">
+            {placeholderContent("Doodling Canvas")}
+          </TabsContent>
+          
+          <TabsContent value="mood-music" className="space-y-4 pt-2">
+            {placeholderContent("Mood Music Player")}
+          </TabsContent>
+          
+          <TabsContent value="jokes" className="space-y-4 pt-2">
+            {placeholderContent("Daily Jokes")}
+          </TabsContent>
+        </Tabs>
       </div>
     </SharedPageLayout>
   );

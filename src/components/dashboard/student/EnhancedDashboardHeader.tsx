@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
-import { Calendar, ChevronRight, Bell, Star, Zap } from "lucide-react";
+import { Calendar, ChevronRight, Bell, Star, Zap, CheckSquare } from "lucide-react";
 import { MoodType } from '@/types/user/base';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -55,12 +56,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const getMoodEmoji = (mood?: MoodType) => {
     if (!mood) return "😊";
     switch(mood) {
-      case "MOTIVATED": return "🚀";
-      case "CONFIDENT": return "💪";
-      case "FOCUSED": return "🎯";
-      case "TIRED": return "😴";
-      case "ANXIOUS": return "😰";
-      case "DISTRACTED": return "🤔";
+      case "motivated": return "🚀";
+      case "confident": return "💪";
+      case "focused": return "🎯";
+      case "tired": return "😴";
+      case "anxious": return "😰";
+      case "distracted": return "🤔";
       default: return "😊";
     }
   };
@@ -77,12 +78,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   };
   
   const moodOptions = [
-    {type: "MOTIVATED", label: "Motivated", emoji: "🚀"},
-    {type: "CONFIDENT", label: "Confident", emoji: "💪"},
-    {type: "FOCUSED", label: "Focused", emoji: "🎯"},
-    {type: "TIRED", label: "Tired", emoji: "😴"},
-    {type: "ANXIOUS", label: "Anxious", emoji: "😰"},
-    {type: "DISTRACTED", label: "Distracted", emoji: "🤔"}
+    {type: "motivated", label: "Motivated", emoji: "🚀"},
+    {type: "confident", label: "Confident", emoji: "💪"},
+    {type: "focused", label: "Focused", emoji: "🎯"},
+    {type: "tired", label: "Tired", emoji: "😴"},
+    {type: "anxious", label: "Anxious", emoji: "😰"},
+    {type: "distracted", label: "Distracted", emoji: "🤔"}
   ];
 
   const navigate = useNavigate();
@@ -93,8 +94,8 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 p-4 sm:p-6 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
-            {userProfile.profilePicture ? (
-              <AvatarImage src={userProfile.profilePicture} alt={userProfile.name} />
+            {userProfile.avatar ? (
+              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
             ) : (
               <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
                 {userProfile.name?.charAt(0) || "U"}
@@ -202,7 +203,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 onClick={() => navigate(event.type === 'exam' ? '/dashboard/student/practice-exam' : '/dashboard/student/today')}
               >
                 <div className="flex items-center gap-2">
-                  {event.type === 'exam' ? <ClipboardCheck className="h-4 w-4 text-primary" /> : <Calendar className="h-4 w-4 text-primary" />}
+                  {event.type === 'exam' ? <CheckSquare className="h-4 w-4 text-primary" /> : <Calendar className="h-4 w-4 text-primary" />}
                   <span className="text-sm font-medium">{event.title}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{event.time}</span>
