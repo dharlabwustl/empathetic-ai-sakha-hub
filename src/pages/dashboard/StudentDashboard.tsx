@@ -77,9 +77,13 @@ const StudentDashboard = () => {
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
+      try {
+        const parsedData = JSON.parse(savedUserData);
+        if (parsedData.mood) {
+          setCurrentMood(parsedData.mood);
+        }
+      } catch (err) {
+        console.error("Error parsing user data from localStorage:", err);
       }
     }
   }, [location, showWelcomeTour, navigate]);
@@ -111,6 +115,23 @@ const StudentDashboard = () => {
     handleCompleteTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
+  };
+  
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = mood;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      } catch (err) {
+        console.error("Error updating mood in localStorage:", err);
+        localStorage.setItem("userData", JSON.stringify({ mood }));
+      }
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
   };
 
   // Show splash screen if needed
@@ -169,6 +190,7 @@ const StudentDashboard = () => {
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         currentMood={currentMood}
+        onMoodChange={handleMoodChange}
       >
         {getTabContent()}
       </DashboardLayout>
