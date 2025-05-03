@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import DashboardHeader from "./DashboardHeader";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
@@ -15,9 +14,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import { QuickAccess } from "@/components/dashboard/student/QuickAccess";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
+import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -138,6 +137,12 @@ const DashboardLayout = ({
   
   const subscriptionDetails = getSubscriptionDetails();
 
+  // Sample upcoming events (in a real app, these would come from a backend)
+  const upcomingEvents = [
+    { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' },
+    { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' }
+  ];
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       {/* Single Sidebar Navigation */}
@@ -164,14 +169,16 @@ const DashboardLayout = ({
           isExpired={subscriptionDetails.isExpired}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <DashboardHeader 
+        {/* Enhanced Dashboard Header */}
+        <div className="mb-6">
+          <EnhancedDashboardHeader 
             userProfile={userProfile}
             formattedTime={formattedTime}
             formattedDate={formattedDate}
             onViewStudyPlan={onViewStudyPlan}
             currentMood={currentMood}
             onMoodChange={onMoodChange}
+            upcomingEvents={upcomingEvents}
           />
         </div>
 
@@ -186,11 +193,6 @@ const DashboardLayout = ({
             <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
           </div>
         )}
-        
-        {/* Quick Access bar */}
-        <div className="mb-6">
-          <QuickAccess />
-        </div>
         
         {/* Main Content - either custom children or standard dashboard content */}
         {children ? (

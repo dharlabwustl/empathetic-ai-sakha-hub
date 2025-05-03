@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
-import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import EnhancedNavigation from '@/components/dashboard/student/EnhancedNavigation';
+import PersonalizedQuickAccess from '@/components/dashboard/student/PersonalizedQuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -104,14 +105,16 @@ const DashboardContent = ({
         />
       )}
       
-      {/* Tabs navigation */}
+      {/* Enhanced Navigation Tabs */}
       {!hideTabsNav && (
-        <DashboardTabs 
+        <EnhancedNavigation 
           activeTab={activeTab} 
-          onTabChange={onTabChange} 
-          tabContents={{}}
+          onTabChange={onTabChange}
         />
       )}
+      
+      {/* Personalized Quick Access */}
+      <PersonalizedQuickAccess userName={userProfile.name} />
       
       {/* Content area */}
       <div className="mt-4">
