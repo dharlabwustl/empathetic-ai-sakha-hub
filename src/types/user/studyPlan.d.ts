@@ -18,6 +18,7 @@ export interface StudyPlanSubject {
     status?: 'completed' | 'pending' | 'in-progress' | 'skipped';
     priority?: 'high' | 'medium' | 'low';
   }>;
+  isWeakSubject?: boolean;
 }
 
 export interface StudyPlan {
@@ -28,7 +29,8 @@ export interface StudyPlan {
   examDate: Date | string;
   status: 'active' | 'completed' | 'pending' | 'archived';
   progress?: number;
-  progressPercentage?: number;
+  progressPercent?: number;
+  progressPercentage?: number; // For backward compatibility
   daysLeft?: number;
   userId?: string;
   goal?: string;
@@ -49,6 +51,7 @@ export interface NewStudyPlan {
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
+  goal?: string;
 }
 
 // Interface for tracking study sessions
