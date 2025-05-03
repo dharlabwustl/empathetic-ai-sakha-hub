@@ -1,34 +1,24 @@
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { UserProfileBase } from "@/types/user/base";
-import { Calendar, ChevronRight, Bell, Star, Zap, CheckSquare } from "lucide-react";
-import { MoodType } from '@/types/user/base';
+import { CalendarIcon, BellIcon, ClipboardCheck } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
-import { motion } from "framer-motion";
-import { useNavigate } from 'react-router-dom';
+import { MoodType, UserProfileType } from "@/types/user/base";
+import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
+import { useVoiceAnnouncer } from "@/components/dashboard/student/feel-good-corner/utils/VoiceAnnouncer";
 
 interface EnhancedDashboardHeaderProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
   onViewStudyPlan: () => void;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
-  streakDays?: number;
   upcomingEvents?: Array<{
     title: string;
     time: string;
-    type: 'exam' | 'task' | 'deadline';
+    type: string;
   }>;
 }
 
@@ -39,182 +29,167 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   onViewStudyPlan,
   currentMood,
   onMoodChange,
-  streakDays = 7,
   upcomingEvents = []
 }) => {
-  const [dailyProgress, setDailyProgress] = useState<number>(
-    Math.floor(Math.random() * 60) + 20
-  ); // Simulated progress between 20-80%
-  
+  const { announce, isMuted } = useVoiceAnnouncer();
+
+  // Get the greeting based on the time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
   };
   
-  const getMoodEmoji = (mood?: MoodType) => {
-    if (!mood) return "😊";
-    switch(mood) {
-      case "motivated": return "🚀";
-      case "confident": return "💪";
-      case "focused": return "🎯";
-      case "tired": return "😴";
-      case "anxious": return "😰";
-      case "distracted": return "🤔";
-      default: return "😊";
+  const greetingText = getGreeting();
+  const userName = userProfile?.name || "Student";
+
+  // Determine appropriate message based on mood
+  const getMoodBasedMessage = () => {
+    if (!currentMood) return "";
+    
+    switch (currentMood) {
+      case "happy":
+        return "Great to see you're feeling happy today!";
+      case "focused":
+        return "You're in the zone! Perfect time to tackle important tasks.";
+      case "motivated":
+        return "Your motivation is inspiring! Let's make the most of it.";
+      case "anxious":
+        return "I notice you're feeling anxious. Remember to take breaks when needed.";
+      case "stressed":
+        return "It's okay to feel stressed. Let's break down your tasks to make them manageable.";
+      case "tired":
+        return "You seem tired. Consider a short break to recharge.";
+      case "overwhelmed":
+        return "Feeling overwhelmed is normal. Let's prioritize your tasks together.";
+      case "neutral":
+        return "Ready for a productive day?";
+      case "okay":
+        return "Let's make today a great day!";
+      default:
+        return "";
     }
   };
-  
-  const getStudyRecommendation = () => {
-    const recommendations = [
-      "Focus on Physics for 2 hours today",
-      "Complete 20 Biology flashcards",
-      "Practice NEET mock test #3",
-      "Review yesterday's Chemistry notes",
-      "Take a 10-minute break every hour"
-    ];
-    return recommendations[Math.floor(Math.random() * recommendations.length)];
-  };
-  
-  const moodOptions = [
-    {type: "motivated", label: "Motivated", emoji: "🚀"},
-    {type: "confident", label: "Confident", emoji: "💪"},
-    {type: "focused", label: "Focused", emoji: "🎯"},
-    {type: "tired", label: "Tired", emoji: "😴"},
-    {type: "anxious", label: "Anxious", emoji: "😰"},
-    {type: "distracted", label: "Distracted", emoji: "🤔"}
-  ];
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    // Announce personalized greeting based on time and mood
+    const personalizedGreeting = `${greetingText}, ${userName}! ${getMoodBasedMessage()}`;
+    
+    // Add a small delay before announcing
+    const timeoutId = setTimeout(() => {
+      if (!isMuted) {
+        announce(personalizedGreeting);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [announce, greetingText, userName, currentMood, isMuted]);
+
+  useEffect(() => {
+    // Announce upcoming events if they exist
+    if (upcomingEvents.length > 0 && !isMuted) {
+      const eventsMessage = `You have ${upcomingEvents.length} upcoming ${upcomingEvents.length === 1 ? 'event' : 'events'}: ${upcomingEvents.map(event => event.title).join(", ")}`;
+      
+      // Add delay so it doesn't overlap with the greeting
+      const timeoutId = setTimeout(() => {
+        announce(eventsMessage);
+      }, 5000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [upcomingEvents, announce, isMuted]);
+  
+  const handleMoodChange = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
+      
+      // Announce mood change
+      if (!isMuted) {
+        setTimeout(() => {
+          announce(`Your mood has been updated to ${mood}. ${getMoodBasedMessage()}`);
+        }, 500);
+      }
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Top section with user info and greeting */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 p-4 sm:p-6 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
-            {userProfile.avatar ? (
-              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
-            ) : (
-              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
-                {userProfile.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          
-          <div>
-            <div className="text-sm text-muted-foreground">
-              {getGreeting()}
-            </div>
-            <h1 className="text-2xl font-bold">{userProfile.name}</h1>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-              <span>{formattedDate}</span>
-              <span>•</span>
-              <span>{formattedTime}</span>
-            </div>
-          </div>
+    <div className="mb-6">
+      {/* Main header with greeting and profile */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {greetingText}, {userName}!
+          </h1>
+          <p className="text-muted-foreground">
+            {formattedDate} • {formattedTime}
+          </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:mt-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 border-indigo-100 dark:border-indigo-800/30"
-              >
-                <span className="text-xl">{getMoodEmoji(currentMood)}</span>
-                <span>I'm feeling {currentMood?.toLowerCase() || "great"}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>How are you feeling today?</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {moodOptions.map((mood) => (
-                <DropdownMenuItem 
-                  key={mood.type} 
-                  onClick={() => onMoodChange?.(mood.type as MoodType)}
-                  className="cursor-pointer"
-                >
-                  <span className="mr-2">{mood.emoji}</span>
-                  {mood.label}
-                  {currentMood === mood.type && (
-                    <span className="ml-auto">✓</span>
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex items-center gap-3">
+          {onMoodChange && (
+            <MoodLogButton
+              currentMood={currentMood}
+              onMoodChange={handleMoodChange}
+            />
+          )}
           
-          <Button onClick={onViewStudyPlan} className="bg-indigo-600 hover:bg-indigo-700">
-            View Study Plan
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onViewStudyPlan}
+            className="flex items-center gap-1"
+          >
+            <CalendarIcon className="h-4 w-4" />
+            <span>Study Plan</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1 relative"
+            asChild
+          >
+            <a href="/dashboard/student/notifications">
+              <BellIcon className="h-4 w-4" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+              <span className="sr-only">Notifications</span>
+            </a>
           </Button>
         </div>
       </div>
       
-      {/* Progress & Insights Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Daily Progress */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Today's Progress</h3>
-          <div className="mb-3">
-            <div className="flex justify-between mb-1 text-sm">
-              <span className="font-medium">{dailyProgress}% Completed</span>
-              <span className="text-muted-foreground">{Math.ceil((100-dailyProgress)/10)} tasks left</span>
-            </div>
-            <Progress value={dailyProgress} className="h-2" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Tip: {getStudyRecommendation()}
-          </p>
-        </div>
-        
-        {/* Streak Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Study Streak</h3>
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-amber-500" />
-            <span className="text-xl font-bold">{streakDays} days</span>
-          </div>
-          <div className="flex items-center gap-1 mt-2">
-            {Array.from({length: 7}).map((_, i) => (
-              <motion.div 
-                key={i}
-                className={`h-2 w-full rounded-full ${i < streakDays % 7 ? 'bg-amber-500' : 'bg-gray-200 dark:bg-gray-700'}`}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ delay: i * 0.1, duration: 0.3 }}
-              />
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Keep your streak going! Study today to maintain momentum.
-          </p>
-        </div>
-        
-        {/* Upcoming Events */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Upcoming Events</h3>
-          <div className="space-y-2 mt-3">
-            {upcomingEvents.map((event, index) => (
-              <div 
-                key={index} 
-                className="flex items-center justify-between p-2 bg-card hover:bg-card/80 rounded-md cursor-pointer"
-                onClick={() => navigate(event.type === 'exam' ? '/dashboard/student/practice-exam' : '/dashboard/student/today')}
+      {/* Upcoming events card */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <Card className="bg-white dark:bg-gray-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-sm">Upcoming Events</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs h-auto py-1"
+                asChild
               >
-                <div className="flex items-center gap-2">
-                  {event.type === 'exam' ? <CheckSquare className="h-4 w-4 text-primary" /> : <Calendar className="h-4 w-4 text-primary" />}
-                  <span className="text-sm font-medium">{event.title}</span>
+                <a href="/dashboard/student/calendar">View All</a>
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {upcomingEvents.map((event, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <div className={`p-1.5 rounded-full ${event.type === 'exam' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <ClipboardCheck className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{event.title}</p>
+                    <p className="text-xs text-gray-500">{event.time}</p>
+                  </div>
                 </div>
-                <span className="text-xs text-muted-foreground">{event.time}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Click to view your full schedule
-          </p>
-        </div>
-      </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

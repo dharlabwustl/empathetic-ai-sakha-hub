@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
@@ -10,13 +9,16 @@ import GratitudeJournal from '@/components/dashboard/student/feel-good-corner/Gr
 import DoodleTab from '@/components/dashboard/student/feel-good-corner/DoodleTab';
 import MoodMusicPlayer from '@/components/dashboard/student/feel-good-corner/MoodMusicPlayer';
 import JokesTab from '@/components/dashboard/student/feel-good-corner/JokesTab';
+import VoiceSettingsTab from '@/components/dashboard/student/feel-good-corner/VoiceSettingsTab';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Pencil, Heart, Smile, MessageSquare, Image } from 'lucide-react';
+import { Music, Pencil, Heart, Smile, MessageSquare, Settings, Volume2 } from 'lucide-react';
+import { VoiceAnnouncerControl, useVoiceAnnouncer } from '@/components/dashboard/student/feel-good-corner/utils/VoiceAnnouncer';
 
 const FeelGoodCornerView = () => {
   const [activeTab, setActiveTab] = useState("affirmations");
   const { toast } = useToast();
+  const { announce, isMuted } = useVoiceAnnouncer();
   
   const handleLikeActivity = () => {
     toast({
@@ -44,12 +46,61 @@ const FeelGoodCornerView = () => {
     content: "Physics Teaser"
   };
 
+  // Announce a greeting when component mounts
+  useEffect(() => {
+    // Get the time of day greeting
+    const hour = new Date().getHours();
+    let greeting = "Welcome to the Feel Good Corner!";
+    
+    if (hour < 12) {
+      greeting = "Good morning! Welcome to the Feel Good Corner to start your day on a positive note.";
+    } else if (hour < 18) {
+      greeting = "Good afternoon! Take a moment to relax in the Feel Good Corner.";
+    } else {
+      greeting = "Good evening! Wind down your day in the Feel Good Corner.";
+    }
+    
+    // Add a small delay for the greeting to not overlap with page load sounds
+    const timeoutId = setTimeout(() => {
+      if (!isMuted) {
+        announce(greeting);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [announce, isMuted]);
+  
+  // Announce tab changes
+  useEffect(() => {
+    if (isMuted) return;
+    
+    const tabMessages: Record<string, string> = {
+      "affirmations": "Affirmations tab. Positive statements to boost your mindset.",
+      "chill-chat": "Chill Chat tab. Have a relaxing conversation.",
+      "teasers": "Brain Teasers tab. Challenge your mind with puzzles.",
+      "gratitude": "Gratitude tab. Reflect on things you're thankful for.",
+      "doodling": "Doodling tab. Express yourself through art.",
+      "mood-music": "Mood Music tab. Let music enhance your mood.",
+      "jokes": "Jokes tab. A little laughter is good for the soul.",
+      "voice-settings": "Voice Settings tab. Customize your voice announcements."
+    };
+    
+    // Don't announce on first load, only tab changes
+    if (activeTab && document.visibilityState === 'visible') {
+      const message = tabMessages[activeTab];
+      if (message) {
+        announce(message);
+      }
+    }
+  }, [activeTab, announce, isMuted]);
+
   return (
     <SharedPageLayout
       title="Feel Good Corner"
       subtitle="Take a break and boost your mood"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
+      actions={<VoiceAnnouncerControl />}
     >
       <div className="space-y-6">
         <p className="text-muted-foreground">
@@ -64,7 +115,7 @@ const FeelGoodCornerView = () => {
           onValueChange={setActiveTab}
           className="space-y-4"
         >
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
             <TabsTrigger value="affirmations" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Affirmations</span>
@@ -92,6 +143,10 @@ const FeelGoodCornerView = () => {
             <TabsTrigger value="jokes" className="flex items-center gap-2">
               <Smile className="h-4 w-4" />
               <span className="hidden sm:inline">Jokes</span>
+            </TabsTrigger>
+            <TabsTrigger value="voice-settings" className="flex items-center gap-2">
+              <Volume2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Voice Settings</span>
             </TabsTrigger>
           </TabsList>
           
@@ -123,6 +178,10 @@ const FeelGoodCornerView = () => {
           
           <TabsContent value="jokes" className="space-y-4 pt-2">
             <JokesTab />
+          </TabsContent>
+          
+          <TabsContent value="voice-settings" className="space-y-4 pt-2">
+            <VoiceSettingsTab />
           </TabsContent>
         </Tabs>
       </div>
