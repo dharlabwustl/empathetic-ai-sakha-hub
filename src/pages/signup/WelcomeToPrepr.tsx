@@ -67,16 +67,19 @@ const WelcomeToPrepr = () => {
                   </div>
                   
                   <div className="p-8 bg-white dark:bg-gray-900">
-                    <h3 className="text-xl font-medium mb-4">A message from our founder</h3>
+                    <h3 className="text-xl font-medium mb-4">From Our Founder</h3>
                     <div className="flex items-start gap-4">
                       <img 
-                        src="/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png" 
+                        src="/lovable-uploads/c3eac5b2-c8be-4622-8c94-681e9afdf888.png" 
                         alt="Amit Singh Founder" 
                         className="w-16 h-16 rounded-full object-cover"
                       />
                       <div>
-                        <p className="text-muted-foreground mb-3">
-                          "Welcome to PREPZR! We've created a platform that adapts to your unique learning style and exam goals. I'm confident that with consistent effort and our smart tools, you'll achieve the results you're aiming for."
+                        <p className="text-sm text-muted-foreground mb-3">
+                          "At PREPZR, we believe every student deserves personalized guidance to reach their full potential. Our AI-powered platform is designed to adapt to your unique learning style and help you achieve your academic & exam goals."
+                        </p>
+                        <p className="text-sm mb-1 text-muted-foreground">
+                          "Your journey with PREPZR begins now. We're excited to help you excel in your exams and become the best version of yourself."
                         </p>
                         <p className="font-medium">Amit Singh</p>
                         <p className="text-sm text-muted-foreground">Founder & CEO, PREPZR</p>
