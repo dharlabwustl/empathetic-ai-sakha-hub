@@ -117,24 +117,33 @@ const FloatingVoiceAnnouncer = () => {
     navigate('/signup');
   };
   
-  // Clean up on unmount
+  // Listen for the custom event to open the voice announcer
   useEffect(() => {
+    const openVoiceAnnouncer = () => {
+      handleOpen();
+    };
+    
+    window.addEventListener('open-voice-announcer', openVoiceAnnouncer);
+    window.addEventListener('open-exam-analyzer', () => setVisible(false));
+    
     return () => {
+      window.removeEventListener('open-voice-announcer', openVoiceAnnouncer);
+      window.removeEventListener('open-exam-analyzer', () => setVisible(false));
       window.speechSynthesis.cancel();
       if (speakTimeoutRef.current) {
         clearTimeout(speakTimeoutRef.current);
       }
     };
-  }, []);
-
-  // Check if we're on the homepage - only show on homepage
+  }, [isMuted]);
+  
+  // Check if we're on the homepage - only show floating button on homepage
   const isHomePage = window.location.pathname === '/' || window.location.pathname === '/index.html';
   
-  if (!isHomePage) return null;
+  if (!isHomePage && !visible) return null;
   
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - only show if not already visible */}
       {!visible ? (
         <button
           onClick={handleOpen}
@@ -147,7 +156,7 @@ const FloatingVoiceAnnouncer = () => {
           </span>
         </button>
       ) : (
-        <div className="fixed bottom-6 right-6 z-50 bg-white rounded-xl shadow-2xl w-80 sm:w-96 overflow-hidden border border-gray-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-white rounded-xl shadow-2xl w-80 sm:w-96 overflow-hidden border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-violet-600 text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -178,11 +187,11 @@ const FloatingVoiceAnnouncer = () => {
           </div>
           
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 dark:text-white">
             <div className={`transition-opacity duration-500 ${isSpeaking ? 'opacity-100' : 'opacity-75'}`}>
               <p className="text-sm font-medium mb-4">{marketingMessages[currentMessageIndex]}</p>
               
-              <div className="relative h-1 bg-gray-200 rounded overflow-hidden">
+              <div className="relative h-1 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
                 <div 
                   className={`absolute top-0 left-0 h-full bg-blue-600 transition-all duration-300 ${
                     isSpeaking ? 'animate-progress' : ''
@@ -200,18 +209,18 @@ const FloatingVoiceAnnouncer = () => {
                 Try Free for 7 Days
               </Button>
               
-              <p className="text-xs text-center text-gray-500">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
                 No credit card required. Cancel anytime.
               </p>
               
               <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="font-bold text-blue-600">100,000+</p>
-                  <p className="text-xs text-gray-500">Students</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 dark:border dark:border-gray-700">
+                  <p className="font-bold text-blue-600 dark:text-blue-400">100,000+</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Students</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="font-bold text-violet-600">90%</p>
-                  <p className="text-xs text-gray-500">Exam Success</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 dark:border dark:border-gray-700">
+                  <p className="font-bold text-violet-600 dark:text-violet-400">90%</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Exam Success</p>
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Volume2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
@@ -14,6 +14,13 @@ const Header = () => {
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  // Function to trigger voice announcer popup
+  const handleOpenVoice = () => {
+    // Create and dispatch a custom event to open the voice announcer
+    const event = new CustomEvent('open-voice-announcer');
+    window.dispatchEvent(event);
   };
   
   return (
@@ -28,6 +35,16 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleOpenVoice}
+              className="relative"
+              title="Listen to Voice Assistant"
+            >
+              <Volume2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-ping"></span>
+            </Button>
             <ThemeToggle />
             {user ? (
               <div className="flex space-x-2">
@@ -51,7 +68,17 @@ const Header = () => {
           </div>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleOpenVoice}
+              className="relative"
+              title="Listen to Voice Assistant"
+            >
+              <Volume2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-ping"></span>
+            </Button>
             <Button variant="ghost" size="icon" onClick={toggleMenu}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -74,17 +75,19 @@ const DashboardLayout = ({
   const features = getFeatures();
   
   // Initialize showTour state from props but also check local storage
-  const [showTour, setShowTour] = useState(showWelcomeTour);
+  const [showTour, setShowTour] = useState(false);
   
   useEffect(() => {
-    // Check for new user flag and welcome tour status
+    // Only show tour guide for first-time users coming from signup
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
+    // Only show tour if it's a new user who hasn't seen the tour yet
     if (isNewUser && !sawWelcomeTour) {
       console.log("DashboardLayout: Opening tour automatically for new user");
       setShowTour(true);
-    } else if (showWelcomeTour) {
+    } else if (showWelcomeTour && !sawWelcomeTour) {
+      // Only if explicitly requested AND they haven't seen it
       setShowTour(true);
     }
   }, [showWelcomeTour]);
