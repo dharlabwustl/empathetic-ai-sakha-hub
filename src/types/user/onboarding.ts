@@ -6,7 +6,10 @@ export interface OnboardingData {
   age?: number;
   grade?: string;
   location?: string;
-  examGoal?: string; // Changed from ExamGoal to string
+  city?: string;
+  educationLevel?: string;
+  examGoal?: string;
+  examAppearingDate?: Date; // Added field for exam appearing date
   jobTitle?: string;
   experience?: string;
   industry?: string;
@@ -18,15 +21,23 @@ export interface OnboardingData {
   teamSize?: number;
   startupGoal?: string;
   personalityType?: PersonalityType;
+  learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical'; // Added learning styles
   mood?: MoodType;
   sleepSchedule?: string;
   focusHours?: number;
   stressManagement?: string;
   breakRoutine?: string;
+  breakFrequency?: string; // Added break frequency
+  studyEnvironment?: string; // Added study environment preference
+  studyPace?: 'slow' | 'moderate' | 'fast'; // Study pace preference
+  dailyStudyHours?: number; // Daily study hours target
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night'; // Added preferred study time
   interests?: string[];
+  weakSubjects?: string[]; // Track specifically weak subjects
   name?: string;
   phoneNumber?: string;
-  institute?: string; // Field for institute
-  password?: string; // Field for password
-  preferredSubjects?: string[]; // Field for preferred subjects
+  mobileNumber?: string; // Added mobile number for authentication
+  institute?: string;
+  password?: string;
+  preferredSubjects?: string[];
 }

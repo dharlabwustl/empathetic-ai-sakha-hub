@@ -44,7 +44,8 @@ export enum SignupType {
   Email = 'email',
   Google = 'google',
   Facebook = 'facebook',
-  Apple = 'apple'
+  Apple = 'apple',
+  Mobile = 'mobile' // Added mobile signup type
 }
 
 export enum StudyPace {
@@ -66,6 +67,7 @@ export interface UserProfileBase {
   bio?: string;
   avatar?: string;
   phoneNumber?: string;
+  mobileNumber?: string; // Added mobile number field
   role: 'student' | 'teacher' | 'admin';
   subscription?: SubscriptionType | {
     planType: string;
@@ -86,6 +88,19 @@ export interface UserProfileBase {
     notifications?: boolean;
     emailAlerts?: boolean;
     language?: string;
+    studyPace?: StudyPace; // Added study pace preference
+    dailyStudyHours?: number; // Added daily study hours
+    preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night'; // Added preferred study time
+    breakFrequency?: string; // Added break frequency
+    stressManagement?: string; // Added stress management technique
+    studyEnvironment?: string; // Added study environment preference
+    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical'; // Added learning style
+  };
+  demographics?: { // Added demographics section
+    age?: number;
+    city?: string;
+    educationLevel?: string;
+    examAppearingDate?: Date | string;
   };
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -110,6 +125,7 @@ export interface SubjectProgress {
   topicsCompleted: number;
   quizzesCompleted: number;
   masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+  isWeakSubject?: boolean; // Added to track weak subjects
 }
 
 export interface PaymentMethod {

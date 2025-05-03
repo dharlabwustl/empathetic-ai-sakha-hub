@@ -1,57 +1,90 @@
 
+import { StudyPace } from './base';
+
+// Subject proficiency levels
+export type ProficiencyLevel = 'weak' | 'medium' | 'strong';
+export type PriorityLevel = 'low' | 'medium' | 'high';
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
+  proficiency: ProficiencyLevel;
+  priority: PriorityLevel;
   color: string;
   hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency: 'strong' | 'medium' | 'weak';
   completed: boolean;
-  topics?: Array<{
-    id: string;
-    name: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-    priority?: 'high' | 'medium' | 'low';
-  }>;
+  isWeakSubject?: boolean; // Added field for tracking weak subjects
 }
 
-export type NewStudyPlanSubject = Omit<StudyPlanSubject, 'id' | 'color' | 'hoursPerWeek' | 'priority' | 'completed'> & {
-  id?: string;
-  color?: string;
-  hoursPerWeek?: number;
-  priority?: 'high' | 'medium' | 'low';
-};
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  completed: boolean;
+  subjectId: string;
+  scheduleDate?: Date;
+  durationMinutes?: number;
+}
 
-export type Subject = StudyPlanSubject;
+export interface StudySession {
+  id: string;
+  date: Date;
+  startTime: string;
+  endTime?: string;
+  subjectId: string;
+  subjectName: string;
+  topicId?: string;
+  topicName?: string;
+  completed: boolean;
+  durationMinutes?: number;
+  mood?: {
+    before?: string;
+    after?: string;
+  };
+}
+
+// User demographics data
+export interface UserDemographics {
+  age?: number;
+  educationLevel?: string;
+  city?: string;
+  examAppearingDate?: Date;
+}
+
+// Study preferences
+export interface StudyPreferences {
+  studyPace: 'slow' | 'moderate' | 'fast';
+  dailyStudyHours?: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  breakFrequency?: string;
+  stressManagement?: string;
+  studyEnvironment?: string;
+  learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical';
+  personalityType?: string;
+  mood?: string;
+}
 
 export interface StudyPlan {
   id: string;
-  examGoal?: string;
-  examDate?: string | Date;
-  createdAt: string;
-  updatedAt?: string;
+  title: string;
+  examGoal: string;
+  examDate: Date | string;
   subjects: StudyPlanSubject[];
+  topics?: StudyPlanTopic[];
+  sessions?: StudySession[];
+  startDate?: Date | string;
+  endDate?: Date | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   status: 'active' | 'completed' | 'archived';
-  progress?: number;
-  weeklyHours?: number;
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  progressPercent?: number;
   learningPace?: 'slow' | 'moderate' | 'fast';
-  progressPercentage?: number;
-  daysLeft?: number;
-  goal?: string;
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  // New fields
+  userDemographics?: UserDemographics; // Added to store demographic information
+  studyPreferences?: StudyPreferences; // Added to store study preferences
 }
 
-export interface NewStudyPlan {
-  examGoal: string;
-  examDate: string | Date;
-  subjects: StudyPlanSubject[];
-  status?: 'active' | 'completed' | 'archived';
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  weeklyHours?: number;
-  goal?: string;
-}
+// Used for creating a new study plan
+export type NewStudyPlan = Omit<StudyPlan, 'id' | 'createdAt' | 'updatedAt'>;
