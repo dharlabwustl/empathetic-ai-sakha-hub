@@ -49,7 +49,20 @@ export const saveVoiceSettings = (settings: VoiceSettings): void => {
 
 // Helper to get the best voice for Indian English - improved algorithm for finding Indian female voices
 export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
-  const voices = window.speechSynthesis.getVoices();
+  if (!window.speechSynthesis) {
+    console.error("Speech synthesis not supported in this browser");
+    return undefined;
+  }
+  
+  let voices = window.speechSynthesis.getVoices();
+  
+  // If voices array is empty, try to get voices again after a small delay
+  if (voices.length === 0) {
+    console.warn("No voices available yet, trying to load them");
+    // This is a synchronous function, but we'll try to get voices again before using them
+  }
+  
+  voices = window.speechSynthesis.getVoices();
   console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
   
   // Specific Indian female voices to look for
@@ -145,6 +158,7 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
     return anyEnglishVoice;
   }
   
+  console.warn("Could not find any suitable voice");
   return undefined;
 };
 
@@ -178,15 +192,23 @@ export const shouldSpeakGreeting = (): boolean => {
 
 // Function to speak a message with current settings - optimized for clear, loud Indian female voice
 export const speakMessage = (message: string, forceSpeak: boolean = false): void => {
+  if (!window.speechSynthesis) {
+    console.error("Speech synthesis not supported in this browser");
+    return;
+  }
+
   const settings = getVoiceSettings();
+  console.log("Speaking with settings:", settings, "Message:", message);
   
   // Return early if voice is disabled or we've already spoken this message
   if (!settings.enabled && !forceSpeak) {
+    console.log("Voice disabled or not forced, skipping speech");
     return;
   }
   
   // Skip if message is empty
   if (!message || message.trim() === '') {
+    console.log("Empty message, skipping speech");
     return;
   }
   
@@ -205,34 +227,65 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     spokenMessages.clear();
   }
   
-  // Cancel any ongoing speech first
-  window.speechSynthesis.cancel();
-  
-  // Create and configure speech synthesis utterance
-  const utterance = new SpeechSynthesisUtterance(improvePronunciation(message));
-  
-  // Find the best Indian female voice
-  const bestVoice = findBestIndianVoice();
-  
-  if (bestVoice) {
-    utterance.voice = bestVoice;
-    console.log("Using voice:", bestVoice.name, bestVoice.lang);
-  } else {
-    utterance.lang = 'en-IN'; // Fallback to Indian English locale
-    console.log("No best voice found, using language: en-IN");
+  try {
+    // Cancel any ongoing speech first
+    window.speechSynthesis.cancel();
+    
+    // Create and configure speech synthesis utterance
+    const utterance = new SpeechSynthesisUtterance(improvePronunciation(message));
+    
+    // Log setup
+    console.log("Setting up speech synthesis with message:", message);
+
+    // Add event listeners to track speaking status
+    utterance.onstart = () => console.log("Speech started");
+    utterance.onend = () => console.log("Speech ended");
+    utterance.onerror = (event) => console.error("Speech error:", event);
+    
+    // Find the best Indian female voice
+    const bestVoice = findBestIndianVoice();
+    
+    if (bestVoice) {
+      utterance.voice = bestVoice;
+      console.log("Using voice:", bestVoice.name, bestVoice.lang);
+    } else {
+      utterance.lang = 'en-IN'; // Fallback to Indian English locale
+      console.log("No best voice found, using language: en-IN");
+    }
+    
+    // Set volume to maximum for loudness and clarity
+    utterance.volume = Math.min(settings.volume * 1.2, 1.0); // Boost volume but cap at 1.0
+    
+    // Set rate slightly faster for more clarity - adjust based on user settings
+    utterance.rate = settings.speed;
+    
+    // Add a pitch increase for more pleasant, clear Indian female voice sound
+    utterance.pitch = 1.2; // Slightly higher pitch for more distinctly female voice
+    
+    console.log("Speech parameters:", {
+      volume: utterance.volume,
+      rate: utterance.rate,
+      pitch: utterance.pitch,
+      voice: utterance.voice ? utterance.voice.name : 'default',
+      lang: utterance.lang
+    });
+    
+    // Speak the message
+    window.speechSynthesis.speak(utterance);
+    
+    // In some browsers, speech synthesis can get stuck
+    // This is a workaround to unstick it if needed
+    setTimeout(() => {
+      if (window.speechSynthesis.speaking) {
+        console.log("Speech synthesis might be stuck, attempting to resume");
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000); // Check after 10 seconds
+    
+  } catch (error) {
+    console.error("Error during speech synthesis:", error);
   }
-  
-  // Set volume to maximum for loudness and clarity
-  utterance.volume = Math.min(settings.volume * 1.2, 1.0); // Boost volume but cap at 1.0
-  
-  // Set rate slightly faster for more clarity - adjust based on user settings
-  utterance.rate = settings.speed;
-  
-  // Add a pitch increase for more pleasant, clear Indian female voice sound
-  utterance.pitch = 1.2; // Slightly higher pitch for more distinctly female voice
-  
-  // Speak the message
-  window.speechSynthesis.speak(utterance);
 };
 
 // Helper function to get greeting based on time of day and user's mood
@@ -270,4 +323,32 @@ export const getGreeting = (mood?: MoodType): string => {
   }
   
   return `${timeGreeting} Ready for your study session?`;
+};
+
+// Test if the voice system is working - useful for debugging
+export const testVoiceSystem = () => {
+  console.log("Testing voice system...");
+  
+  if (!window.speechSynthesis) {
+    console.error("Speech synthesis not supported in this browser");
+    return false;
+  }
+  
+  try {
+    const voices = window.speechSynthesis.getVoices();
+    console.log(`Found ${voices.length} voices:`, voices.map(v => `${v.name} (${v.lang})`));
+    
+    // Try a very simple utterance
+    const testUtterance = new SpeechSynthesisUtterance("Test voice");
+    testUtterance.volume = 1.0; // Full volume
+    testUtterance.onstart = () => console.log("Test speech started");
+    testUtterance.onend = () => console.log("Test speech ended");
+    testUtterance.onerror = (e) => console.error("Test speech error:", e);
+    
+    window.speechSynthesis.speak(testUtterance);
+    return true;
+  } catch (error) {
+    console.error("Error testing voice system:", error);
+    return false;
+  }
 };

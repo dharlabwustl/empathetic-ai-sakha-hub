@@ -1,6 +1,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { getVoiceSettings, saveVoiceSettings, speakMessage, getGreeting, shouldSpeakGreeting } from './voiceUtils';
+import { 
+  getVoiceSettings, 
+  saveVoiceSettings, 
+  speakMessage, 
+  getGreeting, 
+  shouldSpeakGreeting,
+  testVoiceSystem
+} from './voiceUtils';
 import type { VoiceSettings } from './voiceUtils';
 import { MoodType } from '@/types/user/base';
 import { getExamStrategy, getSubjectRecommendation, getLearningStyleTip } from './messageGenerators';
@@ -28,6 +35,9 @@ export const useVoiceAnnouncer = () => {
     examGoal: localStorage.getItem('examGoal') || undefined
   });
   
+  // Debug flag for voice issues
+  const [voiceSystemReady, setVoiceSystemReady] = useState<boolean>(false);
+  
   // Update settings locally and in storage
   const updateSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setSettings(current => {
@@ -39,10 +49,26 @@ export const useVoiceAnnouncer = () => {
   
   // Initialize voices when component mounts
   useEffect(() => {
+    // Check if speech synthesis is available
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not supported in this browser");
+      return;
+    }
+    
     // Load voices
     const loadVoices = () => {
+      if (!window.speechSynthesis) return;
+      
       const voices = window.speechSynthesis.getVoices();
-      console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
+      if (voices.length > 0) {
+        console.log("Voice system initialized with voices:", 
+          voices.length, 
+          voices.map(v => `${v.name} (${v.lang})`).join(', ')
+        );
+        setVoiceSystemReady(true);
+      } else {
+        console.warn("No voices available yet");
+      }
     };
     
     // Try loading voices immediately
@@ -62,13 +88,26 @@ export const useVoiceAnnouncer = () => {
     });
     
     // Track speech status
-    const handleSpeechStart = () => setIsSpeaking(true);
-    const handleSpeechEnd = () => setIsSpeaking(false);
+    const handleSpeechStart = () => {
+      console.log("Speech started");
+      setIsSpeaking(true);
+    };
     
-    window.speechSynthesis.addEventListener('start', handleSpeechStart);
-    window.speechSynthesis.addEventListener('end', handleSpeechEnd);
-    window.speechSynthesis.addEventListener('pause', handleSpeechEnd);
-    window.speechSynthesis.addEventListener('resume', handleSpeechStart);
+    const handleSpeechEnd = () => {
+      console.log("Speech ended");
+      setIsSpeaking(false);
+    };
+    
+    if (window.speechSynthesis) {
+      try {
+        window.speechSynthesis.addEventListener('start', handleSpeechStart);
+        window.speechSynthesis.addEventListener('end', handleSpeechEnd);
+        window.speechSynthesis.addEventListener('pause', handleSpeechEnd);
+        window.speechSynthesis.addEventListener('resume', handleSpeechStart);
+      } catch (e) {
+        console.error("Could not add speech synthesis event listeners:", e);
+      }
+    }
     
     // Allow time for dashboard to load before first greeting
     const greetingDelay = setTimeout(() => {
@@ -76,14 +115,27 @@ export const useVoiceAnnouncer = () => {
         ...prev,
         isInitialLoad: false
       }));
+      
+      // Test voice system after a delay to ensure browser is ready
+      setTimeout(() => {
+        const isWorking = testVoiceSystem();
+        setVoiceSystemReady(isWorking);
+      }, 2000);
+      
     }, 3000);
     
     return () => {
-      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
-      window.speechSynthesis.removeEventListener('start', handleSpeechStart);
-      window.speechSynthesis.removeEventListener('end', handleSpeechEnd);
-      window.speechSynthesis.removeEventListener('pause', handleSpeechEnd);
-      window.speechSynthesis.removeEventListener('resume', handleSpeechStart);
+      if (window.speechSynthesis) {
+        try {
+          window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+          window.speechSynthesis.removeEventListener('start', handleSpeechStart);
+          window.speechSynthesis.removeEventListener('end', handleSpeechEnd);
+          window.speechSynthesis.removeEventListener('pause', handleSpeechEnd);
+          window.speechSynthesis.removeEventListener('resume', handleSpeechStart);
+        } catch (e) {
+          console.error("Could not remove speech synthesis event listeners:", e);
+        }
+      }
       clearTimeout(greetingDelay);
     };
   }, []);
@@ -201,6 +253,11 @@ export const useVoiceAnnouncer = () => {
       return "I can announce tasks, help with concepts, suggest study strategies, and track your progress. What do you need help with?";
     }
     
+    if (lowerQuery.includes("can't hear") || lowerQuery.includes("cant hear") || 
+        lowerQuery.includes("no sound") || lowerQuery.includes("not working")) {
+      return "I'm testing the voice system. If you can't hear me, check your device volume and browser permissions.";
+    }
+    
     if (lowerQuery.includes("flashcards") || lowerQuery.includes("flash cards")) {
       return "Flashcards are excellent for active recall. Would you like me to help you create some for your exam preparation?";
     }
@@ -256,7 +313,10 @@ export const useVoiceAnnouncer = () => {
   // Speak with context awareness
   const speak = useCallback((message: string, force: boolean = false) => {
     // Skip if voice is disabled and not forced
-    if (!settings.enabled && !force) return;
+    if (!settings.enabled && !force) {
+      console.log("Voice disabled and not forced, skipping speech");
+      return;
+    }
     
     // Skip if in initial loading state and not forced
     if (userContext.isInitialLoad && !force) {
@@ -282,6 +342,7 @@ export const useVoiceAnnouncer = () => {
         message.startsWith("Welcome to")) {
       
       if (shouldSpeakGreeting() || force) {
+        console.log("Speaking greeting:", message);
         speakMessage(message, force);
         setUserContext(prev => ({
           ...prev,
@@ -293,18 +354,40 @@ export const useVoiceAnnouncer = () => {
       return;
     }
     
+    console.log("Speaking message:", message, "forced:", force);
     speakMessage(message, force);
   }, [settings.enabled, processQuery, updateInteractionTime, userContext.isInitialLoad]);
   
   // Test the current voice settings
   const testVoice = useCallback(() => {
-    speak("Hello! I'm your study assistant with an Indian voice. I'll help you prepare for your exams.", true);
+    console.log("Testing voice with settings:", settings);
+    
+    // First ensure voice is enabled temporarily
+    const wasEnabled = settings.enabled;
+    if (!wasEnabled) {
+      updateSettings({ enabled: true });
+    }
+    
+    // Use a simple, clear test message
+    const testMessage = "Hello! I'm your study assistant with an Indian voice. Can you hear me clearly?";
+    speak(testMessage, true);
+    
+    // Restore previous enabled state
+    if (!wasEnabled) {
+      setTimeout(() => updateSettings({ enabled: wasEnabled }), 5000);
+    }
+    
     updateInteractionTime();
-  }, [speak, updateInteractionTime]);
+    return testMessage;
+  }, [speak, updateSettings, settings, updateInteractionTime]);
   
   // Stop any ongoing speech
   const stopSpeaking = useCallback(() => {
-    window.speechSynthesis.cancel();
+    if (window.speechSynthesis) {
+      console.log("Stopping all speech");
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
     updateInteractionTime();
   }, [updateInteractionTime]);
   
@@ -326,6 +409,65 @@ export const useVoiceAnnouncer = () => {
     localStorage.removeItem('new_user_signup');
   }, []);
   
+  // Get available voices
+  const getAvailableVoices = useCallback(() => {
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not supported in this browser");
+      return [];
+    }
+    return window.speechSynthesis.getVoices();
+  }, []);
+  
+  // Fix voice system if it's not working
+  const fixVoiceSystem = useCallback(() => {
+    console.log("Attempting to fix voice system...");
+    
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not supported in this browser");
+      return false;
+    }
+    
+    try {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Force reload of voices
+      const voices = window.speechSynthesis.getVoices();
+      console.log(`Reloaded ${voices.length} voices`);
+      
+      // Try a very simple test
+      const testUtterance = new SpeechSynthesisUtterance("Test voice system fix");
+      testUtterance.volume = 1.0;
+      testUtterance.rate = 1.0;
+      testUtterance.pitch = 1.0;
+      
+      // Add listeners
+      testUtterance.onstart = () => {
+        console.log("Voice system fix - speech started");
+        setIsSpeaking(true);
+        setVoiceSystemReady(true);
+      };
+      
+      testUtterance.onend = () => {
+        console.log("Voice system fix - speech ended");
+        setIsSpeaking(false);
+      };
+      
+      testUtterance.onerror = (e) => {
+        console.error("Voice system fix - speech error:", e);
+        setVoiceSystemReady(false);
+      };
+      
+      // Try to speak
+      window.speechSynthesis.speak(testUtterance);
+      
+      return true;
+    } catch (error) {
+      console.error("Error fixing voice system:", error);
+      return false;
+    }
+  }, []);
+  
   return {
     settings,
     updateSettings,
@@ -333,14 +475,16 @@ export const useVoiceAnnouncer = () => {
     testVoice,
     stopSpeaking,
     isSpeaking,
+    voiceSystemReady,
     processQuery,
     getWelcomeMessage,
     getGreeting,
     updateInteractionTime,
     updateScreenContext,
-    getAvailableVoices: () => window.speechSynthesis.getVoices(),
+    getAvailableVoices,
     setExamGoal,
     markUserAsReturning,
-    isFirstTimeUser: userContext.isFirstTimeUser
+    isFirstTimeUser: userContext.isFirstTimeUser,
+    fixVoiceSystem
   };
 };

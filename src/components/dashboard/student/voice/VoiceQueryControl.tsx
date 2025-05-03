@@ -13,9 +13,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, MessageSquare, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Volume2, VolumeX, AlertTriangle } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
 import ProfileVoiceTooltip from '../profile/ProfileVoiceTooltip';
+import { testVoiceSystem } from './voiceUtils';
 
 interface VoiceQueryControlProps {
   className?: string;
@@ -27,7 +28,19 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isPulsing, setIsPulsing] = useState(true);
-  const { speak, processQuery, testVoice, isSpeaking, stopSpeaking, settings, updateSettings } = useVoiceAnnouncerContext();
+  const [voiceStatus, setVoiceStatus] = useState<'ok' | 'warning' | 'error'>('ok');
+  
+  const { 
+    speak, 
+    processQuery, 
+    testVoice, 
+    isSpeaking, 
+    stopSpeaking, 
+    settings, 
+    updateSettings,
+    fixVoiceSystem,
+    voiceSystemReady
+  } = useVoiceAnnouncerContext();
   
   // Animation effect to draw attention to the voice icon when it first appears
   useEffect(() => {
@@ -41,6 +54,26 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
     
     return () => clearTimeout(timer);
   }, []);
+  
+  // Check voice system status
+  useEffect(() => {
+    // Test voice system on mount
+    if (window.speechSynthesis) {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) {
+        setVoiceStatus('warning');
+      } else {
+        setVoiceStatus('ok');
+      }
+    } else {
+      setVoiceStatus('error');
+    }
+    
+    // Update based on voice system ready state
+    if (!voiceSystemReady) {
+      setVoiceStatus('warning');
+    }
+  }, [voiceSystemReady]);
   
   // Additional pulsing effect when speaking
   useEffect(() => {
@@ -83,6 +116,11 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
 
   // Toggle mute/unmute voice
   const toggleVoice = () => {
+    if (voiceStatus !== 'ok' && !settings.enabled) {
+      // Try to fix voice system when enabling
+      fixVoiceSystem();
+      setTimeout(() => testVoice(), 500);
+    }
     updateSettings({ enabled: !settings.enabled });
   };
   
@@ -116,6 +154,20 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
         `${examGoal} revision strategies`,
         `How to take notes for ${examGoal}`
       ];
+    }
+  };
+  
+  // Handle voice system check
+  const handleCheckVoiceSystem = () => {
+    const result = testVoiceSystem();
+    if (result) {
+      setVoiceStatus('ok');
+    } else {
+      fixVoiceSystem();
+      setTimeout(() => {
+        const secondTry = testVoiceSystem();
+        setVoiceStatus(secondTry ? 'ok' : 'error');
+      }, 1000);
     }
   };
 
@@ -157,12 +209,25 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
                 isPulsing ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-background' : ''
               }`}
               aria-label="Voice Assistant"
+              onClick={() => {
+                if (voiceStatus !== 'ok') {
+                  handleCheckVoiceSystem();
+                }
+              }}
             >
-              <Volume2 
-                className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
-                  isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
-                }`} 
-              />
+              {voiceStatus !== 'ok' ? (
+                <AlertTriangle 
+                  className={`h-5 w-5 ${voiceStatus === 'error' ? 'text-red-500' : 'text-amber-500'} ${
+                    isPulsing ? 'animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+                  }`} 
+                />
+              ) : (
+                <Volume2 
+                  className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
+                    isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+                  }`} 
+                />
+              )}
               {settings.enabled && isSpeaking && (
                 <span className={`absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full animate-ping`}></span>
               )}
@@ -186,13 +251,31 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className, examGo
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    onClick={testVoice}
+                    onClick={() => {
+                      testVoice();
+                      if (voiceStatus !== 'ok') {
+                        handleCheckVoiceSystem();
+                      }
+                    }}
                     className="h-8 text-xs"
                   >
                     Test Voice
                   </Button>
                 </div>
               </div>
+              
+              {voiceStatus !== 'ok' && (
+                <div className={`text-xs p-2 rounded ${
+                  voiceStatus === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 
+                  'bg-amber-50 text-amber-800 border border-amber-200'
+                }`}>
+                  {voiceStatus === 'error' ? (
+                    <p>Voice system error detected. Your browser may not support speech synthesis or audio is blocked.</p>
+                  ) : (
+                    <p>Voice system needs initialization. Click "Test Voice" button above.</p>
+                  )}
+                </div>
+              )}
               
               <form onSubmit={handleSubmitQuery} className="flex gap-2">
                 <Input
