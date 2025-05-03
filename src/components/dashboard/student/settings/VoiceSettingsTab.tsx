@@ -1,18 +1,51 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { useVoiceAnnouncerContext } from '../voice/VoiceAnnouncer';
-import { Volume2, Volume, VolumeX, PlayCircle, Mic } from 'lucide-react';
+import { Volume2, Volume, VolumeX, PlayCircle, Mic, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { findBestIndianVoice, testVoiceSystem } from '../voice/voiceUtils';
 
 const VoiceSettingsTab = () => {
   const { settings, updateSettings, testVoice, stopSpeaking, isSpeaking, processQuery } = useVoiceAnnouncerContext();
-  const [testQuery, setTestQuery] = React.useState("");
+  const [testQuery, setTestQuery] = useState("");
+  const [voiceInfo, setVoiceInfo] = useState<string>("");
+  const [voiceStatus, setVoiceStatus] = useState<'loading' | 'success' | 'error' | null>(null);
   
+  // Get information about the current voice
+  useEffect(() => {
+    const checkVoice = async () => {
+      setVoiceStatus('loading');
+      
+      // Short delay to allow voices to load
+      setTimeout(async () => {
+        const bestVoice = findBestIndianVoice();
+        const voiceSystemWorking = await testVoiceSystem();
+        
+        if (!voiceSystemWorking) {
+          setVoiceInfo("Voice system may not be available in your browser.");
+          setVoiceStatus('error');
+          return;
+        }
+        
+        if (bestVoice) {
+          setVoiceInfo(`Using ${bestVoice.name} (${bestVoice.lang}) with Indian accent.`);
+          setVoiceStatus('success');
+        } else {
+          setVoiceInfo("Could not find ideal Indian voice. Using browser default.");
+          setVoiceStatus('error');
+        }
+      }, 1000);
+    };
+    
+    checkVoice();
+  }, []);
+
   const handleQuerySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!testQuery) return;
@@ -59,6 +92,13 @@ const VoiceSettingsTab = () => {
       <p className="text-muted-foreground">
         Customize how your energetic Indian female voice assistant works in the PREP-EH-ZER platform
       </p>
+      
+      {voiceStatus && (
+        <Alert variant={voiceStatus === 'error' ? 'destructive' : 'default'} className="mb-4">
+          <Info className="h-4 w-4 mr-2" />
+          <AlertDescription>{voiceInfo}</AlertDescription>
+        </Alert>
+      )}
       
       <Card>
         <CardHeader>
