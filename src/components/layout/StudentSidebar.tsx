@@ -53,7 +53,7 @@ export function StudentSidebar({
       path: "/dashboard/student/today",
     },
     {
-      name: "AI Tutor",
+      name: "24/7 AI Tutor",
       icon: MessageSquare,
       path: "/dashboard/student/tutor",
     },

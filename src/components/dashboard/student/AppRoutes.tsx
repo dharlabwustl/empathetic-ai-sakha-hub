@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -10,7 +9,6 @@ import ConceptCardDetailPage from '@/components/dashboard/student/concepts/Conce
 import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
 import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
-import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
@@ -23,6 +21,7 @@ import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStu
 import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
+import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -53,7 +52,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
       
       {/* Other routes */}
-      <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+      <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />
       <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
       <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
       <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
