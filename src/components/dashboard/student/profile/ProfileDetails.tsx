@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -13,10 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileType } from "@/types/user";
-import { CreditCard, User } from "lucide-react";
+import { CreditCard, User, Volume2 } from "lucide-react";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
 import ProfileImageUpload from "./ProfileImageUpload";
+import VoiceSettingsTab from "../settings/VoiceSettingsTab";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
@@ -29,8 +30,17 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState("personal");
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState<string | undefined>(userProfile.avatar);
+
+  // Check for voice tab in URL params
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('tab') === 'voice') {
+      setActiveTab('voice');
+    }
+  }, [location]);
 
   const handleUpgradeSubscription = () => {
     navigate("/dashboard/student/subscription");
@@ -102,7 +112,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
-      <TabsList className="grid grid-cols-2 w-full max-w-md">
+      <TabsList className="grid grid-cols-3 w-full max-w-md">
         <TabsTrigger value="personal" className="flex gap-2 items-center">
           <User className="h-4 w-4" />
           <span>Personal</span>
@@ -110,6 +120,10 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
         <TabsTrigger value="subscription" className="flex gap-2 items-center">
           <CreditCard className="h-4 w-4" />
           <span>Subscription</span>
+        </TabsTrigger>
+        <TabsTrigger value="voice" className="flex gap-2 items-center">
+          <Volume2 className="h-4 w-4" />
+          <span>Voice Control</span>
         </TabsTrigger>
       </TabsList>
 
@@ -122,6 +136,10 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
           userProfile={userProfile}
           onUpgrade={handleUpgradeSubscription}
         />
+      </TabsContent>
+      
+      <TabsContent value="voice" className="space-y-6">
+        <VoiceSettingsTab />
       </TabsContent>
     </Tabs>
   );
