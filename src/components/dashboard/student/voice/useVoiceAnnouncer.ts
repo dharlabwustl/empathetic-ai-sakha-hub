@@ -69,7 +69,7 @@ export const useVoiceAnnouncer = () => {
     }
     
     if (lowerQuery.includes("who are you") || lowerQuery.includes("what are you")) {
-      return "I am your AI voice assistant with a pleasant Indian accent. I'm here to help you with your studies, provide reminders, and motivate you to achieve your academic goals.";
+      return "I am your AI voice assistant with a pleasant Indian accent. I'm here to help you with your studies, provide reminders, and motivate you to achieve your academic goals with PREP-EH-ZER.";
     }
     
     if (lowerQuery.includes("how are you")) {
@@ -81,11 +81,11 @@ export const useVoiceAnnouncer = () => {
     }
     
     if (lowerQuery.includes("what is prepzr") || lowerQuery.includes("about prepzr") || lowerQuery.includes("tell me about prepzr")) {
-      return "Prep-Z-R is your complete preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests. With AI-powered learning tools, personalized study plans, and interactive content, Prep-Z-R makes your academic journey smoother and more effective.";
+      return "PREP-EH-ZER is your complete preparation platform designed to help students excel in competitive exams like JEE, NEET, and other entrance tests. With AI-powered learning tools, personalized study plans, and interactive content, PREP-EH-ZER makes your academic journey smoother and more effective.";
     }
     
     if (lowerQuery.includes("how to start") || lowerQuery.includes("getting started") || lowerQuery.includes("begin") || lowerQuery.includes("first time")) {
-      return "Welcome to Prep-Z-R! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
+      return "Welcome to PREP-EH-ZER! To get started, first take a moment to set your study goals in the profile section. Then explore the academic advisor to create a personalized study plan. Use the AI tutor whenever you have questions about concepts. Don't forget to track your mood so we can customize your experience. Would you like me to guide you to any specific feature?";
     }
     
     if (lowerQuery.includes("time") || lowerQuery.includes("what time")) {
@@ -120,6 +120,14 @@ export const useVoiceAnnouncer = () => {
       ];
       return jokes[Math.floor(Math.random() * jokes.length)];
     }
+
+    if (lowerQuery.includes("voice settings") || lowerQuery.includes("change voice")) {
+      return "To change voice settings, go to Profile and select the Voice Control tab. There you can adjust volume, speed, and other voice preferences.";
+    }
+
+    if (lowerQuery.includes("next task") || lowerQuery.includes("todo")) {
+      return "Your next scheduled task is a Physics revision session at 4 PM today. Would you like me to remind you when it's time?";
+    }
     
     // Default response
     return "I'm not sure how to help with that specific query. You can ask me about your schedule, for motivation, or for help with your studies.";
@@ -128,10 +136,10 @@ export const useVoiceAnnouncer = () => {
   // Get welcome message for first time or returning users
   const getWelcomeMessage = useCallback((isFirstTime: boolean, userName: string = "", loginCount: number = 0): string => {
     if (isFirstTime) {
-      return `Namaste and a warm welcome to Prep-Z-R, ${userName}! I am your personal voice assistant with a friendly Indian accent. Prep-Z-R is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more. To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
+      return `Namaste and a warm welcome to PREP-EH-ZER, ${userName}! I am your personal voice assistant with a friendly Indian accent. PREP-EH-ZER is your complete exam preparation platform that will help you ace competitive exams like JEE, NEET, and more. To get started, I recommend exploring the Academic Advisor to create your personalized study plan, checking out the AI Tutor for any doubts, and setting up your profile with your goals. Would you like me to guide you through any specific feature?`;
     } else {
       // For returning users
-      const welcomeBack = `Welcome back to Prep-Z-R, ${userName}! This is your ${getOrdinal(loginCount)} login.`;
+      const welcomeBack = `Welcome back to PREP-EH-ZER, ${userName}! This is your ${getOrdinal(loginCount)} login.`;
       
       // Suggestions based on login count
       if (loginCount < 5) {
@@ -167,7 +175,7 @@ export const useVoiceAnnouncer = () => {
   
   // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
-    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice. I'm here to make your learning journey with Prep-Z-R joyful and successful!", true);
+    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice. I'm here to make your learning journey with PREP-EH-ZER joyful and successful!", true);
   }, [speak]);
   
   // Stop any ongoing speech

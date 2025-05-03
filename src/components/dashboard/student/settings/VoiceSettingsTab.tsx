@@ -1,193 +1,207 @@
 
-import React, { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Volume2, VolumeX, Volume1, Play } from 'lucide-react';
 import { useVoiceAnnouncerContext } from '../voice/VoiceAnnouncer';
+import { Volume2, Volume, VolumeX, PlayCircle, Mic } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const VoiceSettingsTab = () => {
-  const { settings, updateSettings, testVoice, getAvailableVoices } = useVoiceAnnouncerContext();
-  const voices = getAvailableVoices();
+  const { settings, updateSettings, testVoice, stopSpeaking, isSpeaking, processQuery } = useVoiceAnnouncerContext();
+  const [testQuery, setTestQuery] = React.useState("");
   
-  // Filter voices to strictly prioritize female Indian voices first
-  const femaleIndianVoices = voices.filter(voice => 
-    voice.lang === 'en-IN' && 
-    voice.name.toLowerCase().includes('female')
-  );
-  
-  const otherIndianVoices = voices.filter(voice => 
-    voice.lang === 'en-IN' && 
-    !femaleIndianVoices.includes(voice)
-  );
-  
-  const hindiVoices = voices.filter(voice =>
-    voice.lang.startsWith('hi-') &&
-    !femaleIndianVoices.includes(voice) &&
-    !otherIndianVoices.includes(voice)
-  );
-  
-  const englishFemaleVoices = voices.filter(voice => 
-    voice.lang.startsWith('en') && 
-    voice.name.toLowerCase().includes('female') &&
-    !femaleIndianVoices.includes(voice) &&
-    !otherIndianVoices.includes(voice)
-  );
-  
-  // Combine them with strict priority order
-  const prioritizedVoices = [
-    ...femaleIndianVoices, 
-    ...otherIndianVoices, 
-    ...hindiVoices,
-    ...englishFemaleVoices
-  ];
-  
-  // Force test voice on first load to ensure voice is loaded
-  useEffect(() => {
-    // Small delay to allow voices to load
-    const timer = setTimeout(() => {
-      if (settings.enabled) {
-        testVoice();
-      }
-    }, 1000);
+  const handleQuerySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testQuery) return;
     
-    return () => clearTimeout(timer);
-  }, []);
+    const response = processQuery(testQuery);
+    console.log("Query:", testQuery);
+    console.log("Response:", response);
+    
+    // Speak the response
+    updateSettings({ enabled: true }); // Temporarily enable if disabled
+    stopSpeaking();
+    setTimeout(() => {
+      const element = document.getElementById("voice-response");
+      if (element) {
+        element.textContent = response;
+      }
+      testVoice(); // First test the voice
+      setTimeout(() => {
+        const announcer = useVoiceAnnouncerContext();
+        announcer.speak(response, true);
+      }, 500);
+    }, 100);
+    
+    setTestQuery("");
+  };
+  
+  const handleVolumeChange = (value: number[]) => {
+    updateSettings({ volume: value[0] });
+  };
+  
+  const handleSpeedChange = (value: number[]) => {
+    updateSettings({ speed: value[0] });
+  };
+  
+  const getVolumeIcon = () => {
+    if (settings.volume === 0) return <VolumeX className="h-4 w-4" />;
+    if (settings.volume < 0.5) return <Volume className="h-4 w-4" />;
+    return <Volume2 className="h-4 w-4" />;
+  };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Voice Announcer Settings</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Enable/disable voice */}
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-base">Enable Voice Announcements</Label>
-            <p className="text-sm text-muted-foreground">
-              Turn voice announcements on or off
-            </p>
-          </div>
-          <Switch 
-            checked={settings.enabled} 
-            onCheckedChange={(checked) => updateSettings({ enabled: checked })} 
-          />
-        </div>
-        
-        {/* Voice selection */}
-        <div className="space-y-2">
-          <Label htmlFor="voice-selection">Voice Selection</Label>
-          <Select 
-            value={settings.voice} 
-            onValueChange={(value) => updateSettings({ voice: value })}
-            disabled={!settings.enabled}
-          >
-            <SelectTrigger id="voice-selection" className="w-full">
-              <SelectValue placeholder="Select voice" />
-            </SelectTrigger>
-            <SelectContent>
-              {prioritizedVoices.length > 0 ? (
-                prioritizedVoices.map((voice) => (
-                  <SelectItem key={`${voice.name}-${voice.lang}`} value={voice.lang}>
-                    {voice.name} ({voice.lang})
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem value="en-IN">English (India)</SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {/* Volume control */}
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <Label htmlFor="volume-slider">Volume</Label>
-            <span className="text-muted-foreground">{Math.round(settings.volume * 100)}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <VolumeX className="h-4 w-4 text-muted-foreground" />
-            <Slider
-              id="volume-slider"
-              defaultValue={[settings.volume]} 
-              max={1}
-              step={0.05}
-              disabled={!settings.enabled}
-              onValueChange={([value]) => updateSettings({ volume: value })}
-              className="flex-1"
-            />
-            <Volume2 className="h-4 w-4 text-muted-foreground" />
-          </div>
-        </div>
-        
-        {/* Speed control */}
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <Label htmlFor="speed-slider">Speed</Label>
-            <span className="text-muted-foreground">{settings.speed.toFixed(1)}x</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Volume1 className="h-4 w-4 text-muted-foreground" />
-            <Slider
-              id="speed-slider"
-              defaultValue={[settings.speed]} 
-              min={0.5}
-              max={2}
-              step={0.1}
-              disabled={!settings.enabled}
-              onValueChange={([value]) => updateSettings({ speed: value })}
-              className="flex-1"
-            />
-            <Play className="h-4 w-4 text-muted-foreground" />
-          </div>
-        </div>
-        
-        {/* Announcement type toggles */}
-        <div className="space-y-4">
-          <h3 className="font-medium">Announcement Types</h3>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="greetings-switch">Greetings</Label>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Voice Settings</h2>
+      <p className="text-muted-foreground">
+        Customize how the voice announcer works in the PREP-EH-ZER platform
+      </p>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Voice Announcer</span>
             <Switch 
-              id="greetings-switch"
-              checked={settings.announceGreetings} 
-              disabled={!settings.enabled}
-              onCheckedChange={(checked) => updateSettings({ announceGreetings: checked })} 
+              checked={settings.enabled} 
+              onCheckedChange={(checked) => updateSettings({ enabled: checked })}
+              aria-label="Toggle voice announcer"
             />
+          </CardTitle>
+          <CardDescription>
+            Enable or disable the voice announcer throughout the app
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="voice-volume">Volume</Label>
+                <span className="text-sm text-muted-foreground">{Math.round(settings.volume * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {getVolumeIcon()}
+                <Slider 
+                  id="voice-volume"
+                  min={0} 
+                  max={1} 
+                  step={0.05} 
+                  value={[settings.volume]} 
+                  onValueChange={handleVolumeChange} 
+                  className="flex-1"
+                  disabled={!settings.enabled}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="voice-speed">Speaking Speed</Label>
+                <span className="text-sm text-muted-foreground">×{settings.speed.toFixed(1)}</span>
+              </div>
+              <Slider 
+                id="voice-speed"
+                min={0.5} 
+                max={2} 
+                step={0.1} 
+                value={[settings.speed]} 
+                onValueChange={handleSpeedChange} 
+                className="flex-1"
+                disabled={!settings.enabled}
+              />
+            </div>
+            
+            <div className="pt-2">
+              <Button 
+                onClick={testVoice} 
+                variant="outline" 
+                className="w-full"
+                disabled={!settings.enabled || isSpeaking}
+              >
+                <PlayCircle className="h-4 w-4 mr-2" /> 
+                Test Voice
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="tasks-switch">Daily Tasks</Label>
-            <Switch 
-              id="tasks-switch"
-              checked={settings.announceTasks} 
-              disabled={!settings.enabled}
-              onCheckedChange={(checked) => updateSettings({ announceTasks: checked })} 
-            />
+          
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium mb-2">Announcement Settings</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="announce-greetings" className="text-sm">Greetings & Welcomes</Label>
+                <Switch 
+                  id="announce-greetings"
+                  checked={settings.announceGreetings} 
+                  onCheckedChange={(checked) => updateSettings({ announceGreetings: checked })}
+                  disabled={!settings.enabled}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="announce-reminders" className="text-sm">Tasks & Reminders</Label>
+                <Switch 
+                  id="announce-reminders"
+                  checked={settings.announceReminders} 
+                  onCheckedChange={(checked) => updateSettings({ announceReminders: checked })}
+                  disabled={!settings.enabled}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="announce-tasks" className="text-sm">Task Completions</Label>
+                <Switch 
+                  id="announce-tasks"
+                  checked={settings.announceTasks} 
+                  onCheckedChange={(checked) => updateSettings({ announceTasks: checked })}
+                  disabled={!settings.enabled}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="reminders-switch">Reminders</Label>
-            <Switch 
-              id="reminders-switch"
-              checked={settings.announceReminders} 
-              disabled={!settings.enabled}
-              onCheckedChange={(checked) => updateSettings({ announceReminders: checked })} 
-            />
-          </div>
-        </div>
-        
-        {/* Test voice button */}
-        <Button 
-          onClick={testVoice} 
-          disabled={!settings.enabled}
-          className="w-full"
-        >
-          <Play className="mr-2 h-4 w-4" />
-          Test Voice
-        </Button>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Test Voice Assistant</CardTitle>
+          <CardDescription>
+            Ask a question to test the voice assistant
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleQuerySubmit} className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ask me anything..."
+                value={testQuery}
+                onChange={(e) => setTestQuery(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={!testQuery.trim() || isSpeaking}>
+                <Mic className="h-4 w-4 mr-2" />
+                Ask
+              </Button>
+            </div>
+            
+            <div className="p-3 bg-muted/50 rounded-md min-h-[60px]">
+              <p className="text-sm text-muted-foreground" id="voice-response">
+                Response will appear here
+              </p>
+            </div>
+            
+            <div className="text-xs text-muted-foreground">
+              <p>Try asking:</p>
+              <ul className="list-disc pl-4 space-y-1 mt-1">
+                <li>"What is PREPZR?"</li>
+                <li>"Tell me a joke"</li>
+                <li>"Motivate me"</li>
+                <li>"What can you do?"</li>
+              </ul>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

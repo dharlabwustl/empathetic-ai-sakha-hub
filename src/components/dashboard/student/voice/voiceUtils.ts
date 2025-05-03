@@ -118,9 +118,9 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
 
 // Improve pronunciation of specific words
 const improvePronunciation = (text: string): string => {
-  // Replace "PREPZR" with a phonetic spelling that sounds better ("prepejer")
+  // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-eh-zer")
   // This more precisely matches the requested pronunciation from the user
-  return text.replace(/PREPZR|Prepzr|prepzr/g, 'prep-eh-jer');
+  return text.replace(/PREPZR|Prepzr|prepzr/g, 'prep-eh-zer');
 };
 
 // Function to speak a message with current settings

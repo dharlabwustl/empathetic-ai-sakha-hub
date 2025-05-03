@@ -39,6 +39,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
     const searchParams = new URLSearchParams(location.search);
     const tab = searchParams.get('tab');
     if (tab === 'voice') {
+      console.log("Setting active tab to voice from URL parameter");
       setActiveTab('voice');
     }
   }, [location]);
@@ -58,6 +59,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   };
 
   const handleTabChange = (value: string) => {
+    console.log("Tab changed to:", value);
     setActiveTab(value);
     
     // Update URL when tab changes

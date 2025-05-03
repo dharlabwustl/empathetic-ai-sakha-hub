@@ -1,16 +1,35 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
 
-interface TopNavigationControlsProps {
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { 
+  MenuIcon, 
+  Bell, 
+  Settings, 
+  Search, 
+  HelpCircle, 
+  Calendar as CalendarIcon 
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import TimeAndDateDisplay from "./TimeAndDateDisplay";
+import VoiceQueryControl from "./voice/VoiceQueryControl";
+
+interface NavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour?: () => void;
+  onOpenTour: () => void;
 }
 
-const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
+const TopNavigationControls: React.FC<NavigationControlsProps> = ({
   hideSidebar,
   onToggleSidebar,
   formattedDate,
@@ -18,7 +37,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   onOpenTour
 }) => {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex justify-between items-center mb-6">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -26,39 +45,64 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           className="md:hidden"
           onClick={onToggleSidebar}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
+          <MenuIcon className="h-5 w-5" />
         </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+        
+        <div className="relative max-w-md w-full hidden md:flex">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Input 
+            placeholder="Search..." 
+            className="pl-9 bg-background/50 border-gray-200 focus-visible:ring-primary/20" 
+          />
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onOpenTour}
-          className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+      <TimeAndDateDisplay 
+        formattedTime={formattedTime} 
+        formattedDate={formattedDate} 
+      />
+      
+      <div className="flex items-center gap-1">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="relative"
+          asChild
         >
-          <HelpCircle className="h-4 w-4" />
-          Tour Guide
+          <Link to="/dashboard/student/calendar">
+            <CalendarIcon className="h-5 w-5" />
+          </Link>
+        </Button>
+        
+        <VoiceQueryControl />
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="relative"
+            >
+              <Bell className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs">3</Badge>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <div className="p-2 font-medium border-b">Notifications</div>
+            <div className="py-2 px-3 text-sm text-muted-foreground">
+              New messages and updates will appear here
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        <Button variant="ghost" size="icon" onClick={onOpenTour}>
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+        
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/dashboard/student/profile?tab=voice">
+            <Settings className="h-5 w-5" />
+          </Link>
         </Button>
       </div>
     </div>
