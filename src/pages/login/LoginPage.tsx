@@ -1,18 +1,18 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/auth/AuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,6 +20,22 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/welcome-back');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Check for saved email on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("prepzr_remembered_email");
+    if (savedEmail) {
+      setFormData(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,11 +85,11 @@ const LoginPage = () => {
               lastLogin: new Date().toISOString()
             }));
             
-            // Navigate to dashboard
-            navigate("/dashboard/student");
+            // Navigate to welcome-back screen
+            navigate("/welcome-back");
           } catch (error) {
             console.error("Error parsing user data:", error);
-            navigate("/dashboard/student");
+            navigate("/welcome-back");
           }
         } else {
           // If no user data exists, create it
@@ -85,7 +101,7 @@ const LoginPage = () => {
             mood: 'Motivated'
           };
           localStorage.setItem("userData", JSON.stringify(newUserData));
-          navigate("/dashboard/student");
+          navigate("/welcome-back");
         }
       } else {
         toast({

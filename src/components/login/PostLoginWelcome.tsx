@@ -7,19 +7,23 @@ import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, Boo
 import { motion } from "framer-motion";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth/AuthContext";
 
 interface PendingTask {
   id: string;
   title: string;
   path: string;
   iconType: "quiz" | "flashcard" | "concept" | "practice" | "other";
+  priority: "high" | "medium" | "low";
+  dueDate?: string;
 }
 
 const PostLoginWelcome = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  const [userName, setUserName] = useState<string>('Student');
+  const [userName, setUserName] = useState<string>(user?.name || 'Student');
   const [lastActivity, setLastActivity] = useState<string | null>(null);
   const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
   const [lastLoginDate, setLastLoginDate] = useState<string>('recently');
@@ -59,27 +63,55 @@ const PostLoginWelcome = () => {
           }
         }
         
-        // Generate mock pending tasks
-        setPendingTasks([
-          {
-            id: '1',
-            title: 'Complete Physics Quiz on Mechanics',
-            path: '/dashboard/student/practice-exam',
-            iconType: 'quiz'
-          },
-          {
-            id: '2',
-            title: 'Review Biology Flashcards',
-            path: '/dashboard/student/flashcards',
-            iconType: 'flashcard'
-          },
-          {
-            id: '3',
-            title: 'Study Chemistry Concepts',
-            path: '/dashboard/student/concepts',
-            iconType: 'concept'
-          }
-        ]);
+        // Generate pending tasks based on user profile
+        // In a real app, these would come from the API based on the user's study plan
+        const generatedTasks: PendingTask[] = [];
+        
+        // Add tasks based on subjects in study plan if available
+        if (parsedData.studyPlan && parsedData.studyPlan.subjects) {
+          parsedData.studyPlan.subjects.forEach((subject: any, index: number) => {
+            if (!subject.completed && index < 3) {
+              generatedTasks.push({
+                id: `subject-${subject.id || index}`,
+                title: `Complete ${subject.name} assessment`,
+                path: '/dashboard/student/practice-exam',
+                iconType: 'quiz',
+                priority: 'high'
+              });
+            }
+          });
+        }
+        
+        // Add some default tasks if no specific ones were added
+        if (generatedTasks.length === 0) {
+          generatedTasks.push(
+            {
+              id: '1',
+              title: 'Complete Physics Quiz on Mechanics',
+              path: '/dashboard/student/practice-exam',
+              iconType: 'quiz',
+              priority: 'high',
+              dueDate: 'Today'
+            },
+            {
+              id: '2',
+              title: 'Review Biology Flashcards',
+              path: '/dashboard/student/flashcards',
+              iconType: 'flashcard',
+              priority: 'medium',
+              dueDate: 'Tomorrow'
+            },
+            {
+              id: '3',
+              title: 'Study Chemistry Concepts',
+              path: '/dashboard/student/concepts',
+              iconType: 'concept',
+              priority: 'medium'
+            }
+          );
+        }
+        
+        setPendingTasks(generatedTasks);
         
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -90,17 +122,17 @@ const PostLoginWelcome = () => {
       return;
     }
     
-    // Auto-redirect after 5 seconds if no action taken
+    // Auto-redirect after 15 seconds if no action taken
     const timer = setTimeout(() => {
       navigate('/dashboard/student/today');
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to Today's Plan.",
       });
-    }, 5000);
+    }, 15000);
     
     return () => clearTimeout(timer);
-  }, [navigate, toast]);
+  }, [navigate, toast, user?.name]);
 
   const getIconForTask = (type: string) => {
     switch (type) {
@@ -117,6 +149,19 @@ const PostLoginWelcome = () => {
     }
   };
 
+  const getPriorityClass = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-600 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800';
+      case 'medium':
+        return 'text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800';
+      case 'low':
+        return 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800';
+      default:
+        return 'text-blue-600 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800';
+    }
+  };
+
   const goToTodaysPlan = () => {
     navigate("/dashboard/student/today");
     toast({
@@ -126,7 +171,7 @@ const PostLoginWelcome = () => {
   };
 
   const goToDashboard = () => {
-    navigate("/dashboard/student/overview");
+    navigate("/dashboard/student");
     toast({
       title: "Welcome Back",
       description: "Your dashboard is ready for today's learning activities."
@@ -147,7 +192,7 @@ const PostLoginWelcome = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full"
+        className="max-w-lg w-full"
       >
         <div className="text-center mb-8">
           <PrepzrLogo width={120} height="auto" className="mx-auto" />
@@ -180,24 +225,39 @@ const PostLoginWelcome = () => {
               <ArrowRight className="h-4 w-4" />
             </Button>
             
-            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-2 pb-1">
-              Pending Activities:
-            </div>
-            
-            {pendingTasks.map((task) => (
-              <Button 
-                key={task.id}
-                variant="outline" 
-                className="w-full justify-start gap-3 border-blue-200 dark:border-blue-900 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                onClick={() => navigateToTask(task)}
-              >
-                {getIconForTask(task.iconType)}
-                <span className="flex-1 text-left truncate">
-                  {task.title}
-                </span>
-                <ArrowRight className="h-4 w-4 flex-shrink-0" />
-              </Button>
-            ))}
+            {pendingTasks.length > 0 && (
+              <>
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-2 pb-1">
+                  Pending Activities:
+                </div>
+                
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {pendingTasks.map((task) => (
+                    <Button 
+                      key={task.id}
+                      variant="outline" 
+                      className={`w-full justify-start gap-3 border hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 ${
+                        task.priority ? getPriorityClass(task.priority) : ''
+                      }`}
+                      onClick={() => navigateToTask(task)}
+                    >
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {getIconForTask(task.iconType)}
+                        {task.dueDate && (
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-gray-800/80">
+                            {task.dueDate}
+                          </span>
+                        )}
+                      </div>
+                      <span className="flex-1 text-left truncate">
+                        {task.title}
+                      </span>
+                      <ArrowRight className="h-4 w-4 flex-shrink-0" />
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
             
             <Button 
               variant="outline" 
