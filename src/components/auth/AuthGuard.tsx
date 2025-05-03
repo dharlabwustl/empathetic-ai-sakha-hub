@@ -23,15 +23,26 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
 
   useEffect(() => {
     const verifyAuth = async () => {
-      // Check for stored user data
-      const userData = localStorage.getItem('userData');
-      
-      // After checking auth state, we can stop showing the loading screen
-      setIsVerifying(false);
+      try {
+        // Check for stored token data in local storage
+        const token = localStorage.getItem('sakha_auth_token');
+        const userData = localStorage.getItem('userData');
+        
+        console.log("AuthGuard verification:", { 
+          isAuthenticated, 
+          hasToken: !!token, 
+          hasUserData: !!userData 
+        });
+      } catch (error) {
+        console.error("Auth verification error:", error);
+      } finally {
+        // After checking auth state, stop showing the loading screen
+        setIsVerifying(false);
+      }
     };
     
     verifyAuth();
-  }, []);
+  }, [isAuthenticated]);
 
   // Show loading screen while checking auth status
   if (loading || isVerifying) {
@@ -54,22 +65,26 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
     // Get user data to check onboarding status
     const userData = localStorage.getItem('userData');
     if (userData) {
-      const parsedData = JSON.parse(userData);
-      
-      // If onboarding isn't complete and we're not already on a welcome route
-      const completedOnboarding = parsedData.completedOnboarding === true;
-      const isNewUser = parsedData.isNewUser === true;
-      const sawWelcomeTour = parsedData.sawWelcomeTour === true;
-      
-      // Only redirect if we're not already on onboarding related routes
-      const isOnWelcomePage = location.pathname.includes('welcome') || 
-                             location.pathname.includes('post-signup') || 
-                             location.pathname.includes('welcome-flow');
-      
-      if ((isNewUser || !completedOnboarding || !sawWelcomeTour) && 
-          !isOnWelcomePage && 
-          !location.pathname.includes('welcome-back')) {
-        return <Navigate to="/welcome-back" replace />;
+      try {
+        const parsedData = JSON.parse(userData);
+        
+        // If onboarding isn't complete and we're not already on a welcome route
+        const completedOnboarding = parsedData.completedOnboarding === true;
+        const isNewUser = parsedData.isNewUser === true;
+        const sawWelcomeTour = parsedData.sawWelcomeTour === true;
+        
+        // Only redirect if we're not already on onboarding related routes
+        const isOnWelcomePage = location.pathname.includes('welcome') || 
+                               location.pathname.includes('post-signup') || 
+                               location.pathname.includes('welcome-flow');
+        
+        if ((isNewUser || !completedOnboarding || !sawWelcomeTour) && 
+            !isOnWelcomePage && 
+            !location.pathname.includes('welcome-back')) {
+          return <Navigate to="/welcome-back" replace />;
+        }
+      } catch (error) {
+        console.error("Error parsing user data in AuthGuard:", error);
       }
     }
   }

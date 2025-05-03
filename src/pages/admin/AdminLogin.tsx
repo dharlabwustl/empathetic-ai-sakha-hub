@@ -21,9 +21,24 @@ const AdminLogin = () => {
 
   // Check if admin is already logged in
   useEffect(() => {
-    if (isAdminAuthenticated) {
-      navigate("/admin/dashboard");
-    }
+    const checkAdminAuth = async () => {
+      // Check local storage for admin token
+      const adminToken = localStorage.getItem('adminToken');
+      const adminData = localStorage.getItem('adminData');
+      
+      console.log("Checking admin auth:", { 
+        isAdminAuthenticated, 
+        hasToken: !!adminToken,
+        hasData: !!adminData
+      });
+      
+      if (isAdminAuthenticated || (adminToken && adminData)) {
+        console.log("Admin already authenticated, redirecting to admin dashboard");
+        navigate("/admin/dashboard", { replace: true });
+      }
+    };
+    
+    checkAdminAuth();
   }, [isAdminAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,16 +59,31 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
+      console.log("Attempting admin login with:", credentials.email);
       const success = await adminLogin(credentials.email, credentials.password);
       
       if (success) {
-        navigate("/admin/dashboard");
+        toast({
+          title: "Admin login successful",
+          description: "Welcome to the admin dashboard"
+        });
+        navigate("/admin/dashboard", { replace: true });
       } else {
         setLoginError("Invalid admin credentials");
+        toast({
+          title: "Login Failed",
+          description: "Invalid admin credentials. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error("Admin login error:", error);
       setLoginError("An unexpected error occurred. Please try again later.");
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }

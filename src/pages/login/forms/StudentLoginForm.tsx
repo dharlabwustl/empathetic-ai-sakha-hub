@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/auth/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,7 +15,7 @@ interface StudentLoginFormProps {
 
 const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +29,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       setCredentials(prev => ({ ...prev, email: savedEmail }));
       setRememberMe(true);
     }
-  }, []);
+    
+    // If already authenticated, redirect to dashboard
+    if (isAuthenticated) {
+      navigate("/dashboard/student/today");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,12 +63,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     setLoginError(null);
     
     try {
-      // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.email);
       
-      const user = await login(credentials.email, credentials.password);
+      const success = await login(credentials.email, credentials.password);
       
-      if (user) {
+      if (success) {
         // Handle remember me functionality
         if (rememberMe) {
           localStorage.setItem("prepzr_remembered_email", credentials.email);
@@ -102,15 +105,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               sawWelcomeTour
             }));
             
-            // Check if user has completed onboarding
-            const completedOnboarding = parsedData.completedOnboarding === true;
-            const seenTour = parsedData.sawWelcomeTour === true;
-            
-            // If they haven't completed onboarding or seen the welcome tour, send to welcome-back
-            if (!completedOnboarding || !seenTour) {
+            // Navigate to welcome-back for users who need onboarding
+            // Otherwise go directly to the dashboard
+            if (!parsedData.completedOnboarding || !parsedData.sawWelcomeTour) {
               navigate("/welcome-back");
             } else {
-              // Regular users go directly to the dashboard
               navigate("/dashboard/student/today");
             }
             

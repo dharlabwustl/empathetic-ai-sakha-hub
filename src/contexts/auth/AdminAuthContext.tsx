@@ -33,6 +33,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [adminLoading, setAdminLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Check for existing admin user in localStorage on component mount
   useEffect(() => {
@@ -41,11 +42,14 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       
       // Check if admin data exists in localStorage
       const adminData = localStorage.getItem('adminData');
-      if (adminData) {
+      const adminToken = localStorage.getItem('adminToken');
+      
+      if (adminData && adminToken) {
         try {
           const parsedData = JSON.parse(adminData);
           if (parsedData.email && parsedData.role === 'admin') {
             // Admin is already logged in
+            console.log("Found existing admin user:", parsedData.email);
             setAdminUser({
               id: parsedData.id || 'admin_1',
               name: parsedData.name || 'Admin User',
@@ -56,6 +60,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
+          // Clear potentially corrupted data
+          localStorage.removeItem('adminData');
+          localStorage.removeItem('adminToken');
         }
       }
       
@@ -83,6 +90,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             permissions: ['all']
           };
           
+          // Generate a mock token
+          const token = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+          
           // Save admin data to localStorage
           localStorage.setItem('adminData', JSON.stringify({
             id: newAdminUser.id,
@@ -92,6 +102,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             permissions: newAdminUser.permissions,
             lastLogin: new Date().toISOString()
           }));
+          
+          // Save token
+          localStorage.setItem('adminToken', token);
           
           setAdminUser(newAdminUser);
           setAdminLoading(false);
@@ -120,12 +133,16 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   // Admin Logout function
   const adminLogout = () => {
     localStorage.removeItem('adminData');
+    localStorage.removeItem('adminToken');
     setAdminUser(null);
     
     toast({
       title: "Admin Logged Out",
       description: "You've been successfully logged out of the admin panel."
     });
+    
+    // Navigate to the admin login page after logout
+    navigate('/admin/login');
   };
   
   // Permission check function
