@@ -42,6 +42,12 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         }
       }
       
+      // Check for saved language preference
+      const savedLanguage = localStorage.getItem('voiceAssistantLanguage');
+      if (savedLanguage) {
+        setVoiceSettings(prev => ({ ...prev, language: savedLanguage }));
+      }
+      
       // Initialize voice
       const initializeVoice = () => {
         const voices = window.speechSynthesis.getVoices();
@@ -138,6 +144,10 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setVoiceSettings(prev => {
       const updated = { ...prev, ...newSettings };
+      // Save language preference separately for VoiceAnnouncer component
+      if (newSettings.language) {
+        localStorage.setItem('voiceAssistantLanguage', newSettings.language);
+      }
       return updated;
     });
   }, []);
@@ -170,25 +180,25 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     }
   }, [voiceSettings]);
   
-  // Test voice function
+  // Test voice function with language support
   const testVoice = useCallback(() => {
     // Use language-specific test messages
-    let testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant.`;
+    let testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-एज़र वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
   }, [userName, speakMessage, voiceSettings.language]);
   
-  // Initialize speech recognition
+  // Initialize speech recognition with language support
   const initializeSpeechRecognition = useCallback(() => {
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
       console.error('Speech recognition not supported by this browser');
@@ -224,7 +234,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     }
   }, [voiceSettings.language]);
   
-  // Start listening
+  // Start listening with current language
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       initializeSpeechRecognition();

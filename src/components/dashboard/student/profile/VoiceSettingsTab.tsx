@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DEFAULT_VOICE_SETTINGS, VoiceSettings } from '@/components/dashboard/student/voice/voiceUtils';
+import { DEFAULT_VOICE_SETTINGS, VoiceSettings, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 
 const VoiceSettingsTab = () => {
@@ -14,10 +14,12 @@ const VoiceSettingsTab = () => {
     voiceSettings,
     updateVoiceSettings,
     testVoice,
-    isVoiceSupported
+    isVoiceSupported,
+    supportedLanguages
   } = useVoiceAnnouncer();
   
   const [localSettings, setLocalSettings] = useState<VoiceSettings>(voiceSettings);
+  const [testingSample, setTestingSample] = useState(false);
   
   // Handle changes and save
   const handleChange = <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
@@ -30,7 +32,15 @@ const VoiceSettingsTab = () => {
   
   // Handle test voice button click
   const handleTestVoice = () => {
+    setTestingSample(true);
     testVoice();
+    setTimeout(() => setTestingSample(false), 3000);
+  };
+
+  // Get language name from code
+  const getLanguageName = (code: string) => {
+    const language = LANGUAGE_OPTIONS.find(lang => lang.value === code);
+    return language ? language.label : code;
   };
   
   if (!isVoiceSupported) {
@@ -88,16 +98,24 @@ const VoiceSettingsTab = () => {
             <Label htmlFor="voice-language">Language</Label>
             <Select 
               value={localSettings.language} 
-              onValueChange={(value) => handleChange('language', value as 'en-IN' | 'hi-IN')}
+              onValueChange={(value) => handleChange('language', value as SupportedLanguage)}
             >
               <SelectTrigger id="voice-language">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en-IN">English (Indian)</SelectItem>
-                <SelectItem value="hi-IN">Hindi</SelectItem>
+                {LANGUAGE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {localSettings.language === 'hi-IN' && (
+              <p className="text-xs text-muted-foreground mt-1">
+                हिंदी भाषा चुनी गई है। आवाज़ सहायक अब हिंदी में बात करेगा।
+              </p>
+            )}
           </div>
           
           {/* Volume Control */}
@@ -176,10 +194,31 @@ const VoiceSettingsTab = () => {
             </div>
           </div>
           
+          {/* Current settings summary */}
+          <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md text-sm">
+            <p>Current voice: <strong>{getLanguageName(localSettings.language)}</strong></p>
+            <p>Volume: <strong>{Math.round(localSettings.volume * 100)}%</strong></p>
+            <p>Speech rate: <strong>{localSettings.rate.toFixed(1)}x</strong></p>
+            <p>Pitch: <strong>{localSettings.pitch.toFixed(1)}</strong></p>
+          </div>
+          
           {/* Test Voice Button */}
-          <Button onClick={handleTestVoice} className="w-full">
-            Test Voice
+          <Button 
+            onClick={handleTestVoice} 
+            className="w-full"
+            disabled={testingSample}
+          >
+            {testingSample ? "Playing voice sample..." : "Test Voice"}
           </Button>
+          
+          {/* Language-specific note */}
+          {localSettings.language === 'hi-IN' && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm">
+              <p className="font-medium mb-1">हिंदी भाषा टिप्पणी:</p>
+              <p>हिंदी भाषा सहायता आपके ब्राउज़र पर निर्भर करती है। अगर आपको हिंदी आवाज़ नहीं सुनाई देती, तो कृपया अपने ब्राउज़र को अपडेट करें।</p>
+              <p className="mt-2 text-xs text-muted-foreground">(Note: Hindi language support depends on your browser. If you don't hear Hindi voice, please update your browser.)</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

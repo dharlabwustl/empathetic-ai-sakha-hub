@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle, Loader2 } from 'lucide-react';
+import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle, Loader2, Globe } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { 
   speakMessage, 
@@ -51,6 +50,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   const [transcript, setTranscript] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [language, setLanguage] = useState<string>('en-IN'); // Default to Indian English
   
   const navigate = useNavigate();
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -70,6 +70,14 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       return () => clearTimeout(timer);
     }
   }, [isFirstTimeUser]);
+
+  // Load saved language preference if available
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('voiceAssistantLanguage');
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
 
   // Set up voice announcement on first load
   useEffect(() => {
@@ -94,13 +102,13 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         if (greeting !== lastAnnouncementRef.current) {
           // Check if this message was already spoken recently
           if (!messageHistory.includes(greeting)) {
-            // Set up happy, energetic voice settings
+            // Set up enhanced voice settings with current language
             const enhancedSettings = { 
               ...DEFAULT_VOICE_SETTINGS,
               muted,
               pitch: 1.1, // Higher pitch for female voice
               rate: 0.95, // Slightly faster for energetic delivery
-              language: 'en-IN'
+              language // Use the current language state
             };
             
             speakMessage(greeting, enhancedSettings);
@@ -141,7 +149,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         recognitionRef.current.abort();
       }
     };
-  }, [userName, mood, isFirstTimeUser, muted, messageHistory]);
+  }, [userName, mood, isFirstTimeUser, muted, messageHistory, language]); // Added language dependency
 
   // Initialize speech recognition
   const initializeSpeechRecognition = () => {
@@ -156,7 +164,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       recognitionRef.current = new SpeechRecognitionAPI();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-IN'; // Use Indian English
+      recognitionRef.current.lang = language; // Use current language state
       
       recognitionRef.current.onresult = (event) => {
         const result = event.results[0][0].transcript;
@@ -185,7 +193,8 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             ...DEFAULT_VOICE_SETTINGS, 
             muted: false,
             pitch: 1.1,
-            rate: 0.95
+            rate: 0.95,
+            language // Use current language
           });
           setProcessing(false);
           return;
@@ -196,10 +205,23 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             ...DEFAULT_VOICE_SETTINGS, 
             muted: false,
             pitch: 1.1,
-            rate: 0.95 
+            rate: 0.95,
+            language // Use current language
           });
           setProcessing(false);
           return;
+        }
+        
+        // If response is in Hindi and currently in English or vice versa, update language
+        if (response.match(/[\u0900-\u097F]/) && language !== 'hi-IN') {
+          // Contains Hindi Unicode characters
+          setLanguage('hi-IN');
+          localStorage.setItem('voiceAssistantLanguage', 'hi-IN');
+        } else if (!response.match(/[\u0900-\u097F]/) && language === 'hi-IN' && 
+                  (lowerQuery.includes('speak english') || lowerQuery.includes('in english'))) {
+          // User requested English
+          setLanguage('en-IN');
+          localStorage.setItem('voiceAssistantLanguage', 'en-IN');
         }
         
         // Add short delay to simulate processing
@@ -210,7 +232,8 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
               ...DEFAULT_VOICE_SETTINGS,
               muted,
               pitch: 1.1, // Higher pitch for female voice
-              rate: 0.95, // Slightly faster for energetic delivery  
+              rate: 0.95, // Slightly faster for energetic delivery
+              language // Use current language
             };
             
             speakMessage(response, enhancedSettings);
@@ -289,6 +312,35 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     }
   };
 
+  // Add a function to change language
+  const changeLanguage = (newLanguage: string) => {
+    setLanguage(newLanguage);
+    localStorage.setItem('voiceAssistantLanguage', newLanguage);
+    
+    // Update speech recognition language if active
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = newLanguage;
+    }
+    
+    // Provide feedback in the new language
+    let feedback = '';
+    if (newLanguage === 'hi-IN') {
+      feedback = "मैं अब हिंदी में बात करूंगा।";
+    } else {
+      feedback = "I'll now speak in English.";
+    }
+    
+    if (!muted) {
+      speakMessage(feedback, { 
+        ...DEFAULT_VOICE_SETTINGS, 
+        muted: false,
+        pitch: 1.1,
+        rate: 0.95,
+        language: newLanguage
+      });
+    }
+  };
+
   // Close onboarding dialog
   const closeOnboarding = () => {
     setShowOnboarding(false);
@@ -301,6 +353,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   return (
     <TooltipProvider>
       <div className="flex items-center gap-1 relative">
+        {/* Voice control buttons */}
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <motion.div
@@ -327,6 +380,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </TooltipContent>
         </Tooltip>
         
+        {/* Microphone button */}
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <Button
@@ -353,6 +407,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </TooltipContent>
         </Tooltip>
         
+        {/* Subtitles toggle */}
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <Button
@@ -370,6 +425,25 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </TooltipContent>
         </Tooltip>
         
+        {/* Language selector */}
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              className={`h-8 w-8 p-0 ${language === 'hi-IN' ? 'text-primary' : ''}`}
+              onClick={() => changeLanguage(language === 'hi-IN' ? 'en-IN' : 'hi-IN')}
+              aria-label={language === 'hi-IN' ? "Switch to English" : "Switch to Hindi"}
+            >
+              <Globe className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {language === 'hi-IN' ? "Switch to English" : "Switch to Hindi"}
+          </TooltipContent>
+        </Tooltip>
+        
+        {/* Help button */}
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <Button
@@ -387,22 +461,28 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </TooltipContent>
         </Tooltip>
         
-        {/* Fixed subtitle positioning to always appear at the bottom of the screen */}
+        {/* Visual indicators */}
         {speaking && showSubtitles && currentMessage && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
             {currentMessage}
           </div>
         )}
         
-        {/* Voice input feedback */}
+        {/* Voice input feedback with improved visual indicators */}
         {isListening && (
           <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
             <div className="flex items-center gap-2 mb-2">
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
+                className="relative"
               >
                 <Mic className="h-4 w-4 text-red-500" />
+                <motion.div 
+                  className="absolute -inset-1 rounded-full bg-red-500/20"
+                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.2, 0.5] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                />
               </motion.div>
               <span className="font-medium">Listening...</span>
             </div>
@@ -410,7 +490,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </div>
         )}
         
-        {/* Processing indicator */}
+        {/* Processing indicator with improved visual feedback */}
         {processing && !isListening && (
           <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
             <div className="flex items-center gap-2">
@@ -425,7 +505,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           </div>
         )}
         
-        {/* Voice Assistant Onboarding Dialog */}
+        {/* Onboarding Dialog with language options */}
         <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
           <DialogContent className="sm:max-w-md">
             <DialogTitle>Meet Your PREPZR Voice Assistant</DialogTitle>
@@ -444,6 +524,32 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
                 </div>
               </div>
               
+              {/* Language selection in onboarding */}
+              <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-md">
+                <div className="bg-white p-2 rounded-full">
+                  <Globe className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-medium text-sm">Language Options</h4>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button 
+                      size="sm" 
+                      variant={language === 'en-IN' ? 'default' : 'outline'}
+                      onClick={() => changeLanguage('en-IN')}
+                    >
+                      English
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={language === 'hi-IN' ? 'default' : 'outline'}
+                      onClick={() => changeLanguage('hi-IN')}
+                    >
+                      हिंदी (Hindi)
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
               <div className="space-y-3">
                 <h4 className="font-medium text-sm">Quick Tips:</h4>
                 <ul className="space-y-2 text-sm">
@@ -454,6 +560,10 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
                   <li className="flex items-start gap-2">
                     <Volume2 className="h-4 w-4 text-indigo-600 mt-0.5" />
                     <span>Toggle sound on/off with the speaker button</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Globe className="h-4 w-4 text-indigo-600 mt-0.5" />
+                    <span>Switch between English and Hindi with the globe button</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Subtitles className="h-4 w-4 text-indigo-600 mt-0.5" />
@@ -476,6 +586,12 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
                   </Button>
                   <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
                     "What's my next task?"
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "Speak in Hindi"
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "Speak in English"
                   </Button>
                 </div>
               </div>
