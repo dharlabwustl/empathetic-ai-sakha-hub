@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
 import { Calendar, ChevronRight, Bell, Star, Zap, CheckSquare } from "lucide-react";
@@ -17,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
 import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import { speakMessage, getMotivationalMessage } from './voice/voiceUtils';
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileBase;
@@ -48,6 +48,16 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const [dailyProgress, setDailyProgress] = useState<number>(
     Math.floor(Math.random() * 60) + 20
   ); // Simulated progress between 20-80%
+  const [previousMood, setPreviousMood] = useState<MoodType | undefined>(currentMood);
+  
+  useEffect(() => {
+    // If mood changed, provide voice feedback
+    if (currentMood && previousMood !== currentMood) {
+      const moodFeedback = getMoodFeedback(currentMood);
+      speakMessage(moodFeedback, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-US', autoGreet: true, muted: false });
+      setPreviousMood(currentMood);
+    }
+  }, [currentMood, previousMood]);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -60,12 +70,37 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     if (!mood) return "😊";
     switch(mood) {
       case MoodType.Motivated: return "🚀";
-      case MoodType.Confident: return "💪";
       case MoodType.Focused: return "🎯";
       case MoodType.Tired: return "😴";
       case MoodType.Anxious: return "😰";
-      case MoodType.Distracted: return "🤔";
+      case MoodType.Happy: return "😊";
+      case MoodType.Neutral: return "😐";
+      case MoodType.Stressed: return "😓";
+      case MoodType.Sad: return "😢";
       default: return "😊";
+    }
+  };
+  
+  const getMoodFeedback = (mood: MoodType): string => {
+    switch(mood) {
+      case MoodType.Motivated:
+        return `Great to see you're feeling motivated, ${userProfile.name}! This is the perfect energy for tackling challenging topics. I've adjusted your study plan to include some advanced material.`;
+      case MoodType.Focused:
+        return `I notice you're focused today, ${userProfile.name}. Let's make the most of this concentration with some deep learning sessions.`;
+      case MoodType.Tired:
+        return `I understand you're feeling tired, ${userProfile.name}. Let's adjust your plan with shorter study sessions and more breaks today.`;
+      case MoodType.Anxious:
+        return `I see you're feeling anxious, ${userProfile.name}. Let's start with some easier review topics to build confidence. Remember, it's normal to feel this way before important exams.`;
+      case MoodType.Happy:
+        return `You're in a great mood today, ${userProfile.name}! Let's use this positive energy for some creative problem-solving exercises.`;
+      case MoodType.Neutral:
+        return `Thanks for sharing how you feel, ${userProfile.name}. We'll keep your regular study pace for today.`;
+      case MoodType.Stressed:
+        return `I understand you're feeling stressed, ${userProfile.name}. Let's adjust today's plan to include some relaxation techniques between study sessions.`;
+      case MoodType.Sad:
+        return `I'm sorry you're feeling down today, ${userProfile.name}. Let's focus on some review topics you enjoy, and remember it's okay to take breaks when needed.`;
+      default:
+        return `Thanks for sharing how you're feeling today, ${userProfile.name}. I'll adjust your recommendations accordingly.`;
     }
   };
   
@@ -82,11 +117,13 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   
   const moodOptions = [
     {type: MoodType.Motivated, label: "Motivated", emoji: "🚀"},
-    {type: MoodType.Confident, label: "Confident", emoji: "💪"},
     {type: MoodType.Focused, label: "Focused", emoji: "🎯"},
     {type: MoodType.Tired, label: "Tired", emoji: "😴"},
     {type: MoodType.Anxious, label: "Anxious", emoji: "😰"},
-    {type: MoodType.Distracted, label: "Distracted", emoji: "🤔"}
+    {type: MoodType.Happy, label: "Happy", emoji: "😊"},
+    {type: MoodType.Neutral, label: "Neutral", emoji: "😐"},
+    {type: MoodType.Stressed, label: "Stressed", emoji: "😓"},
+    {type: MoodType.Sad, label: "Sad", emoji: "😢"}
   ];
 
   const navigate = useNavigate();

@@ -171,14 +171,23 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: 
         case 'tired':
           greeting += "You seem tired today. We'll take it easy but still make progress!";
           break;
-        case 'confident':
-          greeting += "Your confidence is inspiring! Let's tackle some challenging material today.";
+        case 'motivated':
+          greeting += "Your motivation today is inspiring! Let's tackle some challenging material.";
           break;
         case 'anxious':
           greeting += "No need to worry! We'll break things down into manageable steps today.";
           break;
-        case 'distracted':
-          greeting += "Let's find your focus together. I'm here to help you concentrate.";
+        case 'happy':
+          greeting += "Your positive energy is great! Let's channel it into productive study.";
+          break;
+        case 'neutral':
+          greeting += "Ready for a balanced study session today?";
+          break;
+        case 'stressed':
+          greeting += "I notice you're stressed. Let's include some relaxation techniques today.";
+          break;
+        case 'sad':
+          greeting += "I'm here to support you today. Sometimes studying can help lift your mood.";
           break;
         default:
           greeting += `Good ${timeOfDay}! Ready for a productive study session?`;
@@ -249,14 +258,50 @@ export function getMotivationalMessage(mood?: string): string {
       return "You're in the zone! This focused energy will help you achieve great things today.";
     case 'tired':
       return "It's okay to feel tired. Even a small study session counts. Remember to rest when needed.";
-    case 'confident':
-      return "Your confidence will carry you through challenges. Trust your preparation and knowledge!";
+    case 'motivated':
+      return "Your motivation will carry you through challenges. Trust your preparation and knowledge!";
     case 'anxious':
       return "Take a deep breath. Breaking tasks into smaller steps can help manage anxiety. You've got this!";
-    case 'distracted':
-      return "Try the Pomodoro technique - just 25 minutes of focus, then a short break. It works wonders!";
+    case 'happy':
+      return "Your positive outlook makes learning more effective. Let's use this energy wisely!";
+    case 'neutral':
+      return "A balanced mindset is perfect for steady progress. Let's work methodically today.";
+    case 'stressed':
+      return "Remember to breathe and take breaks. You're more prepared than you think!";
+    case 'sad':
+      return "Learning something new can often lift our spirits. Let's focus on topics you enjoy today.";
     default:
       return "Every minute spent studying brings you closer to your goals. Keep going!";
+  }
+}
+
+// Get encouragement message when starting a test
+export function getTestStartEncouragement(examName?: string): string {
+  const encouragements = [
+    `You're well-prepared for this ${examName || 'test'}. Trust your knowledge and take your time with each question.`,
+    `Remember, this ${examName || 'test'} is an opportunity to see your progress. Stay calm and focused.`,
+    `You've put in the work for this ${examName || 'test'}. Now it's time to show what you know!`,
+    `Approach this ${examName || 'test'} one question at a time. You have the knowledge to succeed.`,
+    `Take a deep breath before you start. You're ready for this ${examName || 'test'}!`
+  ];
+  
+  return encouragements[Math.floor(Math.random() * encouragements.length)];
+}
+
+// Get voice feedback for test results
+export function getTestResultsFeedback(score: number, totalQuestions: number): string {
+  const percentage = (score / totalQuestions) * 100;
+  
+  if (percentage >= 90) {
+    return "Excellent work! Your dedication to studying is really paying off. This is an outstanding result!";
+  } else if (percentage >= 75) {
+    return "Great job! You've shown solid understanding. Review the few questions you missed and you'll be in excellent shape.";
+  } else if (percentage >= 60) {
+    return "Good effort! This test has helped identify the areas where you can focus your studies. Keep going!";
+  } else if (percentage >= 40) {
+    return "Your effort is valuable. This test has highlighted the topics that need more of your attention. Don't get discouraged!";
+  } else {
+    return "Remember, every test is a learning opportunity. Let's use these results to create a focused study plan. You'll improve with practice!";
   }
 }
 
@@ -265,28 +310,28 @@ export function getFlashcardFeedback(correct: number, total: number): string {
   const percentage = (correct / total) * 100;
   
   if (percentage >= 90) {
-    return "Excellent work! You've mastered these cards. Ready to try a more challenging set?";
+    return "Excellent work! You've mastered these cards. Your recall is impressive and shows real understanding of the material.";
   } else if (percentage >= 70) {
-    return "Good job! You're making solid progress with these flashcards.";
+    return "Good job! You're making solid progress with these flashcards. Your memory is strengthening with each review.";
   } else if (percentage >= 50) {
-    return "You're doing well. With a bit more practice, you'll master these concepts.";
+    return "You're doing well. With a bit more practice, you'll master these concepts. Remember, repetition is key to memory!";
   } else {
-    return "Don't worry about the score. Each review helps build your memory. Let's keep practicing!";
+    return "Don't worry about the score. Each review helps build your memory, even on cards you missed. The brain learns through repetition!";
   }
 }
 
-// Get voice announcement for exam practice
+// Get voice feedback for exam practice
 export function getExamPracticeFeedback(score: number, totalQuestions: number): string {
   const percentage = (score / totalQuestions) * 100;
   
   if (percentage >= 90) {
-    return "Outstanding result! You're well-prepared for the actual exam.";
+    return "Outstanding result! You're well-prepared for the actual exam. Your hard work is clearly paying off!";
   } else if (percentage >= 75) {
-    return "Great job! Review the few questions you missed and you'll be in excellent shape.";
+    return "Great job! Review the few questions you missed and you'll be in excellent shape. You're on the right track!";
   } else if (percentage >= 60) {
-    return "Good effort! This practice helps identify the areas where you can improve.";
+    return "Good effort! This practice helps identify the areas where you can improve. Keep up the consistent study!";
   } else {
-    return "This practice test has highlighted some areas to focus on. Don't get discouraged - it's all part of the learning process!";
+    return "This practice test has highlighted some areas to focus on. Don't get discouraged - it's all part of the learning process! Each attempt makes you stronger.";
   }
 }
 
