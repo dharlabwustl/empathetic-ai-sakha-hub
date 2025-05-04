@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Info, Mic, MicOff } from 'lucide-react';
+import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { findBestVoice } from '@/components/dashboard/student/voice/voiceUtils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface HomepageVoiceAnnouncerProps {
   autoPlay?: boolean;
@@ -31,16 +33,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesHistoryRef = useRef<string[]>([]);
   
-  // Welcome messages sequence - optimized for clear PREPZR pronunciation as a single word
+  // Welcome messages sequence - optimized for clear PREP-EZER pronunciation
   const welcomeMessages = [
-    "Welcome to PREPZR. I'm your AI study assistant from India.",
-    "PREPZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Welcome to PREP-EZER. I'm your AI study assistant from India.",
+    "PREP-EZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
     "Our personalized study plans adapt to your learning style and pace, making exam preparation more effective.",
     "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
     "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
     "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized tutoring.",
     "We've helped thousands of students achieve their dream scores. Let us help you too!",
-    "Click 'Get Started' to begin your journey with PREPZR today!"
+    "Click 'Get Started' to begin your journey with PREP-EZER today!"
   ];
 
   // Check if first visit
@@ -149,7 +151,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your study journey?";
+      welcomeMessages[0] = "Welcome back to PREP-EZER. Ready to continue your study journey?";
       // Trim the welcome messages for returning users
       welcomeMessages.splice(3);
       welcomeMessages.push("Let's pick up where you left off with your exam preparation!");
@@ -160,18 +162,18 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     // Here you would normally process the voice input
     // For now, just respond with a simple message
     const lowerInput = input.toLowerCase();
-    let response = "I'm sorry, I didn't understand that. How can I help you with PREPZR?";
+    let response = "I'm sorry, I didn't understand that. How can I help you with PREP-EZER?";
     
     if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
-      response = "Hello! Welcome to PREPZR. How can I assist you today?";
+      response = "Hello! Welcome to PREP-EZER. How can I assist you today?";
     } else if (lowerInput.includes("about") || lowerInput.includes("what is")) {
-      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams.";
+      response = "PREP-EZER is an AI-powered study assistant designed to help students prepare for competitive exams.";
     } else if (lowerInput.includes("features")) {
-      response = "PREPZR offers personalized study plans, practice tests, flashcards, and AI tutoring to help you succeed.";
+      response = "PREP-EZER offers personalized study plans, practice tests, flashcards, and AI tutoring to help you succeed.";
     } else if (lowerInput.includes("login") || lowerInput.includes("sign in")) {
       response = "You can sign in using the button at the top right of the screen.";
     } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
-      response = "Click the 'Get Started' button to create your PREPZR account and begin your study journey.";
+      response = "Click the 'Get Started' button to create your PREP-EZER account and begin your study journey.";
     }
     
     // Avoid repeating the same message
@@ -206,8 +208,13 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      // Keep PREPZR as a single word without special formatting
-      utteranceRef.current.text = message;
+      // Replace PREPZR with PREP-EZER for correct pronunciation
+      const processedMessage = message
+        .replace(/PREPZR/g, "PREP-EZER")
+        .replace(/Prepzr/g, "PREP-EZER")
+        .replace(/prepzr/g, "PREP-EZER");
+      
+      utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
     }
     
@@ -291,121 +298,163 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   }
 
   return (
-    <AnimatePresence>
-      <motion.div 
-        className="fixed bottom-4 right-4 z-50 flex flex-col gap-2"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.5 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Voice recognition button */}
-        <Button
-          onClick={toggleListening}
-          className={`w-12 h-12 rounded-full ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'} shadow-lg border border-indigo-400`}
-          size="icon"
+    <TooltipProvider>
+      <AnimatePresence>
+        <motion.div 
+          className="fixed bottom-4 right-4 z-50 flex flex-col gap-2"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.5 }}
+          transition={{ duration: 0.3 }}
         >
-          {isListening ? (
-            <MicOff className="h-5 w-5 text-white" />
+          {/* Voice recognition button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={toggleListening}
+                className={`w-12 h-12 rounded-full ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'} shadow-lg border border-indigo-400`}
+                size="icon"
+                aria-label={isListening ? "Stop listening" : "Speak to PREP-EZER"}
+              >
+                {isListening ? (
+                  <MicOff className="h-5 w-5 text-white" />
+                ) : (
+                  <Mic className="h-5 w-5 text-white" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              {isListening ? "Stop listening" : "Speak to PREP-EZER"}
+            </TooltipContent>
+          </Tooltip>
+
+          {!hasStarted ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={startAnnouncement}
+                  className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
+                  size="icon"
+                  aria-label="Get PREP-EZER introduction"
+                >
+                  <Info className="h-5 w-5 text-white" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                Get PREP-EZER introduction
+              </TooltipContent>
+            </Tooltip>
           ) : (
-            <Mic className="h-5 w-5 text-white" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={toggleMute}
+                  className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
+                  size="icon"
+                  aria-label={isMuted ? "Unmute PREP-EZER" : "Mute PREP-EZER"}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-5 w-5 text-white" />
+                  ) : (
+                    <Volume2 className="h-5 w-5 text-white" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                {isMuted ? "Unmute PREP-EZER" : "Mute PREP-EZER"}
+              </TooltipContent>
+            </Tooltip>
           )}
-        </Button>
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => speakMessage("I am your PREP-EZER voice assistant. You can ask me questions about our features, how to sign up, or navigate through the platform. Just click the microphone button and speak to me.")}
+                className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
+                size="icon"
+                aria-label="How to use PREP-EZER voice assistant"
+              >
+                <HelpCircle className="h-5 w-5 text-white" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              How to use PREP-EZER voice assistant
+            </TooltipContent>
+          </Tooltip>
+        </motion.div>
 
-        {!hasStarted ? (
-          <Button
-            onClick={startAnnouncement}
-            className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
-            size="icon"
+        {/* Voice feedback panel */}
+        {isListening && (
+          <motion.div
+            className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
           >
-            <Info className="h-5 w-5 text-white" />
-          </Button>
-        ) : (
-          <Button
-            onClick={toggleMute}
-            className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
-            size="icon"
-          >
-            {isMuted ? (
-              <VolumeX className="h-5 w-5 text-white" />
-            ) : (
-              <Volume2 className="h-5 w-5 text-white" />
-            )}
-          </Button>
+            <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Mic className="h-5 w-5 text-white animate-pulse" />
+                <h3 className="text-white text-sm font-medium">PREP-EZER Listening...</h3>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 text-white hover:bg-white/20"
+                onClick={() => setIsListening(false)}
+              >
+                <VolumeX className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="p-4">
+              <p className="text-sm mb-2">Speak to PREP-EZER...</p>
+              {userInput && (
+                <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
+                  <p className="text-sm italic">"{userInput}"</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
-      </motion.div>
 
-      {/* Voice feedback panel */}
-      {isListening && (
-        <motion.div
-          className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Mic className="h-5 w-5 text-white animate-pulse" />
-              <h3 className="text-white text-sm font-medium">PREPZR Listening...</h3>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 text-white hover:bg-white/20"
-              onClick={() => setIsListening(false)}
-            >
-              <VolumeX className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="p-4">
-            <p className="text-sm mb-2">Speak to PREPZR...</p>
-            {userInput && (
-              <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
-                <p className="text-sm italic">"{userInput}"</p>
+        {/* Subtitles panel */}
+        {hasStarted && showSubtitles && (
+          <motion.div
+            className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-white" />
+                <h3 className="text-white text-sm font-medium">PREP-EZER Guide</h3>
               </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Subtitles panel */}
-      {hasStarted && showSubtitles && (
-        <motion.div
-          className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-white" />
-              <h3 className="text-white text-sm font-medium">PREPZR Guide</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 text-white hover:bg-white/20"
+                onClick={dismissComponent}
+              >
+                <VolumeX className="h-4 w-4" />
+              </Button>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 text-white hover:bg-white/20"
-              onClick={dismissComponent}
-            >
-              <VolumeX className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="p-4">
-            <div className="mb-2 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
-              <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
-              <Progress value={progress} className="h-1 mt-2" />
-              <div className="mt-2 text-xs text-right text-gray-500">
-                {currentMessageIndex + 1}/{welcomeMessages.length}
+            
+            <div className="p-4">
+              <div className="mb-2 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
+                <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
+                <Progress value={progress} className="h-1 mt-2" />
+                <div className="mt-2 text-xs text-right text-gray-500">
+                  {currentMessageIndex + 1}/{welcomeMessages.length}
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </TooltipProvider>
   );
 };
 

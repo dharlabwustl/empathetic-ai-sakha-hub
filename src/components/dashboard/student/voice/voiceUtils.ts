@@ -8,7 +8,7 @@ export const DEFAULT_VOICE_SETTINGS = {
   pitch: 1.05,  // Slightly higher pitch for a pleasant female voice
   rate: 0.90,   // Slightly slower rate for a calmer delivery
   voice: null,
-  language: 'en-IN', // Preferably Indian English
+  language: 'en-IN', // Always use Indian English
   autoGreet: true,
   muted: false
 };
@@ -51,17 +51,7 @@ export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthe
     return indianEnglishFemaleVoice;
   }
   
-  // Second priority: Hindi female voice
-  const hindiFemaleVoice = voices.find(
-    voice => voice.lang === 'hi-IN' && voice.name.toLowerCase().includes('female')
-  );
-  
-  if (hindiFemaleVoice) {
-    console.log("Using Hindi female voice:", hindiFemaleVoice.name);
-    return hindiFemaleVoice;
-  }
-  
-  // Third priority: Any Indian voice
+  // Second priority: Any Indian voice
   const indianVoice = voices.find(
     voice => voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN'
   );
@@ -71,7 +61,7 @@ export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthe
     return indianVoice;
   }
   
-  // Fourth priority: Any female voice in English
+  // Third priority: Any female voice in English
   const femaleVoice = voices.find(
     voice => voice.lang.includes('en') && voice.name.toLowerCase().includes('female')
   );
@@ -81,7 +71,7 @@ export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthe
     return femaleVoice;
   }
   
-  // Fifth priority: Any voice in English
+  // Fourth priority: Any voice in English
   const languageVoice = voices.find(voice => voice.lang.includes('en'));
   if (languageVoice) {
     console.log("Using language voice:", languageVoice.name);
@@ -110,11 +100,12 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Ensure PREPZR is pronounced correctly as a single word
-    // Don't split into multiple phonetic parts, keep it as a single unit
+    // Process the message to ensure PREPZR is pronounced correctly as "PREPEZER"
+    // Add special phoneticization for PREPZR
     const processedMessage = message
-      .replace(/PREPZR/g, "PREPZR")
-      .replace(/Prepzr/g, "PREPZR");
+      .replace(/PREPZR/g, "PREP-EZER")
+      .replace(/Prepzr/g, "PREP-EZER")
+      .replace(/prepzr/g, "PREP-EZER");
     
     // Create and configure speech utterance
     const utterance = new SpeechSynthesisUtterance(processedMessage);
@@ -133,7 +124,7 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     utterance.onstart = () => {
       document.dispatchEvent(
         new CustomEvent('voice-speaking-started', { 
-          detail: { message } // Use original message for subtitles
+          detail: { message: message } // Use original message for subtitles
         })
       );
     };
@@ -169,7 +160,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
   
   // Different greeting for first time users
   if (isFirstTimeUser) {
-    return `${timeGreeting} and a warm welcome to PREPZR. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
+    return `${timeGreeting} and a warm welcome to PREP-EZER. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
   }
   
   // For returning users
@@ -193,7 +184,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
     }
   }
   
-  return `${timeGreeting}${name}. Welcome back to PREPZR${moodResponse} How may I assist you with your studies today?`;
+  return `${timeGreeting}${name}. Welcome back to PREP-EZER${moodResponse} How may I assist you with your studies today?`;
 }
 
 // Get announcement for reminders with a more pleasant tone
@@ -331,13 +322,13 @@ export function processUserQuery(
   
   // Information requests
   if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you') || lowerQuery.includes('your name')) {
-    return "I'm the PREPZR voice assistant. I'm here to help you with your exam preparation and navigate through the platform. What would you like to learn more about?";
+    return "I'm the PREP-EZER voice assistant. I'm here to help you with your exam preparation and navigate through the platform. What would you like to learn more about?";
   }
   
   if (lowerQuery.includes('tell me about') || lowerQuery.includes('what is prepzr') || lowerQuery.includes('about prepzr')) {
-    return "PREPZR is an emotionally intelligent study partner designed to help students crack competitive exams like NEET and IIT-JEE. We offer personalized study plans, adaptive learning, and AI-powered assistance tailored to your unique learning style and emotional state.";
+    return "PREP-EZER is an emotionally intelligent study partner designed to help students crack competitive exams like NEET and IIT-JEE. We offer personalized study plans, adaptive learning, and AI-powered assistance tailored to your unique learning style and emotional state.";
   }
   
   // Fallback response
-  return "How can I help you with your studies today? You can ask me about your study plan, practice tests, or how to use specific features of PREPZR.";
+  return "How can I help you with your studies today? You can ask me about your study plan, practice tests, or how to use specific features of PREP-EZER.";
 }

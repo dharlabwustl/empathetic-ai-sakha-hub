@@ -55,7 +55,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     // If mood changed, provide voice feedback
     if (currentMood && previousMood !== currentMood) {
       const moodFeedback = getMoodFeedback(currentMood);
-      speakMessage(moodFeedback, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-US', autoGreet: true, muted: false });
+      speakMessage(moodFeedback, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-IN', autoGreet: true, muted: false });
       setPreviousMood(currentMood);
     }
   }, [currentMood, previousMood]);
@@ -134,27 +134,27 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     title: event.title,
     due: event.time
   }));
+  
+  // Set profile image
+  const profileImage = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 p-4 sm:p-6 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
-            {userProfile.photoURL ? (
-              <AvatarImage 
-                src={userProfile.photoURL} 
-                alt={userProfile.name || "User"} 
-                onError={(e) => {
-                  console.error("Failed to load avatar image:", e);
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png';
-                }}
-              />
-            ) : (
-              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
-                {userProfile.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            )}
+            <AvatarImage 
+              src={profileImage} 
+              alt={userProfile.name || "User"} 
+              onError={(e) => {
+                console.error("Failed to load avatar image:", e);
+                const target = e.target as HTMLImageElement;
+                target.src = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
+              }}
+            />
+            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
+              {userProfile.name?.charAt(0) || "U"}
+            </AvatarFallback>
           </Avatar>
           
           <div>
@@ -177,6 +177,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               mood={currentMood}
               isFirstTimeUser={isFirstTimeUser}
               pendingTasks={pendingTasks}
+              examGoal="NEET"
             />
           </div>
           

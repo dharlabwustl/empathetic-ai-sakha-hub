@@ -65,8 +65,8 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       }
     ];
     
-    // Use the provided image from the upload as the user avatar
-    const uploadedAvatarImage = '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png';
+    // Use the uploaded image of Amit Singh
+    const uploadedAvatarImage = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
     
     return {
       id: 'student-123',
