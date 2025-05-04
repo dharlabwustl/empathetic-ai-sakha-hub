@@ -1,26 +1,39 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 interface BackButtonProps {
-  to: string;
   label?: string;
+  to?: string;
+  className?: string;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ to, label = "Back" }) => {
+const BackButton: React.FC<BackButtonProps> = ({ 
+  label = "Back", 
+  to,
+  className = "" 
+}) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <Button
       variant="ghost"
       size="sm"
-      className="flex items-center gap-1 mb-4 font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-      asChild
+      onClick={handleClick}
+      className={`flex items-center gap-1 mb-4 ${className}`}
     >
-      <Link to={to}>
-        <ArrowLeft className="h-4 w-4" />
-        {label}
-      </Link>
+      <ArrowLeft className="h-4 w-4" />
+      <span>{label}</span>
     </Button>
   );
 };

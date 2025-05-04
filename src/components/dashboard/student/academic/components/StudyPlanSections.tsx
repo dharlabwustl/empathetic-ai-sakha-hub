@@ -3,10 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { StudyPlan } from '@/types/user/studyPlan';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ActivePlansList from '../ActivePlansList';
-import CompletedPlansList from '../CompletedPlansList';
-import { Card, CardContent } from '@/components/ui/card';
+import StudyPlanCard from '../StudyPlanCard';
 
 interface StudyPlanSectionsProps {
   activePlans: StudyPlan[];
@@ -22,50 +19,62 @@ const StudyPlanSections: React.FC<StudyPlanSectionsProps> = ({
   onViewPlanDetails,
 }) => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Study Plans</h2>
-        <Button onClick={onCreatePlan} className="flex gap-1 items-center">
-          <PlusCircle className="h-4 w-4 mr-1" />
-          Create New Plan
-        </Button>
+    <div className="space-y-8">
+      {/* Active Plans Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-medium">Active Study Plans</h2>
+          <Button 
+            onClick={onCreatePlan}
+            className="flex gap-1 items-center"
+          >
+            <PlusCircle className="h-4 w-4 mr-1" />
+            Create New Plan
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4">
+          {activePlans.length === 0 ? (
+            <div className="border rounded-lg p-6 text-center bg-gray-50 dark:bg-gray-800/40">
+              <p className="text-muted-foreground mb-4">
+                You don't have any active study plans yet. Create a plan to get started with your exam preparation.
+              </p>
+              <Button onClick={onCreatePlan} className="flex mx-auto gap-1 items-center">
+                <PlusCircle className="h-4 w-4 mr-1" />
+                Create Study Plan
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activePlans.map((plan) => (
+                <StudyPlanCard 
+                  key={plan.id}
+                  plan={plan}
+                  onClick={onViewPlanDetails}
+                  isActive={true}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active">Active Plans</TabsTrigger>
-          <TabsTrigger value="completed">Completed Plans</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="space-y-6">
-          {activePlans.length > 0 ? (
-            <ActivePlansList plans={activePlans} onViewPlanDetails={onViewPlanDetails} />
-          ) : (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">
-                  No active study plans. Create a new plan to get started.
-                </p>
-                <Button onClick={onCreatePlan} className="mt-4">
-                  Create Your First Plan
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-6">
-          {completedPlans.length > 0 ? (
-            <CompletedPlansList plans={completedPlans} onViewPlanDetails={onViewPlanDetails} />
-          ) : (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">You don't have any completed plans yet.</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+      
+      {/* Completed/Archived Plans Section */}
+      {completedPlans.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-medium">Past Study Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {completedPlans.map((plan) => (
+              <StudyPlanCard 
+                key={plan.id}
+                plan={plan}
+                onClick={onViewPlanDetails}
+                isActive={false}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
