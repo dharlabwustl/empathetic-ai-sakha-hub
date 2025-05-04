@@ -53,6 +53,4 @@ export interface NewStudyPlan {
   studyHoursPerDay?: number;
   weeklyHours?: number;
   goal?: string;
-  title?: string;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
 }

@@ -1,49 +1,72 @@
 
 import React from 'react';
-import BackButton from './BackButton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  actions?: React.ReactNode;
+  activeTab?: string;
   children: React.ReactNode;
-  showBackButton?: boolean;
   backButtonUrl?: string;
-  backButtonLabel?: string;
+  showBackButton?: boolean;
+  hideSidebar?: boolean;
+  hideTabsNav?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
-  actions,
+  activeTab = 'overview',
   children,
-  showBackButton = false,
   backButtonUrl = '/dashboard/student',
-  backButtonLabel
+  showBackButton = true, // Set to true by default
+  hideSidebar = false,
+  hideTabsNav = false
 }) => {
-  return (
-    <TooltipProvider>
-      <div className="space-y-6">
-        {showBackButton && (
-          <BackButton to={backButtonUrl} label={backButtonLabel} />
-        )}
-        
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">{title}</h1>
-            {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
-          </div>
-          
-          {actions && (
-            <div className="flex flex-wrap gap-2">
-              {actions}
-            </div>
-          )}
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  const navigate = useNavigate();
+  
+  if (loading || !userProfile) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Content to display within the shared page layout
+  const pageContent = (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
         </div>
         
-        {children}
+        {showBackButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(backButtonUrl)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        )}
       </div>
-    </TooltipProvider>
+      
+      {/* Main Content */}
+      {children}
+    </div>
   );
+
+  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
+  return pageContent;
 };
