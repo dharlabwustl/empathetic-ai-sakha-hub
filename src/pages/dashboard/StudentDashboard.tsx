@@ -16,6 +16,7 @@ const StudentDashboard = () => {
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+  const [playWelcomeVoice, setPlayWelcomeVoice] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -63,6 +64,7 @@ const StudentDashboard = () => {
     if (isNewUser && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
+      setPlayWelcomeVoice(true);
       console.log("New user detected, showing welcome tour");
     } 
     // For returning users
@@ -81,6 +83,34 @@ const StudentDashboard = () => {
       setCurrentMood(savedMood);
     }
   }, [location]);
+  
+  // Voice announcement effect
+  useEffect(() => {
+    if (playWelcomeVoice && userProfile && !loading && !showTourModal) {
+      const welcomeMessage = `Welcome to PREPZR, ${userProfile.name || 'student'}. Your personalized dashboard is ready. You can view your study plan, daily tasks, and use the voice assistant for any questions about your exam preparation. We're committed to supporting you every step of the way. All the best for your exam preparation!`;
+      
+      // Using browser's built-in speech synthesis
+      const speech = new SpeechSynthesisUtterance(welcomeMessage);
+      speech.rate = 1;
+      speech.pitch = 1;
+      speech.volume = 0.8;
+      
+      // Use a female voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => voice.name.includes('female') || voice.name.includes('Female'));
+      if (femaleVoice) {
+        speech.voice = femaleVoice;
+      }
+      
+      window.speechSynthesis.speak(speech);
+      
+      // Don't play again
+      setPlayWelcomeVoice(false);
+      
+      // Store that we've played the welcome message
+      localStorage.setItem('has_heard_welcome', 'true');
+    }
+  }, [playWelcomeVoice, userProfile, loading, showTourModal]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -108,6 +138,7 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    setPlayWelcomeVoice(true); // Play welcome voice after tour is skipped
     console.log("Tour skipped and marked as seen");
   };
 
@@ -116,6 +147,7 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    setPlayWelcomeVoice(true); // Play welcome voice after tour is completed
     console.log("Tour completed and marked as seen");
   };
 
@@ -190,7 +222,7 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Welcome Tour Modal - will show once for new users */}
+      {/* Welcome Tour Modal - will show for new users */}
       <WelcomeTour
         open={showTourModal}
         onOpenChange={setShowTourModal}
@@ -200,6 +232,7 @@ const StudentDashboard = () => {
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
+        showVoiceAssistantTab={true} // Show voice assistant tab in the tour
       />
     </>
   );
