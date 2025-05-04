@@ -16,6 +16,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileBase;
@@ -30,6 +31,7 @@ interface EnhancedDashboardHeaderProps {
     time: string;
     type: 'exam' | 'task' | 'deadline';
   }>;
+  isFirstTimeUser?: boolean;
 }
 
 const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
@@ -40,7 +42,8 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   currentMood,
   onMoodChange,
   streakDays = 7,
-  upcomingEvents = []
+  upcomingEvents = [],
+  isFirstTimeUser = false
 }) => {
   const [dailyProgress, setDailyProgress] = useState<number>(
     Math.floor(Math.random() * 60) + 20
@@ -56,12 +59,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const getMoodEmoji = (mood?: MoodType) => {
     if (!mood) return "😊";
     switch(mood) {
-      case "motivated": return "🚀";
-      case "confident": return "💪";
-      case "focused": return "🎯";
-      case "tired": return "😴";
-      case "anxious": return "😰";
-      case "distracted": return "🤔";
+      case MoodType.Motivated: return "🚀";
+      case MoodType.Confident: return "💪";
+      case MoodType.Focused: return "🎯";
+      case MoodType.Tired: return "😴";
+      case MoodType.Anxious: return "😰";
+      case MoodType.Distracted: return "🤔";
       default: return "😊";
     }
   };
@@ -78,15 +81,21 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   };
   
   const moodOptions = [
-    {type: "motivated", label: "Motivated", emoji: "🚀"},
-    {type: "confident", label: "Confident", emoji: "💪"},
-    {type: "focused", label: "Focused", emoji: "🎯"},
-    {type: "tired", label: "Tired", emoji: "😴"},
-    {type: "anxious", label: "Anxious", emoji: "😰"},
-    {type: "distracted", label: "Distracted", emoji: "🤔"}
+    {type: MoodType.Motivated, label: "Motivated", emoji: "🚀"},
+    {type: MoodType.Confident, label: "Confident", emoji: "💪"},
+    {type: MoodType.Focused, label: "Focused", emoji: "🎯"},
+    {type: MoodType.Tired, label: "Tired", emoji: "😴"},
+    {type: MoodType.Anxious, label: "Anxious", emoji: "😰"},
+    {type: MoodType.Distracted, label: "Distracted", emoji: "🤔"}
   ];
 
   const navigate = useNavigate();
+
+  // Extract pending tasks from upcoming events for voice announcer
+  const pendingTasks = upcomingEvents.map(event => ({
+    title: event.title,
+    due: event.time
+  }));
 
   return (
     <div className="space-y-4">
@@ -117,6 +126,16 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:mt-0">
+          {/* Voice Announcer Integration */}
+          <div className="hidden sm:block">
+            <VoiceAnnouncer 
+              userName={userProfile.name}
+              mood={currentMood}
+              isFirstTimeUser={isFirstTimeUser}
+              pendingTasks={pendingTasks}
+            />
+          </div>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
@@ -133,7 +152,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               {moodOptions.map((mood) => (
                 <DropdownMenuItem 
                   key={mood.type} 
-                  onClick={() => onMoodChange?.(mood.type as MoodType)}
+                  onClick={() => onMoodChange?.(mood.type)}
                   className="cursor-pointer"
                 >
                   <span className="mr-2">{mood.emoji}</span>

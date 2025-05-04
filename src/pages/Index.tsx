@@ -15,10 +15,12 @@ import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
+import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -33,17 +35,31 @@ const Index = () => {
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
+  
+  const handleOpenVoiceAssistant = () => {
+    setShowVoiceAssistant(true);
+  };
+  
+  const handleCloseVoiceAssistant = () => {
+    setShowVoiceAssistant(false);
+  };
 
-  // Listen for the custom event to open the exam analyzer
+  // Listen for events
   useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
     };
     
+    const handleVoiceAssistantEvent = () => {
+      setShowVoiceAssistant(true);
+    };
+    
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+    document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+      document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     };
   }, []);
 
@@ -91,6 +107,12 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Floating Voice Assistant */}
+      <FloatingVoiceAnnouncer 
+        isOpen={showVoiceAssistant} 
+        onClose={handleCloseVoiceAssistant} 
+      />
     </div>
   );
 };

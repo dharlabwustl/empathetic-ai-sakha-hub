@@ -3,9 +3,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Volume2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +19,11 @@ const Header = () => {
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleVoiceAssistant = () => {
+    // Dispatch an event for the floating voice announcer to handle
+    document.dispatchEvent(new CustomEvent('open-voice-assistant'));
   };
   
   return (
@@ -27,6 +38,25 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleVoiceAssistant}
+                    className="relative"
+                  >
+                    <div className="absolute inset-0 rounded-full animate-pulse bg-indigo-200/30 dark:bg-indigo-700/20" />
+                    <Volume2 className="h-[1.2rem] w-[1.2rem] text-indigo-600 dark:text-indigo-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Talk with PREPZR assistant</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             <ThemeToggle />
             {user ? (
               <div className="flex space-x-2">
@@ -50,7 +80,26 @@ const Header = () => {
           </div>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleVoiceAssistant}
+                    className="relative"
+                  >
+                    <div className="absolute inset-0 rounded-full animate-pulse bg-indigo-200/30 dark:bg-indigo-700/20" />
+                    <Volume2 className="h-[1.2rem] w-[1.2rem] text-indigo-600 dark:text-indigo-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Talk with PREPZR assistant</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             <Button variant="ghost" size="icon" onClick={toggleMenu}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>

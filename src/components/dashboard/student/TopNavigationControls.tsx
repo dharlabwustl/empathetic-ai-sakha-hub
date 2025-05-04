@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
@@ -8,6 +10,9 @@ interface TopNavigationControlsProps {
   formattedDate: string;
   formattedTime: string;
   onOpenTour?: () => void;
+  userName?: string;
+  mood?: string;
+  isFirstTimeUser?: boolean;
 }
 
 const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
@@ -15,7 +20,10 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   onToggleSidebar,
   formattedDate,
   formattedTime,
-  onOpenTour
+  onOpenTour,
+  userName,
+  mood,
+  isFirstTimeUser
 }) => {
   return (
     <div className="flex items-center justify-between mb-6">
@@ -51,6 +59,13 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
+        {/* Voice Announcer Integration */}
+        <VoiceAnnouncer 
+          userName={userName}
+          mood={mood}
+          isFirstTimeUser={isFirstTimeUser}
+        />
+        
         <Button
           variant="outline"
           size="sm"
