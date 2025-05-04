@@ -11,14 +11,13 @@ import {
   LayoutDashboard, 
   MessageSquare, 
   Calendar, 
-  LineChart, 
   Brain, 
   BookOpen, 
   Bell, 
   User,
   Smile,
-  Users,
-  BookMarked
+  BookMarked,
+  FileText
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -32,14 +31,13 @@ const tooltipDescriptions: Record<string, string> = {
   Dashboard: "Overview of your study progress and daily tasks",
   "24/7 AI Tutor": "Get instant help from our AI tutor anytime",
   "Academic Advisor": "Plan and track your academic journey",
-  Progress: "View detailed analytics of your performance",
   Flashcards: "Practice with smart flashcards",
-  "Study Groups": "Discuss and learn with your peers",
   Notifications: "Stay updated with important alerts",
   "Feel Good Corner": "Take a break and boost your mood",
   Profile: "Manage your account settings and preferences",
   "Today's Plan": "View your daily study schedule",
-  "Practice Exams": "Take mock tests to prepare for exams"
+  "Practice Exams": "Take mock tests to prepare for exams",
+  "Concept Cards": "Learn key concepts with interactive cards"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -58,10 +56,9 @@ export const SidebarNavRoutes = ({
   
   // Learning tools category
   const learningTools = [
+    { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
-    { name: "Practice Exams", path: "/dashboard/student/exams", icon: <BookOpen size={20} /> },
-    { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
-    { name: "Study Groups", path: "/dashboard/student/forum", icon: <Users size={20} /> },
+    { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <FileText size={20} /> },
   ];
 
   // AI assistance category
