@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
+import { StudyPlan, StudyPlanSubject } from "@/types/user/studyPlan";
 import { UserProfileType } from "@/types/user";
 import { useAcademicPlans } from './hooks/useAcademicPlans';
 import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
@@ -26,81 +26,109 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
       examGoal: "NEET",
       examDate: new Date(2025, 4, 15).toISOString(),
       status: "active",
-      progress: 35,
       subjects: [
         {
           id: "subj-1",
           name: "Physics",
-          difficulty: "medium",
-          completed: false,
-          status: "in-progress",
+          color: "#3b82f6",
+          proficiency: "medium",
           priority: "high",
-          hoursPerWeek: 6
+          hoursPerWeek: 6,
+          completed: false,
+          topics: [
+            { id: "mech-1", name: "Mechanics", status: "in-progress", priority: "high", difficulty: "medium", completed: false },
+            { id: "thermo-1", name: "Thermodynamics", status: "pending", priority: "medium", difficulty: "hard", completed: false },
+            { id: "electro-1", name: "Electrostatics", status: "completed", priority: "high", difficulty: "medium", completed: true }
+          ]
         },
         {
           id: "subj-2",
           name: "Chemistry",
-          difficulty: "easy",
-          completed: false,
-          status: "pending",
+          color: "#10b981",
+          proficiency: "weak",
           priority: "medium",
-          hoursPerWeek: 4
+          hoursPerWeek: 4,
+          completed: false,
+          topics: [
+            { id: "org-1", name: "Organic Chemistry", status: "pending", priority: "high", difficulty: "medium", completed: false },
+            { id: "inorg-1", name: "Inorganic Chemistry", status: "pending", priority: "medium", difficulty: "easy", completed: false }
+          ]
         },
         {
           id: "subj-3",
           name: "Biology",
-          difficulty: "hard",
-          completed: false,
-          status: "completed",
+          color: "#8b5cf6",
+          proficiency: "strong",
           priority: "high",
-          hoursPerWeek: 8
+          hoursPerWeek: 8,
+          completed: false,
+          topics: [
+            { id: "bot-1", name: "Botany", status: "completed", priority: "medium", difficulty: "hard", completed: true },
+            { id: "zoo-1", name: "Zoology", status: "in-progress", priority: "high", difficulty: "medium", completed: false }
+          ]
         }
       ],
       studyHoursPerDay: 4,
       preferredStudyTime: "evening",
       learningPace: "moderate",
       createdAt: new Date(2023, 9, 10).toISOString(),
+      updatedAt: new Date(2023, 9, 10).toISOString(),
+      progressPercentage: 35,
+      daysLeft: 120
     },
     {
       id: "plan-2",
       title: "JEE Advanced Preparation",
       examGoal: "JEE Advanced",
       examDate: new Date(2024, 11, 10).toISOString(),
-      status: "pending",
-      progress: 62,
+      status: "active",
       subjects: [
         {
           id: "subj-4",
           name: "Physics",
-          difficulty: "hard",
-          completed: false,
-          status: "pending",
+          color: "#3b82f6",
+          proficiency: "weak",
           priority: "high",
-          hoursPerWeek: 8
+          hoursPerWeek: 8,
+          completed: false,
+          topics: [
+            { id: "mech-2", name: "Mechanics", status: "pending", priority: "high", difficulty: "hard", completed: false },
+            { id: "thermo-2", name: "Thermodynamics", status: "in-progress", priority: "medium", difficulty: "medium", completed: false }
+          ]
         },
         {
           id: "subj-5",
           name: "Chemistry",
-          difficulty: "medium",
-          completed: false,
-          status: "in-progress",
+          color: "#10b981",
+          proficiency: "medium",
           priority: "medium",
-          hoursPerWeek: 6
+          hoursPerWeek: 6,
+          completed: false,
+          topics: [
+            { id: "org-2", name: "Organic Chemistry", status: "in-progress", priority: "medium", difficulty: "medium", completed: false }
+          ]
         },
         {
           id: "subj-6",
           name: "Mathematics",
-          difficulty: "hard",
-          completed: false,
-          status: "pending",
+          color: "#8b5cf6",
+          proficiency: "strong",
           priority: "low",
-          hoursPerWeek: 10
+          hoursPerWeek: 10,
+          completed: false,
+          topics: [
+            { id: "calc-1", name: "Calculus", status: "pending", priority: "medium", difficulty: "hard", completed: false },
+            { id: "algebra-1", name: "Algebra", status: "pending", priority: "low", difficulty: "medium", completed: false }
+          ]
         }
       ],
       studyHoursPerDay: 6,
       preferredStudyTime: "morning",
       learningPace: "fast",
       createdAt: new Date(2023, 8, 15).toISOString(),
+      updatedAt: new Date(2023, 8, 15).toISOString(),
+      progressPercentage: 62,
+      daysLeft: 45
     },
     {
       id: "plan-3",
@@ -108,46 +136,58 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
       examGoal: "UPSC",
       examDate: new Date(2024, 5, 20).toISOString(),
       status: "completed",
-      progress: 100,
       subjects: [
         {
           id: "subj-7",
           name: "History",
-          difficulty: "medium",
-          completed: true,
-          status: "completed",
+          color: "#3b82f6",
+          proficiency: "medium",
           priority: "high",
-          hoursPerWeek: 5
+          hoursPerWeek: 5,
+          completed: true,
+          topics: [
+            { id: "ancient-1", name: "Ancient History", status: "completed", priority: "high", difficulty: "medium", completed: true },
+            { id: "medieval-1", name: "Medieval History", status: "completed", priority: "medium", difficulty: "medium", completed: true }
+          ]
         },
         {
           id: "subj-8",
           name: "Geography",
-          difficulty: "easy",
-          completed: true,
-          status: "completed",
+          color: "#10b981",
+          proficiency: "strong",
           priority: "high",
-          hoursPerWeek: 4
+          hoursPerWeek: 4,
+          completed: true,
+          topics: [
+            { id: "physical-1", name: "Physical Geography", status: "completed", priority: "high", difficulty: "easy", completed: true }
+          ]
         },
         {
           id: "subj-9",
           name: "Economics",
-          difficulty: "hard",
-          completed: true,
-          status: "in-progress",
+          color: "#8b5cf6",
+          proficiency: "weak",
           priority: "medium",
-          hoursPerWeek: 6
+          hoursPerWeek: 6,
+          completed: true,
+          topics: [
+            { id: "macro-1", name: "Macroeconomics", status: "in-progress", priority: "medium", difficulty: "hard", completed: false }
+          ]
         }
       ],
       studyHoursPerDay: 5,
       preferredStudyTime: "evening",
       learningPace: "moderate",
       createdAt: new Date(2023, 1, 10).toISOString(),
+      updatedAt: new Date(2023, 1, 10).toISOString(),
+      progressPercentage: 100,
+      daysLeft: 0
     },
   ];
 
   // Split plans by status
   const activePlans = demoStudyPlans.filter(plan => plan.status === "active");
-  const completedPlans = demoStudyPlans.filter(plan => plan.status === "completed" || plan.status === "pending");
+  const completedPlans = demoStudyPlans.filter(plan => plan.status === "completed" || plan.status === "archived");
   
   const handleCreatePlanClick = () => {
     setShowCreateDialog(true);

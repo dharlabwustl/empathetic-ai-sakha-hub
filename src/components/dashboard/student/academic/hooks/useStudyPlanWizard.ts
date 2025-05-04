@@ -13,7 +13,7 @@ interface UseStudyPlanWizardProps {
 export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
   const { toast } = useToast();
   const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
-  const [formData, setFormData] = useState<Omit<NewStudyPlan, 'subjects'> & { subjects: string[] }>({
+  const [formData, setFormData] = useState<Partial<NewStudyPlan> & { subjects: string[] }>({
     examGoal: examGoal || '',
     examDate: new Date(),
     subjects: [],
@@ -21,7 +21,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     preferredStudyTime: 'evening',
     learningPace: 'moderate',
     status: 'active',
-    weeklyHours: 30
+    weeklyHours: 30,
+    title: examGoal ? `${examGoal} Preparation` : ''
   });
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
@@ -75,7 +76,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         priority: 'medium' as const,
         color: getRandomColor(),
         hoursPerWeek: Math.round(formData.studyHoursPerDay || 4),
-        completed: false
+        completed: false,
+        topics: [] 
       })),
       ...mediumSubjects.map(subject => ({
         id: `medium-${uuidv4()}`,
@@ -84,7 +86,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         priority: 'medium' as const,
         color: getRandomColor(),
         hoursPerWeek: Math.round((formData.studyHoursPerDay || 4) * 1.2),
-        completed: false
+        completed: false,
+        topics: []
       })),
       ...weakSubjects.map(subject => ({
         id: `weak-${uuidv4()}`,
@@ -93,7 +96,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         priority: 'high' as const,
         color: getRandomColor(),
         hoursPerWeek: Math.round((formData.studyHoursPerDay || 4) * 1.5),
-        completed: false
+        completed: false,
+        topics: []
       }))
     ];
   };
@@ -111,7 +115,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
   };
 
   const handleExamGoalSelect = (goal: string) => {
-    setFormData(prev => ({ ...prev, examGoal: goal }));
+    setFormData(prev => ({ ...prev, examGoal: goal, title: `${goal} Preparation` }));
     // Clear subjects when changing exam goal
     setStrongSubjects([]);
     setMediumSubjects([]);
@@ -124,7 +128,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
       setStep(step + 1);
     } else {
       const updatedFormData: NewStudyPlan = {
-        ...formData,
+        ...formData as Required<NewStudyPlan>,
         subjects: getSubjectsProficiencyList(),
         weeklyHours: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 28
       };
@@ -141,7 +145,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         preferredStudyTime: 'morning',
         learningPace: 'moderate',
         status: 'active',
-        weeklyHours: 30
+        weeklyHours: 30,
+        title: ''
       });
       onClose();
       toast({

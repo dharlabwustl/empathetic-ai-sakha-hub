@@ -9,7 +9,10 @@ export const useTheme = () => {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
 
-  return context;
+  return {
+    theme: context.theme,
+    setTheme: context.setTheme,
+  };
 };
 
 export default useTheme;

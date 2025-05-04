@@ -1,13 +1,12 @@
 
 import React from 'react';
 import { BookOpen, GraduationCap, ListChecks, Brain, Lightbulb, Smile, Bell, Sparkles, BookOpenCheck } from 'lucide-react';
-import { ReactNode } from 'react';
 
 // Define the route item type
 interface RouteItem {
   id: string;
   title: string;
-  icon: ReactNode; // Changed from FC<any> to ReactNode
+  icon: React.ReactNode;
   value: string;
   isBeta?: boolean;
 }
