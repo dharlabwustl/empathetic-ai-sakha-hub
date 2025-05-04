@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -63,7 +62,13 @@ const StudentDashboard = () => {
         console.error("Error parsing user data from localStorage:", err);
       }
     }
-  }, [location]);
+
+    // Ensure profile image is available
+    if (userProfile && userProfile.avatar) {
+      // Store the profile image in localStorage for persistence across sessions
+      localStorage.setItem('user_profile_image', userProfile.avatar);
+    }
+  }, [location, userProfile]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -125,9 +130,15 @@ const StudentDashboard = () => {
     );
   }
 
+  // Ensure the profile has the correct image
+  const enhancedUserProfile = {
+    ...userProfile,
+    avatar: userProfile.avatar || localStorage.getItem('user_profile_image')
+  };
+
   const getTabContent = () => {
     if (activeTab === "overview") {
-      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
+      return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
     }
     return null;
   };
@@ -137,7 +148,7 @@ const StudentDashboard = () => {
 
   return (
     <DashboardLayout
-      userProfile={userProfile}
+      userProfile={enhancedUserProfile}
       hideSidebar={hideSidebar}
       hideTabsNav={hideTabsNav}
       activeTab={activeTab}

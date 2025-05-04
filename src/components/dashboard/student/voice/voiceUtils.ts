@@ -1,149 +1,104 @@
 import { MoodType } from '@/types/user/base';
 import { VoiceSpeakingStartedEvent } from '@/types/voice';
 
-// Default voice settings
-export const DEFAULT_VOICE_SETTINGS = {
+// Default voice settings with Indian female voice preference
+export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   enabled: true,
+  muted: false,
   volume: 1.0,
-  pitch: 1.05,  // Slightly higher pitch for a pleasant female voice
-  rate: 0.90,   // Slightly slower rate for a calmer delivery
-  voice: null,
-  language: 'en-IN', // Always use Indian English
-  autoGreet: true,
-  muted: false
+  pitch: 1.1,  // Higher pitch for female voice
+  rate: 0.92,  // Slightly slower for better clarity and calmer delivery
+  voice: null, // This will be set dynamically
+  language: 'en-IN',
+  autoGreet: true
 };
 
-export type VoiceSettings = typeof DEFAULT_VOICE_SETTINGS;
-
-// Initialize speech synthesis
-export function initSpeechSynthesis(): boolean {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    console.error('Speech synthesis not supported');
-    return false;
-  }
-  
-  // Force trigger voices loading
-  window.speechSynthesis.getVoices();
-  return true;
-}
-
-// Helper to find the best voice to use - prioritizing Indian female voice
-export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthesisVoice | null {
+/**
+ * Find the best voice for a specific language
+ */
+export const findBestVoice = (preferredLang: string = 'en-IN'): SpeechSynthesisVoice | null => {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return null;
   }
   
   const voices = window.speechSynthesis.getVoices();
-  if (!voices || voices.length === 0) {
-    return null;
-  }
+  if (!voices.length) return null;
   
-  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
-  
-  // First priority: Indian English female voice
-  const indianEnglishFemaleVoice = voices.find(
-    voice => (voice.name.includes('Indian') || voice.lang === 'en-IN') && 
-             voice.name.toLowerCase().includes('female')
+  // First, look for female Indian voices
+  const femaleIndianVoice = voices.find(voice => 
+    voice.lang.includes(preferredLang) && 
+    voice.name.toLowerCase().includes('female')
   );
   
-  if (indianEnglishFemaleVoice) {
-    console.log("Using Indian English female voice:", indianEnglishFemaleVoice.name);
-    return indianEnglishFemaleVoice;
+  if (femaleIndianVoice) {
+    return femaleIndianVoice;
   }
   
-  // Second priority: Any Indian voice
-  const indianVoice = voices.find(
-    voice => voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN'
-  );
-  
+  // Next, look for any Indian voice
+  const indianVoice = voices.find(voice => voice.lang.includes(preferredLang));
   if (indianVoice) {
-    console.log("Using Indian voice:", indianVoice.name);
     return indianVoice;
   }
   
-  // Third priority: Any female voice in English
-  const femaleVoice = voices.find(
-    voice => voice.lang.includes('en') && voice.name.toLowerCase().includes('female')
+  // As a fallback, try to find any English female voice
+  const femaleEnglishVoice = voices.find(voice => 
+    voice.lang.includes('en') && 
+    voice.name.toLowerCase().includes('female')
   );
   
-  if (femaleVoice) {
-    console.log("Using female voice:", femaleVoice.name);
-    return femaleVoice;
+  if (femaleEnglishVoice) {
+    return femaleEnglishVoice;
   }
   
-  // Fourth priority: Any voice in English
-  const languageVoice = voices.find(voice => voice.lang.includes('en'));
-  if (languageVoice) {
-    console.log("Using language voice:", languageVoice.name);
-    return languageVoice;
-  }
-  
-  // Fallback: Use the first available voice
-  console.log("Using fallback first voice:", voices[0]?.name);
-  return voices[0];
-}
+  // Last resort, just pick the first English voice we can find
+  return voices.find(voice => voice.lang.includes('en')) || voices[0];
+};
 
-// Speak a message with given settings
-export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_VOICE_SETTINGS, forceSpeak: boolean = false): void {
-  // Don't speak if voice is disabled or muted, unless forced
-  if ((!settings.enabled || settings.muted) && !forceSpeak) {
-    return;
-  }
-  
-  // Check browser support
+// Helper function to speak a message
+export const speakMessage = (
+  message: string, 
+  settings: VoiceSettings = DEFAULT_VOICE_SETTINGS
+): void => {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    console.error('Speech synthesis not supported');
+    console.warn('Speech synthesis not supported');
     return;
   }
   
-  try {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Process the message to ensure PREPZR is pronounced correctly as "PREPEZER"
-    // Add special phoneticization for PREPZR
-    const processedMessage = message
-      .replace(/PREPZR/g, "PREP-EZER")
-      .replace(/Prepzr/g, "PREP-EZER")
-      .replace(/prepzr/g, "PREP-EZER");
-    
-    // Create and configure speech utterance
-    const utterance = new SpeechSynthesisUtterance(processedMessage);
-    utterance.volume = settings.volume;
-    utterance.pitch = settings.pitch;
-    utterance.rate = settings.rate;
-    utterance.lang = 'en-IN'; // Always use Indian English
-    
-    // Find the best voice to use - prioritize Indian female voice
-    const voice = findBestVoice('en-IN');
-    if (voice) {
-      utterance.voice = voice;
-    }
-    
-    // Dispatch custom events for speech start/end
-    utterance.onstart = () => {
-      document.dispatchEvent(
-        new CustomEvent('voice-speaking-started', { 
-          detail: { message: message } // Use original message for subtitles
-        })
-      );
-    };
-    
-    utterance.onend = () => {
-      document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-    };
-    
-    utterance.onerror = (e) => {
-      console.error('Speech synthesis error:', e);
-      document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-    };
-    
-    // Start speaking
-    window.speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.error('Error in speech synthesis:', error);
+  if (!settings.enabled || settings.muted) {
+    console.log('Voice is disabled or muted', { enabled: settings.enabled, muted: settings.muted });
+    return;
   }
-}
+  
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.volume = settings.volume;
+  utterance.rate = settings.rate;
+  utterance.pitch = settings.pitch;
+  utterance.lang = settings.language;
+  
+  // Try to find the best voice
+  const bestVoice = findBestVoice(settings.language);
+  if (bestVoice) {
+    utterance.voice = bestVoice;
+    console.log('Using voice:', bestVoice.name);
+  }
+  
+  // Track speaking status with events
+  utterance.onstart = () => {
+    document.dispatchEvent(
+      new CustomEvent('voice-speaking-started', { detail: { message } })
+    );
+  };
+  
+  utterance.onend = () => {
+    document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
+  };
+  
+  // Speak the message
+  window.speechSynthesis.speak(utterance);
+};
 
 // Get greeting based on user state with a calmer, more pleasant tone
 export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: boolean = false): string {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -69,17 +68,31 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       
       // Set voice characteristics for pleasant Indian female voice
       utteranceRef.current.rate = 0.92; // Slightly slower for better clarity and calmer delivery
-      utteranceRef.current.pitch = 1.05; // Slightly higher for female voice
+      utteranceRef.current.pitch = 1.1; // Higher pitch for female voice
       utteranceRef.current.volume = 1.0;
       utteranceRef.current.lang = 'en-IN'; // Set to Indian English
       
-      // Find and set the Indian female voice
+      // Find and set the Indian female voice - prioritizing female voices
       window.speechSynthesis.onvoiceschanged = () => {
         if (utteranceRef.current) {
-          const indianVoice = findBestVoice('en-IN');
-          if (indianVoice) {
-            utteranceRef.current.voice = indianVoice;
-            console.log('Using voice for homepage:', indianVoice.name);
+          // Get all available voices
+          const voices = window.speechSynthesis.getVoices();
+          
+          // First, look specifically for Indian female voices
+          let indianFemaleVoice = voices.find(voice => 
+            voice.lang.includes('en-IN') && 
+            voice.name.toLowerCase().includes('female')
+          );
+          
+          // If no specific Indian female voice found, fall back to any Indian voice
+          if (!indianFemaleVoice) {
+            indianFemaleVoice = findBestVoice('en-IN');
+          }
+          
+          // If Indian voice found, use it
+          if (indianFemaleVoice) {
+            utteranceRef.current.voice = indianFemaleVoice;
+            console.log('Using Indian female voice for homepage:', indianFemaleVoice.name);
           }
         }
       };
@@ -87,10 +100,21 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       // Try to load voices immediately in case they're already available
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0 && utteranceRef.current) {
-        const indianVoice = findBestVoice('en-IN');
-        if (indianVoice) {
-          utteranceRef.current.voice = indianVoice;
-          console.log('Immediately loaded voice for homepage:', indianVoice.name);
+        // First, look specifically for Indian female voices
+        let indianFemaleVoice = voices.find(voice => 
+          voice.lang.includes('en-IN') && 
+          voice.name.toLowerCase().includes('female')
+        );
+        
+        // If no specific Indian female voice found, fall back to any Indian voice
+        if (!indianFemaleVoice) {
+          indianFemaleVoice = findBestVoice('en-IN');
+        }
+        
+        // If Indian voice found, use it
+        if (indianFemaleVoice) {
+          utteranceRef.current.voice = indianFemaleVoice;
+          console.log('Immediately loaded Indian female voice for homepage:', indianFemaleVoice.name);
         }
       }
       

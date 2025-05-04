@@ -65,8 +65,8 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       }
     ];
     
-    // Use the uploaded image of Amit Singh
-    const uploadedAvatarImage = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
+    // Use the newly uploaded image
+    const uploadedAvatarImage = '/lovable-uploads/ff31535f-8bfc-4b7a-aab8-46c77a8ccfed.png';
     
     return {
       id: 'student-123',
