@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
-  name: "Rahul Singh",
+  name: "Amit Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com",
   role: UserRole.Student,
