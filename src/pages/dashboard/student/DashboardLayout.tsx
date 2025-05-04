@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -18,8 +17,6 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
-import VoiceAssistant from "@/components/dashboard/student/voice/VoiceAssistant";
-import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -77,19 +74,14 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Control tour visibility with a state variable
+  // Fixed: Don't force disable tour popup
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
-  // Sync the tour state with props when it changes
-  useEffect(() => {
-    setShowTour(showWelcomeTour);
-  }, [showWelcomeTour]);
-  
   const handleOpenTour = () => {
-    // Actually open the tour when requested
+    // Fixed: Actually open the tour when requested
     setShowTour(true);
   };
   
@@ -208,7 +200,7 @@ const DashboardLayout = ({
               nudges={nudges}
               markNudgeAsRead={markNudgeAsRead}
               features={features}
-              showWelcomeTour={showTour} // Use state variable for tour visibility
+              showWelcomeTour={showTour} // Fixed: Use state variable to control tour visibility
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
               hideTabsNav={hideTabsNav || isMobile}
@@ -217,18 +209,6 @@ const DashboardLayout = ({
             />
           </div>
         )}
-        
-        {/* Voice Assistant */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <EnhancedTooltip content="Voice assistant - Ask me about any feature">
-            <div>
-              <VoiceAssistant 
-                userName={userProfile.name}
-                isFirstTimeUser={isFirstTimeUser}
-              />
-            </div>
-          </EnhancedTooltip>
-        </div>
       </main>
       
       <ChatAssistant userType="student" />
@@ -240,7 +220,7 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour - use state variable for visibility */}
+      {/* WelcomeTour - Fix open property to use state variable */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
@@ -248,7 +228,7 @@ const DashboardLayout = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
-        open={showTour} 
+        open={showTour} // Fixed: Use state variable instead of hardcoded false
         onOpenChange={setShowTour}
       />
     </div>

@@ -47,11 +47,10 @@ export interface StudyPlan {
 export interface NewStudyPlan {
   examGoal: string;
   examDate: string | Date;
-  subjects: Omit<StudyPlanSubject, 'topics'>[] & { topics?: StudyPlanTopic[] }[];
+  subjects: Omit<StudyPlanSubject, 'topics'>[];
   learningPace?: 'slow' | 'moderate' | 'fast';
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
   weeklyHours?: number;
   goal?: string;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
 }

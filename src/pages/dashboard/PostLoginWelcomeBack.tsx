@@ -30,16 +30,13 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // For new users (who came from signup), show tour immediately after welcome slider
+    // For new users (who came from signup), go directly to tour
+    // This is because they would have gone through the welcome-flow already
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     
-    // Check if new user and handle tour accordingly
     if (isNewUser) {
-      // Skip welcome slider if they saw it already
-      setShowSlider(!sawWelcomeSlider);
-      
-      // Show tour if they haven't seen it yet, after welcome slider
+      // For new users, show tour immediately after welcome slider
       if (sawWelcomeSlider) {
         setShowSlider(false);
         setShowTour(true);
@@ -77,7 +74,7 @@ const PostLoginWelcomeBack = () => {
     // Mark that they've seen the welcome slider
     localStorage.setItem('sawWelcomeSlider', 'true');
     setShowSlider(false);
-    setShowTour(true); // Show tour immediately after welcome slider for new users
+    setShowTour(true); // Always show tour after welcome slider for all users
   };
   
   const handleTourSkip = () => {
@@ -116,7 +113,6 @@ const PostLoginWelcomeBack = () => {
           onCompleteTour={handleTourComplete}
           isFirstTimeUser={true}
           loginCount={1}
-          showFounderTabFirst={true} // Show founder tab first in the tour
         />
       </div>
     );
