@@ -6,6 +6,7 @@ import {
   VoiceSettings, 
   speakMessage, 
   getGreeting,
+  getReminderAnnouncement,
   processUserQuery,
   initSpeechSynthesis 
 } from '@/components/dashboard/student/voice/voiceUtils';
@@ -50,6 +51,7 @@ export function useVoiceAnnouncer({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const hasGreetedRef = useRef<boolean>(false);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const lastAnnouncementRef = useRef<string>(''); // Track last announcement to reduce repetition
   
   // Force initialize speech synthesis when component mounts
   useEffect(() => {
@@ -144,8 +146,21 @@ export function useVoiceAnnouncer({
             }
           );
           
-          // Speak the response
-          speakMessage(response, voiceSettings, true);
+          // Handle special commands
+          if (response === "MUTE_COMMAND") {
+            toggleMute(true);
+            speakMessage("Voice assistant muted. I'll still listen for commands.", voiceSettings, true);
+            return;
+          } else if (response === "UNMUTE_COMMAND") {
+            toggleMute(false);
+            speakMessage("Voice assistant unmuted. I'll speak responses again.", voiceSettings, true);
+            return;
+          }
+          
+          // Speak the response if not muted
+          if (!voiceSettings.muted) {
+            speakMessage(response, voiceSettings, true);
+          }
         };
         
         recognitionRef.current.onend = () => {
@@ -213,9 +228,9 @@ export function useVoiceAnnouncer({
       return;
     }
     
-    // Don't greet if voice is disabled
-    if (!voiceSettings.enabled) {
-      console.log("Voice is disabled, skipping greeting");
+    // Don't greet if voice is disabled or muted
+    if (!voiceSettings.enabled || voiceSettings.muted) {
+      console.log("Voice is disabled or muted, skipping greeting");
       return;
     }
     
@@ -236,6 +251,16 @@ export function useVoiceAnnouncer({
     });
   }, []);
   
+  // Toggle mute/unmute
+  const toggleMute = useCallback((forceMute?: boolean) => {
+    setVoiceSettings(prev => {
+      const newMuted = forceMute !== undefined ? forceMute : !prev.muted;
+      const newSettings = { ...prev, muted: newMuted };
+      console.log("Voice muted toggled to:", newSettings.muted);
+      return newSettings;
+    });
+  }, []);
+  
   // Update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setVoiceSettings(prev => {
@@ -247,14 +272,19 @@ export function useVoiceAnnouncer({
   
   // Test the current voice settings
   const testVoice = useCallback(() => {
-    const testMessage = "Hello! This is how PREPZR will sound with your current settings.";
+    const testMessages = {
+      'en-US': "Hello! This is how Prepzr will sound with your current settings.",
+      'hi-IN': "नमस्ते! यह है कि Prepzr वर्तमान सेटिंग्स के साथ कैसा लगेगा।"
+    };
+    
+    const testMessage = testMessages[voiceSettings.language as 'en-US' | 'hi-IN'] || testMessages['en-US'];
     console.log("Testing voice with message:", testMessage);
     speakMessage(testMessage, voiceSettings, true); // Force it to speak regardless of settings
   }, [voiceSettings]);
 
   // Auto-test voice when initialized if it's enabled
   useEffect(() => {
-    if (voiceInitialized && voiceSettings.enabled) {
+    if (voiceInitialized && voiceSettings.enabled && !voiceSettings.muted) {
       // Wait a bit to ensure the browser is ready
       const timer = setTimeout(() => {
         const shortMsg = "Voice system ready.";
@@ -276,6 +306,7 @@ export function useVoiceAnnouncer({
     speakGreeting,
     speakMessage: (message: string, force?: boolean) => speakMessage(message, voiceSettings, force),
     toggleVoiceEnabled,
+    toggleMute,
     updateVoiceSettings,
     testVoice,
     isVoiceSupported: Boolean(window.speechSynthesis)

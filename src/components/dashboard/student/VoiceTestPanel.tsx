@@ -10,7 +10,8 @@ import {
   Mic, 
   Settings, 
   MessageSquare,
-  Info
+  Info,
+  VolumeOff
 } from 'lucide-react';
 import {
   Tooltip,
@@ -26,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface VoiceTestPanelProps {
   userName?: string;
@@ -42,6 +44,7 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
   const { 
     voiceSettings,
     toggleVoiceEnabled,
+    toggleMute,
     updateVoiceSettings,
     testVoice,
     isVoiceSupported,
@@ -74,7 +77,11 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
     <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          {voiceSettings.enabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          {voiceSettings.enabled ? (
+            voiceSettings.muted ? <VolumeOff size={20} /> : <Volume2 size={20} />
+          ) : (
+            <VolumeX size={20} />
+          )}
           <h3 className="font-medium">Voice Assistant</h3>
         </div>
         
@@ -116,6 +123,33 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
               : 'Voice system initializing...'}
           </span>
         </div>
+        
+        {/* Mute status indicator */}
+        {voiceSettings.enabled && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm">
+              {voiceSettings.muted ? 'Voice is muted' : 'Voice is active'}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toggleMute()}
+              className="flex gap-1 items-center"
+            >
+              {voiceSettings.muted ? (
+                <>
+                  <Volume2 className="h-4 w-4 mr-1" />
+                  Unmute
+                </>
+              ) : (
+                <>
+                  <VolumeOff className="h-4 w-4 mr-1" />
+                  Mute
+                </>
+              )}
+            </Button>
+          </div>
+        )}
         
         {/* Chrome troubleshooting message */}
         {isChrome && (
@@ -171,6 +205,32 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
                 checked={voiceSettings.enabled} 
                 onCheckedChange={toggleVoiceEnabled} 
               />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="voice-muted">Mute voice</Label>
+              <Switch 
+                id="voice-muted"
+                checked={voiceSettings.muted} 
+                onCheckedChange={toggleMute} 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="voice-language">Voice Language</Label>
+              <Select 
+                value={voiceSettings.language} 
+                onValueChange={(value) => updateVoiceSettings({ language: value })}
+              >
+                <SelectTrigger id="voice-language">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en-US">English (US)</SelectItem>
+                  <SelectItem value="en-IN">English (Indian)</SelectItem>
+                  <SelectItem value="hi-IN">Hindi</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">

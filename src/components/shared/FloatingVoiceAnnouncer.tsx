@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Volume2, Mic, MicOff, Settings } from 'lucide-react';
+import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { VoiceSettings } from '@/components/dashboard/student/voice/voiceUtils';
 
@@ -22,6 +23,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     stopListening,
     speakMessage,
     toggleVoiceEnabled,
+    toggleMute,
     updateVoiceSettings,
     testVoice,
     isVoiceSupported
@@ -40,10 +42,10 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   
   // Auto-speak welcome message when opened
   useEffect(() => {
-    if (isOpen && isVoiceSupported && voiceSettings.enabled) {
+    if (isOpen && isVoiceSupported && voiceSettings.enabled && !voiceSettings.muted) {
       speakMessage('Hello! I\'m your PREPZR voice assistant. How can I help with your exam preparation today?');
     }
-  }, [isOpen, isVoiceSupported, voiceSettings.enabled, speakMessage]);
+  }, [isOpen, isVoiceSupported, voiceSettings.enabled, voiceSettings.muted, speakMessage]);
   
   // Listen for transcript changes and process voice input
   useEffect(() => {
@@ -56,6 +58,42 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     // Add user message
     setMessages(prev => [...prev, { type: 'user' as const, content: text }]);
     setInput('');
+    
+    // Special commands
+    if (text.toLowerCase().includes('mute') || text.toLowerCase().includes('be quiet')) {
+      toggleMute(true);
+      setMessages(prev => [...prev, { 
+        type: 'bot' as const, 
+        content: 'Voice assistant muted. I\'ll still listen for commands.' 
+      }]);
+      return;
+    }
+    
+    if (text.toLowerCase().includes('unmute') || text.toLowerCase().includes('speak again')) {
+      toggleMute(false);
+      setMessages(prev => [...prev, { 
+        type: 'bot' as const, 
+        content: 'Voice assistant unmuted. I\'ll speak responses again.' 
+      }]);
+      speakMessage('Voice assistant unmuted. I\'ll speak responses again.', true);
+      return;
+    }
+    
+    if (text.toLowerCase().includes('hindi') || text.toLowerCase().includes('हिंदी')) {
+      updateVoiceSettings({ language: 'hi-IN' });
+      const response = "अब मैं हिंदी में बात करूंगा।";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      return;
+    }
+    
+    if (text.toLowerCase().includes('english') || text.toLowerCase().includes('अंग्रेज़ी')) {
+      updateVoiceSettings({ language: 'en-US' });
+      const response = "I'll speak English now.";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      return;
+    }
     
     // Process the query (in a real app, this would use AI)
     const botResponses = [
@@ -71,7 +109,9 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     // Simulate bot response
     setTimeout(() => {
       setMessages(prev => [...prev, { type: 'bot' as const, content: randomResponse }]);
-      speakMessage(randomResponse);
+      if (!voiceSettings.muted) {
+        speakMessage(randomResponse);
+      }
     }, 800);
   };
   
@@ -104,6 +144,8 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           <div className="bg-white/20 p-1.5 rounded-full">
             {isListening ? (
               <Mic className="w-5 h-5" />
+            ) : voiceSettings.muted ? (
+              <VolumeOff className="w-5 h-5" />
             ) : (
               <Volume2 className="w-5 h-5" />
             )}
@@ -111,7 +153,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           <div>
             <h3 className="font-medium text-sm">PREPZR Voice Assistant</h3>
             <p className="text-xs opacity-80">
-              {isListening ? "Listening..." : isSpeaking ? "Speaking..." : "Ask me anything"}
+              {isListening ? "Listening..." : isSpeaking ? "Speaking..." : voiceSettings.muted ? "Muted" : "Ask me anything"}
             </p>
           </div>
         </div>
@@ -148,6 +190,40 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
                 checked={voiceSettings.enabled} 
                 onCheckedChange={toggleVoiceEnabled} 
               />
+            </div>
+            
+            {/* Mute/Unmute */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Mute Voice</span>
+              <Switch 
+                checked={voiceSettings.muted} 
+                onCheckedChange={() => toggleMute()} 
+              />
+            </div>
+            
+            {/* Language Selection */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Language</span>
+              </div>
+              <Select 
+                value={voiceSettings.language} 
+                onValueChange={(value) => updateVoiceSettings({ language: value })}
+              >
+                <SelectTrigger className="w-full">
+                  <div className="flex items-center gap-2">
+                    <Globe size={14} />
+                    <span>
+                      {voiceSettings.language === 'hi-IN' ? 'Hindi' : 'English'}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en-US">English (US)</SelectItem>
+                  <SelectItem value="en-IN">English (Indian)</SelectItem>
+                  <SelectItem value="hi-IN">Hindi</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             {/* Volume */}
@@ -225,7 +301,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message or click the mic to speak..."
+            placeholder={`Type your message or click the mic to speak... (${voiceSettings.language === 'hi-IN' ? 'Hindi' : 'English'})`}
             className="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
             disabled={isListening}
           />
@@ -239,12 +315,60 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           </Button>
         </div>
         
-        {/* Listening indicator */}
-        {isListening && (
-          <div className="text-center mt-2 text-xs text-indigo-600 animate-pulse">
-            Listening... Say something or click the mic to stop
+        {/* Status indicators */}
+        <div className="flex items-center justify-between mt-2">
+          {/* Listening indicator */}
+          {isListening && (
+            <div className="text-center text-xs text-indigo-600 animate-pulse">
+              Listening... Say something or click the mic to stop
+            </div>
+          )}
+          
+          {/* Mute indicator */}
+          {voiceSettings.muted && (
+            <div className="text-center text-xs text-gray-500 flex items-center gap-1">
+              <VolumeOff size={12} />
+              <span>Voice is muted</span>
+            </div>
+          )}
+          
+          {/* Language indicator */}
+          <div className="text-xs text-gray-500 flex items-center gap-1 ml-auto">
+            <Globe size={12} />
+            <span>{voiceSettings.language === 'hi-IN' ? 'Hindi' : 'English'}</span>
           </div>
-        )}
+        </div>
+        
+        {/* Suggestion buttons */}
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setInput("Help me with my study plan")}
+          >
+            Help me with my study plan
+          </Button>
+          {voiceSettings.language === 'hi-IN' ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => setInput("अंग्रेज़ी में बोलो")}
+            >
+              Switch to English
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => setInput("Switch to Hindi")}
+            >
+              Switch to Hindi
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

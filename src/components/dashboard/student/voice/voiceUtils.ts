@@ -16,6 +16,7 @@ export interface VoiceSettings {
   voice: string | null;
   language: string;
   autoGreet: boolean;
+  muted: boolean; // New property for mute functionality
 }
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
@@ -25,7 +26,8 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   rate: 1.0,
   voice: null, // Will be selected automatically
   language: 'en-US',
-  autoGreet: true
+  autoGreet: true,
+  muted: false // Default to unmuted
 };
 
 // Initialize speech synthesis and check browser support
@@ -96,9 +98,9 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
     return;
   }
   
-  // Don't speak if voice is disabled and not forced
-  if (!settings.enabled && !force) {
-    console.log('Voice is disabled, not speaking:', message);
+  // Don't speak if voice is disabled, muted, or not forced
+  if ((!settings.enabled || settings.muted) && !force) {
+    console.log('Voice is disabled or muted, not speaking:', message);
     return;
   }
   
@@ -146,7 +148,7 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
   }
 }
 
-// Generate a greeting message based on user state
+// Generate a greeting message based on user state - more casual and friendly
 export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: boolean): string {
   const hour = new Date().getHours();
   let timeOfDay = '';
@@ -158,39 +160,50 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: 
   let greeting = '';
   
   if (isFirstTimeUser) {
-    greeting = `Welcome to Prepzr${userName ? ', ' + userName : ''}! I'm your AI assistant and I'm here to help you with your studies. Feel free to ask me anything about your courses or how to navigate the app.`;
+    greeting = `Hi${userName ? ' ' + userName : ''}! I'm your Prepzr assistant. Let me help you with your studies today!`;
   } else {
-    greeting = `Good ${timeOfDay}${userName ? ', ' + userName : ''}! Welcome back to Prepzr. `;
+    greeting = `Hey${userName ? ' ' + userName : ''}! `;
     
     if (mood) {
       switch (mood.toLowerCase()) {
         case 'focused':
-          greeting += "I see you're feeling focused today. That's great! Let's make the most of this productive energy.";
+          greeting += "Great to see you focused today! Ready to make some progress?";
           break;
         case 'tired':
-          greeting += "I notice you're feeling tired. Don't worry, we can focus on lighter tasks today.";
+          greeting += "Feeling tired? Let's take it easy but still make some progress.";
           break;
         case 'confident':
-          greeting += "You're feeling confident today! Perfect time to tackle some challenging topics.";
+          greeting += "Awesome! Your confidence today will help you tackle challenges.";
           break;
         case 'anxious':
-          greeting += "I understand you're feeling anxious. Let's start with something easy to build momentum.";
+          greeting += "Don't worry, we'll start with something simple to build your confidence.";
           break;
         case 'distracted':
-          greeting += "Feeling distracted? Let me help you focus on one thing at a time.";
+          greeting += "Let's find your focus together. One small task at a time.";
           break;
         default:
-          greeting += "How can I help you with your studies today?";
+          greeting += "How can I help with your studies today?";
       }
     } else {
-      greeting += "How can I help you with your studies today?";
+      const greetings = [
+        "Ready for some learning?",
+        "What would you like to work on today?",
+        "Hope you're having a great day!",
+        "I'm here to help with your studies!"
+      ];
+      greeting += greetings[Math.floor(Math.random() * greetings.length)];
     }
   }
   
-  return greeting;
+  // Add Hindi version if needed
+  if (isFirstTimeUser) {
+    return greeting;
+  } else {
+    return greeting;
+  }
 }
 
-// Add the missing getReminderAnnouncement function
+// Get reminder announcement - more concise and friendly
 export function getReminderAnnouncement(
   pendingTasks: Array<{title: string, due?: string}> = [], 
   examGoal?: string
@@ -203,25 +216,84 @@ export function getReminderAnnouncement(
   
   if (pendingTasks.length === 1) {
     const task = pendingTasks[0];
-    announcement = `You have one pending task: ${task.title}`;
+    announcement = `Just a friendly reminder about "${task.title}"`;
     if (task.due) {
-      announcement += ` due on ${task.due}`;
+      announcement += ` coming up on ${task.due}`;
     }
     announcement += '.';
   } else {
-    announcement = `You have ${pendingTasks.length} pending tasks. `;
-    announcement += `The most urgent is "${pendingTasks[0].title}"`;
-    if (pendingTasks[0].due) {
-      announcement += ` due on ${pendingTasks[0].due}`;
-    }
-    announcement += '.';
+    announcement = `You have ${pendingTasks.length} tasks on your list. `;
+    announcement += `Including "${pendingTasks[0].title}"`;
   }
   
   if (examGoal) {
-    announcement += ` Remember, you're preparing for ${examGoal}. Stay focused!`;
+    const motivationalPhrases = [
+      `Keep going with your ${examGoal} prep!`,
+      `Every step brings you closer to ${examGoal} success!`,
+      `You're making progress toward your ${examGoal}!`
+    ];
+    announcement += ` ${motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)]}`;
   }
   
   return announcement;
+}
+
+// Get motivational messages based on user's mood
+export function getMotivationalMessage(mood?: string): string {
+  if (!mood) {
+    const generalMotivation = [
+      "Remember, consistency is key to success!",
+      "Small steps each day add up to big results.",
+      "You're making progress, even if you don't see it yet.",
+      "Your future self will thank you for the work you're putting in today."
+    ];
+    return generalMotivation[Math.floor(Math.random() * generalMotivation.length)];
+  }
+  
+  switch(mood.toLowerCase()) {
+    case 'focused':
+      return "You're in the zone! This focused energy will help you achieve great things today.";
+    case 'tired':
+      return "It's okay to feel tired. Even a small study session counts. Remember to rest when needed.";
+    case 'confident':
+      return "Your confidence will carry you through challenges. Trust your preparation and knowledge!";
+    case 'anxious':
+      return "Take a deep breath. Breaking tasks into smaller steps can help manage anxiety. You've got this!";
+    case 'distracted':
+      return "Try the Pomodoro technique - just 25 minutes of focus, then a short break. It works wonders!";
+    default:
+      return "Every minute spent studying brings you closer to your goals. Keep going!";
+  }
+}
+
+// Get voice feedback for flashcard session
+export function getFlashcardFeedback(correct: number, total: number): string {
+  const percentage = (correct / total) * 100;
+  
+  if (percentage >= 90) {
+    return "Excellent work! You've mastered these cards. Ready to try a more challenging set?";
+  } else if (percentage >= 70) {
+    return "Good job! You're making solid progress with these flashcards.";
+  } else if (percentage >= 50) {
+    return "You're doing well. With a bit more practice, you'll master these concepts.";
+  } else {
+    return "Don't worry about the score. Each review helps build your memory. Let's keep practicing!";
+  }
+}
+
+// Get voice announcement for exam practice
+export function getExamPracticeFeedback(score: number, totalQuestions: number): string {
+  const percentage = (score / totalQuestions) * 100;
+  
+  if (percentage >= 90) {
+    return "Outstanding result! You're well-prepared for the actual exam.";
+  } else if (percentage >= 75) {
+    return "Great job! Review the few questions you missed and you'll be in excellent shape.";
+  } else if (percentage >= 60) {
+    return "Good effort! This practice helps identify the areas where you can improve.";
+  } else {
+    return "This practice test has highlighted some areas to focus on. Don't get discouraged - it's all part of the learning process!";
+  }
 }
 
 // Process a user voice query and provide a response
@@ -237,6 +309,28 @@ export function processUserQuery(
 ): string {
   const lowerQuery = query.toLowerCase();
   
+  // Language setting commands - now with Hindi support
+  if (lowerQuery.includes('speak in hindi') || lowerQuery.includes('switch to hindi') || 
+      lowerQuery.includes('hindi me bolo') || lowerQuery.includes('hindi में बोलो')) {
+    if (actions?.switchLanguage) actions.switchLanguage('hi-IN');
+    return "अब मैं हिंदी में बात करूंगा।"; // "Now I will speak in Hindi"
+  }
+  
+  if (lowerQuery.includes('speak in english') || lowerQuery.includes('switch to english') || 
+      lowerQuery.includes('english me bolo') || lowerQuery.includes('अंग्रेज़ी में बोलो')) {
+    if (actions?.switchLanguage) actions.switchLanguage('en-US');
+    return "I'll speak in English now.";
+  }
+  
+  // Mute/unmute commands
+  if (lowerQuery.includes('mute') || lowerQuery.includes('be quiet') || lowerQuery.includes('stop talking')) {
+    return "MUTE_COMMAND";
+  }
+  
+  if (lowerQuery.includes('unmute') || lowerQuery.includes('start talking') || lowerQuery.includes('speak again')) {
+    return "UNMUTE_COMMAND";
+  }
+  
   // Navigation commands
   if (lowerQuery.includes('go to dashboard') || lowerQuery.includes('show dashboard')) {
     navigate('/dashboard/student/overview');
@@ -246,56 +340,50 @@ export function processUserQuery(
   if (lowerQuery.includes('flashcard') || lowerQuery.includes('flash card')) {
     navigate('/dashboard/student/flashcards');
     if (actions?.showFlashcards) actions.showFlashcards();
-    return "Opening the flashcards section.";
+    return "Opening the flashcards section to help you study.";
   }
   
-  if (lowerQuery.includes('practice exam') || lowerQuery.includes('test')) {
+  if (lowerQuery.includes('practice exam') || lowerQuery.includes('test') || lowerQuery.includes('quiz')) {
     navigate('/dashboard/student/exams');
     if (actions?.startTest) actions.startTest();
-    return "Let's practice with some exams.";
+    return "Let's practice with an exam to test your knowledge.";
   }
   
-  if (lowerQuery.includes('today') || lowerQuery.includes("today's plan")) {
+  if (lowerQuery.includes('today') || lowerQuery.includes("today's plan") || lowerQuery.includes('schedule')) {
     navigate('/dashboard/student/today');
-    return "Here's your plan for today.";
+    return "Here's your plan for today. Let's get organized!";
   }
   
-  if (lowerQuery.includes('tutor') || lowerQuery.includes('help me')) {
+  if (lowerQuery.includes('tutor') || lowerQuery.includes('help me') || lowerQuery.includes('explain')) {
     navigate('/dashboard/student/tutor');
-    return "I'm here to help. What would you like to learn about?";
+    return "I'm ready to help you understand any concept you're struggling with.";
   }
   
   if (lowerQuery.includes('feel good') || lowerQuery.includes('break') || lowerQuery.includes('relax')) {
     navigate('/dashboard/student/feel-good-corner');
-    return "Let's take a short break in the Feel Good Corner.";
-  }
-  
-  // Language setting commands
-  if (lowerQuery.includes('speak in english') || lowerQuery.includes('switch to english')) {
-    if (actions?.switchLanguage) actions.switchLanguage('en-US');
-    return "I'll speak in English now.";
-  }
-  
-  if (lowerQuery.includes('speak in spanish') || lowerQuery.includes('switch to spanish')) {
-    if (actions?.switchLanguage) actions.switchLanguage('es-ES');
-    return "Ahora hablaré en español.";
-  }
-  
-  if (lowerQuery.includes('speak in french') || lowerQuery.includes('switch to french')) {
-    if (actions?.switchLanguage) actions.switchLanguage('fr-FR');
-    return "Je parlerai français maintenant.";
+    return "Let's take a break. Your mental wellbeing is important for effective studying!";
   }
   
   // Information queries
-  if (lowerQuery.includes('what exam') || lowerQuery.includes('which test')) {
+  if (lowerQuery.includes('what exam') || lowerQuery.includes('which test') || lowerQuery.includes('goal')) {
     const examGoal = actions?.examGoal || "No specific exam goal set";
-    return `You're currently preparing for ${examGoal}.`;
+    return `You're preparing for ${examGoal}. Keep up the good work!`;
   }
   
-  if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you')) {
-    return "I'm Prepzr's AI assistant, designed to help you study more effectively and achieve your academic goals.";
+  if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you') || lowerQuery.includes('your name')) {
+    return "I'm your Prepzr AI assistant, here to support your studies and help you achieve your academic goals.";
   }
   
-  // Default response for unrecognized queries
-  return "I'm not sure how to help with that. You can ask me to navigate to different sections, start a practice test, or show your flashcards.";
+  if (lowerQuery.includes('motivate') || lowerQuery.includes('inspire') || lowerQuery.includes('encourage')) {
+    return getMotivationalMessage();
+  }
+  
+  // Default response for unrecognized queries - more friendly
+  const defaultResponses = [
+    "I'm not quite sure about that. Would you like to practice with flashcards, take a practice test, or check your study plan?",
+    "I didn't catch that. You can ask me to help with flashcards, practice tests, or check your schedule.",
+    "Let me know if you need help with your studies. I can show flashcards, start a practice test, or check your progress."
+  ];
+  
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }

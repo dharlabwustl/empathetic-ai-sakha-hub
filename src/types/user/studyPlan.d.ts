@@ -16,16 +16,16 @@ export interface StudyPlanSubject {
   priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
   completed: boolean;
-  topics?: StudyPlanTopic[]; // Topics is now properly defined
-  difficulty?: 'easy' | 'medium' | 'hard';
-  status?: 'pending' | 'in-progress' | 'completed';
+  topics?: StudyPlanTopic[]; // Topics is optional but properly defined
+  difficulty?: 'easy' | 'medium' | 'hard'; // Added missing properties
+  status?: 'pending' | 'in-progress' | 'completed'; // Added missing properties
   isWeakSubject?: boolean;
 }
 
 export interface StudyPlan {
   id: string;
-  userId?: string;
-  goal?: string;
+  userId?: string; // Added as optional
+  goal?: string; // Added as optional
   examGoal: string;
   examDate: string;
   status: 'active' | 'completed' | 'archived' | 'pending';
@@ -34,13 +34,13 @@ export interface StudyPlan {
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay: number;
   weeklyHours: number;
-  progressPercentage?: number;
+  progressPercentage?: number; // Added as optional
   progressPercent?: number; // Keep for backward compatibility
-  daysLeft?: number;
+  daysLeft?: number; // Added as optional
   createdAt: string;
   updatedAt: string;
   title?: string;
-  progress?: number; // Adding progress for compatibility with code using this
+  progress?: number; // Added for compatibility with code using this
   topics?: StudyPlanTopic[]; // Top-level topics
 }
 
