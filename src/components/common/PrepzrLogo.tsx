@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface PrepzrLogoProps {
   className?: string;
@@ -15,7 +16,7 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
   showText = true
 }) => {
   return (
-    <div className={`flex items-center ${className}`}>
+    <Link to="/" className={`flex items-center ${className}`}>
       <img 
         src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" 
         alt="PREPZR Logo" 
@@ -25,7 +26,7 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
           objectFit: 'contain'
         }}
       />
-    </div>
+    </Link>
   );
 };
 
