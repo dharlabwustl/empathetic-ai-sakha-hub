@@ -1,40 +1,37 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface BackButtonProps {
+  to: string;
   label?: string;
-  to?: string;
-  className?: string;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ 
-  label = "Back", 
-  to,
-  className = "" 
-}) => {
-  const navigate = useNavigate();
-  
-  const handleClick = () => {
-    if (to) {
-      navigate(to);
-    } else {
-      navigate(-1);
-    }
-  };
-
+const BackButton: React.FC<BackButtonProps> = ({ to, label = 'Back' }) => {
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleClick}
-      className={`flex items-center gap-1 mb-4 ${className}`}
-    >
-      <ArrowLeft className="h-4 w-4" />
-      <span>{label}</span>
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="mb-4"
+          >
+            <Link to={to} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              {label}
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Return to previous page</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

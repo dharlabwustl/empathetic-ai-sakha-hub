@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { 
+import { Menu, X, Sun, Moon, Info, BookOpen } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -28,115 +28,101 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   formattedDate,
   formattedTime,
   onOpenTour,
-  userName,
-  mood,
-  isFirstTimeUser,
+  userName = '',
+  mood = '',
+  isFirstTimeUser = false,
   onViewStudyPlan
 }) => {
+  const { theme, setTheme } = useTheme();
+
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onToggleSidebar}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+    <TooltipProvider>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-9 w-9 p-0"
+                onClick={onToggleSidebar}
+                aria-label="Toggle sidebar"
+              >
+                {hideSidebar ? <Menu size={20} /> : <X size={20} />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{hideSidebar ? "Expand" : "Collapse"} Sidebar</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <div className="text-sm font-medium hidden sm:block">
+            <span className="text-muted-foreground">{formattedDate}</span>
+            <span className="mx-2">•</span>
+            <span>{formattedTime}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Welcome Tour button for returning users */}
+          {!isFirstTimeUser && onOpenTour && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden md:flex items-center gap-1"
+                  onClick={onOpenTour}
+                >
+                  <Info size={16} />
+                  <span>Take Tour</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Take a tour of the dashboard</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Study Plan button */}
+          {onViewStudyPlan && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden md:flex items-center gap-1"
+                  onClick={onViewStudyPlan}
+                >
+                  <BookOpen size={16} />
+                  <span>View Study Plan</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View your current study plan</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Theme toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toggle {theme === 'dark' ? 'light' : 'dark'} mode</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
-      
-      <div className="flex items-center gap-2">
-        {/* Voice Announcer Integration */}
-        <VoiceAnnouncer 
-          userName={userName}
-          mood={mood}
-          isFirstTimeUser={isFirstTimeUser}
-        />
-        
-        {/* Calendar Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Notification Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Tour Guide Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
