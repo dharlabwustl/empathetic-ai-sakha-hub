@@ -72,7 +72,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       role: UserRole.Student,
       signupType: SignupType.Email,
       examPreparation: 'JEE Advanced 2025',
-      avatar: '',
+      avatar: '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png',
       bio: 'Passionate student preparing for engineering entrance exams.',
       phoneNumber: '+91 98765 43210',
       personalityType: 'Analytical learner',

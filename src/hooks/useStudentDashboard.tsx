@@ -34,7 +34,8 @@ export const useStudentDashboard = () => {
         name: "Amit Singh",
         email: "amit@example.com",
         role: UserRole.Student,
-        loginCount: 2
+        loginCount: 2,
+        avatar: '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png'
       });
       
       // Set mock KPIs
