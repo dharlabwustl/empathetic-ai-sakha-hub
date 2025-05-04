@@ -5,21 +5,16 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import { useToast } from "@/hooks/use-toast";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [showTour, setShowTour] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
   
   const {
     loading,
@@ -59,31 +54,16 @@ const StudentDashboard = () => {
     }
   });
 
+  // Important: Force disable welcome tour completely
+  const [shouldShowTour, setShouldShowTour] = useState(false);
+
   useEffect(() => {
-    // Check URL parameters for welcome tour trigger
-    const searchParams = new URLSearchParams(location.search);
-    const isNewUser = searchParams.get('new') === 'true';
-    const completedOnboarding = searchParams.get('completedOnboarding') === 'true';
+    // Explicitly mark tour as seen to prevent it from appearing
+    localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
     
-    if (isNewUser && completedOnboarding) {
-      // Clean URL parameters
-      navigate(location.pathname, { replace: true });
-      
-      // Show the welcome tour for new users
-      setShowTour(true);
-      
-      // Mark that they've seen the welcome slider
-      localStorage.setItem('sawWelcomeSlider', 'true');
-      
-      // They should see the tour next
-      localStorage.setItem('sawWelcomeTour', 'false');
-      
-      // Show toast notification
-      toast({
-        title: "Welcome to PREPZR!",
-        description: "Let's take a quick tour of the dashboard to help you get started.",
-      });
-    }
+    // Don't show splash screen for now
+    setShowSplash(false);
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
@@ -103,26 +83,18 @@ const StudentDashboard = () => {
       // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
-  }, [location, navigate, userProfile, toast]);
-  
-  useEffect(() => {
-    // Auto-start welcome voice greeting for new users or those who completed onboarding
-    if (userProfile?.name && showTour) {
+
+    // Auto-start voice greeting after 3 seconds
+    if (userProfile?.name) {
       const timer = setTimeout(() => {
-        const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
-        const welcomeMessage = `Welcome to PREPZR, ${userProfile.name}! I'm your voice assistant. 
-        Your dashboard shows your personalized study plan and daily tasks. 
-        You can ask me questions anytime by clicking the microphone icon. 
-        PREPZR is committed to supporting you at every step of your exam preparation journey. 
-        Good luck with your studies!`;
-        
-        speakMessage(welcomeMessage);
-      }, 1000);
+        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
+        speakMessage(greeting);
+      }, 3000);
       
       return () => clearTimeout(timer);
     }
-  }, [userProfile, speakMessage, showTour]);
-
+  }, [location, userProfile, speakMessage, currentMood]);
+  
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
@@ -161,20 +133,6 @@ const StudentDashboard = () => {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
-  
-  const handleCloseTour = () => {
-    setShowTour(false);
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
-    handleSkipTour();
-  };
-  
-  const handleCompleteTourAndClose = () => {
-    setShowTour(false);
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
-    handleCompleteTour();
-  };
 
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
@@ -210,47 +168,34 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Force welcome tour to never show
+  const modifiedShowWelcomeTour = false;
+
   return (
-    <>
-      <DashboardLayout
-        userProfile={enhancedUserProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // Don't automatically show welcome tour
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTour}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-      >
-        {getTabContent()}
-      </DashboardLayout>
-      
-      {/* Separate WelcomeTour component that can be controlled independently */}
-      {showTour && (
-        <WelcomeTour
-          open={showTour}
-          onOpenChange={setShowTour}
-          onSkipTour={handleCloseTour}
-          onCompleteTour={handleCompleteTourAndClose}
-          isFirstTimeUser={true}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          loginCount={userProfile.loginCount}
-        />
-      )}
-    </>
+    <DashboardLayout
+      userProfile={enhancedUserProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={modifiedShowWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+      onMoodChange={handleMoodChange}
+    >
+      {getTabContent()}
+    </DashboardLayout>
   );
 };
 
