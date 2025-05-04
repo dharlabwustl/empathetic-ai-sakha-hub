@@ -9,11 +9,10 @@ import {
   MessageSquare, 
   Brain, 
   BookOpen, 
-  LineChart, 
-  Users, 
   Bell, 
   Smile, 
-  User 
+  User,
+  FileText
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
@@ -23,13 +22,15 @@ interface SidebarNavProps {
   userName?: string;
   activeTab: string;
   onTabChange: (tab: string) => void;
+  hideSettings?: boolean;
 }
 
 const SidebarNav: React.FC<SidebarNavProps> = ({ 
   userType, 
   userName,
   activeTab, 
-  onTabChange 
+  onTabChange,
+  hideSettings
 }) => {
   const navigate = useNavigate();
 
@@ -40,12 +41,11 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
   ];
   
-  // Learning tools category
+  // Learning tools category - updated as requested
   const learningTools = [
+    { icon: <BookOpen size={20} />, title: "Concept Cards", tab: "concepts" },
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
-    { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "exams" },
-    { icon: <LineChart size={20} />, title: "Progress", tab: "progress" },
-    { icon: <Users size={20} />, title: "Study Groups", tab: "forum" },
+    { icon: <FileText size={20} />, title: "Practice Exams", tab: "practice-exam" },
   ];
 
   // AI assistance category
