@@ -1,4 +1,3 @@
-
 // Voice settings type definition
 export interface VoiceSettings {
   enabled: boolean;
@@ -22,7 +21,36 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
 // Function to initialize speech synthesis
 export function initSpeechSynthesis(): boolean {
   if (typeof window === 'undefined') return false;
-  return 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  
+  if (!('speechSynthesis' in window)) {
+    console.error("Speech synthesis API is not available in this browser");
+    return false;
+  }
+  
+  if (!('SpeechSynthesisUtterance' in window)) {
+    console.error("SpeechSynthesisUtterance is not available in this browser");
+    return false;
+  }
+  
+  // Try to access voices to ensure API is fully functioning
+  try {
+    const voices = window.speechSynthesis.getVoices();
+    console.log("Initial voices check:", voices);
+    
+    // Force a reload of voices if none available
+    if (voices.length === 0) {
+      // Set up a listener for voices loaded
+      window.speechSynthesis.onvoiceschanged = () => {
+        const loadedVoices = window.speechSynthesis.getVoices();
+        console.log("Voices loaded:", loadedVoices.length);
+      };
+    }
+    
+    return true;
+  } catch (e) {
+    console.error("Error initializing speech synthesis:", e);
+    return false;
+  }
 }
 
 // Check if speech synthesis is supported by the browser
@@ -30,7 +58,28 @@ export function isSpeechSynthesisSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
-// Speak a message using the provided settings
+// Force browser to allow audio playback
+export function primeAudioContext(): void {
+  try {
+    // Create a short silent sound to activate audio context
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContext) {
+      const audioContext = new AudioContext();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = 0; // Silent
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.001);
+      console.log("Audio context primed successfully");
+    }
+  } catch (e) {
+    console.error("Error priming audio context:", e);
+  }
+}
+
+// Speak a message using the provided settings - improved reliability
 export function speakMessage(message: string, settings: VoiceSettings, force: boolean = false): void {
   if (!isSpeechSynthesisSupported()) {
     console.error("Speech synthesis is not supported in this browser");
@@ -43,28 +92,34 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
   }
   
   try {
+    // Prime audio context to ensure browser allows audio playback
+    primeAudioContext();
+    
+    // Stop any current speech
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+    
     // Create speech synthesis utterance
     const utterance = new SpeechSynthesisUtterance(message);
     
-    // Apply settings
-    utterance.volume = settings.volume;
-    utterance.rate = settings.rate;
+    // Apply settings with safe volume range
+    utterance.volume = Math.max(0.1, Math.min(1.0, settings.volume)); // Ensure volume is never 0
+    utterance.rate = Math.max(0.8, Math.min(1.2, settings.rate));     // Keep rate reasonable for best results
     utterance.pitch = settings.pitch;
     utterance.lang = settings.language;
     
     // Try to get a voice that matches the language
-    if (!settings.voice) {
-      const voices = window.speechSynthesis.getVoices();
-      console.log("Available voices:", voices);
+    const voices = window.speechSynthesis.getVoices();
+    console.log("Available voices:", voices.length);
       
-      if (voices.length > 0) {
-        // Find a voice that matches the language or use the first available one
-        const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
-        utterance.voice = matchingVoice;
-        console.log("Selected voice:", matchingVoice);
-      }
+    if (voices.length > 0) {
+      // Find a voice that matches the language or use the first available one
+      const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
+      utterance.voice = matchingVoice;
+      console.log("Selected voice:", matchingVoice?.name || "default");
     } else {
-      utterance.voice = settings.voice;
+      console.warn("No voices available yet, using default voice");
     }
     
     // Event handling
@@ -80,32 +135,31 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
     
     utterance.onerror = (event) => {
       console.error("Error speaking:", event);
+      document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
     };
     
-    // Force reload voices if none available yet
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = function() {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
-          utterance.voice = matchingVoice;
-          console.log("Loaded voices after onvoiceschanged:", voices);
-          console.log("Selected voice:", matchingVoice);
-          window.speechSynthesis.speak(utterance);
-        }
-      };
-    } else {
-      // Speak the message
-      window.speechSynthesis.speak(utterance);
+    // Chrome workaround
+    if (window.navigator.userAgent.includes('Chrome')) {
+      // Force resume if needed
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
     }
     
-    // Fix for Chrome issues where speech can get cut off
-    if (window.navigator.userAgent.includes('Chrome')) {
-      if (window.speechSynthesis.speaking) {
+    // Speak with increased volume for better audibility
+    utterance.volume = Math.min(1.0, settings.volume + 0.2); 
+    
+    // Speak the message
+    window.speechSynthesis.speak(utterance);
+    
+    // Additional Chrome fix - keep speech synthesis alive
+    const intervalId = setInterval(() => {
+      if (!window.speechSynthesis.speaking) {
+        clearInterval(intervalId);
+      } else {
         window.speechSynthesis.pause();
         window.speechSynthesis.resume();
       }
-    }
+    }, 5000);
   } catch (error) {
     console.error("Error speaking message:", error);
   }

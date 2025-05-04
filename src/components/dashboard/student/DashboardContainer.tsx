@@ -6,6 +6,7 @@ import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
+import VoiceAnnouncer from '@/components/dashboard/student/voice/VoiceAnnouncer';
 
 interface DashboardContainerProps {
   userProfile: UserProfileBase;
@@ -83,6 +84,19 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
       />
+      
+      {/* Voice Announcer (enhanced) */}
+      <div className="fixed bottom-4 right-20 z-50">
+        <VoiceAnnouncer 
+          userName={userProfile.name}
+          isFirstTimeUser={false}
+          examGoal="NEET Exam"
+          pendingTasks={[
+            { title: "Complete Physics practice test", due: "today" },
+            { title: "Review biology flashcards", due: "tomorrow" }
+          ]}
+        />
+      </div>
       
       {/* Chat assistant */}
       <ChatAssistant userType="student" />

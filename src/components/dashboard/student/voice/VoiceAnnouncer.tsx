@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, Headphones } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
@@ -55,19 +55,42 @@ const VoiceAnnouncer = ({
   const [showSubtitle, setShowSubtitle] = useState(false);
   const [subtitleText, setSubtitleText] = useState('');
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [audioTested, setAudioTested] = useState(false);
   
-  // Initialize speech synthesis on mount
+  // Initialize speech synthesis on mount with enhanced loading
   useEffect(() => {
-    // Initialize speech synthesis and load voices
-    const isSupported = initSpeechSynthesis();
-    if (isSupported) {
-      // Manually attempt to load voices
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.getVoices();
+    // Forcefully initialize speech synthesis and load voices
+    const initializeVoice = async () => {
+      console.log("Initializing speech synthesis with enhanced loading");
+      const isSupported = initSpeechSynthesis();
+      
+      if (isSupported) {
+        if ('speechSynthesis' in window) {
+          // Force load voices
+          window.speechSynthesis.getVoices();
+          
+          // Set up voice changed listener
+          window.speechSynthesis.onvoiceschanged = () => {
+            const voices = window.speechSynthesis.getVoices();
+            console.log("Voices loaded:", voices.length);
+            if (voices.length > 0) {
+              // Try a quick test utterance to ensure audio is working
+              const testUtterance = new SpeechSynthesisUtterance("Voice initialized");
+              testUtterance.volume = 0.01; // Very quiet test
+              testUtterance.rate = 1;
+              testUtterance.onend = () => {
+                console.log("Audio system initialized successfully");
+              };
+              window.speechSynthesis.speak(testUtterance);
+            }
+          };
+        }
+      } else {
+        console.error("Speech synthesis not supported in this browser");
       }
-    } else {
-      console.error("Speech synthesis not supported in this browser");
-    }
+    };
+    
+    initializeVoice();
   }, []);
   
   // Improved visual animation style
@@ -143,11 +166,47 @@ const VoiceAnnouncer = ({
     }
   };
   
-  // Test voice button - added for debugging
+  // Test voice button with more immediate feedback
   const testVoiceButton = () => {
     console.log("Testing voice...");
-    speak("Hello! This is a test message to check if voice is working correctly.", true);
+    const testMessage = "Hello! This is a test message to check if voice is working correctly.";
+    
+    // Show feedback immediately
+    setShowSubtitle(true);
+    setSubtitleText(testMessage);
+    setAudioTested(true);
+    
+    // Use browser's native audio to ensure sound
+    try {
+      // Create a short beep sound first to ensure audio is working
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 440; // A4 note
+      oscillator.connect(audioContext.destination);
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 200);
+      
+      // Then try speech synthesis
+      setTimeout(() => {
+        speak(testMessage, true);
+        console.log("Test message sent to speech system");
+      }, 300);
+    } catch (e) {
+      console.error("Error testing audio:", e);
+    }
   };
+  
+  // Force audio test message when component mounts
+  useEffect(() => {
+    if (!audioTested) {
+      const timer = setTimeout(() => {
+        testVoiceButton();
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [audioTested]);
 
   return (
     <>
@@ -184,13 +243,14 @@ const VoiceAnnouncer = ({
                 )}
               </Button>
               
-              {/* Debug/Test Button - Hidden in production */}
+              {/* More visible Test Button */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={testVoiceButton}
-                className="text-xs h-7 px-2"
+                className="text-xs h-7 px-2 flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700"
               >
+                <Headphones className="h-3 w-3" />
                 Test Voice
               </Button>
             </div>
