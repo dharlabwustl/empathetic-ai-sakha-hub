@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const [isVisible, setIsVisible] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [userInput, setUserInput] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
 
   // Ref for speech synthesis utterance
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -42,6 +44,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized NEET tutoring.",
     "We've helped thousands of students achieve their dream scores in NEET. Let us help you too!",
     "Click 'Get Started' to begin your NEET preparation journey with PREPZR today!"
+  ];
+
+  // PREPZR feature descriptions for the assistant
+  const prepzrFeatures = [
+    "PREPZR adapts to your emotional state, providing personalized motivation when you feel anxious or tired.",
+    "Our AI-powered study plans are tailored to your learning style and exam timeline.",
+    "Practice with exam-like questions and get detailed performance analytics to track your progress.",
+    "The voice assistant can answer your questions about NEET subjects and guide your study sessions.",
+    "PREPZR has helped thousands of students improve their scores by 30% or more!",
+    "Our champion methodology is based on years of research on how top scorers prepare for competitive exams."
   ];
 
   // Check if first visit
@@ -183,17 +195,17 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   }, []);
   
   const handleVoiceInput = (input: string) => {
-    // Here you would normally process the voice input
-    // For now, just respond with a simple message
     const lowerInput = input.toLowerCase();
     let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREPZR?";
     
+    // Process common queries
     if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
       response = "Hello! Welcome to PREPZR. How can I assist you with your NEET preparation today?";
-    } else if (lowerInput.includes("about") || lowerInput.includes("what is")) {
-      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET.";
-    } else if (lowerInput.includes("features")) {
-      response = "PREPZR offers personalized study plans for NEET, practice tests, flashcards, and AI tutoring to help you succeed.";
+    } else if (lowerInput.includes("about") || lowerInput.includes("what is") || lowerInput.includes("tell me about")) {
+      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
+    } else if (lowerInput.includes("features") || lowerInput.includes("what can you do")) {
+      // Select a random feature to highlight
+      response = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
     } else if (lowerInput.includes("exam") || lowerInput.includes("test") || lowerInput.includes("neet")) {
       response = "Our Exam Readiness Test will help you understand your current NEET preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
     } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
@@ -204,6 +216,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       response = "You can sign in using the button at the top right of the screen.";
     } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
       response = "Click the 'Get Started' button to create your PREPZR account and begin your NEET preparation journey.";
+    } else if (lowerInput.includes("help me") || lowerInput.includes("struggling")) {
+      response = "Many NEET aspirants struggle with time management and keeping up with vast syllabus. PREPZR helps you by breaking down the curriculum into manageable chunks and creating a personalized study schedule based on your strengths and weaknesses.";
+    } else if (lowerInput.includes("success") || lowerInput.includes("topper") || lowerInput.includes("champion")) {
+      response = "Our champion methodology is based on studying how top NEET performers prepare. We've found that consistent practice, emotional well-being, and adaptive learning are key factors. PREPZR incorporates all these elements to help you become a champion too!";
     }
     
     // Avoid repeating the same message
@@ -238,8 +254,8 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      // Consistency with PREPZR pronunciation
-      const processedMessage = message.replace(/PREPZR/g, "PREPZR");
+      // Fix PREPZR pronunciation
+      const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
       
       utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -308,24 +324,70 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   
   const dismissComponent = () => {
     stopAnnouncement();
-    sessionStorage.setItem('hidePrepzrAnnouncer', 'true');
-    // Use a dummy div with zero height to smoothly unmount
+    // Instead of hiding the component completely, minimize it to icon mode
     setIsMinimized(true);
   };
-  
-  // Check if should be shown
-  useEffect(() => {
-    if (sessionStorage.getItem('hidePrepzrAnnouncer') === 'true') {
-      setIsMinimized(true);
-    }
-  }, []);
-  
-  if (isMinimized) {
-    return <div className="hidden" />;
-  }
+
+  // Speak a random PREPZR feature when minimized component is clicked
+  const handleMinimizedClick = () => {
+    const randomFeature = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
+    speakMessage(randomFeature);
+    setIsMinimized(false);
+    setHasStarted(true);
+  };
   
   if (!isVisible) {
     return null;
+  }
+  
+  // Render minimized floating icon version when dismissed
+  if (isMinimized) {
+    return (
+      <TooltipProvider>
+        <motion.div 
+          className="fixed bottom-4 right-4 z-50"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.1 }}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div 
+                className="relative group"
+                onClick={handleMinimizedClick}
+              >
+                <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-30 animate-pulse"></div>
+                <Button 
+                  className="rounded-full h-12 w-12 bg-white shadow-lg border border-indigo-100 hover:bg-indigo-50 relative z-10"
+                >
+                  <Volume2 className="h-6 w-6 text-indigo-600" />
+                </Button>
+                
+                {/* Expandable info on hover */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.div 
+                      initial={{ opacity: 0, width: 0, x: -20 }}
+                      animate={{ opacity: 1, width: 'auto', x: -10 }}
+                      exit={{ opacity: 0, width: 0, x: -20 }}
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64"
+                    >
+                      <p className="text-sm font-medium mb-1">PREPZR Voice Assistant</p>
+                      <p className="text-xs text-gray-500">Click to explore how PREPZR can help you crack your exams!</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Ask PREPZR about exam preparation
+            </TooltipContent>
+          </Tooltip>
+        </motion.div>
+      </TooltipProvider>
+    );
   }
 
   return (
@@ -386,7 +448,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                     </Tooltip>
                     
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={dismissComponent}>
-                      <span className="sr-only">Close</span>
+                      <span className="sr-only">Minimize</span>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                       </svg>
