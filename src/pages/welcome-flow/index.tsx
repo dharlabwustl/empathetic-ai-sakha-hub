@@ -1,17 +1,16 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book, Calendar, CheckCircle, ArrowRight, GraduationCap, Clock, Brain, ChevronRight, Sparkles } from 'lucide-react';
+import { Book, Calendar, CheckCircle, ArrowRight, GraduationCap, Clock, Brain, ChevronRight, Sparkles, Mic } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const WelcomeFlow = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
-  const totalSteps = 3;
+  const totalSteps = 4; // Increased from 3 to add voice assistant step
   
   const handleNext = () => {
     if (step < totalSteps) {
@@ -45,6 +44,7 @@ const WelcomeFlow = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
+        // First step - Welcome to PREPZR
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -133,6 +133,7 @@ const WelcomeFlow = () => {
           </Card>
         );
       case 2:
+        // Second step - Study Plan
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -236,6 +237,111 @@ const WelcomeFlow = () => {
           </Card>
         );
       case 3:
+        // New step - Voice Intelligent Support
+        return (
+          <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
+            <CardHeader className="text-center pb-2">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <CardTitle className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Voice Intelligent Support</CardTitle>
+                <CardDescription className="text-lg">Your study companion speaks with you</CardDescription>
+              </motion.div>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <motion.div 
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
+                className="p-4 rounded-full bg-primary/10 mb-6"
+              >
+                <Mic className="h-16 w-16 text-primary" />
+              </motion.div>
+              <div className="space-y-4">
+                <motion.p 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="text-center"
+                >
+                  PREPZR's voice intelligent system helps you study more effectively by providing verbal guidance and answering your questions.
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="bg-purple-50 p-4 rounded-lg shadow-inner"
+                >
+                  <h4 className="font-medium text-center mb-2 flex items-center justify-center gap-2">
+                    <Sparkles className="h-4 w-4 text-purple-600" />
+                    Voice Assistant Features
+                  </h4>
+                  <ul className="space-y-2">
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="flex items-center space-x-2"
+                    >
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span>Ask questions about any topic in your curriculum</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="flex items-center space-x-2"
+                    >
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span>Get instant verbal explanations of complex concepts</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="flex items-center space-x-2"
+                    >
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span>Use voice commands to navigate the platform</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.9 }}
+                      className="flex items-center space-x-2"
+                    >
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <span>Multiple language support for better understanding</span>
+                    </motion.li>
+                  </ul>
+                </motion.div>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.1 }}
+                  className="text-center text-sm text-muted-foreground"
+                >
+                  Voice assistance helps you learn faster and retain information better with auditory learning.
+                </motion.p>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between sm:justify-between">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
+                  Next <ArrowRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            </CardFooter>
+          </Card>
+        );
+      case 4:
+        // Original third step - From our founder
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -296,23 +402,15 @@ const WelcomeFlow = () => {
                 >
                   Your journey with PREPZR begins now. We're excited to help you excel in your exams and become the best version of yourself.
                 </motion.p>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="pt-4"
-                >
-                  <p className="font-medium">Ready to transform your study experience?</p>
-                </motion.div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between sm:justify-between">
+            <CardFooter className="flex justify-between">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
-                  Let's Begin <ChevronRight className="h-4 w-4" />
+                  Start Now <ArrowRight className="h-4 w-4" />
                 </Button>
               </motion.div>
             </CardFooter>
@@ -324,16 +422,7 @@ const WelcomeFlow = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col items-center justify-center p-4">
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
-      >
-        <PrepzrLogo width={180} height="auto" className="filter drop-shadow-lg" />
-      </motion.div>
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-950/30 flex items-center justify-center p-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -342,30 +431,22 @@ const WelcomeFlow = () => {
           exit="out"
           variants={pageVariants}
           transition={pageTransition}
-          className="w-full max-w-xl"
         >
           {renderStep()}
+          <div className="mt-6 flex justify-center">
+            <div className="flex space-x-2">
+              {[...Array(totalSteps)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${
+                    i + 1 === step ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </motion.div>
       </AnimatePresence>
-      
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        transition={{ delay: 0.5 }}
-        className="mt-8 flex space-x-2"
-      >
-        {Array.from({ length: totalSteps }).map((_, index) => (
-          <motion.div
-            key={index}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: index < step ? 1 : 0.3 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index < step ? 'bg-gradient-to-r from-blue-500 to-purple-500 w-8' : 'bg-gray-300 w-2'
-            }`}
-          />
-        ))}
-      </motion.div>
     </div>
   );
 };

@@ -55,6 +55,7 @@ import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
+import DailyChallengesPage from './pages/dashboard/student/DailyChallengesPage';
 
 function App() {
   return (
@@ -117,6 +118,7 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+              <Route path="/dashboard/student/challenges" element={<DailyChallengesPage />} />
               <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
