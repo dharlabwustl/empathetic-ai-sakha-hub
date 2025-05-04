@@ -28,16 +28,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   
-  // Welcome messages sequence - optimized for clear PREPZR pronunciation and conversion
+  // Welcome messages sequence - optimized for clear PREPZR pronunciation as a single word
   const welcomeMessages = [
-    "Welcome to PREP-EEZER. I'm your AI study assistant from India.",
-    "PREP-EEZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Welcome to PREPZR. I'm your AI study assistant from India.",
+    "PREPZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
     "Our personalized study plans adapt to your learning style and pace, making exam preparation more effective.",
     "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
     "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
     "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized tutoring.",
     "We've helped thousands of students achieve their dream scores. Let us help you too!",
-    "Click 'Get Started' to begin your journey with PREP-EEZER today!"
+    "Click 'Get Started' to begin your journey with PREPZR today!"
   ];
 
   // Check if first visit
@@ -113,7 +113,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREP-EEZER. Ready to continue your study journey?";
+      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your study journey?";
       // Trim the welcome messages for returning users
       welcomeMessages.splice(3);
       welcomeMessages.push("Let's pick up where you left off with your exam preparation!");
@@ -124,10 +124,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      // Format message for better pronunciation, especially for "PREPZR"
-      const formattedMessage = message.replace(/PREPZR/g, "PREP EEZER")
-                                       .replace(/PREP-ZR/g, "PREP EEZER")
-                                       .replace(/PREP-EEZER/g, "PREP EEZER");
+      // Format message for better pronunciation, treat PREPZR as a single word
+      const formattedMessage = message.replace(/PREPZR/g, "PREH-p-zur")
+                                     .replace(/PREP-ZR/g, "PREH-p-zur")
+                                     .replace(/Prepzr/g, "PREH-p-zur");
       
       utteranceRef.current.text = formattedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -255,7 +255,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
           <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Info className="h-5 w-5 text-white" />
-              <h3 className="text-white text-sm font-medium">PREP-EEZER Guide</h3>
+              <h3 className="text-white text-sm font-medium">PREPZR Guide</h3>
             </div>
             <Button 
               variant="ghost" 

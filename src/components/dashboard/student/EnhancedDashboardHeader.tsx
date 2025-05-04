@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
@@ -139,9 +140,9 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 p-4 sm:p-6 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
-            {userProfile.avatar ? (
+            {userProfile.photoURL ? (
               <AvatarImage 
-                src={userProfile.avatar} 
+                src={userProfile.photoURL} 
                 alt={userProfile.name || "User"} 
                 onError={(e) => {
                   console.error("Failed to load avatar image:", e);
@@ -170,7 +171,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:mt-0">
-          <div className="hidden sm:block">
+          <div className="block">
             <VoiceAnnouncer 
               userName={userProfile.name}
               mood={currentMood}

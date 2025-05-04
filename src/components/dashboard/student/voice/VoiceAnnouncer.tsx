@@ -10,6 +10,7 @@ import {
   getMotivationalMessage,
   DEFAULT_VOICE_SETTINGS
 } from './voiceUtils';
+import { motion } from 'framer-motion';
 
 interface VoiceAnnouncerProps {
   userName?: string;
@@ -94,19 +95,24 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
 
   return (
     <div className="flex items-center gap-1 relative">
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8 w-8 p-0"
-        onClick={toggleMute}
-        title={muted ? "Unmute voice assistant" : "Mute voice assistant"}
+      <motion.div
+        animate={speaking ? { scale: [1, 1.05, 1] } : {}}
+        transition={{ repeat: speaking ? Infinity : 0, duration: 1.5, ease: "easeInOut" }}
       >
-        {muted ? (
-          <VolumeX className="h-4 w-4" />
-        ) : (
-          <Volume2 className="h-4 w-4" />
-        )}
-      </Button>
+        <Button
+          size="sm"
+          variant={speaking ? "default" : "ghost"}
+          className={`h-8 w-8 p-0 ${speaking ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+          onClick={toggleMute}
+          title={muted ? "Unmute PREPZR voice assistant" : "Mute PREPZR voice assistant"}
+        >
+          {muted ? (
+            <VolumeX className="h-4 w-4" />
+          ) : (
+            <Volume2 className="h-4 w-4" />
+          )}
+        </Button>
+      </motion.div>
       
       <Button
         size="sm"

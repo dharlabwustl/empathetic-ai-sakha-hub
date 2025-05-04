@@ -100,6 +100,7 @@ const StudentDashboard = () => {
 
   const handleProfileImageUpdate = (imageUrl: string) => {
     setProfileImage(imageUrl);
+    localStorage.setItem('user_profile_image', imageUrl);
   };
 
   const handleSkipTourWrapper = () => {

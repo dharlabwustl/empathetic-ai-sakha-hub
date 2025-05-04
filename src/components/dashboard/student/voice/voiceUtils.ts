@@ -1,3 +1,4 @@
+
 import { MoodType } from '@/types/user/base';
 import { VoiceSpeakingStartedEvent } from '@/types/voice';
 
@@ -6,7 +7,7 @@ export const DEFAULT_VOICE_SETTINGS = {
   enabled: true,
   volume: 1.0,
   pitch: 1.05,  // Slightly higher pitch for a pleasant female voice
-  rate: 0.92,   // Slightly slower rate for a calmer delivery
+  rate: 0.90,   // Slightly slower rate for a calmer delivery
   voice: null,
   language: 'en-US',
   autoGreet: true,
@@ -113,9 +114,9 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     
     // Process message for better pronunciation
     const processedMessage = message
-      .replace(/PREPZR/gi, "PREP EEZER")
-      .replace(/PREP-ZR/gi, "PREP EEZER")
-      .replace(/Prepzr/g, "Prep eezer");
+      .replace(/PREPZR/gi, "PREH-p-zur")
+      .replace(/PREP-ZR/gi, "PREH-p-zur")
+      .replace(/Prepzr/g, "PREH-p-zur");
     
     // Create and configure speech utterance
     const utterance = new SpeechSynthesisUtterance(processedMessage);
@@ -134,7 +135,7 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     utterance.onstart = () => {
       document.dispatchEvent(
         new CustomEvent('voice-speaking-started', { 
-          detail: { message: processedMessage } 
+          detail: { message } // Use original message for subtitles
         })
       );
     };
@@ -170,7 +171,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
   
   // Different greeting for first time users
   if (isFirstTimeUser) {
-    return `${timeGreeting} and a warm welcome to PREP-EEZER. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
+    return `${timeGreeting} and a warm welcome to PREPZR. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
   }
   
   // For returning users
@@ -194,7 +195,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
     }
   }
   
-  return `${timeGreeting}${name}. It's lovely to welcome you back to PREP-EEZER${moodResponse} How may I assist you with your studies today?`;
+  return `${timeGreeting}${name}. It's lovely to welcome you back to PREPZR${moodResponse} How may I assist you with your studies today?`;
 }
 
 // Get announcement for reminders with a more pleasant tone
@@ -332,13 +333,13 @@ export function processUserQuery(
   
   // Information requests
   if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you') || lowerQuery.includes('your name')) {
-    return "I'm the PREP-EEZER voice assistant. I'm here to help you with your exam preparation and navigate through the platform. What would you like to learn more about?";
+    return "I'm the PREPZR voice assistant. I'm here to help you with your exam preparation and navigate through the platform. What would you like to learn more about?";
   }
   
   if (lowerQuery.includes('tell me about') || lowerQuery.includes('what is prepzr') || lowerQuery.includes('about prepzr')) {
-    return "PREP-EEZER is an emotionally intelligent study partner designed to help students crack competitive exams like NEET and IIT-JEE. We offer personalized study plans, adaptive learning, and AI-powered assistance tailored to your unique learning style and emotional state.";
+    return "PREPZR is an emotionally intelligent study partner designed to help students crack competitive exams like NEET and IIT-JEE. We offer personalized study plans, adaptive learning, and AI-powered assistance tailored to your unique learning style and emotional state.";
   }
   
   // Fallback response
-  return "How can I help you with your studies today? You can ask me about your study plan, practice tests, or how to use specific features of PREP-EEZER.";
+  return "How can I help you with your studies today? You can ask me about your study plan, practice tests, or how to use specific features of PREPZR.";
 }
