@@ -17,6 +17,7 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
+import TooltipProvider from "@/components/TooltipProvider";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -74,14 +75,13 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Fixed: Don't force disable tour popup
+  // State for tour visibility
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
   const handleOpenTour = () => {
-    // Fixed: Actually open the tour when requested
     setShowTour(true);
   };
   
@@ -143,72 +143,74 @@ const DashboardLayout = ({
       />
       
       <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-        <TopNavigationControls 
-          hideSidebar={hideSidebar}
-          onToggleSidebar={onToggleSidebar}
-          formattedDate={formattedDate}
-          formattedTime={formattedTime}
-          onOpenTour={handleOpenTour}
-          userName={userProfile.name}
-          mood={currentMood}
-          isFirstTimeUser={isFirstTimeUser}
-          onViewStudyPlan={onViewStudyPlan}
-        />
-
-        {/* Subscription Banner - Add at the top of dashboard */}
-        <SubscriptionBanner 
-          planType={subscriptionDetails.planType}
-          expiryDate={subscriptionDetails.expiryDate}
-          isExpired={subscriptionDetails.isExpired}
-        />
-
-        {/* Enhanced Dashboard Header with proper profile image handling */}
-        <div className="mb-6">
-          <EnhancedDashboardHeader 
-            userProfile={userProfile}
-            formattedTime={formattedTime}
+        <TooltipProvider>
+          <TopNavigationControls 
+            hideSidebar={hideSidebar}
+            onToggleSidebar={onToggleSidebar}
             formattedDate={formattedDate}
+            formattedTime={formattedTime}
+            onOpenTour={handleOpenTour}
+            userName={userProfile.name}
+            mood={currentMood}
+            isFirstTimeUser={isFirstTimeUser}
             onViewStudyPlan={onViewStudyPlan}
-            currentMood={currentMood}
-            onMoodChange={onMoodChange}
-            upcomingEvents={upcomingEvents}
           />
-        </div>
 
-        {/* Surrounding Influences Section */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
-        
-        {isMobile && (
+          {/* Subscription Banner - Add at the top of dashboard */}
+          <SubscriptionBanner 
+            planType={subscriptionDetails.planType}
+            expiryDate={subscriptionDetails.expiryDate}
+            isExpired={subscriptionDetails.isExpired}
+          />
+
+          {/* Enhanced Dashboard Header with proper profile image handling */}
           <div className="mb-6">
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          </div>
-        )}
-        
-        {/* Main Content - either custom children or standard dashboard content */}
-        {children ? (
-          <div className="mt-6">{children}</div>
-        ) : (
-          <div className="mt-4 sm:mt-6">
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={onTabChange}
+            <EnhancedDashboardHeader 
               userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showTour} // Fixed: Use state variable to control tour visibility
-              handleSkipTour={onSkipTour}
-              handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav || isMobile}
-              lastActivity={lastActivity}
-              suggestedNextAction={suggestedNextAction}
+              formattedTime={formattedTime}
+              formattedDate={formattedDate}
+              onViewStudyPlan={onViewStudyPlan}
+              currentMood={currentMood}
+              onMoodChange={onMoodChange}
+              upcomingEvents={upcomingEvents}
             />
           </div>
-        )}
+
+          {/* Surrounding Influences Section */}
+          <SurroundingInfluencesSection 
+            influenceMeterCollapsed={influenceMeterCollapsed}
+            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          />
+          
+          {isMobile && (
+            <div className="mb-6">
+              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+            </div>
+          )}
+          
+          {/* Main Content - either custom children or standard dashboard content */}
+          {children ? (
+            <div className="mt-6">{children}</div>
+          ) : (
+            <div className="mt-4 sm:mt-6">
+              <DashboardContent
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                userProfile={userProfile}
+                kpis={kpis}
+                nudges={nudges}
+                markNudgeAsRead={markNudgeAsRead}
+                features={features}
+                showWelcomeTour={false} // Let our component handle this
+                handleSkipTour={onSkipTour}
+                handleCompleteTour={onCompleteTour}
+                hideTabsNav={hideTabsNav || isMobile}
+                lastActivity={lastActivity}
+                suggestedNextAction={suggestedNextAction}
+              />
+            </div>
+          )}
+        </TooltipProvider>
       </main>
       
       <ChatAssistant userType="student" />
@@ -220,7 +222,7 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour - Fix open property to use state variable */}
+      {/* WelcomeTour - Fix to use state variable */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
@@ -228,7 +230,7 @@ const DashboardLayout = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
-        open={showTour} // Fixed: Use state variable instead of hardcoded false
+        open={showTour} 
         onOpenChange={setShowTour}
       />
     </div>

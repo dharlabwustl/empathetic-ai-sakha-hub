@@ -6,6 +6,7 @@ import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDe
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
 import BackButton from '@/components/dashboard/student/BackButton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AcademicAdvisorProps {
   userProfile?: {
@@ -42,12 +43,14 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         </p>
       </div>
 
-      <StudyPlanSections
-        activePlans={activePlans}
-        completedPlans={completedPlans}
-        onCreatePlan={handleCreatePlan}
-        onViewPlanDetails={handleViewPlanDetails}
-      />
+      <TooltipProvider>
+        <StudyPlanSections
+          activePlans={activePlans}
+          completedPlans={completedPlans}
+          onCreatePlan={handleCreatePlan}
+          onViewPlanDetails={handleViewPlanDetails}
+        />
+      </TooltipProvider>
 
       {/* Study Plan Creation Dialog */}
       <CreateStudyPlanWizard
