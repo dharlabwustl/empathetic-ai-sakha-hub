@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
@@ -49,21 +50,63 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     Math.floor(Math.random() * 60) + 20
   ); // Simulated progress between 20-80%
   const [previousMood, setPreviousMood] = useState<MoodType | undefined>(currentMood);
+  const [hasGreeted, setHasGreeted] = useState(false);
   
+  // Add a slight delay before greeting to ensure dashboard has fully loaded
   useEffect(() => {
-    // If mood changed, provide voice feedback
-    if (currentMood && previousMood !== currentMood) {
+    if (!hasGreeted) {
+      const timer = setTimeout(() => {
+        // Check if this is the first login
+        const isFirstLogin = localStorage.getItem('firstLoginGreeted') !== 'true';
+        const loginCount = parseInt(localStorage.getItem('loginCount') || '0', 10);
+        
+        let greetingMessage = '';
+        
+        if (isFirstLogin) {
+          greetingMessage = `Welcome to PREP-ZR, ${userProfile.name}! I'm your study AI assistant. I'll help you navigate through our platform and maximize your exam preparation. Feel free to ask me any questions!`;
+          localStorage.setItem('firstLoginGreeted', 'true');
+        } else if (loginCount < 3) {
+          greetingMessage = `Welcome back, ${userProfile.name}! Great to see you again. Let's continue your exam preparation journey. Need any help getting started today?`;
+        } else {
+          // Regular greeting for returning users
+          const timeOfDay = getTimeOfDay();
+          greetingMessage = `${timeOfDay}, ${userProfile.name}! Ready to make progress on your studies today?`;
+          
+          // Add a motivational message if we have a mood
+          if (currentMood) {
+            greetingMessage += " " + getMoodBasedMessage(currentMood);
+          }
+        }
+        
+        // Update login count
+        localStorage.setItem('loginCount', String(loginCount + 1));
+        
+        // Speak the greeting
+        if (greetingMessage) {
+          speakMessage(greetingMessage, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-US', autoGreet: true, muted: false });
+        }
+        
+        setHasGreeted(true);
+      }, 1500); // 1.5 second delay to ensure dashboard has loaded
+      
+      return () => clearTimeout(timer);
+    }
+  }, [userProfile.name, currentMood, hasGreeted]);
+  
+  // If mood changes, provide voice feedback
+  useEffect(() => {
+    if (currentMood && previousMood !== currentMood && hasGreeted) {
       const moodFeedback = getMoodFeedback(currentMood);
       speakMessage(moodFeedback, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-US', autoGreet: true, muted: false });
       setPreviousMood(currentMood);
     }
-  }, [currentMood, previousMood]);
+  }, [currentMood, previousMood, hasGreeted]);
   
-  const getGreeting = () => {
+  const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
   };
   
   const getMoodEmoji = (mood?: MoodType) => {
@@ -78,6 +121,29 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
       case MoodType.Stressed: return "😓";
       case MoodType.Sad: return "😢";
       default: return "😊";
+    }
+  };
+  
+  const getMoodBasedMessage = (mood: MoodType): string => {
+    switch(mood) {
+      case MoodType.Motivated:
+        return "Your motivation is inspiring! Let's channel that energy into productive study today.";
+      case MoodType.Focused:
+        return "With your focused mindset, we can accomplish a lot today.";
+      case MoodType.Tired:
+        return "I understand you're feeling tired. Let's set a gentler pace today with more breaks.";
+      case MoodType.Anxious:
+        return "It's okay to feel anxious sometimes. We'll take things step by step today.";
+      case MoodType.Happy:
+        return "Your positive energy will make learning much more enjoyable today!";
+      case MoodType.Neutral:
+        return "Let's make the most of today's study session.";
+      case MoodType.Stressed:
+        return "I notice you're feeling stressed. Remember to take deep breaths and short breaks today.";
+      case MoodType.Sad:
+        return "I'm sorry you're feeling down today. Sometimes gentle progress is still progress.";
+      default:
+        return "Let's make today's study session productive!";
     }
   };
   
