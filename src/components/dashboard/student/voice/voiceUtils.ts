@@ -54,6 +54,14 @@ export const findBestVoice = (preferredLang: string = 'en-IN'): SpeechSynthesisV
   return voices.find(voice => voice.lang.includes('en')) || voices[0];
 };
 
+/**
+ * Fix pronunciation of certain words
+ */
+export const fixPronunciation = (text: string): string => {
+  // Fix PREPZR pronunciation to "prepezer"
+  return text.replace(/PREPZR/gi, "prep-ezer");
+};
+
 // Helper function to speak a message
 export const speakMessage = (
   message: string, 
@@ -72,9 +80,12 @@ export const speakMessage = (
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
-  const utterance = new SpeechSynthesisUtterance(message);
+  // Fix pronunciation before creating the utterance
+  const processedMessage = fixPronunciation(message);
+  const utterance = new SpeechSynthesisUtterance(processedMessage);
+  
   utterance.volume = settings.volume;
-  utterance.rate = settings.rate;
+  utterance.rate = settings.rate; 
   utterance.pitch = settings.pitch;
   utterance.lang = settings.language;
   
@@ -88,7 +99,7 @@ export const speakMessage = (
   // Track speaking status with events
   utterance.onstart = () => {
     document.dispatchEvent(
-      new CustomEvent('voice-speaking-started', { detail: { message } })
+      new CustomEvent('voice-speaking-started', { detail: { message: processedMessage } })
     );
   };
   
@@ -96,11 +107,16 @@ export const speakMessage = (
     document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
   };
   
+  // Add a slight pause to make speech more natural
+  if (processedMessage.includes('.') || processedMessage.includes('!') || processedMessage.includes('?')) {
+    utterance.text = processedMessage.replace(/\./g, '.<break time="0.5s"/>').replace(/\!/g, '!<break time="0.5s"/>').replace(/\?/g, '?<break time="0.5s"/>');
+  }
+  
   // Speak the message
   window.speechSynthesis.speak(utterance);
 };
 
-// Get greeting based on user state with a calmer, more pleasant tone
+// Get greeting based on user state with a happier, more energetic tone
 export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: boolean = false): string {
   const hour = new Date().getHours();
   let timeGreeting;
@@ -113,43 +129,43 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
     timeGreeting = "Good evening";
   }
   
-  // Different greeting for first time users
+  // Different greeting for first time users - more energetic
   if (isFirstTimeUser) {
-    return `${timeGreeting} and a warm welcome to PREP-EZER. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
+    return `${timeGreeting} and a warm welcome to prep-ezer! I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace!`;
   }
   
-  // For returning users
+  // For returning users - happier tone
   const name = userName ? `, ${userName}` : '';
   let moodResponse = '';
   
   if (mood) {
     switch(mood.toLowerCase()) {
       case 'motivated':
-        moodResponse = " I'm happy to see you're feeling motivated today. Let's channel that positive energy into productive study time.";
+        moodResponse = " I'm thrilled to see you're feeling motivated today! Let's channel that amazing energy into productive study time!";
         break;
       case 'anxious':
-        moodResponse = " I notice you're feeling anxious. Don't worry, we'll take things one step at a time and make steady progress together.";
+        moodResponse = " I notice you're feeling anxious. Don't worry, we'll tackle things one step at a time and make fantastic progress together!";
         break;
       case 'tired':
-        moodResponse = " I see you're feeling tired. We can focus on lighter review topics or take breaks between study sessions today.";
+        moodResponse = " I see you're feeling tired. We can focus on lighter topics or take plenty of breaks today to keep you refreshed!";
         break;
       case 'focused':
-        moodResponse = " You're feeling focused today. That's wonderful! This is a perfect opportunity to tackle some of the more challenging concepts.";
+        moodResponse = " You're feeling focused today. That's wonderful! This is the perfect opportunity to tackle those challenging concepts!";
         break;
     }
   }
   
-  return `${timeGreeting}${name}. Welcome back to PREP-EZER${moodResponse} How may I assist you with your studies today?`;
+  return `${timeGreeting}${name}! Welcome back to prep-ezer${moodResponse} How can I assist you with your studies today?`;
 }
 
-// Get announcement for reminders with a more pleasant tone
+// Get announcement for reminders with a more pleasant, energetic tone
 export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?: string}> = []): string {
   if (!pendingTasks || pendingTasks.length === 0) {
-    return "You don't have any pending tasks at the moment. Well done on staying organized with your studies!";
+    return "You don't have any pending tasks right now. Excellent job staying on top of your studies!";
   }
   
   const taskCount = pendingTasks.length;
-  let announcement = `You have ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'} waiting for your attention. `;
+  let announcement = `You have ${taskCount} ${taskCount === 1 ? 'exciting task' : 'exciting tasks'} waiting for you! `;
   
   if (taskCount <= 3) {
     // List all tasks if there are 3 or fewer
@@ -165,7 +181,7 @@ export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?
     });
   } else {
     // Just mention the most important ones if there are many
-    announcement += "The most important ones are: ";
+    announcement += "The top priorities are: ";
     for (let i = 0; i < 2; i++) {
       if (i > 0) announcement += " and ";
       announcement += pendingTasks[i].title;
@@ -173,29 +189,29 @@ export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?
         announcement += ` due ${pendingTasks[i].due}`;
       }
     }
-    announcement += `. And ${taskCount - 2} more tasks to review when you're ready.`;
+    announcement += `. Plus ${taskCount - 2} more exciting challenges to tackle when you're ready!`;
   }
   
   return announcement;
 }
 
-// Get motivational message with a calmer, more pleasant tone
+// Get motivational message with a happier, more energetic tone
 export function getMotivationalMessage(examGoal?: string): string {
   const messages = [
-    "Remember, consistent, steady progress is the key to success. You're doing wonderfully!",
-    "Every moment you spend studying brings you one step closer to achieving your goals. Keep going at your pace.",
-    "The difference between ordinary and extraordinary is that little extra effort. And I can see you putting in that effort.",
-    "Success is built through small efforts repeated day after day. Your dedication is truly inspiring.",
-    "Your hard work today is preparing you for a brighter tomorrow. I'm here to support you every step of the way."
+    "Remember, consistent progress is the key to success. You're doing amazing work!",
+    "Every minute you spend studying brings you one step closer to your dreams. Keep that fantastic momentum going!",
+    "The difference between ordinary and extraordinary is that little extra effort. And wow, your dedication is truly inspiring!",
+    "Success is built through small efforts repeated day after day. Your commitment is absolutely incredible!",
+    "Your hard work today is preparing you for a brilliant tomorrow. I'm here cheering you on every step of the way!"
   ];
   
-  // Exam specific messages
+  // Exam specific messages with more energy
   if (examGoal) {
     const examName = examGoal.toUpperCase();
     const examSpecificMessages = [
-      `Take a moment to appreciate how far you've come with your ${examName} preparation. Every concept you master is a victory.`,
-      `Remember why you started preparing for ${examName}. Your determination will carry you through to success.`,
-      `Your dedication to ${examName} is opening doors to wonderful opportunities for your future.`
+      `Look at how far you've come with your ${examName} preparation! Every concept you master is a wonderful victory!`,
+      `Remember why you started preparing for ${examName}. Your amazing determination will carry you straight to success!`,
+      `Your dedication to ${examName} is opening doors to fantastic opportunities for your future!`
     ];
     
     // Add exam specific messages to the general pool

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle } from 'lucide-react';
@@ -9,7 +8,8 @@ import {
   getReminderAnnouncement,
   getMotivationalMessage,
   DEFAULT_VOICE_SETTINGS,
-  processUserQuery
+  processUserQuery,
+  fixPronunciation
 } from './voiceUtils';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -69,11 +69,17 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         if (greeting !== lastAnnouncementRef.current) {
           // Check if this message was already spoken recently
           if (!messageHistory.includes(greeting)) {
-            // Replace PREPZR with PREP-EZER for correct pronunciation
-            const processedGreeting = greeting.replace(/PREPZR/g, "PREP-EZER");
+            // Set up happy, energetic voice settings
+            const enhancedSettings = { 
+              ...DEFAULT_VOICE_SETTINGS,
+              muted,
+              pitch: 1.1, // Higher pitch for female voice
+              rate: 0.95, // Slightly faster for energetic delivery
+              language: 'en-IN'
+            };
             
-            speakMessage(processedGreeting, { ...DEFAULT_VOICE_SETTINGS, muted });
-            setCurrentMessage(processedGreeting);
+            speakMessage(greeting, enhancedSettings);
+            setCurrentMessage(greeting);
             setSpeaking(true);
             lastAnnouncementRef.current = greeting;
             
@@ -87,9 +93,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     // Set up listeners for speaking events
     const handleSpeakingStarted = (event: CustomEvent) => {
       setSpeaking(true);
-      // Replace PREPZR with PREP-EZER for correct pronunciation in subtitles
-      const processedMessage = event.detail.message.replace(/PREPZR/g, "PREP-EZER");
-      setCurrentMessage(processedMessage);
+      setCurrentMessage(event.detail.message);
     };
 
     const handleSpeakingEnded = () => {
@@ -147,20 +151,37 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         // Handle special commands
         if (response === "MUTE_COMMAND") {
           toggleMute(true);
-          speakMessage("Voice assistant muted. I'll still listen for commands.", { ...DEFAULT_VOICE_SETTINGS, muted: false });
+          // Use energetic, happy voice
+          speakMessage("Voice assistant muted. I'll still listen for your commands!", { 
+            ...DEFAULT_VOICE_SETTINGS, 
+            muted: false,
+            pitch: 1.1,
+            rate: 0.95
+          });
           return;
         } else if (response === "UNMUTE_COMMAND") {
           toggleMute(false);
-          speakMessage("Voice assistant unmuted. I'll speak responses again.", { ...DEFAULT_VOICE_SETTINGS, muted: false });
+          // Use energetic, happy voice
+          speakMessage("Voice assistant unmuted! I'm ready to chat with you again!", { 
+            ...DEFAULT_VOICE_SETTINGS, 
+            muted: false,
+            pitch: 1.1,
+            rate: 0.95 
+          });
           return;
         }
         
-        // Replace PREPZR with PREP-EZER for correct pronunciation
-        const processedResponse = response.replace(/PREPZR/g, "PREP-EZER");
-        
         // Speak the response if not muted
         if (!muted) {
-          speakMessage(processedResponse, { ...DEFAULT_VOICE_SETTINGS, muted });
+          const enhancedSettings = { 
+            ...DEFAULT_VOICE_SETTINGS,
+            muted,
+            pitch: 1.1, // Higher pitch for female voice
+            rate: 0.95, // Slightly faster for energetic delivery  
+          };
+          
+          speakMessage(response, enhancedSettings);
+          
           // Add to message history if not already there
           if (!messageHistory.includes(response)) {
             setMessageHistory(prev => [...prev.slice(-2), response]);
@@ -245,7 +266,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
                 variant={speaking ? "default" : "ghost"}
                 className={`h-8 w-8 p-0 ${speaking ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
                 onClick={toggleMute}
-                aria-label={muted ? "Unmute PREP-EZER voice assistant" : "Mute PREP-EZER voice assistant"}
+                aria-label={muted ? "Unmute voice assistant" : "Mute voice assistant"}
               >
                 {muted ? (
                   <VolumeX className="h-4 w-4" />
@@ -256,7 +277,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             </motion.div>
           </TooltipTrigger>
           <TooltipContent>
-            {muted ? "Unmute PREP-EZER voice assistant" : "Mute PREP-EZER voice assistant"}
+            {muted ? "Unmute voice assistant" : "Mute voice assistant"}
           </TooltipContent>
         </Tooltip>
         
@@ -277,7 +298,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {isListening ? "Stop voice input" : "Speak to PREP-EZER assistant"}
+            {isListening ? "Stop voice input" : "Speak to voice assistant"}
           </TooltipContent>
         </Tooltip>
         
@@ -304,7 +325,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
               size="sm"
               variant="ghost"
               className="h-8 w-8 p-0"
-              onClick={() => speakMessage("I am your PREP-EZER voice assistant. You can ask me questions about your study plan, practice tests, or navigation help. Just click the microphone button and speak to me.", { ...DEFAULT_VOICE_SETTINGS, muted })}
+              onClick={() => speakMessage("I am your voice assistant. You can ask me questions about your study plan, practice tests, or navigation help. Just click the microphone button and speak to me.", { ...DEFAULT_VOICE_SETTINGS, muted })}
               aria-label="Voice assistant help"
             >
               <HelpCircle className="h-4 w-4" />

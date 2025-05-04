@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
@@ -17,7 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
 import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { speakMessage, getMotivationalMessage } from './voice/voiceUtils';
+import { speakMessage, getMotivationalMessage, fixPronunciation } from './voice/voiceUtils';
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileBase;
@@ -55,7 +54,15 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     // If mood changed, provide voice feedback
     if (currentMood && previousMood !== currentMood) {
       const moodFeedback = getMoodFeedback(currentMood);
-      speakMessage(moodFeedback, { enabled: true, volume: 1.0, pitch: 1.0, rate: 1.0, voice: null, language: 'en-IN', autoGreet: true, muted: false });
+      speakMessage(moodFeedback, { 
+        enabled: true, 
+        volume: 1.0, 
+        pitch: 1.1, // Higher pitch for female voice
+        rate: 0.95, // A bit faster for energetic delivery
+        language: 'en-IN', 
+        autoGreet: true, 
+        muted: false 
+      });
       setPreviousMood(currentMood);
     }
   }, [currentMood, previousMood]);
@@ -85,23 +92,23 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const getMoodFeedback = (mood: MoodType): string => {
     switch(mood) {
       case MoodType.Motivated:
-        return `Great to see you're feeling motivated, ${userProfile.name}! This is the perfect energy for tackling challenging topics. I've adjusted your study plan to include some advanced material.`;
+        return `Fantastic to see you're feeling motivated, ${userProfile.name}! This is the perfect energy for tackling challenging topics. I've adjusted your study plan to include some advanced material!`;
       case MoodType.Focused:
-        return `I notice you're focused today, ${userProfile.name}. Let's make the most of this concentration with some deep learning sessions.`;
+        return `I notice you're focused today, ${userProfile.name}! Let's make the most of this wonderful concentration with some deep learning sessions!`;
       case MoodType.Tired:
-        return `I understand you're feeling tired, ${userProfile.name}. Let's adjust your plan with shorter study sessions and more breaks today.`;
+        return `I understand you're feeling tired, ${userProfile.name}. No worries! Let's adjust your plan with shorter study sessions and more breaks today.`;
       case MoodType.Anxious:
-        return `I see you're feeling anxious, ${userProfile.name}. Let's start with some easier review topics to build confidence. Remember, it's normal to feel this way before important exams.`;
+        return `I see you're feeling anxious, ${userProfile.name}. Let's start with some easier review topics to build your confidence. Remember, it's completely normal to feel this way before important exams!`;
       case MoodType.Happy:
-        return `You're in a great mood today, ${userProfile.name}! Let's use this positive energy for some creative problem-solving exercises.`;
+        return `You're in a great mood today, ${userProfile.name}! Let's use this amazing positive energy for some creative problem-solving exercises!`;
       case MoodType.Neutral:
-        return `Thanks for sharing how you feel, ${userProfile.name}. We'll keep your regular study pace for today.`;
+        return `Thanks for sharing how you feel, ${userProfile.name}! We'll keep your regular study pace for today.`;
       case MoodType.Stressed:
-        return `I understand you're feeling stressed, ${userProfile.name}. Let's adjust today's plan to include some relaxation techniques between study sessions.`;
+        return `I understand you're feeling stressed, ${userProfile.name}. Let's adjust today's plan to include some helpful relaxation techniques between study sessions.`;
       case MoodType.Sad:
-        return `I'm sorry you're feeling down today, ${userProfile.name}. Let's focus on some review topics you enjoy, and remember it's okay to take breaks when needed.`;
+        return `I'm sorry you're feeling down today, ${userProfile.name}. Let's focus on some enjoyable review topics, and remember it's absolutely okay to take breaks when needed.`;
       default:
-        return `Thanks for sharing how you're feeling today, ${userProfile.name}. I'll adjust your recommendations accordingly.`;
+        return `Thanks for sharing how you're feeling today, ${userProfile.name}! I'll adjust your recommendations to match your mood.`;
     }
   };
   

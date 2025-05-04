@@ -1,15 +1,16 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
-import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage } from '@/components/dashboard/student/voice/voiceUtils';
+import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
   initialSettings?: Partial<VoiceSettings>;
+  isFirstTimeUser?: boolean;
 }
 
 export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
-  const { userName, initialSettings } = props || {};
+  const { userName, initialSettings, isFirstTimeUser = false } = props || {};
   
   // Merge default settings with any initialSettings
   const mergedSettings = { ...DEFAULT_VOICE_SETTINGS, ...initialSettings };
@@ -19,6 +20,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceInitialized, setVoiceInitialized] = useState<boolean>(false);
+  const [transcript, setTranscript] = useState<string>('');
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   
@@ -42,6 +44,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       // Initialize voice
       const initializeVoice = () => {
         setVoiceInitialized(true);
+        console.log("Voice system initialized with available voices:", window.speechSynthesis.getVoices().length);
       };
       
       // Ensure voices are loaded before initializing
@@ -53,8 +56,15 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     }
     
     // Set up event listeners for tracking speaking status
-    const handleSpeakingStarted = () => setIsSpeaking(true);
-    const handleSpeakingEnded = () => setIsSpeaking(false);
+    const handleSpeakingStarted = (event: any) => {
+      setIsSpeaking(true);
+      console.log("Speech started:", event.detail?.message);
+    };
+    
+    const handleSpeakingEnded = () => {
+      setIsSpeaking(false);
+      console.log("Speech ended");
+    };
     
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
     document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
@@ -86,14 +96,14 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   }, []);
   
   // Toggle mute state
-  const toggleMute = useCallback(() => {
+  const toggleMute = useCallback((force?: boolean) => {
     setVoiceSettings(prev => {
       // If turning on sound after being muted, cancel any ongoing speech
-      if (prev.muted && window.speechSynthesis) {
+      if (prev.muted && !force && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
       
-      return { ...prev, muted: !prev.muted };
+      return { ...prev, muted: force !== undefined ? force : !prev.muted };
     });
   }, []);
   
@@ -102,6 +112,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Only speak if enabled or force speech is true
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
+        // Fix pronunciation before speaking
         speakVoiceMessage(message, voiceSettings);
       }
     }
@@ -109,7 +120,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   
   // Test voice function
   const testVoice = useCallback(() => {
-    const testMessage = `Hello ${userName || 'there'}, I'm your PREP-EZER voice assistant.`;
+    const testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant.`;
     speakMessage(testMessage, true);
   }, [userName, speakMessage]);
   
@@ -131,7 +142,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       recognitionRef.current.onresult = (event) => {
         const result = event.results[0][0].transcript;
         console.log('Speech recognized:', result);
-        // Process result
+        setTranscript(result);
       };
       
       recognitionRef.current.onend = () => {
@@ -156,6 +167,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     try {
       recognitionRef.current?.start();
       setIsListening(true);
+      setTranscript('');
     } catch (e) {
       console.error('Error starting speech recognition:', e);
     }
@@ -183,7 +195,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     isListening,
     startListening,
     stopListening,
-    voiceInitialized
+    voiceInitialized,
+    transcript
   };
 };
 
