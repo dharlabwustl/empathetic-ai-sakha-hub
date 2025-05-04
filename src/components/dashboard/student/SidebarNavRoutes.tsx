@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -56,7 +55,7 @@ export const SidebarNavRoutes = ({
     { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <BookMarked size={20} /> },
   ];
   
-  // Learning tools category
+  // Learning tools category - updated as requested
   const learningTools = [
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
@@ -69,11 +68,12 @@ export const SidebarNavRoutes = ({
     { name: "Feel Good Corner", path: "/dashboard/student/feel-good-corner", icon: <Smile size={20} /> },
   ];
   
+  // Other user type routes remain unchanged
   const userTypeRoutes: UserRouteMap = {
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
       { name: "Job Advisor", path: "/dashboard/employee/advisor", icon: <MessageSquare size={20} /> },
-      { name: "Productivity", path: "/dashboard/employee/productivity", icon: <LineChart size={20} /> },
+      { name: "Productivity", path: "/dashboard/employee/productivity", icon: <Calendar size={20} /> },
       { name: "Training", path: "/dashboard/employee/training", icon: <Calendar size={20} /> },
     ],
     doctor: [
@@ -145,7 +145,7 @@ export const SidebarNavRoutes = ({
               </nav>
             </div>
 
-            {/* Learning Tools */}
+            {/* Learning Tools - Updated to match requirements */}
             <div className="space-y-1">
               {!collapsed && (
                 <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
