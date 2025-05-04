@@ -30,7 +30,7 @@ import ProfilePage from '@/pages/student/ProfilePage';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import TutorView from '@/pages/dashboard/student/TutorView';
-import AcademicAdvisorView from '@/pages/dashboard/student/academic/AcademicAdvisorView';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
@@ -55,7 +55,6 @@ import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
-import DailyChallengesPage from './pages/dashboard/student/DailyChallengesPage';
 
 function App() {
   return (
@@ -118,7 +117,6 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
-              <Route path="/dashboard/student/daily-challenges" element={<DailyChallengesPage />} />
               <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
@@ -129,9 +127,6 @@ function App() {
               
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
-              
-              {/* Academic Advisor route */}
-              <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
@@ -155,6 +150,7 @@ function App() {
               
               {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
+              <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* 404 */}

@@ -1,164 +1,269 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ConceptNotes from './ConceptNotes';
-import ConceptFlashcards from './ConceptFlashcards';
-import ConceptExamples from './ConceptExamples';
-import ConceptRelated from './ConceptRelated';
-import ConceptPractice from './ConceptPractice';
-import { ArrowLeft } from 'lucide-react';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft } from 'lucide-react';
 
-// Mock data for a concept
-const mockConcept = {
-  id: 'c1',
-  title: 'Newton\'s Laws of Motion',
-  description: 'The fundamental principles that form the foundation of classical mechanics, describing the relationship between the motion of an object and the forces acting on it.',
-  subject: 'Physics',
-  difficulty: 'Medium',
-  imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb', 
-  content: `
-    <h2>Introduction</h2>
-    <p>Newton's laws of motion are three physical laws that, together, laid the foundation for classical mechanics. They describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.</p>
-    
-    <h2>First Law: Law of Inertia</h2>
-    <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced external force.</p>
-    
-    <h2>Second Law: F = ma</h2>
-    <p>The acceleration of an object as produced by a net force is directly proportional to the magnitude of the net force, in the same direction as the net force, and inversely proportional to the mass of the object.</p>
-    
-    <h2>Third Law: Action-Reaction</h2>
-    <p>For every action, there is an equal and opposite reaction.</p>
-  `,
-  examples: [
+// Mock data for the concept detail
+const mockConceptData = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  chapter: "Mechanics",
+  description: "The fundamental principles that describe the relationship between the motion of an object and the forces acting on it.",
+  difficulty: "medium",
+  timeEstimate: 25,
+  mastery: 65,
+  completed: false,
+  important: true,
+  contents: [
     {
-      id: 'ex1',
-      title: 'Pushing a Cart',
-      description: 'When you push a shopping cart, the cart accelerates due to the force applied. This demonstrates Newton\'s Second Law.',
-      imageUrl: 'https://images.unsplash.com/photo-1601598851547-4302969d0614'
+      type: 'text',
+      content: "Newton's laws of motion are three physical laws that describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics."
     },
     {
-      id: 'ex2',
-      title: 'Rocket Launch',
-      description: 'Rockets expel gas backward to propel themselves forward, demonstrating Newton\'s Third Law.',
-      imageUrl: 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7'
-    }
+      type: 'list',
+      title: "The Three Laws",
+      items: [
+        "First Law (Law of Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
+        "Second Law: The acceleration of an object depends directly on the net force acting upon it and inversely on its mass. (F = ma)",
+        "Third Law: For every action, there is an equal and opposite reaction."
+      ]
+    },
+    // ... other content sections would be here
   ],
-  relatedConcepts: [
-    { id: 'c2', title: 'Conservation of Momentum', subject: 'Physics' },
-    { id: 'c3', title: 'Work and Energy', subject: 'Physics' },
-    { id: 'c4', title: 'Circular Motion', subject: 'Physics' }
+  examples: [
+    {
+      title: "First Law Example",
+      description: "A book on a table remains at rest unless pushed. When pushed, it moves in the direction of the force applied."
+    },
+    {
+      title: "Second Law Example",
+      description: "A cart accelerates in proportion to the force applied to it. If the mass is doubled, the acceleration is halved for the same force."
+    },
+    {
+      title: "Third Law Example",
+      description: "When a swimmer pushes water backward, the water pushes the swimmer forward with equal force."
+    },
   ],
-  practice: {
-    questions: [
-      {
-        id: 'q1',
-        text: 'Which of Newton\'s laws states that an object at rest will remain at rest unless acted upon by an external force?',
-        options: ['First Law', 'Second Law', 'Third Law', 'None of these'],
-        correctAnswer: 'First Law'
-      },
-      {
-        id: 'q2',
-        text: 'The formula F = ma is associated with which of Newton\'s laws?',
-        options: ['First Law', 'Second Law', 'Third Law', 'None of these'],
-        correctAnswer: 'Second Law'
-      }
-    ]
-  }
+  quizQuestions: [
+    {
+      question: "What is Newton's First Law also known as?",
+      options: ["Law of Acceleration", "Law of Inertia", "Law of Action-Reaction", "Law of Gravity"],
+      correctAnswer: 1
+    },
+    {
+      question: "In the equation F = ma, what does 'm' represent?",
+      options: ["Motion", "Momentum", "Mass", "Movement"],
+      correctAnswer: 2
+    },
+    // ... more questions
+  ]
 };
 
 const ConceptCardDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{conceptId: string}>();
+  const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [concept, setConcept] = useState<typeof mockConceptData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [concept, setConcept] = useState<any>(null);
-  
+
   useEffect(() => {
-    // In a real app, we would fetch the concept based on conceptId
-    const fetchConcept = async () => {
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
-      setConcept(mockConcept);
+    // In a real app, fetch the concept data based on conceptId
+    // For now, use mock data
+    setTimeout(() => {
+      setConcept(mockConceptData);
       setLoading(false);
-    };
-    
-    fetchConcept();
+    }, 500);
   }, [conceptId]);
-  
-  const handleGoBack = () => {
-    navigate(-1); // Navigate back to previous page
+
+  const handleStartStudy = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
   };
   
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="container py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
   }
-  
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
+
+  if (!concept) {
+    return (
+      <div className="container py-8">
         <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleGoBack}
-          className="flex items-center gap-1"
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back
+          <ArrowLeft size={16} />
+          Back to Concepts
+        </Button>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Concept not found</h2>
+          <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-6">
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
+      
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
+        <div>
+          <h1 className="text-3xl font-bold">{concept.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+              {concept.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+              {concept.chapter}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+              {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
+            </Badge>
+            {concept.important && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                Important
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <Button 
+          className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700"
+          onClick={handleStartStudy}
+        >
+          Start Studying
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
-      
-      <Card>
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
-          <CardTitle className="text-2xl">{concept.title}</CardTitle>
-          <CardDescription className="text-base">{concept.description}</CardDescription>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 rounded-full text-xs font-medium">
-              {concept.subject}
-            </span>
-            <span className="px-2.5 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 rounded-full text-xs font-medium">
-              {concept.difficulty}
-            </span>
-          </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Progress</CardTitle>
+          <CardDescription>Your mastery of this concept</CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <Tabs defaultValue="content">
-            <TabsList className="mb-4">
-              <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
-              <TabsTrigger value="examples">Examples</TabsTrigger>
-              <TabsTrigger value="related">Related</TabsTrigger>
-              <TabsTrigger value="practice">Practice</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="content">
-              <div className="prose max-w-none dark:prose-invert" dangerouslySetInnerHTML={{__html: concept.content}} />
-            </TabsContent>
-            
-            <TabsContent value="notes">
-              <ConceptNotes conceptId={conceptId || ''} />
-            </TabsContent>
-            
-            <TabsContent value="flashcards">
-              <ConceptFlashcards conceptId={conceptId || ''} />
-            </TabsContent>
-            
-            <TabsContent value="examples">
-              <ConceptExamples examples={concept.examples} />
-            </TabsContent>
-            
-            <TabsContent value="related">
-              <ConceptRelated concepts={concept.relatedConcepts} />
-            </TabsContent>
-            
-            <TabsContent value="practice">
-              <ConceptPractice questions={concept.practice.questions} />
-            </TabsContent>
-          </Tabs>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Mastery</span>
+              <span className="text-sm font-medium">{concept.mastery}%</span>
+            </div>
+            <Progress value={concept.mastery} className="h-2" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Estimated time: {concept.timeEstimate} min</span>
+          </div>
         </CardContent>
       </Card>
+
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="quiz">Quiz</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>About this Concept</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{concept.description}</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {concept.contents[1].items.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Understanding Newton's laws is essential for:</p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2">
+                      <li>Engineering design and analysis</li>
+                      <li>Sports science and athletic performance</li>
+                      <li>Vehicle safety and transportation</li>
+                      <li>Space exploration and orbital mechanics</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="content" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Content</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Introduction</h3>
+                  <p>{concept.contents[0].content}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{concept.contents[1].title}</h3>
+                  <ul className="list-disc pl-5 space-y-2">
+                    {concept.contents[1].items.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                {/* More content would be dynamically rendered here */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* ... other tabs would be implemented similarly */}
+      </Tabs>
     </div>
   );
 };

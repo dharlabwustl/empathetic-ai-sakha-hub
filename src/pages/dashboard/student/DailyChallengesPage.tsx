@@ -1,315 +1,473 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Calendar, CheckCircle, Clock, Flame, Trophy, Users } from 'lucide-react';
-import DailyChallenges from '@/components/shared/DailyChallenges';
+import React, { useState, useEffect } from 'react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Award,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Trophy,
+  Star,
+  TrendingUp,
+  BookOpen,
+  Brain,
+  Zap,
+  LucideIcon
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'quiz' | 'problem' | 'activity' | 'streak';
+  difficulty: 'easy' | 'medium' | 'hard';
+  points: number;
+  timeEstimate: number; // in minutes
+  completionStatus: 'completed' | 'in-progress' | 'not-started';
+  expiresAt?: Date;
+  completedAt?: Date;
+}
+
+interface Streak {
+  current: number;
+  longest: number;
+  lastCompletedDate: Date | null;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  maxProgress: number;
+  completed: boolean;
+  icon: LucideIcon;
+}
 
 const DailyChallengesPage = () => {
-  const [activeTab, setActiveTab] = useState('current');
-  
-  const achievements = [
-    { 
-      id: 'ach-1', 
-      title: '7-Day Streak', 
-      description: 'Complete challenges for 7 consecutive days', 
-      progress: 71, 
-      icon: <Flame className="h-5 w-5 text-orange-500" />,
-      reward: '100 XP + Badge' 
-    },
-    { 
-      id: 'ach-2', 
-      title: 'Physics Master', 
-      description: 'Complete 10 physics challenges', 
-      progress: 60, 
-      icon: <Award className="h-5 w-5 text-indigo-500" />,
-      reward: '150 XP + Physics Mastery Badge' 
-    },
-    { 
-      id: 'ach-3', 
-      title: 'Perfect Score', 
-      description: 'Get 100% on 5 daily quizzes', 
-      progress: 40, 
-      icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-      reward: '200 XP + Quiz Champion Badge' 
-    },
-    { 
-      id: 'ach-4', 
-      title: 'Early Bird', 
-      description: 'Complete challenges before 9 AM for 5 days', 
-      progress: 20, 
-      icon: <Clock className="h-5 w-5 text-blue-500" />,
-      reward: '75 XP + Morning Person Badge' 
+  const [activeTab, setActiveTab] = useState('today');
+  const [todaysChallenges, setTodaysChallenges] = useState<Challenge[]>([]);
+  const [streak, setStreak] = useState<Streak>({ current: 0, longest: 0, lastCompletedDate: null });
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [rank, setRank] = useState({ name: 'Bronze Scholar', level: 3, nextLevel: 'Silver Scholar' });
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate data loading
+    const loadData = async () => {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // Mock data
+      setTodaysChallenges([
+        {
+          id: '1',
+          title: 'Physics Quick Quiz',
+          description: 'Test your knowledge with 5 questions on Newton\'s Laws',
+          type: 'quiz',
+          difficulty: 'medium',
+          points: 50,
+          timeEstimate: 10,
+          completionStatus: 'completed',
+          completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+        },
+        {
+          id: '2',
+          title: 'Chemistry Puzzle',
+          description: 'Balance these 3 chemical equations correctly',
+          type: 'problem',
+          difficulty: 'hard',
+          points: 75,
+          timeEstimate: 15,
+          completionStatus: 'not-started'
+        },
+        {
+          id: '3',
+          title: 'Read and Summarize',
+          description: 'Read the article on DNA structure and submit a 100-word summary',
+          type: 'activity',
+          difficulty: 'easy',
+          points: 30,
+          timeEstimate: 20,
+          completionStatus: 'in-progress'
+        },
+        {
+          id: '4',
+          title: 'Daily Streak Challenge',
+          description: 'Complete any challenge today to maintain your streak',
+          type: 'streak',
+          difficulty: 'easy',
+          points: 10,
+          timeEstimate: 5,
+          completionStatus: 'completed',
+          completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+        }
+      ]);
+
+      setStreak({
+        current: 5,
+        longest: 12,
+        lastCompletedDate: new Date(Date.now() - 24 * 60 * 60 * 1000)
+      });
+
+      setTotalPoints(1250);
+
+      setAchievements([
+        {
+          id: '1',
+          title: 'Persistent Learner',
+          description: 'Complete challenges for 7 days in a row',
+          progress: 5,
+          maxProgress: 7,
+          completed: false,
+          icon: Calendar
+        },
+        {
+          id: '2',
+          title: 'Quiz Master',
+          description: 'Score 100% on 5 daily quizzes',
+          progress: 3,
+          maxProgress: 5,
+          completed: false,
+          icon: Brain
+        },
+        {
+          id: '3',
+          title: 'Early Bird',
+          description: 'Complete challenges before 9 AM for 5 days',
+          progress: 5,
+          maxProgress: 5,
+          completed: true,
+          icon: Clock
+        }
+      ]);
+
+      setLoading(false);
+    };
+
+    loadData();
+  }, []);
+
+  const getChallengeBadgeColor = (type: string) => {
+    switch (type) {
+      case 'quiz': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'problem': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'activity': return 'bg-green-100 text-green-800 border-green-200';
+      case 'streak': return 'bg-amber-100 text-amber-800 border-amber-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  ];
-  
-  const userStats = {
-    totalXP: 1250,
-    currentStreak: 5,
-    longestStreak: 14,
-    completedChallenges: 37,
-    totalBadges: 8,
-    level: 6,
-    nextLevelXP: 1500
   };
-  
+
+  const getDifficultyBadgeColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in-progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'not-started': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const completedChallenges = todaysChallenges.filter(c => c.completionStatus === 'completed');
+  const progressPercentage = todaysChallenges.length > 0 
+    ? Math.round((completedChallenges.length / todaysChallenges.length) * 100) 
+    : 0;
+
+  if (loading) {
+    return (
+      <SharedPageLayout
+        title="Daily Challenges"
+        subtitle="Loading your challenges..."
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Award className="h-8 w-8 text-amber-500" />
-          Daily Challenges
-        </h1>
-        <p className="text-muted-foreground mt-1">Complete challenges to earn points and build consistent study habits</p>
+    <SharedPageLayout
+      title="Daily Challenges"
+      subtitle="Complete daily challenges to earn points and track your progress"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Zap className="h-5 w-5" />
+              Current Streak
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline">
+              <span className="text-4xl font-bold">{streak.current}</span>
+              <span className="text-lg ml-1">days</span>
+            </div>
+            <p className="text-sm opacity-90 mt-1">
+              Longest streak: {streak.longest} days
+            </p>
+            <div className="mt-4">
+              <div className="flex justify-between text-xs mb-1">
+                <span>Progress to next reward</span>
+                <span>5/7 days</span>
+              </div>
+              <div className="w-full bg-white/30 rounded-full h-2">
+                <div className="bg-white h-2 rounded-full" style={{ width: '71%' }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              Total Points
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <span className="text-4xl font-bold">{totalPoints.toLocaleString()}</span>
+              <span className="text-sm ml-2 text-green-500">+60 today</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">
+              Rank: {rank.name} (Level {rank.level})
+            </p>
+            <div className="mt-4">
+              <div className="flex justify-between text-xs mb-1">
+                <span>To {rank.nextLevel}</span>
+                <span>750/1000 points</span>
+              </div>
+              <Progress value={75} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-purple-500" />
+              Today's Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-lg font-medium">{completedChallenges.length} of {todaysChallenges.length} completed</span>
+              <span className="text-2xl font-bold">{progressPercentage}%</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+            
+            <div className="flex justify-center mt-6">
+              {completedChallenges.length === todaysChallenges.length ? (
+                <Badge className="bg-green-100 text-green-800 border-green-200 py-2 flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  All challenges completed!
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="py-2 flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {todaysChallenges.length - completedChallenges.length} challenges remaining
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      
-      {/* User Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-800/20 border-amber-200">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <Flame className="h-5 w-5 text-amber-600" />
-                <h3 className="font-medium">Current Streak</h3>
-              </div>
-              <span className="text-3xl font-bold text-amber-700">{userStats.currentStreak}</span>
-            </div>
-            <p className="text-sm text-amber-700">days in a row</p>
-            <div className="flex justify-between text-xs text-amber-600 mt-2">
-              <span>Best: {userStats.longestStreak} days</span>
-              <span>Keep it up!</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-800/20 border-indigo-200">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-indigo-600" />
-                <h3 className="font-medium">Total XP</h3>
-              </div>
-              <span className="text-3xl font-bold text-indigo-700">{userStats.totalXP}</span>
-            </div>
-            <p className="text-sm text-indigo-700">points earned</p>
-            <div className="mt-2">
-              <div className="flex justify-between text-xs text-indigo-600 mb-1">
-                <span>Level {userStats.level}</span>
-                <span>{userStats.totalXP}/{userStats.nextLevelXP} XP</span>
-              </div>
-              <Progress 
-                value={(userStats.totalXP / userStats.nextLevelXP) * 100} 
-                className="h-1.5 bg-indigo-200" 
-              />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-800/20 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <h3 className="font-medium">Completed</h3>
-              </div>
-              <span className="text-3xl font-bold text-green-700">{userStats.completedChallenges}</span>
-            </div>
-            <p className="text-sm text-green-700">challenges completed</p>
-            <div className="flex justify-between text-xs text-green-600 mt-2">
-              <span>Weekly: 12</span>
-              <span>Monthly: 37</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-800/20 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-purple-600" />
-                <h3 className="font-medium">Badges</h3>
-              </div>
-              <span className="text-3xl font-bold text-purple-700">{userStats.totalBadges}</span>
-            </div>
-            <p className="text-sm text-purple-700">badges earned</p>
-            <div className="flex justify-between text-xs text-purple-600 mt-2">
-              <span>Common: 5</span>
-              <span>Rare: 3</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Challenges Tabs */}
-      <Tabs defaultValue="current" onValueChange={setActiveTab} className="space-y-4">
+
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="current">Current Challenges</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="today">Today's Challenges</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="current" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Today's Challenges</CardTitle>
-              <CardDescription>Complete these challenges today to maintain your streak</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DailyChallenges variant="full" maxItems={3} />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Challenges</CardTitle>
-              <CardDescription>Complete these before the end of the week</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DailyChallenges variant="full" maxItems={2} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="upcoming" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Coming Tomorrow</CardTitle>
-              <CardDescription>Preview tomorrow's challenges</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DailyChallenges variant="full" maxItems={2} />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekend Challenge</CardTitle>
-              <CardDescription>Special weekend challenges with bonus rewards</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Card className="border border-amber-200">
-                  <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
-                    <div className="flex justify-between">
-                      <CardTitle className="text-base">Complete Study Marathon</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-amber-600" />
-                        <span className="text-xs text-amber-700">Weekend</span>
-                      </div>
+
+        <TabsContent value="today" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {todaysChallenges.map(challenge => (
+              <Card key={challenge.id} className="overflow-hidden">
+                <div 
+                  className={`h-2 ${challenge.completionStatus === 'completed' ? 'bg-green-500' : 
+                                   challenge.completionStatus === 'in-progress' ? 'bg-blue-500' : 
+                                   'bg-gray-300'}`} 
+                />
+                <CardHeader className="pb-2">
+                  <div className="flex flex-wrap gap-2 mb-1">
+                    <Badge variant="outline" className={getChallengeBadgeColor(challenge.type)}>
+                      {challenge.type === 'quiz' ? 'Quiz' : 
+                       challenge.type === 'problem' ? 'Problem' : 
+                       challenge.type === 'activity' ? 'Activity' :
+                       'Streak'}
+                    </Badge>
+                    <Badge variant="outline" className={getDifficultyBadgeColor(challenge.difficulty)}>
+                      {challenge.difficulty.charAt(0).toUpperCase() + challenge.difficulty.slice(1)}
+                    </Badge>
+                    <Badge variant="outline" className={getStatusBadgeColor(challenge.completionStatus)}>
+                      {challenge.completionStatus === 'completed' ? 'Completed' :
+                       challenge.completionStatus === 'in-progress' ? 'In Progress' : 
+                       'Not Started'}
+                    </Badge>
+                  </div>
+                  <CardTitle>{challenge.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    {challenge.timeEstimate} minutes
+                    {challenge.completedAt && (
+                      <>
+                        <span className="mx-1">•</span>
+                        <span>Completed {new Date(challenge.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p className="text-sm text-gray-600 mb-3">{challenge.description}</p>
+                  
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-sm font-medium text-amber-600">
+                      <Star className="h-4 w-4 fill-amber-500" />
+                      <span>{challenge.points} points</span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <p className="text-sm mb-3">Complete 3 hours of continuous study with mini-breaks</p>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Award className="h-3.5 w-3.5" />
-                        <span>200 XP + Marathon Badge</span>
+                    
+                    {challenge.completionStatus === 'completed' ? (
+                      <div className="flex items-center gap-1 text-green-600 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Challenge completed</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" />
-                        <span>28 students enrolled</span>
+                    ) : challenge.expiresAt ? (
+                      <div className="flex items-center gap-1 text-red-500 text-sm">
+                        <Clock className="h-4 w-4" />
+                        <span>Expires in {Math.floor((new Date(challenge.expiresAt).getTime() - Date.now()) / (60 * 60 * 1000))} hours</span>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
+                    ) : null}
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-3">
+                  <Button 
+                    className="w-full"
+                    variant={challenge.completionStatus === 'completed' ? "outline" : "default"}
+                    disabled={challenge.completionStatus === 'completed'}
+                  >
+                    {challenge.completionStatus === 'completed' ? 'View Results' : 
+                     challenge.completionStatus === 'in-progress' ? 'Continue Challenge' : 
+                     'Start Challenge'}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
-        
-        <TabsContent value="completed" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recently Completed</CardTitle>
-              <CardDescription>Challenges you've completed in the last 7 days</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DailyChallenges variant="full" maxItems={3} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
+
         <TabsContent value="achievements" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {achievements.map(achievement => (
+              <Card key={achievement.id} className={`overflow-hidden ${achievement.completed ? 'border-yellow-300' : ''}`}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className={`p-2 rounded-full ${achievement.completed ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                      <achievement.icon className={`h-6 w-6 ${achievement.completed ? 'text-yellow-600' : 'text-gray-600'}`} />
+                    </div>
+                    {achievement.completed && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3, type: 'spring' }}
+                      >
+                        <Trophy className="h-6 w-6 text-yellow-500 fill-yellow-500" />
+                      </motion.div>
+                    )}
+                  </div>
+                  <CardTitle className="text-base">{achievement.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{achievement.description}</p>
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Progress</span>
+                      <span>{achievement.progress}/{achievement.maxProgress}</span>
+                    </div>
+                    <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="h-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="leaderboard" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>In Progress</CardTitle>
-              <CardDescription>Achievements you're working toward</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Weekly Points Leaderboard
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {achievements.map(achievement => (
-                  <Card key={achievement.id} className="border-muted">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center">
-                          {achievement.icon}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{achievement.title}</h4>
-                          <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                              <span>Progress</span>
-                              <span>{achievement.progress}%</span>
-                            </div>
-                            <Progress value={achievement.progress} className="h-1.5" />
-                            <div className="text-xs text-muted-foreground">
-                              <span>Reward: {achievement.reward}</span>
-                            </div>
-                          </div>
-                        </div>
+                {Array.from({ length: 5 }, (_, i) => ({
+                  position: i + 1,
+                  name: ['Amit Kumar', 'Priya Singh', 'Rahul Verma', 'Deepika Patel', 'You'][i],
+                  points: [1520, 1475, 1385, 1290, 1250][i],
+                  avatar: i === 4 ? '/avatar-placeholder.png' : `https://randomuser.me/api/portraits/${i % 2 ? 'women' : 'men'}/${i + 1}.jpg`
+                })).map((user, index) => (
+                  <div 
+                    key={index} 
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      user.name === 'You' 
+                        ? 'bg-blue-50 border border-blue-200' 
+                        : index === 0 
+                          ? 'bg-yellow-50 border border-yellow-200' 
+                          : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                        index === 0 ? 'bg-yellow-500 text-white' :
+                        index === 1 ? 'bg-gray-400 text-white' :
+                        index === 2 ? 'bg-amber-700 text-white' :
+                        'bg-gray-200 text-gray-700'
+                      }`}>
+                        {user.position}
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="h-10 w-10 rounded-full overflow-hidden">
+                        <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{user.name}</p>
+                        {index === 0 && (
+                          <Badge variant="outline" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                            Leader
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{user.points.toLocaleString()}</span>
+                      <Star className="h-4 w-4 text-yellow-500" />
+                    </div>
+                  </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Earned Badges</CardTitle>
-              <CardDescription>Achievements you've completed</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <Card className="border-green-200 bg-green-50/50">
-                  <CardContent className="p-4 text-center">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                      <Award className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h4 className="font-medium">First Steps</h4>
-                    <p className="text-xs text-muted-foreground">Complete your first challenge</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-blue-200 bg-blue-50/50">
-                  <CardContent className="p-4 text-center">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-                      <Flame className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h4 className="font-medium">3-Day Streak</h4>
-                    <p className="text-xs text-muted-foreground">Complete challenges for 3 days in a row</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-purple-200 bg-purple-50/50">
-                  <CardContent className="p-4 text-center">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center mb-2">
-                      <CheckCircle className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <h4 className="font-medium">Quick Learner</h4>
-                    <p className="text-xs text-muted-foreground">Complete 5 challenges in a day</p>
-                  </CardContent>
-                </Card>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </SharedPageLayout>
   );
 };
 
