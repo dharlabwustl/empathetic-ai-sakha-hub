@@ -16,11 +16,24 @@ import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
+import HomepageVoiceAnnouncer from '@/components/home/voice/HomepageVoiceAnnouncer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  
+  // Check if this is the first visit to show voice announcer automatically
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  
+  useEffect(() => {
+    // Check if this is the first visit to the homepage in this session
+    const hasVisited = sessionStorage.getItem("hasVisitedHomepage");
+    if (!hasVisited) {
+      setIsFirstVisit(true);
+      sessionStorage.setItem("hasVisitedHomepage", "true");
+    }
+  }, []);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -113,6 +126,9 @@ const Index = () => {
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant} 
       />
+      
+      {/* Add the homepage voice announcer */}
+      <HomepageVoiceAnnouncer autoPlay={isFirstVisit} />
     </div>
   );
 };

@@ -59,12 +59,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const getMoodEmoji = (mood?: MoodType) => {
     if (!mood) return "😊";
     switch(mood) {
-      case MoodType.Motivated: return "🚀";
-      case MoodType.Confident: return "💪";
-      case MoodType.Focused: return "🎯";
-      case MoodType.Tired: return "😴";
-      case MoodType.Anxious: return "😰";
-      case MoodType.Distracted: return "🤔";
+      case MoodType.MOTIVATED: return "🚀";
+      case MoodType.MOTIVATED: return "💪";
+      case MoodType.FOCUSED: return "🎯";
+      case MoodType.TIRED: return "😴";
+      case MoodType.ANXIOUS: return "😰";
+      case MoodType.DISTRACTED: return "🤔";
       default: return "😊";
     }
   };
@@ -81,12 +81,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   };
   
   const moodOptions = [
-    {type: MoodType.Motivated, label: "Motivated", emoji: "🚀"},
-    {type: MoodType.Confident, label: "Confident", emoji: "💪"},
-    {type: MoodType.Focused, label: "Focused", emoji: "🎯"},
-    {type: MoodType.Tired, label: "Tired", emoji: "😴"},
-    {type: MoodType.Anxious, label: "Anxious", emoji: "😰"},
-    {type: MoodType.Distracted, label: "Distracted", emoji: "🤔"}
+    {type: MoodType.MOTIVATED, label: "Motivated", emoji: "🚀"},
+    {type: MoodType.MOTIVATED, label: "Confident", emoji: "💪"},
+    {type: MoodType.FOCUSED, label: "Focused", emoji: "🎯"},
+    {type: MoodType.TIRED, label: "Tired", emoji: "😴"},
+    {type: MoodType.ANXIOUS, label: "Anxious", emoji: "😰"},
+    {type: MoodType.DISTRACTED, label: "Distracted", emoji: "🤔"}
   ];
 
   const navigate = useNavigate();
@@ -104,7 +104,11 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
             {userProfile.avatar ? (
-              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+              <AvatarImage 
+                src={userProfile.avatar} 
+                alt={userProfile.name} 
+                className="object-cover"
+              />
             ) : (
               <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
                 {userProfile.name?.charAt(0) || "U"}

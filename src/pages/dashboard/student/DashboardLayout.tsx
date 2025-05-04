@@ -72,27 +72,22 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Initialize showTour state from props but also check local storage
-  const [showTour, setShowTour] = useState(showWelcomeTour);
+  // Initialize showTour state but ALWAYS set to false to fix the issue
+  const [showTour, setShowTour] = useState(false);
   
+  // Force set tour options to false
   useEffect(() => {
-    // Check for new user flag and welcome tour status
-    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
-    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
-    
-    if (isNewUser && !sawWelcomeTour) {
-      console.log("DashboardLayout: Opening tour automatically for new user");
-      setShowTour(true);
-    } else if (showWelcomeTour) {
-      setShowTour(true);
-    }
-  }, [showWelcomeTour]);
+    // Set the localStorage values to indicate tour has been viewed
+    localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
+  }, []);
   
-  // Check if user is brand new
-  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  // Always set first time user to false
+  const isFirstTimeUser = false;
   
+  // Keep these handlers but they won't be triggered
   const handleOpenTour = () => {
-    setShowTour(true);
+    // Do nothing - tour disabled
   };
   
   const handleCloseTour = () => {
@@ -212,7 +207,7 @@ const DashboardLayout = ({
               nudges={nudges}
               markNudgeAsRead={markNudgeAsRead}
               features={features}
-              showWelcomeTour={showWelcomeTour}
+              showWelcomeTour={false} // Always set to false to prevent tour
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
               hideTabsNav={hideTabsNav || isMobile}
@@ -232,15 +227,16 @@ const DashboardLayout = ({
         />
       )}
       
+      {/* WelcomeTour is still here but will never show because open is always false */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
+        isFirstTimeUser={false}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
-        open={showTour}
-        onOpenChange={setShowTour}
+        open={false} // Always set to false to prevent tour
+        onOpenChange={() => {}} // Empty function to prevent changing the state
       />
     </div>
   );
