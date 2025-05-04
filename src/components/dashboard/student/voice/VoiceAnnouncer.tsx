@@ -69,8 +69,11 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         if (greeting !== lastAnnouncementRef.current) {
           // Check if this message was already spoken recently
           if (!messageHistory.includes(greeting)) {
-            speakMessage(greeting, { ...DEFAULT_VOICE_SETTINGS, muted });
-            setCurrentMessage(greeting);
+            // Replace PREPZR with PREP-EZER for correct pronunciation
+            const processedGreeting = greeting.replace(/PREPZR/g, "PREP-EZER");
+            
+            speakMessage(processedGreeting, { ...DEFAULT_VOICE_SETTINGS, muted });
+            setCurrentMessage(processedGreeting);
             setSpeaking(true);
             lastAnnouncementRef.current = greeting;
             
@@ -84,7 +87,9 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     // Set up listeners for speaking events
     const handleSpeakingStarted = (event: CustomEvent) => {
       setSpeaking(true);
-      setCurrentMessage(event.detail.message);
+      // Replace PREPZR with PREP-EZER for correct pronunciation in subtitles
+      const processedMessage = event.detail.message.replace(/PREPZR/g, "PREP-EZER");
+      setCurrentMessage(processedMessage);
     };
 
     const handleSpeakingEnded = () => {
@@ -150,9 +155,12 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           return;
         }
         
+        // Replace PREPZR with PREP-EZER for correct pronunciation
+        const processedResponse = response.replace(/PREPZR/g, "PREP-EZER");
+        
         // Speak the response if not muted
         if (!muted) {
-          speakMessage(response, { ...DEFAULT_VOICE_SETTINGS, muted });
+          speakMessage(processedResponse, { ...DEFAULT_VOICE_SETTINGS, muted });
           // Add to message history if not already there
           if (!messageHistory.includes(response)) {
             setMessageHistory(prev => [...prev.slice(-2), response]);

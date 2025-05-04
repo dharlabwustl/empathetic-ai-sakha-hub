@@ -33,7 +33,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesHistoryRef = useRef<string[]>([]);
   
-  // Welcome messages sequence - optimized for clear PREP-EZER pronunciation
+  // Welcome messages sequence - clear PREP-EZER pronunciation guidance
   const welcomeMessages = [
     "Welcome to PREP-EZER. I'm your AI study assistant from India.",
     "PREP-EZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
@@ -170,6 +170,12 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       response = "PREP-EZER is an AI-powered study assistant designed to help students prepare for competitive exams.";
     } else if (lowerInput.includes("features")) {
       response = "PREP-EZER offers personalized study plans, practice tests, flashcards, and AI tutoring to help you succeed.";
+    } else if (lowerInput.includes("exam") || lowerInput.includes("test")) {
+      response = "Our Exam Readiness Test will help you understand your current preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
+    } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
+      response = "You can try PREP-EZER with our 7-day free trial. Sign up now to access all features and see how we can help you succeed.";
+    } else if (lowerInput.includes("premium") || lowerInput.includes("paid") || lowerInput.includes("plan")) {
+      response = "Our premium plans offer advanced features including unlimited practice tests, personalized feedback, doubt resolution, and specialized tutoring for your target exams.";
     } else if (lowerInput.includes("login") || lowerInput.includes("sign in")) {
       response = "You can sign in using the button at the top right of the screen.";
     } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
@@ -293,166 +299,138 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     }
   }, []);
   
-  if (isMinimized || !isVisible) {
+  if (isMinimized) {
+    return <div className="hidden" />;
+  }
+  
+  if (!isVisible) {
     return null;
   }
 
   return (
     <TooltipProvider>
       <AnimatePresence>
-        <motion.div 
-          className="fixed bottom-4 right-4 z-50 flex flex-col gap-2"
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.5 }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
+          className={`fixed bottom-4 right-4 z-50 ${isPlaying ? "w-80" : "w-auto"}`}
         >
-          {/* Voice recognition button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={toggleListening}
-                className={`w-12 h-12 rounded-full ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'} shadow-lg border border-indigo-400`}
-                size="icon"
-                aria-label={isListening ? "Stop listening" : "Speak to PREP-EZER"}
-              >
-                {isListening ? (
-                  <MicOff className="h-5 w-5 text-white" />
-                ) : (
-                  <Mic className="h-5 w-5 text-white" />
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border overflow-hidden">
+            {hasStarted && isPlaying ? (
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="mr-2"
+                    >
+                      <Volume2 className={`h-4 w-4 ${isMuted ? 'text-gray-400' : 'text-blue-500'}`} />
+                    </motion.div>
+                    <h3 className="font-medium text-sm">PREP-EZER Assistant</h3>
+                  </div>
+                  <div className="flex space-x-1">
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={toggleMute}
+                        >
+                          {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isMuted ? "Unmute" : "Mute"}
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={toggleListening}
+                        >
+                          {isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isListening ? "Stop speaking" : "Ask PREP-EZER"}
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={dismissComponent}>
+                      <span className="sr-only">Close</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-sm mb-3 min-h-[40px] border-l-2 border-blue-500 pl-2">
+                  {welcomeMessages[currentMessageIndex]}
+                </div>
+                
+                <Progress value={progress} className="h-1 mb-2" />
+                
+                {isListening && (
+                  <div className="mt-2 text-xs flex items-center text-blue-500 animate-pulse">
+                    <Mic className="h-3 w-3 mr-1" />
+                    <span>Listening...</span>
+                  </div>
                 )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="left">
-              {isListening ? "Stop listening" : "Speak to PREP-EZER"}
-            </TooltipContent>
-          </Tooltip>
-
-          {!hasStarted ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={startAnnouncement}
-                  className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
-                  size="icon"
-                  aria-label="Get PREP-EZER introduction"
-                >
-                  <Info className="h-5 w-5 text-white" />
+              </div>
+            ) : (
+              <div className="flex items-center p-2">
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="mr-2" 
+                      onClick={startAnnouncement}
+                    >
+                      <Volume2 className="h-4 w-4 mr-1" />
+                      <span className="text-xs">PREP-EZER Assistant</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Start voice guide
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="h-7 w-7 p-0" 
+                      onClick={toggleListening}
+                    >
+                      <Mic className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Ask PREP-EZER
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={dismissComponent}>
+                  <span className="sr-only">Close</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                Get PREP-EZER introduction
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={toggleMute}
-                  className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
-                  size="icon"
-                  aria-label={isMuted ? "Unmute PREP-EZER" : "Mute PREP-EZER"}
-                >
-                  {isMuted ? (
-                    <VolumeX className="h-5 w-5 text-white" />
-                  ) : (
-                    <Volume2 className="h-5 w-5 text-white" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                {isMuted ? "Unmute PREP-EZER" : "Mute PREP-EZER"}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={() => speakMessage("I am your PREP-EZER voice assistant. You can ask me questions about our features, how to sign up, or navigate through the platform. Just click the microphone button and speak to me.")}
-                className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
-                size="icon"
-                aria-label="How to use PREP-EZER voice assistant"
-              >
-                <HelpCircle className="h-5 w-5 text-white" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="left">
-              How to use PREP-EZER voice assistant
-            </TooltipContent>
-          </Tooltip>
+              </div>
+            )}
+          </div>
         </motion.div>
-
-        {/* Voice feedback panel */}
-        {isListening && (
-          <motion.div
-            className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Mic className="h-5 w-5 text-white animate-pulse" />
-                <h3 className="text-white text-sm font-medium">PREP-EZER Listening...</h3>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7 text-white hover:bg-white/20"
-                onClick={() => setIsListening(false)}
-              >
-                <VolumeX className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="p-4">
-              <p className="text-sm mb-2">Speak to PREP-EZER...</p>
-              {userInput && (
-                <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
-                  <p className="text-sm italic">"{userInput}"</p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Subtitles panel */}
-        {hasStarted && showSubtitles && (
-          <motion.div
-            className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Info className="h-5 w-5 text-white" />
-                <h3 className="text-white text-sm font-medium">PREP-EZER Guide</h3>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7 text-white hover:bg-white/20"
-                onClick={dismissComponent}
-              >
-                <VolumeX className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="p-4">
-              <div className="mb-2 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
-                <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
-                <Progress value={progress} className="h-1 mt-2" />
-                <div className="mt-2 text-xs text-right text-gray-500">
-                  {currentMessageIndex + 1}/{welcomeMessages.length}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
       </AnimatePresence>
     </TooltipProvider>
   );
