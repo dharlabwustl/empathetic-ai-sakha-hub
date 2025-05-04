@@ -16,11 +16,15 @@ import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
+import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  
+  // Check if user is logged in to decide whether to show HomepageVoiceAnnouncer
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -43,6 +47,12 @@ const Index = () => {
   const handleCloseVoiceAssistant = () => {
     setShowVoiceAssistant(false);
   };
+
+  // Check login status
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+  }, []);
 
   // Listen for events
   useEffect(() => {
@@ -113,6 +123,9 @@ const Index = () => {
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant} 
       />
+      
+      {/* Add HomepageVoiceAnnouncer for first-time visitors */}
+      {!isLoggedIn && <HomepageVoiceAnnouncer autoPlay={true} delayStart={5000} />}
     </div>
   );
 };

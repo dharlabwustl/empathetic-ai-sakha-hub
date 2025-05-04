@@ -65,14 +65,17 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       }
     ];
     
+    // Use the provided image from the upload as the user avatar
+    const uploadedAvatarImage = '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png';
+    
     return {
       id: 'student-123',
       name: 'Amit Singh',
-      email: 'john@student.com',
+      email: 'amit@student.com',
       role: UserRole.Student,
       signupType: SignupType.Email,
       examPreparation: 'JEE Advanced 2025',
-      avatar: '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png',
+      avatar: uploadedAvatarImage,
       bio: 'Passionate student preparing for engineering entrance exams.',
       phoneNumber: '+91 98765 43210',
       personalityType: 'Analytical learner',
@@ -143,6 +146,9 @@ export const useUserProfile = (role: UserRole = UserRole.Student) => {
         
         // Get mock profile based on role
         const mockProfile = generateMockUserProfile(role);
+        
+        // Set user as logged in to conditionally show components
+        localStorage.setItem('isLoggedIn', 'true');
         
         setUserProfile(mockProfile);
         setError(null);

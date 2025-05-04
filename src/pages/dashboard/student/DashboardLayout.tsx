@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -72,40 +73,45 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Initialize showTour state from props but also check local storage
-  const [showTour, setShowTour] = useState(showWelcomeTour);
+  // Force disable tour popup by default
+  const [showTour, setShowTour] = useState(false);
   
   useEffect(() => {
-    // Check for new user flag and welcome tour status
-    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
-    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
-    
-    if (isNewUser && !sawWelcomeTour) {
-      console.log("DashboardLayout: Opening tour automatically for new user");
-      setShowTour(true);
-    } else if (showWelcomeTour) {
-      setShowTour(true);
+    // Explicitly mark that the user has seen the welcome tour to prevent it from appearing
+    localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
+  }, []);
+  
+  // Handle profile image errors
+  useEffect(() => {
+    if (userProfile && userProfile.avatar) {
+      const testImg = new Image();
+      testImg.src = userProfile.avatar;
+      testImg.onerror = () => {
+        console.warn("Failed to load profile image, will use fallback", userProfile.avatar);
+      };
     }
-  }, [showWelcomeTour]);
+  }, [userProfile]);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
   const handleOpenTour = () => {
-    setShowTour(true);
+    // We never actually open the tour
+    console.log("Tour open requested but prevented");
   };
   
   const handleCloseTour = () => {
     setShowTour(false);
-    localStorage.removeItem('new_user_signup');
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
     onSkipTour();
   };
   
   const handleCompleteTourAndClose = () => {
     setShowTour(false);
-    localStorage.removeItem('new_user_signup');
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
     onCompleteTour();
   };
 
@@ -139,8 +145,8 @@ const DashboardLayout = ({
 
   // Sample upcoming events (in a real app, these would come from a backend)
   const upcomingEvents = [
-    { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' },
-    { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' }
+    { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' as const },
+    { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' as const }
   ];
 
   return (
@@ -174,7 +180,7 @@ const DashboardLayout = ({
           isExpired={subscriptionDetails.isExpired}
         />
 
-        {/* Enhanced Dashboard Header */}
+        {/* Enhanced Dashboard Header with proper profile image handling */}
         <div className="mb-6">
           <EnhancedDashboardHeader 
             userProfile={userProfile}
@@ -212,7 +218,7 @@ const DashboardLayout = ({
               nudges={nudges}
               markNudgeAsRead={markNudgeAsRead}
               features={features}
-              showWelcomeTour={showWelcomeTour}
+              showWelcomeTour={false} // Force disable welcome tour
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
               hideTabsNav={hideTabsNav || isMobile}
@@ -232,6 +238,7 @@ const DashboardLayout = ({
         />
       )}
       
+      {/* WelcomeTour - hidden using open={false} */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
@@ -239,7 +246,7 @@ const DashboardLayout = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
-        open={showTour}
+        open={false} // Force it to be closed
         onOpenChange={setShowTour}
       />
     </div>

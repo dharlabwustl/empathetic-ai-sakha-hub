@@ -10,7 +10,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen for now
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
@@ -40,27 +40,16 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // State for controlling welcome tour visibility - setting to false to prevent it from showing
+  // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
-  // Check URL parameters for onboarding status
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
-    
-    // Mark that the user has seen the welcome tour
+    // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
     
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
-      setShowSplash(false);
-    } else {
-      // Check if the user has seen the splash screen in this session
-      const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(false); // Temporarily disable splash screen
-    }
+    // Don't show splash screen for now
+    setShowSplash(false);
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
@@ -78,24 +67,22 @@ const StudentDashboard = () => {
   
   const handleSplashComplete = () => {
     setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
     sessionStorage.setItem("hasSeenSplash", "true");
     
-    // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
+      setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
+          parsedData.mood = MoodType.Motivated;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
           console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
         }
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
       }
     }
   };
@@ -117,7 +104,6 @@ const StudentDashboard = () => {
     }
   };
 
-  // Show splash screen if needed
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -126,9 +112,7 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
-    // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -141,18 +125,15 @@ const StudentDashboard = () => {
     );
   }
 
-  // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
       return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
     }
-    
-    // For other tabs, use the default tab content
     return null;
   };
 
-  // Use our internal state to control welcome tour visibility - set to false
-  const modifiedShowWelcomeTour = false; // Never show the welcome tour
+  // Force welcome tour to never show
+  const modifiedShowWelcomeTour = false;
 
   return (
     <DashboardLayout
