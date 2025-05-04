@@ -67,7 +67,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
     
     return {
       id: 'student-123',
-      name: 'John Student',
+      name: 'Amit Singh',
       email: 'john@student.com',
       role: UserRole.Student,
       signupType: SignupType.Email,

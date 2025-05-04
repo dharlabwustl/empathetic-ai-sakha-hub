@@ -1,3 +1,4 @@
+
 // Mock implementation of useStudentDashboard hook
 import { useState, useEffect } from "react";
 import { UserProfileType, UserRole } from "@/types/user";
@@ -30,8 +31,8 @@ export const useStudentDashboard = () => {
       // Set mock user profile
       setUserProfile({
         id: "1",
-        name: "John Doe",
-        email: "john@example.com",
+        name: "Amit Singh",
+        email: "amit@example.com",
         role: UserRole.Student,
         loginCount: 2
       });
