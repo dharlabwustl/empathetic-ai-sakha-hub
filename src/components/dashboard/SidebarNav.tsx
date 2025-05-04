@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Book, GraduationCap, Settings, Bell, Calendar, MessageSquare, Lightbulb, LayoutDashboard } from 'lucide-react';
+import { Home, Book, GraduationCap, Settings, Bell, Calendar, MessageSquare, Lightbulb, LayoutDashboard, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Tooltip,
@@ -152,6 +152,31 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
                     </TooltipTrigger>
                     <TooltipContent side="right">
                       <p>Take practice exams</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Profile Link */}
+          <div className="py-4">
+            <h4 className="mb-1 ml-4 rounded-md text-sm font-medium leading-none dark:text-white">Account</h4>
+            <ul>
+              <li>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to="/dashboard/student/profile"
+                        className={`flex items-center p-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${isActive("profile") ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''}`}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>View your profile</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

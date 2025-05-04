@@ -55,7 +55,12 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       {/* Main sidebar navigation */}
-      <SidebarNav userType="student" userName={userProfile.name} />
+      <SidebarNav 
+        userType="student" 
+        userName={userProfile.name}
+        activeTab={activeTab}
+        onTabChange={onTabChange} 
+      />
       
       {/* Main dashboard content */}
       <DashboardWrapper 

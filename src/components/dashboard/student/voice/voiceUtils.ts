@@ -1,356 +1,248 @@
-// Voice utility functions for PREPZR voice announcer
 
-export type VoiceSettings = {
+// Voice settings type definition
+export interface VoiceSettings {
+  enabled: boolean;
   volume: number;
   rate: number;
   pitch: number;
   language: 'en-IN' | 'hi-IN';
-  enabled: boolean;
-};
+  voice?: SpeechSynthesisVoice | null;
+}
 
+// Default voice settings
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  volume: 1,
-  rate: 1,
-  pitch: 1.3, // Vibrant young female tone as requested
-  language: 'en-IN',
   enabled: true,
+  volume: 1.0,
+  rate: 1.0,
+  pitch: 1.0,
+  language: 'en-IN',
+  voice: null
 };
 
-// Voice cache to prevent repeating messages
-let lastSpokenMessage = '';
-let lastSpokenTimestamp = 0;
-
-// Initialize speech synthesis with robust error handling
-export const initSpeechSynthesis = (): boolean => {
+// Function to initialize speech synthesis
+export function initSpeechSynthesis(): boolean {
   if (typeof window === 'undefined') return false;
-  
-  const isSupported = 'speechSynthesis' in window;
-  
-  if (isSupported) {
-    // Try to load voices immediately and also set up the onvoiceschanged event
-    // This helps in browsers that don't load voices immediately
-    if (window.speechSynthesis.getVoices().length === 0) {
-      console.log("No voices available immediately, waiting for onvoiceschanged event");
-      window.speechSynthesis.onvoiceschanged = () => {
-        console.log("Voices now available:", window.speechSynthesis.getVoices().length);
-      };
-    } else {
-      console.log("Voices available immediately:", window.speechSynthesis.getVoices().length);
-    }
-  } else {
-    console.error("Speech synthesis not supported in this browser");
-  }
-  
-  return isSupported;
-};
+  return 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
 
-// Select the appropriate voice based on language preference with detailed logging
-export const selectVoice = (language: string): SpeechSynthesisVoice | null => {
-  if (!initSpeechSynthesis()) {
-    console.error("Speech synthesis not initialized");
-    return null;
-  }
-  
-  // Force the browser to update the voices list if empty
-  if (window.speechSynthesis.getVoices().length === 0) {
-    console.log("No voices available, trying to trigger voices loaded");
-    window.speechSynthesis.onvoiceschanged = () => {
-      console.log("Voices loaded after trigger:", window.speechSynthesis.getVoices().length);
-    };
-  }
-  
-  const voices = window.speechSynthesis.getVoices();
-  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
-  
-  if (voices.length === 0) {
-    console.error("No voices available from speech synthesis");
-    return null;
-  }
-  
-  // Try to find an Indian female voice first with detailed logging
-  let voice = voices.find(v => 
-    v.lang.startsWith(language) && 
-    v.name.toLowerCase().includes('female') &&
-    (v.name.toLowerCase().includes('india') || v.name.toLowerCase().includes('indian'))
-  );
-  
-  if (voice) {
-    console.log("Found Indian female voice:", voice.name, voice.lang);
-  } else {
-    // If no specific Indian female voice, try any female voice for that language
-    voice = voices.find(v => 
-      v.lang.startsWith(language) && 
-      v.name.toLowerCase().includes('female')
-    );
-    
-    if (voice) {
-      console.log("Found female voice (non-Indian specific):", voice.name, voice.lang);
-    } else {
-      // As fallback, use any voice for that language
-      voice = voices.find(v => v.lang.startsWith(language));
-      
-      if (voice) {
-        console.log("Found language-specific voice (not necessarily female):", voice.name, voice.lang);
-      } else {
-        // Last resort - just use the first voice available
-        if (voices.length > 0) {
-          voice = voices[0];
-          console.log("Using first available voice as fallback:", voice.name, voice.lang);
-        }
-      }
-    }
-  }
-  
-  return voice;
-};
+// Check if speech synthesis is supported by the browser
+export function isSpeechSynthesisSupported(): boolean {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
+}
 
-// Format the PREPZR name for better pronunciation
-export const formatPrepzrName = (text: string): string => {
-  return text.replace(/PREPZR/g, 'prep-eez-er');
-};
-
-// Speak a message with the given settings and robust error handling
-export const speakMessage = (
-  message: string, 
-  settings: VoiceSettings = DEFAULT_VOICE_SETTINGS,
-  forceSpeak: boolean = false
-): void => {
-  if (!message || message.trim() === '') {
-    console.log("Empty message, not speaking");
+// Speak a message using the provided settings
+export function speakMessage(message: string, settings: VoiceSettings, force: boolean = false): void {
+  if (!isSpeechSynthesisSupported()) {
+    console.error("Speech synthesis is not supported in this browser");
     return;
   }
-  
-  if (!initSpeechSynthesis()) {
-    console.error("Speech synthesis not available, cannot speak message");
-    return;
-  }
-  
-  if (!settings.enabled && !forceSpeak) {
+
+  if (!settings.enabled && !force) {
     console.log("Voice is disabled, not speaking:", message);
     return;
   }
   
-  // Cancel any ongoing speech
   try {
-    window.speechSynthesis.cancel();
-    console.log("Cancelled any ongoing speech");
-  } catch (error) {
-    console.error("Error cancelling ongoing speech:", error);
-  }
-  
-  // Don't repeat the same message within 30 seconds unless forced
-  const now = Date.now();
-  if (!forceSpeak && 
-      message === lastSpokenMessage && 
-      now - lastSpokenTimestamp < 30000) {
-    console.log('Preventing repeated message:', message);
-    return;
-  }
-  
-  lastSpokenMessage = message;
-  lastSpokenTimestamp = now;
-  
-  // Format PREPZR name for better pronunciation
-  const formattedMessage = formatPrepzrName(message);
-  
-  console.log("Speaking message:", formattedMessage);
-  
-  // Create and configure speech utterance
-  const utterance = new SpeechSynthesisUtterance(formattedMessage);
-  utterance.volume = settings.volume;
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.lang = settings.language;
-  
-  // Select the appropriate voice
-  const voice = selectVoice(settings.language);
-  if (voice) {
-    console.log("Using voice:", voice.name, voice.lang);
-    utterance.voice = voice;
-  } else {
-    console.warn("No appropriate voice found, using browser default");
-  }
-  
-  // Add event listeners for debugging
-  utterance.onstart = () => {
-    console.log('Voice started speaking');
-    document.dispatchEvent(new CustomEvent('voice-speaking-started', { 
-      detail: { message: formattedMessage } 
-    }));
-  };
-  
-  utterance.onend = () => {
-    console.log('Voice finished speaking');
-    document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-  };
-  
-  utterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
-  };
-  
-  // Speak the message with error handling
-  try {
-    window.speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.error('Failed to speak:', error);
+    // Create speech synthesis utterance
+    const utterance = new SpeechSynthesisUtterance(message);
     
-    // Try one more time after a short delay
-    setTimeout(() => {
-      try {
-        window.speechSynthesis.speak(utterance);
-      } catch (secondError) {
-        console.error('Failed to speak on second attempt:', secondError);
+    // Apply settings
+    utterance.volume = settings.volume;
+    utterance.rate = settings.rate;
+    utterance.pitch = settings.pitch;
+    utterance.lang = settings.language;
+    
+    // Try to get a voice that matches the language
+    if (!settings.voice) {
+      const voices = window.speechSynthesis.getVoices();
+      console.log("Available voices:", voices);
+      
+      if (voices.length > 0) {
+        // Find a voice that matches the language or use the first available one
+        const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
+        utterance.voice = matchingVoice;
+        console.log("Selected voice:", matchingVoice);
       }
-    }, 500);
+    } else {
+      utterance.voice = settings.voice;
+    }
+    
+    // Event handling
+    utterance.onstart = () => {
+      console.log("Started speaking:", message);
+      document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
+    };
+    
+    utterance.onend = () => {
+      console.log("Finished speaking");
+      document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
+    };
+    
+    utterance.onerror = (event) => {
+      console.error("Error speaking:", event);
+    };
+    
+    // Force reload voices if none available yet
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = function() {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
+          utterance.voice = matchingVoice;
+          console.log("Loaded voices after onvoiceschanged:", voices);
+          console.log("Selected voice:", matchingVoice);
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+    } else {
+      // Speak the message
+      window.speechSynthesis.speak(utterance);
+    }
+    
+    // Fix for Chrome issues where speech can get cut off
+    if (window.navigator.userAgent.includes('Chrome')) {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }
+  } catch (error) {
+    console.error("Error speaking message:", error);
   }
-};
+}
 
-// Generate a greeting based on time of day and user mood
-export const getGreeting = (
-  userName?: string, 
-  mood?: string, 
-  isFirstTimeUser: boolean = false
-): string => {
+// Get appropriate greeting based on user state
+export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: boolean = false): string {
   const hour = new Date().getHours();
-  let timeGreeting = '';
+  let timeBasedGreeting = "Hello";
   
   if (hour < 12) {
-    timeGreeting = 'Good morning';
-  } else if (hour < 17) {
-    timeGreeting = 'Good afternoon';
+    timeBasedGreeting = "Good morning";
+  } else if (hour < 18) {
+    timeBasedGreeting = "Good afternoon";
   } else {
-    timeGreeting = 'Good evening';
+    timeBasedGreeting = "Good evening";
   }
   
-  // First time user greeting
+  const nameGreeting = userName ? `, ${userName}` : "";
+  
+  // First-time user welcome
   if (isFirstTimeUser) {
-    return `Hi there! Welcome to PREPZR – your study partner! Let's get started when you're ready. Just tap the icon above to chat with me!`;
+    return `${timeBasedGreeting}${nameGreeting}! Welcome to PREPZR. I'm your virtual assistant and I'll help you navigate the platform. Feel free to ask me anything about your study plan or exams.`;
   }
   
-  // Returning user greeting
-  const userNameText = userName ? `, ${userName}` : '';
-  
-  // Base greeting
-  let greeting = `${timeGreeting}${userNameText}! Welcome back to PREPZR!`;
-  
-  // Add mood-based suggestions
+  // Mood-based greeting
   if (mood) {
-    switch(mood.toLowerCase()) {
-      case 'tired':
-        return `${greeting} I see you're feeling tired. How about a short 5-minute flashcard session to keep momentum?`;
-      case 'anxious':
-        return `${greeting} Feeling anxious? Let's try some focused breathing before jumping into today's study plan.`;
-      case 'distracted':
-        return `${greeting} Finding it hard to focus? Let's break down your study plan into smaller, manageable chunks today.`;
+    switch (mood.toLowerCase()) {
       case 'motivated':
-        return `${greeting} You're motivated today! Let's make the most of it with a practice exam session!`;
-      case 'confident':
-        return `${greeting} Feeling confident! Great! Let's challenge yourself with some advanced problems today!`;
+        return `${timeBasedGreeting}${nameGreeting}! I see you're feeling motivated today. That's great! Let's make the most of your study session.`;
       case 'focused':
-        return `${greeting} You're in the zone today! Perfect time to tackle those challenging concepts!`;
+        return `${timeBasedGreeting}${nameGreeting}! You're feeling focused - perfect time to tackle those challenging topics.`;
+      case 'tired':
+        return `${timeBasedGreeting}${nameGreeting}. I see you're feeling tired. Would you like to try a shorter study session today?`;
+      case 'anxious':
+        return `${timeBasedGreeting}${nameGreeting}. I understand you're feeling anxious. Let's focus on reviewing material you're already comfortable with to build confidence.`;
       default:
-        return `${greeting} Ready to continue your prep? Let's aim high today!`;
+        break;
     }
   }
   
-  return `${greeting} Ready to continue your prep? Let's aim high today!`;
-};
+  // Default greeting
+  return `${timeBasedGreeting}${nameGreeting}! How can I assist with your studies today?`;
+}
 
-// Generate notifications for pending tasks
-export const getReminderAnnouncement = (
-  pendingTasks: Array<{title: string, due?: string}> = [],
+// Generate reminder announcement
+export function getReminderAnnouncement(
+  pendingTasks: Array<{title: string, due?: string}> = [], 
   examGoal?: string
-): string => {
-  if (!pendingTasks.length) return '';
+): string {
+  if (pendingTasks.length === 0) return '';
   
-  const examContext = examGoal ? ` for your ${examGoal} preparation` : '';
+  let message = '';
   
   if (pendingTasks.length === 1) {
-    return `Don't forget, you have a pending ${pendingTasks[0].title}${examContext} ${pendingTasks[0].due ? 'scheduled ' + pendingTasks[0].due : 'today'}.`;
+    message = `You have a pending task: ${pendingTasks[0].title}`;
+    if (pendingTasks[0].due) {
+      message += ` due ${pendingTasks[0].due}`;
+    }
+  } else {
+    message = `You have ${pendingTasks.length} pending tasks. The most urgent is: ${pendingTasks[0].title}`;
+    if (pendingTasks[0].due) {
+      message += ` due ${pendingTasks[0].due}`;
+    }
   }
   
-  return `You have ${pendingTasks.length} pending tasks${examContext}, including ${pendingTasks[0].title} and ${pendingTasks[1].title}. Check your dashboard for details.`;
-};
+  if (examGoal) {
+    message += `. Remember, your goal is to prepare for ${examGoal}.`;
+  }
+  
+  return message;
+}
 
-// Process user voice queries
-export const processUserQuery = (
+// Process user voice input
+export function processUserQuery(
   query: string,
-  navigate: (path: string) => void,
-  callbacks: {
-    startTest?: () => void;
-    switchLanguage?: (lang: 'en-IN' | 'hi-IN') => void;
-    showFlashcards?: () => void;
+  navigate: any,
+  actions: {
+    startTest?: () => void,
+    switchLanguage?: (lang: 'en-IN' | 'hi-IN') => void,
+    showFlashcards?: () => void,
+    examGoal?: string
   } = {}
-): string => {
-  const lowerQuery = query.toLowerCase().trim();
+): string {
+  const normalizedQuery = query.toLowerCase().trim();
   
   // Navigation commands
-  if (lowerQuery.includes('go to') || lowerQuery.includes('open') || lowerQuery.includes('show')) {
-    if (lowerQuery.includes('dashboard') || lowerQuery.includes('home')) {
-      navigate('/dashboard/student');
-      return "Opening your dashboard";
-    } else if (lowerQuery.includes('profile')) {
-      navigate('/dashboard/student/profile');
-      return "Opening your profile page";
-    } else if (lowerQuery.includes('today') || lowerQuery.includes('plan')) {
-      navigate('/dashboard/student/today');
-      return "Opening your today's plan";
-    } else if (lowerQuery.includes('practice') || lowerQuery.includes('exam') || lowerQuery.includes('test')) {
-      navigate('/dashboard/student/practice-exam');
-      return "Opening practice exams";
-    } else if (lowerQuery.includes('flash') || lowerQuery.includes('card')) {
-      if (callbacks.showFlashcards) callbacks.showFlashcards();
-      navigate('/dashboard/student/flashcards');
-      return "Opening flashcards";
-    } else if (lowerQuery.includes('concept')) {
-      navigate('/dashboard/student/concepts');
-      return "Opening concept cards";
-    } else if (lowerQuery.includes('academic') || lowerQuery.includes('advisor')) {
-      navigate('/dashboard/student/academic');
-      return "Opening academic advisor";
-    } else if (lowerQuery.includes('mood') || lowerQuery.includes('feel')) {
-      navigate('/dashboard/student/feel-good-corner');
-      return "Opening feel good corner";
-    }
+  if (normalizedQuery.includes('go to dashboard') || normalizedQuery.includes('show dashboard')) {
+    navigate('/dashboard/student');
+    return 'Navigating to dashboard.';
   }
   
-  // Action commands
-  if (lowerQuery.includes('start') || lowerQuery.includes('begin')) {
-    if (lowerQuery.includes('test') || lowerQuery.includes('mock') || lowerQuery.includes('exam')) {
-      if (callbacks.startTest) callbacks.startTest();
-      return "Starting a new mock test for you";
+  if (normalizedQuery.includes('go to flashcards') || normalizedQuery.includes('show flashcards')) {
+    navigate('/dashboard/student/flashcards');
+    return 'Navigating to flashcards.';
+  }
+  
+  if (normalizedQuery.includes('go to practice') || normalizedQuery.includes('start practice test')) {
+    if (actions.startTest) {
+      actions.startTest();
+      return 'Starting practice test.';
     }
+    
+    navigate('/dashboard/student/practice-exam');
+    return 'Navigating to practice exams.';
+  }
+  
+  // Study plan commands
+  if (normalizedQuery.includes('study plan') || normalizedQuery.includes('my plan')) {
+    navigate('/dashboard/student/academic');
+    return 'Here is your study plan. You can view your progress and upcoming topics.';
   }
   
   // Language commands
-  if (lowerQuery.includes('switch') || lowerQuery.includes('change')) {
-    if (lowerQuery.includes('hindi')) {
-      if (callbacks.switchLanguage) callbacks.switchLanguage('hi-IN');
-      return "भाषा को हिंदी में बदल रहा हूँ";
-    } else if (lowerQuery.includes('english')) {
-      if (callbacks.switchLanguage) callbacks.switchLanguage('en-IN');
-      return "Switching language to English";
+  if (normalizedQuery.includes('switch to hindi') || normalizedQuery.includes('speak hindi')) {
+    if (actions.switchLanguage) {
+      actions.switchLanguage('hi-IN');
+      return 'भाषा हिंदी में बदली गई है।'; // Language has been changed to Hindi
     }
+    return 'I cannot switch languages right now.';
   }
   
-  // Study recommendations
-  if (lowerQuery.includes('what should i') || lowerQuery.includes('recommend')) {
-    if (lowerQuery.includes('study') || lowerQuery.includes('revise')) {
-      return "Based on your recent progress, I recommend focusing on Physics concepts today, particularly the topics you flagged last week.";
+  if (normalizedQuery.includes('switch to english') || normalizedQuery.includes('speak english')) {
+    if (actions.switchLanguage) {
+      actions.switchLanguage('en-IN');
+      return 'Language has been changed to English.';
     }
+    return 'I cannot switch languages right now.';
   }
   
-  // Help commands
-  if (lowerQuery.includes('help') || lowerQuery.includes('how to')) {
-    if (lowerQuery.includes('flash') || lowerQuery.includes('card')) {
-      return "To use flashcards, navigate to the Flashcards section from your dashboard. You can study cards by subject, create your own, or use our AI-generated cards based on your weak areas.";
-    } else if (lowerQuery.includes('exam') || lowerQuery.includes('test')) {
-      return "Our practice exams simulate real test conditions. You can take full-length tests or focus on specific subjects. Each test includes detailed explanations and performance analytics.";
-    } else {
-      return "You can ask me about your study plan, request to start a practice test, get help with features like flashcards, or navigate to different sections of the app.";
-    }
+  // Information about exam
+  if ((normalizedQuery.includes('exam') || normalizedQuery.includes('test')) && 
+      (normalizedQuery.includes('when') || normalizedQuery.includes('date'))) {
+    const examGoal = actions.examGoal || 'your exam';
+    return `Your ${examGoal} preparation is ongoing. You should review your study plan to see the suggested timeline.`;
   }
   
-  // Default response
-  return "I'm not sure how to help with that. You can ask me about your study plan, starting a test, using flashcards, or navigating the app.";
-};
+  // Fallback response
+  return 'I understand you said: "' + query + '". How can I help you with your studies today?';
+}

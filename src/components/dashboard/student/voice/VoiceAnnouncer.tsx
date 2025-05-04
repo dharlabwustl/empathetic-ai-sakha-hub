@@ -13,7 +13,8 @@ import {
   speakMessage, 
   getGreeting,
   getReminderAnnouncement,
-  type VoiceSettings 
+  type VoiceSettings,
+  initSpeechSynthesis
 } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface VoiceAnnouncerProps {
@@ -55,6 +56,20 @@ const VoiceAnnouncer = ({
   const [subtitleText, setSubtitleText] = useState('');
   const [hasGreeted, setHasGreeted] = useState(false);
   
+  // Initialize speech synthesis on mount
+  useEffect(() => {
+    // Initialize speech synthesis and load voices
+    const isSupported = initSpeechSynthesis();
+    if (isSupported) {
+      // Manually attempt to load voices
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+      }
+    } else {
+      console.error("Speech synthesis not supported in this browser");
+    }
+  }, []);
+  
   // Improved visual animation style
   const pulseAnimation = `${(isListening || isSpeaking) ? 'animate-pulse' : ''} ${voiceSettings.enabled ? 'bg-indigo-200/50 dark:bg-indigo-700/30' : ''}`;
   const iconColor = voiceSettings.enabled 
@@ -67,13 +82,19 @@ const VoiceAnnouncer = ({
     const timer = setTimeout(() => {
       if (!hasGreeted) {
         console.log("Attempting to speak greeting...");
-        speakGreeting();
+        
+        // Force a greeting regardless of settings for testing voice functionality
+        const greeting = getGreeting(userName, mood, isFirstTimeUser);
+        
+        // Use direct speak call to ensure it happens
+        speak(greeting, true); // Force the speech
+        
         setHasGreeted(true);
       }
-    }, isFirstTimeUser ? 5000 : 2000); // Longer delay for first-time users
+    }, isFirstTimeUser ? 2000 : 1000); // Shorter delays for faster feedback
     
     return () => clearTimeout(timer);
-  }, [speakGreeting, isFirstTimeUser, hasGreeted]);
+  }, [speakGreeting, isFirstTimeUser, hasGreeted, userName, mood, speak]);
   
   // Handle speech events for subtitles
   useEffect(() => {
@@ -107,7 +128,7 @@ const VoiceAnnouncer = ({
           console.log("Speaking reminder:", reminderText);
           speak(reminderText);
         }
-      }, 5000); // Wait 5 seconds after greeting
+      }, 3000); // Shorter wait time after greeting
       
       return () => clearTimeout(timer);
     }
@@ -122,81 +143,57 @@ const VoiceAnnouncer = ({
     }
   };
   
-  // First time user instruction
-  useEffect(() => {
-    if (isFirstTimeUser && hasGreeted) {
-      const timer = setTimeout(() => {
-        speak("Use the voice button above to ask me about your study plan or to begin a flashcard session.");
-      }, 10000); // 10 seconds after greeting
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isFirstTimeUser, hasGreeted, speak]);
-  
-  // Mood-based study suggestion
-  useEffect(() => {
-    if (hasGreeted && mood && !isFirstTimeUser) {
-      const timer = setTimeout(() => {
-        let suggestion = "";
-        
-        switch(mood.toLowerCase()) {
-          case 'tired':
-            suggestion = "Since you're feeling tired, why not try a quick 5-minute flashcard session to keep your momentum?";
-            break;
-          case 'anxious':
-            suggestion = "Feeling anxious about your exam? Let's focus on reviewing topics you're already comfortable with to build confidence.";
-            break;
-          case 'focused':
-            suggestion = "You're focused today! Perfect time to tackle those challenging topics in your study plan.";
-            break;
-          case 'motivated':
-            suggestion = "With your motivation today, I recommend taking a practice test to gauge your progress.";
-            break;
-        }
-        
-        if (suggestion) {
-          console.log("Speaking mood-based suggestion:", suggestion);
-          speak(suggestion);
-        }
-      }, 20000); // 20 seconds after greeting
-      
-      return () => clearTimeout(timer);
-    }
-  }, [hasGreeted, mood, isFirstTimeUser, speak]);
+  // Test voice button - added for debugging
+  const testVoiceButton = () => {
+    console.log("Testing voice...");
+    speak("Hello! This is a test message to check if voice is working correctly.", true);
+  };
 
   return (
     <>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggleListening}
-              className={`relative ${isListening || isSpeaking ? 'bg-indigo-100 dark:bg-indigo-900/30' : ''}`}
-            >
-              {/* Enhanced pulsing effect */}
-              <div className={`absolute inset-0 rounded-full ${pulseAnimation}`} />
-              
-              {/* Enhanced icon with better visibility */}
-              {voiceSettings.enabled ? (
-                isListening ? (
-                  <Mic className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleToggleListening}
+                className={`relative ${isListening || isSpeaking ? 'bg-indigo-100 dark:bg-indigo-900/30' : ''}`}
+              >
+                {/* Enhanced pulsing effect */}
+                <div className={`absolute inset-0 rounded-full ${pulseAnimation}`} />
+                
+                {/* Enhanced icon with better visibility */}
+                {voiceSettings.enabled ? (
+                  isListening ? (
+                    <Mic className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
+                  ) : (
+                    <Volume2 className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
+                  )
                 ) : (
-                  <Volume2 className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
-                )
-              ) : (
-                <VolumeX className="h-[1.2rem] w-[1.2rem] text-gray-500 dark:text-gray-400" />
-              )}
+                  <VolumeX className="h-[1.2rem] w-[1.2rem] text-gray-500 dark:text-gray-400" />
+                )}
+                
+                {/* Enhanced activity indicator */}
+                {(isListening || isSpeaking) && (
+                  <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                  </span>
+                )}
+              </Button>
               
-              {/* Enhanced activity indicator */}
-              {(isListening || isSpeaking) && (
-                <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                </span>
-              )}
-            </Button>
+              {/* Debug/Test Button - Hidden in production */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={testVoiceButton}
+                className="text-xs h-7 px-2"
+              >
+                Test Voice
+              </Button>
+            </div>
           </TooltipTrigger>
           {showTooltip && (
             <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 p-2 shadow-lg border border-gray-200 dark:border-gray-700">
