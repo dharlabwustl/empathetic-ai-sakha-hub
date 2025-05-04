@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -17,7 +18,8 @@ import {
   User,
   Smile,
   BookMarked,
-  FileText
+  FileText,
+  ArrowLeft
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 

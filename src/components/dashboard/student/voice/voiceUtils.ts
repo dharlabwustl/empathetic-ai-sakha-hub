@@ -1,4 +1,3 @@
-
 // Define speech synthesis types for TypeScript
 declare global {
   interface Window {
@@ -148,7 +147,7 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
   }
 }
 
-// Generate a greeting message based on user state - more casual and friendly
+// Generate a personalized greeting message based on user state - more casual and friendly
 export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: boolean): string {
   const hour = new Date().getHours();
   let timeOfDay = '';
@@ -160,47 +159,42 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: 
   let greeting = '';
   
   if (isFirstTimeUser) {
-    greeting = `Hi${userName ? ' ' + userName : ''}! I'm your Prepzr assistant. Let me help you with your studies today!`;
+    greeting = `Hi${userName ? ' ' + userName : ''}! I'm your study assistant. I'll help you stay on track with your goals!`;
   } else {
     greeting = `Hey${userName ? ' ' + userName : ''}! `;
     
     if (mood) {
       switch (mood.toLowerCase()) {
         case 'focused':
-          greeting += "Great to see you focused today! Ready to make some progress?";
+          greeting += "I see you're focused today. Let's make the most of your study time!";
           break;
         case 'tired':
-          greeting += "Feeling tired? Let's take it easy but still make some progress.";
+          greeting += "You seem tired today. We'll take it easy but still make progress!";
           break;
         case 'confident':
-          greeting += "Awesome! Your confidence today will help you tackle challenges.";
+          greeting += "Your confidence is inspiring! Let's tackle some challenging material today.";
           break;
         case 'anxious':
-          greeting += "Don't worry, we'll start with something simple to build your confidence.";
+          greeting += "No need to worry! We'll break things down into manageable steps today.";
           break;
         case 'distracted':
-          greeting += "Let's find your focus together. One small task at a time.";
+          greeting += "Let's find your focus together. I'm here to help you concentrate.";
           break;
         default:
-          greeting += "How can I help with your studies today?";
+          greeting += `Good ${timeOfDay}! Ready for a productive study session?`;
       }
     } else {
       const greetings = [
-        "Ready for some learning?",
-        "What would you like to work on today?",
-        "Hope you're having a great day!",
-        "I'm here to help with your studies!"
+        `Good ${timeOfDay}! Let's achieve your study goals today!`,
+        "Ready to make progress on your studies?",
+        "It's great to see you! Let's focus on your learning today.",
+        "I'm here to support your studies! What would you like to work on?"
       ];
-      greeting += greetings[Math.floor(Math.random() * greetings.length)];
+      greeting = greetings[Math.floor(Math.random() * greetings.length)];
     }
   }
   
-  // Add Hindi version if needed
-  if (isFirstTimeUser) {
-    return greeting;
-  } else {
-    return greeting;
-  }
+  return greeting;
 }
 
 // Get reminder announcement - more concise and friendly
@@ -216,7 +210,7 @@ export function getReminderAnnouncement(
   
   if (pendingTasks.length === 1) {
     const task = pendingTasks[0];
-    announcement = `Just a friendly reminder about "${task.title}"`;
+    announcement = `Just a quick reminder about "${task.title}"`;
     if (task.due) {
       announcement += ` coming up on ${task.due}`;
     }
@@ -228,9 +222,9 @@ export function getReminderAnnouncement(
   
   if (examGoal) {
     const motivationalPhrases = [
-      `Keep going with your ${examGoal} prep!`,
-      `Every step brings you closer to ${examGoal} success!`,
-      `You're making progress toward your ${examGoal}!`
+      `You're making great progress toward your ${examGoal}!`,
+      `Keep this momentum going with your ${examGoal} preparation!`,
+      `I believe in your ability to ace your ${examGoal}!`
     ];
     announcement += ` ${motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)]}`;
   }
@@ -296,7 +290,18 @@ export function getExamPracticeFeedback(score: number, totalQuestions: number): 
   }
 }
 
-// Process a user voice query and provide a response
+// Get voice feedback for concept card learning
+export function getConceptCardFeedback(conceptName: string): string {
+  const responses = [
+    `Great job reviewing the ${conceptName} concept! Understanding core principles builds a strong foundation.`,
+    `You've just strengthened your knowledge of ${conceptName}. This will help connect ideas across your subject.`,
+    `Excellent work studying ${conceptName}! Regular review of key concepts leads to deeper understanding.`
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Process a user voice query and provide a helpful, supportive response
 export function processUserQuery(
   query: string, 
   navigate: any,
@@ -334,44 +339,49 @@ export function processUserQuery(
   // Navigation commands
   if (lowerQuery.includes('go to dashboard') || lowerQuery.includes('show dashboard')) {
     navigate('/dashboard/student/overview');
-    return "Taking you to the dashboard.";
+    return "Taking you to your dashboard. Let's see your overall progress!";
   }
   
   if (lowerQuery.includes('flashcard') || lowerQuery.includes('flash card')) {
     navigate('/dashboard/student/flashcards');
     if (actions?.showFlashcards) actions.showFlashcards();
-    return "Opening the flashcards section to help you study.";
+    return "Opening flashcards to help strengthen your memory. These are great for quick review sessions!";
+  }
+  
+  if (lowerQuery.includes('concept') || lowerQuery.includes('concepts')) {
+    navigate('/dashboard/student/concepts');
+    return "Let's explore key concepts that will help build your understanding.";
   }
   
   if (lowerQuery.includes('practice exam') || lowerQuery.includes('test') || lowerQuery.includes('quiz')) {
-    navigate('/dashboard/student/exams');
+    navigate('/dashboard/student/practice-exam');
     if (actions?.startTest) actions.startTest();
-    return "Let's practice with an exam to test your knowledge.";
+    return "Let's practice with an exam to help you prepare for the real thing! This will help identify areas to focus on.";
   }
   
   if (lowerQuery.includes('today') || lowerQuery.includes("today's plan") || lowerQuery.includes('schedule')) {
     navigate('/dashboard/student/today');
-    return "Here's your plan for today. Let's get organized!";
+    return "Here's your plan for today. I've organized your tasks to maximize your learning efficiency!";
   }
   
   if (lowerQuery.includes('tutor') || lowerQuery.includes('help me') || lowerQuery.includes('explain')) {
     navigate('/dashboard/student/tutor');
-    return "I'm ready to help you understand any concept you're struggling with.";
+    return "I'm here to help with any concepts you're struggling with. What would you like me to explain?";
   }
   
   if (lowerQuery.includes('feel good') || lowerQuery.includes('break') || lowerQuery.includes('relax')) {
     navigate('/dashboard/student/feel-good-corner');
-    return "Let's take a break. Your mental wellbeing is important for effective studying!";
+    return "Taking a moment to relax is important! Your mental wellbeing directly impacts your ability to learn effectively.";
   }
   
   // Information queries
   if (lowerQuery.includes('what exam') || lowerQuery.includes('which test') || lowerQuery.includes('goal')) {
-    const examGoal = actions?.examGoal || "No specific exam goal set";
-    return `You're preparing for ${examGoal}. Keep up the good work!`;
+    const examGoal = actions?.examGoal || "your upcoming exam";
+    return `You're preparing for ${examGoal}. I'm confident that with consistent effort, you'll do great!`;
   }
   
   if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you') || lowerQuery.includes('your name')) {
-    return "I'm your Prepzr AI assistant, here to support your studies and help you achieve your academic goals.";
+    return "I'm your AI study assistant, dedicated to helping you achieve academic success through personalized guidance and encouragement.";
   }
   
   if (lowerQuery.includes('motivate') || lowerQuery.includes('inspire') || lowerQuery.includes('encourage')) {
@@ -380,9 +390,9 @@ export function processUserQuery(
   
   // Default response for unrecognized queries - more friendly
   const defaultResponses = [
-    "I'm not quite sure about that. Would you like to practice with flashcards, take a practice test, or check your study plan?",
-    "I didn't catch that. You can ask me to help with flashcards, practice tests, or check your schedule.",
-    "Let me know if you need help with your studies. I can show flashcards, start a practice test, or check your progress."
+    "I'm here to help you succeed! Would you like to practice with flashcards, review concepts, or take a practice test?",
+    "Your success is my priority. Can I help you with flashcards, concept reviews, or setting up a study plan?",
+    "I'm your personal study companion! Let me know if you want to review concepts, practice with flashcards, or prepare for an exam."
   ];
   
   return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];

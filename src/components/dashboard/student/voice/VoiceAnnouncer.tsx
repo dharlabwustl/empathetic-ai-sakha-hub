@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Volume2, VolumeX, Headphones } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, Volume } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
@@ -43,7 +43,8 @@ const VoiceAnnouncer = ({
     stopListening,
     speakGreeting,
     speakMessage: speak,
-    toggleVoiceEnabled
+    toggleVoiceEnabled,
+    toggleMute
   } = useVoiceAnnouncer({
     userName,
     mood,
@@ -55,80 +56,44 @@ const VoiceAnnouncer = ({
   const [showSubtitle, setShowSubtitle] = useState(false);
   const [subtitleText, setSubtitleText] = useState('');
   const [hasGreeted, setHasGreeted] = useState(false);
-  const [audioTested, setAudioTested] = useState(false);
+  const [hasAnnouncedReminders, setHasAnnouncedReminders] = useState(false);
   
-  // Initialize speech synthesis on mount with enhanced loading
+  // Initialize speech synthesis on mount
   useEffect(() => {
-    // Forcefully initialize speech synthesis and load voices
-    const initializeVoice = async () => {
-      console.log("Initializing speech synthesis with enhanced loading");
-      const isSupported = initSpeechSynthesis();
-      
-      if (isSupported) {
-        if ('speechSynthesis' in window) {
-          // Force load voices
-          window.speechSynthesis.getVoices();
-          
-          // Set up voice changed listener
-          window.speechSynthesis.onvoiceschanged = () => {
-            const voices = window.speechSynthesis.getVoices();
-            console.log("Voices loaded:", voices.length);
-            if (voices.length > 0) {
-              // Try a quick test utterance to ensure audio is working
-              const testUtterance = new SpeechSynthesisUtterance("Voice initialized");
-              testUtterance.volume = 0.01; // Very quiet test
-              testUtterance.rate = 1;
-              testUtterance.onend = () => {
-                console.log("Audio system initialized successfully");
-              };
-              window.speechSynthesis.speak(testUtterance);
-            }
-          };
-        }
-      } else {
-        console.error("Speech synthesis not supported in this browser");
-      }
-    };
-    
-    initializeVoice();
+    console.log("Initializing speech synthesis");
+    initSpeechSynthesis();
   }, []);
   
-  // Improved visual animation style
+  // Enhanced visual animation style
   const pulseAnimation = `${(isListening || isSpeaking) ? 'animate-pulse' : ''} ${voiceSettings.enabled ? 'bg-indigo-200/50 dark:bg-indigo-700/30' : ''}`;
   const iconColor = voiceSettings.enabled 
     ? (isListening ? "text-indigo-600 dark:text-indigo-400 animate-pulse" : "text-gray-700 dark:text-gray-300")
     : "text-gray-500 dark:text-gray-400";
   
-  // Initial greeting when component mounts - enhanced with delay for better UX
+  // Initial greeting when component mounts - only once and not repetitive
   useEffect(() => {
-    // Wait for a short delay before greeting to ensure dashboard is loaded
-    const timer = setTimeout(() => {
-      if (!hasGreeted) {
-        console.log("Attempting to speak greeting...");
-        
-        // Force a greeting regardless of settings for testing voice functionality
+    if (!hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
+      const timer = setTimeout(() => {
+        console.log("Speaking initial greeting...");
         const greeting = getGreeting(userName, mood, isFirstTimeUser);
-        
-        // Use direct speak call to ensure it happens
-        speak(greeting, true); // Force the speech
-        
+        speak(greeting, true);
         setHasGreeted(true);
-      }
-    }, isFirstTimeUser ? 2000 : 1000); // Shorter delays for faster feedback
-    
-    return () => clearTimeout(timer);
-  }, [speakGreeting, isFirstTimeUser, hasGreeted, userName, mood, speak]);
+      }, isFirstTimeUser ? 1500 : 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [speakGreeting, isFirstTimeUser, hasGreeted, userName, mood, speak, voiceSettings.enabled, voiceSettings.muted]);
   
   // Handle speech events for subtitles
   useEffect(() => {
     const handleSpeakingStarted = (e: CustomEvent) => {
-      console.log("Speech started event received:", e.detail.message);
+      console.log("Speech started:", e.detail.message);
       setShowSubtitle(true);
       setSubtitleText(e.detail.message);
     };
     
     const handleSpeakingEnded = () => {
-      console.log("Speech ended event received");
+      console.log("Speech ended");
       setShowSubtitle(false);
       setSubtitleText('');
     };
@@ -142,20 +107,21 @@ const VoiceAnnouncer = ({
     };
   }, []);
   
-  // Announce reminders if available
+  // Announce reminders if available - only once
   useEffect(() => {
-    if (hasGreeted && pendingTasks.length > 0) {
+    if (hasGreeted && !hasAnnouncedReminders && pendingTasks.length > 0 && voiceSettings.enabled && !voiceSettings.muted) {
       const timer = setTimeout(() => {
         const reminderText = getReminderAnnouncement(pendingTasks, examGoal);
         if (reminderText) {
           console.log("Speaking reminder:", reminderText);
           speak(reminderText);
+          setHasAnnouncedReminders(true);
         }
-      }, 3000); // Shorter wait time after greeting
+      }, 2500);
       
       return () => clearTimeout(timer);
     }
-  }, [hasGreeted, pendingTasks, speak, examGoal]);
+  }, [hasGreeted, hasAnnouncedReminders, pendingTasks, speak, examGoal, voiceSettings.enabled, voiceSettings.muted]);
   
   // Event handlers
   const handleToggleListening = () => {
@@ -166,47 +132,22 @@ const VoiceAnnouncer = ({
     }
   };
   
-  // Test voice button with more immediate feedback
-  const testVoiceButton = () => {
-    console.log("Testing voice...");
-    const testMessage = "Hello! This is a test message to check if voice is working correctly.";
+  const handleToggleMute = () => {
+    toggleMute();
     
-    // Show feedback immediately
-    setShowSubtitle(true);
-    setSubtitleText(testMessage);
-    setAudioTested(true);
-    
-    // Use browser's native audio to ensure sound
-    try {
-      // Create a short beep sound first to ensure audio is working
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = 440; // A4 note
-      oscillator.connect(audioContext.destination);
-      oscillator.start();
-      setTimeout(() => oscillator.stop(), 200);
-      
-      // Then try speech synthesis
-      setTimeout(() => {
-        speak(testMessage, true);
-        console.log("Test message sent to speech system");
-      }, 300);
-    } catch (e) {
-      console.error("Error testing audio:", e);
+    // Provide feedback about mute state
+    if (!voiceSettings.muted) {
+      // User is unmuting - give audio feedback
+      setShowSubtitle(true);
+      setSubtitleText("Voice assistant muted");
+      setTimeout(() => setShowSubtitle(false), 1500);
+    } else {
+      // User is unmuting - give audio feedback
+      speak("Voice assistant activated. I'm here to help you.", true);
+      setShowSubtitle(true);
+      setSubtitleText("Voice assistant activated");
     }
   };
-  
-  // Force audio test message when component mounts
-  useEffect(() => {
-    if (!audioTested) {
-      const timer = setTimeout(() => {
-        testVoiceButton();
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [audioTested]);
 
   return (
     <>
@@ -223,7 +164,7 @@ const VoiceAnnouncer = ({
                 {/* Enhanced pulsing effect */}
                 <div className={`absolute inset-0 rounded-full ${pulseAnimation}`} />
                 
-                {/* Enhanced icon with better visibility */}
+                {/* Voice indicator icon */}
                 {voiceSettings.enabled ? (
                   isListening ? (
                     <Mic className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
@@ -234,7 +175,7 @@ const VoiceAnnouncer = ({
                   <VolumeX className="h-[1.2rem] w-[1.2rem] text-gray-500 dark:text-gray-400" />
                 )}
                 
-                {/* Enhanced activity indicator */}
+                {/* Activity indicator */}
                 {(isListening || isSpeaking) && (
                   <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -243,22 +184,32 @@ const VoiceAnnouncer = ({
                 )}
               </Button>
               
-              {/* More visible Test Button */}
+              {/* Mute toggle button */}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={testVoiceButton}
-                className="text-xs h-7 px-2 flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700"
+                onClick={handleToggleMute}
+                className="text-xs h-7 px-2 flex items-center gap-1"
+                title={voiceSettings.muted ? "Unmute voice" : "Mute voice"}
               >
-                <Headphones className="h-3 w-3" />
-                Test Voice
+                {voiceSettings.muted ? (
+                  <>
+                    <Volume className="h-3 w-3" />
+                    <span className="hidden sm:inline">Unmute</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="h-3 w-3" />
+                    <span className="hidden sm:inline">Mute</span>
+                  </>
+                )}
               </Button>
             </div>
           </TooltipTrigger>
           {showTooltip && (
             <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 p-2 shadow-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm">Click to interact with PREPZR, your study assistant!</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Ask about your study plan or start a practice test</p>
+              <p className="text-sm">Your study assistant is here to help!</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Ask about your studies or toggle voice on/off</p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -271,7 +222,7 @@ const VoiceAnnouncer = ({
         </div>
       )}
       
-      {/* Transcript display when listening - improved styling */}
+      {/* Transcript display when listening */}
       {isListening && transcript && (
         <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-indigo-600/90 text-white px-4 py-2 rounded-lg max-w-md text-center z-50 shadow-lg border border-indigo-500/50">
           <div className="text-sm font-medium mb-1">I heard you say:</div>
