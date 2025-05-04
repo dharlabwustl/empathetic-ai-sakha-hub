@@ -1,23 +1,31 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import { Button } from '@/components/ui/button';
+import { Menu, Sun, Moon, Moon as MoonIcon, Info } from 'lucide-react';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem 
+} from '@/components/ui/dropdown-menu';
+import useTheme from '@/hooks/useTheme';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
+import { MoodType } from '@/types/user/base';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour?: () => void;
-  userName?: string;
-  mood?: string;
+  onOpenTour: () => void;
+  userName: string;
+  mood?: MoodType;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -33,110 +41,93 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   isFirstTimeUser,
   onViewStudyPlan
 }) => {
+  const { theme, setTheme } = useTheme();
+
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onToggleSidebar}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+    <TooltipProvider>
+      <div className="flex justify-between items-center w-full mb-4">
+        <div className="flex items-center">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onToggleSidebar} 
+                className="mr-2 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toggle sidebar</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          <PrepzrLogo className="h-8" />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="hidden md:block text-right mr-4">
+            <div className="text-muted-foreground text-sm">{formattedDate}</div>
+            <div className="font-medium">{formattedTime}</div>
+          </div>
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onOpenTour} 
+                className="hidden md:flex items-center"
+              >
+                <Info className="h-4 w-4 mr-2" />
+                Tour
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Take a guided tour of the platform</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    {theme === 'dark' ? (
+                      <Moon className="h-5 w-5" />
+                    ) : (
+                      <Sun className="h-5 w-5" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Change theme</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme('light')}>
+                <Sun className="h-4 w-4 mr-2" />
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>
+                <MoonIcon className="h-4 w-4 mr-2" />
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('system')}>
+                <div className="flex h-4 w-4 items-center justify-center mr-2">
+                  <Sun className="h-3 w-3 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <MoonIcon className="absolute h-3 w-3 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                </div>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      
-      <div className="flex items-center gap-2">
-        {/* Voice Announcer Integration */}
-        <VoiceAnnouncer 
-          userName={userName}
-          mood={mood}
-          isFirstTimeUser={isFirstTimeUser}
-        />
-        
-        {/* Calendar Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Notification Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Tour Guide Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
