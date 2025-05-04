@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   
-  // Welcome messages sequence - optimized for clear PREPZR pronunciation
+  // Welcome messages sequence - optimized for clear PREPZR pronunciation and conversion
   const welcomeMessages = [
     "Welcome to PREP-EEZER. I'm your AI study assistant from India.",
     "PREP-EEZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
@@ -62,7 +63,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       utteranceRef.current.rate = 0.95; // Slightly slower for better clarity
       utteranceRef.current.pitch = 1.1;
       utteranceRef.current.volume = 1.0;
-      utteranceRef.current.lang = 'en-IN'; // Set Indian English
       
       // Select an Indian female voice if possible
       window.speechSynthesis.onvoiceschanged = () => {
@@ -130,18 +130,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                                        .replace(/PREP-EEZER/g, "PREP EEZER");
       
       utteranceRef.current.text = formattedMessage;
-      
-      // Ensure we have the Indian female voice set
-      const voices = window.speechSynthesis.getVoices();
-      const indianVoice = voices.find(voice => 
-        (voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
-        voice.name.includes('Female')
-      );
-      
-      if (indianVoice) {
-        utteranceRef.current.voice = indianVoice;
-      }
-      
       window.speechSynthesis.speak(utteranceRef.current);
     }
     

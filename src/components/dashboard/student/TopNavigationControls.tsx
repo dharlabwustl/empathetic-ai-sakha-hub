@@ -1,8 +1,8 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Bell, Calendar } from "lucide-react";
 import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { MoodType } from '@/types/user/base';
 import { 
   Tooltip,
   TooltipContent,
@@ -17,7 +17,7 @@ interface TopNavigationControlsProps {
   formattedTime: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: MoodType;
+  mood?: string;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -67,12 +67,74 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
-        {/* Only keep Voice Announcer Integration */}
+        {/* Voice Announcer Integration */}
         <VoiceAnnouncer 
           userName={userName}
           mood={mood}
           isFirstTimeUser={isFirstTimeUser}
         />
+        
+        {/* Calendar Icon */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your study calendar based on your exam goals</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Notification Icon */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Tour Guide Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

@@ -31,27 +31,13 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   const [currentMessage, setCurrentMessage] = useState('');
   const [speaking, setSpeaking] = useState(false);
 
-  // Load user preferences from localStorage on component mount
-  useEffect(() => {
-    const savedMuted = localStorage.getItem('voiceAssistantMuted');
-    const savedSubtitles = localStorage.getItem('voiceAssistantSubtitles');
-    
-    if (savedMuted !== null) {
-      setMuted(savedMuted === 'true');
-    }
-    
-    if (savedSubtitles !== null) {
-      setShowSubtitles(savedSubtitles === 'true');
-    }
-  }, []);
-
   // Set up voice announcement on first load
   useEffect(() => {
     // Initial greeting with a small delay for better UX
     const timer = setTimeout(() => {
       if (!muted) {
         const greeting = getGreeting(userName, mood?.toString(), isFirstTimeUser);
-        speakMessage(greeting, { ...DEFAULT_VOICE_SETTINGS, muted, language: 'en-IN' });
+        speakMessage(greeting, { ...DEFAULT_VOICE_SETTINGS, muted });
         setCurrentMessage(greeting);
         setSpeaking(true);
       }

@@ -1,4 +1,3 @@
-
 import { MoodType } from '@/types/user/base';
 import { VoiceSpeakingStartedEvent } from '@/types/voice';
 
@@ -6,10 +5,10 @@ import { VoiceSpeakingStartedEvent } from '@/types/voice';
 export const DEFAULT_VOICE_SETTINGS = {
   enabled: true,
   volume: 1.0,
-  pitch: 1.1,  // Slightly higher pitch for female voice
-  rate: 0.95,  // Slightly slower for better clarity
+  pitch: 1.0,
+  rate: 1.0,
   voice: null,
-  language: 'en-IN', // Set default to Indian English
+  language: 'en-US',
   autoGreet: true,
   muted: false
 };
@@ -28,8 +27,8 @@ export function initSpeechSynthesis(): boolean {
   return true;
 }
 
-// Helper to find the best voice to use - prioritize Indian female voice
-export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthesisVoice | null {
+// Helper to find the best voice to use
+export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return null;
   }
@@ -41,27 +40,31 @@ export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthe
   
   // First preference: Indian female voice
   const indianFemaleVoice = voices.find(
-    voice => (voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    voice => (voice.name.includes('Indian') || voice.lang === 'en-IN') && 
              voice.name.toLowerCase().includes('female')
   );
   
   if (indianFemaleVoice) {
-    console.log("Found Indian female voice:", indianFemaleVoice.name);
     return indianFemaleVoice;
   }
   
-  // Second preference: Any female voice
+  // Second preference: Any female voice in the preferred language
   const femaleVoice = voices.find(
-    voice => voice.name.toLowerCase().includes('female')
+    voice => voice.lang.includes(preferredLanguage) && 
+             voice.name.toLowerCase().includes('female')
   );
   
   if (femaleVoice) {
-    console.log("Using female voice as fallback:", femaleVoice.name);
     return femaleVoice;
   }
   
-  // Fallback to any voice
-  console.log("No suitable female voice found, using default voice");
+  // Third preference: Any voice in the preferred language
+  const languageVoice = voices.find(voice => voice.lang.includes(preferredLanguage));
+  if (languageVoice) {
+    return languageVoice;
+  }
+  
+  // Fallback: Use the first available voice
   return voices[0];
 }
 
@@ -93,17 +96,12 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     utterance.volume = settings.volume;
     utterance.pitch = settings.pitch;
     utterance.rate = settings.rate;
-    utterance.lang = 'en-IN'; // Force Indian English
+    utterance.lang = settings.language;
     
-    // Find the best voice to use - prioritize Indian female voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = findBestVoice('en-IN');
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-      console.log("Using voice:", preferredVoice.name);
-    } else {
-      console.log("No preferred voice found, using default");
+    // Find the best voice to use
+    const voice = findBestVoice(settings.language);
+    if (voice) {
+      utterance.voice = voice;
     }
     
     // Dispatch custom events for speech start/end
