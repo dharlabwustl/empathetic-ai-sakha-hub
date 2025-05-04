@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle, Loader2, Globe } from 'lucide-react';
@@ -124,7 +125,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     }, 1000);
 
     // Set up listeners for speaking events - ensure we use the original message for display
-    const handleSpeakingStarted = (event: CustomEvent) => {
+    const handleSpeakingStarted = (event: any) => {
       setSpeaking(true);
       // Use the original message from the event detail for display
       setCurrentMessage(event.detail.message);
@@ -218,7 +219,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
           setLanguage('hi-IN');
           localStorage.setItem('voiceAssistantLanguage', 'hi-IN');
         } else if (!response.match(/[\u0900-\u097F]/) && language === 'hi-IN' && 
-                  (lowerQuery.includes('speak english') || lowerQuery.includes('in english'))) {
+                  (result.toLowerCase().includes('speak english') || result.toLowerCase().includes('in english'))) {
           // User requested English
           setLanguage('en-IN');
           localStorage.setItem('voiceAssistantLanguage', 'en-IN');
@@ -265,6 +266,9 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   const startListening = () => {
     if (!recognitionRef.current) {
       initializeSpeechRecognition();
+    } else {
+      // Update recognition language to match current settings
+      recognitionRef.current.lang = language;
     }
     
     try {

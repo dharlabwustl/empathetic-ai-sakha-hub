@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LANGUAGE_OPTIONS } from '../voice/voiceUtils';
+import { LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 import { motion } from 'framer-motion';
 
 interface VoiceTestPanelProps {
