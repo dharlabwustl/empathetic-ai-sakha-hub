@@ -33,16 +33,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesHistoryRef = useRef<string[]>([]);
   
-  // Welcome messages sequence - clear PREP-EZER pronunciation guidance
+  // Welcome messages sequence - including NEET examination focus
   const welcomeMessages = [
-    "Welcome to PREP-EZER. I'm your AI study assistant from India.",
-    "PREP-EZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
-    "Our personalized study plans adapt to your learning style and pace, making exam preparation more effective.",
+    "Welcome to PREPZR. I'm your AI study assistant. How may I help you in preparing for NEET examination.",
+    "PREPZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Our personalized study plans adapt to your learning style and pace, making NEET preparation more effective.",
     "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
     "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
-    "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized tutoring.",
-    "We've helped thousands of students achieve their dream scores. Let us help you too!",
-    "Click 'Get Started' to begin your journey with PREP-EZER today!"
+    "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized NEET tutoring.",
+    "We've helped thousands of students achieve their dream scores in NEET. Let us help you too!",
+    "Click 'Get Started' to begin your NEET preparation journey with PREPZR today!"
   ];
 
   // Check if first visit
@@ -94,7 +94,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
         }
       }
       
-      // Auto-play after delay if enabled
+      // Auto-play after delay if enabled - ensuring it starts automatically
       if (autoPlay && isVisible) {
         const timer = setTimeout(() => {
           startAnnouncement();
@@ -151,10 +151,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREP-EZER. Ready to continue your study journey?";
+      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your NEET preparation journey?";
       // Trim the welcome messages for returning users
       welcomeMessages.splice(3);
-      welcomeMessages.push("Let's pick up where you left off with your exam preparation!");
+      welcomeMessages.push("Let's pick up where you left off with your NEET preparation!");
     }
   }, []);
   
@@ -162,24 +162,24 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     // Here you would normally process the voice input
     // For now, just respond with a simple message
     const lowerInput = input.toLowerCase();
-    let response = "I'm sorry, I didn't understand that. How can I help you with PREP-EZER?";
+    let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREPZR?";
     
     if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
-      response = "Hello! Welcome to PREP-EZER. How can I assist you today?";
+      response = "Hello! Welcome to PREPZR. How can I assist you with your NEET preparation today?";
     } else if (lowerInput.includes("about") || lowerInput.includes("what is")) {
-      response = "PREP-EZER is an AI-powered study assistant designed to help students prepare for competitive exams.";
+      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET.";
     } else if (lowerInput.includes("features")) {
-      response = "PREP-EZER offers personalized study plans, practice tests, flashcards, and AI tutoring to help you succeed.";
-    } else if (lowerInput.includes("exam") || lowerInput.includes("test")) {
-      response = "Our Exam Readiness Test will help you understand your current preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
+      response = "PREPZR offers personalized study plans for NEET, practice tests, flashcards, and AI tutoring to help you succeed.";
+    } else if (lowerInput.includes("exam") || lowerInput.includes("test") || lowerInput.includes("neet")) {
+      response = "Our Exam Readiness Test will help you understand your current NEET preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
     } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
-      response = "You can try PREP-EZER with our 7-day free trial. Sign up now to access all features and see how we can help you succeed.";
+      response = "You can try PREPZR with our 7-day free trial. Sign up now to access all features and see how we can help you succeed in NEET.";
     } else if (lowerInput.includes("premium") || lowerInput.includes("paid") || lowerInput.includes("plan")) {
-      response = "Our premium plans offer advanced features including unlimited practice tests, personalized feedback, doubt resolution, and specialized tutoring for your target exams.";
+      response = "Our premium plans offer advanced features including unlimited NEET practice tests, personalized feedback, doubt resolution, and specialized tutoring for NEET subjects.";
     } else if (lowerInput.includes("login") || lowerInput.includes("sign in")) {
       response = "You can sign in using the button at the top right of the screen.";
     } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
-      response = "Click the 'Get Started' button to create your PREP-EZER account and begin your study journey.";
+      response = "Click the 'Get Started' button to create your PREPZR account and begin your NEET preparation journey.";
     }
     
     // Avoid repeating the same message
@@ -214,11 +214,8 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      // Replace PREPZR with PREP-EZER for correct pronunciation
-      const processedMessage = message
-        .replace(/PREPZR/g, "PREP-EZER")
-        .replace(/Prepzr/g, "PREP-EZER")
-        .replace(/prepzr/g, "PREP-EZER");
+      // Consistency with PREPZR pronunciation
+      const processedMessage = message.replace(/PREPZR/g, "PREPZR");
       
       utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -329,7 +326,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                     >
                       <Volume2 className={`h-4 w-4 ${isMuted ? 'text-gray-400' : 'text-blue-500'}`} />
                     </motion.div>
-                    <h3 className="font-medium text-sm">PREP-EZER Assistant</h3>
+                    <h3 className="font-medium text-sm">PREPZR Assistant</h3>
                   </div>
                   <div className="flex space-x-1">
                     <Tooltip delayDuration={300}>
@@ -360,7 +357,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        {isListening ? "Stop speaking" : "Ask PREP-EZER"}
+                        {isListening ? "Stop speaking" : "Ask PREPZR"}
                       </TooltipContent>
                     </Tooltip>
                     
@@ -373,60 +370,70 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                   </div>
                 </div>
                 
-                <div className="text-sm mb-3 min-h-[40px] border-l-2 border-blue-500 pl-2">
-                  {welcomeMessages[currentMessageIndex]}
+                <div className="mb-3 mt-2">
+                  <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
                 </div>
                 
-                <Progress value={progress} className="h-1 mb-2" />
+                <Progress value={progress} className="h-1 bg-gray-200" />
                 
-                {isListening && (
-                  <div className="mt-2 text-xs flex items-center text-blue-500 animate-pulse">
-                    <Mic className="h-3 w-3 mr-1" />
-                    <span>Listening...</span>
+                <div className="flex justify-between mt-3">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={stopAnnouncement} 
+                    className="text-xs h-7"
+                  >
+                    Skip
+                  </Button>
+                  
+                  <div className="space-x-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7"
+                      onClick={() => {
+                        // Find the exam test event dispatcher in the DOM and open it
+                        const event = new CustomEvent('open-exam-analyzer');
+                        window.dispatchEvent(event);
+                      }}
+                    >
+                      Try Exam Test
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="text-xs h-7 bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => {
+                        window.location.href = '/signup';
+                      }}
+                    >
+                      7-Day Trial
+                    </Button>
                   </div>
-                )}
+                </div>
               </div>
             ) : (
-              <div className="flex items-center p-2">
-                <Tooltip delayDuration={300}>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="mr-2" 
-                      onClick={startAnnouncement}
-                    >
-                      <Volume2 className="h-4 w-4 mr-1" />
-                      <span className="text-xs">PREP-EZER Assistant</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Start voice guide
-                  </TooltipContent>
-                </Tooltip>
-                
-                <Tooltip delayDuration={300}>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="h-7 w-7 p-0" 
-                      onClick={toggleListening}
-                    >
-                      <Mic className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Ask PREP-EZER
-                  </TooltipContent>
-                </Tooltip>
-                
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={dismissComponent}>
-                  <span className="sr-only">Close</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+              <div className="p-3">
+                <Button 
+                  variant="default"
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-xs h-7"
+                  onClick={startAnnouncement}
+                >
+                  <Volume2 className="h-3 w-3 mr-1" />
+                  PREPZR Voice Assistant
                 </Button>
+              </div>
+            )}
+            
+            {/* Voice input feedback */}
+            {isListening && (
+              <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+                  <span className="font-medium">Listening...</span>
+                </div>
+                {userInput && <p className="text-sm italic">"{userInput}"</p>}
               </div>
             )}
           </div>
