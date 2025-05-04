@@ -4,8 +4,7 @@ import { GraduationCap } from 'lucide-react';
 import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
-import { useAcademicPlans } from '@/hooks/useAcademicPlans';
-import BackButton from '@/components/dashboard/student/BackButton';
+import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
 
 interface AcademicAdvisorProps {
   userProfile?: {
@@ -30,7 +29,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     <div className="space-y-12">
       {/* Header section */}
       <div>
-        <BackButton to="/dashboard/student" />
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <GraduationCap className="h-8 w-8 text-indigo-600" />
           Academic Advisor

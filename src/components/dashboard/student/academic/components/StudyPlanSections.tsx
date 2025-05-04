@@ -50,7 +50,7 @@ const StudyPlanSections: React.FC<StudyPlanSectionsProps> = ({
                 <StudyPlanCard 
                   key={plan.id}
                   plan={plan}
-                  onClick={() => onViewPlanDetails(plan.id)}
+                  onClick={onViewPlanDetails}
                   isActive={true}
                 />
               ))}
@@ -68,7 +68,7 @@ const StudyPlanSections: React.FC<StudyPlanSectionsProps> = ({
               <StudyPlanCard 
                 key={plan.id}
                 plan={plan}
-                onClick={() => onViewPlanDetails(plan.id)}
+                onClick={onViewPlanDetails}
                 isActive={false}
               />
             ))}
