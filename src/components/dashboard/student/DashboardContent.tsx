@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfileBase as UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
@@ -7,6 +7,7 @@ import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
+import VoiceTestPanel from '@/components/dashboard/student/VoiceTestPanel';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -51,6 +52,11 @@ const DashboardContent = ({
   const [showReturnRecap, setShowReturnRecap] = useState(
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
+  
+  // State to track whether voice has been tested
+  const [hasTestedVoice, setHasTestedVoice] = useState(() => {
+    return localStorage.getItem('voice-tested') === 'true';
+  });
 
   // Generate tab contents once
   const tabContents = generateTabContents({
@@ -70,6 +76,16 @@ const DashboardContent = ({
   const handleCloseRecap = () => {
     setShowReturnRecap(false);
   };
+  
+  // Mark voice as tested
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasTestedVoice(true);
+      localStorage.setItem('voice-tested', 'true');
+    }, 15000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Common layout structure for all tabs
   return (
@@ -83,6 +99,13 @@ const DashboardContent = ({
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
         />
+      )}
+      
+      {/* Voice Test Panel - Show only if voice hasn't been tested */}
+      {!hasTestedVoice && (
+        <div className="mb-4">
+          <VoiceTestPanel userName={userProfile.name} />
+        </div>
       )}
       
       {/* Quick Access Buttons for all pages */}

@@ -33,6 +33,7 @@ export function useVoiceAnnouncer({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceInitialized, setVoiceInitialized] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => {
     // Try to get settings from localStorage
     const savedSettings = localStorage.getItem('prepzr-voice-settings');
@@ -48,15 +49,39 @@ export function useVoiceAnnouncer({
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const hasGreetedRef = useRef<boolean>(false);
+  const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
-  // Set up speech synthesis when component mounts
+  // Force initialize speech synthesis when component mounts
   useEffect(() => {
-    console.log("Initializing speech synthesis");
-    const isSupported = initSpeechSynthesis();
+    const initVoice = async () => {
+      console.log("Forcibly initializing speech synthesis");
+      try {
+        // Create a dummy utterance to get the browser to initialize the speech synthesis
+        const dummyUtterance = new SpeechSynthesisUtterance('');
+        window.speechSynthesis.speak(dummyUtterance);
+        
+        // Chrome requires user interaction before audio can play
+        // Force cancel to ensure it's ready for future use
+        window.speechSynthesis.cancel();
+        
+        // Wait a bit to ensure initialization
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        setVoiceInitialized(true);
+        console.log("Speech synthesis forcibly initialized");
+      } catch (error) {
+        console.error("Failed to initialize speech synthesis:", error);
+      }
+    };
     
-    if (!isSupported) {
-      console.error("Speech synthesis not supported in this browser");
-    }
+    initVoice();
+    
+    // Make sure to always cancel any ongoing speech when the component unmounts
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
   
   // Save settings whenever they change
@@ -120,7 +145,7 @@ export function useVoiceAnnouncer({
           );
           
           // Speak the response
-          speakMessage(response, voiceSettings);
+          speakMessage(response, voiceSettings, true);
         };
         
         recognitionRef.current.onend = () => {
@@ -197,7 +222,7 @@ export function useVoiceAnnouncer({
     console.log("Generating greeting for user:", userName, "mood:", mood, "first time:", isFirstTimeUser);
     const greeting = getGreeting(userName, mood, isFirstTimeUser);
     console.log("Speaking greeting:", greeting);
-    speakMessage(greeting, voiceSettings);
+    speakMessage(greeting, voiceSettings, true);
     
     hasGreetedRef.current = true;
   }, [userName, mood, isFirstTimeUser, voiceSettings]);
@@ -224,14 +249,28 @@ export function useVoiceAnnouncer({
   const testVoice = useCallback(() => {
     const testMessage = "Hello! This is how PREPZR will sound with your current settings.";
     console.log("Testing voice with message:", testMessage);
-    speakMessage(testMessage, voiceSettings, true);
+    speakMessage(testMessage, voiceSettings, true); // Force it to speak regardless of settings
   }, [voiceSettings]);
+
+  // Auto-test voice when initialized if it's enabled
+  useEffect(() => {
+    if (voiceInitialized && voiceSettings.enabled) {
+      // Wait a bit to ensure the browser is ready
+      const timer = setTimeout(() => {
+        const shortMsg = "Voice system ready.";
+        speakMessage(shortMsg, voiceSettings, false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [voiceInitialized, voiceSettings]);
 
   return {
     isListening,
     isSpeaking,
     transcript,
     voiceSettings,
+    voiceInitialized,
     startListening,
     stopListening,
     speakGreeting,
@@ -239,6 +278,6 @@ export function useVoiceAnnouncer({
     toggleVoiceEnabled,
     updateVoiceSettings,
     testVoice,
-    isVoiceSupported: initSpeechSynthesis()
+    isVoiceSupported: Boolean(window.speechSynthesis)
   };
 }

@@ -1,302 +1,267 @@
-// Voice settings type definition
+
+// Define speech synthesis types for TypeScript
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+    speechSynthesis: SpeechSynthesis;
+  }
+}
+
 export interface VoiceSettings {
   enabled: boolean;
   volume: number;
-  rate: number;
   pitch: number;
-  language: 'en-IN' | 'hi-IN';
-  voice?: SpeechSynthesisVoice | null;
+  rate: number;
+  voice: string | null;
+  language: string;
+  autoGreet: boolean;
 }
 
-// Default voice settings
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   enabled: true,
   volume: 1.0,
-  rate: 1.0,
   pitch: 1.0,
-  language: 'en-IN',
-  voice: null
+  rate: 1.0,
+  voice: null, // Will be selected automatically
+  language: 'en-US',
+  autoGreet: true
 };
 
-// Function to initialize speech synthesis
+// Initialize speech synthesis and check browser support
 export function initSpeechSynthesis(): boolean {
-  if (typeof window === 'undefined') return false;
-  
-  if (!('speechSynthesis' in window)) {
-    console.error("Speech synthesis API is not available in this browser");
-    return false;
-  }
-  
-  if (!('SpeechSynthesisUtterance' in window)) {
-    console.error("SpeechSynthesisUtterance is not available in this browser");
-    return false;
-  }
-  
-  // Try to access voices to ensure API is fully functioning
   try {
-    const voices = window.speechSynthesis.getVoices();
-    console.log("Initial voices check:", voices);
-    
-    // Force a reload of voices if none available
-    if (voices.length === 0) {
-      // Set up a listener for voices loaded
-      window.speechSynthesis.onvoiceschanged = () => {
-        const loadedVoices = window.speechSynthesis.getVoices();
-        console.log("Voices loaded:", loadedVoices.length);
-      };
+    if (!window.speechSynthesis) {
+      console.error('Speech synthesis not supported');
+      return false;
     }
     
+    console.log('Speech synthesis initialized with', window.speechSynthesis.getVoices().length, 'voices');
     return true;
-  } catch (e) {
-    console.error("Error initializing speech synthesis:", e);
+  } catch (error) {
+    console.error('Error initializing speech synthesis:', error);
     return false;
   }
 }
 
-// Check if speech synthesis is supported by the browser
-export function isSpeechSynthesisSupported(): boolean {
-  return typeof window !== 'undefined' && 'speechSynthesis' in window;
-}
-
-// Force browser to allow audio playback
-export function primeAudioContext(): void {
-  try {
-    // Create a short silent sound to activate audio context
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (AudioContext) {
-      const audioContext = new AudioContext();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = 0; // Silent
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.001);
-      console.log("Audio context primed successfully");
-    }
-  } catch (e) {
-    console.error("Error priming audio context:", e);
+// Get available voices for the current language
+export function getVoicesForLanguage(language: string = 'en-US'): SpeechSynthesisVoice[] {
+  if (!window.speechSynthesis) return [];
+  
+  const voices = window.speechSynthesis.getVoices();
+  console.log('Available voices:', voices.length);
+  
+  // Filter by language if specified
+  if (language) {
+    const langVoices = voices.filter(voice => voice.lang.startsWith(language.split('-')[0]));
+    console.log(`Found ${langVoices.length} voices for language ${language}`);
+    return langVoices.length > 0 ? langVoices : voices;
   }
+  
+  return voices;
 }
 
-// Speak a message using the provided settings - improved reliability
+// Get a specific voice by name or the first available one
+export function getVoice(voiceName: string | null, language: string = 'en-US'): SpeechSynthesisVoice | null {
+  if (!window.speechSynthesis) return null;
+  
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) {
+    console.warn('No voices available');
+    return null;
+  }
+  
+  // If a specific voice is requested, try to find it
+  if (voiceName) {
+    const voice = voices.find(v => v.name === voiceName);
+    if (voice) return voice;
+  }
+  
+  // Fall back to a language-specific voice
+  const langVoices = voices.filter(voice => voice.lang.startsWith(language.split('-')[0]));
+  if (langVoices.length > 0) {
+    // Prefer Google voices if available
+    const googleVoice = langVoices.find(v => v.name.includes('Google'));
+    return googleVoice || langVoices[0];
+  }
+  
+  // Last resort: return any voice
+  return voices[0];
+}
+
+// Speak a message with the specified settings
 export function speakMessage(message: string, settings: VoiceSettings, force: boolean = false): void {
-  if (!isSpeechSynthesisSupported()) {
-    console.error("Speech synthesis is not supported in this browser");
+  if (!window.speechSynthesis) {
+    console.error('Speech synthesis not supported');
     return;
   }
-
+  
+  // Don't speak if voice is disabled and not forced
   if (!settings.enabled && !force) {
-    console.log("Voice is disabled, not speaking:", message);
+    console.log('Voice is disabled, not speaking:', message);
     return;
   }
   
   try {
-    // Prime audio context to ensure browser allows audio playback
-    primeAudioContext();
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
     
-    // Stop any current speech
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
-    
-    // Create speech synthesis utterance
+    // Create a new utterance
     const utterance = new SpeechSynthesisUtterance(message);
     
-    // Apply settings with safe volume range
-    utterance.volume = Math.max(0.1, Math.min(1.0, settings.volume)); // Ensure volume is never 0
-    utterance.rate = Math.max(0.8, Math.min(1.2, settings.rate));     // Keep rate reasonable for best results
+    // Apply settings
+    utterance.volume = settings.volume;
     utterance.pitch = settings.pitch;
+    utterance.rate = settings.rate;
     utterance.lang = settings.language;
     
-    // Try to get a voice that matches the language
-    const voices = window.speechSynthesis.getVoices();
-    console.log("Available voices:", voices.length);
-      
-    if (voices.length > 0) {
-      // Find a voice that matches the language or use the first available one
-      const matchingVoice = voices.find(voice => voice.lang.includes(settings.language)) || voices[0];
-      utterance.voice = matchingVoice;
-      console.log("Selected voice:", matchingVoice?.name || "default");
-    } else {
-      console.warn("No voices available yet, using default voice");
+    // Get the voice to use
+    const voice = getVoice(settings.voice, settings.language);
+    if (voice) {
+      utterance.voice = voice;
+      console.log(`Using voice: ${voice.name} (${voice.lang})`);
     }
     
-    // Event handling
+    // Add event listeners for speaking status
     utterance.onstart = () => {
-      console.log("Started speaking:", message);
-      document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
+      console.log('Speaking started:', message);
+      document.dispatchEvent(new CustomEvent('voice-speaking-started'));
     };
     
     utterance.onend = () => {
-      console.log("Finished speaking");
+      console.log('Speaking ended:', message);
       document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
     };
     
     utterance.onerror = (event) => {
-      console.error("Error speaking:", event);
+      console.error('Speaking error:', event);
       document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
     };
     
-    // Chrome workaround
-    if (window.navigator.userAgent.includes('Chrome')) {
-      // Force resume if needed
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.resume();
-    }
-    
-    // Speak with increased volume for better audibility
-    utterance.volume = Math.min(1.0, settings.volume + 0.2); 
-    
     // Speak the message
+    console.log('Speaking message:', message);
     window.speechSynthesis.speak(utterance);
-    
-    // Additional Chrome fix - keep speech synthesis alive
-    const intervalId = setInterval(() => {
-      if (!window.speechSynthesis.speaking) {
-        clearInterval(intervalId);
-      } else {
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
-      }
-    }, 5000);
   } catch (error) {
-    console.error("Error speaking message:", error);
+    console.error('Error speaking message:', error);
   }
 }
 
-// Get appropriate greeting based on user state
-export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: boolean = false): string {
+// Generate a greeting message based on user state
+export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: boolean): string {
   const hour = new Date().getHours();
-  let timeBasedGreeting = "Hello";
+  let timeOfDay = '';
   
-  if (hour < 12) {
-    timeBasedGreeting = "Good morning";
-  } else if (hour < 18) {
-    timeBasedGreeting = "Good afternoon";
-  } else {
-    timeBasedGreeting = "Good evening";
-  }
+  if (hour < 12) timeOfDay = 'morning';
+  else if (hour < 18) timeOfDay = 'afternoon';
+  else timeOfDay = 'evening';
   
-  const nameGreeting = userName ? `, ${userName}` : "";
+  let greeting = '';
   
-  // First-time user welcome
   if (isFirstTimeUser) {
-    return `${timeBasedGreeting}${nameGreeting}! Welcome to PREPZR. I'm your virtual assistant and I'll help you navigate the platform. Feel free to ask me anything about your study plan or exams.`;
-  }
-  
-  // Mood-based greeting
-  if (mood) {
-    switch (mood.toLowerCase()) {
-      case 'motivated':
-        return `${timeBasedGreeting}${nameGreeting}! I see you're feeling motivated today. That's great! Let's make the most of your study session.`;
-      case 'focused':
-        return `${timeBasedGreeting}${nameGreeting}! You're feeling focused - perfect time to tackle those challenging topics.`;
-      case 'tired':
-        return `${timeBasedGreeting}${nameGreeting}. I see you're feeling tired. Would you like to try a shorter study session today?`;
-      case 'anxious':
-        return `${timeBasedGreeting}${nameGreeting}. I understand you're feeling anxious. Let's focus on reviewing material you're already comfortable with to build confidence.`;
-      default:
-        break;
-    }
-  }
-  
-  // Default greeting
-  return `${timeBasedGreeting}${nameGreeting}! How can I assist with your studies today?`;
-}
-
-// Generate reminder announcement
-export function getReminderAnnouncement(
-  pendingTasks: Array<{title: string, due?: string}> = [], 
-  examGoal?: string
-): string {
-  if (pendingTasks.length === 0) return '';
-  
-  let message = '';
-  
-  if (pendingTasks.length === 1) {
-    message = `You have a pending task: ${pendingTasks[0].title}`;
-    if (pendingTasks[0].due) {
-      message += ` due ${pendingTasks[0].due}`;
-    }
+    greeting = `Welcome to Prepzr${userName ? ', ' + userName : ''}! I'm your AI assistant and I'm here to help you with your studies. Feel free to ask me anything about your courses or how to navigate the app.`;
   } else {
-    message = `You have ${pendingTasks.length} pending tasks. The most urgent is: ${pendingTasks[0].title}`;
-    if (pendingTasks[0].due) {
-      message += ` due ${pendingTasks[0].due}`;
+    greeting = `Good ${timeOfDay}${userName ? ', ' + userName : ''}! Welcome back to Prepzr. `;
+    
+    if (mood) {
+      switch (mood.toLowerCase()) {
+        case 'focused':
+          greeting += "I see you're feeling focused today. That's great! Let's make the most of this productive energy.";
+          break;
+        case 'tired':
+          greeting += "I notice you're feeling tired. Don't worry, we can focus on lighter tasks today.";
+          break;
+        case 'confident':
+          greeting += "You're feeling confident today! Perfect time to tackle some challenging topics.";
+          break;
+        case 'anxious':
+          greeting += "I understand you're feeling anxious. Let's start with something easy to build momentum.";
+          break;
+        case 'distracted':
+          greeting += "Feeling distracted? Let me help you focus on one thing at a time.";
+          break;
+        default:
+          greeting += "How can I help you with your studies today?";
+      }
+    } else {
+      greeting += "How can I help you with your studies today?";
     }
   }
   
-  if (examGoal) {
-    message += `. Remember, your goal is to prepare for ${examGoal}.`;
-  }
-  
-  return message;
+  return greeting;
 }
 
-// Process user voice input
+// Process a user voice query and provide a response
 export function processUserQuery(
-  query: string,
+  query: string, 
   navigate: any,
-  actions: {
+  actions?: {
     startTest?: () => void,
-    switchLanguage?: (lang: 'en-IN' | 'hi-IN') => void,
+    switchLanguage?: (lang: string) => void,
     showFlashcards?: () => void,
     examGoal?: string
-  } = {}
+  }
 ): string {
-  const normalizedQuery = query.toLowerCase().trim();
+  const lowerQuery = query.toLowerCase();
   
   // Navigation commands
-  if (normalizedQuery.includes('go to dashboard') || normalizedQuery.includes('show dashboard')) {
-    navigate('/dashboard/student');
-    return 'Navigating to dashboard.';
+  if (lowerQuery.includes('go to dashboard') || lowerQuery.includes('show dashboard')) {
+    navigate('/dashboard/student/overview');
+    return "Taking you to the dashboard.";
   }
   
-  if (normalizedQuery.includes('go to flashcards') || normalizedQuery.includes('show flashcards')) {
+  if (lowerQuery.includes('flashcard') || lowerQuery.includes('flash card')) {
     navigate('/dashboard/student/flashcards');
-    return 'Navigating to flashcards.';
+    if (actions?.showFlashcards) actions.showFlashcards();
+    return "Opening the flashcards section.";
   }
   
-  if (normalizedQuery.includes('go to practice') || normalizedQuery.includes('start practice test')) {
-    if (actions.startTest) {
-      actions.startTest();
-      return 'Starting practice test.';
-    }
-    
-    navigate('/dashboard/student/practice-exam');
-    return 'Navigating to practice exams.';
+  if (lowerQuery.includes('practice exam') || lowerQuery.includes('test')) {
+    navigate('/dashboard/student/exams');
+    if (actions?.startTest) actions.startTest();
+    return "Let's practice with some exams.";
   }
   
-  // Study plan commands
-  if (normalizedQuery.includes('study plan') || normalizedQuery.includes('my plan')) {
-    navigate('/dashboard/student/academic');
-    return 'Here is your study plan. You can view your progress and upcoming topics.';
+  if (lowerQuery.includes('today') || lowerQuery.includes("today's plan")) {
+    navigate('/dashboard/student/today');
+    return "Here's your plan for today.";
   }
   
-  // Language commands
-  if (normalizedQuery.includes('switch to hindi') || normalizedQuery.includes('speak hindi')) {
-    if (actions.switchLanguage) {
-      actions.switchLanguage('hi-IN');
-      return 'भाषा हिंदी में बदली गई है।'; // Language has been changed to Hindi
-    }
-    return 'I cannot switch languages right now.';
+  if (lowerQuery.includes('tutor') || lowerQuery.includes('help me')) {
+    navigate('/dashboard/student/tutor');
+    return "I'm here to help. What would you like to learn about?";
   }
   
-  if (normalizedQuery.includes('switch to english') || normalizedQuery.includes('speak english')) {
-    if (actions.switchLanguage) {
-      actions.switchLanguage('en-IN');
-      return 'Language has been changed to English.';
-    }
-    return 'I cannot switch languages right now.';
+  if (lowerQuery.includes('feel good') || lowerQuery.includes('break') || lowerQuery.includes('relax')) {
+    navigate('/dashboard/student/feel-good-corner');
+    return "Let's take a short break in the Feel Good Corner.";
   }
   
-  // Information about exam
-  if ((normalizedQuery.includes('exam') || normalizedQuery.includes('test')) && 
-      (normalizedQuery.includes('when') || normalizedQuery.includes('date'))) {
-    const examGoal = actions.examGoal || 'your exam';
-    return `Your ${examGoal} preparation is ongoing. You should review your study plan to see the suggested timeline.`;
+  // Language setting commands
+  if (lowerQuery.includes('speak in english') || lowerQuery.includes('switch to english')) {
+    if (actions?.switchLanguage) actions.switchLanguage('en-US');
+    return "I'll speak in English now.";
   }
   
-  // Fallback response
-  return 'I understand you said: "' + query + '". How can I help you with your studies today?';
+  if (lowerQuery.includes('speak in spanish') || lowerQuery.includes('switch to spanish')) {
+    if (actions?.switchLanguage) actions.switchLanguage('es-ES');
+    return "Ahora hablaré en español.";
+  }
+  
+  if (lowerQuery.includes('speak in french') || lowerQuery.includes('switch to french')) {
+    if (actions?.switchLanguage) actions.switchLanguage('fr-FR');
+    return "Je parlerai français maintenant.";
+  }
+  
+  // Information queries
+  if (lowerQuery.includes('what exam') || lowerQuery.includes('which test')) {
+    const examGoal = actions?.examGoal || "No specific exam goal set";
+    return `You're currently preparing for ${examGoal}.`;
+  }
+  
+  if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you')) {
+    return "I'm Prepzr's AI assistant, designed to help you study more effectively and achieve your academic goals.";
+  }
+  
+  // Default response for unrecognized queries
+  return "I'm not sure how to help with that. You can ask me to navigate to different sections, start a practice test, or show your flashcards.";
 }

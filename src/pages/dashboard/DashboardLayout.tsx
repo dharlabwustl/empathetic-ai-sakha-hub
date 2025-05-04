@@ -16,7 +16,6 @@ import MobileNavigation from "./student/MobileNavigation";
 import { getFeatures } from "./student/utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
-import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
 
 interface DashboardLayoutProps {
@@ -73,7 +72,7 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Initialize showTour state from props but also check local storage
+  // Initialize showTour state
   const [showTour, setShowTour] = useState(false);
   
   useEffect(() => {
@@ -146,7 +145,7 @@ const DashboardLayout = ({
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      {/* Single Sidebar Navigation */}
+      {/* Fixed Sidebar Navigation */}
       <SidebarNav 
         userType="student" 
         userName={userProfile.name} 
@@ -154,7 +153,7 @@ const DashboardLayout = ({
         activeTab={activeTab}
       />
       
-      <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
+      <main className={`transition-all duration-300 text-base ml-0 md:ml-64 p-4 sm:p-6 pb-20 md:pb-6`}>
         <TopNavigationControls 
           hideSidebar={hideSidebar}
           onToggleSidebar={onToggleSidebar}
@@ -164,9 +163,10 @@ const DashboardLayout = ({
           userName={userProfile.name}
           mood={currentMood}
           isFirstTimeUser={isFirstTimeUser}
+          onViewStudyPlan={onViewStudyPlan}
         />
 
-        {/* Subscription Banner - Add at the top of dashboard */}
+        {/* Subscription Banner */}
         <SubscriptionBanner 
           planType={subscriptionDetails.planType}
           expiryDate={subscriptionDetails.expiryDate}
@@ -199,7 +199,7 @@ const DashboardLayout = ({
           </div>
         )}
         
-        {/* Main Content - either custom children or standard dashboard content */}
+        {/* Main Content */}
         {children ? (
           <div className="mt-6">{children}</div>
         ) : (

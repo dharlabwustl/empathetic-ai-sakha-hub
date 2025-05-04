@@ -66,14 +66,14 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
   };
   
   return (
-    <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-md overflow-hidden h-full">
+    <div className="hidden lg:block fixed h-screen w-64 left-0 top-0 border-r bg-white dark:bg-gray-800 shadow-sm z-30">
+      <div className="flex flex-col h-full">
         {/* Logo at top left */}
         <div className="p-4 flex items-center justify-center border-b border-gray-100 dark:border-gray-700">
           <PrepzrLogo width={120} height={40} />
         </div>
         
-        <div className="p-2">
+        <div className="flex-1 overflow-y-auto p-2">
           {/* Main navigation items */}
           {mainNavItems.map((item) => (
             <button
@@ -149,8 +149,10 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
               <span>{item.title}</span>
             </button>
           ))}
-          
-          {/* Logout button */}
+        </div>
+        
+        {/* Logout button */}
+        <div className="p-2 border-t border-gray-100 dark:border-gray-700">
           <button 
             className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-all"
             onClick={() => navigate('/login')}
