@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -40,18 +39,21 @@ export function useVoiceAnnouncer({
     const savedSettings = localStorage.getItem('prepzr-voice-settings');
     if (savedSettings) {
       try {
-        return JSON.parse(savedSettings) as VoiceSettings;
+        const parsed = JSON.parse(savedSettings) as VoiceSettings;
+        // Force Indian English for consistency
+        return { ...parsed, language: 'en-IN' };
       } catch (e) {
         console.error('Error parsing voice settings from localStorage:', e);
       }
     }
-    return DEFAULT_VOICE_SETTINGS;
+    return { ...DEFAULT_VOICE_SETTINGS, language: 'en-IN' };
   });
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const hasGreetedRef = useRef<boolean>(false);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const lastAnnouncementRef = useRef<string>(''); // Track last announcement to reduce repetition
+  const messageHistoryRef = useRef<string[]>([]); // Keep track of recent messages
   
   // Force initialize speech synthesis when component mounts
   useEffect(() => {
@@ -60,6 +62,7 @@ export function useVoiceAnnouncer({
       try {
         // Create a dummy utterance to get the browser to initialize the speech synthesis
         const dummyUtterance = new SpeechSynthesisUtterance('');
+        dummyUtterance.lang = 'en-IN'; // Always use Indian English
         window.speechSynthesis.speak(dummyUtterance);
         
         // Chrome requires user interaction before audio can play
@@ -125,7 +128,7 @@ export function useVoiceAnnouncer({
         recognitionRef.current = new SpeechRecognitionAPI();
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = false;
-        recognitionRef.current.lang = voiceSettings.language;
+        recognitionRef.current.lang = 'en-IN'; // Always use Indian English
         
         recognitionRef.current.onresult = (event) => {
           const result = event.results[0][0].transcript;
@@ -139,27 +142,50 @@ export function useVoiceAnnouncer({
             {
               startTest: onStartTest,
               switchLanguage: (lang) => {
-                setVoiceSettings(prev => ({ ...prev, language: lang }));
+                // Always switch back to Indian English for consistency
+                setVoiceSettings(prev => ({ ...prev, language: 'en-IN' }));
               },
               showFlashcards: onShowFlashcards,
               examGoal: examGoal
             }
           );
           
-          // Handle special commands
-          if (response === "MUTE_COMMAND") {
-            toggleMute(true);
-            speakMessage("Voice assistant muted. I'll still listen for commands.", voiceSettings, true);
-            return;
-          } else if (response === "UNMUTE_COMMAND") {
-            toggleMute(false);
-            speakMessage("Voice assistant unmuted. I'll speak responses again.", voiceSettings, true);
-            return;
-          }
-          
-          // Speak the response if not muted
-          if (!voiceSettings.muted) {
-            speakMessage(response, voiceSettings, true);
+          // Check if this response is different from recent ones
+          const isRepeatedMessage = messageHistoryRef.current.includes(response);
+          if (!isRepeatedMessage) {
+            // Add to message history
+            messageHistoryRef.current.push(response);
+            // Keep only last 5 messages
+            if (messageHistoryRef.current.length > 5) {
+              messageHistoryRef.current.shift();
+            }
+            
+            // Handle special commands
+            if (response === "MUTE_COMMAND") {
+              toggleMute(true);
+              speakMessage("Voice assistant muted. I'll still listen for commands.", voiceSettings, true);
+              return;
+            } else if (response === "UNMUTE_COMMAND") {
+              toggleMute(false);
+              speakMessage("Voice assistant unmuted. I'll speak responses again.", voiceSettings, true);
+              return;
+            }
+            
+            // Speak the response if not muted
+            if (!voiceSettings.muted) {
+              speakMessage(response, voiceSettings, true);
+            }
+          } else {
+            // If it's a repeated message, generate a variation
+            const variations = [
+              "I'd like to add to what I mentioned earlier.",
+              "Let me clarify that point.",
+              "As I was saying about PREPZR,"
+            ];
+            const prefix = variations[Math.floor(Math.random() * variations.length)];
+            if (!voiceSettings.muted) {
+              speakMessage(`${prefix} ${response}`, voiceSettings, true);
+            }
           }
         };
         
@@ -181,7 +207,7 @@ export function useVoiceAnnouncer({
     
     // Update the language setting if it changed
     if (recognitionRef.current) {
-      recognitionRef.current.lang = voiceSettings.language;
+      recognitionRef.current.lang = 'en-IN'; // Always use Indian English
     }
     
     return true;
@@ -236,8 +262,17 @@ export function useVoiceAnnouncer({
     
     console.log("Generating greeting for user:", userName, "mood:", mood, "first time:", isFirstTimeUser);
     const greeting = getGreeting(userName, mood, isFirstTimeUser);
+    
+    // Skip greeting if it's the same as the last announcement
+    if (greeting === lastAnnouncementRef.current) {
+      console.log("Skipping repeated greeting");
+      hasGreetedRef.current = true;
+      return;
+    }
+    
     console.log("Speaking greeting:", greeting);
     speakMessage(greeting, voiceSettings, true);
+    lastAnnouncementRef.current = greeting;
     
     hasGreetedRef.current = true;
   }, [userName, mood, isFirstTimeUser, voiceSettings]);
@@ -264,7 +299,12 @@ export function useVoiceAnnouncer({
   // Update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setVoiceSettings(prev => {
-      const updatedSettings = { ...prev, ...newSettings };
+      // Always maintain Indian English regardless of settings update
+      const updatedSettings = { 
+        ...prev, 
+        ...newSettings, 
+        language: 'en-IN' 
+      };
       console.log("Voice settings updated:", updatedSettings);
       return updatedSettings;
     });
@@ -272,12 +312,8 @@ export function useVoiceAnnouncer({
   
   // Test the current voice settings
   const testVoice = useCallback(() => {
-    const testMessages = {
-      'en-US': "Hello! This is how Prepzr will sound with your current settings.",
-      'hi-IN': "नमस्ते! यह है कि Prepzr वर्तमान सेटिंग्स के साथ कैसा लगेगा।"
-    };
+    const testMessage = "Hello! This is how PREPZR will sound with your current settings.";
     
-    const testMessage = testMessages[voiceSettings.language as 'en-US' | 'hi-IN'] || testMessages['en-US'];
     console.log("Testing voice with message:", testMessage);
     speakMessage(testMessage, voiceSettings, true); // Force it to speak regardless of settings
   }, [voiceSettings]);
@@ -287,7 +323,7 @@ export function useVoiceAnnouncer({
     if (voiceInitialized && voiceSettings.enabled && !voiceSettings.muted) {
       // Wait a bit to ensure the browser is ready
       const timer = setTimeout(() => {
-        const shortMsg = "Voice system ready.";
+        const shortMsg = "PREPZR voice system ready.";
         speakMessage(shortMsg, voiceSettings, false);
       }, 1000);
       
@@ -304,7 +340,21 @@ export function useVoiceAnnouncer({
     startListening,
     stopListening,
     speakGreeting,
-    speakMessage: (message: string, force?: boolean) => speakMessage(message, voiceSettings, force),
+    speakMessage: (message: string, force?: boolean) => {
+      // Check for repetition
+      if (messageHistoryRef.current.includes(message)) {
+        // Skip repetitive messages unless forced
+        if (!force) return;
+      }
+      
+      // Add to history
+      messageHistoryRef.current.push(message);
+      if (messageHistoryRef.current.length > 5) {
+        messageHistoryRef.current.shift();
+      }
+      
+      speakMessage(message, voiceSettings, force);
+    },
     toggleVoiceEnabled,
     toggleMute,
     updateVoiceSettings,

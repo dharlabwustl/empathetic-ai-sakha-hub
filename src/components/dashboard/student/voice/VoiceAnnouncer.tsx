@@ -31,6 +31,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   const [showSubtitles, setShowSubtitles] = useState(true);
   const [currentMessage, setCurrentMessage] = useState('');
   const [speaking, setSpeaking] = useState(false);
+  const [messageHistory, setMessageHistory] = useState<string[]>([]);
 
   // Set up voice announcement on first load
   useEffect(() => {
@@ -50,9 +51,16 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     const timer = setTimeout(() => {
       if (!muted) {
         const greeting = getGreeting(userName, mood?.toString(), isFirstTimeUser);
-        speakMessage(greeting, { ...DEFAULT_VOICE_SETTINGS, muted });
-        setCurrentMessage(greeting);
-        setSpeaking(true);
+        
+        // Check if this message was already spoken recently
+        if (!messageHistory.includes(greeting)) {
+          speakMessage(greeting, { ...DEFAULT_VOICE_SETTINGS, muted });
+          setCurrentMessage(greeting);
+          setSpeaking(true);
+          
+          // Add to message history
+          setMessageHistory(prev => [...prev.slice(-2), greeting]); // Keep only last 3 messages
+        }
       }
     }, 1000);
 
@@ -74,7 +82,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted as EventListener);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
     };
-  }, [userName, mood, isFirstTimeUser, muted]);
+  }, [userName, mood, isFirstTimeUser, muted, messageHistory]);
 
   const toggleMute = () => {
     if (!muted && speaking) {

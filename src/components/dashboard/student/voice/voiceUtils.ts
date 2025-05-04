@@ -1,4 +1,3 @@
-
 import { MoodType } from '@/types/user/base';
 import { VoiceSpeakingStartedEvent } from '@/types/voice';
 
@@ -9,7 +8,7 @@ export const DEFAULT_VOICE_SETTINGS = {
   pitch: 1.05,  // Slightly higher pitch for a pleasant female voice
   rate: 0.90,   // Slightly slower rate for a calmer delivery
   voice: null,
-  language: 'en-US',
+  language: 'en-IN', // Preferably Indian English
   autoGreet: true,
   muted: false
 };
@@ -29,7 +28,7 @@ export function initSpeechSynthesis(): boolean {
 }
 
 // Helper to find the best voice to use - prioritizing Indian female voice
-export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthesisVoice | null {
+export function findBestVoice(preferredLanguage: string = 'en-IN'): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return null;
   }
@@ -72,10 +71,9 @@ export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthe
     return indianVoice;
   }
   
-  // Fourth priority: Any female voice in the preferred language
+  // Fourth priority: Any female voice in English
   const femaleVoice = voices.find(
-    voice => voice.lang.includes(preferredLanguage) && 
-             voice.name.toLowerCase().includes('female')
+    voice => voice.lang.includes('en') && voice.name.toLowerCase().includes('female')
   );
   
   if (femaleVoice) {
@@ -83,8 +81,8 @@ export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthe
     return femaleVoice;
   }
   
-  // Fifth priority: Any voice in the preferred language
-  const languageVoice = voices.find(voice => voice.lang.includes(preferredLanguage));
+  // Fifth priority: Any voice in English
+  const languageVoice = voices.find(voice => voice.lang.includes('en'));
   if (languageVoice) {
     console.log("Using language voice:", languageVoice.name);
     return languageVoice;
@@ -112,21 +110,21 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Process message for better pronunciation
+    // Ensure PREPZR is pronounced correctly as a single word
+    // Don't split into multiple phonetic parts, keep it as a single unit
     const processedMessage = message
-      .replace(/PREPZR/gi, "PREH-p-zur")
-      .replace(/PREP-ZR/gi, "PREH-p-zur")
-      .replace(/Prepzr/g, "PREH-p-zur");
+      .replace(/PREPZR/g, "PREPZR")
+      .replace(/Prepzr/g, "PREPZR");
     
     // Create and configure speech utterance
     const utterance = new SpeechSynthesisUtterance(processedMessage);
     utterance.volume = settings.volume;
     utterance.pitch = settings.pitch;
     utterance.rate = settings.rate;
-    utterance.lang = settings.language;
+    utterance.lang = 'en-IN'; // Always use Indian English
     
     // Find the best voice to use - prioritize Indian female voice
-    const voice = findBestVoice(settings.language);
+    const voice = findBestVoice('en-IN');
     if (voice) {
       utterance.voice = voice;
     }
@@ -195,7 +193,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
     }
   }
   
-  return `${timeGreeting}${name}. It's lovely to welcome you back to PREPZR${moodResponse} How may I assist you with your studies today?`;
+  return `${timeGreeting}${name}. Welcome back to PREPZR${moodResponse} How may I assist you with your studies today?`;
 }
 
 // Get announcement for reminders with a more pleasant tone
