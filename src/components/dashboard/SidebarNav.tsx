@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Book, GraduationCap, Settings, Bell, Calendar, MessageSquare, Lightbulb, LayoutDashboard } from 'lucide-react';
@@ -159,29 +160,30 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
           </div>
         </div>
 
-      {/* Settings - conditionally render based on hideSettings prop */}
-      {!hideSettings && (
-        <div className="mt-auto">
-          <div className="border-t dark:border-gray-700">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    to="/dashboard/student/settings"
-                    className={`flex items-center p-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${isActive("settings") ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''}`}
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Manage your settings</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        {/* Settings - conditionally render based on hideSettings prop */}
+        {!hideSettings && (
+          <div className="mt-auto">
+            <div className="border-t dark:border-gray-700">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to="/dashboard/student/settings"
+                      className={`flex items-center p-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 ${isActive("settings") ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''}`}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Manage your settings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
