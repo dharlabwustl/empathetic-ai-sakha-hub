@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import BackButton from '@/components/dashboard/student/BackButton';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft } from 'lucide-react';
 
 // Mock data for the concept detail
 const mockConceptData = {
@@ -84,6 +83,10 @@ const ConceptCardDetailPage: React.FC = () => {
   const handleStartStudy = () => {
     navigate(`/dashboard/student/concepts/${conceptId}/study`);
   };
+  
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -111,7 +114,14 @@ const ConceptCardDetailPage: React.FC = () => {
   if (!concept) {
     return (
       <div className="container py-8">
-        <BackButton to="/dashboard/student/concepts" />
+        <Button 
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
+        >
+          <ArrowLeft size={16} />
+          Back to Concepts
+        </Button>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold">Concept not found</h2>
           <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
@@ -122,8 +132,15 @@ const ConceptCardDetailPage: React.FC = () => {
 
   return (
     <div className="container py-6">
-      {/* Add Back Button */}
-      <BackButton to="/dashboard/student/concepts" />
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
       
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
         <div>
