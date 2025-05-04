@@ -35,9 +35,14 @@ const PostLoginWelcomeBack = () => {
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     
+    // Check if new user and handle tour accordingly
     if (isNewUser) {
-      // For new users, show tour immediately after welcome slider
-      if (sawWelcomeSlider) {
+      // Skip welcome slider if they saw it already
+      setShowSlider(!sawWelcomeSlider);
+      
+      // Only show tour if they haven't seen it yet
+      const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
+      if (sawWelcomeSlider && !sawWelcomeTour) {
         setShowSlider(false);
         setShowTour(true);
       }
