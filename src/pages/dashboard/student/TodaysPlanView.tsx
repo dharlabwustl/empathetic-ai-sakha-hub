@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { getVoiceSettings, speakMessage, getTaskAnnouncement } from '@/components/dashboard/student/voice/VoiceAnnouncer';
 
 const TodaysPlanView = () => {
   const navigate = useNavigate();
@@ -22,7 +22,6 @@ const TodaysPlanView = () => {
   const { planData, loading, activeView, setActiveView, markTaskCompleted } = useTodaysPlan("IIT-JEE", "Student");
   const [currentTab, setCurrentTab] = useState('all');
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>();
-  const [announcedTasks, setAnnouncedTasks] = useState<Set<string>>(new Set());
 
   // Mocked tasks for demonstration
   const tasks = [
@@ -93,36 +92,6 @@ const TodaysPlanView = () => {
     }
   ];
 
-  // Announce high priority tasks on component mount
-  useEffect(() => {
-    const settings = getVoiceSettings();
-    if (settings.enabled && settings.announceTasks) {
-      // Get pending high priority tasks
-      const highPriorityTasks = tasks.filter(task => 
-        task.priority === 'high' && task.status !== 'completed'
-      );
-      
-      if (highPriorityTasks.length > 0) {
-        // Set a slight delay before speaking so the page loads first
-        const timer = setTimeout(() => {
-          speakMessage(`You have ${highPriorityTasks.length} high priority task${highPriorityTasks.length > 1 ? 's' : ''} for today.`);
-          
-          // Announce the first task
-          if (highPriorityTasks.length > 0) {
-            const firstTask = highPriorityTasks[0];
-            const announcement = getTaskAnnouncement(firstTask);
-            setTimeout(() => {
-              speakMessage(announcement);
-              setAnnouncedTasks(prev => new Set(prev).add(firstTask.id));
-            }, 3000);
-          }
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, []);
-
   // Filter tasks based on current tab
   const getFilteredTasks = () => {
     switch (currentTab) {
@@ -159,16 +128,6 @@ const TodaysPlanView = () => {
 
   // Handle task action (start or review)
   const handleTaskAction = (task: any) => {
-    // Announce the task when starting
-    if (task.status !== 'completed') {
-      const settings = getVoiceSettings();
-      if (settings.enabled && settings.announceTasks && !announcedTasks.has(task.id)) {
-        const announcement = getTaskAnnouncement(task);
-        speakMessage(announcement);
-        setAnnouncedTasks(prev => new Set(prev).add(task.id));
-      }
-    }
-
     if (task.status === 'completed') {
       // Navigate to review page based on task type
       switch (task.type) {
@@ -213,36 +172,8 @@ const TodaysPlanView = () => {
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
-
-    // Voice feedback on mood change
-    const settings = getVoiceSettings();
-    if (settings.enabled && settings.announceGreetings) {
-      let message = "";
-      switch(mood) {
-        case 'motivated':
-          message = "Great to see you're motivated! Let's make the most of your energy today.";
-          break;
-        case 'tired':
-          message = "I understand you're tired. Let's focus on essential tasks today and take breaks.";
-          break;
-        case 'stressed':
-          message = "I notice you're feeling stressed. Let's break down your tasks into smaller steps.";
-          break;
-        case 'focused':
-          message = "You're in a focused state. This is perfect for tackling challenging topics.";
-          break;
-        case 'anxious':
-          message = "It's okay to feel anxious. Let's work through today's plan step by step.";
-          break;
-        default:
-          message = "Your mood is noted. I'll adjust suggestions accordingly.";
-      }
-      
-      speakMessage(message);
-    }
   };
 
-  // Get task type icon
   const getTaskTypeIcon = (type: string) => {
     switch (type) {
       case 'concept':
@@ -256,7 +187,6 @@ const TodaysPlanView = () => {
     }
   };
 
-  // Get task status badge
   const getTaskStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
@@ -12,8 +12,7 @@ import MoodMusicPlayer from '@/components/dashboard/student/feel-good-corner/Moo
 import JokesTab from '@/components/dashboard/student/feel-good-corner/JokesTab';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Pencil, Heart, Smile, MessageSquare } from 'lucide-react';
-import { getVoiceSettings, speakMessage, getGreeting } from '@/components/dashboard/student/voice/VoiceAnnouncer';
+import { Music, Pencil, Heart, Smile, MessageSquare, Image } from 'lucide-react';
 
 const FeelGoodCornerView = () => {
   const [activeTab, setActiveTab] = useState("affirmations");
@@ -25,65 +24,6 @@ const FeelGoodCornerView = () => {
       description: "We're glad you enjoyed this activity.",
     });
   };
-  
-  // Announce tab changes
-  useEffect(() => {
-    const settings = getVoiceSettings();
-    if (settings.enabled && settings.announceReminders) {
-      let message = "";
-      
-      switch(activeTab) {
-        case 'affirmations':
-          message = "Opening daily affirmations to boost your confidence.";
-          break;
-        case 'chill-chat':
-          message = "Let's have a relaxed chat to clear your mind.";
-          break;
-        case 'teasers':
-          message = "Time for some brain teasers to sharpen your mind.";
-          break;
-        case 'gratitude':
-          message = "Gratitude journaling helps maintain a positive mindset.";
-          break;
-        case 'doodling':
-          message = "Feel free to express yourself through doodling.";
-          break;
-        case 'mood-music':
-          message = "Music can help regulate your emotions and focus.";
-          break;
-        case 'jokes':
-          message = "A good laugh reduces stress. Let's check out some jokes.";
-          break;
-      }
-      
-      if (message) {
-        speakMessage(message);
-      }
-    }
-  }, [activeTab]);
-  
-  // Welcome announcement when component mounts
-  useEffect(() => {
-    const settings = getVoiceSettings();
-    if (settings.enabled && settings.announceGreetings) {
-      // Try to get saved mood from local storage
-      let currentMood;
-      const savedUserData = localStorage.getItem("userData");
-      if (savedUserData) {
-        try {
-          const parsedData = JSON.parse(savedUserData);
-          if (parsedData.mood) {
-            currentMood = parsedData.mood;
-          }
-        } catch (e) {
-          console.error("Error parsing user data:", e);
-        }
-      }
-      
-      const greeting = getGreeting(currentMood);
-      speakMessage(`${greeting} Welcome to the Feel Good Corner. Take a break and boost your mood.`);
-    }
-  }, []);
   
   const placeholderContent = (title: string) => (
     <Card className="bg-white">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -10,14 +9,14 @@ import {
   BookOpen,
   ClipboardCheck,
   Bell,
+  Settings,
   Home,
   BookMarked,
   User,
   LogOut,
   ChevronDown,
   MessageSquare,
-  Smile,
-  Volume2
+  Smile
 } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -106,10 +105,10 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       icon: <Bell className="h-5 w-5" />
     },
     {
-      id: 'voice-control',
-      title: 'Voice Control',
-      href: '/dashboard/student/profile?tab=voice',
-      icon: <Volume2 className="h-5 w-5" />
+      id: 'settings',
+      title: 'Settings',
+      href: '/dashboard/student/settings',
+      icon: <Settings className="h-5 w-5" />
     }
   ];
 
@@ -125,6 +124,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       title: 'Students',
       href: '/dashboard/admin/students',
       icon: <GraduationCap className="h-5 w-5" />
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      href: '/dashboard/admin/settings',
+      icon: <Settings className="h-5 w-5" />
     }
   ];
 
@@ -190,9 +195,9 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/dashboard/student/profile?tab=voice" className="flex cursor-pointer">
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Voice Control
+                <Link to="/dashboard/student/settings" className="flex cursor-pointer">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

@@ -16,11 +16,11 @@ import {
   MessageSquare,
   Newspaper,
   PieChart,
+  Settings,
   Smile,
   UserRound,
   Users,
   Clock,
-  Volume2,
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { UserProfileType } from '@/types/user';
@@ -97,11 +97,10 @@ export function StudentSidebar({
       path: "/dashboard/student/profile",
     },
     {
-      name: "Voice Control",
-      icon: Volume2,
-      path: "/dashboard/student/profile",
-      queryParam: "?tab=voice"
-    }
+      name: "Settings",
+      icon: Settings,
+      path: "/dashboard/student/settings",
+    },
   ];
 
   const isActive = (path: string) => {
@@ -168,17 +167,16 @@ export function StudentSidebar({
         </div>
         
         <div className={cn("mt-4 px-4", collapsed && "px-0")}>
-          {!collapsed && <div className="mb-2 px-2 text-xs font-medium">Account</div>}
+          {!collapsed && <div className="mb-2 px-2 text-xs font-medium">Settings</div>}
           <div className={cn("flex flex-col gap-1", collapsed ? "items-center px-0" : "px-2")}>
             {secondaryNavItems.map((item) => (
               <NavLink
-                key={item.path + (item.queryParam || '')}
-                to={item.path + (item.queryParam || '')}
+                key={item.path}
+                to={item.path}
                 className={({ isActive: active }) =>
                   cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                    currentPath.startsWith(item.path) && 
-                    (!item.queryParam || location.search.includes(item.queryParam.substring(1)))
+                    isActive(item.path)
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                     collapsed && "flex-col py-3 px-0 text-[10px]"

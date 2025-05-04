@@ -10,7 +10,6 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
-import { VoiceAnnouncerProvider, useVoiceAnnouncerContext, getVoiceSettings, speakMessage } from "@/components/dashboard/student/voice/VoiceAnnouncer";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -44,34 +43,6 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
-
-  const DashboardWithVoice = () => {
-    const voiceAnnouncer = useVoiceAnnouncerContext();
-
-    // Handle voice welcome when dashboard is loaded
-    useEffect(() => {
-      if (!showSplash && userProfile && !showOnboarding) {
-        const settings = getVoiceSettings();
-        if (settings.enabled && settings.announceGreetings) {
-          const isFirstTimeUser = userProfile.loginCount === 1 || localStorage.getItem('new_user_signup') === 'true';
-          
-          // Get appropriate welcome message
-          const welcomeMessage = voiceAnnouncer.getWelcomeMessage(
-            isFirstTimeUser, 
-            userProfile.name || '', 
-            userProfile.loginCount || 1
-          );
-          
-          // Small delay to ensure everything is loaded
-          setTimeout(() => {
-            voiceAnnouncer.speak(welcomeMessage, true);
-          }, 1500);
-        }
-      }
-    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
-    
-    return null;
-  };
 
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
@@ -129,33 +100,6 @@ const StudentDashboard = () => {
     setCurrentMood(mood);
     // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
-    
-    // Voice feedback when mood changes
-    const settings = getVoiceSettings();
-    if (settings.enabled && settings.announceGreetings) {
-      let message = "";
-      switch(mood) {
-        case MoodType.Motivated:
-          message = "You're motivated today! That's great. Let's make the most of your energy.";
-          break;
-        case MoodType.Tired:
-          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
-          break;
-        case MoodType.Focused:
-          message = "You're focused today! Perfect for tackling challenging material.";
-          break;
-        case MoodType.Anxious:
-          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
-          break;
-        case MoodType.Stressed:
-          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
-          break;
-        default:
-          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
-      }
-      
-      speakMessage(message);
-    }
   };
 
   const handleSkipTourWrapper = () => {
@@ -213,8 +157,7 @@ const StudentDashboard = () => {
   };
 
   return (
-    <VoiceAnnouncerProvider>
-      <DashboardWithVoice />
+    <>
       <DashboardLayout
         userProfile={userProfile}
         hideSidebar={hideSidebar}
@@ -251,7 +194,7 @@ const StudentDashboard = () => {
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
       />
-    </VoiceAnnouncerProvider>
+    </>
   );
 };
 
