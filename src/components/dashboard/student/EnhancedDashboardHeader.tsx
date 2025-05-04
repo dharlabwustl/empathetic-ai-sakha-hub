@@ -59,7 +59,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     }
   }, [currentMood, previousMood]);
   
-  const getGreeting = () => {
+  const getGreetingTime = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
@@ -158,7 +158,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           
           <div>
             <div className="text-sm text-muted-foreground">
-              {getGreeting()}
+              {getGreetingTime()}
             </div>
             <h1 className="text-2xl font-bold">{userProfile.name}</h1>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">

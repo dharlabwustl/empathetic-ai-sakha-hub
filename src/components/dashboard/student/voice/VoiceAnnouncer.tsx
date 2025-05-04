@@ -76,6 +76,8 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
 
   const toggleSubtitles = () => {
     setShowSubtitles(!showSubtitles);
+    // Save subtitle preference
+    localStorage.setItem('voiceAssistantSubtitles', (!showSubtitles).toString());
   };
 
   return (
@@ -105,7 +107,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       </Button>
       
       {speaking && showSubtitles && currentMessage && (
-        <div className="absolute top-full left-0 mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-xs">
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
           {currentMessage}
         </div>
       )}
