@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -167,7 +168,7 @@ export const SidebarNavRoutes = ({
                           to={route.path}
                           className={cn(
                             "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                            location.pathname === route.path
+                            location.pathname === route.path || location.pathname.startsWith(route.path + '/')
                               ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
                               : "hover:bg-accent hover:shadow-md",
                             collapsed && "justify-center"

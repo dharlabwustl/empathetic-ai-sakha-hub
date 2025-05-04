@@ -48,32 +48,17 @@ const StudentDashboard = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
-    
-    // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    console.log("Checking tour status:", { isNewUser, completedOnboarding, hasSeenTour });
-    
-    // For new users or those who completed onboarding, show the tour
-    if ((isNewUser || completedOnboarding) && !hasSeenTour) {
+    // For new users who haven't seen the tour
+    if (isNewUser && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      // Don't set hasSeenTour yet, will set after tour completion
     } 
     // For returning users
     else {
-      // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
-      
-      // For returning users who haven't seen the tour but should
-      if (!hasSeenTour && showWelcomeTour) {
-        // Short timeout just to let the dashboard render first
-        setTimeout(() => {
-          setShowTourModal(true);
-        }, 500);
-      }
     }
     
     // Try to get saved mood from local storage
@@ -81,16 +66,14 @@ const StudentDashboard = () => {
     if (savedMood) {
       setCurrentMood(savedMood);
     }
-  }, [location, showWelcomeTour]);
+  }, [location]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
     sessionStorage.setItem("hasSeenSplash", "true");
     
-    // Save a default optimistic mood if none is set
     if (!currentMood) {
-      const defaultMood = MoodType.Motivated;
+      const defaultMood = MoodType.MOTIVATED;
       setCurrentMood(defaultMood);
       storeMoodInLocalStorage(defaultMood);
     }
@@ -98,7 +81,6 @@ const StudentDashboard = () => {
 
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
-    // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
   };
 
@@ -118,11 +100,11 @@ const StudentDashboard = () => {
 
   const handleCompleteOnboardingWrapper = () => {
     handleCompleteOnboarding();
-    // Redirect to the welcome flow after onboarding
-    navigate('/welcome-flow?completedOnboarding=true&new=true');
+    // Set the new user flag to show tour after onboarding
+    localStorage.setItem('new_user_signup', 'true');
+    navigate('/dashboard/student?new=true');
   };
 
-  // Show splash screen if needed
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -133,7 +115,6 @@ const StudentDashboard = () => {
 
   // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
-    // Make sure we have a goal to work with
     const defaultGoal = "NEET";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -151,8 +132,6 @@ const StudentDashboard = () => {
     if (activeTab === "overview") {
       return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
     }
-    
-    // For other tabs, use the default tab content
     return null;
   };
 
@@ -166,7 +145,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // We're controlling this with our own state now
+        showWelcomeTour={false} // Control this with our local state
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
