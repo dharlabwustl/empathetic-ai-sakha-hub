@@ -151,13 +151,13 @@ export const useStudyGroups = () => {
     const messages = [
       {
         id: '1',
-        content: 'Hey everyone, how's the preparation going for the upcoming test?',
+        content: "Hey everyone, how's the preparation going for the upcoming test?",
         sender: { id: 'user-1', name: 'Amit Kumar', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
       },
       {
         id: '2',
-        content: 'I'm struggling with the thermodynamics chapter. Anyone willing to help?',
+        content: "I'm struggling with the thermodynamics chapter. Anyone willing to help?",
         sender: { id: 'user-2', name: 'Priya Singh', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
         timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
         reactions: [
@@ -167,19 +167,19 @@ export const useStudyGroups = () => {
       },
       {
         id: '3',
-        content: 'I can help with thermodynamics. Let's set up a call tomorrow at 6pm?',
+        content: "I can help with thermodynamics. Let's set up a call tomorrow at 6pm?",
         sender: { id: 'user-3', name: 'Rahul Verma', avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
         timestamp: new Date(Date.now() - 45 * 60 * 1000)
       },
       {
         id: '4',
-        content: 'That works for me too! I had some questions about entropy as well.',
+        content: "That works for me too! I had some questions about entropy as well.",
         sender: { id: 'user-2', name: 'Priya Singh', avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
         timestamp: new Date(Date.now() - 30 * 60 * 1000)
       },
       {
         id: '5',
-        content: 'By the way, I found this great resource for practice problems: https://example.com/physics-problems',
+        content: "By the way, I found this great resource for practice problems: https://example.com/physics-problems",
         sender: { id: 'user-1', name: 'Amit Kumar', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
         reactions: [
@@ -343,7 +343,7 @@ export const useStudyGroups = () => {
       {
         id: '1',
         title: 'Daily Physics Quiz',
-        description: 'Test your knowledge on Newton's Laws of Motion with this 10-question quiz.',
+        description: "Test your knowledge on Newton's Laws of Motion with this 10-question quiz.",
         type: 'quiz',
         difficulty: 'medium',
         points: 50,
