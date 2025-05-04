@@ -27,7 +27,7 @@ export const EnhancedTooltip: React.FC<EnhancedTooltipProps> = ({
         <TooltipContent 
           side={side}
           className={cn(
-            "bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border shadow-md text-sm p-2",
+            "z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border shadow-md text-sm p-2",
             className
           )}
         >
