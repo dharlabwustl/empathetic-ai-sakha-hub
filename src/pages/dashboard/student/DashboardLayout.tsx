@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -41,6 +40,7 @@ interface DashboardLayoutProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
   children?: React.ReactNode;
+  onProfileImageUpdate?: (imageUrl: string) => void;
 }
 
 const DashboardLayout = ({
@@ -64,7 +64,8 @@ const DashboardLayout = ({
   suggestedNextAction,
   currentMood,
   onMoodChange,
-  children
+  children,
+  onProfileImageUpdate
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -73,45 +74,26 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Force disable tour popup by default
-  const [showTour, setShowTour] = useState(false);
-  
-  useEffect(() => {
-    // Explicitly mark that the user has seen the welcome tour to prevent it from appearing
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
-  }, []);
-  
-  // Handle profile image errors
-  useEffect(() => {
-    if (userProfile && userProfile.avatar) {
-      const testImg = new Image();
-      testImg.src = userProfile.avatar;
-      testImg.onerror = () => {
-        console.warn("Failed to load profile image, will use fallback", userProfile.avatar);
-      };
-    }
-  }, [userProfile]);
+  // Fixed: Don't force disable tour popup
+  const [showTour, setShowTour] = useState(showWelcomeTour);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
   const handleOpenTour = () => {
-    // We never actually open the tour
-    console.log("Tour open requested but prevented");
+    // Fixed: Actually open the tour when requested
+    setShowTour(true);
   };
   
   const handleCloseTour = () => {
     setShowTour(false);
     localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
     onSkipTour();
   };
   
   const handleCompleteTourAndClose = () => {
     setShowTour(false);
     localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
     onCompleteTour();
   };
 
@@ -218,7 +200,7 @@ const DashboardLayout = ({
               nudges={nudges}
               markNudgeAsRead={markNudgeAsRead}
               features={features}
-              showWelcomeTour={false} // Force disable welcome tour
+              showWelcomeTour={showTour} // Fixed: Use state variable to control tour visibility
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
               hideTabsNav={hideTabsNav || isMobile}
@@ -238,7 +220,7 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour - hidden using open={false} */}
+      {/* WelcomeTour - Fix open property to use state variable */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
@@ -246,7 +228,7 @@ const DashboardLayout = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
-        open={false} // Force it to be closed
+        open={showTour} // Fixed: Use state variable instead of hardcoded false
         onOpenChange={setShowTour}
       />
     </div>

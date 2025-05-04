@@ -16,7 +16,7 @@ export interface StudyPlanSubject {
   priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
   completed: boolean;
-  topics: StudyPlanTopic[]; // Make sure topics is defined here
+  topics: StudyPlanTopic[];
   difficulty?: 'easy' | 'medium' | 'hard';
   status?: 'pending' | 'in-progress' | 'completed';
   isWeakSubject?: boolean;

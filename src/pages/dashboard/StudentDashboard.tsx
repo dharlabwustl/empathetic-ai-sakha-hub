@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -89,6 +90,13 @@ const StudentDashboard = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
+    // For new users, show the tour after splash
+    const isNew = localStorage.getItem('new_user_signup') === 'true';
+    if (isNew) {
+      setShowTourModal(true);
+      setIsFirstTimeUser(true);
+    }
+    
     if (!currentMood) {
       const defaultMood = MoodType.MOTIVATED;
       setCurrentMood(defaultMood);
@@ -110,7 +118,7 @@ const StudentDashboard = () => {
     handleSkipTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
-    localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    // Don't remove new_user_signup flag to ensure welcome voice plays
     console.log("Tour skipped and marked as seen");
   };
 
@@ -118,7 +126,7 @@ const StudentDashboard = () => {
     handleCompleteTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
-    localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    // Don't remove new_user_signup flag to ensure welcome voice plays
     console.log("Tour completed and marked as seen");
   };
 
@@ -175,7 +183,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // Control this with our local state
+        showWelcomeTour={showTourModal} // Pass the tour modal state
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
