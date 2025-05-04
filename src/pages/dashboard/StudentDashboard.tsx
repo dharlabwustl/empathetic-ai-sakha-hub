@@ -10,14 +10,26 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import { getWelcomeMessage } from "@/components/dashboard/student/voice/voiceUtils";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+  const [hasPlayedWelcomeVoice, setHasPlayedWelcomeVoice] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  const { voiceAnnouncer } = useVoiceAnnouncer({
+    userName: "Student",
+    initialSettings: {
+      enabled: true,
+      muted: false,
+      language: 'en-US'
+    }
+  });
   
   const {
     loading,
@@ -81,6 +93,33 @@ const StudentDashboard = () => {
       setCurrentMood(savedMood);
     }
   }, [location]);
+  
+  // Play welcome voice announcement for first-time users
+  useEffect(() => {
+    // Check if user has loaded and is a new user
+    if (!loading && userProfile && !hasPlayedWelcomeVoice) {
+      const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+      const isFirstSession = sessionStorage.getItem('first_session') !== 'false';
+      
+      // Play welcome message for new users or first session
+      if ((isNewUser || isFirstSession) && !showSplash && !showOnboarding) {
+        // Delay the announcement to ensure it plays after page loads
+        const timer = setTimeout(() => {
+          const userName = userProfile.name || 'Student';
+          const selectedLanguage = localStorage.getItem('voiceAssistantLanguage') || 'en-US';
+          const welcomeMessage = getWelcomeMessage(userName, selectedLanguage);
+          
+          if (voiceAnnouncer && typeof voiceAnnouncer.speakMessage === 'function') {
+            voiceAnnouncer.speakMessage(welcomeMessage, true);
+            setHasPlayedWelcomeVoice(true);
+            sessionStorage.setItem('first_session', 'false');
+          }
+        }, 1500);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [loading, userProfile, showSplash, showOnboarding, hasPlayedWelcomeVoice, voiceAnnouncer]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
