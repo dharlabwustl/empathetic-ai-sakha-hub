@@ -11,3 +11,8 @@ export interface NavigationRoute {
 export type UserRouteMap = {
   [key: string]: NavigationRoute[];
 };
+
+export type NavigationCategory = {
+  title: string;
+  routes: NavigationRoute[];
+};

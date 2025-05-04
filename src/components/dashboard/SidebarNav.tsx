@@ -3,17 +3,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LogOut, 
-  Home, 
+  LayoutDashboard, 
   Calendar, 
   BookMarked, 
   MessageSquare, 
   Brain, 
   BookOpen, 
   LineChart, 
-  Activity, 
-  Heart, 
-  Folder, 
-  Video, 
   Users, 
   Bell, 
   Smile, 
@@ -37,22 +33,22 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const navItems = [
-    { icon: <Home size={20} />, title: "Dashboard", tab: "overview" },
+  // Main navigation items
+  const mainNavItems = [
+    { icon: <LayoutDashboard size={20} />, title: "Dashboard", tab: "overview" },
     { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today" },
     { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
+  ];
+  
+  // Learning tools category
+  const learningTools = [
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
     { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "exams" },
     { icon: <LineChart size={20} />, title: "Progress", tab: "progress" },
-    { icon: <Activity size={20} />, title: "Motivation", tab: "motivation" },
-    { icon: <Heart size={20} />, title: "Mental Health", tab: "wellness" },
-    { icon: <Folder size={20} />, title: "Materials", tab: "materials" },
-    { icon: <Video size={20} />, title: "Videos", tab: "videos" },
     { icon: <Users size={20} />, title: "Study Groups", tab: "forum" },
-    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" },
   ];
 
-  // Special category for AI assistance
+  // AI assistance category
   const aiAssistanceItems = [
     { icon: <MessageSquare size={20} />, title: "24/7 AI Tutor", tab: "tutor" },
     { icon: <Smile size={20} />, title: "Feel Good Corner", tab: "feel-good-corner" },
@@ -60,7 +56,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
 
   // Personal settings items
   const personalItems = [
-    { icon: <User size={20} />, title: "Profile", tab: "profile" }
+    { icon: <User size={20} />, title: "Profile", tab: "profile" },
+    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" }
   ];
 
   const handleTabChange = (tab: string) => {
@@ -78,7 +75,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
         
         <div className="p-2">
           {/* Main navigation items */}
-          {navItems.map((item) => (
+          {mainNavItems.map((item) => (
             <button
               key={item.tab}
               onClick={() => handleTabChange(item.tab)}
@@ -92,6 +89,27 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
               <span>{item.title}</span>
             </button>
           ))}
+          
+          {/* Learning Tools Category */}
+          <div className="mt-4">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Learning Tools
+            </h3>
+            {learningTools.map((item) => (
+              <button
+                key={item.tab}
+                onClick={() => handleTabChange(item.tab)}
+                className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
+                  activeTab === item.tab
+                    ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                {item.icon}
+                <span>{item.title}</span>
+              </button>
+            ))}
+          </div>
           
           {/* AI Assistance Category */}
           <div className="mt-4">
