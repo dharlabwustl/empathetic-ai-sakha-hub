@@ -15,6 +15,7 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -43,6 +44,14 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
+
+  // Load profile image from localStorage
+  useEffect(() => {
+    const savedImage = localStorage.getItem('user_profile_image');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
 
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
@@ -87,6 +96,10 @@ const StudentDashboard = () => {
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
     storeMoodInLocalStorage(mood);
+  };
+
+  const handleProfileImageUpdate = (imageUrl: string) => {
+    setProfileImage(imageUrl);
   };
 
   const handleSkipTourWrapper = () => {
@@ -134,10 +147,16 @@ const StudentDashboard = () => {
     );
   }
 
+  // Update user profile with the profile image
+  const enhancedUserProfile = {
+    ...userProfile,
+    photoURL: profileImage || userProfile.photoURL
+  };
+
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
-      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
+      return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
     }
     return null;
   };
@@ -145,7 +164,7 @@ const StudentDashboard = () => {
   return (
     <>
       <DashboardLayout
-        userProfile={userProfile}
+        userProfile={enhancedUserProfile}
         hideSidebar={hideSidebar}
         hideTabsNav={hideTabsNav}
         activeTab={activeTab}
@@ -165,6 +184,7 @@ const StudentDashboard = () => {
         suggestedNextAction={suggestedNextAction}
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
+        onProfileImageUpdate={handleProfileImageUpdate}
       >
         {getTabContent()}
       </DashboardLayout>

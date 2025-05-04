@@ -5,8 +5,8 @@ import { VoiceSpeakingStartedEvent } from '@/types/voice';
 export const DEFAULT_VOICE_SETTINGS = {
   enabled: true,
   volume: 1.0,
-  pitch: 1.0,
-  rate: 1.0,
+  pitch: 1.05,  // Slightly higher pitch for a pleasant female voice
+  rate: 0.92,   // Slightly slower rate for a calmer delivery
   voice: null,
   language: 'en-US',
   autoGreet: true,
@@ -27,7 +27,7 @@ export function initSpeechSynthesis(): boolean {
   return true;
 }
 
-// Helper to find the best voice to use
+// Helper to find the best voice to use - prioritizing Indian female voice
 export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return null;
@@ -38,33 +38,59 @@ export function findBestVoice(preferredLanguage: string = 'en-US'): SpeechSynthe
     return null;
   }
   
-  // First preference: Indian female voice
-  const indianFemaleVoice = voices.find(
+  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
+  
+  // First priority: Indian English female voice
+  const indianEnglishFemaleVoice = voices.find(
     voice => (voice.name.includes('Indian') || voice.lang === 'en-IN') && 
              voice.name.toLowerCase().includes('female')
   );
   
-  if (indianFemaleVoice) {
-    return indianFemaleVoice;
+  if (indianEnglishFemaleVoice) {
+    console.log("Using Indian English female voice:", indianEnglishFemaleVoice.name);
+    return indianEnglishFemaleVoice;
   }
   
-  // Second preference: Any female voice in the preferred language
+  // Second priority: Hindi female voice
+  const hindiFemaleVoice = voices.find(
+    voice => voice.lang === 'hi-IN' && voice.name.toLowerCase().includes('female')
+  );
+  
+  if (hindiFemaleVoice) {
+    console.log("Using Hindi female voice:", hindiFemaleVoice.name);
+    return hindiFemaleVoice;
+  }
+  
+  // Third priority: Any Indian voice
+  const indianVoice = voices.find(
+    voice => voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN'
+  );
+  
+  if (indianVoice) {
+    console.log("Using Indian voice:", indianVoice.name);
+    return indianVoice;
+  }
+  
+  // Fourth priority: Any female voice in the preferred language
   const femaleVoice = voices.find(
     voice => voice.lang.includes(preferredLanguage) && 
              voice.name.toLowerCase().includes('female')
   );
   
   if (femaleVoice) {
+    console.log("Using female voice:", femaleVoice.name);
     return femaleVoice;
   }
   
-  // Third preference: Any voice in the preferred language
+  // Fifth priority: Any voice in the preferred language
   const languageVoice = voices.find(voice => voice.lang.includes(preferredLanguage));
   if (languageVoice) {
+    console.log("Using language voice:", languageVoice.name);
     return languageVoice;
   }
   
   // Fallback: Use the first available voice
+  console.log("Using fallback first voice:", voices[0]?.name);
   return voices[0];
 }
 
@@ -87,8 +113,8 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     
     // Process message for better pronunciation
     const processedMessage = message
-      .replace(/PREPZR/g, "PREP EEZER")
-      .replace(/PREP-ZR/g, "PREP EEZER")
+      .replace(/PREPZR/gi, "PREP EEZER")
+      .replace(/PREP-ZR/gi, "PREP EEZER")
       .replace(/Prepzr/g, "Prep eezer");
     
     // Create and configure speech utterance
@@ -98,7 +124,7 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
     utterance.rate = settings.rate;
     utterance.lang = settings.language;
     
-    // Find the best voice to use
+    // Find the best voice to use - prioritize Indian female voice
     const voice = findBestVoice(settings.language);
     if (voice) {
       utterance.voice = voice;
@@ -129,7 +155,7 @@ export function speakMessage(message: string, settings: VoiceSettings = DEFAULT_
   }
 }
 
-// Get greeting based on user state
+// Get greeting based on user state with a calmer, more pleasant tone
 export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: boolean = false): string {
   const hour = new Date().getHours();
   let timeGreeting;
@@ -144,7 +170,7 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
   
   // Different greeting for first time users
   if (isFirstTimeUser) {
-    return `${timeGreeting} and welcome to PREP-EEZER! I'm your AI study assistant. I'll help you prepare for your exams more effectively. Let me show you around.`;
+    return `${timeGreeting} and a warm welcome to PREP-EEZER. I'm your friendly AI study assistant here to help you prepare for your exams more effectively. Let me show you around at your pace.`;
   }
   
   // For returning users
@@ -154,31 +180,31 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser: b
   if (mood) {
     switch(mood.toLowerCase()) {
       case 'motivated':
-        moodResponse = " I see you're feeling motivated today. That's great! Let's make the most of that energy.";
+        moodResponse = " I'm happy to see you're feeling motivated today. Let's channel that positive energy into productive study time.";
         break;
       case 'anxious':
-        moodResponse = " I notice you're feeling anxious. Don't worry, we'll take things step by step today.";
+        moodResponse = " I notice you're feeling anxious. Don't worry, we'll take things one step at a time and make steady progress together.";
         break;
       case 'tired':
-        moodResponse = " I see you're feeling tired. Let's focus on some lighter review topics today.";
+        moodResponse = " I see you're feeling tired. We can focus on lighter review topics or take breaks between study sessions today.";
         break;
       case 'focused':
-        moodResponse = " You're feeling focused today. Perfect time to tackle some challenging concepts!";
+        moodResponse = " You're feeling focused today. That's wonderful! This is a perfect opportunity to tackle some of the more challenging concepts.";
         break;
     }
   }
   
-  return `${timeGreeting}${name}. Welcome back to PREP-EEZER${moodResponse}`;
+  return `${timeGreeting}${name}. It's lovely to welcome you back to PREP-EEZER${moodResponse} How may I assist you with your studies today?`;
 }
 
-// Get announcement for reminders
+// Get announcement for reminders with a more pleasant tone
 export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?: string}> = []): string {
   if (!pendingTasks || pendingTasks.length === 0) {
-    return "You don't have any pending tasks at the moment. Great job staying on top of things!";
+    return "You don't have any pending tasks at the moment. Well done on staying organized with your studies!";
   }
   
   const taskCount = pendingTasks.length;
-  let announcement = `You have ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'} pending. `;
+  let announcement = `You have ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'} waiting for your attention. `;
   
   if (taskCount <= 3) {
     // List all tasks if there are 3 or fewer
@@ -194,7 +220,7 @@ export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?
     });
   } else {
     // Just mention the most important ones if there are many
-    announcement += "The most urgent ones are: ";
+    announcement += "The most important ones are: ";
     for (let i = 0; i < 2; i++) {
       if (i > 0) announcement += " and ";
       announcement += pendingTasks[i].title;
@@ -202,29 +228,29 @@ export function getReminderAnnouncement(pendingTasks: Array<{title: string, due?
         announcement += ` due ${pendingTasks[i].due}`;
       }
     }
-    announcement += `. And ${taskCount - 2} more.`;
+    announcement += `. And ${taskCount - 2} more tasks to review when you're ready.`;
   }
   
   return announcement;
 }
 
-// Get motivational message
+// Get motivational message with a calmer, more pleasant tone
 export function getMotivationalMessage(examGoal?: string): string {
   const messages = [
-    "Remember, consistency is key to success. Keep up the good work!",
-    "Every minute of study brings you closer to your goal. You're doing great!",
-    "The difference between ordinary and extraordinary is that little extra effort you're putting in.",
-    "Success is the sum of small efforts repeated day in and day out.",
-    "Your hard work today will pay off tomorrow. Keep going!"
+    "Remember, consistent, steady progress is the key to success. You're doing wonderfully!",
+    "Every moment you spend studying brings you one step closer to achieving your goals. Keep going at your pace.",
+    "The difference between ordinary and extraordinary is that little extra effort. And I can see you putting in that effort.",
+    "Success is built through small efforts repeated day after day. Your dedication is truly inspiring.",
+    "Your hard work today is preparing you for a brighter tomorrow. I'm here to support you every step of the way."
   ];
   
   // Exam specific messages
   if (examGoal) {
     const examName = examGoal.toUpperCase();
     const examSpecificMessages = [
-      `Stay focused on your ${examName} preparation. You're building knowledge every day.`,
-      `Remember why you started preparing for ${examName}. You've got this!`,
-      `Your dedication to ${examName} will open doors to great opportunities.`
+      `Take a moment to appreciate how far you've come with your ${examName} preparation. Every concept you master is a victory.`,
+      `Remember why you started preparing for ${examName}. Your determination will carry you through to success.`,
+      `Your dedication to ${examName} is opening doors to wonderful opportunities for your future.`
     ];
     
     // Add exam specific messages to the general pool
@@ -235,7 +261,7 @@ export function getMotivationalMessage(examGoal?: string): string {
   return messages[Math.floor(Math.random() * messages.length)];
 }
 
-// Process user speech command
+// Process user speech command - keep functionality but improve responses to be calmer and more pleasant
 export function processUserQuery(
   query: string,
   navigate: Function,

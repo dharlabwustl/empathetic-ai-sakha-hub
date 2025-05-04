@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, Camera, X } from 'lucide-react';
@@ -30,6 +30,20 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Load image from localStorage if available
+  useEffect(() => {
+    const savedImage = localStorage.getItem('user_profile_image');
+    if (savedImage && !imagePreview) {
+      setImagePreview(savedImage);
+      // Call onImageUpload to update parent components
+      if (onImageUpload) {
+        onImageUpload(savedImage);
+      }
+    } else if (currentImageUrl && currentImageUrl !== imagePreview) {
+      setImagePreview(currentImageUrl);
+    }
+  }, [currentImageUrl, imagePreview, onImageUpload]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -73,6 +87,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     setTimeout(() => {
       // In a real app, this would be an API call to upload the file
       // For now, we'll just use the preview URL
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('user_profile_image', previewUrl);
+      
       if (onImageUpload) {
         onImageUpload(previewUrl);
       }
@@ -83,9 +101,6 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       });
       
       setIsUploading(false);
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('user_profile_image', previewUrl);
     }, 1500);
   };
 
@@ -95,25 +110,18 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       fileInputRef.current.value = '';
     }
     
+    // Remove from localStorage
+    localStorage.removeItem('user_profile_image');
+    
     if (onImageUpload) {
       onImageUpload('');
     }
-    
-    localStorage.removeItem('user_profile_image');
     
     toast({
       title: 'Profile picture removed',
       description: 'Your profile picture has been removed'
     });
   };
-
-  // Load image from localStorage if available
-  React.useEffect(() => {
-    const savedImage = localStorage.getItem('user_profile_image');
-    if (savedImage && !imagePreview) {
-      setImagePreview(savedImage);
-    }
-  }, [imagePreview]);
 
   return (
     <div className="flex flex-col items-center space-y-4">

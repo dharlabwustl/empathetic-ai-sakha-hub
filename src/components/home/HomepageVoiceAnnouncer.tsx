@@ -4,6 +4,7 @@ import { Volume2, VolumeX, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
+import { findBestVoice } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface HomepageVoiceAnnouncerProps {
   autoPlay?: boolean;
@@ -60,33 +61,32 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       // Create utterance object only once
       utteranceRef.current = new SpeechSynthesisUtterance();
-      utteranceRef.current.rate = 0.95; // Slightly slower for better clarity
-      utteranceRef.current.pitch = 1.1;
+      
+      // Set voice characteristics for pleasant Indian female voice
+      utteranceRef.current.rate = 0.92; // Slightly slower for better clarity and calmer delivery
+      utteranceRef.current.pitch = 1.05; // Slightly higher for female voice
       utteranceRef.current.volume = 1.0;
       
-      // Select an Indian female voice if possible
+      // Find and set the Indian female voice
       window.speechSynthesis.onvoiceschanged = () => {
-        const voices = window.speechSynthesis.getVoices();
-        
-        // Try to find an Indian English female voice
-        const indianVoice = voices.find(voice => 
-          (voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
-          voice.name.includes('Female')
-        );
-        
-        // Fall back to any female voice if Indian voice not available
-        const femaleVoice = voices.find(voice => 
-          voice.name.includes('Female')
-        );
-        
-        if (indianVoice) {
-          utteranceRef.current!.voice = indianVoice;
-          console.log('Using Indian female voice:', indianVoice.name);
-        } else if (femaleVoice) {
-          utteranceRef.current!.voice = femaleVoice;
-          console.log('Using female voice:', femaleVoice.name);
+        if (utteranceRef.current) {
+          const indianVoice = findBestVoice('en-IN');
+          if (indianVoice) {
+            utteranceRef.current.voice = indianVoice;
+            console.log('Using voice for homepage:', indianVoice.name);
+          }
         }
       };
+      
+      // Try to load voices immediately in case they're already available
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0 && utteranceRef.current) {
+        const indianVoice = findBestVoice('en-IN');
+        if (indianVoice) {
+          utteranceRef.current.voice = indianVoice;
+          console.log('Immediately loaded voice for homepage:', indianVoice.name);
+        }
+      }
       
       // Auto-play after delay if enabled
       if (autoPlay && isVisible) {
@@ -125,16 +125,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
       // Format message for better pronunciation, especially for "PREPZR"
-      const formattedMessage = message.replace(/PREP-ZR/g, "PREP EEZER")
-                                       .replace(/PREPZR/g, "PREP EEZER")
+      const formattedMessage = message.replace(/PREPZR/g, "PREP EEZER")
+                                       .replace(/PREP-ZR/g, "PREP EEZER")
                                        .replace(/PREP-EEZER/g, "PREP EEZER");
       
       utteranceRef.current.text = formattedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
     }
     
-    // Progress timing
-    const messageDuration = message.length * 85; // Slightly longer for better enunciation
+    // Progress timing - increase duration for calmer speech
+    const messageDuration = message.length * 90; // Slightly longer for better enunciation
     let startTime = Date.now();
     
     // Update progress
@@ -152,7 +152,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
             setCurrentMessageIndex(prevIndex => prevIndex + 1);
             setProgress(0);
             speakMessage(welcomeMessages[currentMessageIndex + 1]);
-          }, 1000);
+          }, 1200); // Slightly longer pause between messages for a calmer pace
         } else if (currentMessageIndex >= welcomeMessages.length - 1) {
           setIsPlaying(false);
         }

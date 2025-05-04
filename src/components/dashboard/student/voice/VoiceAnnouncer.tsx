@@ -33,6 +33,18 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
 
   // Set up voice announcement on first load
   useEffect(() => {
+    // Initialize from localStorage if available
+    const savedMuted = localStorage.getItem('voiceAssistantMuted');
+    const savedSubtitles = localStorage.getItem('voiceAssistantSubtitles');
+    
+    if (savedMuted) {
+      setMuted(savedMuted === 'true');
+    }
+    
+    if (savedSubtitles) {
+      setShowSubtitles(savedSubtitles === 'true');
+    }
+
     // Initial greeting with a small delay for better UX
     const timer = setTimeout(() => {
       if (!muted) {
@@ -106,6 +118,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         <Subtitles className="h-4 w-4" />
       </Button>
       
+      {/* Fixed subtitle positioning to always appear at the bottom of the screen */}
       {speaking && showSubtitles && currentMessage && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
           {currentMessage}
