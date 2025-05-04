@@ -254,7 +254,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      // Fix PREPZR pronunciation
+      // Fix pronunciation for speech only - not for display
       const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
       
       utteranceRef.current.text = processedMessage;

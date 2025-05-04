@@ -90,9 +90,10 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       }
     }, 1000);
 
-    // Set up listeners for speaking events
+    // Set up listeners for speaking events - ensure we use the original message for display
     const handleSpeakingStarted = (event: CustomEvent) => {
       setSpeaking(true);
+      // Use the original message from the event detail for display
       setCurrentMessage(event.detail.message);
     };
 

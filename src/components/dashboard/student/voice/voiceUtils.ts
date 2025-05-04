@@ -55,11 +55,12 @@ export const findBestVoice = (preferredLang: string = 'en-IN'): SpeechSynthesisV
 };
 
 /**
- * Fix pronunciation of certain words
+ * Fix pronunciation of certain words while preserving display text
+ * This function is used internally by the speech system and doesn't affect displayed text
  */
 export const fixPronunciation = (text: string): string => {
-  // Fix PREPZR pronunciation to "prepezer"
-  return text.replace(/PREPZR/gi, "prep-ezer");
+  // Replace PREPZR for speech pronunciation only - not for display text
+  return text.replace(/PREPZR/g, "prep-ezer");
 };
 
 // Helper function to speak a message
@@ -80,7 +81,7 @@ export const speakMessage = (
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
-  // Fix pronunciation before creating the utterance
+  // Fix pronunciation before creating the utterance - but don't modify the display text
   const processedMessage = fixPronunciation(message);
   const utterance = new SpeechSynthesisUtterance(processedMessage);
   
@@ -96,10 +97,13 @@ export const speakMessage = (
     console.log('Using voice:', bestVoice.name);
   }
   
+  // Pass the original message (not the pronunciation-fixed version) for subtitles
+  const originalMessage = message;
+  
   // Track speaking status with events
   utterance.onstart = () => {
     document.dispatchEvent(
-      new CustomEvent('voice-speaking-started', { detail: { message: processedMessage } })
+      new CustomEvent('voice-speaking-started', { detail: { message: originalMessage } })
     );
   };
   
