@@ -1,7 +1,8 @@
 
 import React from 'react';
-import StudyPlanSection from './StudyPlanSection';
-import type { StudyPlan } from '@/types/user/studyPlan';
+import { Card, CardContent } from '@/components/ui/card';
+import { StudyPlan } from '@/types/user/studyPlan';
+import StudyPlanSections from './components/StudyPlanSections';
 
 interface StudyPlansListProps {
   activePlans: StudyPlan[];
@@ -16,26 +17,31 @@ const StudyPlansList: React.FC<StudyPlansListProps> = ({
   onCreatePlan,
   onViewPlanDetails
 }) => {
-  return (
-    <div className="space-y-12">
-      {/* Active Plans Section */}
-      <StudyPlanSection
-        title="Active Study Plans"
-        description="Your current study plans and ongoing progress"
-        plans={activePlans}
-        onCreatePlan={onCreatePlan}
-        onViewPlanDetails={onViewPlanDetails}
-      />
+  const hasNoPlans = activePlans.length === 0 && completedPlans.length === 0;
 
-      {/* Completed Plans Section */}
-      <StudyPlanSection
-        title="Completed & Past Plans"
-        description="History of your completed and expired study plans"
-        plans={completedPlans}
-        onCreatePlan={onCreatePlan}
-        onViewPlanDetails={onViewPlanDetails}
-      />
-    </div>
+  // If there are no plans at all, show a friendly message
+  if (hasNoPlans) {
+    return (
+      <Card>
+        <CardContent className="py-6">
+          <div className="text-center space-y-4">
+            <h3 className="text-lg font-medium">No Study Plans Yet</h3>
+            <p className="text-muted-foreground">
+              Create your first study plan to organize your exam preparation efficiently.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <StudyPlanSections 
+      activePlans={activePlans}
+      completedPlans={completedPlans}
+      onCreatePlan={onCreatePlan}
+      onViewPlanDetails={onViewPlanDetails}
+    />
   );
 };
 
