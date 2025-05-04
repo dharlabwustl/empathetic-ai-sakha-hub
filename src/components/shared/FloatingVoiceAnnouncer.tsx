@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe } from 'lucide-react';
+import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import { VoiceSettings } from '@/components/dashboard/student/voice/voiceUtils';
+import { motion } from 'framer-motion';
 
 interface FloatingVoiceAnnouncerProps {
   isOpen: boolean;
@@ -39,6 +38,22 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     }
   ]);
   const [showSettings, setShowSettings] = useState(false);
+  const [processingInput, setProcessingInput] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  
+  // Check if user has seen onboarding
+  useEffect(() => {
+    const onboardingSeen = localStorage.getItem('voiceAssistantOnboardingSeen');
+    setHasSeenOnboarding(onboardingSeen === 'true');
+    
+    // Show onboarding for first-time users when opened
+    if (isOpen && !onboardingSeen) {
+      setShowOnboarding(true);
+      // Mark as seen for future visits
+      localStorage.setItem('voiceAssistantOnboardingSeen', 'true');
+    }
+  }, [isOpen]);
   
   // Auto-speak welcome message when opened
   useEffect(() => {
@@ -58,6 +73,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     // Add user message
     setMessages(prev => [...prev, { type: 'user' as const, content: text }]);
     setInput('');
+    setProcessingInput(true);
     
     // Special commands
     if (text.toLowerCase().includes('mute') || text.toLowerCase().includes('be quiet')) {
@@ -66,6 +82,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
         type: 'bot' as const, 
         content: 'Voice assistant muted. I\'ll still listen for commands.' 
       }]);
+      setProcessingInput(false);
       return;
     }
     
@@ -76,6 +93,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
         content: 'Voice assistant unmuted. I\'ll speak responses again.' 
       }]);
       speakMessage('Voice assistant unmuted. I\'ll speak responses again.', true);
+      setProcessingInput(false);
       return;
     }
     
@@ -84,6 +102,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       const response = "अब मैं हिंदी में बात करूंगा।";
       setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
       speakMessage(response);
+      setProcessingInput(false);
       return;
     }
     
@@ -92,6 +111,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       const response = "I'll speak English now.";
       setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
       speakMessage(response);
+      setProcessingInput(false);
       return;
     }
     
@@ -104,10 +124,34 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       "I can help you with flashcards to improve your recall. Should we start a flashcard session?"
     ];
     
-    const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+    // Add personalized responses based on time of day
+    const hour = new Date().getHours();
+    let timeBasedResponses = [];
     
-    // Simulate bot response
+    if (hour < 12) {
+      timeBasedResponses = [
+        "Good morning! Starting your day with some study is excellent. What would you like to focus on?",
+        "Morning study sessions are very effective. Would you like to review your notes or take a practice test?"
+      ];
+    } else if (hour < 17) {
+      timeBasedResponses = [
+        "Good afternoon! This is a great time to tackle some challenging topics. What would you like to work on?",
+        "Afternoon study sessions help reinforce morning learning. Would you like to continue with your study plan?"
+      ];
+    } else {
+      timeBasedResponses = [
+        "Good evening! Some focused evening revision can help memory retention. What topic would you like to review?",
+        "Evening is great for summarizing the day's learning. Should we review what you've studied today?"
+      ];
+    }
+    
+    // Combine standard and personalized responses
+    const allResponses = [...botResponses, ...timeBasedResponses];
+    const randomResponse = allResponses[Math.floor(Math.random() * allResponses.length)];
+    
+    // Simulate bot response with processing time
     setTimeout(() => {
+      setProcessingInput(false);
       setMessages(prev => [...prev, { type: 'bot' as const, content: randomResponse }]);
       if (!voiceSettings.muted) {
         speakMessage(randomResponse);
@@ -143,7 +187,19 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
         <div className="flex items-center gap-2">
           <div className="bg-white/20 p-1.5 rounded-full">
             {isListening ? (
-              <Mic className="w-5 h-5" />
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                <Mic className="w-5 h-5 text-red-200" />
+              </motion.div>
+            ) : processingInput ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              >
+                <Loader2 className="w-5 h-5" />
+              </motion.div>
             ) : voiceSettings.muted ? (
               <VolumeOff className="w-5 h-5" />
             ) : (
@@ -153,7 +209,10 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           <div>
             <h3 className="font-medium text-sm">PREPZR Voice Assistant</h3>
             <p className="text-xs opacity-80">
-              {isListening ? "Listening..." : isSpeaking ? "Speaking..." : voiceSettings.muted ? "Muted" : "Ask me anything"}
+              {isListening ? "Listening..." : 
+               processingInput ? "Processing..." :
+               isSpeaking ? "Speaking..." : 
+               voiceSettings.muted ? "Muted" : "Ask me anything"}
             </p>
           </div>
         </div>
@@ -176,6 +235,36 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           </Button>
         </div>
       </div>
+      
+      {/* Onboarding overlay for first-time users */}
+      {showOnboarding && (
+        <div className="absolute inset-0 bg-black/80 z-10 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-5 max-w-xs">
+            <h4 className="font-medium text-lg mb-3">Welcome to Voice Assistant!</h4>
+            <ul className="space-y-3 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <Mic className="h-4 w-4 text-indigo-600 mt-1" />
+                <span>Click the mic button to speak commands and questions</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Volume2 className="h-4 w-4 text-indigo-600 mt-1" />
+                <span>Toggle sound on/off with the speaker button</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Globe className="h-4 w-4 text-indigo-600 mt-1" />
+                <span>Switch between English and Hindi languages</span>
+              </li>
+            </ul>
+            <p className="text-xs text-gray-500 mb-4">Try asking: "Help me with my study plan" or "Tell me about PREPZR features"</p>
+            <Button 
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
+              onClick={() => setShowOnboarding(false)}
+            >
+              Got it!
+            </Button>
+          </div>
+        </div>
+      )}
       
       {/* Settings Panel */}
       {showSettings && (
@@ -283,6 +372,19 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
             {msg.content}
           </div>
         ))}
+        
+        {/* Processing indicator */}
+        {processingInput && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-white border border-gray-200 max-w-[80%]">
+            <motion.div
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <Loader2 className="h-4 w-4 text-indigo-500 animate-spin" />
+            </motion.div>
+            <span className="text-sm text-gray-500">Processing your request...</span>
+          </div>
+        )}
       </div>
       
       {/* Voice Assistant Input */}
@@ -294,7 +396,16 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
             onClick={handleToggleListen}
             className={isListening ? "bg-red-500 hover:bg-red-600" : ""}
           >
-            {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            {isListening ? (
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                <MicOff size={18} />
+              </motion.div>
+            ) : (
+              <Mic size={18} />
+            )}
           </Button>
           <input
             type="text"

@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle } from 'lucide-react';
+import { Volume2, VolumeX, Subtitles, Mic, MicOff, HelpCircle, Loader2 } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { 
   speakMessage, 
@@ -14,6 +15,13 @@ import {
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface VoiceAnnouncerProps {
   userName?: string;
@@ -41,10 +49,27 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [processing, setProcessing] = useState(false);
   
   const navigate = useNavigate();
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const lastAnnouncementRef = useRef<string>('');
+
+  // Check if first time user for onboarding
+  useEffect(() => {
+    const hasSeenVoiceOnboarding = localStorage.getItem('voiceAnnouncerOnboardingSeen');
+    
+    if (isFirstTimeUser && !hasSeenVoiceOnboarding) {
+      // Show onboarding dialog after a short delay
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+        localStorage.setItem('voiceAnnouncerOnboardingSeen', 'true');
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isFirstTimeUser]);
 
   // Set up voice announcement on first load
   useEffect(() => {
@@ -138,6 +163,9 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         setTranscript(result);
         console.log('Speech recognized:', result);
         
+        // Show processing indicator
+        setProcessing(true);
+        
         // Process the query and get a response
         const response = processUserQuery(
           result,
@@ -159,6 +187,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             pitch: 1.1,
             rate: 0.95
           });
+          setProcessing(false);
           return;
         } else if (response === "UNMUTE_COMMAND") {
           toggleMute(false);
@@ -169,25 +198,31 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
             pitch: 1.1,
             rate: 0.95 
           });
+          setProcessing(false);
           return;
         }
         
-        // Speak the response if not muted
-        if (!muted) {
-          const enhancedSettings = { 
-            ...DEFAULT_VOICE_SETTINGS,
-            muted,
-            pitch: 1.1, // Higher pitch for female voice
-            rate: 0.95, // Slightly faster for energetic delivery  
-          };
-          
-          speakMessage(response, enhancedSettings);
-          
-          // Add to message history if not already there
-          if (!messageHistory.includes(response)) {
-            setMessageHistory(prev => [...prev.slice(-2), response]);
+        // Add short delay to simulate processing
+        setTimeout(() => {
+          // Speak the response if not muted
+          if (!muted) {
+            const enhancedSettings = { 
+              ...DEFAULT_VOICE_SETTINGS,
+              muted,
+              pitch: 1.1, // Higher pitch for female voice
+              rate: 0.95, // Slightly faster for energetic delivery  
+            };
+            
+            speakMessage(response, enhancedSettings);
+            
+            // Add to message history if not already there
+            if (!messageHistory.includes(response)) {
+              setMessageHistory(prev => [...prev.slice(-2), response]);
+            }
           }
-        }
+          
+          setProcessing(false);
+        }, 600);
       };
       
       recognitionRef.current.onend = () => {
@@ -197,6 +232,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        setProcessing(false);
       };
     } catch (error) {
       console.error("Error initializing speech recognition:", error);
@@ -253,6 +289,15 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
     }
   };
 
+  // Close onboarding dialog
+  const closeOnboarding = () => {
+    setShowOnboarding(false);
+    
+    // Speak a welcome message after closing onboarding
+    const welcomeMessage = "I'm your PREPZR voice assistant. Click the microphone button to ask me anything about your studies!";
+    speakMessage(welcomeMessage, { ...DEFAULT_VOICE_SETTINGS, muted });
+  };
+
   return (
     <TooltipProvider>
       <div className="flex items-center gap-1 relative">
@@ -292,7 +337,12 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
               aria-label={isListening ? "Stop listening" : "Start listening"}
             >
               {isListening ? (
-                <MicOff className="h-4 w-4" />
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <MicOff className="h-4 w-4" />
+                </motion.div>
               ) : (
                 <Mic className="h-4 w-4" />
               )}
@@ -326,7 +376,7 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
               size="sm"
               variant="ghost"
               className="h-8 w-8 p-0"
-              onClick={() => speakMessage("I am your voice assistant. You can ask me questions about your study plan, practice tests, or navigation help. Just click the microphone button and speak to me.", { ...DEFAULT_VOICE_SETTINGS, muted })}
+              onClick={() => setShowOnboarding(true)}
               aria-label="Voice assistant help"
             >
               <HelpCircle className="h-4 w-4" />
@@ -348,12 +398,96 @@ const VoiceAnnouncer: React.FC<VoiceAnnouncerProps> = ({
         {isListening && (
           <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
             <div className="flex items-center gap-2 mb-2">
-              <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                <Mic className="h-4 w-4 text-red-500" />
+              </motion.div>
               <span className="font-medium">Listening...</span>
             </div>
             {transcript && <p className="text-sm italic">"{transcript}"</p>}
           </div>
         )}
+        
+        {/* Processing indicator */}
+        {processing && !isListening && (
+          <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              >
+                <Loader2 className="h-4 w-4 text-indigo-500" />
+              </motion.div>
+              <span>Processing your request...</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Voice Assistant Onboarding Dialog */}
+        <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+          <DialogContent className="sm:max-w-md">
+            <DialogTitle>Meet Your PREPZR Voice Assistant</DialogTitle>
+            <DialogDescription>
+              Your AI-powered study companion is ready to help you prepare for exams
+            </DialogDescription>
+            
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="bg-white p-2 rounded-full">
+                  <Volume2 className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-medium text-sm">Voice Commands</h4>
+                  <p className="text-xs text-muted-foreground">Try saying: "Help me with Physics" or "Show my study plan"</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Quick Tips:</h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <Mic className="h-4 w-4 text-indigo-600 mt-0.5" />
+                    <span>Click the mic button and speak clearly for voice commands</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Volume2 className="h-4 w-4 text-indigo-600 mt-0.5" />
+                    <span>Toggle sound on/off with the speaker button</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Subtitles className="h-4 w-4 text-indigo-600 mt-0.5" />
+                    <span>Enable subtitles to see what the assistant is saying</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+                <h4 className="font-medium text-sm mb-2">Example Commands:</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "Show my progress"
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "Start a practice test"
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "Open my flashcards"
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start text-xs h-auto py-1">
+                    "What's my next task?"
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button onClick={closeOnboarding}>
+                Got it, let's start!
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );
