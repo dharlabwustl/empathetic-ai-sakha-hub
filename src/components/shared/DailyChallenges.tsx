@@ -18,6 +18,7 @@ interface Challenge {
   participants: number;
   reward?: string;
   completed?: boolean;
+  joined?: boolean;
 }
 
 interface DailyChallengesProps {
@@ -245,8 +246,9 @@ const DailyChallenges: React.FC<DailyChallengesProps> = ({
                           : 'bg-amber-600 hover:bg-amber-700'
                     }`}
                     onClick={() => handleJoinChallenge(challenge.id)}
+                    disabled={challenge.joined}
                   >
-                    Join Challenge
+                    {challenge.joined ? 'Joined' : 'Join Challenge'}
                   </Button>
                 </>
               )}

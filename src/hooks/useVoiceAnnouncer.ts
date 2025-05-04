@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
-import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation } from '@/components/dashboard/student/voice/voiceUtils';
+import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
@@ -21,6 +21,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceInitialized, setVoiceInitialized] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>('');
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   
@@ -43,8 +44,23 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       
       // Initialize voice
       const initializeVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        setAvailableVoices(voices);
         setVoiceInitialized(true);
-        console.log("Voice system initialized with available voices:", window.speechSynthesis.getVoices().length);
+        console.log("Voice system initialized with available voices:", voices.length);
+        
+        // Log available voices and languages
+        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
+        const availableLanguages = new Set(voices.map(v => v.lang));
+        console.log("Available languages:", Array.from(availableLanguages));
+        
+        // Check if we have Hindi voices
+        const hindiVoices = voices.filter(v => v.lang.includes('hi-IN'));
+        console.log("Hindi voices available:", hindiVoices.length > 0, hindiVoices.map(v => v.name));
+        
+        // Check for Indian English voices
+        const indianVoices = voices.filter(v => v.lang.includes('en-IN'));
+        console.log("Indian English voices available:", indianVoices.length > 0, indianVoices.map(v => v.name));
       };
       
       // Ensure voices are loaded before initializing
@@ -54,6 +70,41 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         window.speechSynthesis.onvoiceschanged = initializeVoice;
       }
     }
+    
+    // Add visual indicator for speaking state
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .voice-speaking {
+        position: relative;
+      }
+      .voice-speaking:after {
+        content: '';
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 10px;
+        height: 10px;
+        background-color: #3b82f6;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+        z-index: 9999;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        }
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+        }
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+      }
+    `;
+    document.head.appendChild(styleElement);
     
     // Set up event listeners for tracking speaking status
     const handleSpeakingStarted = (event: any) => {
@@ -72,6 +123,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     return () => {
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
+      document.head.removeChild(styleElement);
     };
   }, []);
   
@@ -120,9 +172,21 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   
   // Test voice function
   const testVoice = useCallback(() => {
-    const testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant.`;
+    // Use language-specific test messages
+    let testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant.`;
+    
+    if (voiceSettings.language === 'hi-IN') {
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-एज़र वॉइस असिस्टेंट हूं।`;
+    } else if (voiceSettings.language === 'en-IN') {
+      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with an Indian accent.`;
+    } else if (voiceSettings.language === 'en-US') {
+      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with an American accent.`;
+    } else if (voiceSettings.language === 'en-GB') {
+      testMessage = `Hello ${userName || 'there'}, I'm your prep-ezer voice assistant with a British accent.`;
+    }
+    
     speakMessage(testMessage, true);
-  }, [userName, speakMessage]);
+  }, [userName, speakMessage, voiceSettings.language]);
   
   // Initialize speech recognition
   const initializeSpeechRecognition = useCallback(() => {
@@ -137,7 +201,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       recognitionRef.current = new SpeechRecognitionAPI();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-IN'; // Use Indian English
+      
+      // Set language based on current voice settings
+      recognitionRef.current.lang = voiceSettings.language;
       
       recognitionRef.current.onresult = (event) => {
         const result = event.results[0][0].transcript;
@@ -156,12 +222,15 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     } catch (error) {
       console.error("Error initializing speech recognition:", error);
     }
-  }, []);
+  }, [voiceSettings.language]);
   
   // Start listening
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       initializeSpeechRecognition();
+    } else {
+      // Update recognition language to match current settings
+      recognitionRef.current.lang = voiceSettings.language;
     }
     
     try {
@@ -171,7 +240,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     } catch (e) {
       console.error('Error starting speech recognition:', e);
     }
-  }, [initializeSpeechRecognition]);
+  }, [initializeSpeechRecognition, voiceSettings.language]);
   
   // Stop listening
   const stopListening = useCallback(() => {
@@ -182,6 +251,19 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       console.error('Error stopping speech recognition:', e);
     }
   }, []);
+  
+  // Get supported languages
+  const getSupportedLanguages = useCallback(() => {
+    if (!availableVoices.length) return LANGUAGE_OPTIONS;
+    
+    // Find languages that have at least one voice
+    const supportedLanguageCodes = new Set(availableVoices.map(v => v.lang));
+    
+    // Filter language options to only include those with available voices
+    return LANGUAGE_OPTIONS.filter(lang => 
+      Array.from(supportedLanguageCodes).some(code => code.includes(lang.value))
+    );
+  }, [availableVoices]);
   
   return {
     voiceSettings,
@@ -196,7 +278,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     startListening,
     stopListening,
     voiceInitialized,
-    transcript
+    transcript,
+    availableVoices,
+    supportedLanguages: getSupportedLanguages()
   };
 };
 

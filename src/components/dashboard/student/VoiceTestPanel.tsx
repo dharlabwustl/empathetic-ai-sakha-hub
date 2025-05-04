@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -11,7 +11,10 @@ import {
   Settings, 
   MessageSquare,
   Info,
-  VolumeOff
+  VolumeOff,
+  Globe,
+  Loader2,
+  MicOff
 } from 'lucide-react';
 import {
   Tooltip,
@@ -28,6 +31,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LANGUAGE_OPTIONS } from '../voice/voiceUtils';
+import { motion } from 'framer-motion';
 
 interface VoiceTestPanelProps {
   userName?: string;
@@ -40,6 +45,7 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [voiceTestResult, setVoiceTestResult] = useState<string | null>(null);
+  const [showLanguageDemo, setShowLanguageDemo] = useState(false);
   
   const { 
     voiceSettings,
@@ -53,8 +59,15 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
     startListening,
     stopListening,
     speakMessage,
-    voiceInitialized
+    voiceInitialized,
+    transcript
   } = useVoiceAnnouncer({ userName });
+
+  // Get language label for display
+  const getLanguageLabel = (langCode: string): string => {
+    const language = LANGUAGE_OPTIONS.find(lang => lang.value === langCode);
+    return language ? language.label : langCode;
+  };
   
   // Function to test the voice system
   const handleTestVoice = () => {
@@ -68,6 +81,26 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
       setVoiceTestResult('Voice is not supported in your browser.');
     }
   };
+
+  // Handle language change with demo
+  const handleLanguageChange = (value: string) => {
+    updateVoiceSettings({ language: value });
+    setShowLanguageDemo(true);
+
+    // Speak a demo message in the selected language after a short delay
+    setTimeout(() => {
+      if (value === 'hi-IN') {
+        speakMessage("अब मैं हिंदी में बात करूंगा। आप कैसे हैं?", true);
+      } else if (value === 'en-IN') {
+        speakMessage("I'll now speak in Indian English. How are you today?", true);
+      } else if (value === 'en-US') {
+        speakMessage("I'll now speak in American English. How are you today?", true);
+      } else if (value === 'en-GB') {
+        speakMessage("I'll now speak in British English. How are you today?", true);
+      }
+      setShowLanguageDemo(false);
+    }, 500);
+  };
   
   // Troubleshooting message for Chrome
   const chromeMessage = "Chrome requires a user interaction before audio can play. Click the test button to enable audio.";
@@ -77,12 +110,32 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
     <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          {voiceSettings.enabled ? (
+          {isSpeaking ? (
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <Volume2 size={20} className="text-blue-500" />
+            </motion.div>
+          ) : isListening ? (
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], color: ['#ef4444', '#ef4444', '#ef4444'] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <Mic size={20} className="text-red-500" />
+            </motion.div>
+          ) : voiceSettings.enabled ? (
             voiceSettings.muted ? <VolumeOff size={20} /> : <Volume2 size={20} />
           ) : (
             <VolumeX size={20} />
           )}
           <h3 className="font-medium">Voice Assistant</h3>
+          
+          {/* Language indicator badge */}
+          <Badge variant="outline" className="ml-2 text-xs px-2 py-0 h-5 flex items-center gap-1">
+            <Globe className="h-3 w-3" />
+            {getLanguageLabel(voiceSettings.language)}
+          </Badge>
         </div>
         
         {showControls && (
@@ -116,13 +169,61 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
       <div className="space-y-3">
         {/* Status indicator */}
         <div className="flex items-center gap-2 text-sm">
-          <div className={`w-2 h-2 rounded-full ${voiceInitialized ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-          <span>
-            {voiceInitialized 
-              ? 'Voice system ready' 
-              : 'Voice system initializing...'}
-          </span>
+          {voiceInitialized ? (
+            <>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span>Voice system ready</span>
+            </>
+          ) : (
+            <>
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="w-2 h-2 rounded-full bg-orange-500"
+              ></motion.div>
+              <span>Voice system initializing...</span>
+            </>
+          )}
         </div>
+        
+        {/* Speaking/Listening status */}
+        {(isSpeaking || isListening) && (
+          <div className="flex items-center gap-2 p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 text-sm">
+            {isSpeaking && (
+              <>
+                <motion.div
+                  animate={{ 
+                    opacity: [0.5, 1, 0.5],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <Volume2 size={16} className="text-blue-500" />
+                </motion.div>
+                <span>Speaking...</span>
+              </>
+            )}
+            {isListening && (
+              <>
+                <motion.div
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                >
+                  <Mic size={16} className="text-red-500" />
+                </motion.div>
+                <span>Listening...</span>
+              </>
+            )}
+          </div>
+        )}
+        
+        {/* Transcript display when listening */}
+        {transcript && (
+          <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded text-sm border border-green-100 dark:border-green-800">
+            <p className="font-medium text-xs text-green-600 mb-1">Transcript:</p>
+            <p>{transcript}</p>
+          </div>
+        )}
         
         {/* Mute status indicator */}
         {voiceSettings.enabled && (
@@ -150,6 +251,38 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
             </Button>
           </div>
         )}
+        
+        {/* Language selector */}
+        <div className="mt-4">
+          <Label className="mb-1 block text-sm">Voice Language</Label>
+          <Select 
+            value={voiceSettings.language} 
+            onValueChange={handleLanguageChange}
+            disabled={isSpeaking || showLanguageDemo}
+          >
+            <SelectTrigger className="w-full">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                <span>{getLanguageLabel(voiceSettings.language)}</span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGE_OPTIONS.map(lang => (
+                <SelectItem key={lang.value} value={lang.value}>
+                  {lang.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {/* Language demo indicator */}
+          {showLanguageDemo && (
+            <div className="flex items-center gap-2 mt-2 text-xs text-blue-600">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Changing language...</span>
+            </div>
+          )}
+        </div>
         
         {/* Chrome troubleshooting message */}
         {isChrome && (
@@ -183,6 +316,27 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
             disabled={isSpeaking}
           >
             Say Greeting
+          </Button>
+        </div>
+        
+        {/* Voice recognition controls */}
+        <div className="mt-3 flex flex-col sm:flex-row gap-2">
+          <Button
+            onClick={isListening ? stopListening : startListening}
+            variant={isListening ? "destructive" : "secondary"}
+            className="flex-1 flex items-center justify-center gap-2"
+          >
+            {isListening ? (
+              <>
+                <MicOff className="h-4 w-4" />
+                Stop Listening
+              </>
+            ) : (
+              <>
+                <Mic className="h-4 w-4" />
+                Start Listening
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -220,15 +374,17 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
               <Label htmlFor="voice-language">Voice Language</Label>
               <Select 
                 value={voiceSettings.language} 
-                onValueChange={(value) => updateVoiceSettings({ language: value })}
+                onValueChange={handleLanguageChange}
               >
                 <SelectTrigger id="voice-language">
                   <SelectValue placeholder="Select language" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en-US">English (US)</SelectItem>
-                  <SelectItem value="en-IN">English (Indian)</SelectItem>
-                  <SelectItem value="hi-IN">Hindi</SelectItem>
+                  {LANGUAGE_OPTIONS.map(lang => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -277,6 +433,20 @@ export const VoiceTestPanel: React.FC<VoiceTestPanelProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+// Add Badge component
+const Badge = ({ className, variant, children, ...props }: any) => {
+  return (
+    <div 
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors 
+        ${variant === 'outline' ? 'border bg-background' : 'bg-primary text-primary-foreground'} 
+        ${className}`}
+      {...props}
+    >
+      {children}
     </div>
   );
 };

@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DailyChallenges from '@/components/shared/DailyChallenges';
-import { Award, ArrowRight } from 'lucide-react';
+import { Award, ArrowRight, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
 
 interface ChallengesWidgetProps {
   className?: string;
@@ -31,7 +32,15 @@ const ChallengesWidget: React.FC<ChallengesWidgetProps> = ({ className }) => {
               <CardTitle className="text-lg">Challenges & Streaks</CardTitle>
             </div>
             <Badge variant="outline" className="bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/20">
-              {userStats.currentStreak} day streak
+              <motion.div
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+                className="flex items-center gap-1"
+              >
+                <Flame className="h-3.5 w-3.5 text-amber-600 mr-1" />
+                {userStats.currentStreak} day streak
+              </motion.div>
             </Badge>
           </div>
         </CardHeader>
@@ -48,7 +57,10 @@ const ChallengesWidget: React.FC<ChallengesWidgetProps> = ({ className }) => {
             </div>
             <div className="text-center">
               <p className="text-muted-foreground">Points</p>
-              <p className="text-xl font-semibold">{userStats.totalPoints} XP</p>
+              <p className="text-xl font-semibold flex items-center justify-center">
+                {userStats.totalPoints} XP
+                <TrendingUp className="ml-1 h-4 w-4 text-green-500" />
+              </p>
             </div>
           </div>
           

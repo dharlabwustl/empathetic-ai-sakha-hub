@@ -59,4 +59,10 @@ declare interface VoiceSettings {
   pitch: number;
   language: string;
   enabled: boolean;
+  muted: boolean;
+  voice: SpeechSynthesisVoice | null;
+  autoGreet?: boolean;
 }
+
+// Define supported languages for voice assistant
+type SupportedLanguage = 'en-IN' | 'en-US' | 'hi-IN' | 'en-GB';
