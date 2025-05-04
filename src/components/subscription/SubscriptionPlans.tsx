@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SubscriptionPlan } from '@/types/user/base';
+import { individualPlans, groupPlans } from '@/components/pricing/pricingData';
 
 interface SubscriptionPlansProps {
   currentPlanId: string;
@@ -14,66 +15,73 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   currentPlanId,
   onSelectPlan
 }) => {
-  // Define plans
+  // Convert pricing data format to subscription plan format
   const plans: SubscriptionPlan[] = [
     {
       id: 'free',
       type: 'free',
-      name: 'Free',
+      name: 'Free Trial',
       price: 0,
       currency: 'INR',
-      description: 'Basic exam preparation',
+      interval: 'month',
+      description: 'Experience Sakha AI for 7 days',
       features: [
-        'Basic study plans',
-        'Limited flashcards',
-        '5 practice questions/day',
-        'Basic progress tracking'
+        '5 Concept Cards (Auto-generated)',
+        '5 Flashcards',
+        '5 Practice Exams with analytics',
+        '1 Academic Advisor plan',
+        'Basic Smart Study Plan',
+        '10 AI Tutor requests',
+        'Feel Good Corner'
       ],
       notIncluded: [
-        'AI tutor sessions',
-        'Personalized study path',
-        'Advanced analytics',
-        'Group study tools'
+        'Custom Card Creation',
+        'Surrounding Influence',
+        'Mood-Based Study Plan'
       ]
     },
     {
       id: 'premium-monthly',
       type: 'premium',
-      name: 'Premium',
-      price: 299,
+      name: 'Pro Plan (Monthly)',
+      price: 999,
       currency: 'INR',
       interval: 'month',
-      description: 'Advanced preparation tools',
+      description: 'Complete AI-powered learning companion',
       features: [
-        'Advanced study plans',
-        'Unlimited flashcards',
-        'Unlimited practice questions',
-        'AI tutor access',
-        'Detailed analytics',
-        'Personalized recommendations',
-        'Advanced progress tracking'
+        'Unlimited Concept Cards (via Study Plan)',
+        'Unlimited Flashcards',
+        'Unlimited Practice Exams',
+        'Custom Cards (via credits)',
+        '2 Academic Advisor plans/month',
+        'Full + Mood-Based Study Plan',
+        'Unlimited AI Tutor (Fair Use)',
+        'Surrounding Influence',
+        'Feel Good Corner'
       ],
       notIncluded: [
-        '1-on-1 coaching',
-        'Exam strategy sessions'
+        'Study Groups'
       ]
     },
     {
       id: 'pro-annual',
       type: 'pro',
-      name: 'Pro',
-      price: 2499,
+      name: 'Pro Plan (Annual)',
+      price: 9999,
       currency: 'INR',
       interval: 'year',
-      description: 'Complete exam success package',
+      description: 'All Pro features with annual savings',
       features: [
-        'Everything in Premium',
-        '1-on-1 coaching sessions',
-        'Personalized study path',
-        'Exam strategy sessions',
-        'Premium study materials',
+        'All Pro Plan Monthly features',
+        '₹2,000 savings vs. monthly plan',
         'Priority support',
-        '2 months free'
+        'Early access to new features',
+        'Unlimited Concept Cards',
+        'Unlimited Flashcards',
+        'Unlimited Practice Exams',
+        'Custom Cards (via credits)',
+        'Full + Mood-Based Study Plan',
+        'Unlimited AI Tutor (Fair Use)'
       ],
       notIncluded: []
     }
@@ -83,21 +91,43 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     {
       id: 'group-monthly',
       type: 'group',
-      name: 'Group Plan',
-      price: 999,
+      name: 'Group Plan (5 Users)',
+      price: 3999,
       currency: 'INR',
       interval: 'month',
-      description: 'For study groups (up to 5 members)',
+      description: 'For study groups & small batches',
       features: [
-        'All Premium features for 5 users',
-        'Collaborative study tools',
-        'Group analytics dashboard',
-        'Shared study materials',
-        'Group discount (33% off per user)'
+        '5 Users included (₹799/user extra)',
+        'Unlimited Concept Cards (via Study Plan)',
+        'Unlimited Flashcards',
+        'Unlimited Practice Exams',
+        'Custom Cards (shared credit pool)',
+        '4 Academic Advisor plans/month shared',
+        'Study Groups',
+        'Admin Dashboard',
+        'Batch Manager'
       ],
-      notIncluded: [
-        '1-on-1 coaching'
-      ]
+      notIncluded: []
+    },
+    {
+      id: 'group-annual',
+      type: 'group_annual',
+      name: 'Group Plan (Annual)',
+      price: 39999,
+      currency: 'INR',
+      interval: 'year',
+      description: 'Best value for study groups',
+      features: [
+        'All Group Plan Monthly features',
+        '₹8,000 savings vs. monthly plan',
+        'Priority group support',
+        'Enhanced analytics',
+        'Customized onboarding session',
+        '5 Users included (₹799/user extra)',
+        'Batch Manager',
+        'Admin Dashboard'
+      ],
+      notIncluded: []
     }
   ];
 
@@ -142,7 +172,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                       </li>
                     ))}
                     
-                    {plan.notIncluded.map((feature, i) => (
+                    {plan.notIncluded && plan.notIncluded.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-gray-400">
                         <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
                         <span className="text-sm">{feature}</span>
