@@ -1,3 +1,4 @@
+
 import { MoodType } from '@/types/user/base';
 
 export interface VoiceSettings {
@@ -40,8 +41,12 @@ export const speakMessage = (
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
+    // Format message for better pronunciation of PREPZR
+    const formattedMessage = message.replace(/PREP-ZR/g, "PREP EEZER")
+                                    .replace(/PREPZR/g, "PREP EEZER");
+    
     // Create a new utterance
-    const utterance = new SpeechSynthesisUtterance(message);
+    const utterance = new SpeechSynthesisUtterance(formattedMessage);
     
     // Apply settings
     utterance.volume = mergedSettings.volume;
@@ -78,7 +83,7 @@ export const speakMessage = (
     
     // Set up events
     utterance.onstart = () => {
-      console.log('Speaking started:', message);
+      console.log('Speaking started:', formattedMessage);
       document.dispatchEvent(new CustomEvent('voice-speaking-started', { 
         detail: { message } 
       }));

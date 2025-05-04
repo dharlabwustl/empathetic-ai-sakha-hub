@@ -27,16 +27,16 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   
-  // Welcome messages sequence - optimized for clear PREPZR pronunciation and conversion
+  // Welcome messages sequence - optimized for clear PREPZR pronunciation
   const welcomeMessages = [
-    "Welcome to PREP-ZR. I'm your AI study assistant from India.",
-    "PREP-ZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Welcome to PREP-EEZER. I'm your AI study assistant from India.",
+    "PREP-EEZER is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
     "Our personalized study plans adapt to your learning style and pace, making exam preparation more effective.",
     "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
     "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
     "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized tutoring.",
     "We've helped thousands of students achieve their dream scores. Let us help you too!",
-    "Click 'Get Started' to begin your journey with PREP-ZR today!"
+    "Click 'Get Started' to begin your journey with PREP-EEZER today!"
   ];
 
   // Check if first visit
@@ -65,7 +65,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       utteranceRef.current.volume = 1.0;
       
       // Select an Indian female voice if possible
-      window.speechSynthesis.onvoiceschanged = () => {
+      const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         
         // Try to find an Indian English female voice
@@ -87,6 +87,12 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
           console.log('Using female voice:', femaleVoice.name);
         }
       };
+
+      // Load voices immediately if already available
+      loadVoices();
+      
+      // Also set up the event listener for voice changes
+      window.speechSynthesis.onvoiceschanged = loadVoices;
       
       // Auto-play after delay if enabled
       if (autoPlay && isVisible) {
@@ -112,11 +118,14 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
-    if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREP-ZR. Ready to continue your study journey?";
+    if (isLoggedIn) {
+      const customMessages = [...welcomeMessages];
+      customMessages[0] = "Welcome back to PREP-EEZER. Ready to continue your study journey?";
       // Trim the welcome messages for returning users
-      welcomeMessages.splice(3);
-      welcomeMessages.push("Let's pick up where you left off with your exam preparation!");
+      while (customMessages.length > 4) {
+        customMessages.pop();
+      }
+      customMessages.push("Let's pick up where you left off with your exam preparation!");
     }
   }, []);
   
@@ -125,8 +134,9 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
       // Format message for better pronunciation, especially for "PREPZR"
-      const formattedMessage = message.replace(/PREP-ZR/g, "PREP ZEE ARR")
-                                       .replace(/PREPZR/g, "PREP ZEE ARR");
+      const formattedMessage = message.replace(/PREP-ZR/g, "PREP EEZER")
+                                      .replace(/PREPZR/g, "PREP EEZER")
+                                      .replace(/PREP-EEZER/g, "PREP EEZER");
       
       utteranceRef.current.text = formattedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -200,6 +210,11 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     setIsMinimized(true);
   };
   
+  // Toggle subtitles
+  const toggleSubtitles = () => {
+    setShowSubtitles(!showSubtitles);
+  };
+  
   // Check if should be shown
   useEffect(() => {
     if (sessionStorage.getItem('hidePrepzrAnnouncer') === 'true') {
@@ -245,7 +260,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
 
       {hasStarted && showSubtitles && (
         <motion.div
-          className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -254,16 +269,28 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
           <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Info className="h-5 w-5 text-white" />
-              <h3 className="text-white text-sm font-medium">PREP-ZR Guide</h3>
+              <h3 className="text-white text-sm font-medium">PREP-EEZER Guide</h3>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 text-white hover:bg-white/20"
-              onClick={dismissComponent}
-            >
-              <VolumeX className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 text-white hover:bg-white/20"
+                onClick={toggleSubtitles}
+                title="Hide subtitles"
+              >
+                <Subtitles className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 text-white hover:bg-white/20"
+                onClick={dismissComponent}
+                title="Close guide"
+              >
+                <VolumeX className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           <div className="p-4">
