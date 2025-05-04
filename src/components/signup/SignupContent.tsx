@@ -100,12 +100,8 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Go to welcome flow, set flags for welcome tour and voice assistant
+      // Go to welcome flow
       setTimeout(() => {
-        localStorage.setItem('sawWelcomeSlider', 'true'); // Mark welcome slider as seen
-        localStorage.setItem('new_user_signup', 'true');  // Mark as new user for proper onboarding
-        localStorage.setItem('show_founder_welcome', 'true'); // Show founder welcome first
-        localStorage.setItem('show_voice_welcome', 'true'); // Show voice assistant welcome after
         navigate("/welcome-flow?completedOnboarding=true&new=true");
       }, 1000);
     } catch (error) {

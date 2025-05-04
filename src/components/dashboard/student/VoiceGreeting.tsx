@@ -1,22 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
   userName?: string;
   language?: 'en' | 'hi';
-  onComplete?: () => void;
-  showUI?: boolean;
 }
 
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
   isFirstTimeUser, 
   userName = 'Student',
-  language = 'en',
-  onComplete,
-  showUI = false
+  language = 'en'
 }) => {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
@@ -27,7 +22,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
     
     // Only play for first time users who haven't heard the greeting yet
-    if ((isFirstTimeUser || showUI) && !hasPlayed && !audioPlayed && !audioMuted) {
+    if (isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) {
       const playGreeting = async () => {
         try {
           // Use a timeout to ensure the component is fully mounted
@@ -54,21 +49,11 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
               setAudioPlaying(false);
               setAudioPlayed(true);
               sessionStorage.setItem('voiceGreetingPlayed', 'true');
-              
-              // Call onComplete if provided
-              if (onComplete) {
-                setTimeout(onComplete, 1000); // Small delay after voice finishes
-              }
             };
             speech.onerror = () => {
               console.error("Speech synthesis error");
               setAudioPlaying(false);
               setAudioPlayed(true);
-              
-              // Call onComplete if provided
-              if (onComplete) {
-                setTimeout(onComplete, 1000);
-              }
             };
             
             // Play the speech
@@ -77,17 +62,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         } catch (error) {
           console.error("Error playing greeting:", error);
           setAudioPlayed(true);
-          
-          // Call onComplete if provided
-          if (onComplete) {
-            setTimeout(onComplete, 1000);
-          }
         }
       };
       
       playGreeting();
     }
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, onComplete, showUI]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted]);
   
   const handleToggleMute = () => {
     setAudioMuted(!audioMuted);
@@ -98,53 +78,27 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       setAudioPlaying(false);
       setAudioPlayed(true);
       sessionStorage.setItem('voiceGreetingPlayed', 'true');
-      
-      // Call onComplete if provided
-      if (onComplete) {
-        setTimeout(onComplete, 500);
-      }
     }
   };
   
-  // Don't render anything if already played or not a first-time user, unless showUI is true
-  if ((!isFirstTimeUser && !showUI) || (audioPlayed && !showUI)) return null;
+  // Don't render anything if already played or not a first-time user
+  if (!isFirstTimeUser || audioPlayed) return null;
   
   return (
-    <TooltipProvider>
-      <div className={showUI ? "flex flex-col items-center" : ""}>
-        {showUI && (
-          <div className="w-32 h-32 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-8">
-            {audioPlaying ? (
-              <Volume2 className="h-16 w-16 text-primary animate-pulse" />
-            ) : (
-              <Volume className="h-16 w-16 text-primary" />
-            )}
-          </div>
-        )}
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div 
-              className={`${showUI ? "p-4" : "fixed bottom-20 right-5 z-50 p-3"} rounded-full shadow-md
-                ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
-                cursor-pointer transition-all duration-300 hover:scale-105`}
-              onClick={handleToggleMute}
-            >
-              {audioMuted ? (
-                <VolumeX className={`${showUI ? "h-10 w-10" : "h-6 w-6"}`} />
-              ) : audioPlaying ? (
-                <Volume2 className={`${showUI ? "h-10 w-10" : "h-6 w-6"} animate-pulse`} />
-              ) : (
-                <Volume className={`${showUI ? "h-10 w-10" : "h-6 w-6"}`} />
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p>{audioMuted ? "Unmute voice assistant" : "Mute voice assistant"}</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    </TooltipProvider>
+    <div 
+      className={`fixed bottom-20 right-5 z-50 p-3 rounded-full shadow-md
+        ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
+        cursor-pointer transition-all duration-300 hover:scale-105`}
+      onClick={handleToggleMute}
+    >
+      {audioMuted ? (
+        <VolumeX className="h-6 w-6" />
+      ) : audioPlaying ? (
+        <Volume2 className="h-6 w-6 animate-pulse" />
+      ) : (
+        <Volume className="h-6 w-6" />
+      )}
+    </div>
   );
 };
 
