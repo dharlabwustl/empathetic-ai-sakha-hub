@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { PlusCircle } from 'lucide-react';
 import { StudyPlan } from '@/types/user/studyPlan';
-import StudyPlanCard from './StudyPlanCard';
+import StudyPlanCard from '../StudyPlanCard';
 
 interface StudyPlanSectionsProps {
   activePlans: StudyPlan[];
@@ -17,58 +16,66 @@ const StudyPlanSections: React.FC<StudyPlanSectionsProps> = ({
   activePlans,
   completedPlans,
   onCreatePlan,
-  onViewPlanDetails
+  onViewPlanDetails,
 }) => {
   return (
-    <>
+    <div className="space-y-8">
       {/* Active Plans Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Active Study Plans</h2>
-          <Button onClick={onCreatePlan} size="sm" className="gap-1">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-medium">Active Study Plans</h2>
+          <Button 
+            onClick={onCreatePlan}
+            className="flex gap-1 items-center"
+          >
             <PlusCircle className="h-4 w-4 mr-1" />
-            Create Plan
+            Create New Plan
           </Button>
         </div>
-
-        {activePlans.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activePlans.map((plan) => (
-              <StudyPlanCard
-                key={plan.id}
-                plan={plan}
-                onViewDetails={onViewPlanDetails}
-              />
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
+        
+        <div className="grid grid-cols-1 gap-4">
+          {activePlans.length === 0 ? (
+            <div className="border rounded-lg p-6 text-center bg-gray-50 dark:bg-gray-800/40">
               <p className="text-muted-foreground mb-4">
-                You don't have any active study plans yet.
+                You don't have any active study plans yet. Create a plan to get started with your exam preparation.
               </p>
-              <Button onClick={onCreatePlan}>Create Your First Study Plan</Button>
-            </CardContent>
-          </Card>
-        )}
+              <Button onClick={onCreatePlan} className="flex mx-auto gap-1 items-center">
+                <PlusCircle className="h-4 w-4 mr-1" />
+                Create Study Plan
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activePlans.map((plan) => (
+                <StudyPlanCard 
+                  key={plan.id}
+                  plan={plan}
+                  onClick={onViewPlanDetails}
+                  isActive={true}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Completed Plans Section */}
+      
+      {/* Completed/Archived Plans Section */}
       {completedPlans.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-xl font-semibold mb-4">Completed Study Plans</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
+          <h2 className="text-xl font-medium">Past Study Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {completedPlans.map((plan) => (
-              <StudyPlanCard
+              <StudyPlanCard 
                 key={plan.id}
                 plan={plan}
-                onViewDetails={onViewPlanDetails}
+                onClick={onViewPlanDetails}
+                isActive={false}
               />
             ))}
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

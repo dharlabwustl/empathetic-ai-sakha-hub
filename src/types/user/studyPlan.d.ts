@@ -2,7 +2,7 @@
 export interface StudyPlanTopic {
   id: string;
   name: string;
-  status: 'pending' | 'in-progress' | 'completed';
+  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
   priority: 'high' | 'medium' | 'low';
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
@@ -27,14 +27,14 @@ export interface StudyPlan {
   userId?: string;
   goal?: string;
   examGoal: string;
-  examDate: string | Date;
+  examDate: string;
   status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   learningPace: 'slow' | 'moderate' | 'fast';
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay: number;
   weeklyHours: number;
-  progressPercentage?: number; // Using progressPercentage consistently
+  progressPercentage?: number;
   progressPercent?: number; // Keep for backward compatibility
   daysLeft?: number;
   createdAt: string;

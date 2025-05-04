@@ -9,9 +9,10 @@ import { StudyPlan } from '@/types/user/studyPlan';
 
 interface ActivePlansListProps {
   plans: StudyPlan[];
+  onViewPlanDetails?: (planId: string) => void;
 }
 
-const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans }) => {
+const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans, onViewPlanDetails }) => {
   if (!plans || plans.length === 0) {
     return (
       <Card>
@@ -23,6 +24,10 @@ const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans }) => {
       </Card>
     );
   }
+  
+  const handleViewDetails = (planId: string) => {
+    if (onViewPlanDetails) onViewPlanDetails(planId);
+  };
   
   return (
     <>
@@ -46,15 +51,15 @@ const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans }) => {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center text-sm">
                     <span>Progress</span>
-                    <span className="font-medium">{plan.progressPercentage}%</span>
+                    <span className="font-medium">{plan.progressPercentage || plan.progressPercent || 0}%</span>
                   </div>
-                  <Progress value={plan.progressPercentage} className="h-2" />
+                  <Progress value={plan.progressPercentage || plan.progressPercent || 0} className="h-2" />
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
                   <div className="flex items-center text-sm">
                     <CalendarDays className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{plan.daysLeft} days left</span>
+                    <span>{plan.daysLeft || 0} days left</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
@@ -75,7 +80,11 @@ const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans }) => {
                   </div>
                 </div>
                 
-                <Button variant="ghost" className="w-fit ml-auto">
+                <Button 
+                  variant="ghost" 
+                  className="w-fit ml-auto"
+                  onClick={() => handleViewDetails(plan.id)}
+                >
                   View Details
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>

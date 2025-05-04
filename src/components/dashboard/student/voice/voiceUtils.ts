@@ -125,7 +125,7 @@ export function speakMessage(message: string, settings: VoiceSettings, force: bo
     // Add event listeners for speaking status
     utterance.onstart = () => {
       console.log('Speaking started:', message);
-      document.dispatchEvent(new CustomEvent('voice-speaking-started'));
+      document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
     };
     
     utterance.onend = () => {
@@ -188,6 +188,40 @@ export function getGreeting(userName?: string, mood?: string, isFirstTimeUser?: 
   }
   
   return greeting;
+}
+
+// Add the missing getReminderAnnouncement function
+export function getReminderAnnouncement(
+  pendingTasks: Array<{title: string, due?: string}> = [], 
+  examGoal?: string
+): string {
+  if (!pendingTasks || pendingTasks.length === 0) {
+    return '';
+  }
+
+  let announcement = '';
+  
+  if (pendingTasks.length === 1) {
+    const task = pendingTasks[0];
+    announcement = `You have one pending task: ${task.title}`;
+    if (task.due) {
+      announcement += ` due on ${task.due}`;
+    }
+    announcement += '.';
+  } else {
+    announcement = `You have ${pendingTasks.length} pending tasks. `;
+    announcement += `The most urgent is "${pendingTasks[0].title}"`;
+    if (pendingTasks[0].due) {
+      announcement += ` due on ${pendingTasks[0].due}`;
+    }
+    announcement += '.';
+  }
+  
+  if (examGoal) {
+    announcement += ` Remember, you're preparing for ${examGoal}. Stay focused!`;
+  }
+  
+  return announcement;
 }
 
 // Process a user voice query and provide a response

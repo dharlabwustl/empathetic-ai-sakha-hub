@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarClock, ChevronRight } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { StudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
 import { Progress } from '@/components/ui/progress';
 
@@ -20,7 +20,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
 }) => {
   const formatDate = (dateString: string) => {
     try {
-      return format(parseISO(dateString), 'MMM d, yyyy');
+      return format(new Date(dateString), 'MMM d, yyyy');
     } catch {
       return dateString;
     }
@@ -72,7 +72,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
             <div className="flex items-center text-sm text-muted-foreground">
               <CalendarClock className="mr-1 h-3.5 w-3.5" />
               <span>
-                {formatDate(plan.examDate)} 
+                {formatDate(plan.examDate.toString())} 
                 {plan.daysLeft && plan.daysLeft > 0 ? ` • ${plan.daysLeft} days left` : ''}
               </span>
             </div>
@@ -80,7 +80,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
           
           <div className="text-right">
             <div className="text-sm font-semibold">
-              {plan.progressPercentage || 0}% Complete
+              {plan.progressPercentage || plan.progressPercent || 0}% Complete
             </div>
             <div 
               className={`text-xs ${

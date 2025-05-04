@@ -38,7 +38,7 @@ const StudyPlanDetail: React.FC<StudyPlanDetailProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-indigo-600" />
-            {plan.goal} Study Plan
+            {plan.goal || plan.examGoal} Study Plan
           </DialogTitle>
           <DialogDescription>
             {plan.status === 'active' 
@@ -55,7 +55,7 @@ const StudyPlanDetail: React.FC<StudyPlanDetailProps> = ({
                 <h3 className="font-medium">Exam Date</h3>
               </div>
               <p className="pl-6 text-blue-600 dark:text-blue-300">
-                {plan.examDate ? formatDate(plan.examDate) : 'Not specified'}
+                {plan.examDate ? formatDate(plan.examDate.toString()) : 'Not specified'}
               </p>
             </div>
             
@@ -144,12 +144,12 @@ const StudyPlanDetail: React.FC<StudyPlanDetailProps> = ({
           <div className="mt-2">
             <div className="flex justify-between text-sm mb-1">
               <span>Overall Progress</span>
-              <span>{plan.progressPercentage}%</span>
+              <span>{plan.progressPercentage || plan.progressPercent || 0}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
               <div
                 className="bg-blue-600 h-2.5 rounded-full dark:bg-blue-500"
-                style={{ width: `${plan.progressPercentage}%` }}
+                style={{ width: `${plan.progressPercentage || plan.progressPercent || 0}%` }}
               ></div>
             </div>
           </div>

@@ -9,9 +9,10 @@ import { StudyPlan } from '@/types/user/studyPlan';
 
 interface CompletedPlansListProps {
   plans: StudyPlan[];
+  onViewPlanDetails?: (planId: string) => void;
 }
 
-const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans }) => {
+const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans, onViewPlanDetails }) => {
   if (!plans || plans.length === 0) {
     return (
       <Card>
@@ -23,6 +24,10 @@ const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans }) => {
       </Card>
     );
   }
+  
+  const handleViewDetails = (planId: string) => {
+    if (onViewPlanDetails) onViewPlanDetails(planId);
+  };
   
   return (
     <>
@@ -46,9 +51,9 @@ const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans }) => {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center text-sm">
                     <span>Final Progress</span>
-                    <span className="font-medium">{plan.progressPercentage}%</span>
+                    <span className="font-medium">{plan.progressPercentage || plan.progressPercent || 0}%</span>
                   </div>
-                  <Progress value={plan.progressPercentage} className="h-2" />
+                  <Progress value={plan.progressPercentage || plan.progressPercent || 0} className="h-2" />
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
@@ -75,7 +80,11 @@ const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans }) => {
                   </div>
                 </div>
                 
-                <Button variant="ghost" className="w-fit ml-auto">
+                <Button 
+                  variant="ghost" 
+                  className="w-fit ml-auto"
+                  onClick={() => handleViewDetails(plan.id)}
+                >
                   View Archive
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
