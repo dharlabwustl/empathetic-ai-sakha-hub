@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -25,7 +24,6 @@ const Index = () => {
   
   // Check if user is logged in to decide whether to show HomepageVoiceAnnouncer
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isReturningVisitor, setIsReturningVisitor] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -49,18 +47,10 @@ const Index = () => {
     setShowVoiceAssistant(false);
   };
 
-  // Check login and visitor status
+  // Check login status
   useEffect(() => {
-    // Check login status
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(loggedIn);
-    
-    // Check if returning visitor
-    const visitCount = parseInt(localStorage.getItem('visitCount') || '0', 10);
-    setIsReturningVisitor(visitCount > 1);
-    
-    // Update visit count
-    localStorage.setItem('visitCount', String(visitCount + 1));
   }, []);
 
   // Listen for events
@@ -133,11 +123,8 @@ const Index = () => {
         onClose={handleCloseVoiceAssistant} 
       />
       
-      {/* HomepageVoiceAnnouncer with different settings based on user status */}
-      {<HomepageVoiceAnnouncer 
-        autoPlay={!isLoggedIn && !isReturningVisitor} // Only autoplay for first-time visitors who are not logged in
-        delayStart={5000} // 5 seconds delay to not interrupt initial user experience
-      />}
+      {/* Add HomepageVoiceAnnouncer for visitors - adjusting delay to be less irritating */}
+      {<HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={5000} />}
     </div>
   );
 };
