@@ -1,11 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserProfileType } from "@/types/user";
 import ProfileImageUpload from "./ProfileImageUpload";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import VoiceSettingsTab from "./VoiceSettingsTab";
 
 interface ProfileDetailsProps {
@@ -18,6 +18,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   onUpdateProfile,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const tabFromQuery = queryParams.get("tab");
   
@@ -33,8 +34,15 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
     // Update URL with the new tab without reloading the page
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set("tab", value);
-    window.history.pushState({}, "", newUrl.toString());
+    navigate(`${location.pathname}?tab=${value}`, { replace: true });
   };
+
+  // Update active tab when query param changes
+  useEffect(() => {
+    if (tabFromQuery && tabFromQuery !== activeTab) {
+      setActiveTab(tabFromQuery);
+    }
+  }, [tabFromQuery]);
 
   return (
     <div className="space-y-6">

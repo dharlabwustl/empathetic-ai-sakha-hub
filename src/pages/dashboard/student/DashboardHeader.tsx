@@ -5,6 +5,12 @@ import { Card } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
 import { Bell, Calendar } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -56,35 +62,64 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex flex-wrap items-center gap-3">
         {/* Mood button */}
         {onMoodChange && (
-          <MoodLogButton
-            currentMood={currentMood}
-            onMoodChange={handleMoodChange}
-          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <MoodLogButton
+                    currentMood={currentMood}
+                    onMoodChange={handleMoodChange}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>Log how you're feeling today</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         
         {/* View study plan button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onViewStudyPlan}
-          className="gap-1"
-        >
-          <Calendar className="h-4 w-4" />
-          <span className="hidden sm:inline">Study Plan</span>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your personalized study plan</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         {/* Notifications button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="relative"
-          asChild
-        >
-          <a href="/dashboard/student/notifications">
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-          </a>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ interface VoiceAnnouncerProps {
   isFirstTimeUser?: boolean;
   pendingTasks?: Array<{title: string, due?: string}>;
   showTooltip?: boolean;
+  examGoal?: string;
 }
 
 const VoiceAnnouncer = ({
@@ -29,7 +30,8 @@ const VoiceAnnouncer = ({
   mood,
   isFirstTimeUser = false,
   pendingTasks = [],
-  showTooltip = true
+  showTooltip = true,
+  examGoal
 }: VoiceAnnouncerProps) => {
   const {
     isListening,
@@ -45,22 +47,30 @@ const VoiceAnnouncer = ({
     userName,
     mood,
     isFirstTimeUser,
-    pendingTasks
+    pendingTasks,
+    examGoal
   });
   
   const [showSubtitle, setShowSubtitle] = useState(false);
   const [subtitleText, setSubtitleText] = useState('');
   const [hasGreeted, setHasGreeted] = useState(false);
   
-  // Initial greeting when component mounts
+  // Improved visual animation style
+  const pulseAnimation = `${(isListening || isSpeaking) ? 'animate-pulse' : ''} ${voiceSettings.enabled ? 'bg-indigo-200/50 dark:bg-indigo-700/30' : ''}`;
+  const iconColor = voiceSettings.enabled 
+    ? (isListening ? "text-indigo-600 dark:text-indigo-400 animate-pulse" : "text-gray-700 dark:text-gray-300")
+    : "text-gray-500 dark:text-gray-400";
+  
+  // Initial greeting when component mounts - enhanced with delay for better UX
   useEffect(() => {
     // Wait for a short delay before greeting to ensure dashboard is loaded
     const timer = setTimeout(() => {
-      if (!hasGreeted && !isFirstTimeUser) {
+      if (!hasGreeted) {
+        console.log("Attempting to speak greeting...");
         speakGreeting();
         setHasGreeted(true);
       }
-    }, 2000);
+    }, isFirstTimeUser ? 5000 : 2000); // Longer delay for first-time users
     
     return () => clearTimeout(timer);
   }, [speakGreeting, isFirstTimeUser, hasGreeted]);
@@ -68,11 +78,13 @@ const VoiceAnnouncer = ({
   // Handle speech events for subtitles
   useEffect(() => {
     const handleSpeakingStarted = (e: CustomEvent) => {
+      console.log("Speech started event received:", e.detail.message);
       setShowSubtitle(true);
       setSubtitleText(e.detail.message);
     };
     
     const handleSpeakingEnded = () => {
+      console.log("Speech ended event received");
       setShowSubtitle(false);
       setSubtitleText('');
     };
@@ -90,15 +102,16 @@ const VoiceAnnouncer = ({
   useEffect(() => {
     if (hasGreeted && pendingTasks.length > 0) {
       const timer = setTimeout(() => {
-        const reminderText = getReminderAnnouncement(pendingTasks);
+        const reminderText = getReminderAnnouncement(pendingTasks, examGoal);
         if (reminderText) {
+          console.log("Speaking reminder:", reminderText);
           speak(reminderText);
         }
       }, 5000); // Wait 5 seconds after greeting
       
       return () => clearTimeout(timer);
     }
-  }, [hasGreeted, pendingTasks, speak]);
+  }, [hasGreeted, pendingTasks, speak, examGoal]);
   
   // Event handlers
   const handleToggleListening = () => {
@@ -119,6 +132,37 @@ const VoiceAnnouncer = ({
       return () => clearTimeout(timer);
     }
   }, [isFirstTimeUser, hasGreeted, speak]);
+  
+  // Mood-based study suggestion
+  useEffect(() => {
+    if (hasGreeted && mood && !isFirstTimeUser) {
+      const timer = setTimeout(() => {
+        let suggestion = "";
+        
+        switch(mood.toLowerCase()) {
+          case 'tired':
+            suggestion = "Since you're feeling tired, why not try a quick 5-minute flashcard session to keep your momentum?";
+            break;
+          case 'anxious':
+            suggestion = "Feeling anxious about your exam? Let's focus on reviewing topics you're already comfortable with to build confidence.";
+            break;
+          case 'focused':
+            suggestion = "You're focused today! Perfect time to tackle those challenging topics in your study plan.";
+            break;
+          case 'motivated':
+            suggestion = "With your motivation today, I recommend taking a practice test to gauge your progress.";
+            break;
+        }
+        
+        if (suggestion) {
+          console.log("Speaking mood-based suggestion:", suggestion);
+          speak(suggestion);
+        }
+      }, 20000); // 20 seconds after greeting
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasGreeted, mood, isFirstTimeUser, speak]);
 
   return (
     <>
@@ -131,20 +175,21 @@ const VoiceAnnouncer = ({
               onClick={handleToggleListening}
               className={`relative ${isListening || isSpeaking ? 'bg-indigo-100 dark:bg-indigo-900/30' : ''}`}
             >
-              <div className={`absolute inset-0 rounded-full ${
-                (isListening || isSpeaking) ? 'animate-pulse bg-indigo-200/50 dark:bg-indigo-700/30' : ''
-              }`} />
+              {/* Enhanced pulsing effect */}
+              <div className={`absolute inset-0 rounded-full ${pulseAnimation}`} />
               
+              {/* Enhanced icon with better visibility */}
               {voiceSettings.enabled ? (
                 isListening ? (
-                  <Mic className="h-[1.2rem] w-[1.2rem] text-indigo-600 dark:text-indigo-400 animate-pulse" />
+                  <Mic className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
                 ) : (
-                  <Volume2 className="h-[1.2rem] w-[1.2rem] text-gray-700 dark:text-gray-300" />
+                  <Volume2 className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
                 )
               ) : (
                 <VolumeX className="h-[1.2rem] w-[1.2rem] text-gray-500 dark:text-gray-400" />
               )}
               
+              {/* Enhanced activity indicator */}
               {(isListening || isSpeaking) && (
                 <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -154,24 +199,26 @@ const VoiceAnnouncer = ({
             </Button>
           </TooltipTrigger>
           {showTooltip && (
-            <TooltipContent side="bottom">
-              <p>Click to interact with PREPZR, your study assistant!</p>
+            <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 p-2 shadow-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-sm">Click to interact with PREPZR, your study assistant!</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Ask about your study plan or start a practice test</p>
             </TooltipContent>
           )}
         </Tooltip>
       </TooltipProvider>
       
-      {/* Subtitle/Transcript display */}
+      {/* Subtitle/Transcript display with improved styling */}
       {showSubtitle && subtitleText && (
-        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg max-w-md text-center z-50 animate-fade-in">
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg max-w-md text-center z-50 animate-fade-in shadow-lg">
           {subtitleText}
         </div>
       )}
       
-      {/* Transcript display when listening */}
+      {/* Transcript display when listening - improved styling */}
       {isListening && transcript && (
-        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-indigo-600/90 text-white px-4 py-2 rounded-lg max-w-md text-center z-50">
-          "{transcript}"
+        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-indigo-600/90 text-white px-4 py-2 rounded-lg max-w-md text-center z-50 shadow-lg border border-indigo-500/50">
+          <div className="text-sm font-medium mb-1">I heard you say:</div>
+          <div className="italic">"{transcript}"</div>
         </div>
       )}
     </>

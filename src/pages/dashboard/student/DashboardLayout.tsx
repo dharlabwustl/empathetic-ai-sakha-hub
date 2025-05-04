@@ -151,6 +151,7 @@ const DashboardLayout = ({
         userName={userProfile.name} 
         onTabChange={onTabChange}
         activeTab={activeTab}
+        hideSettings={true} // Hide settings from sidebar
       />
       
       <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
@@ -160,6 +161,10 @@ const DashboardLayout = ({
           formattedDate={formattedDate}
           formattedTime={formattedTime}
           onOpenTour={handleOpenTour}
+          userName={userProfile.name}
+          mood={currentMood}
+          isFirstTimeUser={isFirstTimeUser}
+          onViewStudyPlan={onViewStudyPlan}
         />
 
         {/* Subscription Banner - Add at the top of dashboard */}

@@ -1,4 +1,3 @@
-
 // Voice utility functions for PREPZR voice announcer
 
 export type VoiceSettings = {
@@ -21,42 +20,85 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
 let lastSpokenMessage = '';
 let lastSpokenTimestamp = 0;
 
-// Initialize speech synthesis
+// Initialize speech synthesis with robust error handling
 export const initSpeechSynthesis = (): boolean => {
   if (typeof window === 'undefined') return false;
-  return 'speechSynthesis' in window;
+  
+  const isSupported = 'speechSynthesis' in window;
+  
+  if (isSupported) {
+    // Try to load voices immediately and also set up the onvoiceschanged event
+    // This helps in browsers that don't load voices immediately
+    if (window.speechSynthesis.getVoices().length === 0) {
+      console.log("No voices available immediately, waiting for onvoiceschanged event");
+      window.speechSynthesis.onvoiceschanged = () => {
+        console.log("Voices now available:", window.speechSynthesis.getVoices().length);
+      };
+    } else {
+      console.log("Voices available immediately:", window.speechSynthesis.getVoices().length);
+    }
+  } else {
+    console.error("Speech synthesis not supported in this browser");
+  }
+  
+  return isSupported;
 };
 
-// Select the appropriate voice based on language preference
+// Select the appropriate voice based on language preference with detailed logging
 export const selectVoice = (language: string): SpeechSynthesisVoice | null => {
-  if (!initSpeechSynthesis()) return null;
+  if (!initSpeechSynthesis()) {
+    console.error("Speech synthesis not initialized");
+    return null;
+  }
+  
+  // Force the browser to update the voices list if empty
+  if (window.speechSynthesis.getVoices().length === 0) {
+    console.log("No voices available, trying to trigger voices loaded");
+    window.speechSynthesis.onvoiceschanged = () => {
+      console.log("Voices loaded after trigger:", window.speechSynthesis.getVoices().length);
+    };
+  }
   
   const voices = window.speechSynthesis.getVoices();
   console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
   
-  // Try to find an Indian female voice first
+  if (voices.length === 0) {
+    console.error("No voices available from speech synthesis");
+    return null;
+  }
+  
+  // Try to find an Indian female voice first with detailed logging
   let voice = voices.find(v => 
     v.lang.startsWith(language) && 
     v.name.toLowerCase().includes('female') &&
     (v.name.toLowerCase().includes('india') || v.name.toLowerCase().includes('indian'))
   );
   
-  // If no specific Indian female voice, try any female voice for that language
-  if (!voice) {
+  if (voice) {
+    console.log("Found Indian female voice:", voice.name, voice.lang);
+  } else {
+    // If no specific Indian female voice, try any female voice for that language
     voice = voices.find(v => 
       v.lang.startsWith(language) && 
       v.name.toLowerCase().includes('female')
     );
-  }
-  
-  // As fallback, use any voice for that language
-  if (!voice) {
-    voice = voices.find(v => v.lang.startsWith(language));
-  }
-  
-  // Last resort - just use the first voice available
-  if (!voice && voices.length > 0) {
-    voice = voices[0];
+    
+    if (voice) {
+      console.log("Found female voice (non-Indian specific):", voice.name, voice.lang);
+    } else {
+      // As fallback, use any voice for that language
+      voice = voices.find(v => v.lang.startsWith(language));
+      
+      if (voice) {
+        console.log("Found language-specific voice (not necessarily female):", voice.name, voice.lang);
+      } else {
+        // Last resort - just use the first voice available
+        if (voices.length > 0) {
+          voice = voices[0];
+          console.log("Using first available voice as fallback:", voice.name, voice.lang);
+        }
+      }
+    }
   }
   
   return voice;
@@ -67,16 +109,34 @@ export const formatPrepzrName = (text: string): string => {
   return text.replace(/PREPZR/g, 'prep-eez-er');
 };
 
-// Speak a message with the given settings
+// Speak a message with the given settings and robust error handling
 export const speakMessage = (
   message: string, 
   settings: VoiceSettings = DEFAULT_VOICE_SETTINGS,
   forceSpeak: boolean = false
 ): void => {
-  if (!initSpeechSynthesis() || !settings.enabled) return;
+  if (!message || message.trim() === '') {
+    console.log("Empty message, not speaking");
+    return;
+  }
+  
+  if (!initSpeechSynthesis()) {
+    console.error("Speech synthesis not available, cannot speak message");
+    return;
+  }
+  
+  if (!settings.enabled && !forceSpeak) {
+    console.log("Voice is disabled, not speaking:", message);
+    return;
+  }
   
   // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
+  try {
+    window.speechSynthesis.cancel();
+    console.log("Cancelled any ongoing speech");
+  } catch (error) {
+    console.error("Error cancelling ongoing speech:", error);
+  }
   
   // Don't repeat the same message within 30 seconds unless forced
   const now = Date.now();
@@ -93,6 +153,8 @@ export const speakMessage = (
   // Format PREPZR name for better pronunciation
   const formattedMessage = formatPrepzrName(message);
   
+  console.log("Speaking message:", formattedMessage);
+  
   // Create and configure speech utterance
   const utterance = new SpeechSynthesisUtterance(formattedMessage);
   utterance.volume = settings.volume;
@@ -103,7 +165,10 @@ export const speakMessage = (
   // Select the appropriate voice
   const voice = selectVoice(settings.language);
   if (voice) {
+    console.log("Using voice:", voice.name, voice.lang);
     utterance.voice = voice;
+  } else {
+    console.warn("No appropriate voice found, using browser default");
   }
   
   // Add event listeners for debugging
@@ -123,11 +188,20 @@ export const speakMessage = (
     console.error('Speech synthesis error:', event);
   };
   
-  // Speak the message
+  // Speak the message with error handling
   try {
     window.speechSynthesis.speak(utterance);
   } catch (error) {
     console.error('Failed to speak:', error);
+    
+    // Try one more time after a short delay
+    setTimeout(() => {
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch (secondError) {
+        console.error('Failed to speak on second attempt:', secondError);
+      }
+    }, 500);
   }
 };
 
@@ -184,15 +258,18 @@ export const getGreeting = (
 
 // Generate notifications for pending tasks
 export const getReminderAnnouncement = (
-  pendingTasks: Array<{title: string, due?: string}> = []
+  pendingTasks: Array<{title: string, due?: string}> = [],
+  examGoal?: string
 ): string => {
   if (!pendingTasks.length) return '';
   
+  const examContext = examGoal ? ` for your ${examGoal} preparation` : '';
+  
   if (pendingTasks.length === 1) {
-    return `Don't forget, you have a pending ${pendingTasks[0].title} ${pendingTasks[0].due ? 'scheduled ' + pendingTasks[0].due : 'today'}.`;
+    return `Don't forget, you have a pending ${pendingTasks[0].title}${examContext} ${pendingTasks[0].due ? 'scheduled ' + pendingTasks[0].due : 'today'}.`;
   }
   
-  return `You have ${pendingTasks.length} pending tasks, including ${pendingTasks[0].title} and ${pendingTasks[1].title}. Check your dashboard for details.`;
+  return `You have ${pendingTasks.length} pending tasks${examContext}, including ${pendingTasks[0].title} and ${pendingTasks[1].title}. Check your dashboard for details.`;
 };
 
 // Process user voice queries

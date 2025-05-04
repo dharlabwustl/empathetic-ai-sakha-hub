@@ -17,6 +17,7 @@ export interface UseVoiceAnnouncerProps {
   pendingTasks?: Array<{title: string, due?: string}>;
   onStartTest?: () => void;
   onShowFlashcards?: () => void;
+  examGoal?: string;
 }
 
 export function useVoiceAnnouncer({
@@ -25,7 +26,8 @@ export function useVoiceAnnouncer({
   isFirstTimeUser = false,
   pendingTasks = [],
   onStartTest,
-  onShowFlashcards
+  onShowFlashcards,
+  examGoal
 }: UseVoiceAnnouncerProps = {}) {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
@@ -47,6 +49,16 @@ export function useVoiceAnnouncer({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const hasGreetedRef = useRef<boolean>(false);
   
+  // Set up speech synthesis when component mounts
+  useEffect(() => {
+    console.log("Initializing speech synthesis");
+    const isSupported = initSpeechSynthesis();
+    
+    if (!isSupported) {
+      console.error("Speech synthesis not supported in this browser");
+    }
+  }, []);
+  
   // Save settings whenever they change
   useEffect(() => {
     localStorage.setItem('prepzr-voice-settings', JSON.stringify(voiceSettings));
@@ -54,8 +66,15 @@ export function useVoiceAnnouncer({
   
   // Setup event listeners for speech synthesis status
   useEffect(() => {
-    const handleSpeakingStarted = () => setIsSpeaking(true);
-    const handleSpeakingEnded = () => setIsSpeaking(false);
+    const handleSpeakingStarted = () => {
+      console.log("Speaking started event detected");
+      setIsSpeaking(true);
+    };
+    
+    const handleSpeakingEnded = () => {
+      console.log("Speaking ended event detected");
+      setIsSpeaking(false);
+    };
     
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
     document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
@@ -66,7 +85,7 @@ export function useVoiceAnnouncer({
     };
   }, []);
   
-  // Initialize speech recognition
+  // Initialize speech recognition with error handling
   const initSpeechRecognition = useCallback(() => {
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
       console.error('Speech recognition not supported by this browser');
@@ -75,41 +94,49 @@ export function useVoiceAnnouncer({
     
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognitionAPI();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = voiceSettings.language;
-      
-      recognitionRef.current.onresult = (event) => {
-        const result = event.results[0][0].transcript;
-        setTranscript(result);
-        console.log('Speech recognized:', result);
+      try {
+        recognitionRef.current = new SpeechRecognitionAPI();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = voiceSettings.language;
         
-        // Process the query and get a response
-        const response = processUserQuery(
-          result,
-          navigate,
-          {
-            startTest: onStartTest,
-            switchLanguage: (lang) => {
-              setVoiceSettings(prev => ({ ...prev, language: lang }));
-            },
-            showFlashcards: onShowFlashcards
-          }
-        );
+        recognitionRef.current.onresult = (event) => {
+          const result = event.results[0][0].transcript;
+          setTranscript(result);
+          console.log('Speech recognized:', result);
+          
+          // Process the query and get a response
+          const response = processUserQuery(
+            result,
+            navigate,
+            {
+              startTest: onStartTest,
+              switchLanguage: (lang) => {
+                setVoiceSettings(prev => ({ ...prev, language: lang }));
+              },
+              showFlashcards: onShowFlashcards,
+              examGoal: examGoal
+            }
+          );
+          
+          // Speak the response
+          speakMessage(response, voiceSettings);
+        };
         
-        // Speak the response
-        speakMessage(response, voiceSettings);
-      };
-      
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
+        
+        console.log("Speech recognition initialized successfully");
+      } catch (error) {
+        console.error("Error initializing speech recognition:", error);
+        return false;
+      }
     }
     
     // Update the language setting if it changed
@@ -118,17 +145,22 @@ export function useVoiceAnnouncer({
     }
     
     return true;
-  }, [navigate, onShowFlashcards, onStartTest, voiceSettings]);
+  }, [navigate, onShowFlashcards, onStartTest, voiceSettings, examGoal]);
   
   // Start listening for voice input
   const startListening = useCallback(() => {
+    console.log("Starting speech recognition");
     const initialized = initSpeechRecognition();
-    if (!initialized || !recognitionRef.current) return;
+    if (!initialized || !recognitionRef.current) {
+      console.error("Failed to initialize speech recognition");
+      return;
+    }
     
     try {
       recognitionRef.current.start();
       setIsListening(true);
       setTranscript('');
+      console.log("Speech recognition started");
     } catch (e) {
       console.error('Error starting speech recognition:', e);
     }
@@ -136,11 +168,13 @@ export function useVoiceAnnouncer({
   
   // Stop listening for voice input
   const stopListening = useCallback(() => {
+    console.log("Stopping speech recognition");
     if (!recognitionRef.current) return;
     
     try {
       recognitionRef.current.stop();
       setIsListening(false);
+      console.log("Speech recognition stopped");
     } catch (e) {
       console.error('Error stopping speech recognition:', e);
     }
@@ -149,12 +183,20 @@ export function useVoiceAnnouncer({
   // Speak a greeting based on user state
   const speakGreeting = useCallback(() => {
     // Check if we've already greeted in this session
-    if (hasGreetedRef.current) return;
+    if (hasGreetedRef.current) {
+      console.log("Already greeted, skipping");
+      return;
+    }
     
     // Don't greet if voice is disabled
-    if (!voiceSettings.enabled) return;
+    if (!voiceSettings.enabled) {
+      console.log("Voice is disabled, skipping greeting");
+      return;
+    }
     
+    console.log("Generating greeting for user:", userName, "mood:", mood, "first time:", isFirstTimeUser);
     const greeting = getGreeting(userName, mood, isFirstTimeUser);
+    console.log("Speaking greeting:", greeting);
     speakMessage(greeting, voiceSettings);
     
     hasGreetedRef.current = true;
@@ -162,17 +204,26 @@ export function useVoiceAnnouncer({
   
   // Toggle voice enabled/disabled
   const toggleVoiceEnabled = useCallback(() => {
-    setVoiceSettings(prev => ({ ...prev, enabled: !prev.enabled }));
+    setVoiceSettings(prev => {
+      const newSettings = { ...prev, enabled: !prev.enabled };
+      console.log("Voice enabled toggled to:", newSettings.enabled);
+      return newSettings;
+    });
   }, []);
   
   // Update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
-    setVoiceSettings(prev => ({ ...prev, ...newSettings }));
+    setVoiceSettings(prev => {
+      const updatedSettings = { ...prev, ...newSettings };
+      console.log("Voice settings updated:", updatedSettings);
+      return updatedSettings;
+    });
   }, []);
   
   // Test the current voice settings
   const testVoice = useCallback(() => {
     const testMessage = "Hello! This is how PREPZR will sound with your current settings.";
+    console.log("Testing voice with message:", testMessage);
     speakMessage(testMessage, voiceSettings, true);
   }, [voiceSettings]);
 
