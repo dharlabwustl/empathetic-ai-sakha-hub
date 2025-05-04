@@ -17,7 +17,6 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -133,108 +132,106 @@ const DashboardLayout = ({
   ];
 
   return (
-    <TooltipProvider>
-      <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-        {/* Single Sidebar Navigation */}
-        <SidebarNav 
-          userType="student" 
-          userName={userProfile.name} 
-          onTabChange={onTabChange}
-          activeTab={activeTab}
-          hideSettings={true} // Hide settings from sidebar
+    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
+      {/* Single Sidebar Navigation */}
+      <SidebarNav 
+        userType="student" 
+        userName={userProfile.name} 
+        onTabChange={onTabChange}
+        activeTab={activeTab}
+        hideSettings={true} // Hide settings from sidebar
+      />
+      
+      <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
+        <TopNavigationControls 
+          hideSidebar={hideSidebar}
+          onToggleSidebar={onToggleSidebar}
+          formattedDate={formattedDate}
+          formattedTime={formattedTime}
+          onOpenTour={handleOpenTour}
+          userName={userProfile.name}
+          mood={currentMood}
+          isFirstTimeUser={isFirstTimeUser}
+          onViewStudyPlan={onViewStudyPlan}
+        />
+
+        {/* Subscription Banner - Add at the top of dashboard */}
+        <SubscriptionBanner 
+          planType={subscriptionDetails.planType}
+          expiryDate={subscriptionDetails.expiryDate}
+          isExpired={subscriptionDetails.isExpired}
+        />
+
+        {/* Enhanced Dashboard Header with proper profile image handling */}
+        <div className="mb-6">
+          <EnhancedDashboardHeader 
+            userProfile={userProfile}
+            formattedTime={formattedTime}
+            formattedDate={formattedDate}
+            onViewStudyPlan={onViewStudyPlan}
+            currentMood={currentMood}
+            onMoodChange={onMoodChange}
+            upcomingEvents={upcomingEvents}
+          />
+        </div>
+
+        {/* Surrounding Influences Section */}
+        <SurroundingInfluencesSection 
+          influenceMeterCollapsed={influenceMeterCollapsed}
+          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
         />
         
-        <main className={`transition-all duration-300 text-base ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-          <TopNavigationControls 
-            hideSidebar={hideSidebar}
-            onToggleSidebar={onToggleSidebar}
-            formattedDate={formattedDate}
-            formattedTime={formattedTime}
-            onOpenTour={handleOpenTour}
-            userName={userProfile.name}
-            mood={currentMood}
-            isFirstTimeUser={isFirstTimeUser}
-            onViewStudyPlan={onViewStudyPlan}
-          />
-
-          {/* Subscription Banner - Add at the top of dashboard */}
-          <SubscriptionBanner 
-            planType={subscriptionDetails.planType}
-            expiryDate={subscriptionDetails.expiryDate}
-            isExpired={subscriptionDetails.isExpired}
-          />
-
-          {/* Enhanced Dashboard Header with proper profile image handling */}
+        {isMobile && (
           <div className="mb-6">
-            <EnhancedDashboardHeader 
-              userProfile={userProfile}
-              formattedTime={formattedTime}
-              formattedDate={formattedDate}
-              onViewStudyPlan={onViewStudyPlan}
-              currentMood={currentMood}
-              onMoodChange={onMoodChange}
-              upcomingEvents={upcomingEvents}
-            />
+            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
           </div>
-
-          {/* Surrounding Influences Section */}
-          <SurroundingInfluencesSection 
-            influenceMeterCollapsed={influenceMeterCollapsed}
-            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-          />
-          
-          {isMobile && (
-            <div className="mb-6">
-              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-            </div>
-          )}
-          
-          {/* Main Content - either custom children or standard dashboard content */}
-          {children ? (
-            <div className="mt-6">{children}</div>
-          ) : (
-            <div className="mt-4 sm:mt-6">
-              <DashboardContent
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-                userProfile={userProfile}
-                kpis={kpis}
-                nudges={nudges}
-                markNudgeAsRead={markNudgeAsRead}
-                features={features}
-                showWelcomeTour={showTour} // Fixed: Use state variable to control tour visibility
-                handleSkipTour={onSkipTour}
-                handleCompleteTour={onCompleteTour}
-                hideTabsNav={hideTabsNav || isMobile}
-                lastActivity={lastActivity}
-                suggestedNextAction={suggestedNextAction}
-              />
-            </div>
-          )}
-        </main>
-        
-        <ChatAssistant userType="student" />
-        
-        {showStudyPlan && (
-          <StudyPlanDialog 
-            userProfile={userProfile} 
-            onClose={onCloseStudyPlan} 
-          />
         )}
         
-        {/* WelcomeTour - Fix open property to use state variable */}
-        <WelcomeTour
-          onSkipTour={handleCloseTour}
-          onCompleteTour={handleCompleteTourAndClose}
-          isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          loginCount={userProfile.loginCount}
-          open={showTour} // Fixed: Use state variable instead of hardcoded false
-          onOpenChange={setShowTour}
+        {/* Main Content - either custom children or standard dashboard content */}
+        {children ? (
+          <div className="mt-6">{children}</div>
+        ) : (
+          <div className="mt-4 sm:mt-6">
+            <DashboardContent
+              activeTab={activeTab}
+              onTabChange={onTabChange}
+              userProfile={userProfile}
+              kpis={kpis}
+              nudges={nudges}
+              markNudgeAsRead={markNudgeAsRead}
+              features={features}
+              showWelcomeTour={showTour} // Fixed: Use state variable to control tour visibility
+              handleSkipTour={onSkipTour}
+              handleCompleteTour={onCompleteTour}
+              hideTabsNav={hideTabsNav || isMobile}
+              lastActivity={lastActivity}
+              suggestedNextAction={suggestedNextAction}
+            />
+          </div>
+        )}
+      </main>
+      
+      <ChatAssistant userType="student" />
+      
+      {showStudyPlan && (
+        <StudyPlanDialog 
+          userProfile={userProfile} 
+          onClose={onCloseStudyPlan} 
         />
-      </div>
-    </TooltipProvider>
+      )}
+      
+      {/* WelcomeTour - Fix open property to use state variable */}
+      <WelcomeTour
+        onSkipTour={handleCloseTour}
+        onCompleteTour={handleCompleteTourAndClose}
+        isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+        open={showTour} // Fixed: Use state variable instead of hardcoded false
+        onOpenChange={setShowTour}
+      />
+    </div>
   );
 };
 

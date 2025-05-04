@@ -2,11 +2,6 @@
 import React from 'react';
 import StudyPlanSection from './StudyPlanSection';
 import type { StudyPlan } from '@/types/user/studyPlan';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface StudyPlansListProps {
   activePlans: StudyPlan[];
@@ -26,23 +21,19 @@ const StudyPlansList: React.FC<StudyPlansListProps> = ({
       {/* Active Plans Section */}
       <StudyPlanSection
         title="Active Study Plans"
+        description="Your current study plans and ongoing progress"
         plans={activePlans}
-        emptyMessage="You don't have any active study plans. Create a plan to get started with your exam preparation."
         onCreatePlan={onCreatePlan}
         onViewPlanDetails={onViewPlanDetails}
-        showCreateButton={true}
-        isActivePlans={true}
       />
 
       {/* Completed Plans Section */}
       <StudyPlanSection
         title="Completed & Past Plans"
+        description="History of your completed and expired study plans"
         plans={completedPlans}
-        emptyMessage="You don't have any completed or past study plans yet."
         onCreatePlan={onCreatePlan}
         onViewPlanDetails={onViewPlanDetails}
-        showCreateButton={false}
-        isActivePlans={false}
       />
     </div>
   );

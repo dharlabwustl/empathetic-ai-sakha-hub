@@ -1,117 +1,132 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import DailyChallenges from '@/components/shared/DailyChallenges';
+import { Award, ArrowRight, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Award, Star } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-
-interface Challenge {
-  id: string;
-  title: string;
-  description: string;
-  progress: number;
-  total: number;
-  type: 'daily' | 'weekly' | 'achievement';
-  reward: string;
-  isNew?: boolean;
-  expiresIn?: string;
-  category?: string;
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
 
 interface ChallengesWidgetProps {
-  challenges: Challenge[];
+  className?: string;
 }
 
-const ChallengesWidget: React.FC<ChallengesWidgetProps> = ({ challenges }) => {
-  const getIconForChallenge = (type: string) => {
-    switch (type) {
-      case 'daily':
-        return <Award className="h-5 w-5 text-amber-500" />;
-      case 'weekly':
-        return <Trophy className="h-5 w-5 text-violet-500" />;
-      case 'achievement':
-        return <Star className="h-5 w-5 text-blue-500" />;
-      default:
-        return <Award className="h-5 w-5 text-amber-500" />;
-    }
+const ChallengesWidget: React.FC<ChallengesWidgetProps> = ({ className }) => {
+  const [showAllChallenges, setShowAllChallenges] = useState(false);
+  
+  const userStats = {
+    completedChallenges: 12,
+    currentStreak: 5,
+    longestStreak: 14,
+    totalPoints: 850
   };
-
+  
   return (
-    <TooltipProvider>
-      <Card>
+    <>
+      <Card className={className}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center">
-            <Trophy className="h-5 w-5 mr-2 text-amber-500" />
-            Challenges
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {challenges.map((challenge) => (
-              <div key={challenge.id} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {getIconForChallenge(challenge.type)}
-                    <div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <h4 className="text-sm font-medium">
-                            {challenge.title}
-                            {challenge.isNew && (
-                              <Badge variant="secondary" className="ml-2 py-0 h-5">New</Badge>
-                            )}
-                          </h4>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{challenge.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {challenge.progress} / {challenge.total} completed
-                      </p>
-                    </div>
-                  </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button size="sm" variant="outline" className="h-7">
-                        View
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>See challenge details</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-
-                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
-                  <div
-                    className="bg-green-500 h-1.5 rounded-full"
-                    style={{ width: `${(challenge.progress / challenge.total) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full mt-2">
-                  View All Challenges
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>See all available challenges</p>
-              </TooltipContent>
-            </Tooltip>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-amber-500" />
+              <CardTitle className="text-lg">Challenges & Streaks</CardTitle>
+            </div>
+            <Badge variant="outline" className="bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/20">
+              <motion.div
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+                className="flex items-center gap-1"
+              >
+                <Flame className="h-3.5 w-3.5 text-amber-600 mr-1" />
+                {userStats.currentStreak} day streak
+              </motion.div>
+            </Badge>
           </div>
+        </CardHeader>
+        
+        <CardContent className="pt-4">
+          <div className="flex justify-between mb-4 text-sm">
+            <div className="text-center">
+              <p className="text-muted-foreground">Completed</p>
+              <p className="text-xl font-semibold">{userStats.completedChallenges}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-muted-foreground">Longest Streak</p>
+              <p className="text-xl font-semibold">{userStats.longestStreak} days</p>
+            </div>
+            <div className="text-center">
+              <p className="text-muted-foreground">Points</p>
+              <p className="text-xl font-semibold flex items-center justify-center">
+                {userStats.totalPoints} XP
+                <TrendingUp className="ml-1 h-4 w-4 text-green-500" />
+              </p>
+            </div>
+          </div>
+          
+          <DailyChallenges variant="compact" maxItems={1} />
         </CardContent>
+        
+        <CardFooter className="pt-0">
+          <Button 
+            variant="link" 
+            className="flex items-center gap-1 w-full justify-center"
+            onClick={() => setShowAllChallenges(true)}
+          >
+            View All Challenges
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </CardFooter>
       </Card>
-    </TooltipProvider>
+      
+      {/* Full Challenges Dialog */}
+      <Dialog open={showAllChallenges} onOpenChange={setShowAllChallenges}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Daily & Weekly Challenges</DialogTitle>
+            <DialogDescription>
+              Complete challenges to earn points and build consistent study habits
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {/* User stats section */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <Card className="p-4 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Current Streak</p>
+                  <p className="text-2xl font-semibold text-blue-600">{userStats.currentStreak} days</p>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Longest Streak</p>
+                  <p className="text-2xl font-semibold text-purple-600">{userStats.longestStreak} days</p>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-semibold text-amber-600">{userStats.completedChallenges}</p>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Total XP</p>
+                  <p className="text-2xl font-semibold text-green-600">{userStats.totalPoints} XP</p>
+                </div>
+              </Card>
+            </div>
+            
+            {/* All challenges */}
+            <DailyChallenges variant="full" maxItems={6} />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

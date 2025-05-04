@@ -25,7 +25,6 @@ export interface StudyPlanSubject {
 export interface StudyPlan {
   id: string;
   userId?: string;
-  title?: string;
   goal?: string;
   examGoal: string;
   examDate: string;
@@ -41,6 +40,7 @@ export interface StudyPlan {
   daysLeft?: number;
   createdAt: string;
   updatedAt: string;
+  title?: string;
   topics?: StudyPlanTopic[]; // Top-level topics
 }
 
@@ -53,6 +53,4 @@ export interface NewStudyPlan {
   studyHoursPerDay?: number;
   weeklyHours?: number;
   goal?: string;
-  title?: string;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
 }
