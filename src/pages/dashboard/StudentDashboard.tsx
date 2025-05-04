@@ -54,11 +54,16 @@ const StudentDashboard = () => {
     if (isNewUser && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
+      console.log("New user detected, showing welcome tour");
     } 
     // For returning users
     else {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
+      
+      // Make sure we don't show the tour for returning users who have seen it
+      setShowTourModal(false);
+      console.log("Returning user detected, not showing welcome tour");
     }
     
     // Try to get saved mood from local storage
@@ -89,6 +94,7 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    console.log("Tour skipped and marked as seen");
   };
 
   const handleCompleteTourWrapper = () => {
@@ -96,6 +102,7 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    console.log("Tour completed and marked as seen");
   };
 
   const handleCompleteOnboardingWrapper = () => {

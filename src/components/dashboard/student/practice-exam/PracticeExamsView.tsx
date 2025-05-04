@@ -1,363 +1,316 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, ArrowRight, Book, Clock, FileText } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Link } from 'react-router-dom';
-import { SharedPageLayout } from '../SharedPageLayout';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar } from "lucide-react";
+import BackButton from '@/components/dashboard/student/BackButton';
 
-// Mock data for practice exams
-const mockExams = [
+const exams = [
   {
-    id: '1',
-    subject: 'Physics',
-    topic: 'Mechanics and Thermodynamics',
-    difficulty: 'Medium',
-    totalTime: '60 min',
-    tags: ['#Mechanics', '#Thermodynamics'],
-    status: 'Pending',
-    questionCount: 30
+    id: "1",
+    title: "Physics Full Mock Test",
+    subject: "Physics",
+    examType: "NEET",
+    questionsCount: 90,
+    timeEstimate: 180,
+    difficulty: "hard",
+    completed: false,
+    progress: 0,
+    dueDate: "2023-06-15",
+    lastAttempted: null,
+    description: "Complete physics mock test covering mechanics, thermodynamics, optics, and modern physics.",
+    topics: ["Mechanics", "Thermodynamics", "Optics", "Modern Physics"]
   },
   {
-    id: '2',
-    subject: 'Mathematics',
-    topic: 'Calculus and Linear Algebra',
-    difficulty: 'Hard',
-    totalTime: '90 min',
-    tags: ['#Calculus', '#LinearAlgebra'],
-    status: 'In Progress',
-    questionCount: 45
+    id: "2",
+    title: "Organic Chemistry Test",
+    subject: "Chemistry",
+    examType: "NEET",
+    questionsCount: 45,
+    timeEstimate: 90,
+    difficulty: "medium",
+    completed: true,
+    progress: 100,
+    score: 78,
+    dueDate: "2023-06-10",
+    lastAttempted: "2023-06-09",
+    description: "Test covering organic chemistry reactions, mechanisms, and compounds.",
+    topics: ["Hydrocarbons", "Alcohols", "Carbonyl Compounds"]
   },
   {
-    id: '3',
-    subject: 'Chemistry',
-    topic: 'Organic and Inorganic Chemistry',
-    difficulty: 'Medium',
-    totalTime: '45 min',
-    tags: ['#OrganicChemistry', '#InorganicChemistry'],
-    status: 'Completed',
-    questionCount: 25
+    id: "3",
+    title: "Biology Unit Test",
+    subject: "Biology",
+    examType: "NEET",
+    questionsCount: 60,
+    timeEstimate: 120,
+    difficulty: "medium",
+    completed: false,
+    progress: 30,
+    dueDate: "2023-06-18",
+    lastAttempted: "2023-06-08",
+    description: "Comprehensive unit test covering human physiology and plant biology.",
+    topics: ["Human Physiology", "Plant Biology", "Genetics"]
   },
   {
-    id: '4',
-    subject: 'Biology',
-    topic: 'Cell Biology and Genetics',
-    difficulty: 'Easy',
-    totalTime: '30 min',
-    tags: ['#CellBiology', '#Genetics'],
-    status: 'Pending',
-    questionCount: 20
+    id: "4",
+    title: "Mathematics Advanced Test",
+    subject: "Mathematics",
+    examType: "JEE",
+    questionsCount: 75,
+    timeEstimate: 180,
+    difficulty: "hard",
+    completed: false,
+    progress: 0,
+    dueDate: "2023-06-20",
+    lastAttempted: null,
+    description: "Advanced mathematics test covering calculus, algebra, and coordinate geometry.",
+    topics: ["Calculus", "Algebra", "Coordinate Geometry"]
   }
 ];
 
-// Difficulty badge colors
-const difficultyColors = {
-  Easy: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  Hard: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-};
-
-// Status badge colors
-const statusColors = {
-  Pending: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  'In Progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  Completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-};
-
-const PracticeExamsView = () => {
-  const [timeFilter, setTimeFilter] = useState('today');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newExam, setNewExam] = useState({
-    subject: '',
-    topic: '',
-    difficulty: 'Medium',
-    questionCount: 30,
-    examDuration: 60,
-    tags: '',
-    useAI: false
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewExam(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setNewExam(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSliderChange = (name: string, value: number[]) => {
-    setNewExam(prev => ({ ...prev, [name]: value[0] }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Mock save functionality
-    console.log('New exam created:', newExam);
-    setIsDialogOpen(false);
-    // Reset form
-    setNewExam({
-      subject: '',
-      topic: '',
-      difficulty: 'Medium',
-      questionCount: 30,
-      examDuration: 60,
-      tags: '',
-      useAI: false
-    });
-  };
-
-  // Filter exams based on selected filters
-  const filteredExams = mockExams.filter(exam => {
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'pending' && exam.status === 'Pending') return true;
-    if (statusFilter === 'in-progress' && exam.status === 'In Progress') return true;
-    if (statusFilter === 'completed' && exam.status === 'Completed') return true;
-    return false;
-  });
-
-  const getActionText = (status: string) => {
-    switch(status) {
-      case 'Pending': return 'Start Exam';
-      case 'In Progress': return 'Continue Exam';
-      case 'Completed': return 'Review Exam';
-      default: return 'Start Exam';
+const PracticeExamsView: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  
+  const filterExams = (status: string) => {
+    switch (status) {
+      case "pending":
+        return exams.filter(exam => !exam.completed && exam.progress === 0);
+      case "in-progress":
+        return exams.filter(exam => !exam.completed && exam.progress > 0 && exam.progress < 100);
+      case "completed":
+        return exams.filter(exam => exam.completed);
+      default:
+        return exams;
     }
   };
-
-  const getActionUrl = (id: string, status: string) => {
-    switch(status) {
-      case 'Pending':
-      case 'In Progress':
-        return `/dashboard/student/practice-exam/${id}/start`;
-      case 'Completed':
-        return `/dashboard/student/practice-exam/${id}/review`;
+  
+  const handleStartExam = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+  };
+  
+  const handleReviewExam = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
+  };
+  
+  const handleContinueExam = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+  };
+  
+  const getDifficultyColor = (difficulty: string) => {
+    switch(difficulty) {
+      case "easy":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "hard":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return `/dashboard/student/practice-exam/${id}/start`;
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
-    <SharedPageLayout
-      title="Practice Exams"
-      subtitle="Test your knowledge with comprehensive practice exams"
-    >
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <Tabs defaultValue="today" className="w-full" onValueChange={setTimeFilter}>
-            <TabsList>
-              <TabsTrigger value="today">Today's</TabsTrigger>
-              <TabsTrigger value="weekly">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="ml-2 whitespace-nowrap">
-                <Plus className="mr-1 h-4 w-4" /> Create Exam
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Create New Practice Exam</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Select 
-                    value={newExam.subject} 
-                    onValueChange={(value) => handleSelectChange('subject', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="physics">Physics</SelectItem>
-                      <SelectItem value="chemistry">Chemistry</SelectItem>
-                      <SelectItem value="biology">Biology</SelectItem>
-                      <SelectItem value="mathematics">Mathematics</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Topic / Concept Focus</Label>
-                  <Input 
-                    id="topic"
-                    name="topic"
-                    value={newExam.topic}
-                    onChange={handleInputChange}
-                    placeholder="E.g., Mechanics and Thermodynamics"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="difficulty">Difficulty Level</Label>
-                  <Select 
-                    value={newExam.difficulty} 
-                    onValueChange={(value) => handleSelectChange('difficulty', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Easy">Easy</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="Hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="questionCount">
-                    Number of Questions: {newExam.questionCount}
-                  </Label>
-                  <Slider
-                    value={[newExam.questionCount]}
-                    min={5}
-                    max={100}
-                    step={5}
-                    onValueChange={(value) => handleSliderChange('questionCount', value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="examDuration">
-                    Exam Duration (minutes): {newExam.examDuration}
-                  </Label>
-                  <Slider
-                    value={[newExam.examDuration]}
-                    min={15}
-                    max={180}
-                    step={15}
-                    onValueChange={(value) => handleSliderChange('examDuration', value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (comma-separated)</Label>
-                  <Input 
-                    id="tags"
-                    name="tags"
-                    value={newExam.tags}
-                    onChange={handleInputChange}
-                    placeholder="E.g., #Mechanics, #Thermodynamics"
-                  />
-                </div>
-                
-                <div className="flex justify-between pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">Create Exam</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        
-        <div className="flex space-x-2 pb-2">
-          <Button 
-            variant={statusFilter === 'all' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('all')}
-          >
-            All
+    <div className="container py-6">
+      {/* Add Back Button */}
+      <BackButton to="/dashboard/student" />
+      
+      <div className="flex justify-between items-center mt-4 mb-6">
+        <h1 className="text-3xl font-bold">Practice Exams</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Filter className="h-4 w-4" />
+            <span className="hidden sm:inline">Filter</span>
           </Button>
-          <Button 
-            variant={statusFilter === 'pending' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('pending')}
-          >
-            Pending
+          <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Schedule</span>
           </Button>
-          <Button 
-            variant={statusFilter === 'in-progress' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('in-progress')}
-          >
-            In Progress
-          </Button>
-          <Button 
-            variant={statusFilter === 'completed' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('completed')}
-          >
-            Completed
-          </Button>
-          <Button 
-            variant={statusFilter === 'relevant' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('relevant')}
-          >
-            Exam-Relevant
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredExams.map((exam) => (
-            <Card key={exam.id} className="dashboard-card overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {exam.subject}
-                    </span>
-                    <CardTitle className="text-lg mt-1">{exam.topic}</CardTitle>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  <Clock className="mr-1 h-4 w-4" />
-                  <span>{exam.totalTime}</span>
-                  <FileText className="ml-3 mr-1 h-4 w-4" />
-                  <span>{exam.questionCount} questions</span>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge className={difficultyColors[exam.difficulty as keyof typeof difficultyColors]}>
-                    {exam.difficulty}
-                  </Badge>
-                  <Badge className={statusColors[exam.status as keyof typeof statusColors]}>
-                    {exam.status}
-                  </Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {exam.tags.map((tag, index) => (
-                    <span key={index} className="text-xs text-blue-600 dark:text-blue-400">
-                      {tag}{index < exam.tags.length - 1 ? ' ' : ''}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <Button asChild variant="ghost" className="w-full justify-between">
-                  <Link to={getActionUrl(exam.id, exam.status)}>
-                    {getActionText(exam.status)}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
         </div>
       </div>
-    </SharedPageLayout>
+      
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+          <TabsTrigger value="all">All Exams</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {exams.map((exam) => (
+              <ExamCard 
+                key={exam.id} 
+                exam={exam} 
+                onStart={handleStartExam}
+                onReview={handleReviewExam}
+                onContinue={handleContinueExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="pending" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("pending").map((exam) => (
+              <ExamCard 
+                key={exam.id} 
+                exam={exam} 
+                onStart={handleStartExam}
+                onReview={handleReviewExam}
+                onContinue={handleContinueExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="in-progress" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("in-progress").map((exam) => (
+              <ExamCard 
+                key={exam.id} 
+                exam={exam} 
+                onStart={handleStartExam}
+                onReview={handleReviewExam}
+                onContinue={handleContinueExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="completed" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("completed").map((exam) => (
+              <ExamCard 
+                key={exam.id} 
+                exam={exam} 
+                onStart={handleStartExam}
+                onReview={handleReviewExam}
+                onContinue={handleContinueExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+interface ExamCardProps {
+  exam: typeof exams[0];
+  onStart: (id: string) => void;
+  onReview: (id: string) => void;
+  onContinue: (id: string) => void;
+  difficultyColorFn: (difficulty: string) => string;
+}
+
+const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue, difficultyColorFn }) => {
+  const isStarted = exam.progress > 0;
+  const isCompleted = exam.completed;
+  
+  const getStatusBadge = () => {
+    if (isCompleted) {
+      return <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
+    }
+    if (isStarted) {
+      return <Badge className="bg-blue-100 text-blue-800 border-blue-200">In Progress</Badge>;
+    }
+    
+    const dueDate = new Date(exam.dueDate);
+    const today = new Date();
+    const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilDue <= 1) {
+      return <Badge className="bg-red-100 text-red-800 border-red-200">Due Today</Badge>;
+    }
+    if (daysUntilDue <= 3) {
+      return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Due Soon</Badge>;
+    }
+    return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Upcoming</Badge>;
+  };
+  
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg">{exam.title}</CardTitle>
+            <CardDescription className="mt-1">
+              {exam.subject} • {exam.questionsCount} Questions
+            </CardDescription>
+          </div>
+          {getStatusBadge()}
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+            {exam.examType}
+          </Badge>
+          <Badge variant="outline" className={difficultyColorFn(exam.difficulty)}>
+            {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
+          </Badge>
+        </div>
+        
+        <p className="text-sm text-gray-500 mt-2">{exam.description}</p>
+        
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Progress</span>
+            <span>{exam.progress}%</span>
+          </div>
+          <Progress value={exam.progress} className="h-2" />
+        </div>
+        
+        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+          <Clock className="h-4 w-4" />
+          <span>{exam.timeEstimate} min</span>
+          {exam.lastAttempted && (
+            <>
+              <span className="mx-1">•</span>
+              <span>Last attempt: {new Date(exam.lastAttempted).toLocaleDateString()}</span>
+            </>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter>
+        {isCompleted ? (
+          <Button 
+            className="w-full" 
+            onClick={() => onReview(exam.id)}
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Review Exam
+          </Button>
+        ) : isStarted ? (
+          <Button 
+            className="w-full bg-blue-600 hover:bg-blue-700" 
+            onClick={() => onContinue(exam.id)}
+          >
+            <BookOpen className="mr-2 h-4 w-4" />
+            Continue Exam
+          </Button>
+        ) : (
+          <Button 
+            className="w-full bg-indigo-600 hover:bg-indigo-700" 
+            onClick={() => onStart(exam.id)}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Start Exam
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 
