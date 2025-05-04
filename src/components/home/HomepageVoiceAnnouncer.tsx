@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Subtitles, RotateCcw, X } from 'lucide-react';
+import { Volume2, VolumeX, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,48 +21,75 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const [progress, setProgress] = useState(0);
   const [isMinimized, setIsMinimized] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   // Ref for speech synthesis utterance
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   
-  // Welcome messages sequence
+  // Welcome messages sequence - optimized for clear PREPZR pronunciation and conversion
   const welcomeMessages = [
-    "Welcome to PREPZR. I'm your AI study assistant.",
-    "PREPZR helps students excel in competitive exams like NEET and IIT-JEE.",
-    "Take our Exam Readiness Test to assess your current preparation level.",
-    "Sign up for a free 7-day trial to access personalized study plans and practice tests.",
-    "Our premium plans offer advanced features like AI tutoring and detailed performance analytics.",
-    "We're your study partner throughout your exam preparation journey.",
-    "Click the 'Get Started' button to begin, or explore our features to learn more."
+    "Welcome to PREP-ZR. I'm your AI study assistant from India.",
+    "PREP-ZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Our personalized study plans adapt to your learning style and pace, making exam preparation more effective.",
+    "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
+    "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
+    "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized tutoring.",
+    "We've helped thousands of students achieve their dream scores. Let us help you too!",
+    "Click 'Get Started' to begin your journey with PREP-ZR today!"
   ];
+
+  // Check if first visit
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem('prepzrHasVisited');
+    
+    // Only show for first-time visitors
+    if (hasVisitedBefore === 'true') {
+      setIsVisible(false);
+    } else {
+      localStorage.setItem('prepzrHasVisited', 'true');
+    }
+  }, []);
 
   // Initialize speech synthesis
   useEffect(() => {
+    // Don't initialize if not visible
+    if (!isVisible) return;
+    
     // Check if browser supports speech synthesis
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       // Create utterance object only once
       utteranceRef.current = new SpeechSynthesisUtterance();
-      utteranceRef.current.rate = 1.0;
-      utteranceRef.current.pitch = 1.0;
+      utteranceRef.current.rate = 0.95; // Slightly slower for better clarity
+      utteranceRef.current.pitch = 1.1;
       utteranceRef.current.volume = 1.0;
       
-      // Select a friendly voice
+      // Select an Indian female voice if possible
       window.speechSynthesis.onvoiceschanged = () => {
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-          voice.name.includes('Female') || 
-          voice.name.includes('Google') || 
-          voice.name.includes('Samantha')
+        
+        // Try to find an Indian English female voice
+        const indianVoice = voices.find(voice => 
+          (voice.name.includes('Indian') || voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+          voice.name.includes('Female')
         );
         
-        if (preferredVoice) {
-          utteranceRef.current!.voice = preferredVoice;
+        // Fall back to any female voice if Indian voice not available
+        const femaleVoice = voices.find(voice => 
+          voice.name.includes('Female')
+        );
+        
+        if (indianVoice) {
+          utteranceRef.current!.voice = indianVoice;
+          console.log('Using Indian female voice:', indianVoice.name);
+        } else if (femaleVoice) {
+          utteranceRef.current!.voice = femaleVoice;
+          console.log('Using female voice:', femaleVoice.name);
         }
       };
       
       // Auto-play after delay if enabled
-      if (autoPlay) {
+      if (autoPlay && isVisible) {
         const timer = setTimeout(() => {
           startAnnouncement();
         }, delayStart);
@@ -79,26 +106,34 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
         clearTimeout(timerRef.current);
       }
     };
-  }, [autoPlay, delayStart]);
+  }, [autoPlay, delayStart, isVisible]);
   
   // Check if user is already logged in
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    // If logged in, show different first message
+    // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your study journey?";
+      welcomeMessages[0] = "Welcome back to PREP-ZR. Ready to continue your study journey?";
+      // Trim the welcome messages for returning users
+      welcomeMessages.splice(3);
+      welcomeMessages.push("Let's pick up where you left off with your exam preparation!");
     }
   }, []);
   
   const speakMessage = (message: string) => {
     if (utteranceRef.current && !isMuted) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
-      utteranceRef.current.text = message;
+      
+      // Format message for better pronunciation, especially for "PREPZR"
+      const formattedMessage = message.replace(/PREP-ZR/g, "PREP ZEE ARR")
+                                       .replace(/PREPZR/g, "PREP ZEE ARR");
+      
+      utteranceRef.current.text = formattedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
     }
     
     // Progress timing
-    const messageDuration = message.length * 80; // Approximately 80ms per character
+    const messageDuration = message.length * 85; // Slightly longer for better enunciation
     let startTime = Date.now();
     
     // Update progress
@@ -158,12 +193,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     }
   };
   
-  const restartAnnouncement = () => {
-    stopAnnouncement();
-    setTimeout(startAnnouncement, 300);
-  };
-  
-  // Hide component if user has dismissed it in this session
   const dismissComponent = () => {
     stopAnnouncement();
     sessionStorage.setItem('hidePrepzrAnnouncer', 'true');
@@ -178,100 +207,76 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     }
   }, []);
   
-  if (isMinimized) {
+  if (isMinimized || !isVisible) {
     return null;
   }
 
   return (
     <AnimatePresence>
       <motion.div 
-        className="fixed bottom-4 left-4 z-50 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
+        className="fixed bottom-4 right-4 z-50 w-12 h-12"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.5 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5 text-white" />
-            <h3 className="text-white text-sm font-medium">PREPZR Guide</h3>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 text-white hover:bg-white/20"
-              onClick={toggleMute}
-            >
-              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 text-white hover:bg-white/20"
-              onClick={() => setShowSubtitles(!showSubtitles)}
-            >
-              <Subtitles className="h-4 w-4" />
-            </Button>
+        {!hasStarted ? (
+          <Button
+            onClick={startAnnouncement}
+            className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
+            size="icon"
+          >
+            <Info className="h-5 w-5 text-white" />
+          </Button>
+        ) : (
+          <Button
+            onClick={toggleMute}
+            className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg border border-indigo-400"
+            size="icon"
+          >
+            {isMuted ? (
+              <VolumeX className="h-5 w-5 text-white" />
+            ) : (
+              <Volume2 className="h-5 w-5 text-white" />
+            )}
+          </Button>
+        )}
+      </motion.div>
+
+      {hasStarted && showSubtitles && (
+        <motion.div
+          className="fixed bottom-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="bg-gradient-to-r from-indigo-600 to-violet-500 p-3 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-white" />
+              <h3 className="text-white text-sm font-medium">PREP-ZR Guide</h3>
+            </div>
             <Button 
               variant="ghost" 
               size="icon" 
               className="h-7 w-7 text-white hover:bg-white/20"
               onClick={dismissComponent}
             >
-              <X className="h-4 w-4" />
+              <VolumeX className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        
-        <div className="p-4">
-          {showSubtitles && hasStarted && (
-            <div className="min-h-[80px] mb-3 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
-              <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
-              {isPlaying && (
-                <Progress value={progress} className="h-1 mt-2" />
-              )}
-            </div>
-          )}
           
-          <div className="flex justify-between items-center">
-            {!hasStarted ? (
-              <Button 
-                onClick={startAnnouncement} 
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Start Guide
-              </Button>
-            ) : (
-              <>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={isPlaying ? stopAnnouncement : startAnnouncement}
-                    className={isPlaying ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700" : ""}
-                  >
-                    {isPlaying ? "Pause" : "Resume"}
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={restartAnnouncement}
-                  >
-                    <RotateCcw className="h-4 w-4 mr-1" />
-                    Restart
-                  </Button>
-                </div>
-                
-                <div className="text-xs text-gray-500">
-                  {currentMessageIndex + 1}/{welcomeMessages.length}
-                </div>
-              </>
-            )}
+          <div className="p-4">
+            <div className="mb-2 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-800">
+              <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
+              <Progress value={progress} className="h-1 mt-2" />
+              <div className="mt-2 text-xs text-right text-gray-500">
+                {currentMessageIndex + 1}/{welcomeMessages.length}
+              </div>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };

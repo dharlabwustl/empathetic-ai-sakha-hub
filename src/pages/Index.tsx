@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -124,8 +123,8 @@ const Index = () => {
         onClose={handleCloseVoiceAssistant} 
       />
       
-      {/* Add HomepageVoiceAnnouncer for first-time visitors */}
-      {!isLoggedIn && <HomepageVoiceAnnouncer autoPlay={true} delayStart={5000} />}
+      {/* Add HomepageVoiceAnnouncer for visitors - adjusting delay to be less irritating */}
+      {<HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={5000} />}
     </div>
   );
 };
