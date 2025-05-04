@@ -5,6 +5,7 @@ import CreateStudyPlanWizard from '@/components/dashboard/student/academic/Creat
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
+import BackButton from '@/components/dashboard/student/BackButton';
 
 interface AcademicAdvisorProps {
   userProfile?: {
@@ -27,6 +28,9 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
 
   return (
     <div className="space-y-12">
+      {/* Back button */}
+      <BackButton to="/dashboard/student" label="Back to Dashboard" />
+      
       {/* Header section */}
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">

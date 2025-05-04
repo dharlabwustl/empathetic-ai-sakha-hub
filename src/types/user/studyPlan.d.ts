@@ -16,7 +16,7 @@ export interface StudyPlanSubject {
   priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
   completed: boolean;
-  topics?: StudyPlanTopic[]; // Topics is now properly defined
+  topics: StudyPlanTopic[]; // Make sure topics is defined here
   difficulty?: 'easy' | 'medium' | 'hard';
   status?: 'pending' | 'in-progress' | 'completed';
   isWeakSubject?: boolean;
@@ -33,14 +33,14 @@ export interface StudyPlan {
   learningPace: 'slow' | 'moderate' | 'fast';
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay: number;
-  weeklyHours: number;
+  weeklyHours?: number;
   progressPercentage?: number;
   progressPercent?: number; // Keep for backward compatibility
+  progress?: number; // For backward compatibility
   daysLeft?: number;
   createdAt: string;
   updatedAt: string;
   title?: string;
-  progress?: number;
   topics?: StudyPlanTopic[]; // Top-level topics
 }
 
@@ -51,6 +51,6 @@ export interface NewStudyPlan {
   learningPace?: 'slow' | 'moderate' | 'fast';
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
-  weeklyHours: number;
+  weeklyHours?: number;
   goal?: string;
 }

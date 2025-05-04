@@ -1,17 +1,19 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book, Calendar, CheckCircle, ArrowRight, GraduationCap, Clock, Brain, ChevronRight, Sparkles } from 'lucide-react';
+import { 
+  Book, Calendar, CheckCircle, ArrowRight, GraduationCap, 
+  Clock, Brain, ChevronRight, Sparkles, Volume, Mic
+} from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const WelcomeFlow = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
-  const totalSteps = 3;
+  const totalSteps = 4; // Added one more step for voice assistant
   
   const handleNext = () => {
     if (step < totalSteps) {
@@ -45,6 +47,7 @@ const WelcomeFlow = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
+        // Welcome screen - keep existing code
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -133,6 +136,111 @@ const WelcomeFlow = () => {
           </Card>
         );
       case 2:
+        // Voice Assistant Information
+        return (
+          <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
+            <CardHeader className="text-center pb-2">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <CardTitle className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Voice Intelligent Assistant</CardTitle>
+                <CardDescription className="text-lg">Your hands-free study companion</CardDescription>
+              </motion.div>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <motion.div 
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
+                className="p-4 rounded-full bg-primary/10 mb-6"
+              >
+                <Volume className="h-16 w-16 text-primary" />
+              </motion.div>
+              <div className="space-y-4">
+                <motion.p 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="text-center"
+                >
+                  PREPZR's voice intelligent assistant helps you study efficiently, get answers to questions, and navigate the platform hands-free.
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="bg-blue-50 p-4 rounded-lg shadow-inner"
+                >
+                  <h4 className="font-medium text-center mb-2 flex items-center justify-center gap-2">
+                    <Mic className="h-4 w-4 text-blue-600" />
+                    Voice Assistant Features
+                  </h4>
+                  <ul className="space-y-2">
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="flex items-center justify-between"
+                    >
+                      <span>Multiple Languages:</span>
+                      <span className="font-medium text-blue-700">Hindi & English</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="flex items-center justify-between"
+                    >
+                      <span>Voice Commands:</span>
+                      <span className="font-medium text-blue-700">Navigation & Search</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="flex items-center justify-between"
+                    >
+                      <span>Voice Explanations:</span>
+                      <span className="font-medium text-blue-700">Learn by listening</span>
+                    </motion.li>
+                    <motion.li 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.9 }}
+                      className="flex items-center justify-between"
+                    >
+                      <span>Accessibility:</span>
+                      <span className="font-medium text-blue-700">Hands-free learning</span>
+                    </motion.li>
+                  </ul>
+                </motion.div>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.1 }}
+                  className="text-center text-sm text-muted-foreground"
+                >
+                  Your voice assistant will welcome you on your first login and guide you through the platform.
+                </motion.p>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between sm:justify-between">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
+                  Next <ArrowRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            </CardFooter>
+          </Card>
+        );
+      case 3:
+        // Study plan screen - keep existing code
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -235,7 +343,8 @@ const WelcomeFlow = () => {
             </CardFooter>
           </Card>
         );
-      case 3:
+      case 4:
+        // Founder message - keep existing code
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>

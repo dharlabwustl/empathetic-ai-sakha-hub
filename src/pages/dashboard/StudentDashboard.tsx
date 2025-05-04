@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -9,12 +8,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,13 +57,14 @@ const StudentDashboard = () => {
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
     // For new users who haven't seen the tour
-    if (isNewUser && !hasSeenTour) {
+    if (isNew && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
+      setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
     } 
     // For returning users
@@ -72,6 +74,7 @@ const StudentDashboard = () => {
       
       // Make sure we don't show the tour for returning users who have seen it
       setShowTourModal(false);
+      setIsFirstTimeUser(false);
       console.log("Returning user detected, not showing welcome tour");
     }
     
@@ -196,10 +199,17 @@ const StudentDashboard = () => {
         onOpenChange={setShowTourModal}
         onSkipTour={handleSkipTourWrapper}
         onCompleteTour={handleCompleteTourWrapper}
-        isFirstTimeUser={true}
+        isFirstTimeUser={isFirstTimeUser}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
+      />
+
+      {/* Voice Greeting - will play for first time users */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        language="en"
       />
     </>
   );
