@@ -1,28 +1,38 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Menu, 
+  Clock,
+  UserCircle2, 
+  Bell, 
+  MoonStar, 
+  Sun, 
+  Laptop,
+  Search,
+  HelpCircle, 
+  LogOut,
+  Info,
+  SlidersHorizontal 
+} from 'lucide-react';
+import { useTheme } from '@/components/theme-provider';
+import { UserProfileDropdown } from './UserProfileDropdown';
+import { MoodType } from '@/types/user/base';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour?: () => void;
-  userName?: string;
-  mood?: string;
+  onOpenTour: () => void;
+  userName: string;
+  mood?: MoodType;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
 
-const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
+const TopNavigationControls = ({
   hideSidebar,
   onToggleSidebar,
   formattedDate,
@@ -32,109 +42,106 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   mood,
   isFirstTimeUser,
   onViewStudyPlan
-}) => {
+}: TopNavigationControlsProps) => {
+  const { theme, setTheme } = useTheme();
+  const [showSearch, setShowSearch] = useState(false);
+  
+  const handleSwitchTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+  
+  const themeIcon = () => {
+    if (theme === 'dark') return <Sun className="h-5 w-5" />
+    if (theme === 'light') return <MoonStar className="h-5 w-5" />
+    return <Laptop className="h-5 w-5" />
+  };
+  
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
+    <div className="sticky top-0 z-10 flex justify-between items-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg py-3 mb-6">
+      <div className="flex items-center gap-2">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:flex"
           onClick={onToggleSidebar}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
+          <Menu className="h-5 w-5" />
         </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
-        </div>
+        {!showSearch ? (
+          <div className="hidden md:flex flex-col">
+            <p className="text-sm font-medium">{formattedDate}</p>
+            <div className="flex items-center text-muted-foreground">
+              <Clock className="h-3 w-3 mr-1" /> 
+              <span className="text-xs">{formattedTime}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="relative hidden md:flex items-center">
+            <Search className="h-4 w-4 absolute left-2 text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              className="pl-8 py-1 pr-3 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+              autoFocus
+              onBlur={() => setShowSearch(false)}
+            />
+          </div>
+        )}
       </div>
       
-      <div className="flex items-center gap-2">
-        {/* Voice Announcer Integration */}
-        <VoiceAnnouncer 
-          userName={userName}
-          mood={mood}
-          isFirstTimeUser={isFirstTimeUser}
+      <div className="flex items-center gap-1 sm:gap-2">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => setShowSearch(!showSearch)}
+          className="md:hidden"
+        >
+          <Search className="h-5 w-5" />
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={handleSwitchTheme}
+        >
+          {themeIcon()}
+        </Button>
+        
+        {onViewStudyPlan && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs hidden sm:flex items-center"
+            onClick={onViewStudyPlan}
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-1" />
+            <span>Study Plan</span>
+          </Button>
+        )}
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <HelpCircle className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onOpenTour}>
+              <Info className="h-4 w-4 mr-2" />
+              <span>Welcome Tour</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        <Button variant="ghost" size="icon">
+          <Bell className="h-5 w-5" />
+        </Button>
+        
+        <UserProfileDropdown 
+          userImage="/profile.jpg" 
+          userName={userName} 
+          mood={mood as string}
         />
-        
-        {/* Calendar Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Notification Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Tour Guide Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
     </div>
   );

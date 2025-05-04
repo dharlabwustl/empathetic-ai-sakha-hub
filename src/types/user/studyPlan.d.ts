@@ -2,55 +2,54 @@
 export interface StudyPlanTopic {
   id: string;
   name: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  priority: 'high' | 'medium' | 'low';
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
+  status: 'pending' | 'in-progress' | 'completed';
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
   color: string;
-  proficiency: 'weak' | 'medium' | 'strong';
-  priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
+  priority: string;
+  proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
-  topics?: StudyPlanTopic[]; // Topics is now properly defined
-  difficulty?: 'easy' | 'medium' | 'hard';
-  status?: 'pending' | 'in-progress' | 'completed';
-  isWeakSubject?: boolean;
+  topics: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
   id: string;
-  userId?: string;
-  goal?: string;
+  goal: string;
   examGoal: string;
   examDate: string;
-  status: 'active' | 'completed' | 'archived' | 'pending';
-  subjects: StudyPlanSubject[];
-  learningPace: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  studyHoursPerDay: number;
-  weeklyHours: number;
-  progressPercentage?: number;
-  progressPercent?: number; // Keep for backward compatibility
-  daysLeft?: number;
   createdAt: string;
   updatedAt: string;
-  title?: string;
-  progress?: number;
-  topics?: StudyPlanTopic[]; // Top-level topics
+  status: 'active' | 'completed' | 'archived' | 'pending';
+  weeklyHours: number;
+  progressPercent: number;
+  daysLeft: number;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  userId?: string;
 }
 
 export interface NewStudyPlan {
   examGoal: string;
-  examDate: string | Date;
-  subjects: Omit<StudyPlanSubject, 'topics'>[];
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  studyHoursPerDay?: number;
-  weeklyHours: number;
-  goal?: string;
+  examDate: Date | string;
+  weeklyHours?: number;
+  subjects: {
+    id?: string;
+    name: string;
+    color?: string;
+    hoursPerWeek?: number;
+    priority?: 'high' | 'medium' | 'low';
+    proficiency?: 'weak' | 'medium' | 'strong';
+  }[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
 }

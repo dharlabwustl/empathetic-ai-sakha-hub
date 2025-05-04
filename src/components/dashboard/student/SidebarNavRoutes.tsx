@@ -19,7 +19,8 @@ import {
   Smile,
   BookMarked,
   FileText,
-  ArrowLeft
+  ArrowLeft,
+  Award
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -39,7 +40,8 @@ const tooltipDescriptions: Record<string, string> = {
   Profile: "Manage your account settings and preferences",
   "Today's Plan": "View your daily study schedule",
   "Practice Exams": "Take mock tests to prepare for exams",
-  "Concept Cards": "Learn key concepts with interactive cards"
+  "Concept Cards": "Learn key concepts with interactive cards",
+  "Daily Challenges": "Complete challenges to earn points and badges"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -54,6 +56,7 @@ export const SidebarNavRoutes = ({
     { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
     { name: "Today's Plan", path: "/dashboard/student/today", icon: <Calendar size={20} /> },
     { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <BookMarked size={20} /> },
+    { name: "Daily Challenges", path: "/dashboard/student/daily-challenges", icon: <Award size={20} /> },
   ];
   
   // Learning tools category - updated as requested

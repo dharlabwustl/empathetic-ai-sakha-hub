@@ -1,226 +1,196 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
-import { UserProfileType } from "@/types/user";
-import { useAcademicPlans } from './hooks/useAcademicPlans';
-import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
-import StudyPlanSections from "./components/StudyPlanSections";
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { GraduationCap } from 'lucide-react';
+import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
+import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
+import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
+import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
+import { StudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorViewProps {
-  userProfile: UserProfileType;
+  userProfile?: {
+    examPreparation?: string;
+  };
 }
 
 const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
   
-  // Mock study plans for demo
-  const demoStudyPlans: StudyPlan[] = [
-    {
-      id: "plan-1",
-      title: "NEET Preparation",
-      examGoal: "NEET",
-      examDate: new Date(2025, 4, 15).toISOString(),
-      status: "active",
-      progress: 35,
-      subjects: [
-        {
-          id: "subj-1",
-          name: "Physics",
-          difficulty: "medium",
-          completed: false,
-          status: "in-progress",
-          priority: "high",
-          hoursPerWeek: 6
-        },
-        {
-          id: "subj-2",
-          name: "Chemistry",
-          difficulty: "easy",
-          completed: false,
-          status: "pending",
-          priority: "medium",
-          hoursPerWeek: 4
-        },
-        {
-          id: "subj-3",
-          name: "Biology",
-          difficulty: "hard",
-          completed: false,
-          status: "completed",
-          priority: "high",
-          hoursPerWeek: 8
-        }
-      ],
-      studyHoursPerDay: 4,
-      preferredStudyTime: "evening",
-      learningPace: "moderate",
-      createdAt: new Date(2023, 9, 10).toISOString(),
-    },
-    {
-      id: "plan-2",
-      title: "JEE Advanced Preparation",
-      examGoal: "JEE Advanced",
-      examDate: new Date(2024, 11, 10).toISOString(),
-      status: "pending",
-      progress: 62,
-      subjects: [
-        {
-          id: "subj-4",
-          name: "Physics",
-          difficulty: "hard",
-          completed: false,
-          status: "pending",
-          priority: "high",
-          hoursPerWeek: 8
-        },
-        {
-          id: "subj-5",
-          name: "Chemistry",
-          difficulty: "medium",
-          completed: false,
-          status: "in-progress",
-          priority: "medium",
-          hoursPerWeek: 6
-        },
-        {
-          id: "subj-6",
-          name: "Mathematics",
-          difficulty: "hard",
-          completed: false,
-          status: "pending",
-          priority: "low",
-          hoursPerWeek: 10
-        }
-      ],
-      studyHoursPerDay: 6,
-      preferredStudyTime: "morning",
-      learningPace: "fast",
-      createdAt: new Date(2023, 8, 15).toISOString(),
-    },
-    {
-      id: "plan-3",
-      title: "UPSC Preparation",
-      examGoal: "UPSC",
-      examDate: new Date(2024, 5, 20).toISOString(),
-      status: "completed",
-      progress: 100,
-      subjects: [
-        {
-          id: "subj-7",
-          name: "History",
-          difficulty: "medium",
-          completed: true,
-          status: "completed",
-          priority: "high",
-          hoursPerWeek: 5
-        },
-        {
-          id: "subj-8",
-          name: "Geography",
-          difficulty: "easy",
-          completed: true,
-          status: "completed",
-          priority: "high",
-          hoursPerWeek: 4
-        },
-        {
-          id: "subj-9",
-          name: "Economics",
-          difficulty: "hard",
-          completed: true,
-          status: "in-progress",
-          priority: "medium",
-          hoursPerWeek: 6
-        }
-      ],
-      studyHoursPerDay: 5,
-      preferredStudyTime: "evening",
-      learningPace: "moderate",
-      createdAt: new Date(2023, 1, 10).toISOString(),
-    },
-  ];
+  // Sample active plans
+  const activePlans: StudyPlan[] = [{
+    id: "plan-1",
+    userId: "user-1",
+    goal: "NEET Preparation",
+    examGoal: userProfile?.examPreparation || "NEET",
+    examDate: "2024-12-15",
+    createdAt: "2024-04-10T12:00:00Z",
+    updatedAt: "2024-04-10T12:00:00Z",
+    status: 'active',
+    weeklyHours: 42,
+    progressPercent: 35,
+    daysLeft: 240,
+    subjects: [
+      {
+        id: "physics-1",
+        name: "Physics",
+        color: "#3b82f6",
+        hoursPerWeek: 14,
+        priority: "high",
+        proficiency: "medium",
+        completed: false,
+        topics: [
+          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
+          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
+          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
+        ]
+      },
+      {
+        id: "chem-1",
+        name: "Chemistry",
+        color: "#10b981",
+        hoursPerWeek: 12,
+        priority: "medium",
+        proficiency: "weak",
+        completed: false,
+        topics: [
+          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
+          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
+          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
+        ]
+      },
+      {
+        id: "math-1",
+        name: "Mathematics",
+        color: "#8b5cf6",
+        hoursPerWeek: 16,
+        priority: "high",
+        proficiency: "strong",
+        completed: false,
+        topics: [
+          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
+          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
+          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
+        ]
+      }
+    ],
+    studyHoursPerDay: 6,
+    preferredStudyTime: 'evening',
+    learningPace: 'moderate'
+  }];
 
-  // Split plans by status
-  const activePlans = demoStudyPlans.filter(plan => plan.status === "active");
-  const completedPlans = demoStudyPlans.filter(plan => plan.status === "completed" || plan.status === "pending");
-  
-  const handleCreatePlanClick = () => {
+  // Sample completed plans 
+  const completedPlans: StudyPlan[] = [{
+    id: "plan-old-1",
+    userId: "user-1",
+    goal: "NEET Preparation",
+    examGoal: "NEET",
+    examDate: "2024-03-15",
+    createdAt: "2024-01-01T12:00:00Z",
+    updatedAt: "2024-03-15T12:00:00Z",
+    status: 'completed',
+    weeklyHours: 35,
+    progressPercent: 100,
+    daysLeft: 0,
+    subjects: [
+      {
+        id: "physics-old",
+        name: "Physics",
+        color: "#3b82f6", 
+        hoursPerWeek: 10,
+        priority: "medium",
+        proficiency: "weak",
+        completed: true,
+        topics: [
+          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
+          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
+        ]
+      },
+      {
+        id: "chem-old",
+        name: "Chemistry",
+        color: "#10b981",
+        hoursPerWeek: 12,
+        priority: "low", 
+        proficiency: "weak",
+        completed: true,
+        topics: [
+          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
+        ]
+      },
+      {
+        id: "math-old",
+        name: "Mathematics",
+        color: "#8b5cf6",
+        hoursPerWeek: 13,
+        priority: "high",
+        proficiency: "medium",
+        completed: true,
+        topics: [
+          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
+        ]
+      }
+    ],
+    studyHoursPerDay: 5,
+    preferredStudyTime: 'morning',
+    learningPace: 'slow'
+  }];
+
+  const handleCreatePlan = () => {
     setShowCreateDialog(true);
   };
 
   const handleViewPlanDetails = (planId: string) => {
-    setSelectedPlanId(planId);
-    // In a real app, this would navigate to a detailed view or open a modal
-    console.log(`Viewing plan details for ${planId}`);
+    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
+    if (plan) {
+      setSelectedPlan(plan);
+    }
   };
 
-  const handleCreatePlan = (newPlan: NewStudyPlan) => {
-    console.log("New study plan created:", newPlan);
+  const handleNewPlanCreated = (newPlan: any) => {
+    console.log("New plan created:", newPlan);
     setShowCreateDialog(false);
-    // In a real app, this would save the plan to the database
+    // In a real app, you would save this plan to your backend
+    // and update the state accordingly
   };
 
   return (
-    <SharedPageLayout
-      title="Academic Advisor"
-      subtitle="Get personalized guidance for your academic journey"
-    >
-      <div className="space-y-8">
-        {/* Overview Card */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-medium">Academic Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-sm">Current Goal</span>
-                <span className="font-medium text-lg">{userProfile.goals?.[0]?.title || "NEET"}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-sm">Subjects</span>
-                <span className="font-medium text-lg">7 Subjects</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-sm">Progress</span>
-                <span className="font-medium text-lg">48% Complete</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Study Plans Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Study Plans</h2>
-            <Button onClick={handleCreatePlanClick} className="flex gap-1 items-center">
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Create New Plan
-            </Button>
-          </div>
-
-          <StudyPlanSections 
-            activePlans={activePlans}
-            completedPlans={completedPlans}
-            onCreatePlan={handleCreatePlanClick}
-            onViewPlanDetails={handleViewPlanDetails}
-          />
-        </div>
-
-        {/* Create Study Plan Dialog */}
-        <CreateStudyPlanWizard 
-          isOpen={showCreateDialog}
-          onClose={() => setShowCreateDialog(false)}
-          onCreatePlan={handleCreatePlan}
-          examGoal={userProfile.goals?.[0]?.title}
-        />
+    <div className="space-y-12">
+      {/* Header section */}
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <GraduationCap className="h-8 w-8 text-indigo-600" />
+          Academic Advisor
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Your personalized study plans and academic progress tracking
+        </p>
       </div>
-    </SharedPageLayout>
+
+      <StudyPlanSections
+        activePlans={activePlans}
+        completedPlans={completedPlans}
+        onCreatePlan={handleCreatePlan}
+        onViewPlanDetails={handleViewPlanDetails}
+      />
+
+      {/* Study Plan Creation Dialog */}
+      <CreateStudyPlanWizard
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        examGoal={userProfile?.examPreparation}
+        onCreatePlan={handleNewPlanCreated}
+      />
+
+      {/* Study Plan Detail Dialog */}
+      {selectedPlan && (
+        <StudyPlanDetail
+          plan={selectedPlan}
+          isOpen={!!selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+        />
+      )}
+    </div>
   );
 };
 

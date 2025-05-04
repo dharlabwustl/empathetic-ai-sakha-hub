@@ -5,16 +5,19 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen by default
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -54,16 +57,27 @@ const StudentDashboard = () => {
     }
   });
 
-  // Important: Force disable welcome tour completely
-  const [shouldShowTour, setShouldShowTour] = useState(false);
-
+  // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
-    // Explicitly mark tour as seen to prevent it from appearing
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
+    const params = new URLSearchParams(location.search);
+    const isNewUser = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // Don't show splash screen for now
-    setShowSplash(false);
+    // For new users who haven't seen the tour
+    if (isNewUser && !hasSeenTour) {
+      setShowSplash(false);
+      setShowTourModal(true);
+      console.log("New user detected, showing welcome tour");
+    } 
+    // For returning users
+    else {
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+      
+      // Make sure we don't show the tour for returning users who have seen it
+      setShowTourModal(false);
+      console.log("Returning user detected, not showing welcome tour");
+    }
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
@@ -84,10 +98,12 @@ const StudentDashboard = () => {
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
 
-    // Auto-start voice greeting after 3 seconds
-    if (userProfile?.name) {
+    // Auto-start voice greeting after 3 seconds when user lands on dashboard
+    // but only if they're not a first-time user seeing the tour
+    if (userProfile?.name && !isNewUser) {
       const timer = setTimeout(() => {
-        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
+        const isFirstLogin = userProfile.loginCount === 1;
+        const greeting = getGreeting(userProfile.name, currentMood?.toString(), isFirstLogin);
         speakMessage(greeting);
       }, 3000);
       
@@ -134,6 +150,43 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleSkipTourWrapper = () => {
+    handleSkipTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    
+    // When tour is skipped, welcome the user with voice
+    if (userProfile?.name) {
+      const greeting = getGreeting(userProfile.name, currentMood?.toString(), true);
+      speakMessage(greeting);
+    }
+    
+    console.log("Tour skipped and marked as seen");
+  };
+
+  const handleCompleteTourWrapper = () => {
+    handleCompleteTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    localStorage.removeItem('new_user_signup'); // Clear the new user flag
+    
+    // When tour is completed, welcome the user with voice
+    if (userProfile?.name) {
+      const greeting = getGreeting(userProfile.name, currentMood?.toString(), true);
+      speakMessage(greeting);
+    }
+    
+    console.log("Tour completed and marked as seen");
+  };
+
+  const handleCompleteOnboardingWrapper = () => {
+    handleCompleteOnboarding();
+    // Set the new user flag to show tour after onboarding
+    localStorage.setItem('new_user_signup', 'true');
+    navigate('/dashboard/student?new=true');
+  };
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -143,14 +196,14 @@ const StudentDashboard = () => {
   }
 
   if (showOnboarding) {
-    const defaultGoal = "IIT-JEE";
+    const defaultGoal = "NEET";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
         goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
+        onComplete={handleCompleteOnboardingWrapper}
       />
     );
   }
@@ -168,34 +221,45 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Force welcome tour to never show
-  const modifiedShowWelcomeTour = false;
-
   return (
-    <DashboardLayout
-      userProfile={enhancedUserProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={modifiedShowWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodChange={handleMoodChange}
-    >
-      {getTabContent()}
-    </DashboardLayout>
+    <>
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={false} // Control this with our local state instead
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+      >
+        {getTabContent()}
+      </DashboardLayout>
+      
+      {/* Welcome Tour Modal - will show for new users */}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={true}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+      />
+    </>
   );
 };
 
