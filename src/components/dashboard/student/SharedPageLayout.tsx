@@ -6,7 +6,6 @@ import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import BackButton from './BackButton';
 
 interface SharedPageLayoutProps {
   title: string;
@@ -17,7 +16,6 @@ interface SharedPageLayoutProps {
   showBackButton?: boolean;
   hideSidebar?: boolean;
   hideTabsNav?: boolean;
-  showQuickAccess?: boolean; // Added support for this prop
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
@@ -28,8 +26,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   backButtonUrl = '/dashboard/student',
   showBackButton = true, // Set to true by default
   hideSidebar = false,
-  hideTabsNav = false,
-  showQuickAccess = false // Default false
+  hideTabsNav = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
@@ -48,16 +45,21 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          {showBackButton && (
-            <BackButton
-              to={backButtonUrl}
-              label="Back to Dashboard"
-              className="mb-4"
-            />
-          )}
           <h1 className="text-2xl font-bold">{title}</h1>
           {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
         </div>
+        
+        {showBackButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(backButtonUrl)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        )}
       </div>
       
       {/* Main Content */}
