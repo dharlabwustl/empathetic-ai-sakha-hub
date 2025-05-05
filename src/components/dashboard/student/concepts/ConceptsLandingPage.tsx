@@ -29,9 +29,9 @@ const conceptData = [
   },
   {
     id: '3',
-    subject: 'Mathematics',
+    subject: 'Biology',
     topics: [
-      { id: 'm1', title: 'Calculus Integration', difficulty: 'hard', progress: 20 },
+      { id: 'm1', title: 'Osmosis in Plant Cells', difficulty: 'hard', progress: 20 },
       { id: 'm2', title: 'Coordinate Geometry', difficulty: 'medium', progress: 75 },
       { id: 'm3', title: 'Probability', difficulty: 'easy', progress: 90 }
     ]
@@ -63,7 +63,7 @@ const ConceptsLandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleConceptCardClick = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/card/${conceptId}`);
+    navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 
   return (
