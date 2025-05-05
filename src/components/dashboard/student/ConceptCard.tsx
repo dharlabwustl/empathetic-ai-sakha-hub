@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, ArrowRight } from "lucide-react";
+import { MouseClickEvent } from '@/types/user';
 
 interface ConceptCardProps {
   id: string;
@@ -47,12 +48,13 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     }
   };
 
-  const handleStudyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent any parent handlers from being called
-    e.preventDefault(); 
+  const handleStudyClick = (e: MouseClickEvent) => {
+    // Prevent the parent card click handler from being called
+    e.preventDefault();
     e.stopPropagation();
     
-    // Navigate directly to the study URL with the specific format /conceptId/study
+    // Navigate directly to the study URL with /conceptId/study format
+    // This is the correct URL format that was specified
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
