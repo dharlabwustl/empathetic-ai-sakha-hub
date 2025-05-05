@@ -7,7 +7,7 @@ const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   
   return (
-    <ConceptCardStudyPage />
+    <ConceptCardStudyPage conceptId={conceptId} />
   );
 };
 
