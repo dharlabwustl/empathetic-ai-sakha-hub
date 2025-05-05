@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from 'react-router-dom';
-import StudyPlanVisualizer from '@/components/dashboard/student/academic/StudyPlanVisualizer';
+import { differenceInDays } from 'date-fns';
 
 interface AcademicAdvisorProps {
   userProfile?: {
@@ -36,7 +36,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const examStatsForVisualizer = currentPlan ? {
     examGoal: currentPlan.examGoal,
     progressPercentage: currentPlan.progressPercent || 0,
-    daysLeft: differenceInDays(new Date(currentPlan.examDate), new Date()),
+    daysLeft: currentPlan.daysLeft || differenceInDays(new Date(currentPlan.examDate), new Date()),
     totalSubjects: currentPlan.subjects.length,
     conceptCards: 24, // Mock data - would be calculated from the plan in a real application
     flashcards: 120, // Mock data
@@ -98,8 +98,57 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       {/* Study Plan Visualizer - for the active plan */}
       {currentPlan && (
         <Card className="border-2 border-purple-100 shadow-sm">
-          <CardContent className="p-0">
-            <StudyPlanVisualizer {...examStatsForVisualizer} />
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="flex flex-col space-y-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <span className="text-sm text-muted-foreground">Exam Goal</span>
+                <span className="text-xl font-semibold">{examStatsForVisualizer.examGoal}</span>
+                <span className="text-sm text-muted-foreground mt-2">Days Left</span>
+                <span className={`text-lg font-medium ${examStatsForVisualizer.daysLeft < 30 ? 'text-amber-500' : ''}`}>
+                  {examStatsForVisualizer.daysLeft} days
+                </span>
+              </div>
+
+              <div className="flex flex-col space-y-2 bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <span className="text-sm text-muted-foreground">Study Plan Progress</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div 
+                      className="bg-green-600 h-2.5 rounded-full" 
+                      style={{ width: `${examStatsForVisualizer.progressPercentage}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-lg font-medium">{examStatsForVisualizer.progressPercentage}%</span>
+                </div>
+                <span className="text-sm text-muted-foreground mt-2">Focus Area</span>
+                <span className="text-lg font-medium">{examStatsForVisualizer.focusArea}</span>
+              </div>
+
+              <div className="flex flex-col space-y-2 bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                <span className="text-sm text-muted-foreground">Daily Study</span>
+                <span className="text-xl font-semibold">{examStatsForVisualizer.studyHoursPerDay} hrs/day</span>
+                <span className="text-sm text-muted-foreground mt-2">Total Subjects</span>
+                <span className="text-lg font-medium">{examStatsForVisualizer.totalSubjects} subjects</span>
+              </div>
+
+              <div className="flex flex-col space-y-2 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                <span className="text-sm text-muted-foreground">Learning Resources</span>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-lg font-semibold">{examStatsForVisualizer.conceptCards}</p>
+                    <p className="text-xs text-muted-foreground">Concepts</p>
+                  </div>
+                  <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-lg font-semibold">{examStatsForVisualizer.flashcards}</p>
+                    <p className="text-xs text-muted-foreground">Cards</p>
+                  </div>
+                  <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-lg font-semibold">{examStatsForVisualizer.practiceExams}</p>
+                    <p className="text-xs text-muted-foreground">Exams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -130,15 +179,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       )}
     </div>
   );
-};
-
-// Helper function to calculate days left
-const differenceInDays = (date1: Date | string, date2: Date | string): number => {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
-  const diffTime = d1.getTime() - d2.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays > 0 ? diffDays : 0;
 };
 
 export default AcademicAdvisor;

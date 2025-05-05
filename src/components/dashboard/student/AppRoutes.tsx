@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -11,7 +12,6 @@ import FlashcardsView from '@/components/dashboard/student/flashcards/Flashcards
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
-import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TutorView from '@/pages/dashboard/student/TutorView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -22,6 +22,7 @@ import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -54,7 +55,7 @@ export default function AppRoutes() {
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />
       <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
-      <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
+      <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
       <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
       <Route path="/dashboard/student/tutor" element={<TutorView />} />
     </Routes>

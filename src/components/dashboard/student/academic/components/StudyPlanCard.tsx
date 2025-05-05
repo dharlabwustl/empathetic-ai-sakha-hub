@@ -34,7 +34,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onClick, isActive =
   
   // Calculate days left
   const today = new Date();
-  const daysLeft = plan.progressPercent === 100 ? 0 : differenceInDays(examDate, today);
+  const daysLeft = plan.progressPercent === 100 ? 0 : plan.daysLeft || differenceInDays(examDate, today);
   
   const progress = plan.progressPercent || 0;
 

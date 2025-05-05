@@ -33,11 +33,14 @@ export interface StudyPlan {
   studyHoursPerDay?: number;
   weeklyHours?: number;
   progressPercent?: number;
+  daysLeft?: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface NewStudyPlan {
+  title?: string;
+  goal?: string;
   examGoal: string;
   examDate: string | Date;
   subjects: Omit<StudyPlanSubject, 'topics'>[];
@@ -45,6 +48,5 @@ export interface NewStudyPlan {
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
   weeklyHours?: number;
-  goal?: string;
   status: 'active' | 'completed' | 'archived';
 }
