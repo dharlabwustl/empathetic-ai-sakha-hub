@@ -1,4 +1,3 @@
-
 import { UserRole } from "../user/base";
 
 // Basic interfaces for user progress tracking
@@ -15,6 +14,16 @@ export interface ConceptCard {
   flashcardsCompleted: number;
   examReady: boolean;
   bookmarked?: boolean;
+}
+
+export interface RevisionItem {
+  id: string;
+  title: string;
+  type: 'concept' | 'flashcard' | 'quiz';
+  subject: string;
+  dueDate: string;
+  priority: 'high' | 'medium' | 'low';
+  retentionScore: number;
 }
 
 export interface Subject {

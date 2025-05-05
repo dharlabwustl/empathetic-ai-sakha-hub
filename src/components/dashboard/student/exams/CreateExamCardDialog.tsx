@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Dialog, 
@@ -68,7 +67,14 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
   });
   
   // Check if user has access to create cards
-  const hasAccess = userSubscription !== SubscriptionType.Free;
+  const isFeatureAvailable = (featureName: string) => {
+    // Example update:
+    if (featureName === 'custom-exam' && userSubscription === SubscriptionType.FREE) {
+      return false;
+    }
+    // ... keep other checks
+    return true;
+  };
   
   // Check if user has enough credits
   const hasEnoughCredits = userCredits.exam >= formData.cardCount;
@@ -104,7 +110,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
     }
     
     // Check subscription status
-    if (!hasAccess) {
+    if (!isFeatureAvailable('custom-exam')) {
       toast({
         title: "Premium feature",
         description: "You need a Pro or Group subscription to create exam cards.",
@@ -163,7 +169,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
           <DialogTitle>Create Custom Exam Cards</DialogTitle>
           <DialogDescription>
             Generate AI-powered exam cards for your study plan
-            {!hasAccess && (
+            {!isFeatureAvailable('custom-exam') && (
               <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
                 Pro Feature
               </Badge>
@@ -301,7 +307,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
           )}
           <Button 
             onClick={handleSubmit} 
-            disabled={!hasAccess || !hasEnoughCredits}
+            disabled={!isFeatureAvailable('custom-exam') || !hasEnoughCredits}
             className="w-full sm:w-auto"
           >
             Create {formData.cardCount} Cards

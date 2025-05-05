@@ -115,6 +115,7 @@ const ConceptCardView = () => {
   const [studyTime, setStudyTime] = useState(0);
   const [mastery, setMastery] = useState(30); // Initial mastery level (0-100)
   const [hasAddedNote, setHasAddedNote] = useState(false);
+  const [isScheduled, setIsScheduled] = useState(false); // New state for scheduling
   
   // In a real app, we would fetch the concept data from an API
   const conceptData = mockConceptData;
@@ -165,6 +166,8 @@ const ConceptCardView = () => {
       description: "Get ready to master this concept with flashcards!",
     });
   };
+  
+  const buttonVariant = isScheduled ? "default" : "outline"; // Change "secondary" to "outline"
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -363,7 +366,7 @@ const ConceptCardView = () => {
                 <TabsContent value="video">
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-video bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-md mb-4">
-                      <Button variant="outline">
+                      <Button variant={buttonVariant}>
                         <Play className="mr-2 h-4 w-4" />
                         Play Video
                       </Button>
