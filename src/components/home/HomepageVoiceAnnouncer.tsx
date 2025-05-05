@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ interface HomepageVoiceAnnouncerProps {
 
 const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   autoPlay = true,
-  delayStart = 5000, // Default delay of 5 seconds
+  delayStart = 3000, // Default delay reduced to 3 seconds for better UX
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -27,6 +26,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
   // Ref for speech synthesis utterance
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -60,11 +60,13 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   useEffect(() => {
     const hasVisitedBefore = localStorage.getItem('prepzrHasVisited');
     
-    // Only show for first-time visitors
+    // Only show for first-time visitors or set to always show
     if (hasVisitedBefore === 'true') {
-      setIsVisible(false);
+      // We'll still show it, but with different messaging
+      setIsVisible(true);
     } else {
       localStorage.setItem('prepzrHasVisited', 'true');
+      setIsVisible(true);
     }
   }, []);
 
@@ -131,9 +133,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       }
       
       // Auto-play after delay if enabled - ensuring it starts automatically
-      if (autoPlay && isVisible) {
+      if (autoPlay && isVisible && !hasAutoPlayed) {
         const timer = setTimeout(() => {
           startAnnouncement();
+          setHasAutoPlayed(true); // Mark that we've auto-played
         }, delayStart);
         
         return () => clearTimeout(timer);
@@ -148,7 +151,53 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
         clearTimeout(timerRef.current);
       }
     };
-  }, [autoPlay, delayStart, isVisible]);
+  }, [autoPlay, delayStart, isVisible, hasAutoPlayed]);
+  
+  // Function to actually start the announcement sequence
+  const startAnnouncement = () => {
+    if (!hasStarted && utteranceRef.current) {
+      setHasStarted(true);
+      setIsPlaying(true);
+      speakMessage(welcomeMessages[0]);
+    }
+  };
+  
+  // Function to speak a message
+  const speakMessage = (text: string) => {
+    if (utteranceRef.current && !isMuted) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Set up the new utterance text
+      utteranceRef.current.text = text;
+      
+      // Event handlers
+      utteranceRef.current.onstart = () => {
+        setIsPlaying(true);
+      };
+      
+      utteranceRef.current.onend = () => {
+        setIsPlaying(false);
+        
+        // Move to next message if we're going through the welcome sequence
+        if (currentMessageIndex < welcomeMessages.length - 1) {
+          setCurrentMessageIndex(prevIndex => {
+            const nextIndex = prevIndex + 1;
+            
+            // Set a timeout to speak the next message with a slight pause
+            timerRef.current = window.setTimeout(() => {
+              speakMessage(welcomeMessages[nextIndex]);
+            }, 1000);
+            
+            return nextIndex;
+          });
+        }
+      };
+      
+      // Start speaking
+      window.speechSynthesis.speak(utteranceRef.current);
+    }
+  };
   
   // Initialize speech recognition
   useEffect(() => {
@@ -247,64 +296,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
           console.error("Error starting speech recognition", error);
         }
       }
-    }
-  };
-  
-  const speakMessage = (message: string) => {
-    if (utteranceRef.current && !isMuted) {
-      window.speechSynthesis.cancel(); // Cancel any ongoing speech
-      
-      // Fix pronunciation for speech only - not for display
-      const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
-      
-      utteranceRef.current.text = processedMessage;
-      window.speechSynthesis.speak(utteranceRef.current);
-    }
-    
-    // Progress timing - increase duration for calmer speech
-    const messageDuration = message.length * 90; // Slightly longer for better enunciation
-    let startTime = Date.now();
-    
-    // Update progress
-    const updateProgress = () => {
-      const elapsed = Date.now() - startTime;
-      const progressValue = Math.min(100, (elapsed / messageDuration) * 100);
-      setProgress(progressValue);
-      
-      if (progressValue < 100 && isPlaying) {
-        timerRef.current = window.setTimeout(updateProgress, 50);
-      } else {
-        // Move to next message
-        if (currentMessageIndex < welcomeMessages.length - 1 && isPlaying) {
-          timerRef.current = window.setTimeout(() => {
-            setCurrentMessageIndex(prevIndex => prevIndex + 1);
-            setProgress(0);
-            speakMessage(welcomeMessages[currentMessageIndex + 1]);
-          }, 1200); // Slightly longer pause between messages for a calmer pace
-        } else if (currentMessageIndex >= welcomeMessages.length - 1) {
-          setIsPlaying(false);
-        }
-      }
-    };
-    
-    updateProgress();
-  };
-  
-  const startAnnouncement = () => {
-    setIsPlaying(true);
-    setHasStarted(true);
-    setCurrentMessageIndex(0);
-    setProgress(0);
-    speakMessage(welcomeMessages[0]);
-  };
-  
-  const stopAnnouncement = () => {
-    setIsPlaying(false);
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
     }
   };
   

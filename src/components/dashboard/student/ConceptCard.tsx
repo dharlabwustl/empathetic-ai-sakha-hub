@@ -53,8 +53,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    // Navigate directly to the study URL with /conceptId/study format
-    console.log(`Navigating to study page for concept: ${id}`);
+    // Ensure we navigate to the study URL with correct format: /conceptId/study
+    console.log(`Navigating to study page for concept: ${id}/study`);
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
@@ -136,7 +136,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
           onClick={handleStudyClick}
         >
           <BookOpen className="mr-2 h-4 w-4" /> 
-          Study
+          Study Now
           <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-0.5 transition-transform" />
         </Button>
       </CardFooter>
