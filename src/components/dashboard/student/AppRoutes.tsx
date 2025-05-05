@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -37,6 +36,9 @@ export default function AppRoutes() {
       {/* Syllabus route */}
       <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
       
+      {/* Previous Year Analysis route */}
+      <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
+      
       {/* Concepts routes - Direct linking to concept card detail page */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
       <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
@@ -56,9 +58,6 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-      
-      {/* Previous Year Analysis route */}
-      <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
       
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />
