@@ -62,10 +62,10 @@ export const SidebarNavRoutes = ({
   // Learning tools category - updated to include Previous Year Analysis and Syllabus
   const learningTools = [
     { name: "Syllabus", path: "/dashboard/student/syllabus", icon: <Book size={20} /> },
+    { name: "Previous Year Analysis", path: "/dashboard/student/previous-year-analysis", icon: <TrendingUp size={20} /> },
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
     { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <FileText size={20} /> },
-    { name: "Previous Year Analysis", path: "/dashboard/student/previous-year-analysis", icon: <TrendingUp size={20} /> },
   ];
 
   // AI assistance category

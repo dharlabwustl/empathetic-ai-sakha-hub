@@ -2,311 +2,266 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { 
-  BookOpen, 
-  Brain, 
-  FileText,
-  Check,
-  ChevronRight
-} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { BookOpen, Check, FileText, ArrowRight } from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types/user/base';
 
-interface SyllabusUnit {
-  id: string;
-  title: string;
-  progress: number;
-  topics: SyllabusTopic[];
-  totalTopics: number;
-  completedTopics: number;
-}
-
-interface SyllabusTopic {
-  id: string;
-  title: string;
-  completed: boolean;
-  difficulty: 'easy' | 'medium' | 'hard';
-  weightage: number;
-  resources: {
-    conceptCards: number;
-    flashcards: number;
-    practiceTests: number;
-  };
-}
-
-const SyllabusPage: React.FC = () => {
+const SyllabusPage = () => {
   const navigate = useNavigate();
-  const { userProfile } = useUserProfile(UserRole.Student);
-  const [currentSubject, setCurrentSubject] = useState('biology');
+  const [activeTab, setActiveTab] = useState('physics');
   
-  // Mock data for the syllabus
   const subjects = [
-    { id: 'biology', name: 'Biology', progress: 65, color: 'bg-green-500' },
-    { id: 'chemistry', name: 'Chemistry', progress: 48, color: 'bg-blue-500' },
-    { id: 'physics', name: 'Physics', progress: 32, color: 'bg-purple-500' }
+    { id: 'physics', name: 'Physics', progress: 65, chapters: 16, completed: 10 },
+    { id: 'chemistry', name: 'Chemistry', progress: 42, chapters: 18, completed: 8 },
+    { id: 'biology', name: 'Biology', progress: 78, chapters: 22, completed: 17 },
   ];
   
-  // Mock syllabus units for Biology
-  const biologyUnits: SyllabusUnit[] = [
-    {
-      id: 'bio-unit-1',
-      title: 'Cell Structure and Function',
-      progress: 85,
-      totalTopics: 12,
-      completedTopics: 10,
-      topics: [
-        { id: 'cell-theory', title: 'Cell Theory', completed: true, difficulty: 'easy', weightage: 8, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'cell-organelles', title: 'Cell Organelles', completed: true, difficulty: 'medium', weightage: 10, resources: { conceptCards: 6, flashcards: 24, practiceTests: 3 } },
-        { id: 'cell-membrane', title: 'Cell Membrane and Transport', completed: false, difficulty: 'hard', weightage: 9, resources: { conceptCards: 5, flashcards: 20, practiceTests: 2 } },
-        // More topics would be here
-      ]
-    },
-    {
-      id: 'bio-unit-2',
-      title: 'Genetics and Evolution',
-      progress: 70,
-      totalTopics: 15,
-      completedTopics: 10,
-      topics: [
-        { id: 'dna-structure', title: 'DNA Structure', completed: true, difficulty: 'medium', weightage: 10, resources: { conceptCards: 5, flashcards: 18, practiceTests: 2 } },
-        { id: 'mendelian-genetics', title: 'Mendelian Genetics', completed: true, difficulty: 'medium', weightage: 9, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'gene-expression', title: 'Gene Expression and Regulation', completed: false, difficulty: 'hard', weightage: 10, resources: { conceptCards: 6, flashcards: 22, practiceTests: 3 } },
-        // More topics would be here
-      ]
-    },
-    {
-      id: 'bio-unit-3',
-      title: 'Human Physiology',
-      progress: 45,
-      totalTopics: 18,
-      completedTopics: 8,
-      topics: [
-        { id: 'digestive-system', title: 'Digestive System', completed: true, difficulty: 'medium', weightage: 8, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'circulatory-system', title: 'Circulatory System', completed: false, difficulty: 'hard', weightage: 9, resources: { conceptCards: 5, flashcards: 20, practiceTests: 2 } },
-        { id: 'nervous-system', title: 'Nervous System', completed: false, difficulty: 'hard', weightage: 10, resources: { conceptCards: 6, flashcards: 24, practiceTests: 3 } },
-        // More topics would be here
-      ]
-    }
-  ];
-  
-  // Mock syllabus units for Chemistry
-  const chemistryUnits: SyllabusUnit[] = [
-    {
-      id: 'chem-unit-1',
-      title: 'Atomic Structure',
-      progress: 75,
-      totalTopics: 10,
-      completedTopics: 7,
-      topics: [
-        { id: 'atomic-models', title: 'Atomic Models', completed: true, difficulty: 'medium', weightage: 8, resources: { conceptCards: 3, flashcards: 12, practiceTests: 2 } },
-        { id: 'quantum-numbers', title: 'Quantum Numbers', completed: true, difficulty: 'hard', weightage: 9, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'electronic-config', title: 'Electronic Configuration', completed: false, difficulty: 'medium', weightage: 8, resources: { conceptCards: 3, flashcards: 14, practiceTests: 2 } },
-      ]
-    },
-    {
-      id: 'chem-unit-2',
-      title: 'Chemical Bonding',
-      progress: 60,
-      totalTopics: 12,
-      completedTopics: 7,
-      topics: [
-        { id: 'ionic-bonding', title: 'Ionic Bonding', completed: true, difficulty: 'easy', weightage: 7, resources: { conceptCards: 3, flashcards: 12, practiceTests: 1 } },
-        { id: 'covalent-bonding', title: 'Covalent Bonding', completed: true, difficulty: 'medium', weightage: 8, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'molecular-orbital', title: 'Molecular Orbital Theory', completed: false, difficulty: 'hard', weightage: 9, resources: { conceptCards: 5, flashcards: 18, practiceTests: 2 } },
-      ]
-    }
-  ];
-  
-  // Mock syllabus units for Physics
-  const physicsUnits: SyllabusUnit[] = [
-    {
-      id: 'phy-unit-1',
-      title: 'Mechanics',
-      progress: 50,
-      totalTopics: 14,
-      completedTopics: 7,
-      topics: [
-        { id: 'laws-of-motion', title: 'Laws of Motion', completed: true, difficulty: 'medium', weightage: 9, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'work-energy', title: 'Work, Energy and Power', completed: true, difficulty: 'medium', weightage: 8, resources: { conceptCards: 4, flashcards: 14, practiceTests: 2 } },
-        { id: 'rotational-motion', title: 'Rotational Motion', completed: false, difficulty: 'hard', weightage: 8, resources: { conceptCards: 5, flashcards: 18, practiceTests: 2 } },
-      ]
-    },
-    {
-      id: 'phy-unit-2',
-      title: 'Electrodynamics',
-      progress: 30,
-      totalTopics: 16,
-      completedTopics: 5,
-      topics: [
-        { id: 'electrostatics', title: 'Electrostatics', completed: true, difficulty: 'medium', weightage: 8, resources: { conceptCards: 4, flashcards: 16, practiceTests: 2 } },
-        { id: 'current-electricity', title: 'Current Electricity', completed: false, difficulty: 'medium', weightage: 9, resources: { conceptCards: 5, flashcards: 18, practiceTests: 2 } },
-        { id: 'electromagnetic-induction', title: 'Electromagnetic Induction', completed: false, difficulty: 'hard', weightage: 9, resources: { conceptCards: 5, flashcards: 20, practiceTests: 3 } },
-      ]
-    }
-  ];
-  
-  // Get current syllabus units based on selected subject
-  const getCurrentSyllabusUnits = () => {
-    switch(currentSubject) {
-      case 'biology': return biologyUnits;
-      case 'chemistry': return chemistryUnits;
-      case 'physics': return physicsUnits;
-      default: return [];
-    }
+  const syllabusData = {
+    physics: [
+      { 
+        id: 'phy-1', 
+        title: 'Mechanics', 
+        topics: [
+          { name: 'Units & Measurements', completed: true },
+          { name: 'Motion in One Dimension', completed: true },
+          { name: 'Motion in Two & Three Dimensions', completed: true },
+          { name: 'Laws of Motion', completed: true },
+          { name: 'Work, Energy & Power', completed: true },
+          { name: 'Rotational Motion', completed: false },
+          { name: 'Gravitation', completed: false },
+        ],
+        importance: 'High',
+        timeRequired: '4-5 weeks'
+      },
+      { 
+        id: 'phy-2', 
+        title: 'Thermodynamics', 
+        topics: [
+          { name: 'Thermal Properties of Matter', completed: true },
+          { name: 'Thermodynamics Laws', completed: true },
+          { name: 'Kinetic Theory of Gases', completed: false },
+          { name: 'Heat Transfer', completed: false },
+        ],
+        importance: 'Medium',
+        timeRequired: '2-3 weeks'
+      },
+      { 
+        id: 'phy-3', 
+        title: 'Electrostatics', 
+        topics: [
+          { name: 'Electric Charges & Fields', completed: true },
+          { name: 'Electrostatic Potential & Capacitance', completed: false },
+          { name: 'Current Electricity', completed: false },
+        ],
+        importance: 'High',
+        timeRequired: '3-4 weeks'
+      },
+      { 
+        id: 'phy-4', 
+        title: 'Magnetism & EMI', 
+        topics: [
+          { name: 'Moving Charges & Magnetism', completed: false },
+          { name: 'Magnetism & Matter', completed: false },
+          { name: 'Electromagnetic Induction', completed: false },
+          { name: 'Alternating Current', completed: false },
+        ],
+        importance: 'Medium',
+        timeRequired: '3-4 weeks'
+      },
+      { 
+        id: 'phy-5', 
+        title: 'Optics', 
+        topics: [
+          { name: 'Ray Optics', completed: false },
+          { name: 'Wave Optics', completed: false },
+        ],
+        importance: 'Medium',
+        timeRequired: '2-3 weeks'
+      },
+      { 
+        id: 'phy-6', 
+        title: 'Modern Physics', 
+        topics: [
+          { name: 'Dual Nature of Matter', completed: false },
+          { name: 'Atoms', completed: false },
+          { name: 'Nuclei', completed: false },
+          { name: 'Semiconductor Devices', completed: false },
+        ],
+        importance: 'High',
+        timeRequired: '3-4 weeks'
+      },
+    ],
+    chemistry: [
+      { 
+        id: 'chem-1', 
+        title: 'Physical Chemistry', 
+        topics: [
+          { name: 'Basic Concepts', completed: true },
+          { name: 'States of Matter', completed: true },
+          { name: 'Atomic Structure', completed: true },
+          { name: 'Chemical Bonding', completed: false },
+          { name: 'Chemical Thermodynamics', completed: false },
+          { name: 'Solutions', completed: false },
+          { name: 'Equilibrium', completed: false },
+          { name: 'Redox Reactions & Electrochemistry', completed: false },
+          { name: 'Chemical Kinetics', completed: false },
+          { name: 'Surface Chemistry', completed: false },
+        ],
+        importance: 'High',
+        timeRequired: '5-6 weeks'
+      },
+      // More chemistry chapters would be here
+    ],
+    biology: [
+      { 
+        id: 'bio-1', 
+        title: 'Diversity in Living World', 
+        topics: [
+          { name: 'Living World', completed: true },
+          { name: 'Biological Classification', completed: true },
+          { name: 'Plant Kingdom', completed: true },
+          { name: 'Animal Kingdom', completed: true },
+        ],
+        importance: 'Medium',
+        timeRequired: '2-3 weeks'
+      },
+      { 
+        id: 'bio-2', 
+        title: 'Cell Structure & Function', 
+        topics: [
+          { name: 'Cell Theory', completed: true },
+          { name: 'Prokaryotic & Eukaryotic Cells', completed: true },
+          { name: 'Plant & Animal Cells', completed: true },
+          { name: 'Cell Membrane & Cell Wall', completed: true },
+          { name: 'Cell Organelles', completed: true },
+          { name: 'Biomolecules', completed: true },
+          { name: 'Cell Division', completed: false },
+        ],
+        importance: 'High',
+        timeRequired: '3-4 weeks'
+      },
+      // More biology chapters would be here
+    ],
   };
+  
+  const currentSubjectData = syllabusData[activeTab as keyof typeof syllabusData] || [];
+  const currentSubject = subjects.find(sub => sub.id === activeTab) || subjects[0];
 
-  const currentUnits = getCurrentSyllabusUnits();
-  
-  // Get difficulty badge color
-  const getDifficultyBadge = (difficulty: string) => {
-    switch(difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
-    }
-  };
-  
-  // Navigate to concept card
-  const navigateToConceptCard = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/card/${conceptId}`);
-  };
-  
-  // Navigate to flashcards
-  const navigateToFlashcards = (flashcardId: string) => {
-    navigate(`/dashboard/student/flashcards/${flashcardId}`);
-  };
-  
-  // Navigate to practice exam
-  const navigateToPracticeExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
-  };
-  
   return (
     <SharedPageLayout
-      title="Exam Syllabus and Progress Tracker"
-      subtitle="Complete syllabus mapping with your progress and study resources"
+      title="Exam Syllabus"
+      subtitle="Track your progress through the complete syllabus"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
       <div className="space-y-6">
-        {/* Subject tabs */}
-        <Tabs value={currentSubject} onValueChange={setCurrentSubject}>
-          <TabsList className="grid grid-cols-3 w-full">
-            {subjects.map((subject) => (
-              <TabsTrigger key={subject.id} value={subject.id} className="relative">
-                <span>{subject.name}</span>
-                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800">
-                  {subject.progress}%
-                </span>
-                {subject.progress >= 50 && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
-                )}
+        {/* Subject Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {subjects.map(subject => (
+            <Card key={subject.id} className={`overflow-hidden ${activeTab === subject.id ? 'ring-2 ring-primary' : ''}`}>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex justify-between items-center text-lg">
+                  {subject.name}
+                  <Badge variant={subject.progress >= 75 ? "success" : "outline"}>
+                    {subject.progress}% Complete
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Progress value={subject.progress} className="h-2 mb-4" />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{subject.completed} of {subject.chapters} chapters completed</span>
+                </div>
+                <Button 
+                  variant={activeTab === subject.id ? "default" : "outline"} 
+                  className="mt-4 w-full"
+                  onClick={() => setActiveTab(subject.id)}
+                >
+                  {activeTab === subject.id ? 'Currently Viewing' : 'View Syllabus'}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Syllabus Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="bg-muted/50">
+            {subjects.map(subject => (
+              <TabsTrigger key={subject.id} value={subject.id} className="data-[state=active]:bg-background">
+                {subject.name}
               </TabsTrigger>
             ))}
           </TabsList>
-
-          {/* Subject content */}
-          {subjects.map((subject) => (
-            <TabsContent key={subject.id} value={subject.id} className="mt-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">{subject.name} Syllabus</h2>
+          
+          {Object.keys(syllabusData).map(subjectKey => (
+            <TabsContent key={subjectKey} value={subjectKey} className="space-y-4">
+              <div className="flex justify-between items-center">
                 <div>
-                  <Badge variant="secondary" className={`${subject.color} text-white`}>
-                    {subject.progress}% Complete
-                  </Badge>
+                  <h2 className="text-xl font-semibold">{subjectKey.charAt(0).toUpperCase() + subjectKey.slice(1)} Syllabus</h2>
+                  <p className="text-muted-foreground">
+                    {currentSubject.completed} of {currentSubject.chapters} chapters completed ({currentSubject.progress}%)
+                  </p>
                 </div>
+                <Button variant="outline">Download PDF</Button>
               </div>
               
-              <div className="mb-6">
-                <Progress value={subject.progress} className="h-2" />
-              </div>
-              
-              {/* Units for the current subject */}
-              <div className="space-y-6">
-                {subject.id === currentSubject && currentUnits.map((unit) => (
-                  <Card key={unit.id} className="overflow-hidden">
-                    <CardHeader className="bg-gray-50 dark:bg-gray-800">
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg">{unit.title}</CardTitle>
+              <div className="space-y-4">
+                {syllabusData[subjectKey as keyof typeof syllabusData].map((chapter, index) => (
+                  <Card key={chapter.id}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex justify-between">
+                        <div className="flex items-center">
+                          <span className="mr-2">{index + 1}.</span> {chapter.title}
+                        </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-primary/10">
-                            {unit.completedTopics}/{unit.totalTopics} Topics
+                          <Badge variant={chapter.importance === 'High' ? "destructive" : "secondary"} className="text-xs">
+                            {chapter.importance} Priority
                           </Badge>
-                          <Badge variant="secondary" className={subject.color + " text-white"}>
-                            {unit.progress}%
+                          <Badge variant="outline" className="text-xs">
+                            {chapter.timeRequired}
                           </Badge>
                         </div>
-                      </div>
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-4">
-                      <div className="mb-4">
-                        <Progress value={unit.progress} className={`h-1 ${subject.color}`} />
-                      </div>
-                      
-                      <div className="grid gap-4">
-                        {unit.topics.map((topic) => (
-                          <div key={topic.id} className="border rounded-lg p-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                {topic.completed && (
-                                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                                    <Check className="h-3 w-3 text-green-600" />
-                                  </div>
-                                )}
-                                <h3 className="font-medium">{topic.title}</h3>
-                                <Badge variant="outline" className={getDifficultyBadge(topic.difficulty)}>
-                                  {topic.difficulty}
-                                </Badge>
-                              </div>
-                              <Badge variant="secondary">
-                                Weightage: {topic.weightage}/10
-                              </Badge>
-                            </div>
-                            
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="flex items-center gap-1"
-                                onClick={() => navigateToConceptCard(`${topic.id}-concept`)}
-                              >
-                                <BookOpen className="h-3.5 w-3.5" />
-                                {topic.resources.conceptCards} Concept Cards
-                              </Button>
-                              
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="flex items-center gap-1"
-                                onClick={() => navigateToFlashcards(`${topic.id}-flash`)}
-                              >
-                                <Brain className="h-3.5 w-3.5" />
-                                {topic.resources.flashcards} Flashcards
-                              </Button>
-                              
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="flex items-center gap-1"
-                                onClick={() => navigateToPracticeExam(`${topic.id}-exam`)}
-                              >
-                                <FileText className="h-3.5 w-3.5" />
-                                {topic.resources.practiceTests} Practice Tests
-                              </Button>
-                            </div>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {chapter.topics.map((topic, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`flex items-center p-2 rounded-md ${
+                              topic.completed ? 'bg-green-50 dark:bg-green-950/20' : 'bg-background'
+                            }`}
+                          >
+                            {topic.completed ? (
+                              <Check size={16} className="text-green-600 mr-2" />
+                            ) : (
+                              <div className="w-4 h-4 rounded-full border border-muted-foreground mr-2" />
+                            )}
+                            <span className={topic.completed ? 'text-green-800 dark:text-green-300' : ''}>
+                              {topic.name}
+                            </span>
                           </div>
                         ))}
                       </div>
                       
-                      <Button variant="ghost" className="w-full mt-4 flex items-center justify-center gap-1">
-                        View All Topics <ChevronRight className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-between mt-4">
+                        <Button variant="ghost" size="sm" className="gap-1">
+                          <BookOpen size={16} />
+                          <span>Study Material</span>
+                        </Button>
+                        <Button variant="ghost" size="sm" className="gap-1">
+                          <FileText size={16} />
+                          <span>Practice Questions</span>
+                        </Button>
+                        <Button size="sm" className="gap-1">
+                          <span>Start Learning</span>
+                          <ArrowRight size={16} />
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -314,37 +269,6 @@ const SyllabusPage: React.FC = () => {
             </TabsContent>
           ))}
         </Tabs>
-        
-        {/* Additional features */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 h-auto p-4 justify-start text-left"
-            onClick={() => navigate('/dashboard/student/study-plan')}
-          >
-            <div className="rounded-full p-2 bg-primary/10">
-              <BookOpen className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Create Study Plan</p>
-              <p className="text-muted-foreground text-sm">Based on syllabus and your current progress</p>
-            </div>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 h-auto p-4 justify-start text-left"
-            onClick={() => navigate('/dashboard/student/previous-year-analysis')}
-          >
-            <div className="rounded-full p-2 bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Previous Year Analysis</p>
-              <p className="text-muted-foreground text-sm">Understand exam patterns and important topics</p>
-            </div>
-          </Button>
-        </div>
       </div>
     </SharedPageLayout>
   );
