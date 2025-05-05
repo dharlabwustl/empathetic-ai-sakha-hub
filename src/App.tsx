@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -16,7 +15,6 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
 import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import AppRoutes from './components/dashboard/student/AppRoutes';
@@ -55,6 +53,7 @@ import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
+import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 
 function App() {
   return (
@@ -130,8 +129,8 @@ function App() {
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
-              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
               <Route path="/dashboard/student/concepts" element={<ConceptsLandingPage />} />

@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -22,11 +21,11 @@ import FlashcardsView from '@/components/dashboard/student/flashcards/Flashcards
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
+import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 
 export default function StudentRoutes() {
   return (
@@ -42,7 +41,7 @@ export default function StudentRoutes() {
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
-      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+      <Route path="/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
       
       {/* Flashcards routes - simplified and direct */}
       <Route path="/flashcards" element={<FlashcardsView />} />
