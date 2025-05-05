@@ -18,10 +18,13 @@ export interface StudyPlanSubject {
   completed: boolean;
   isWeakSubject?: boolean;
   topics?: StudyPlanTopic[];
+  difficulty?: 'easy' | 'medium' | 'hard';
+  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
 }
 
 export interface StudyPlan {
   id: string;
+  userId?: string;
   title?: string;
   goal?: string;
   examGoal: string;
@@ -33,9 +36,11 @@ export interface StudyPlan {
   studyHoursPerDay?: number;
   weeklyHours?: number;
   progressPercent?: number;
+  progressPercentage?: number;
   daysLeft?: number;
   createdAt: string;
   updatedAt: string;
+  progress?: number;
 }
 
 export interface NewStudyPlan {
