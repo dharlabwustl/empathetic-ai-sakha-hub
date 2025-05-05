@@ -7,12 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
-  BarChart, 
   FileText, 
   BookOpen,
-  Calendar,
   TrendingUp,
-  ArrowLeft
 } from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -86,7 +83,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Human Physiology', frequency: 8, importance: 9 },
         { name: 'Genetics', frequency: 7, importance: 9 },
         { name: 'Mechanics', frequency: 6, importance: 8 },
-        { name: 'Organic Chemistry', frequency: 9, importance: 10 },
+        { name: 'Organic Chemistry', frequency: 9, importance: 10 }
       ]
     },
     {
@@ -102,7 +99,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Cell Biology', frequency: 9, importance: 10 },
         { name: 'Thermodynamics', frequency: 7, importance: 8 },
         { name: 'Coordination Compounds', frequency: 8, importance: 9 },
-        { name: 'Plant Physiology', frequency: 6, importance: 7 },
+        { name: 'Plant Physiology', frequency: 6, importance: 7 }
       ]
     },
     {
@@ -118,7 +115,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Electrostatics', frequency: 8, importance: 9 },
         { name: 'Chemical Bonding', frequency: 7, importance: 8 },
         { name: 'Human Health & Disease', frequency: 9, importance: 10 },
-        { name: 'Ecology', frequency: 6, importance: 7 },
+        { name: 'Ecology', frequency: 6, importance: 7 }
       ]
     },
     {
@@ -134,7 +131,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Molecular Basis of Inheritance', frequency: 9, importance: 10 },
         { name: 'Electrochemistry', frequency: 7, importance: 8 },
         { name: 'Waves', frequency: 6, importance: 7 },
-        { name: 'Biomolecules', frequency: 8, importance: 9 },
+        { name: 'Biomolecules', frequency: 8, importance: 9 }
       ]
     },
     {
@@ -150,7 +147,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Genetics & Evolution', frequency: 9, importance: 10 },
         { name: 'Nuclear Physics', frequency: 6, importance: 7 },
         { name: 'Organic Chemistry', frequency: 8, importance: 9 },
-        { name: 'Plant Kingdom', frequency: 7, importance: 8 },
+        { name: 'Plant Kingdom', frequency: 7, importance: 8 }
       ]
     }
   ];
@@ -164,7 +161,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Human Physiology', questions: 15, importance: 9 },
         { name: 'Genetics & Evolution', questions: 13, importance: 10 },
         { name: 'Cell Biology', questions: 12, importance: 9 },
-        { name: 'Ecology & Environment', questions: 10, importance: 8 },
+        { name: 'Ecology & Environment', questions: 10, importance: 8 }
       ]
     },
     {
@@ -175,7 +172,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Organic Chemistry', questions: 10, importance: 10 },
         { name: 'Physical Chemistry', questions: 8, importance: 9 },
         { name: 'Coordination Compounds', questions: 5, importance: 8 },
-        { name: 'Chemical Bonding', questions: 5, importance: 8 },
+        { name: 'Chemical Bonding', questions: 5, importance: 8 }
       ]
     },
     {
@@ -186,9 +183,9 @@ const PreviousYearAnalysisPage: React.FC = () => {
         { name: 'Mechanics', questions: 8, importance: 9 },
         { name: 'Electrostatics', questions: 7, importance: 8 },
         { name: 'Modern Physics', questions: 6, importance: 9 },
-        { name: 'Optics', questions: 5, importance: 7 },
+        { name: 'Optics', questions: 5, importance: 7 }
       ]
-    },
+    }
   ];
 
   const recommendationStrategies: RecommendationStrategy[] = [
@@ -198,7 +195,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
       timeAllocation: [
         { subject: 'Biology', percentage: 40 },
         { subject: 'Chemistry', percentage: 30 },
-        { subject: 'Physics', percentage: 30 },
+        { subject: 'Physics', percentage: 30 }
       ],
       tips: [
         'Focus on understanding core concepts rather than rote learning',
@@ -213,7 +210,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
       timeAllocation: [
         { subject: 'Biology', percentage: 50 },
         { subject: 'Chemistry', percentage: 30 },
-        { subject: 'Physics', percentage: 20 },
+        { subject: 'Physics', percentage: 20 }
       ],
       tips: [
         'Master diagrams and biological processes',
@@ -228,7 +225,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
       timeAllocation: [
         { subject: 'Weakest Subject', percentage: 40 },
         { subject: 'Medium Subject', percentage: 35 },
-        { subject: 'Strongest Subject', percentage: 25 },
+        { subject: 'Strongest Subject', percentage: 25 }
       ],
       tips: [
         'Take diagnostic tests to identify weak areas',
@@ -236,7 +233,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
         'Seek expert help for topics you find challenging',
         'Track your progress regularly'
       ]
-    },
+    }
   ];
 
   const filteredPatternData = examPatterns.find(pattern => pattern.year === selectedYear);
@@ -302,7 +299,7 @@ const PreviousYearAnalysisPage: React.FC = () => {
               <FileText className="h-4 w-4" /> Exam Pattern
             </TabsTrigger>
             <TabsTrigger value="distribution" className="flex items-center gap-2">
-              <BarChart className="h-4 w-4" /> Subject Distribution
+              <TrendingUp className="h-4 w-4" /> Subject Distribution
             </TabsTrigger>
             <TabsTrigger value="strategy" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" /> Preparation Strategy
