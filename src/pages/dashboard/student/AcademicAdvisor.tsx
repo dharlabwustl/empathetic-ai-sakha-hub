@@ -35,13 +35,13 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   
   const examStatsForVisualizer = currentPlan ? {
     examGoal: currentPlan.examGoal,
-    progressPercentage: currentPlan.progressPercentage || 0,
-    daysLeft: currentPlan.daysLeft || 30,
+    progressPercentage: currentPlan.progressPercent || 0,
+    daysLeft: differenceInDays(new Date(currentPlan.examDate), new Date()),
     totalSubjects: currentPlan.subjects.length,
     conceptCards: 24, // Mock data - would be calculated from the plan in a real application
     flashcards: 120, // Mock data
     practiceExams: 8, // Mock data
-    studyHoursPerDay: currentPlan.studyHoursPerDay,
+    studyHoursPerDay: currentPlan.studyHoursPerDay || 4,
     focusArea: currentPlan.subjects.find(s => s.proficiency === 'weak')?.name || 'All subjects'
   } : {
     examGoal: userProfile?.examPreparation || "NEET",
@@ -130,6 +130,15 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       )}
     </div>
   );
+};
+
+// Helper function to calculate days left
+const differenceInDays = (date1: Date | string, date2: Date | string): number => {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const diffTime = d1.getTime() - d2.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays > 0 ? diffDays : 0;
 };
 
 export default AcademicAdvisor;
