@@ -32,7 +32,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
       <Route path="/dashboard/student/profile" element={<StudentProfile />} />
       
-      {/* Concepts routes - Ensure landing page is properly accessible */}
+      {/* Concepts routes - Direct linking to concept card detail page */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
       <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
@@ -36,7 +37,7 @@ export default function StudentRoutes() {
       <Route path="/study-plan" element={<StudyPlanView />} />
       <Route path="/profile" element={<StudentProfile />} />
       
-      {/* Concepts routes */}
+      {/* Concepts routes - Direct linking to concept card detail page */}
       <Route path="/concepts" element={<ConceptCardsView />} />
       <Route path="/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
