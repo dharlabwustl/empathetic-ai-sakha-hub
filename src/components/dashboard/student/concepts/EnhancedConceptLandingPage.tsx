@@ -1,11 +1,16 @@
+
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Bookmark, PenLine, Share2, Volume2, VolumeX, Book, ArrowRight, Clock } from "lucide-react";
 import { cn } from '@/lib/utils';
+
+// Props interface for the component
+interface EnhancedConceptLandingPageProps {
+  conceptId?: string;
+}
 
 // Mock concept data
 const mockConcept = {
@@ -85,8 +90,7 @@ const mockConcept = {
   }
 };
 
-const EnhancedConceptLandingPage: React.FC = () => {
-  const { conceptId } = useParams<{conceptId: string}>();
+const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({ conceptId }) => {
   const [activeTab, setActiveTab] = useState("summary");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
