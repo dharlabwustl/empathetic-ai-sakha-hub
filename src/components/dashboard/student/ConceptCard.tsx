@@ -39,7 +39,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleStudyClick = () => {
-    // Navigate directly to the concept study page with the specific card ID
+    // Use the exact URL format requested: /dashboard/student/concepts/p1/study
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
