@@ -28,7 +28,6 @@ import ProfilePage from '@/pages/student/ProfilePage';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import TutorView from '@/pages/dashboard/student/TutorView';
-import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
@@ -54,6 +53,7 @@ import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 
 function App() {
   return (
@@ -149,7 +149,7 @@ function App() {
               
               {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
-              <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
+              <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* 404 */}

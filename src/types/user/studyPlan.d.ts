@@ -36,8 +36,8 @@ export interface StudyPlan {
   studyHoursPerDay?: number;
   weeklyHours?: number;
   progressPercent?: number;
-  progress?: number;
   progressPercentage?: number;
+  progress?: number;
   daysLeft?: number;
   createdAt: string;
   updatedAt?: string;

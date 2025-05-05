@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
@@ -15,7 +14,6 @@ import ConceptCardDetailPage from '@/components/dashboard/student/concepts/Conce
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import TutorView from '@/pages/dashboard/student/TutorView';
-import AcademicAdvisorView from '@/components/dashboard/student/academic-advisor/AcademicAdvisorView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
@@ -67,7 +65,7 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionView />} />
       <Route path="/tutor" element={<TutorView />} />
-      <Route path="/ai-tutor" element={<TutorView />} />  {/* Add extra path for consistency */}
+      <Route path="/ai-tutor" element={<TutorView />} />
       <Route path="/academic" element={<AcademicAdvisor />} />
       <Route path="/wellness" element={<FeelGoodCornerView />} />
       <Route path="/feel-good-corner" element={<FeelGoodCornerView />} />
