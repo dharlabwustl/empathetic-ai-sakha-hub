@@ -17,7 +17,7 @@ import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptSt
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import ProfilePage from '@/pages/student/ProfilePage';
+import StudentProfile from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
@@ -30,7 +30,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
-      <Route path="/dashboard/student/profile" element={<ProfilePage />} />
+      <Route path="/dashboard/student/profile" element={<StudentProfile />} />
       
       {/* Concepts routes */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />

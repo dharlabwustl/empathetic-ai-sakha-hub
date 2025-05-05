@@ -1,3 +1,5 @@
+
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -13,7 +15,7 @@ import ConceptCardDetailPage from '@/components/dashboard/student/concepts/Conce
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import TutorView from '@/pages/dashboard/student/TutorView';
-import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import AcademicAdvisorView from '@/components/dashboard/student/academic-advisor/AcademicAdvisorView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
@@ -26,6 +28,7 @@ import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 
 export default function StudentRoutes() {
   return (
@@ -65,7 +68,7 @@ export default function StudentRoutes() {
       <Route path="/subscription" element={<SubscriptionView />} />
       <Route path="/tutor" element={<TutorView />} />
       <Route path="/ai-tutor" element={<TutorView />} />  {/* Add extra path for consistency */}
-      <Route path="/academic" element={<AcademicAdvisorView />} />
+      <Route path="/academic" element={<AcademicAdvisor />} />
       <Route path="/wellness" element={<FeelGoodCornerView />} />
       <Route path="/feel-good-corner" element={<FeelGoodCornerView />} />
     </Routes>

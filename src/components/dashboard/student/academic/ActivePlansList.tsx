@@ -51,9 +51,9 @@ const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans, onViewPlanDeta
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center text-sm">
                     <span>Progress</span>
-                    <span className="font-medium">{plan.progressPercentage || plan.progressPercent || 0}%</span>
+                    <span className="font-medium">{plan.progressPercent || plan.progress || 0}%</span>
                   </div>
-                  <Progress value={plan.progressPercentage || plan.progressPercent || 0} className="h-2" />
+                  <Progress value={plan.progressPercent || plan.progress || 0} className="h-2" />
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
@@ -63,7 +63,7 @@ const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans, onViewPlanDeta
                   </div>
                   <div className="flex items-center text-sm">
                     <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{plan.studyHoursPerDay} hours/day</span>
+                    <span>{plan.studyHoursPerDay || 0} hours/day</span>
                   </div>
                 </div>
               </div>

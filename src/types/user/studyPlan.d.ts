@@ -29,16 +29,17 @@ export interface StudyPlan {
   goal?: string;
   examGoal: string;
   examDate: string;
-  status: 'active' | 'completed' | 'archived';
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   learningPace?: 'slow' | 'moderate' | 'fast';
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
   weeklyHours?: number;
   progressPercent?: number;
+  progressPercentage?: number;
   daysLeft?: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   progress?: number;
 }
 
@@ -52,5 +53,5 @@ export interface NewStudyPlan {
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
   weeklyHours?: number;
-  status: 'active' | 'completed' | 'archived';
+  status: 'active' | 'completed' | 'archived' | 'pending';
 }
