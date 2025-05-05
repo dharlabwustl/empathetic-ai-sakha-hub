@@ -7,12 +7,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarIcon, BookOpen, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon, BookOpen, Clock, ChevronRight, CheckCircle } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 
 interface StudyPlanDetailDialogProps {
   plan: StudyPlan;
@@ -26,6 +29,12 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
   onOpenChange,
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Format dates and calculate days left
+  const examDate = new Date(plan.examDate);
+  const formattedExamDate = format(new Date(plan.examDate), 'MMMM d, yyyy');
+  const today = new Date();
+  const daysLeft = differenceInDays(examDate, today) > 0 ? differenceInDays(examDate, today) : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,15 +50,11 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
             <div className="flex items-center mt-1">
               <CalendarIcon className="h-4 w-4 mr-1" />
               <span>
-                {new Date(plan.examDate).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {formattedExamDate}
               </span>
-              {plan.daysLeft && plan.daysLeft > 0 && (
+              {daysLeft > 0 && plan.status === 'active' && (
                 <span className="ml-2 text-amber-600">
-                  {plan.daysLeft} days left
+                  {daysLeft} days left
                 </span>
               )}
             </div>
@@ -65,7 +70,7 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
           
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="font-medium mb-2">Progress</h3>
@@ -127,13 +132,13 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Created</span>
                       <span className="text-sm">
-                        {new Date(plan.createdAt).toLocaleDateString()}
+                        {plan.createdAt ? format(new Date(plan.createdAt), 'MMM d, yyyy') : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Last Updated</span>
                       <span className="text-sm">
-                        {new Date(plan.updatedAt).toLocaleDateString()}
+                        {plan.updatedAt ? format(new Date(plan.updatedAt), 'MMM d, yyyy') : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -179,26 +184,6 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
                       <span>Priority: {subject.priority}</span>
                     </div>
                   </div>
-                  
-                  {subject.topics && subject.topics.length > 0 ? (
-                    <div>
-                      <h4 className="text-sm mb-2">Topics</h4>
-                      <div className="space-y-2">
-                        {subject.topics.map(topic => (
-                          <div key={topic.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
-                            <span>{topic.name}</span>
-                            <Badge variant={topic.completed ? "default" : "outline"}>
-                              {topic.completed ? "Completed" : "Pending"}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      No topics defined for this subject
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))}
@@ -206,14 +191,56 @@ const StudyPlanDetailDialog: React.FC<StudyPlanDetailDialogProps> = ({
           
           {/* Schedule Tab */}
           <TabsContent value="schedule" className="space-y-4">
-            <div className="text-center py-12 text-muted-foreground">
-              <h3 className="text-lg font-medium">Weekly Schedule</h3>
-              <p className="mt-2">
-                Detailed scheduling features coming soon. Currently, plan for {plan.studyHoursPerDay} hours of study per day.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                <Card key={day} className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <h3 className="font-medium mb-3">{day}</h3>
+                    
+                    <div className="space-y-2 text-sm">
+                      {plan.subjects.length > 0 ? (
+                        <div>
+                          {/* Show a subject for each day - this is a placeholder */}
+                          <div className="flex items-center p-2 bg-muted rounded">
+                            <div 
+                              className="w-2 h-2 rounded-full mr-1.5" 
+                              style={{ backgroundColor: plan.subjects[0].color }}
+                            ></div>
+                            <span>{plan.subjects[0].name}</span>
+                            <span className="ml-auto text-xs text-muted-foreground">
+                              {plan.preferredStudyTime === 'morning' ? '8:00 AM' : 
+                               plan.preferredStudyTime === 'afternoon' ? '2:00 PM' :
+                               plan.preferredStudyTime === 'evening' ? '7:00 PM' : '10:00 PM'}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-center text-muted-foreground">No sessions scheduled</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="text-center mt-4">
+              <Button className="mx-auto">
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                View Full Schedule
+              </Button>
             </div>
           </TabsContent>
         </Tabs>
+        
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+          {plan.status === 'active' && (
+            <Button className="ml-2">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Update Progress
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
