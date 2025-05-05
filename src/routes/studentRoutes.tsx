@@ -38,10 +38,10 @@ export default function StudentRoutes() {
       <Route path="/study-plan" element={<StudyPlanView />} />
       <Route path="/profile" element={<StudentProfile />} />
       
-      {/* Syllabus route */}
+      {/* Syllabus route - explicit route */}
       <Route path="/syllabus" element={<SyllabusPage />} />
       
-      {/* Previous Year Analysis route */}
+      {/* Previous Year Analysis route - explicit route */}
       <Route path="/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
       
       {/* Concepts routes - Direct linking to concept card detail page */}
