@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, ArrowLeft } from "lucide-react";
 import { MouseClickEvent } from '@/types/user';
 
 interface ConceptCardProps {
@@ -56,6 +56,15 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     // Navigate directly to the study URL with /conceptId/study format
     // This is the correct URL format that was specified
     navigate(`/dashboard/student/concepts/${id}/study`);
+  };
+
+  const handleBackToDashboard = (e: MouseClickEvent) => {
+    // Prevent the parent card click handler from being called
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Navigate back to the dashboard
+    navigate('/dashboard/student');
   };
 
   return (
@@ -111,7 +120,16 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         )}
       </CardContent>
       
-      <CardFooter className="pt-2">
+      <CardFooter className="pt-2 flex flex-col gap-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="w-full flex justify-center items-center gap-1"
+          onClick={handleBackToDashboard}
+        >
+          <ArrowLeft className="h-4 w-4" /> 
+          Back to Dashboard
+        </Button>
         <Button 
           variant="default" 
           className="w-full group"

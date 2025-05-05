@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Book, Clock, FileText, Tag, Star, CheckCircle, BarChart, Plus } from 'lucide-react';
+import { Book, Clock, FileText, Tag, Star, CheckCircle, BarChart, Plus, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -87,6 +87,10 @@ const PracticeExamsList = () => {
     });
   };
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard/student');
+  };
+
   return (
     <SharedPageLayout 
       title="Practice Exams" 
@@ -94,7 +98,17 @@ const PracticeExamsList = () => {
     >
       <div className="space-y-6">
         <div className="flex flex-wrap justify-between items-center">
-          <h3 className="text-lg font-medium">Your Practice Exams</h3>
+          <div className="flex flex-col">
+            <Button 
+              variant="outline" 
+              className="mb-4 flex items-center justify-start gap-2 self-start"
+              onClick={handleBackToDashboard}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
+            <h3 className="text-lg font-medium">Your Practice Exams</h3>
+          </div>
           
           <div className="flex gap-2 mt-2 sm:mt-0">
             <Button variant="outline" size="sm">
