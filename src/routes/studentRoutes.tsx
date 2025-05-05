@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -44,6 +43,7 @@ export default function StudentRoutes() {
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+      <Route path="/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
       
       {/* Flashcards routes - simplified and direct */}
       <Route path="/flashcards" element={<FlashcardsView />} />

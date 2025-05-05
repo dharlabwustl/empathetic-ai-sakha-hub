@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -17,7 +16,6 @@ import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptSt
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
@@ -39,6 +37,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
+      <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
       
       {/* Flashcard routes - simplified to direct interactive access */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />

@@ -39,8 +39,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleStudyClick = () => {
-    // Navigate directly to the study page
-    navigate(`/dashboard/student/concepts/${id}/study`);
+    // Make sure this route actually exists in the router
+    navigate(`/dashboard/student/concepts/study/${id}`);
   };
 
   return (

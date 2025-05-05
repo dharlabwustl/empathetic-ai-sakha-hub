@@ -6,7 +6,7 @@ const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   
   // Redirect to the new ConceptCardStudyPage which has the better design
-  return <Navigate to={`/dashboard/student/concepts/${conceptId}/study`} replace />;
+  return <Navigate to={`/dashboard/student/concepts/study/${conceptId}`} replace />;
 };
 
 export default ConceptStudyPage;
