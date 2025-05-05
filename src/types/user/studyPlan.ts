@@ -45,6 +45,7 @@ export interface StudyPlan {
 
 export interface NewStudyPlan {
   id?: string;
+  title?: string;
   goal?: string;
   examGoal: string;
   examDate: string | Date;

@@ -6,7 +6,7 @@ import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardS
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   
-  // Now properly forwarding to the concept study page with the right URL structure
+  // Now properly forwarding to the concept study page with the correct URL structure
   return <Navigate to={`/dashboard/student/concepts/${conceptId}/study`} replace />;
 };
 
