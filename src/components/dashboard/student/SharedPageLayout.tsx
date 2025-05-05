@@ -1,45 +1,72 @@
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
+import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import QuickAccessButtons from "@/components/dashboard/student/QuickAccessButtons";
+import { useNavigate } from 'react-router-dom';
 
 interface SharedPageLayoutProps {
-  children: React.ReactNode;
   title: string;
   subtitle?: string;
-  showBackButton?: boolean;
+  activeTab?: string;
+  children: React.ReactNode;
   backButtonUrl?: string;
-  showQuickAccess?: boolean; // Add this prop
+  showBackButton?: boolean;
+  hideSidebar?: boolean;
+  hideTabsNav?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
-  children,
   title,
   subtitle,
-  showBackButton = false,
-  backButtonUrl = "/dashboard/student",
-  showQuickAccess = false, // Add default value
+  activeTab = 'overview',
+  children,
+  backButtonUrl = '/dashboard/student',
+  showBackButton = true, // Set to true by default
+  hideSidebar = false,
+  hideTabsNav = false
 }) => {
-  return (
-    <div className="container py-6">
-      {showBackButton && (
-        <Button variant="ghost" asChild className="mb-4">
-          <Link to={backButtonUrl}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Link>
-        </Button>
-      )}
-
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">{title}</h1>
-        {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  const navigate = useNavigate();
+  
+  if (loading || !userProfile) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
+    );
+  }
 
-      {showQuickAccess && <QuickAccessButtons />}
-
+  // Content to display within the shared page layout
+  const pageContent = (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
+        
+        {showBackButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(backButtonUrl)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        )}
+      </div>
+      
+      {/* Main Content */}
       {children}
     </div>
   );
+
+  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
+  return pageContent;
 };

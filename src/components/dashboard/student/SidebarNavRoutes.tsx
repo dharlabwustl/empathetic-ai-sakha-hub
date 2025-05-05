@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -21,8 +22,6 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
-import React from 'react';
-import type { ReactNode } from 'react';
 
 interface SidebarNavRoutesProps {
   userType: string;
@@ -42,14 +41,6 @@ const tooltipDescriptions: Record<string, string> = {
   "Practice Exams": "Take mock tests to prepare for exams",
   "Concept Cards": "Learn key concepts with interactive cards"
 };
-
-interface RouteItem {
-  href: string;
-  label: string;
-  icon: ReactNode;
-  current: boolean;
-  children?: RouteItem[];
-}
 
 export const SidebarNavRoutes = ({ 
   userType, 

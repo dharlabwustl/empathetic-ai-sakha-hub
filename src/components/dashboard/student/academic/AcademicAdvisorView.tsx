@@ -35,8 +35,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "high",
-          hoursPerWeek: 6,
-          proficiency: "medium"
+          hoursPerWeek: 6
         },
         {
           id: "subj-2",
@@ -45,8 +44,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "medium",
-          hoursPerWeek: 4,
-          proficiency: "weak"
+          hoursPerWeek: 4
         },
         {
           id: "subj-3",
@@ -55,8 +53,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "completed",
           priority: "high",
-          hoursPerWeek: 8,
-          proficiency: "strong"
+          hoursPerWeek: 8
         }
       ],
       studyHoursPerDay: 4,
@@ -69,7 +66,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
       title: "JEE Advanced Preparation",
       examGoal: "JEE Advanced",
       examDate: new Date(2024, 11, 10).toISOString(),
-      status: "active", // Changed from 'pending' to 'active' to match allowed values
+      status: "pending",
       progress: 62,
       subjects: [
         {
@@ -79,8 +76,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "high",
-          hoursPerWeek: 8,
-          proficiency: "weak"
+          hoursPerWeek: 8
         },
         {
           id: "subj-5",
@@ -89,8 +85,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "medium",
-          hoursPerWeek: 6,
-          proficiency: "medium"
+          hoursPerWeek: 6
         },
         {
           id: "subj-6",
@@ -99,8 +94,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "low",
-          hoursPerWeek: 10,
-          proficiency: "strong"
+          hoursPerWeek: 10
         }
       ],
       studyHoursPerDay: 6,
@@ -123,8 +117,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
-          hoursPerWeek: 5,
-          proficiency: "medium"
+          hoursPerWeek: 5
         },
         {
           id: "subj-8",
@@ -133,8 +126,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
-          hoursPerWeek: 4,
-          proficiency: "strong"
+          hoursPerWeek: 4
         },
         {
           id: "subj-9",
@@ -143,8 +135,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "in-progress",
           priority: "medium",
-          hoursPerWeek: 6,
-          proficiency: "weak"
+          hoursPerWeek: 6
         }
       ],
       studyHoursPerDay: 5,

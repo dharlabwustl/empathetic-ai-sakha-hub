@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -976,14 +977,20 @@ const FlashcardInteractive = () => {
         </Card>
       </div>
       
-      {/* Example fix for the style tag: */}
-      <style>
-        {`
-        .flip-card {
-          /* styles go here */
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
         }
-        `}
-      </style>
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </SharedPageLayout>
   );
 };
