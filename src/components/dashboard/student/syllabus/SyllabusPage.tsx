@@ -15,9 +15,13 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  BookMarked,
+  TrendingUp
 } from "lucide-react";
-import ConceptCardSection from '../ConceptCardSection';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 
 type SyllabusUnit = {
@@ -140,6 +144,35 @@ const mockSyllabusData: Record<string, SyllabusUnit[]> = {
           practiceExamIds: []
         }
       ]
+    },
+    {
+      id: "chem-2",
+      title: "Organic Chemistry",
+      description: "Study of carbon compounds and their reactions",
+      importance: "high",
+      progress: 60,
+      topics: [
+        {
+          id: "chem-2-1",
+          title: "Hydrocarbons",
+          description: "Compounds containing only carbon and hydrogen",
+          status: "completed",
+          importance: "high",
+          conceptIds: ["c-10"],
+          flashcardIds: ["f-10"],
+          practiceExamIds: ["pe-5"]
+        },
+        {
+          id: "chem-2-2",
+          title: "Functional Groups",
+          description: "Groups of atoms that give characteristic properties to organic molecules",
+          status: "in-progress",
+          importance: "high",
+          conceptIds: ["c-11"],
+          flashcardIds: ["f-11"],
+          practiceExamIds: []
+        }
+      ]
     }
   ],
   "Mathematics": [
@@ -171,6 +204,35 @@ const mockSyllabusData: Record<string, SyllabusUnit[]> = {
           practiceExamIds: []
         }
       ]
+    },
+    {
+      id: "math-2",
+      title: "Algebra",
+      description: "Study of mathematical symbols and the rules for manipulating them",
+      importance: "medium",
+      progress: 85,
+      topics: [
+        {
+          id: "math-2-1",
+          title: "Quadratic Equations",
+          description: "Equations involving terms up to the second power",
+          status: "completed",
+          importance: "medium",
+          conceptIds: ["c-12"],
+          flashcardIds: ["f-12"],
+          practiceExamIds: ["pe-6"]
+        },
+        {
+          id: "math-2-2",
+          title: "Complex Numbers",
+          description: "Numbers with real and imaginary parts",
+          status: "completed",
+          importance: "medium",
+          conceptIds: ["c-13"],
+          flashcardIds: ["f-13"],
+          practiceExamIds: []
+        }
+      ]
     }
   ],
   "Biology": [
@@ -187,8 +249,8 @@ const mockSyllabusData: Record<string, SyllabusUnit[]> = {
           description: "Specialized structures that perform specific functions within cells",
           status: "in-progress",
           importance: "high",
-          conceptIds: ["c-10"],
-          flashcardIds: ["f-10"],
+          conceptIds: ["c-14"],
+          flashcardIds: ["f-14"],
           practiceExamIds: []
         },
         {
@@ -202,19 +264,55 @@ const mockSyllabusData: Record<string, SyllabusUnit[]> = {
           practiceExamIds: []
         }
       ]
+    },
+    {
+      id: "bio-2",
+      title: "Human Physiology",
+      description: "Study of normal function in humans and their organ systems",
+      importance: "high",
+      progress: 65,
+      topics: [
+        {
+          id: "bio-2-1",
+          title: "Digestive System",
+          description: "System responsible for breaking down food and absorbing nutrients",
+          status: "completed",
+          importance: "high",
+          conceptIds: ["c-15"],
+          flashcardIds: ["f-15"],
+          practiceExamIds: ["pe-7"]
+        },
+        {
+          id: "bio-2-2",
+          title: "Circulatory System",
+          description: "System responsible for transporting substances throughout the body",
+          status: "in-progress",
+          importance: "high",
+          conceptIds: ["c-16"],
+          flashcardIds: ["f-16"],
+          practiceExamIds: []
+        }
+      ]
     }
   ]
 };
 
 const SyllabusPage: React.FC = () => {
   const navigate = useNavigate();
+  const { userProfile } = useUserProfile(UserRole.Student);
   const { dashboardData } = useStudentDashboardData();
   const [activeSubject, setActiveSubject] = useState<string>("Physics");
   const [studyPlan, setStudyPlan] = useState(dashboardData.studyPlan);
   const [syllabusData, setSyllabusData] = useState(mockSyllabusData);
-
+  const [examGoal, setExamGoal] = useState<string>('NEET');
+  
   // Map syllabus to study plan and progress
   useEffect(() => {
+    // Set exam goal from user profile if available
+    if (userProfile?.goals?.[0]) {
+      setExamGoal(userProfile.goals[0].title);
+    }
+    
     if (dashboardData.studyPlan) {
       setStudyPlan(dashboardData.studyPlan);
       
@@ -222,7 +320,7 @@ const SyllabusPage: React.FC = () => {
       // For now, we'll use our mock data
       console.log("Mapping syllabus to study plan:", dashboardData.studyPlan.examGoal);
     }
-  }, [dashboardData]);
+  }, [dashboardData, userProfile]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -261,13 +359,50 @@ const SyllabusPage: React.FC = () => {
     return Math.round(totalProgress / units.length);
   };
 
+  // Calculate overall progress across all subjects
+  const calculateTotalProgress = (): number => {
+    if (!syllabusData) return 0;
+    
+    let totalUnits = 0;
+    let totalProgress = 0;
+    
+    Object.values(syllabusData).forEach(subjects => {
+      subjects.forEach(unit => {
+        totalProgress += unit.progress;
+        totalUnits++;
+      });
+    });
+    
+    return totalUnits ? Math.round(totalProgress / totalUnits) : 0;
+  };
+
+  // Count total topics and completed topics
+  const calculateTopicStats = () => {
+    let totalTopics = 0;
+    let completedTopics = 0;
+    
+    Object.values(syllabusData).forEach(subjects => {
+      subjects.forEach(unit => {
+        unit.topics.forEach(topic => {
+          totalTopics++;
+          if (topic.status === 'completed') {
+            completedTopics++;
+          }
+        });
+      });
+    });
+    
+    return { total: totalTopics, completed: completedTopics };
+  };
+
+  const topicStats = calculateTopicStats();
+
   return (
-    <ConceptCardSection
-      title={`${dashboardData.studyPlan?.examGoal || 'Exam'} Syllabus`}
-      description="Comprehensive syllabus mapped to your study plan and progress"
+    <SharedPageLayout
+      title={`${examGoal} Syllabus`}
+      subtitle="Comprehensive syllabus mapped to your study plan and progress"
       showBackButton={true}
-      backTo="/dashboard/student"
-      className="mb-6"
+      backButtonUrl="/dashboard/student"
     >
       <div className="space-y-6">
         {/* Summary card with overall progress */}
@@ -275,29 +410,61 @@ const SyllabusPage: React.FC = () => {
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-xl font-bold">{dashboardData.studyPlan?.examGoal || 'Exam'} Syllabus</CardTitle>
+                <CardTitle className="text-xl font-bold">{examGoal} Syllabus</CardTitle>
                 <CardDescription>
                   {studyPlan?.daysLeft ? `${studyPlan.daysLeft} days left until exam` : 'Prepare for your upcoming exam'}
                 </CardDescription>
               </div>
               <div className="text-right">
                 <div className="text-sm text-muted-foreground">Overall Progress</div>
-                <div className="text-2xl font-bold">{calculateOverallProgress()}%</div>
+                <div className="text-2xl font-bold">{calculateTotalProgress()}%</div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Progress value={calculateOverallProgress()} className="h-2 mt-2" />
+            <Progress value={calculateTotalProgress()} className="h-2 mt-2" />
             
-            <div className="flex items-center justify-between mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate('/dashboard/student/academic')}
-                className="text-xs"
-              >
-                View Study Plan <ChevronRight className="h-3 w-3 ml-1" />
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div className="bg-primary/10 rounded-lg p-4 text-center">
+                <div className="text-sm text-muted-foreground">Total Topics</div>
+                <div className="text-2xl font-bold">{topicStats.total}</div>
+              </div>
+              
+              <div className="bg-green-100/50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                <div className="text-sm text-muted-foreground">Completed Topics</div>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {topicStats.completed} ({Math.round((topicStats.completed / topicStats.total) * 100)}%)
+                </div>
+              </div>
+              
+              <div className="bg-amber-100/50 dark:bg-amber-900/20 rounded-lg p-4 text-center">
+                <div className="text-sm text-muted-foreground">Remaining Topics</div>
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  {topicStats.total - topicStats.completed}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/dashboard/student/academic')}
+                  className="text-xs flex items-center gap-1"
+                >
+                  <BookMarked className="h-3 w-3" /> Study Plan
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/dashboard/student/previous-year-analysis')}
+                  className="text-xs flex items-center gap-1"
+                >
+                  <TrendingUp className="h-3 w-3" /> Previous Year Analysis
+                </Button>
+              </div>
               
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
@@ -379,7 +546,7 @@ const SyllabusPage: React.FC = () => {
                             
                             <Separator className="my-3" />
                             
-                            <div className="grid grid-cols-3 gap-4 mt-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
                               <div className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="flex items-center">
@@ -450,8 +617,27 @@ const SyllabusPage: React.FC = () => {
             </TabsContent>
           ))}
         </Tabs>
+
+        <div className="mt-4 flex justify-between">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2" 
+            onClick={() => navigate('/dashboard/student')}
+          >
+            <ChevronRight className="h-4 w-4 rotate-180" />
+            Dashboard
+          </Button>
+
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => navigate('/dashboard/student/practice-exam')}
+          >
+            <FileText className="h-4 w-4" />
+            Practice Exams
+          </Button>
+        </div>
       </div>
-    </ConceptCardSection>
+    </SharedPageLayout>
   );
 };
 

@@ -59,7 +59,7 @@ export const SidebarNavRoutes = ({
     { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <BookMarked size={20} /> },
   ];
   
-  // Learning tools category - updated to include Syllabus
+  // Learning tools category - updated to include Previous Year Analysis and Syllabus
   const learningTools = [
     { name: "Syllabus", path: "/dashboard/student/syllabus", icon: <Book size={20} /> },
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
@@ -151,7 +151,7 @@ export const SidebarNavRoutes = ({
               </nav>
             </div>
 
-            {/* Learning Tools - Updated to include Previous Year Analysis */}
+            {/* Learning Tools - Updated to include Previous Year Analysis and Syllabus */}
             <div className="space-y-1">
               {!collapsed && (
                 <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

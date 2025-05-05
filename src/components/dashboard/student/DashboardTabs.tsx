@@ -20,7 +20,6 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { QuickAccess } from './QuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -37,7 +36,7 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
   
-  // Updated main navigation tabs with syllabus tab
+  // Updated main navigation tabs with syllabus tab and previous year analysis
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
