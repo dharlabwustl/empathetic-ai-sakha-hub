@@ -39,8 +39,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleStudyClick = () => {
-    // Navigate directly to the currently active concept card landing page
-    navigate(`/dashboard/student/concepts/card/${id}`);
+    // Navigate directly to the concept card landing page
+    navigate(`/dashboard/student/concepts/landing`);
   };
 
   const handleCardClick = () => {
