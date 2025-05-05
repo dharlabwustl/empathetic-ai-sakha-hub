@@ -21,8 +21,6 @@ import {
   UserRound,
   Users,
   Clock,
-  Book,
-  TrendingUp
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { UserProfileType } from '@/types/user';
@@ -63,16 +61,6 @@ export function StudentSidebar({
       name: "Academic Advisor",
       icon: LifeBuoy,
       path: "/dashboard/student/academic",
-    },
-    {
-      name: "Syllabus",
-      icon: Book,
-      path: "/dashboard/student/syllabus",
-    },
-    {
-      name: "Previous Year Analysis",
-      icon: TrendingUp,
-      path: "/dashboard/student/previous-year-analysis",
     },
     {
       name: "Concepts",

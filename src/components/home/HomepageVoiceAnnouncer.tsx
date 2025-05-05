@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle, Lightbulb, BookOpen } from 'lucide-react';
+import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
-import { findBestVoice, fixPronunciation, SMART_SUGGESTIONS } from '@/components/dashboard/student/voice/voiceUtils';
+import { findBestVoice } from '@/components/dashboard/student/voice/voiceUtils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface HomepageVoiceAnnouncerProps {
@@ -27,16 +27,12 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isHovered, setIsHovered] = useState(false);
-  const [examFocus, setExamFocus] = useState('NEET');
-  const [shouldShowSmartTips, setShouldShowSmartTips] = useState(false);
-  const [currentSmartTip, setCurrentSmartTip] = useState('');
 
   // Ref for speech synthesis utterance
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesHistoryRef = useRef<string[]>([]);
-  const smartTipTimerRef = useRef<number | null>(null);
   
   // Welcome messages sequence - including NEET examination focus
   const welcomeMessages = [
@@ -69,19 +65,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       setIsVisible(false);
     } else {
       localStorage.setItem('prepzrHasVisited', 'true');
-    }
-    
-    // Check if there's an exam focus saved in localStorage
-    const savedExamFocus = localStorage.getItem('examFocus');
-    if (savedExamFocus && (savedExamFocus === 'NEET' || savedExamFocus === 'IIT-JEE' || savedExamFocus === 'UPSC')) {
-      setExamFocus(savedExamFocus);
-      
-      // Update welcome messages with the correct exam focus
-      welcomeMessages[0] = `Welcome to PREPZR. I'm your AI study assistant. How may I help you in preparing for ${savedExamFocus} examination.`;
-      welcomeMessages[2] = `Our personalized study plans adapt to your learning style and pace, making ${savedExamFocus} preparation more effective.`;
-      welcomeMessages[5] = `Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized ${savedExamFocus} tutoring.`;
-      welcomeMessages[6] = `We've helped thousands of students achieve their dream scores in ${savedExamFocus}. Let us help you too!`;
-      welcomeMessages[7] = `Click 'Get Started' to begin your ${savedExamFocus} preparation journey with PREPZR today!`;
     }
   }, []);
 
@@ -164,9 +147,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-      if (smartTipTimerRef.current) {
-        clearTimeout(smartTipTimerRef.current);
-      }
     };
   }, [autoPlay, delayStart, isVisible]);
   
@@ -201,132 +181,45 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       }
     };
   }, []);
-
-  // Set up smart tip timer after announcement completes
-  useEffect(() => {
-    if (hasStarted && !isPlaying && !isMuted && !isMinimized) {
-      // Set up a timer to show smart tips periodically
-      if (smartTipTimerRef.current) {
-        clearTimeout(smartTipTimerRef.current);
-      }
-      
-      const timer = setTimeout(() => {
-        const tips = SMART_SUGGESTIONS.examTips[examFocus] || SMART_SUGGESTIONS.examTips.General;
-        const randomTip = tips[Math.floor(Math.random() * tips.length)];
-        setCurrentSmartTip(randomTip);
-        setShouldShowSmartTips(true);
-        speakMessage(randomTip);
-        
-        // Hide the tip after some time
-        setTimeout(() => {
-          setShouldShowSmartTips(false);
-        }, 15000);
-        
-        // Schedule the next tip
-        smartTipTimerRef.current = window.setTimeout(() => {
-          let nextTips;
-          
-          // Rotate through different tip categories
-          const tipCategories = [
-            SMART_SUGGESTIONS.examTips[examFocus] || SMART_SUGGESTIONS.examTips.General,
-            SMART_SUGGESTIONS.recallTips,
-            SMART_SUGGESTIONS.timeManagement,
-            SMART_SUGGESTIONS.motivationalQuotes,
-            SMART_SUGGESTIONS.subjectTips.Physics,
-            SMART_SUGGESTIONS.subjectTips.Chemistry,
-            SMART_SUGGESTIONS.subjectTips.Biology,
-            SMART_SUGGESTIONS.examDayTips
-          ];
-          
-          const randomCategory = tipCategories[Math.floor(Math.random() * tipCategories.length)];
-          const randomTip = randomCategory[Math.floor(Math.random() * randomCategory.length)];
-          
-          setCurrentSmartTip(randomTip);
-          setShouldShowSmartTips(true);
-          speakMessage(randomTip);
-          
-          // Hide the tip after some time
-          setTimeout(() => {
-            setShouldShowSmartTips(false);
-          }, 15000);
-        }, 45000); // Show another tip after 45 seconds
-      }, 30000); // Show first tip 30 seconds after welcome message completes
-      
-      smartTipTimerRef.current = timer;
-    }
-    
-    return () => {
-      if (smartTipTimerRef.current) {
-        clearTimeout(smartTipTimerRef.current);
-      }
-    };
-  }, [hasStarted, isPlaying, isMuted, isMinimized, examFocus]);
   
   // Check if user is already logged in
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = `Welcome back to PREPZR. Ready to continue your ${examFocus} preparation journey?`;
+      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your NEET preparation journey?";
       // Trim the welcome messages for returning users
       welcomeMessages.splice(3);
-      welcomeMessages.push(`Let's pick up where you left off with your ${examFocus} preparation!`);
+      welcomeMessages.push("Let's pick up where you left off with your NEET preparation!");
     }
-  }, [examFocus]);
+  }, []);
   
   const handleVoiceInput = (input: string) => {
     const lowerInput = input.toLowerCase();
-    let response = `I'm sorry, I didn't understand that. How can I help you with your ${examFocus} preparation on PREPZR?`;
+    let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREPZR?";
     
-    // Update exam focus if mentioned
-    if (lowerInput.includes('neet') || lowerInput.includes('medical')) {
-      setExamFocus('NEET');
-      localStorage.setItem('examFocus', 'NEET');
-      response = "I'll focus on NEET exam preparation. NEET requires deep understanding of Biology, Physics, and Chemistry.";
-    } else if (lowerInput.includes('jee') || lowerInput.includes('engineering')) {
-      setExamFocus('IIT-JEE');
-      localStorage.setItem('examFocus', 'IIT-JEE');
-      response = "I'll focus on IIT-JEE preparation. JEE requires strong problem-solving skills in Mathematics, Physics, and Chemistry.";
-    } else if (lowerInput.includes('upsc') || lowerInput.includes('civil service')) {
-      setExamFocus('UPSC');
-      localStorage.setItem('examFocus', 'UPSC');
-      response = "I'll focus on UPSC preparation. UPSC requires broad knowledge across multiple subjects and current affairs.";
-    } 
     // Process common queries
-    else if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
-      response = `Hello! Welcome to PREPZR. How can I assist you with your ${examFocus} preparation today?`;
+    if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
+      response = "Hello! Welcome to PREPZR. How can I assist you with your NEET preparation today?";
     } else if (lowerInput.includes("about") || lowerInput.includes("what is") || lowerInput.includes("tell me about")) {
-      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET, JEE, and UPSC. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
+      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
     } else if (lowerInput.includes("features") || lowerInput.includes("what can you do")) {
       // Select a random feature to highlight
       response = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
-    } else if (lowerInput.includes("exam") || lowerInput.includes("test")) {
-      response = `Our Exam Readiness Test will help you understand your current ${examFocus} preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.`;
+    } else if (lowerInput.includes("exam") || lowerInput.includes("test") || lowerInput.includes("neet")) {
+      response = "Our Exam Readiness Test will help you understand your current NEET preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
     } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
-      response = "You can try PREPZR with our 7-day free trial. Sign up now to access all features and see how we can help you succeed.";
+      response = "You can try PREPZR with our 7-day free trial. Sign up now to access all features and see how we can help you succeed in NEET.";
     } else if (lowerInput.includes("premium") || lowerInput.includes("paid") || lowerInput.includes("plan")) {
-      response = `Our premium plans offer advanced features including unlimited ${examFocus} practice tests, personalized feedback, doubt resolution, and specialized tutoring for all subjects.`;
+      response = "Our premium plans offer advanced features including unlimited NEET practice tests, personalized feedback, doubt resolution, and specialized tutoring for NEET subjects.";
     } else if (lowerInput.includes("login") || lowerInput.includes("sign in")) {
       response = "You can sign in using the button at the top right of the screen.";
     } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
-      response = `Click the 'Get Started' button to create your PREPZR account and begin your ${examFocus} preparation journey.`;
+      response = "Click the 'Get Started' button to create your PREPZR account and begin your NEET preparation journey.";
     } else if (lowerInput.includes("help me") || lowerInput.includes("struggling")) {
-      response = `Many ${examFocus} aspirants struggle with time management and keeping up with the vast syllabus. PREPZR helps you by breaking down the curriculum into manageable chunks and creating a personalized study schedule based on your strengths and weaknesses.`;
+      response = "Many NEET aspirants struggle with time management and keeping up with vast syllabus. PREPZR helps you by breaking down the curriculum into manageable chunks and creating a personalized study schedule based on your strengths and weaknesses.";
     } else if (lowerInput.includes("success") || lowerInput.includes("topper") || lowerInput.includes("champion")) {
-      response = `Our champion methodology is based on studying how top ${examFocus} performers prepare. We've found that consistent practice, emotional well-being, and adaptive learning are key factors. PREPZR incorporates all these elements to help you become a champion too!`;
-    } else if (lowerInput.includes("memory") || lowerInput.includes("remember") || lowerInput.includes("forget")) {
-      // Get a memory tip
-      response = SMART_SUGGESTIONS.recallTips[Math.floor(Math.random() * SMART_SUGGESTIONS.recallTips.length)];
-    } else if (lowerInput.includes("physics")) {
-      response = SMART_SUGGESTIONS.subjectTips.Physics[Math.floor(Math.random() * SMART_SUGGESTIONS.subjectTips.Physics.length)];
-    } else if (lowerInput.includes("chemistry")) {
-      response = SMART_SUGGESTIONS.subjectTips.Chemistry[Math.floor(Math.random() * SMART_SUGGESTIONS.subjectTips.Chemistry.length)];
-    } else if (lowerInput.includes("biology")) {
-      response = SMART_SUGGESTIONS.subjectTips.Biology[Math.floor(Math.random() * SMART_SUGGESTIONS.subjectTips.Biology.length)];
-    } else if (lowerInput.includes("math")) {
-      response = SMART_SUGGESTIONS.subjectTips.Mathematics[Math.floor(Math.random() * SMART_SUGGESTIONS.subjectTips.Mathematics.length)];
-    } else if (lowerInput.includes("motivation") || lowerInput.includes("inspire")) {
-      response = SMART_SUGGESTIONS.motivationalQuotes[Math.floor(Math.random() * SMART_SUGGESTIONS.motivationalQuotes.length)];
+      response = "Our champion methodology is based on studying how top NEET performers prepare. We've found that consistent practice, emotional well-being, and adaptive learning are key factors. PREPZR incorporates all these elements to help you become a champion too!";
     }
     
     // Avoid repeating the same message
@@ -362,7 +255,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
       // Fix pronunciation for speech only - not for display
-      const processedMessage = fixPronunciation(message);
+      const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
       
       utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -467,9 +360,9 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
               >
                 <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-30 animate-pulse"></div>
                 <Button 
-                  className="rounded-full h-12 w-12 bg-white shadow-lg border border-indigo-100 hover:bg-indigo-50 relative z-10 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+                  className="rounded-full h-12 w-12 bg-white shadow-lg border border-indigo-100 hover:bg-indigo-50 relative z-10"
                 >
-                  <Volume2 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  <Volume2 className="h-6 w-6 text-indigo-600" />
                 </Button>
                 
                 {/* Expandable info on hover */}
@@ -479,10 +372,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                       initial={{ opacity: 0, width: 0, x: -20 }}
                       animate={{ opacity: 1, width: 'auto', x: -10 }}
                       exit={{ opacity: 0, width: 0, x: -20 }}
-                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64"
                     >
                       <p className="text-sm font-medium mb-1">PREPZR Voice Assistant</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Click to explore how PREPZR can help you crack your {examFocus} exam!</p>
+                      <p className="text-xs text-gray-500">Click to explore how PREPZR can help you crack your exams!</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -564,10 +457,10 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                 </div>
                 
                 <div className="mb-3 mt-2">
-                  <p className="text-sm dark:text-gray-200">{welcomeMessages[currentMessageIndex]}</p>
+                  <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
                 </div>
                 
-                <Progress value={progress} className="h-1 bg-gray-200 dark:bg-gray-700" />
+                <Progress value={progress} className="h-1 bg-gray-200" />
                 
                 <div className="flex justify-between mt-3">
                   <Button 
@@ -605,72 +498,12 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                   </div>
                 </div>
               </div>
-            ) : shouldShowSmartTips ? (
-              <div className="p-4 max-w-xs">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center">
-                    <Lightbulb className="h-4 w-4 text-amber-500 mr-2" />
-                    <h3 className="font-medium text-sm">Smart Study Tip</h3>
-                  </div>
-                  <div className="flex space-x-1">
-                    <Tooltip delayDuration={300}>
-                      <TooltipTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-6 w-6 p-0"
-                          onClick={toggleMute}
-                        >
-                          {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {isMuted ? "Unmute" : "Mute"}
-                      </TooltipContent>
-                    </Tooltip>
-                    
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={dismissComponent}>
-                      <span className="sr-only">Minimize</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="mb-3 mt-2 p-3 bg-amber-50 rounded-md border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800/30">
-                  <p className="text-sm dark:text-gray-200">{currentSmartTip}</p>
-                </div>
-                
-                <div className="flex justify-between">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setShouldShowSmartTips(false)} 
-                    className="text-xs h-7"
-                  >
-                    Dismiss
-                  </Button>
-                  
-                  <div className="space-x-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs h-7 flex items-center gap-1"
-                      onClick={toggleListening}
-                    >
-                      <Mic className="h-3 w-3" />
-                      Ask a question
-                    </Button>
-                  </div>
-                </div>
-              </div>
             ) : (
               <div className="p-3">
                 <Button 
                   variant="default"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-xs h-7 flex items-center gap-1"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-xs h-7"
                   onClick={startAnnouncement}
                 >
                   <Volume2 className="h-3 w-3 mr-1" />
@@ -686,7 +519,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                   <Mic className="h-4 w-4 text-red-500 animate-pulse" />
                   <span className="font-medium">Listening...</span>
                 </div>
-                {userInput && <p className="text-sm italic dark:text-gray-300">"{userInput}"</p>}
+                {userInput && <p className="text-sm italic">"{userInput}"</p>}
               </div>
             )}
           </div>
