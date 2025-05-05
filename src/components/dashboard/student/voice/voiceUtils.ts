@@ -1,3 +1,4 @@
+import { MoodType } from '@/types/user/base';
 import { VoiceSettings } from '@/types/voice';
 
 // Default voice settings
@@ -5,131 +6,333 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   volume: 1.0,
   rate: 1.0,
   pitch: 1.0,
-  language: 'en-IN',
+  language: 'en-US',
   enabled: true,
   muted: false,
   voice: null,
   autoGreet: true
 };
 
-// Language options for the voice assistant
+// Language options for voice assistant
 export const LANGUAGE_OPTIONS = [
-  { value: 'en-IN', label: 'English (Indian)' },
-  { value: 'hi-IN', label: 'Hindi' },
   { value: 'en-US', label: 'English (US)' },
-  { value: 'en-GB', label: 'English (UK)' }
+  { value: 'en-IN', label: 'English (Indian)' },
+  { value: 'en-GB', label: 'English (UK)' },
+  { value: 'hi-IN', label: 'Hindi' }
 ];
 
-// Find the best matching voice based on language
-export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
-  if (!voices || voices.length === 0) {
-    console.log('No voices available');
-    return null;
-  }
+// Fix pronunciation issues for specific words
+export const fixPronunciation = (text: string): string => {
+  // Fix PREPZR pronunciation to sound like "prep-zer"
+  return text.replace(/PREPZR/g, "prep-zer");
+};
 
-  // First, try to find an exact match for the language
-  let matchingVoice = voices.find(v => v.lang === language);
+// Find the best voice for a given language
+export const findBestVoice = (language: string = 'en-US'): SpeechSynthesisVoice | null => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  
+  const voices = window.speechSynthesis.getVoices();
+  
+  // First try to find exact language match
+  let voice = voices.find(v => v.lang === language);
   
   // If no exact match, try to find a voice that starts with the language code
-  if (!matchingVoice) {
+  if (!voice) {
     const langPrefix = language.split('-')[0];
-    matchingVoice = voices.find(v => v.lang.startsWith(`${langPrefix}-`));
+    voice = voices.find(v => v.lang.startsWith(langPrefix));
   }
   
-  // If still no match, use any voice
-  if (!matchingVoice) {
-    console.log(`No matching voice found for ${language}, using default voice`);
-    return voices[0]; // Default to first available voice
-  }
-  
-  return matchingVoice;
+  // If still no match, return first available voice or null
+  return voice || voices[0] || null;
 };
 
-// Function to fix pronunciation of certain words for better speech quality
-export const fixPronunciation = (text: string, language: string): string => {
-  let fixedText = text;
+// Helper function to speak a message with given settings
+export const speakMessage = (message: string, settings?: VoiceSettings): void => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
   
-  if (language.startsWith('en')) {
-    // Fix English pronunciations
-    fixedText = fixedText
-      .replace(/PREPZR/gi, 'prep zee are')
-      .replace(/NEET/gi, 'neet')
-      .replace(/JEE/gi, 'J E E')
-      .replace(/AI/g, 'A I');
-  } else if (language === 'hi-IN') {
-    // Fix Hindi pronunciations if needed
-    fixedText = fixedText
-      .replace(/PREPZR/gi, 'प्रेप ज़ेड आर')
-      .replace(/NEET/gi, 'नीट')
-      .replace(/JEE/gi, 'जे ई ई');
-  }
-  
-  return fixedText;
-};
-
-// Function to speak a message with proper event dispatching
-export const speakMessage = (message: string, settingsOrForceFlag: VoiceSettings | boolean = DEFAULT_VOICE_SETTINGS): void => {
-  if (!message || message.trim() === '') return;
-  
-  // Handle case when second parameter is just a boolean (force flag)
-  let settings: VoiceSettings = DEFAULT_VOICE_SETTINGS;
-  let forceSpeak = false;
-  
-  if (typeof settingsOrForceFlag === 'boolean') {
-    forceSpeak = settingsOrForceFlag;
-  } else {
-    settings = settingsOrForceFlag;
-  }
-  
-  // Check if speech synthesis is available
-  if (!window.speechSynthesis) {
-    console.error('Speech synthesis not supported');
-    return;
-  }
-  
-  // Don't speak if voice is disabled and not forced
-  if (!settings.enabled && !forceSpeak) return;
-  if (settings.muted && !forceSpeak) return;
-  
-  // Create utterance
-  const utterance = new SpeechSynthesisUtterance();
-  
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
-  
-  // Fix pronunciation based on language
-  const fixedMessage = fixPronunciation(message, settings.language);
-  
-  // Set utterance properties
-  utterance.text = fixedMessage;
-  utterance.volume = settings.volume;
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.lang = settings.language;
-  
-  // Get available voices and set the best matching one
-  const voices = window.speechSynthesis.getVoices();
-  const selectedVoice = settings.voice || findBestVoice(settings.language, voices);
-  
-  if (selectedVoice) {
-    utterance.voice = selectedVoice;
-  }
-  
-  // Dispatch an event when speech starts
-  const startEvent = new CustomEvent('voice-speaking-started', { 
-    detail: { message: fixedMessage }
+  // Dispatch custom event for tracking speech status
+  const startEvent = new CustomEvent('voice-speaking-started', {
+    detail: { message }
   });
-  
   document.dispatchEvent(startEvent);
-  document.body.classList.add('voice-speaking');
+
+  // Fix pronunciation
+  const processedMessage = fixPronunciation(message);
   
-  // Speak the utterance
+  const utterance = new SpeechSynthesisUtterance(processedMessage);
+  
+  // Apply voice settings
+  if (settings) {
+    utterance.volume = settings.volume;
+    utterance.rate = settings.rate;
+    utterance.pitch = settings.pitch;
+    utterance.lang = settings.language;
+    
+    // Find and set appropriate voice if available
+    if (window.speechSynthesis.getVoices().length > 0) {
+      // If user has selected a voice, use it
+      if (settings.voice) {
+        utterance.voice = settings.voice;
+      } else {
+        // Otherwise find best voice for selected language
+        const bestVoice = findBestVoice(settings.language);
+        if (bestVoice) utterance.voice = bestVoice;
+      }
+    }
+  }
+  
+  // Handle speech end event
   utterance.onend = () => {
-    document.dispatchEvent(new Event('voice-speaking-ended'));
-    document.body.classList.remove('voice-speaking');
+    const endEvent = new CustomEvent('voice-speaking-ended');
+    document.dispatchEvent(endEvent);
   };
   
+  // Speak the message
+  window.speechSynthesis.cancel(); // Cancel any ongoing speech
   window.speechSynthesis.speak(utterance);
+};
+
+// Database of smart suggestions for different contexts
+export const SMART_SUGGESTIONS = {
+  // Exam-specific tips
+  examTips: {
+    NEET: [
+      "For NEET preparation, practice at least 50 MCQs daily across Physics, Chemistry, and Biology.",
+      "NEET Biology carries maximum weightage with 90 questions. Make sure to master NCERT texts thoroughly.",
+      "For NEET Chemistry, focus on Physical Chemistry calculations and Organic Chemistry reactions.",
+      "In NEET Physics, mechanics and electricity questions appear frequently. Master these concepts first.",
+      "In the NEET exam, there's no negative marking for unattempted questions, but -1 for incorrect answers."
+    ],
+    "IIT-JEE": [
+      "For JEE, practice solving complex problems within time constraints to improve speed and accuracy.",
+      "Focus on building a strong foundation in Mathematics as it forms the backbone of JEE preparation.",
+      "In JEE Advanced, questions often combine multiple concepts. Practice integrated problem solving.",
+      "Physical Chemistry and Organic Chemistry have high weightage in JEE. Focus on reaction mechanisms.",
+      "Vector algebra and calculus consistently appear in JEE Mathematics. Master these topics early."
+    ],
+    UPSC: [
+      "For UPSC, reading newspapers daily helps build current affairs knowledge essential for the exam.",
+      "Create concise notes for revision as the UPSC syllabus is vast and requires multiple revisions.",
+      "Practice answer writing for UPSC Mains by timing yourself to improve articulation and presentation.",
+      "For UPSC, focus on Indian polity, economics, geography, and history as they have high weightage.",
+      "Develop a multidisciplinary approach for UPSC, connecting topics across subjects for better understanding."
+    ],
+    General: [
+      "Space your study sessions. Distributed practice is more effective than cramming.",
+      "Use the Feynman Technique: explain concepts in simple terms to identify gaps in your understanding.",
+      "Take regular breaks using the Pomodoro Technique - 25 minutes of focus followed by a 5-minute break.",
+      "Create mind maps to visualize connections between related concepts.",
+      "Self-testing through practice questions is more effective than passive re-reading of notes."
+    ]
+  },
+  
+  // Memory and recall improvement tips
+  recallTips: [
+    "Use spaced repetition to review concepts at increasing intervals for better long-term memory.",
+    "Create associations between new information and things you already know to improve recall.",
+    "Teach the concept to someone else or explain it out loud to strengthen your understanding.",
+    "Use mnemonic devices like acronyms or memory palaces for remembering complex information.",
+    "Writing by hand activates different parts of your brain than typing, improving memory retention.",
+    "Convert abstract concepts into visual representations to leverage visual memory.",
+    "Connect new information to personal experiences to make it more meaningful and memorable.",
+    "Summarize key points in your own words immediately after learning to reinforce understanding.",
+    "Regular physical exercise improves brain function and memory consolidation.",
+    "Get adequate sleep as memory consolidation happens during deep sleep phases."
+  ],
+  
+  // Subject-specific strategies
+  subjectTips: {
+    Physics: [
+      "In Physics, solve numerical problems regularly to build intuition about formulas and concepts.",
+      "Create concept maps to visualize relationships between different physics principles.",
+      "For mechanics problems, always draw a free body diagram to visualize forces acting on objects.",
+      "Remember that most physics concepts build on earlier ones - ensure your fundamentals are strong.",
+      "Practice deriving equations rather than memorizing them to understand the underlying principles."
+    ],
+    Chemistry: [
+      "In Organic Chemistry, focus on reaction mechanisms rather than memorizing individual reactions.",
+      "For Physical Chemistry, practice numerical problems regularly to build problem-solving skills.",
+      "Create flowcharts for classification of organic compounds and their reactions.",
+      "Use color-coding in your notes to distinguish between different types of reactions or concepts.",
+      "When studying periodic trends, understand the underlying electron configuration principles."
+    ],
+    Biology: [
+      "Create diagrams and flowcharts for complex biological processes like photosynthesis or respiration.",
+      "Use flashcards for terminology, taxonomic classifications, and anatomical structures.",
+      "Connect biological concepts to real-world examples to improve understanding and recall.",
+      "Focus on understanding cellular processes at the molecular level rather than rote memorization.",
+      "Practice drawing and labeling diagrams regularly for better visual memory."
+    ],
+    Mathematics: [
+      "Practice is key in mathematics. Solve a variety of problems for each concept.",
+      "Focus on understanding the derivation of formulas rather than memorizing them.",
+      "When stuck on a problem, try working backward from the solution or use alternative approaches.",
+      "Keep a log of common mistakes you make to avoid repeating them in future problems.",
+      "Master the fundamentals before moving to advanced topics, as mathematics builds hierarchically."
+    ]
+  },
+  
+  // Mood-based study strategies
+  moodBasedTips: {
+    [MoodType.Anxious]: [
+      "If you're feeling anxious, try the 4-7-8 breathing technique before continuing your study session.",
+      "Break down your study material into smaller, manageable chunks when feeling overwhelmed.",
+      "Set realistic goals for your anxious days - even small progress is still progress.",
+      "Try body scanning meditation for 5 minutes when anxiety interferes with your concentration.",
+      "Remember that test anxiety is common - practice under exam-like conditions to build confidence."
+    ],
+    [MoodType.Tired]: [
+      "When tired, focus on reviewing familiar content rather than learning new concepts.",
+      "Take a 15-minute power nap to refresh your mind before continuing studies.",
+      "Switch to a different subject or activity to maintain engagement when feeling fatigued.",
+      "Ensure proper hydration and consider a light healthy snack to boost your energy.",
+      "Try a quick 5-minute physical activity to increase blood flow and reduce fatigue."
+    ],
+    [MoodType.Focused]: [
+      "While you're focused, tackle your most challenging topics or complex problems.",
+      "Use this focused state to create summary notes that will help during future reviews.",
+      "Set slightly more ambitious goals during your focused study sessions.",
+      "Consider using the Pomodoro technique to maintain this focused state for longer.",
+      "Document your current study approach to replicate these focused conditions in future sessions."
+    ],
+    [MoodType.Motivated]: [
+      "Channel your motivation into creating a detailed study plan for the coming days.",
+      "Set challenging but achievable goals to maintain your momentum.",
+      "Try teaching difficult concepts to someone else while you're feeling motivated.",
+      "Use this motivated state to push through topics you've been avoiding.",
+      "Record a motivational message to your future self for days when motivation is low."
+    ],
+    [MoodType.Stressed]: [
+      "When stressed, focus on understanding rather than memorizing to reduce pressure.",
+      "Take structured breaks with mindfulness exercises to reduce stress levels.",
+      "Consider adjusting your study environment to create a calmer atmosphere.",
+      "Identify specific stress triggers and address them directly in your study routine.",
+      "Focus on progress rather than perfection to reduce unnecessary pressure."
+    ],
+    [MoodType.Sad]: [
+      "Start with subjects you enjoy when feeling sad to build positive momentum.",
+      "Consider studying in a brighter environment or with background music to improve mood.",
+      "Set smaller, achievable goals to create wins that can boost your mood.",
+      "Connect with study partners or online communities for social support.",
+      "Practice gratitude journaling about your learning progress before studying."
+    ]
+  },
+  
+  // Time management strategies
+  timeManagement: [
+    "Use the 80/20 principle - identify the 20% of topics that will give you 80% of results.",
+    "Schedule specific subjects for times of day when your energy levels match the subject difficulty.",
+    "Block digital distractions during study sessions using apps or browser extensions.",
+    "Create a reverse calendar from your exam date to plan your preparation timeline.",
+    "Set smaller deadlines leading up to major exams to prevent last-minute cramming.",
+    "Try timeboxing - allocate fixed time periods to specific tasks and move on when time is up.",
+    "Use interleaving - alternate between different subjects or topics for more effective learning.",
+    "Review your productivity regularly and adjust your study schedule based on performance data."
+  ],
+  
+  // Exam-day strategies
+  examDayTips: [
+    "Read the full question paper first and plan your time allocation for each section.",
+    "Start with questions you're confident about to build momentum and reduce anxiety.",
+    "For multiple-choice questions, eliminate obviously wrong answers before selecting the best option.",
+    "Double-check your calculations and review your answers if time permits.",
+    "For essay questions, create a quick outline before writing to organize your thoughts.",
+    "Watch the clock and leave time to transfer answers to the official answer sheet if needed.",
+    "If stuck on a question, mark it and move on rather than wasting valuable time.",
+    "Take deep breaths if feeling anxious during the exam to regulate your nervous system."
+  ],
+  
+  // General study motivation
+  motivationalQuotes: [
+    "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+    "The difference between ordinary and extraordinary is that little 'extra'.",
+    "Don't watch the clock; do what it does. Keep going.",
+    "Your future is created by what you do today, not tomorrow.",
+    "The expert in anything was once a beginner.",
+    "The only way to learn is by doing. There is no substitute for hard work.",
+    "The harder you work for something, the greater you'll feel when you achieve it.",
+    "Don't wish it were easier. Wish you were better.",
+    "Learning is never done without errors and defeat.",
+    "The best way to predict your future is to create it."
+  ]
+};
+
+// Function to get contextually relevant suggestions based on current activity
+export const getSmartSuggestion = (
+  context: {
+    activity?: 'studying' | 'exam_prep' | 'revision' | 'break' | 'practice_test';
+    subject?: 'Physics' | 'Chemistry' | 'Biology' | 'Mathematics' | 'General';
+    examType?: 'NEET' | 'IIT-JEE' | 'UPSC' | 'General';
+    mood?: MoodType;
+    timeUntilExam?: number; // days
+    currentStreak?: number; // consecutive days studied
+    lastActivity?: string;
+  }
+): string => {
+  const suggestions: string[] = [];
+  
+  // Add exam-specific tips
+  if (context.examType) {
+    const examTips = context.examType === 'NEET' || context.examType === 'IIT-JEE' || context.examType === 'UPSC' 
+      ? SMART_SUGGESTIONS.examTips[context.examType]
+      : SMART_SUGGESTIONS.examTips.General;
+      
+    suggestions.push(...examTips);
+  }
+  
+  // Add mood-based tips if mood is provided
+  if (context.mood && SMART_SUGGESTIONS.moodBasedTips[context.mood]) {
+    suggestions.push(...SMART_SUGGESTIONS.moodBasedTips[context.mood]);
+  }
+  
+  // Add subject-specific tips if subject is provided
+  if (context.subject && context.subject in SMART_SUGGESTIONS.subjectTips) {
+    suggestions.push(...SMART_SUGGESTIONS.subjectTips[context.subject as keyof typeof SMART_SUGGESTIONS.subjectTips]);
+  }
+  
+  // Add recall tips for revision activities
+  if (context.activity === 'revision') {
+    suggestions.push(...SMART_SUGGESTIONS.recallTips);
+  }
+  
+  // Add exam day tips for practice tests or if exam is very soon
+  if (context.activity === 'practice_test' || (context.timeUntilExam && context.timeUntilExam <= 7)) {
+    suggestions.push(...SMART_SUGGESTIONS.examDayTips);
+  }
+  
+  // Add time management tips
+  suggestions.push(...SMART_SUGGESTIONS.timeManagement);
+  
+  // Add motivational quotes, especially for maintaining streaks
+  if (context.currentStreak && context.currentStreak > 3) {
+    suggestions.push(...SMART_SUGGESTIONS.motivationalQuotes);
+  }
+  
+  // Return a random suggestion from the compiled list
+  return suggestions.length > 0 
+    ? suggestions[Math.floor(Math.random() * suggestions.length)]
+    : "Keep up your consistent study habits to achieve your exam goals!";
+};
+
+// Function to announce a smart suggestion based on current context
+export const announceSmartSuggestion = (
+  context: {
+    activity?: 'studying' | 'exam_prep' | 'revision' | 'break' | 'practice_test';
+    subject?: 'Physics' | 'Chemistry' | 'Biology' | 'Mathematics' | 'General';
+    examType?: 'NEET' | 'IIT-JEE' | 'UPSC' | 'General';
+    mood?: MoodType;
+    timeUntilExam?: number; // days
+    currentStreak?: number; // consecutive days studied
+    lastActivity?: string;
+  },
+  settings?: VoiceSettings
+): string => {
+  const suggestion = getSmartSuggestion(context);
+  
+  // Speak the suggestion
+  speakMessage(suggestion, settings || DEFAULT_VOICE_SETTINGS);
+  
+  return suggestion;
 };
 
 // Get appropriate greeting based on time of day, user's name, and mood
@@ -359,7 +562,7 @@ export const processUserQuery = (
     }
     
     // Handle language switch commands
-    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
+    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इ��ग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
       return "I'll speak English now. How can I help you with your studies?";
     }
     
