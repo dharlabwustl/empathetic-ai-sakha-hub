@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -19,6 +18,7 @@ import {
   Smile,
   BookMarked,
   FileText,
+  TrendingUp,
   ArrowLeft
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
@@ -39,7 +39,8 @@ const tooltipDescriptions: Record<string, string> = {
   Profile: "Manage your account settings and preferences",
   "Today's Plan": "View your daily study schedule",
   "Practice Exams": "Take mock tests to prepare for exams",
-  "Concept Cards": "Learn key concepts with interactive cards"
+  "Concept Cards": "Learn key concepts with interactive cards",
+  "Previous Year Analysis": "Analyze exam patterns from previous years"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -56,11 +57,12 @@ export const SidebarNavRoutes = ({
     { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <BookMarked size={20} /> },
   ];
   
-  // Learning tools category - updated as requested
+  // Learning tools category - updated to include Previous Year Analysis
   const learningTools = [
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
     { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <FileText size={20} /> },
+    { name: "Previous Year Analysis", path: "/dashboard/student/previous-year-analysis", icon: <TrendingUp size={20} /> },
   ];
 
   // AI assistance category
@@ -146,7 +148,7 @@ export const SidebarNavRoutes = ({
               </nav>
             </div>
 
-            {/* Learning Tools - Updated to match requirements */}
+            {/* Learning Tools - Updated to include Previous Year Analysis */}
             <div className="space-y-1">
               {!collapsed && (
                 <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

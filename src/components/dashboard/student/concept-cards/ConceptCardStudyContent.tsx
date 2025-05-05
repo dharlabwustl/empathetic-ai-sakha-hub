@@ -1,8 +1,8 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Book, BookOpen, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Book, BookOpen, CheckCircle, ArrowLeft, Brain, FileText, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,8 @@ interface ConceptCardStudyContentProps {
   completed?: boolean;
   onComplete?: () => void;
   onBack?: () => void;
+  relatedFlashcards?: string[];
+  relatedPracticeExams?: string[];
 }
 
 const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
@@ -35,9 +37,24 @@ const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
   examples = [],
   completed = false,
   onComplete,
-  onBack
+  onBack,
+  relatedFlashcards = [],
+  relatedPracticeExams = []
 }) => {
   const navigate = useNavigate();
+  const [studyProgress, setStudyProgress] = useState(progress);
+  const [hasCompletedReading, setHasCompletedReading] = useState(completed);
+  
+  // Auto-increment progress as the user reads through the content
+  useEffect(() => {
+    if (!hasCompletedReading && studyProgress < 90) {
+      const timer = setTimeout(() => {
+        setStudyProgress(prev => Math.min(prev + 10, 90));
+      }, 15000); // Increase progress every 15 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [studyProgress, hasCompletedReading]);
   
   const difficultyColors = {
     'easy': 'bg-green-100 text-green-800 border-green-200',
@@ -49,20 +66,47 @@ const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
     if (onBack) {
       onBack();
     } else {
-      navigate('/dashboard/student');
+      navigate('/dashboard/student/concepts');
     }
   };
 
   const handleComplete = () => {
+    setHasCompletedReading(true);
+    setStudyProgress(100);
     if (onComplete) {
       onComplete();
     }
+  };
+  
+  // Get dynamic related resources (in real app would come from API)
+  const getRelatedFlashcardPath = () => {
+    return `/dashboard/student/flashcards/${subject.toLowerCase()}-${title.toLowerCase().replace(/\s+/g, '-')}/practice`;
+  };
+  
+  const getRelatedPracticePath = () => {
+    return `/dashboard/student/practice-exam/${subject.toLowerCase()}-quiz/start`;
+  };
+  
+  const handleContinueToFlashcards = () => {
+    navigate(getRelatedFlashcardPath());
+  };
+  
+  const handleGoToPractice = () => {
+    navigate(getRelatedPracticePath());
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <BackButton to="/dashboard/student" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleBack} 
+          className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Concepts</span>
+        </Button>
       </div>
       
       <Card className="border-0 shadow-sm">
@@ -72,7 +116,7 @@ const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
               {difficulty}
             </Badge>
             
-            {completed ? (
+            {hasCompletedReading ? (
               <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1">
                 <CheckCircle className="h-3.5 w-3.5" />
                 Completed
@@ -102,13 +146,13 @@ const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {progress > 0 && (
+          {studyProgress > 0 && (
             <div>
               <div className="flex justify-between text-xs mb-1">
                 <span>Progress</span>
-                <span>{progress}%</span>
+                <span>{Math.round(studyProgress)}%</span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={studyProgress} className="h-2" />
             </div>
           )}
           
@@ -142,13 +186,80 @@ const ConceptCardStudyContent: React.FC<ConceptCardStudyContentProps> = ({
             </div>
           )}
           
-          {!completed && (
+          {/* Learning Journey - Next Steps */}
+          <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-800/50">
+            <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-3">Continue Your Learning Journey</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm border-b border-violet-200 dark:border-violet-800/50 pb-3">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  <span className="font-medium">Concept Study</span>
+                </div>
+                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                  {hasCompletedReading ? 'Complete' : 'In Progress'}
+                </Badge>
+              </div>
+              
+              <div className="flex items-center justify-between text-sm border-b border-violet-200 dark:border-violet-800/50 pb-3">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  <span className="font-medium">Flashcard Review</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleContinueToFlashcards}
+                  className="text-xs h-7 px-2"
+                  disabled={!hasCompletedReading}
+                >
+                  Start
+                </Button>
+              </div>
+              
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  <span className="font-medium">Practice Quiz</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleGoToPractice} 
+                  className="text-xs h-7 px-2"
+                  disabled={!hasCompletedReading}
+                >
+                  Start
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {!hasCompletedReading ? (
             <Button 
               onClick={handleComplete}
-              className="w-full"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600"
             >
               Mark as Complete
             </Button>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <Button 
+                onClick={handleContinueToFlashcards}
+                className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-center gap-2"
+              >
+                <Brain className="h-4 w-4" />
+                <span>Continue to Flashcards</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={handleGoToPractice}
+                variant="outline"
+                className="flex-1 flex items-center justify-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                <span>Take Practice Quiz</span>
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

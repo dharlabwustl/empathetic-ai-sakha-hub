@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BadgeCheck, Brain, Calendar, BookText, Lightbulb } from 'lucide-react';
+import { BadgeCheck, Brain, Calendar, BookText, Lightbulb, ArrowRight } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { Badge } from '@/components/ui/badge';
 import { getSmartSuggestion } from '@/components/dashboard/student/voice/voiceUtils';
@@ -47,6 +47,40 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
     return getSmartSuggestion(context);
   };
 
+  // New function - simulated learning path based on today's plan
+  const getLearningJourneySteps = () => {
+    return [
+      {
+        type: 'concept',
+        title: 'Cellular Respiration',
+        description: 'Learn the core concept',
+        path: '/dashboard/student/concepts/cellular-respiration/study'
+      },
+      {
+        type: 'flashcard',
+        title: 'Cellular Respiration Flashcards',
+        description: 'Reinforce your knowledge',
+        path: '/dashboard/student/flashcards/cellular-respiration/practice'
+      },
+      {
+        type: 'practice',
+        title: 'Biology Practice Quiz',
+        description: 'Test your understanding',
+        path: '/dashboard/student/practice-exam/biology-daily/start'
+      }
+    ];
+  };
+
+  const handleContinueLearning = () => {
+    // Redirect to the first step in the learning journey
+    const steps = getLearningJourneySteps();
+    if (steps.length > 0) {
+      navigate(steps[0].path);
+    } else {
+      navigate('/dashboard/student/today');
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -68,6 +102,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
             {getMoodBasedMessage()}
           </p>
           
+          {/* Quick Summary */}
           <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-800/50">
             <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Quick Summary</h4>
             <ul className="space-y-1 text-sm">
@@ -81,9 +116,43 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
               </li>
               <li className="flex justify-between">
                 <span>Priority subject:</span>
-                <span className="font-medium">Physics</span>
+                <span className="font-medium">Biology</span>
               </li>
             </ul>
+          </div>
+
+          {/* Learning Journey Section - New section for seamless experience */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800/50">
+            <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-3">Learning Journey</h4>
+            <div className="space-y-3">
+              {getLearningJourneySteps().map((step, index) => (
+                <div key={index} className="flex items-start gap-3 relative">
+                  {index > 0 && (
+                    <div className="absolute top-0 left-5 h-full w-0.5 -mt-3 bg-blue-200 dark:bg-blue-800/50"></div>
+                  )}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    index === 0 ? 'bg-blue-100 text-blue-600 dark:bg-blue-800/50 dark:text-blue-300' : 
+                    index === 1 ? 'bg-purple-100 text-purple-600 dark:bg-purple-800/50 dark:text-purple-300' : 
+                    'bg-green-100 text-green-600 dark:bg-green-800/50 dark:text-green-300'
+                  }`}>
+                    {step.type === 'concept' && <BookText className="h-5 w-5" />}
+                    {step.type === 'flashcard' && <Brain className="h-5 w-5" />}
+                    {step.type === 'practice' && <BadgeCheck className="h-5 w-5" />}
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium">{step.title}</h5>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button 
+              className="w-full mt-3 text-xs sm:text-sm flex items-center justify-center gap-2"
+              onClick={handleContinueLearning}
+            >
+              <span>Start Learning Journey</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Smart study suggestion */}
@@ -103,7 +172,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
               className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-center gap-2"
             >
               <BookText className="h-4 w-4" />
-              <span>View Study Plan</span>
+              <span>View Full Study Plan</span>
             </Button>
           </div>
         </div>

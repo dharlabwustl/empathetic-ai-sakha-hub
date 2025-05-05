@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -23,6 +22,7 @@ import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlas
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import PreviousYearAnalysisPage from '@/components/dashboard/student/previous-year-analysis/PreviousYearAnalysisPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -51,6 +51,9 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Previous Year Analysis route */}
+      <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
       
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
@@ -28,6 +27,7 @@ import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlas
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
+import PreviousYearAnalysisPage from '@/components/dashboard/student/previous-year-analysis/PreviousYearAnalysisPage';
 
 export default function StudentRoutes() {
   return (
@@ -59,6 +59,9 @@ export default function StudentRoutes() {
       <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Previous Year Analysis route */}
+      <Route path="/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
       
       {/* Other routes */}
       <Route path="/notifications" element={<NotificationsView />} />

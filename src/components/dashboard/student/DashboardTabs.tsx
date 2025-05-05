@@ -9,7 +9,8 @@ import {
   BookOpen, 
   Brain, 
   FileText,
-  Bell
+  Bell,
+  TrendingUp
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -43,6 +44,7 @@ export default function DashboardTabs({
     { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation" },
+    { id: "previous-year-analysis", label: "Past Exams", icon: TrendingUp, description: "Analyze previous year exam patterns" },
     { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts" }
   ];
 
