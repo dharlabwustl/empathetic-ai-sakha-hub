@@ -47,8 +47,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     }
   };
 
-  const handleStudyClick = () => {
-    // Make sure we're navigating to /dashboard/student/concepts/{id}/study
+  const handleStudyClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any parent handlers from being called
+    e.stopPropagation(); // Stop event bubbling
+    
+    // Explicitly navigate to the study page with the concept ID
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
