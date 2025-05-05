@@ -39,8 +39,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleStudyClick = () => {
-    // Make sure this route actually exists in the router
-    navigate(`/dashboard/student/concepts/study/${id}`);
+    // Navigate to concept landing page
+    navigate(`/dashboard/student/concepts/landing`);
   };
 
   return (
