@@ -23,6 +23,7 @@ import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlas
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
