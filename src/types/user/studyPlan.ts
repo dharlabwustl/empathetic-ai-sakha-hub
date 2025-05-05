@@ -54,7 +54,6 @@ export interface NewStudyPlan {
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
-  status?: string;
 }
 
 // Export the types to be used in other files
