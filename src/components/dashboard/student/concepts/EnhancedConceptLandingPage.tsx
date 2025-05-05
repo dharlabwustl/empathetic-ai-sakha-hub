@@ -1,993 +1,487 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Slider } from "@/components/ui/slider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { 
-  Bookmark, BookmarkCheck, Volume, VolumeX, Star, StarHalf, Clock, 
-  BarChart4, Link2, FileText, FileVideo, FileImage, Lightbulb, 
-  BookOpen, AlertTriangle, ExternalLink, CheckCircle, Brain,
-  ArrowRight, PlayCircle, BookCheck, BookText, ChevronLeft
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { BookOpen, Bookmark, PenLine, Share2, Volume2, VolumeX, Book, ArrowRight, Clock } from "lucide-react";
+import { cn } from '@/lib/utils';
 
-// Mock data for demonstration - in a real app, this would come from an API
-const conceptData = {
-  id: "c123",
-  title: "Osmosis in Plant Cells",
-  description: "The process by which water molecules move from an area of higher water potential to an area of lower water potential across a partially permeable membrane.",
-  subject: "Biology",
-  difficulty: "medium",
-  masteryPercent: 65,
-  isBookmarked: false,
-  status: "in-progress",
-  lastStudied: "2023-05-04",
-  voiceLanguage: "en", // 'en' for English, 'hi' for Hindi
-  
-  content: {
-    conceptSummary: {
-      text: "Osmosis is the passive movement of water molecules across a semi-permeable membrane from a region of lower solute concentration to a region of higher solute concentration. In plant cells, osmosis plays a crucial role in maintaining turgor pressure, which provides structural support to plants. When a plant cell is placed in a hypotonic solution (more water outside), water moves into the cell, causing it to become turgid. In a hypertonic solution (less water outside), water moves out of the cell, causing plasmolysis where the cell membrane pulls away from the cell wall.",
-      keyPoints: [
-        "Passive transport process (no energy required)",
-        "Movement from lower to higher solute concentration",
-        "Important for maintaining turgor pressure in plants",
-        "Affected by external environment conditions"
-      ]
-    },
-    
-    visualExplanation: {
-      images: [
-        "/lovable-uploads/c3eac5b2-c8be-4622-8c94-681e9afdf888.png"
-      ],
-      caption: "Diagram showing osmosis process in plant cells: hypotonic, isotonic, and hypertonic conditions"
-    },
-    
-    formulaBox: {
-      formulas: [
-        { 
-          formula: "Ψ = Ψs + Ψp", 
-          description: "Water potential (Ψ) equals solute potential (Ψs) plus pressure potential (Ψp)" 
-        },
-        { 
-          formula: "Ψs = -iCRT", 
-          description: "Solute potential calculation where i is ionization constant, C is molar concentration, R is gas constant, and T is temperature" 
-        }
-      ]
-    },
-    
-    linkedConcepts: [
-      { id: "c124", title: "Diffusion", masteryPercent: 75 },
-      { id: "c125", title: "Active Transport", masteryPercent: 40 },
-      { id: "c126", title: "Plasmolysis", masteryPercent: 55 },
-      { id: "c127", title: "Cell Wall Structure", masteryPercent: 60 }
-    ],
-    
-    videoExplanation: {
-      videoUrl: "https://www.youtube.com/embed/SDGfOg9Tav8",
-      duration: "3:42",
-      title: "Osmosis in Plant Cells Explained"
-    },
-    
-    realWorldExamples: [
-      "Wilting of plants during drought conditions as cells lose water through osmosis",
-      "Food preservation using salt or sugar which creates a hypertonic environment, preventing bacterial growth",
-      "Use of fertilizers which can cause osmotic stress if applied in high concentrations",
-      "Kidney dialysis machines use osmosis principles to filter blood"
-    ],
-    
-    commonMistakes: [
-      "Confusing osmosis with diffusion (osmosis is specifically the movement of water molecules)",
-      "Thinking osmosis requires energy (it's a passive process)",
-      "Incorrectly identifying hypertonic vs hypotonic solutions",
-      "Forgetting that water moves from high water potential to low water potential"
-    ],
-    
-    mcqQuiz: [
-      {
-        question: "What happens to a plant cell placed in a hypertonic solution?",
-        options: [
-          "The cell gains water and becomes turgid",
-          "The cell loses water and undergoes plasmolysis",
-          "The cell maintains its water balance",
-          "The cell wall breaks down"
-        ],
-        correctAnswer: 1,
-        explanation: "In a hypertonic solution, the water concentration is higher inside the cell than outside, causing water to move out of the cell, resulting in plasmolysis."
-      },
-      {
-        question: "Osmosis is defined as the movement of:",
-        options: [
-          "Solute particles from high to low concentration",
-          "Water molecules from high to low solute concentration",
-          "Both solute and water molecules across a membrane",
-          "Ions against their concentration gradient"
-        ],
-        correctAnswer: 1,
-        explanation: "Osmosis specifically refers to the passive movement of water molecules from a region of lower solute concentration (higher water potential) to a region of higher solute concentration (lower water potential)."
-      },
-      {
-        question: "Which of the following factors does NOT affect the rate of osmosis in plant cells?",
-        options: [
-          "Temperature",
-          "Concentration gradient",
-          "Light intensity",
-          "Surface area of the membrane"
-        ],
-        correctAnswer: 2,
-        explanation: "Light intensity does not directly affect osmosis. The main factors are temperature, concentration gradient, pressure, and surface area of the membrane."
-      }
-    ],
-    
-    seenInNEET: [
-      {
-        year: 2022,
-        question: "The movement of water molecules through a semi-permeable membrane is affected by:",
-        relevance: "Direct application of osmosis concept"
-      },
-      {
-        year: 2020,
-        question: "Guard cells regulate the opening and closing of stomata due to changes in their:",
-        relevance: "Application of turgor pressure concept related to osmosis"
-      }
-    ]
+// Mock concept data
+const mockConcept = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  topic: "Mechanics",
+  difficulty: "Medium",
+  tags: ["Force", "Motion", "Classical Mechanics"],
+  simpleExplanation: "Newton's Laws of Motion describe the relationship between an object and the forces acting upon it. The first law states that an object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force. The second law explains that force equals mass times acceleration (F = ma). The third law states that for every action, there is an equal and opposite reaction.",
+  detailedExplanation: "Sir Isaac Newton's three laws of motion, published in his 'Principia Mathematica' in 1687, form the foundation of classical mechanics. These laws describe the relationship between the motion of an object and the forces acting on it.\n\nFirst Law (Law of Inertia): An object will remain at rest or in uniform motion in a straight line unless acted upon by an external force. This property is called inertia. In mathematical terms, when the net force on an object is zero (∑F = 0), the object will maintain its velocity.\n\nSecond Law (F = ma): The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. This is expressed as F = ma, where F is the net force, m is the mass, and a is the acceleration.\n\nThird Law (Action-Reaction): For every action, there is an equal and opposite reaction. When one object exerts a force on a second object, the second object exerts an equal and opposite force on the first object. Mathematically: F₁₂ = -F₂₁.",
+  visualExplanation: {
+    title: "Visualizing Newton's Laws",
+    imageUrl: "https://example.com/newtons-laws-visual.png",
+    description: "This GIF demonstrates the effects of Newton's laws on moving objects."
   },
-  
+  formulas: [
+    {
+      equation: "F = ma",
+      description: "Force equals mass times acceleration (Second Law)"
+    },
+    {
+      equation: "∑F = 0",
+      description: "When in equilibrium, the sum of all forces equals zero (First Law)"
+    },
+    {
+      equation: "F₁₂ = -F₂₁",
+      description: "Action-reaction pairs are equal in magnitude and opposite in direction (Third Law)"
+    }
+  ],
+  examples: [
+    {
+      title: "Rocket Propulsion",
+      description: "When a rocket expels gas downward (action), the rocket experiences an upward force (reaction), propelling it into space according to Newton's Third Law."
+    },
+    {
+      title: "Car Acceleration",
+      description: "When you press the accelerator in a car, the engine applies more force, resulting in greater acceleration according to F = ma (Second Law)."
+    },
+    {
+      title: "Book on Table",
+      description: "A book resting on a table experiences two forces: gravity pulling it down and the normal force from the table pushing up. These forces balance out (∑F = 0), keeping the book at rest (First Law)."
+    }
+  ],
+  realWorldApplications: "Newton's Laws have countless real-world applications, from designing vehicles to planning space missions. Engineers use these principles to calculate the forces needed for rockets to escape Earth's gravity. In sports, understanding these laws helps athletes optimize their movements—like a swimmer pushing off the wall or a basketball player shooting. Even everyday activities like walking rely on these laws: you push backward on the ground (action), and the ground pushes you forward (reaction), allowing you to move.",
+  commonMistakes: [
+    "Confusing 'no force' with 'no motion' in the First Law. Objects can move at constant velocity when forces are balanced, not just when there's no force.",
+    "Forgetting that acceleration is a vector quantity in F = ma. Direction matters!",
+    "Misidentifying action-reaction pairs. Remember, action-reaction forces act on different objects, not on the same object."
+  ],
+  neetQuestions: [
+    {
+      year: "2019",
+      question: "If a force of 10 N acts on a mass of 5 kg, what is the acceleration produced?",
+      answer: "2 m/s²",
+      explanation: "Using Newton's Second Law, F = ma, we get: a = F/m = 10N/5kg = 2 m/s²"
+    },
+    {
+      year: "2020",
+      question: "Which of Newton's laws explains the recoil of a gun when fired?",
+      answer: "Third Law",
+      explanation: "The recoil of a gun is due to the action-reaction pair of forces described by Newton's Third Law."
+    }
+  ],
+  videoUrl: "https://example.com/newtons-laws-video",
+  relatedConcepts: [
+    { id: "c2", title: "Conservation of Momentum" },
+    { id: "c3", title: "Circular Motion" },
+    { id: "c4", title: "Work and Energy" }
+  ],
   masteryData: {
-    examScore: 70,
-    recallStrength: 65,
-    confidenceLevel: 60,
-    averageTimePerQuestion: 45, // seconds
-    nextRevisionDue: "2023-05-10",
-    attemptsHistory: [
-      { date: "2023-04-10", score: 40 },
-      { date: "2023-04-20", score: 55 },
-      { date: "2023-05-01", score: 70 }
-    ],
+    examScore: 85,
+    recallStrength: 70,
+    timePerMCQ: "45 seconds",
+    revisionDue: "3 days",
     status: "Needs Revision"
-  },
-  
-  aiInsights: {
-    weakLinks: [
-      "Understanding of water potential calculation",
-      "Application in hypertonic environments"
-    ],
-    suggestedRevision: "Focus on numericals involving water potential and practice more questions on hypertonic conditions",
-    performance: "You're in the top 30% for this concept, but improving formula application could boost your score significantly."
   }
 };
 
-// Subject-specific additional content
-const subjectSpecificContent = {
-  Biology: {
-    visualMnemonics: {
-      text: "Think of a plant cell as a water balloon inside a rigid box. The water (via osmosis) fills the balloon, pushing it against the box (cell wall) creating turgor pressure.",
-      image: "/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png"
-    },
-    oneLineExamFacts: [
-      "Plasmolysis is irreversible in prolonged hypertonic conditions",
-      "Guard cells use osmosis for stomatal movements",
-      "Root hairs maximize surface area for water uptake via osmosis",
-      "Aquaporins are specialized channel proteins that facilitate osmosis"
-    ],
-    highYield: true
-  },
-  Chemistry: {
-    reactionMechanisms: [
-      {
-        name: "Osmotic Pressure Effect",
-        equation: "π = iCRT",
-        explanation: "The osmotic pressure (π) depends on solute concentration (C), temperature (T), and the gas constant (R)"
-      }
-    ],
-    pyqAnalysis: "15% of NEET chemistry questions test osmosis principles indirectly through solutions and colligative properties."
-  },
-  Physics: {
-    animations: {
-      url: "https://cdn.example.com/osmosis-animation.gif",
-      description: "Animation showing water molecule movement across membrane"
-    },
-    realLifeApplications: [
-      "Reverse osmosis in water purification systems",
-      "Osmosis-powered electrical generators in development"
-    ],
-    oneLineDerivations: [
-      "The osmotic pressure equation π = iCRT can be derived from van't Hoff's work on colligative properties"
-    ]
-  }
-};
-
-interface ConceptCardProps {
-  id: string;
-  title: string;
-  masteryPercent: number;
-}
-
-const ConceptCard: React.FC<ConceptCardProps> = ({ id, title, masteryPercent }) => {
-  return (
-    <Card className="hover:shadow-md transition-all cursor-pointer">
-      <CardContent className="p-4">
-        <h4 className="font-medium mb-2">{title}</h4>
-        <div className="flex justify-between items-center mb-1 text-sm">
-          <span>Mastery</span>
-          <span>{masteryPercent}%</span>
-        </div>
-        <Progress value={masteryPercent} className="h-1.5" />
-        <Button variant="ghost" size="sm" className="w-full mt-3 text-blue-600">
-          <BookOpen className="h-3.5 w-3.5 mr-1" /> Study
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};
-
-const EnhancedConceptLandingPage = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [concept] = useState(conceptData); // In a real app, fetch concept by conceptId
+const EnhancedConceptLandingPage: React.FC = () => {
+  const { conceptId } = useParams<{conceptId: string}>();
   const [activeTab, setActiveTab] = useState("summary");
-  const [isBookmarked, setIsBookmarked] = useState(concept.isBookmarked);
-  const [voiceLanguage, setVoiceLanguage] = useState(concept.voiceLanguage);
-  const [confidenceLevel, setConfidenceLevel] = useState(concept.masteryData.confidenceLevel);
-  const [isReadingAloud, setIsReadingAloud] = useState(false);
-  const [currentMCQIndex, setCurrentMCQIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [language, setLanguage] = useState<'english' | 'hindi'>('english');
   
-  // Get subject-specific content based on the concept's subject
-  const specificContent = subjectSpecificContent[concept.subject as keyof typeof subjectSpecificContent] || {};
-
-  // Handle bookmark toggle
-  const handleBookmarkToggle = () => {
+  // Voice reading functionality (mock implementation)
+  const toggleVoiceReading = () => {
+    setIsVoiceActive(!isVoiceActive);
+    // In a real implementation, this would start or stop text-to-speech
+  };
+  
+  // Language toggle
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'english' ? 'hindi' : 'english');
+  };
+  
+  // Bookmark functionality
+  const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
-    toast({
-      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
-      description: isBookmarked ? "Concept removed from your saved items" : "Concept saved for later revision",
-    });
+    // In a real implementation, this would save to the user's bookmarks
   };
   
-  // Handle voice language toggle
-  const handleVoiceLanguageToggle = () => {
-    const newLanguage = voiceLanguage === 'en' ? 'hi' : 'en';
-    setVoiceLanguage(newLanguage);
-    toast({
-      title: `Voice language changed to ${newLanguage === 'en' ? 'English' : 'Hindi'}`,
-      description: "The read-aloud feature will now use the selected language",
-    });
-  };
+  const concept = mockConcept; // In a real app, this would fetch based on conceptId
   
-  // Handle read aloud functionality
-  const handleReadAloud = () => {
-    if ('speechSynthesis' in window) {
-      if (isReadingAloud) {
-        window.speechSynthesis.cancel();
-        setIsReadingAloud(false);
-        return;
-      }
-      
-      // Get text to read based on active tab
-      let textToRead = "";
-      switch (activeTab) {
-        case "summary":
-          textToRead = concept.content.conceptSummary.text;
-          break;
-        case "examples":
-          textToRead = "Real world examples: " + concept.content.realWorldExamples.join(". ");
-          break;
-        case "mistakes":
-          textToRead = "Common mistakes: " + concept.content.commonMistakes.join(". ");
-          break;
-        default:
-          textToRead = concept.content.conceptSummary.text;
-      }
-      
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.lang = voiceLanguage === 'en' ? 'en-US' : 'hi-IN';
-      
-      utterance.onend = () => {
-        setIsReadingAloud(false);
-      };
-      
-      window.speechSynthesis.speak(utterance);
-      setIsReadingAloud(true);
-    } else {
-      toast({
-        title: "Text-to-speech not supported",
-        description: "Your browser doesn't support text-to-speech functionality",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  // Handle MCQ answer selection
-  const handleAnswerSelect = (optionIndex: number) => {
-    setSelectedAnswer(optionIndex);
-    setShowAnswer(true);
-  };
-  
-  // Handle next MCQ question
-  const handleNextQuestion = () => {
-    if (currentMCQIndex < concept.content.mcqQuiz.length - 1) {
-      setCurrentMCQIndex(currentMCQIndex + 1);
-      setSelectedAnswer(null);
-      setShowAnswer(false);
-    }
-  };
-  
-  // Get difficulty color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-blue-100 text-blue-800 border-blue-300';
-    }
-  };
-  
-  // Get mastery color
-  const getMasteryColor = (value: number) => {
-    if (value >= 80) return 'bg-green-500';
-    if (value >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-  
-  // Cleanup speech synthesis when component unmounts
-  useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Back button */}
-      <Button 
-        variant="ghost" 
-        className="mb-4 pl-1 hover:bg-gray-100"
-        onClick={() => navigate(-1)}
-      >
-        <ChevronLeft className="h-4 w-4 mr-1" />
-        Back to Concepts
-      </Button>
-      
       {/* Top Panel - Always Visible */}
-      <Card className="mb-6 overflow-hidden border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-4">
-          <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
-            <div>
-              <CardTitle className="text-2xl mb-1">{concept.title}</CardTitle>
-              <div className="flex flex-wrap gap-2 items-center">
-                <Badge className={`capitalize font-normal ${getDifficultyColor(concept.difficulty)}`}>
-                  {concept.difficulty} difficulty
-                </Badge>
-                <Badge className="bg-blue-100 text-blue-800 border-blue-300 font-normal">
-                  {concept.subject}
-                </Badge>
-                {concept.subject === 'Biology' && subjectSpecificContent.Biology.highYield && (
-                  <Badge className="bg-purple-100 text-purple-800 border-purple-300 font-normal">
-                    High Yield
-                  </Badge>
-                )}
-              </div>
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6 sticky top-0 z-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">{concept.title}</h1>
+              <Badge variant={isBookmarked ? "default" : "outline"} 
+                className="cursor-pointer" onClick={toggleBookmark}>
+                <Bookmark className={cn("h-4 w-4 mr-1", isBookmarked ? "fill-current" : "")} />
+                {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+              </Badge>
             </div>
             
-            <div className="flex gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant={isBookmarked ? "default" : "outline"} 
-                      size="sm"
-                      onClick={handleBookmarkToggle}
-                    >
-                      {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
-                      {isBookmarked ? "Bookmarked" : "Bookmark"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {isBookmarked ? "Remove from bookmarks" : "Save for later revision"}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleReadAloud}
-                    >
-                      {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume className="h-4 w-4 mr-2" />}
-                      {isReadingAloud ? "Stop Reading" : "Read Aloud"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Listen to the content read aloud
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <div className="flex items-center gap-2 bg-gray-100 rounded-md px-3 py-1">
-                <Label htmlFor="voice-toggle" className="text-sm">EN</Label>
-                <Switch 
-                  id="voice-toggle" 
-                  checked={voiceLanguage === 'hi'}
-                  onCheckedChange={handleVoiceLanguageToggle}
-                />
-                <Label htmlFor="voice-toggle" className="text-sm">HI</Label>
-              </div>
+            <div className="flex items-center flex-wrap gap-2 mt-2">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                {concept.subject}
+              </Badge>
+              <Badge variant="outline">{concept.topic}</Badge>
+              <Badge variant="outline" className={
+                concept.difficulty === "Easy" ? "bg-green-50 text-green-700 border-green-200" :
+                concept.difficulty === "Medium" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                "bg-red-50 text-red-700 border-red-200"
+              }>
+                {concept.difficulty}
+              </Badge>
             </div>
           </div>
           
-          <div className="mt-3">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium">Mastery Level</span>
-              <span className="text-sm font-medium">{concept.masteryPercent}%</span>
-            </div>
-            <Progress 
-              value={concept.masteryPercent} 
-              className={`h-2 ${getMasteryColor(concept.masteryPercent)}`} 
-            />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={toggleVoiceReading} className="flex items-center gap-1">
+              {isVoiceActive ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {isVoiceActive ? 'Stop' : 'Read Aloud'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={toggleLanguage} className="flex items-center gap-1">
+              {language === 'english' ? 'EN' : 'HI'}
+            </Button>
+            <div className="bg-gray-100 dark:bg-gray-700 h-6 w-[1px]"></div>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
           </div>
-        </CardHeader>
-      </Card>
-      
-      {/* Main Content Area with Learning Tabs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Learning Tabs */}
-          <Card className="overflow-hidden border-0 shadow-md">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="p-0 bg-gray-100 flex w-full overflow-x-auto">
-                <TabsTrigger value="summary" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Concept Summary
-                </TabsTrigger>
-                <TabsTrigger value="visual" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <FileImage className="h-4 w-4 mr-2" />
-                  Visual Explanation
-                </TabsTrigger>
-                <TabsTrigger value="formula" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Formula Box
-                </TabsTrigger>
-                <TabsTrigger value="linked" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <Link2 className="h-4 w-4 mr-2" />
-                  Linked Concepts
-                </TabsTrigger>
-                <TabsTrigger value="video" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <FileVideo className="h-4 w-4 mr-2" />
-                  Video
-                </TabsTrigger>
-              </TabsList>
-              <TabsList className="p-0 bg-gray-100 flex w-full overflow-x-auto">
-                <TabsTrigger value="examples" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Real-World Examples
-                </TabsTrigger>
-                <TabsTrigger value="mistakes" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  Common Mistakes
-                </TabsTrigger>
-                <TabsTrigger value="quiz" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  MCQ Quiz
-                </TabsTrigger>
-                <TabsTrigger value="neet" className="flex-1 data-[state=active]:bg-white rounded-none py-3">
-                  <BookText className="h-4 w-4 mr-2" />
-                  Seen in NEET
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Tab Contents */}
-              <TabsContent value="summary" className="m-0 p-6">
-                <div className="prose max-w-none">
-                  <h3 className="text-xl font-semibold mb-4">Concept Summary</h3>
-                  <p className="mb-4">{concept.content.conceptSummary.text}</p>
-                  
-                  <h4 className="text-lg font-medium mb-2">Key Points</h4>
-                  <ul className="space-y-2">
-                    {concept.content.conceptSummary.keyPoints.map((point, index) => (
-                      <li key={index} className="flex items-baseline">
-                        <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  {/* Subject-specific content for Biology */}
-                  {concept.subject === 'Biology' && (
-                    <div className="mt-6 bg-green-50 p-4 rounded-lg">
-                      <h4 className="text-lg font-medium mb-2 flex items-center">
-                        <BookOpen className="h-5 w-5 mr-2 text-green-600" />
-                        Biology Visual Mnemonic
-                      </h4>
-                      <div className="flex flex-col md:flex-row items-center gap-4">
-                        <img 
-                          src={subjectSpecificContent.Biology.visualMnemonics.image} 
-                          alt="Visual mnemonic" 
-                          className="w-full md:w-1/3 rounded-lg"
-                        />
-                        <p className="text-green-800">{subjectSpecificContent.Biology.visualMnemonics.text}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* One-line exam facts for Biology */}
-                  {concept.subject === 'Biology' && (
-                    <div className="mt-4">
-                      <h4 className="text-lg font-medium mb-2">One-line Exam Facts</h4>
-                      <ul className="space-y-2">
-                        {subjectSpecificContent.Biology.oneLineExamFacts.map((fact, index) => (
-                          <li key={index} className="flex items-baseline">
-                            <span className="inline-block w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
-                            <span>{fact}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="visual" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Visual Explanation</h3>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
-                  {concept.content.visualExplanation.images.map((image, index) => (
-                    <div key={index}>
-                      <img 
-                        src={image} 
-                        alt={concept.title} 
-                        className="mx-auto max-h-80 mb-4"
-                      />
-                    </div>
-                  ))}
-                  <p className="text-gray-600 italic">{concept.content.visualExplanation.caption}</p>
-                </div>
-                
-                {/* Physics-specific animations */}
-                {concept.subject === 'Physics' && subjectSpecificContent.Physics.animations && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-medium mb-2">Animation</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg text-center">
-                      <img 
-                        src={subjectSpecificContent.Physics.animations.url} 
-                        alt="Animation" 
-                        className="mx-auto max-h-60"
-                      />
-                      <p className="text-gray-600 italic mt-2">{subjectSpecificContent.Physics.animations.description}</p>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="formula" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Formula Box</h3>
-                <div className="space-y-4">
-                  {concept.content.formulaBox.formulas.map((formula, index) => (
-                    <div key={index} className="bg-blue-50 p-4 rounded-lg">
-                      <div className="text-center font-mono text-xl mb-2">{formula.formula}</div>
-                      <p className="text-center text-gray-600">{formula.description}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Chemistry-specific reaction mechanisms */}
-                {concept.subject === 'Chemistry' && subjectSpecificContent.Chemistry.reactionMechanisms && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-medium mb-3">Reaction Mechanisms</h4>
-                    <div className="space-y-4">
-                      {subjectSpecificContent.Chemistry.reactionMechanisms.map((reaction, index) => (
-                        <div key={index} className="bg-yellow-50 p-4 rounded-lg">
-                          <h5 className="font-medium mb-2">{reaction.name}</h5>
-                          <div className="text-center font-mono text-lg mb-2">{reaction.equation}</div>
-                          <p className="text-center text-gray-600">{reaction.explanation}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Physics-specific one-liner derivations */}
-                {concept.subject === 'Physics' && subjectSpecificContent.Physics.oneLineDerivations && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-medium mb-3">One-liner Derivations</h4>
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <ul className="space-y-2">
-                        {subjectSpecificContent.Physics.oneLineDerivations.map((derivation, index) => (
-                          <li key={index} className="text-gray-700">{derivation}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="linked" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Linked Concepts</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {concept.content.linkedConcepts.map((linkedConcept) => (
-                    <div 
-                      key={linkedConcept.id}
-                      className="cursor-pointer"
-                      onClick={() => navigate(`/dashboard/student/concepts/${linkedConcept.id}`)}
-                    >
-                      <ConceptCard 
-                        id={linkedConcept.id} 
-                        title={linkedConcept.title} 
-                        masteryPercent={linkedConcept.masteryPercent} 
-                      />
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="video" className="m-0 p-0">
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={concept.content.videoExplanation.videoUrl}
-                    title={concept.content.videoExplanation.title}
-                    className="w-full h-[400px]"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold">{concept.content.videoExplanation.title}</h3>
-                    <Badge variant="outline">
-                      <Clock className="h-3.5 w-3.5 mr-1" />
-                      {concept.content.videoExplanation.duration}
-                    </Badge>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">Key Timestamps</h4>
-                    <ul className="space-y-2">
-                      <li className="flex">
-                        <Badge variant="outline" className="mr-2">0:45</Badge>
-                        <span>Definition of {concept.title}</span>
-                      </li>
-                      <li className="flex">
-                        <Badge variant="outline" className="mr-2">1:30</Badge>
-                        <span>Mechanism explained with animation</span>
-                      </li>
-                      <li className="flex">
-                        <Badge variant="outline" className="mr-2">2:15</Badge>
-                        <span>Real-world applications and examples</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="examples" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Real-World Examples</h3>
-                <div className="space-y-3">
-                  {concept.content.realWorldExamples.map((example, index) => (
-                    <div key={index} className="flex p-3 bg-green-50 rounded-lg">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-200 text-green-800 mr-3 mt-0.5 flex-shrink-0">
-                        {index + 1}
-                      </span>
-                      <span>{example}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Physics-specific real life applications */}
-                {concept.subject === 'Physics' && subjectSpecificContent.Physics.realLifeApplications && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-medium mb-3">Additional Applications in Physics</h4>
-                    <div className="space-y-3">
-                      {subjectSpecificContent.Physics.realLifeApplications.map((application, index) => (
-                        <div key={index} className="flex p-3 bg-blue-50 rounded-lg">
-                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-200 text-blue-800 mr-3 mt-0.5 flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <span>{application}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="mistakes" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Common Mistakes</h3>
-                <div className="space-y-3">
-                  {concept.content.commonMistakes.map((mistake, index) => (
-                    <div key={index} className="flex p-3 bg-red-50 rounded-lg">
-                      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-200 text-red-800 mr-3 mt-0.5 flex-shrink-0">
-                        ✕
-                      </span>
-                      <span>{mistake}</span>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="quiz" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">MCQ Flash Quiz</h3>
-                
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-3">
-                    Question {currentMCQIndex + 1} of {concept.content.mcqQuiz.length}
-                  </h4>
-                  
-                  <p className="mb-4">{concept.content.mcqQuiz[currentMCQIndex].question}</p>
-                  
-                  <div className="space-y-2">
-                    {concept.content.mcqQuiz[currentMCQIndex].options.map((option, optionIndex) => (
-                      <div 
-                        key={optionIndex}
-                        className={`p-3 rounded-lg border cursor-pointer ${
-                          selectedAnswer === optionIndex 
-                            ? optionIndex === concept.content.mcqQuiz[currentMCQIndex].correctAnswer
-                              ? 'bg-green-100 border-green-300'
-                              : 'bg-red-100 border-red-300'
-                            : 'bg-white hover:bg-gray-50 border-gray-200'
-                        }`}
-                        onClick={() => handleAnswerSelect(optionIndex)}
-                      >
-                        <div className="flex">
-                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 mr-3 flex-shrink-0">
-                            {String.fromCharCode(65 + optionIndex)}
-                          </span>
-                          <span>{option}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {showAnswer && (
-                    <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                      <h5 className="font-medium mb-2">Explanation</h5>
-                      <p>{concept.content.mcqQuiz[currentMCQIndex].explanation}</p>
-                    </div>
-                  )}
-                  
-                  <div className="mt-4 flex justify-end">
-                    <Button 
-                      onClick={handleNextQuestion}
-                      disabled={!showAnswer || currentMCQIndex >= concept.content.mcqQuiz.length - 1}
-                    >
-                      Next Question
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="neet" className="m-0 p-6">
-                <h3 className="text-xl font-semibold mb-4">Seen in NEET</h3>
-                
-                <div className="space-y-4">
-                  {concept.content.seenInNEET.map((pyq, index) => (
-                    <Card key={index} className="overflow-hidden">
-                      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 py-3">
-                        <div className="flex justify-between">
-                          <Badge variant="secondary">NEET {pyq.year}</Badge>
-                          <Badge variant="outline">High Relevance</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4">
-                        <p className="font-medium mb-2">{pyq.question}</p>
-                        <p className="text-sm text-gray-600">{pyq.relevance}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                
-                {/* Chemistry-specific PYQ analysis */}
-                {concept.subject === 'Chemistry' && subjectSpecificContent.Chemistry.pyqAnalysis && (
-                  <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-                    <h4 className="font-medium flex items-center mb-2">
-                      <BarChart4 className="h-5 w-5 mr-2 text-yellow-600" />
-                      PYQ Analysis
-                    </h4>
-                    <p className="text-gray-700">{subjectSpecificContent.Chemistry.pyqAnalysis}</p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </Card>
-          
-          {/* AI Insights Section */}
-          <Card className="overflow-hidden border-0 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 py-4">
-              <CardTitle className="text-lg flex items-center">
-                <Lightbulb className="h-5 w-5 mr-2 text-amber-500" />
-                AI Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-medium flex items-center text-red-800">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Weak Link Detector
-                  </h4>
-                  <ul className="mt-2 space-y-2 text-sm">
-                    {concept.aiInsights.weakLinks.map((weakLink, index) => (
-                      <li key={index} className="flex items-baseline">
-                        <span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-2"></span>
-                        <span>{weakLink}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-medium flex items-center text-green-800">
-                    <Brain className="h-4 w-4 mr-2" />
-                    Suggested Revision Plan
-                  </h4>
-                  <p className="mt-2 text-sm">{concept.aiInsights.suggestedRevision}</p>
-                </div>
-              </div>
-              
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium flex items-center text-blue-800">
-                  <BarChart4 className="h-4 w-4 mr-2" />
-                  Performance Analytics
-                </h4>
-                <p className="mt-2 text-sm">{concept.aiInsights.performance}</p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
         
-        {/* Mastery & Recall Side Panel */}
+        {/* Mastery Meter */}
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Concept Mastery</span>
+            <span className="font-medium">{concept.masteryData.examScore}%</span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full" 
+              style={{ width: `${concept.masteryData.examScore}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content Area - Tabs */}
+        <div className="lg:col-span-2">
+          <Card className="mb-6">
+            <CardContent className="p-0">
+              <Tabs defaultValue="summary" value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="w-full justify-start p-2 bg-muted/50 rounded-t-lg overflow-x-auto flex-nowrap">
+                  <TabsTrigger value="summary" className="whitespace-nowrap">Concept Summary</TabsTrigger>
+                  <TabsTrigger value="visual" className="whitespace-nowrap">Visual Explanation</TabsTrigger>
+                  <TabsTrigger value="formula" className="whitespace-nowrap">Formula Box</TabsTrigger>
+                  <TabsTrigger value="linked" className="whitespace-nowrap">Linked Concepts</TabsTrigger>
+                  <TabsTrigger value="video" className="whitespace-nowrap">Video Explanation</TabsTrigger>
+                  <TabsTrigger value="real-world" className="whitespace-nowrap">Real-World Examples</TabsTrigger>
+                  <TabsTrigger value="mistakes" className="whitespace-nowrap">Common Mistakes</TabsTrigger>
+                  <TabsTrigger value="quiz" className="whitespace-nowrap">MCQ Flash Quiz</TabsTrigger>
+                  <TabsTrigger value="neet" className="whitespace-nowrap">Seen in NEET</TabsTrigger>
+                </TabsList>
+                
+                {/* Tab Content */}
+                <TabsContent value="summary" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Concept Summary</h2>
+                  <div className="prose max-w-none dark:prose-invert">
+                    <p>{concept.simpleExplanation}</p>
+                    <p className="mt-4">{concept.detailedExplanation}</p>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="visual" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">{concept.visualExplanation.title}</h2>
+                  <div className="bg-gray-100 dark:bg-gray-800 aspect-video rounded-lg flex items-center justify-center mb-4">
+                    <p className="text-muted-foreground">Visual explanation placeholder</p>
+                  </div>
+                  <p>{concept.visualExplanation.description}</p>
+                </TabsContent>
+                
+                <TabsContent value="formula" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Key Formulas</h2>
+                  <div className="space-y-4">
+                    {concept.formulas.map((formula, idx) => (
+                      <Card key={idx} className="overflow-hidden">
+                        <CardContent className="p-4">
+                          <div className="text-center bg-gray-50 dark:bg-gray-800 p-4 mb-3 font-mono text-lg">
+                            {formula.equation}
+                          </div>
+                          <p>{formula.description}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="linked" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Connected Concepts</h2>
+                  <div className="space-y-3">
+                    {concept.relatedConcepts.map((related) => (
+                      <Card key={related.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div>
+                            <h3 className="font-medium">{related.title}</h3>
+                            <p className="text-sm text-muted-foreground">Physics</p>
+                          </div>
+                          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="video" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Video Explanation</h2>
+                  <div className="bg-gray-100 dark:bg-gray-800 aspect-video rounded-lg flex items-center justify-center mb-4">
+                    <p className="text-muted-foreground">Video player placeholder (2-3 minute explanation)</p>
+                  </div>
+                  <p>This video provides a visual explanation of Newton's Laws of Motion, with animations and real-world examples.</p>
+                </TabsContent>
+                
+                <TabsContent value="real-world" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Real-World Applications</h2>
+                  <div className="prose max-w-none dark:prose-invert">
+                    <p>{concept.realWorldApplications}</p>
+                    <div className="mt-6 space-y-4">
+                      {concept.examples.map((example, idx) => (
+                        <div key={idx} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-lg">
+                          <h3 className="font-medium text-blue-800 dark:text-blue-300">{example.title}</h3>
+                          <p className="mt-1">{example.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="mistakes" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Common Mistakes</h2>
+                  <ul className="space-y-3">
+                    {concept.commonMistakes.map((mistake, index) => (
+                      <li key={index} className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 p-3 rounded-lg text-red-800 dark:text-red-300">
+                        {mistake}
+                      </li>
+                    ))}
+                  </ul>
+                </TabsContent>
+                
+                <TabsContent value="quiz" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">MCQ Flash Quiz</h2>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-medium mb-3">Quick Concept Check</h3>
+                    <p className="mb-4">If a force of 10N acts on an object of mass 2kg, what will be its acceleration?</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <input type="radio" id="opt1" name="quiz" className="h-4 w-4" />
+                        <label htmlFor="opt1">5 m/s²</label>
+                      </div>
+                      <div className="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <input type="radio" id="opt2" name="quiz" className="h-4 w-4" />
+                        <label htmlFor="opt2">20 m/s²</label>
+                      </div>
+                      <div className="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <input type="radio" id="opt3" name="quiz" className="h-4 w-4" />
+                        <label htmlFor="opt3">2 m/s²</label>
+                      </div>
+                      <div className="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <input type="radio" id="opt4" name="quiz" className="h-4 w-4" />
+                        <label htmlFor="opt4">0.2 m/s²</label>
+                      </div>
+                    </div>
+                    <Button className="mt-4 w-full">Check Answer</Button>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="neet" className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">NEET Previous Year Questions</h2>
+                  <div className="space-y-6">
+                    {concept.neetQuestions.map((q, idx) => (
+                      <Card key={idx}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                              NEET {q.year}
+                            </Badge>
+                          </div>
+                          <p className="mb-4">{q.question}</p>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
+                            <p><strong>Answer:</strong> {q.answer}</p>
+                            <p className="mt-2 text-sm">{q.explanation}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+          
+          {/* Notes Section */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Your Notes</h2>
+            <Button variant="outline" size="sm" onClick={() => setNotesOpen(!notesOpen)}>
+              <PenLine className="h-4 w-4 mr-1" />
+              {notesOpen ? "Close Notes" : "Add Notes"}
+            </Button>
+          </div>
+          
+          {notesOpen && (
+            <Card className="mb-6">
+              <CardContent className="p-4">
+                <textarea 
+                  className="w-full h-32 p-3 border rounded-md bg-background resize-none" 
+                  placeholder="Write your notes here..."
+                />
+                <div className="mt-3 flex justify-end">
+                  <Button size="sm">Save Notes</Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        
+        {/* Right Sidebar */}
         <div className="space-y-6">
-          <Card className="overflow-hidden border-0 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 py-4">
-              <CardTitle className="text-lg">Mastery & Recall</CardTitle>
-            </CardHeader>
+          {/* Mastery & Recall Section */}
+          <Card>
             <CardContent className="p-6">
+              <h2 className="text-lg font-medium mb-4">Learning Progress</h2>
               <div className="space-y-4">
-                {/* Exam Score */}
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Exam Score</span>
-                    <span className="text-sm font-semibold">{concept.masteryData.examScore}%</span>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="flex items-center gap-1">
+                      <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Exam Score
+                    </span>
+                    <span>{concept.masteryData.examScore}%</span>
                   </div>
-                  <Progress 
-                    value={concept.masteryData.examScore} 
-                    className={`h-2 ${getMasteryColor(concept.masteryData.examScore)}`} 
-                  />
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="bg-blue-600 rounded-full h-2" style={{width: `${concept.masteryData.examScore}%`}}></div>
+                  </div>
                 </div>
                 
-                {/* Recall Strength */}
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Recall Strength</span>
-                    <span className="text-sm font-semibold">{concept.masteryData.recallStrength}%</span>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="flex items-center gap-1">
+                      <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                      </svg>
+                      Recall Strength
+                    </span>
+                    <span>{concept.masteryData.recallStrength}%</span>
                   </div>
-                  <Progress 
-                    value={concept.masteryData.recallStrength} 
-                    className={`h-2 ${getMasteryColor(concept.masteryData.recallStrength)}`} 
-                  />
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="bg-purple-600 rounded-full h-2" style={{width: `${concept.masteryData.recallStrength}%`}}></div>
+                  </div>
                 </div>
                 
-                {/* Confidence Level */}
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Confidence Level</span>
-                    <span className="text-sm font-semibold">{confidenceLevel}%</span>
+                <div className="flex justify-between items-center pt-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Time per MCQ: {concept.masteryData.timePerMCQ}</span>
                   </div>
-                  <Slider 
-                    value={[confidenceLevel]} 
-                    onValueChange={(value) => setConfidenceLevel(value[0])}
-                    min={0}
-                    max={100}
-                    step={5}
-                    className="mt-2"
-                  />
-                </div>
-                
-                {/* Average Time per Question */}
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Clock className="h-5 w-5 text-gray-600 mr-2" />
-                    <span className="text-sm">Average Time/Question</span>
-                  </div>
-                  <Badge className="bg-amber-100 text-amber-800 border-amber-300">
-                    {concept.masteryData.averageTimePerQuestion} sec
-                  </Badge>
-                </div>
-                
-                {/* Next Revision Due */}
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Clock className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-sm">Next Revision Due</span>
-                  </div>
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                    {new Date(concept.masteryData.nextRevisionDue).toLocaleDateString()}
-                  </Badge>
-                </div>
-                
-                {/* Concept Status */}
-                <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Star className="h-5 w-5 text-yellow-600 mr-2" />
-                    <span className="text-sm">Concept Status</span>
-                  </div>
-                  <Badge 
-                    className={
-                      concept.masteryData.status === 'Mastered' ? 'bg-green-100 text-green-800 border-green-300' :
-                      concept.masteryData.status === 'Needs Revision' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
-                      'bg-red-100 text-red-800 border-red-300'
-                    }
-                  >
+                  
+                  <Badge variant="outline" className={
+                    concept.masteryData.status === "Mastered" ? "bg-green-50 text-green-700 border-green-200" :
+                    concept.masteryData.status === "Needs Revision" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                    "bg-red-50 text-red-700 border-red-200"
+                  }>
                     {concept.masteryData.status}
                   </Badge>
                 </div>
                 
-                {/* Attempts History */}
-                <div>
-                  <h4 className="text-sm font-medium mb-3 flex items-center">
-                    <BarChart4 className="h-4 w-4 mr-1" />
-                    Progress over Time
-                  </h4>
-                  <div className="h-36 bg-gray-50 rounded-lg">
-                    {/* This would be a chart in production */}
-                    <div className="p-4 h-full flex items-center justify-center">
-                      <div className="relative w-full h-4/5">
-                        {/* Simple bar chart rendering */}
-                        <div className="absolute bottom-0 left-0 w-full h-full flex justify-between items-end">
-                          {concept.masteryData.attemptsHistory.map((attempt, idx) => (
-                            <div 
-                              key={idx} 
-                              className="w-1/4 mx-1"
-                              title={`${attempt.date}: ${attempt.score}%`}
-                            >
-                              <div 
-                                className={`w-full rounded-t-sm ${getMasteryColor(attempt.score)}`}
-                                style={{ height: `${attempt.score}%` }}
-                              ></div>
-                              <div className="text-xs text-center mt-1">{new Date(attempt.date).toLocaleDateString().split('/')[1]}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex justify-between items-center pt-2 text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Revision due in: {concept.masteryData.revisionDue}</span>
                 </div>
+              </div>
+              
+              <div className="mt-5 space-y-3">
+                <Button variant="default" className="w-full">Take Practice Quiz</Button>
+                <Button variant="outline" className="w-full">Review Flashcards</Button>
               </div>
             </CardContent>
           </Card>
           
-          {/* Practice More Section */}
-          <Card className="overflow-hidden border-0 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 py-4">
-              <CardTitle className="text-lg">Practice More</CardTitle>
-            </CardHeader>
+          {/* Subject-specific section (for Physics) */}
+          <Card>
             <CardContent className="p-6">
+              <h2 className="text-lg font-medium flex items-center gap-2 mb-4">
+                <Book className="h-5 w-5 text-blue-600" />
+                Physics Learning Tools
+              </h2>
               <div className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
-                  <PlayCircle className="h-4 w-4 mr-2" />
-                  Practice More Questions
+                <Button variant="outline" className="w-full justify-start">
+                  <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  Download Formula Sheet
                 </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+                  </svg>
+                  View Solved Problems
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Explore Animations
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Concept Tags */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-medium mb-4">Concept Tags</h2>
+              <div className="flex flex-wrap gap-2">
+                {concept.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary">{tag}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* AI Insights */}
+          <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-100 dark:border-purple-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h2 className="text-lg font-medium text-purple-800 dark:text-purple-300">AI Insights</h2>
+              </div>
+              
+              <div className="space-y-4 text-sm">
+                <div>
+                  <h3 className="font-medium text-purple-700 dark:text-purple-300">Weak Areas</h3>
+                  <p className="mt-1">You seem to struggle with applications of Newton's Third Law. Focus on action-reaction pairs in complex systems.</p>
+                </div>
                 
-                <Button className="w-full justify-start" variant="outline">
-                  <BookText className="h-4 w-4 mr-2" />
-                  Flashcard Review
-                </Button>
+                <div>
+                  <h3 className="font-medium text-purple-700 dark:text-purple-300">Suggested Revision</h3>
+                  <p className="mt-1">Review this concept again in 3 days to strengthen your recall. Focus on the video explanation and practice quiz.</p>
+                </div>
                 
-                <Button className="w-full justify-start" variant="outline">
-                  <BookCheck className="h-4 w-4 mr-2" />
-                  Take Full Test
-                </Button>
+                <div>
+                  <h3 className="font-medium text-purple-700 dark:text-purple-300">Performance Milestone</h3>
+                  <p className="mt-1">You're in the top 25% for understanding Newton's First Law! Keep up the good work.</p>
+                </div>
               </div>
             </CardContent>
           </Card>
