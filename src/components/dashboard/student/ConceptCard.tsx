@@ -38,11 +38,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     'hard': 'bg-red-100 text-red-800 border-red-200'
   };
 
-  const handleStudyClick = () => {
-    // Use the exact URL format requested: /dashboard/student/concepts/p1/study
-    navigate(`/dashboard/student/concepts/${id}/study`);
-  };
-
   const handleCardClick = () => {
     // Navigate to concept landing page
     if (onView) {
@@ -50,6 +45,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     } else {
       navigate(`/dashboard/student/concepts/landing`);
     }
+  };
+
+  const handleStudyClick = () => {
+    // Make sure we're navigating to /dashboard/student/concepts/{id}/study
+    navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
   return (
