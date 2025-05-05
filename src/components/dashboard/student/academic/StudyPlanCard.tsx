@@ -26,7 +26,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
     }
   };
 
-  // Calculate subject progress if not available directly
+  // Safely calculate subject progress if topics are available
   const getSubjectProgress = (subject: StudyPlanSubject): number => {
     if (!subject.topics || subject.topics.length === 0) return 0;
     
@@ -42,7 +42,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
           <div className="flex items-center">
             <div 
               className="w-3 h-3 rounded-full mr-2" 
-              style={{ backgroundColor: subject.color }}
+              style={{ backgroundColor: subject.color || '#3b82f6' }}
             ></div>
             <span className="text-sm font-medium">{subject.name}</span>
           </div>
@@ -80,7 +80,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
           
           <div className="text-right">
             <div className="text-sm font-semibold">
-              {plan.progressPercentage || plan.progressPercent || 0}% Complete
+              {plan.progressPercent || 0}% Complete
             </div>
             <div 
               className={`text-xs ${

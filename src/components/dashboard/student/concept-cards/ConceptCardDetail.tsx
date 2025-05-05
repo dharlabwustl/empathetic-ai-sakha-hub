@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,11 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 
-// Import the Lightbulb icon from lucide-react
-import { LucideIcon } from 'lucide-react';
-
-// Create a Lightbulb icon component since it's not available in lucide-react by default
-const Lightbulb: LucideIcon = (props) => {
+// Create a properly typed Lightbulb icon component
+const Lightbulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -272,20 +268,6 @@ export const ConceptCardDetail = () => {
                     </div>
                     <p className="text-xs mt-1 text-gray-600">Based on quiz results and practice exercises</p>
                   </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Accuracy Rate</span>
-                      <span className="font-medium">{conceptCard.quizScore || 72}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full" 
-                        style={{ width: `${conceptCard.quizScore || 72}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-xs mt-1 text-gray-600">First-attempt correct answers</p>
-                  </div>
                 </div>
               </div>
               
@@ -514,3 +496,5 @@ export const ConceptCardDetail = () => {
     </ConceptsPageLayout>
   );
 };
+
+export default ConceptCardDetail;

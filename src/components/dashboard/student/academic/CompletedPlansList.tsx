@@ -40,7 +40,7 @@ const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans, onViewPl
                   <div>
                     <h3 className="text-lg font-semibold">{plan.examGoal}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Completed on {new Date(plan.examDate).toLocaleDateString()}
+                      Completed on {new Date(plan.examDate.toString()).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
@@ -51,9 +51,9 @@ const CompletedPlansList: React.FC<CompletedPlansListProps> = ({ plans, onViewPl
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center text-sm">
                     <span>Final Progress</span>
-                    <span className="font-medium">{plan.progressPercent || plan.progressPercentage || plan.progress || 0}%</span>
+                    <span className="font-medium">{plan.progressPercent || 0}%</span>
                   </div>
-                  <Progress value={plan.progressPercent || plan.progressPercentage || plan.progress || 0} className="h-2" />
+                  <Progress value={plan.progressPercent || 0} className="h-2" />
                 </div>
                 
                 <div className="flex flex-wrap gap-3">

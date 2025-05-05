@@ -1,90 +1,59 @@
 
-import { StudyPace } from './base';
-
-// Subject proficiency levels
-export type ProficiencyLevel = 'weak' | 'medium' | 'strong';
-export type PriorityLevel = 'low' | 'medium' | 'high';
+// Study Plan Types
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+  status: 'completed' | 'in-progress' | 'pending';
+  priority: 'high' | 'medium' | 'low';
+}
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  proficiency: ProficiencyLevel;
-  priority: PriorityLevel;
-  color: string;
+  color?: string;
   hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
-  isWeakSubject?: boolean; // Added field for tracking weak subjects
-}
-
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  completed: boolean;
-  subjectId: string;
-  scheduleDate?: Date;
-  durationMinutes?: number;
-}
-
-export interface StudySession {
-  id: string;
-  date: Date;
-  startTime: string;
-  endTime?: string;
-  subjectId: string;
-  subjectName: string;
-  topicId?: string;
-  topicName?: string;
-  completed: boolean;
-  durationMinutes?: number;
-  mood?: {
-    before?: string;
-    after?: string;
-  };
-}
-
-// User demographics data
-export interface UserDemographics {
-  age?: number;
-  educationLevel?: string;
-  city?: string;
-  examAppearingDate?: Date;
-}
-
-// Study preferences
-export interface StudyPreferences {
-  studyPace: 'slow' | 'moderate' | 'fast';
-  dailyStudyHours?: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  breakFrequency?: string;
-  stressManagement?: string;
-  studyEnvironment?: string;
-  learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical';
-  personalityType?: string;
-  mood?: string;
+  status?: 'completed' | 'in-progress' | 'pending';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  topics?: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
   id: string;
-  title: string;
+  title?: string;
+  goal?: string;
   examGoal: string;
-  examDate: Date | string;
+  examDate: string | Date;
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
-  topics?: StudyPlanTopic[];
-  sessions?: StudySession[];
-  startDate?: Date | string;
-  endDate?: Date | string;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  status: 'active' | 'completed' | 'archived';
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  createdAt: string;
+  updatedAt?: string;
   progressPercent?: number;
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  studyHoursPerDay?: number;
+  progressPercentage?: number;
+  progress?: number;
+  daysLeft?: number;
   weeklyHours?: number;
-  // New fields
-  userDemographics?: UserDemographics; // Added to store demographic information
-  studyPreferences?: StudyPreferences; // Added to store study preferences
+  userId?: string;
 }
 
-// Used for creating a new study plan
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'createdAt' | 'updatedAt'>;
+export interface NewStudyPlan {
+  id?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
+}
+
+// Export the types to be used in other files
+export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

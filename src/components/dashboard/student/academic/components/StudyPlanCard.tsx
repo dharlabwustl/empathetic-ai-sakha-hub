@@ -16,20 +16,21 @@ interface StudyPlanCardProps {
 }
 
 const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onClick, isActive = false }) => {
+  // Calculate completed subjects
   const totalSubjects = plan.subjects.length;
   const completedSubjects = plan.subjects.filter(subject => subject.completed).length;
   
-  // Calculate total topics and completed topics
+  // Calculate total topics and completed topics safely
   const totalTopicsCount = plan.subjects.reduce((count, subject) => {
-    return count + (subject.topics?.length || 0);
+    return count + ((subject.topics?.length) || 0);
   }, 0);
   
   const completedTopicsCount = plan.subjects.reduce((count, subject) => {
-    return count + (subject.topics?.filter(topic => topic.completed)?.length || 0);
+    return count + ((subject.topics?.filter(topic => topic.completed)?.length) || 0);
   }, 0);
   
   // Format dates
-  const examDate = new Date(plan.examDate);
+  const examDate = new Date(plan.examDate.toString());
   const formattedExamDate = format(examDate, 'MMM d, yyyy');
   
   // Calculate days left

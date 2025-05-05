@@ -10,6 +10,14 @@ interface StudyPlanOverviewProps {
 }
 
 const StudyPlanOverview: React.FC<StudyPlanOverviewProps> = ({ plan }) => {
+  // Format date safely handling both string and Date types
+  const formatDateSafely = (dateValue: string | Date): string => {
+    if (typeof dateValue === 'string') {
+      return formatDate(dateValue);
+    }
+    return formatDate(dateValue.toISOString());
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -28,8 +36,8 @@ const StudyPlanOverview: React.FC<StudyPlanOverviewProps> = ({ plan }) => {
             <CardTitle className="text-lg">Exam Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-indigo-700">{formatDate(plan.examDate)}</div>
-            <p className="text-sm text-gray-500 mt-1">{plan.daysLeft} days remaining</p>
+            <div className="text-2xl font-bold text-indigo-700">{formatDateSafely(plan.examDate)}</div>
+            <p className="text-sm text-gray-500 mt-1">{plan.daysLeft || 0} days remaining</p>
           </CardContent>
         </Card>
 
@@ -38,8 +46,8 @@ const StudyPlanOverview: React.FC<StudyPlanOverviewProps> = ({ plan }) => {
             <CardTitle className="text-lg">Overall Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-indigo-700">{plan.progressPercentage}%</div>
-            <Progress value={plan.progressPercentage} className="h-2 mt-2" />
+            <div className="text-2xl font-bold text-indigo-700">{plan.progressPercent || plan.progressPercentage || 0}%</div>
+            <Progress value={plan.progressPercent || plan.progressPercentage || 0} className="h-2 mt-2" />
           </CardContent>
         </Card>
       </div>
