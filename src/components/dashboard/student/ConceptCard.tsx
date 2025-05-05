@@ -54,7 +54,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     e.stopPropagation();
     
     // Navigate directly to the study URL with /conceptId/study format
-    console.log(`Navigating to study page for concept: ${id}`);
+    console.log(`Navigating to study page for concept: ${id}/study`);
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 

@@ -16,11 +16,16 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
+import { Volume } from 'lucide-react';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  
+  // Voice announcer hook for automated guidance
+  const { speakMessage } = useVoiceAnnouncer();
   
   // Check if user is logged in to decide whether to show HomepageVoiceAnnouncer
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -51,7 +56,17 @@ const Index = () => {
   useEffect(() => {
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(loggedIn);
-  }, []);
+    
+    // Speak welcome message when page loads for non-logged in users
+    if (!loggedIn) {
+      // Small delay before speaking to ensure components are rendered
+      const timer = setTimeout(() => {
+        speakMessage("Welcome to PREPZR! I'm your AI study assistant. You can explore our features or click on the exam analyzer to assess your readiness. Feel free to ask me any questions by clicking the voice icon.");
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [speakMessage]);
 
   // Listen for events
   useEffect(() => {
@@ -123,8 +138,19 @@ const Index = () => {
         onClose={handleCloseVoiceAssistant} 
       />
       
-      {/* Add HomepageVoiceAnnouncer for visitors - adjusting delay to be less irritating */}
-      {<HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={5000} />}
+      {/* HomepageVoiceAnnouncer - auto play with shorter delay */}
+      <HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={2000} />
+      
+      {/* Add a button to easily access voice assistant */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Button 
+          onClick={handleOpenVoiceAssistant}
+          className="rounded-full h-12 w-12 bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg"
+          aria-label="Open voice assistant"
+        >
+          <Volume className="h-6 w-6 text-white" />
+        </Button>
+      </div>
     </div>
   );
 };
