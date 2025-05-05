@@ -17,12 +17,12 @@ import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptSt
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
 import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
+import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -37,7 +37,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
-      <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+      <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
       
       {/* Flashcard routes - simplified to direct interactive access */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />

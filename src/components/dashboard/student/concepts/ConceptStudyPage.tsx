@@ -1,16 +1,12 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import EnhancedConceptLandingPage from './EnhancedConceptLandingPage';
+import { useParams, Navigate } from 'react-router-dom';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   
-  return (
-    <div className="container mx-auto">
-      <EnhancedConceptLandingPage conceptId={conceptId} />
-    </div>
-  );
+  // Redirect to the new ConceptCardStudyPage which has the new design
+  return <Navigate to={`/dashboard/student/concepts/${conceptId}/study`} replace />;
 };
 
 export default ConceptStudyPage;

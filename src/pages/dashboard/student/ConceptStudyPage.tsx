@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import EnhancedConceptLandingPage from '@/components/dashboard/student/concepts/EnhancedConceptLandingPage';
+import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 
 const ConceptStudyPage: React.FC = () => {
   return (
-    <EnhancedConceptLandingPage />
+    <ConceptCardStudyPage />
   );
 };
 
