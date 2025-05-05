@@ -54,7 +54,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     e.stopPropagation();
     
     // Navigate directly to the study URL with /conceptId/study format
-    // This is the correct URL format that was specified
     navigate(`/dashboard/student/concepts/${id}/study`);
   };
 
