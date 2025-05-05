@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -23,6 +24,7 @@ import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 import PreviousYearAnalysisPage from '@/components/dashboard/student/previous-year-analysis/PreviousYearAnalysisPage';
+import SyllabusPage from '@/components/dashboard/student/syllabus/SyllabusPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -31,6 +33,9 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
       <Route path="/dashboard/student/profile" element={<StudentProfile />} />
+      
+      {/* Syllabus route */}
+      <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
       
       {/* Concepts routes - Direct linking to concept card detail page */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />

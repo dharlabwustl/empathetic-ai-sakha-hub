@@ -10,7 +10,8 @@ import {
   Brain, 
   FileText,
   Bell,
-  TrendingUp
+  TrendingUp,
+  Book
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -36,11 +37,12 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
   
-  // Updated main navigation tabs with more focused menu items
+  // Updated main navigation tabs with syllabus tab
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
     { id: "academic", label: "Academic Advisor", icon: GraduationCap, description: "Personalized academic guidance" },
+    { id: "syllabus", label: "Syllabus", icon: Book, description: "Comprehensive exam syllabus mapped to your progress" },
     { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation" },
