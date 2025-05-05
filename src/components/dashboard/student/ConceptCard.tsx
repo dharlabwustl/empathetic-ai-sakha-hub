@@ -39,8 +39,17 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleStudyClick = () => {
-    // Navigate to concept study page with the concept id
-    navigate(`/dashboard/student/concepts/${id}/study`);
+    // Navigate to concept study landing page first
+    navigate(`/dashboard/student/concepts/study-landing/${id}`);
+  };
+
+  const handleCardClick = () => {
+    // Navigate to concept card detail page
+    if (onView) {
+      onView();
+    } else {
+      navigate(`/dashboard/student/concepts/card/${id}`);
+    }
   };
 
   return (
@@ -56,7 +65,12 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             </Badge>
           )}
         </div>
-        <CardTitle className="text-lg font-semibold mt-2">{title}</CardTitle>
+        <CardTitle 
+          className="text-lg font-semibold mt-2 cursor-pointer hover:text-blue-600 transition-colors"
+          onClick={handleCardClick}
+        >
+          {title}
+        </CardTitle>
         <p className="text-sm text-muted-foreground">
           {subject}
         </p>
