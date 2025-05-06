@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
@@ -38,7 +39,7 @@ export default function StudentRoutes() {
       <Route path="/study-plan" element={<StudyPlanView />} />
       <Route path="/profile" element={<StudentProfile />} />
       
-      {/* Concepts routes - Direct linking to concept card detail page */}
+      {/* Concepts routes */}
       <Route path="/concepts" element={<ConceptCardsView />} />
       <Route path="/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
@@ -46,7 +47,7 @@ export default function StudentRoutes() {
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
       
-      {/* Flashcards routes - simplified and direct */}
+      {/* Flashcards routes */}
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
@@ -61,7 +62,7 @@ export default function StudentRoutes() {
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
       
-      {/* New pages added - Syllabus and Previous Year Analysis */}
+      {/* Syllabus and Previous Year Analysis routes - ensure they're properly defined */}
       <Route path="/syllabus" element={<SyllabusPage />} />
       <Route path="/previous-year" element={<PreviousYearAnalysisPage />} />
       

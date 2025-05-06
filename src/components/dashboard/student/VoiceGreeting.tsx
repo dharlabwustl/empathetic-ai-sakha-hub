@@ -1,105 +1,55 @@
 
-import React, { useEffect, useState } from 'react';
-import { Volume, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
-  userName?: string;
-  language?: 'en' | 'hi';
+  userName: string;
+  language?: string;
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
-  isFirstTimeUser, 
-  userName = 'Student',
-  language = 'en'
-}) => {
-  const [audioPlaying, setAudioPlaying] = useState(false);
-  const [audioPlayed, setAudioPlayed] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
-  
+const getGreeting = (name: string, isFirstTime: boolean): string => {
+  if (isFirstTime) {
+    return `Welcome to Prepzr, ${name}! I'm your AI learning assistant. I'll help you prepare for your exams efficiently. You can navigate through the dashboard using the sidebar menu. Would you like me to give you a quick tour?`;
+  } else {
+    const hour = new Date().getHours();
+    let timeBasedGreeting = "Hello";
+    
+    if (hour < 12) {
+      timeBasedGreeting = "Good morning";
+    } else if (hour < 18) {
+      timeBasedGreeting = "Good afternoon";
+    } else {
+      timeBasedGreeting = "Good evening";
+    }
+    
+    return `${timeBasedGreeting}, ${name}. Welcome back to Prepzr. Let's continue your learning journey!`;
+  }
+};
+
+const VoiceGreeting = ({ isFirstTimeUser, userName, language = 'en-US' }: VoiceGreetingProps) => {
+  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
+    userName,
+    initialSettings: {
+      enabled: true,
+      muted: false,
+      language: language,
+      pitch: 1.1, // Higher pitch for female voice
+      rate: 0.95 // Slightly faster for more energy
+    }
+  });
+
   useEffect(() => {
-    // Check if the greeting has been played already in this session
-    const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
+    // Auto-start voice greeting after 3 seconds
+    const timer = setTimeout(() => {
+      const greeting = getGreeting(userName, isFirstTimeUser);
+      speakMessage(greeting);
+    }, 3000);
     
-    // Only play for first time users who haven't heard the greeting yet
-    if (isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) {
-      const playGreeting = async () => {
-        try {
-          // Use a timeout to ensure the component is fully mounted
-          setTimeout(() => {
-            setAudioPlaying(true);
-            
-            // Create text for speech
-            let welcomeText = '';
-            if (language === 'en') {
-              welcomeText = `Welcome to PREPZR, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
-            } else if (language === 'hi') {
-              welcomeText = `प्रेप्ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
-            }
-            
-            // Create speech synthesis utterance
-            const speech = new SpeechSynthesisUtterance(welcomeText);
-            speech.lang = language === 'en' ? 'en-US' : 'hi-IN';
-            speech.rate = 0.9; // Slightly slower for clarity
-            speech.volume = 0.8;
-            
-            // Add event listeners
-            speech.onstart = () => setAudioPlaying(true);
-            speech.onend = () => {
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-              sessionStorage.setItem('voiceGreetingPlayed', 'true');
-            };
-            speech.onerror = () => {
-              console.error("Speech synthesis error");
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-            };
-            
-            // Play the speech
-            window.speechSynthesis.speak(speech);
-          }, 1500);
-        } catch (error) {
-          console.error("Error playing greeting:", error);
-          setAudioPlayed(true);
-        }
-      };
-      
-      playGreeting();
-    }
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted]);
-  
-  const handleToggleMute = () => {
-    setAudioMuted(!audioMuted);
-    
-    if (!audioMuted) {
-      // If currently not muted and about to be muted, stop any speech
-      window.speechSynthesis.cancel();
-      setAudioPlaying(false);
-      setAudioPlayed(true);
-      sessionStorage.setItem('voiceGreetingPlayed', 'true');
-    }
-  };
-  
-  // Don't render anything if already played or not a first-time user
-  if (!isFirstTimeUser || audioPlayed) return null;
-  
-  return (
-    <div 
-      className={`fixed bottom-20 right-5 z-50 p-3 rounded-full shadow-md
-        ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
-        cursor-pointer transition-all duration-300 hover:scale-105`}
-      onClick={handleToggleMute}
-    >
-      {audioMuted ? (
-        <VolumeX className="h-6 w-6" />
-      ) : audioPlaying ? (
-        <Volume2 className="h-6 w-6 animate-pulse" />
-      ) : (
-        <Volume className="h-6 w-6" />
-      )}
-    </div>
-  );
+    return () => clearTimeout(timer);
+  }, [isFirstTimeUser, userName, speakMessage]);
+
+  return null; // This component doesn't render anything visible
 };
 
 export default VoiceGreeting;
