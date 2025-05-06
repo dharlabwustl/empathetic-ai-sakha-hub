@@ -12,7 +12,8 @@ import {
   Bell,
   ChevronRight,
   Smile,
-  MessageSquare
+  MessageSquare,
+  BookMarked
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,8 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts", description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards", description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam", description: "Mock tests and exam preparation" },
+    { id: "syllabus", label: "Exam Syllabus", icon: BookMarked, path: "/dashboard/student/syllabus", description: "Complete syllabus for your exam goal" },
+    { id: "previous-year", label: "Previous Year Papers", icon: FileText, path: "/dashboard/student/previous-year", description: "Analysis of previous year exam papers" },
     { 
       id: "feel-good-corner", 
       label: "Feel Good Corner", 
