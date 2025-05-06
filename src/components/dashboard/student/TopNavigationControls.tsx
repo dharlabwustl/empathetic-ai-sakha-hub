@@ -1,23 +1,27 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
 import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Menu, 
+  Moon, 
+  Sun, 
+  HelpCircle,
+  MenuSquare, 
+  Bell,
+  UserCircle 
+} from 'lucide-react';
+import { ModeToggle } from '@/components/common/ModeToggle';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MoodType } from '@/types/user/base';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
-  formattedDate: string;
-  formattedTime: string;
+  formattedDate?: string;
+  formattedTime?: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: string;
+  mood?: MoodType;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -33,108 +37,90 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   isFirstTimeUser,
   onViewStudyPlan
 }) => {
+  const getMoodEmoji = (currentMood?: MoodType): string => {
+    if (!currentMood) return '😊';
+    
+    switch (currentMood) {
+      case MoodType.Happy:
+        return '😄';
+      case MoodType.Stressed:
+        return '😰';
+      case MoodType.Tired:
+        return '😴';
+      case MoodType.Focused:
+        return '🧠';
+      case MoodType.Motivated:
+        return '💪';
+      default:
+        return '😊';
+    }
+  };
+  
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-4">
+    <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
           onClick={onToggleSidebar}
+          className="lg:hidden"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
+          <Menu className="h-5 w-5" />
         </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+        
+        <div className="hidden sm:block">
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            {formattedDate}
+          </p>
+          <p className="text-2xl font-bold">
+            {formattedTime}
+          </p>
         </div>
       </div>
       
       <div className="flex items-center gap-2">
-        {/* Voice Announcer Integration */}
-        <VoiceAnnouncer 
-          userName={userName}
-          mood={mood}
-          isFirstTimeUser={isFirstTimeUser}
-        />
+        {userName && (
+          <div className="hidden md:flex items-center mr-4">
+            <span className="text-sm mr-2">
+              Hi, {userName} {mood && getMoodEmoji(mood)}
+            </span>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {userName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        )}
         
-        {/* Calendar Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        {onOpenTour && (
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onOpenTour}
+            title="Open welcome tour"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+        )}
         
-        {/* Notification Icon */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          title="Notifications"
+        >
+          <Bell className="h-5 w-5" />
+        </Button>
         
-        {/* Tour Guide Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <ModeToggle />
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+        >
+          <UserCircle className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   );

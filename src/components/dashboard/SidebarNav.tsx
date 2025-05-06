@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,7 +12,9 @@ import {
   Bell, 
   Smile, 
   User,
-  FileText
+  FileText,
+  GraduationCap,
+  ClipboardList
 } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
@@ -45,8 +48,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     { icon: <BookOpen size={20} />, title: "Concept Cards", tab: "concepts" },
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
     { icon: <FileText size={20} />, title: "Practice Exams", tab: "practice-exam" },
-    { icon: <BookOpen size={20} />, title: "Exam Syllabus", tab: "syllabus" },
-    { icon: <FileText size={20} />, title: "Previous Year Papers", tab: "previous-year" },
+    { icon: <GraduationCap size={20} />, title: "Exam Syllabus", tab: "syllabus" },
+    { icon: <ClipboardList size={20} />, title: "Previous Year Papers", tab: "previous-year" },
   ];
 
   // AI assistance category

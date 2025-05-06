@@ -19,7 +19,9 @@ import {
   Smile,
   BookMarked,
   FileText,
-  ArrowLeft
+  ArrowLeft,
+  GraduationCap,
+  ClipboardList
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -39,7 +41,9 @@ const tooltipDescriptions: Record<string, string> = {
   Profile: "Manage your account settings and preferences",
   "Today's Plan": "View your daily study schedule",
   "Practice Exams": "Take mock tests to prepare for exams",
-  "Concept Cards": "Learn key concepts with interactive cards"
+  "Concept Cards": "Learn key concepts with interactive cards",
+  "Exam Syllabus": "View and track your exam syllabus progress",
+  "Previous Year Papers": "Analyze patterns from past exams"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -56,11 +60,13 @@ export const SidebarNavRoutes = ({
     { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <BookMarked size={20} /> },
   ];
   
-  // Learning tools category - updated as requested
+  // Learning tools category - updated with new items
   const learningTools = [
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
     { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <FileText size={20} /> },
+    { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <GraduationCap size={20} /> },
+    { name: "Previous Year Papers", path: "/dashboard/student/previous-year", icon: <ClipboardList size={20} /> },
   ];
 
   // AI assistance category
