@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -19,11 +20,9 @@ import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards
 import StudentProfile from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
-import FeelGoodCorner from '@/components/dashboard/student/feel-good-corner/FeelGoodCorner';
+import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
-import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
-import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -52,10 +51,6 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-      
-      {/* New pages added - Syllabus and Previous Year Analysis */}
-      <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
-      <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
       
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />

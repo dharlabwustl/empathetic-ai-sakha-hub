@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -20,7 +21,7 @@ import {
   FileText,
   ArrowLeft
 } from "lucide-react";
-import type { NavigationRoute, UserRouteMap } from "./types/sidebar";
+import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
 interface SidebarNavRoutesProps {
   userType: string;
@@ -38,9 +39,7 @@ const tooltipDescriptions: Record<string, string> = {
   Profile: "Manage your account settings and preferences",
   "Today's Plan": "View your daily study schedule",
   "Practice Exams": "Take mock tests to prepare for exams",
-  "Concept Cards": "Learn key concepts with interactive cards",
-  "Exam Syllabus": "Complete syllabus for your exam goal",
-  "Previous Year Papers": "Analysis of previous year exam papers"
+  "Concept Cards": "Learn key concepts with interactive cards"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -62,8 +61,6 @@ export const SidebarNavRoutes = ({
     { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
     { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
     { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <FileText size={20} /> },
-    { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <BookMarked size={20} /> },
-    { name: "Previous Year Papers", path: "/dashboard/student/previous-year", icon: <FileText size={20} /> },
   ];
 
   // AI assistance category
@@ -329,5 +326,3 @@ export const SidebarNavRoutes = ({
     </TooltipProvider>
   );
 };
-
-export default SidebarNavRoutes;

@@ -9,8 +9,7 @@ import {
   BookOpen, 
   Brain, 
   FileText,
-  Bell,
-  BookMarked
+  Bell
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -43,8 +42,6 @@ export default function DashboardTabs({
     { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations" },
     { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization" },
     { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation" },
-    { id: "syllabus", label: "Exam Syllabus", icon: BookMarked, description: "Complete syllabus for your exam" },
-    { id: "previous-year", label: "Previous Years", icon: FileText, description: "Analysis of previous year papers" },
     { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts" }
   ];
 
@@ -82,12 +79,6 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
-
-        {Object.entries(tabContents).map(([key, content]) => (
-          <TabsContent key={key} value={key} className="outline-none">
-            {content}
-          </TabsContent>
-        ))}
       </Tabs>
     </TooltipProvider>
   );

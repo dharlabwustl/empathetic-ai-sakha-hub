@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight, Smile, FileText } from "lucide-react";
+  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight, Smile } from "lucide-react";
 
 interface SidebarNavigationProps {
   activeTab: string;
@@ -20,8 +20,6 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     { icon: <MessageSquare size={20} />, title: "24/7 AI Tutor", tab: "tutor" },
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
     { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "exams" },
-    { icon: <BookMarked size={20} />, title: "Exam Syllabus", tab: "syllabus" },
-    { icon: <FileText size={20} />, title: "Previous Year Papers", tab: "previous-year" },
     { icon: <LineChart size={20} />, title: "Progress", tab: "progress" },
     { icon: <Activity size={20} />, title: "Motivation", tab: "motivation" },
     { icon: <Heart size={20} />, title: "Mental Health", tab: "wellness" },

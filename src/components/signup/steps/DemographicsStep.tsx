@@ -15,7 +15,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ onSubmit }) => {
     educationLevel: "",
     city: "",
     examDate: "",
-    institute: "", // Added institute field
   });
   
   const [errors, setErrors] = useState({
@@ -23,25 +22,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ onSubmit }) => {
     educationLevel: "",
     examDate: "",
   });
-
-  // Mock list of institutes - in a real app, this would come from an API
-  const institutes = [
-    "Allen Career Institute",
-    "Aakash Institute",
-    "FIITJEE",
-    "Resonance",
-    "Narayana",
-    "Chaitanya",
-    "Vibrant Academy",
-    "Motion Education",
-    "Pathfinder",
-    "Career Point",
-    "Plancess",
-    "Brilliant Tutorials",
-    "BASE",
-    "Vidyamandir Classes",
-    "Other"
-  ];
 
   const calculateMinDate = () => {
     const today = new Date();
@@ -144,25 +124,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ onSubmit }) => {
           </SelectContent>
         </Select>
         {errors.educationLevel && <p className="text-sm text-red-500">{errors.educationLevel}</p>}
-      </div>
-      
-      {/* Added Institute Selection */}
-      <div className="space-y-2">
-        <Label htmlFor="institute">Institute (Optional)</Label>
-        <Select 
-          value={formValues.institute} 
-          onValueChange={(value) => handleSelectChange("institute", value)}
-        >
-          <SelectTrigger id="institute">
-            <SelectValue placeholder="Select your institute" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Not Applicable</SelectItem>
-            {institutes.map(institute => (
-              <SelectItem key={institute} value={institute}>{institute}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
       
       <div className="space-y-2">
