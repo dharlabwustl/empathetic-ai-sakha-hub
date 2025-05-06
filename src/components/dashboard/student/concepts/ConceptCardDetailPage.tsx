@@ -1,368 +1,268 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  BookOpen, 
-  Brain, 
-  FileText, 
-  CheckCircle, 
-  Play, 
-  PlusCircle, 
-  Timer, 
-  Award
-} from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useConceptCards } from '@/hooks/useConceptCards';
-import { useFlashcardDecks } from '@/hooks/useFlashcardDecks';
-import { usePracticeExams } from '@/hooks/usePracticeExams';
-import RelatedConceptCards from './RelatedConceptCards';
-import ConceptCardSkeleton from './ConceptCardSkeleton';
-import SmartStudyTips from './SmartStudyTips';
-import RevisionReminder from './RevisionReminder';
+import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft } from 'lucide-react';
 
-// Simplified model of the concept card
-interface ConceptCard {
-  id: string;
-  title: string;
-  subject: string;
-  topic: string;
-  subtopic?: string;
-  content: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  importance: 'high' | 'medium' | 'low';
-  status: 'not-started' | 'in-progress' | 'completed';
-  lastStudied?: string;
-  timeSpent?: number;
-  studyCount?: number;
-  recallAccuracy?: number;
-  relatedConcepts?: string[];
-  summary?: string;
-  imageUrl?: string;
-  videoUrl?: string;
-}
+// Mock data for the concept detail
+const mockConceptData = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  chapter: "Mechanics",
+  description: "The fundamental principles that describe the relationship between the motion of an object and the forces acting on it.",
+  difficulty: "medium",
+  timeEstimate: 25,
+  mastery: 65,
+  completed: false,
+  important: true,
+  contents: [
+    {
+      type: 'text',
+      content: "Newton's laws of motion are three physical laws that describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics."
+    },
+    {
+      type: 'list',
+      title: "The Three Laws",
+      items: [
+        "First Law (Law of Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
+        "Second Law: The acceleration of an object depends directly on the net force acting upon it and inversely on its mass. (F = ma)",
+        "Third Law: For every action, there is an equal and opposite reaction."
+      ]
+    },
+    // ... other content sections would be here
+  ],
+  examples: [
+    {
+      title: "First Law Example",
+      description: "A book on a table remains at rest unless pushed. When pushed, it moves in the direction of the force applied."
+    },
+    {
+      title: "Second Law Example",
+      description: "A cart accelerates in proportion to the force applied to it. If the mass is doubled, the acceleration is halved for the same force."
+    },
+    {
+      title: "Third Law Example",
+      description: "When a swimmer pushes water backward, the water pushes the swimmer forward with equal force."
+    },
+  ],
+  quizQuestions: [
+    {
+      question: "What is Newton's First Law also known as?",
+      options: ["Law of Acceleration", "Law of Inertia", "Law of Action-Reaction", "Law of Gravity"],
+      correctAnswer: 1
+    },
+    {
+      question: "In the equation F = ma, what does 'm' represent?",
+      options: ["Motion", "Momentum", "Mass", "Movement"],
+      correctAnswer: 2
+    },
+    // ... more questions
+  ]
+};
 
-const ConceptCardDetailPage = () => {
+const ConceptCardDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
-  const [conceptCard, setConceptCard] = useState<ConceptCard | null>(null);
-  const [relatedCards, setRelatedCards] = useState<ConceptCard[]>([]);
-  
-  const { getConceptCardById, getRelatedConceptCards } = useConceptCards();
-  const { hasDeckForConcept } = useFlashcardDecks();
-  const { hasExamsForConcept } = usePracticeExams();
-  
-  const [hasFlashcards, setHasFlashcards] = useState(false);
-  const [hasPracticeExams, setHasPracticeExams] = useState(false);
-  
-  // Load concept card and related data
+  const [concept, setConcept] = useState<typeof mockConceptData | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const loadData = async () => {
-      if (!conceptId) return;
-      
-      setIsLoading(true);
-      try {
-        // In a real app, these would be API calls
-        const card = await getConceptCardById(conceptId);
-        const related = await getRelatedConceptCards(conceptId);
-        const hasFlashcardsResult = await hasDeckForConcept(conceptId);
-        const hasExamsResult = await hasExamsForConcept(conceptId);
-        
-        setConceptCard(card);
-        setRelatedCards(related);
-        setHasFlashcards(hasFlashcardsResult);
-        setHasPracticeExams(hasExamsResult);
-      } catch (error) {
-        console.error("Error loading concept card:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadData();
-  }, [conceptId, getConceptCardById, getRelatedConceptCards, hasDeckForConcept, hasExamsForConcept]);
-  
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-  
-  const handleStartStudying = () => {
-    // Update to navigate to the proper study page
+    // In a real app, fetch the concept data based on conceptId
+    // For now, use mock data
+    setTimeout(() => {
+      setConcept(mockConceptData);
+      setLoading(false);
+    }, 500);
+  }, [conceptId]);
+
+  const handleStartStudy = () => {
     navigate(`/dashboard/student/concepts/${conceptId}/study`);
   };
   
-  const handleCreateFlashcards = () => {
-    navigate(`/dashboard/student/flashcards/create?conceptId=${conceptId}`);
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
   };
-  
-  const handlePracticeFlashcards = () => {
-    navigate(`/dashboard/student/flashcards/${conceptId}`);
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
-  
-  const handleDoPracticeExam = () => {
-    navigate(`/dashboard/student/practice-exam/${conceptId}/start`);
-  };
-  
-  if (isLoading) {
-    return <ConceptCardSkeleton />;
-  }
-  
-  if (!conceptCard) {
+
+  if (loading) {
     return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-bold mb-4">Concept Card Not Found</h2>
-        <p className="text-muted-foreground mb-4">Sorry, we couldn't find the concept card you were looking for.</p>
-        <Button onClick={handleGoBack}>Go Back</Button>
+      <div className="container py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
       </div>
     );
   }
 
-  // Calculate mastery percentage (would typically come from backend)
-  const masteryPercentage = 
-    conceptCard.status === 'completed' ? 100 :
-    conceptCard.status === 'in-progress' ? 
-      (conceptCard.recallAccuracy || Math.floor(Math.random() * 50) + 30) : 0;
-  
-  return (
-    <div className="container max-w-4xl mx-auto p-4 sm:p-6">
-      {/* Back button & Header */}
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" onClick={handleGoBack} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+  if (!concept) {
+    return (
+      <div className="container py-8">
+        <Button 
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
+        >
+          <ArrowLeft size={16} />
+          Back to Concepts
         </Button>
-        
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">{conceptCard.title}</h1>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                {conceptCard.subject}
-              </Badge>
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                {conceptCard.topic}
-              </Badge>
-              {conceptCard.subtopic && (
-                <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-200">
-                  {conceptCard.subtopic}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={handleStartStudying} className="gap-2">
-              <Play className="h-4 w-4" />
-              Study Now
-            </Button>
-          </div>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Concept not found</h2>
+          <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Mastery Progress */}
-      <Card className="mb-6 overflow-hidden">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-6 items-center justify-between">
-            <div className="w-full sm:w-3/4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-medium">Concept Mastery</h3>
-                <span className="text-sm font-semibold">
-                  {masteryPercentage}%
-                </span>
-              </div>
-              <Progress value={masteryPercentage} className="h-2" />
-              
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>Not Started</span>
-                <span>In Progress</span>
-                <span>Mastered</span>
-              </div>
+  return (
+    <div className="container py-6">
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
+      
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
+        <div>
+          <h1 className="text-3xl font-bold">{concept.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+              {concept.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+              {concept.chapter}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+              {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
+            </Badge>
+            {concept.important && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                Important
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <Button 
+          className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700"
+          onClick={handleStartStudy}
+        >
+          Start Studying
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Progress</CardTitle>
+          <CardDescription>Your mastery of this concept</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Mastery</span>
+              <span className="text-sm font-medium">{concept.mastery}%</span>
             </div>
-            
-            <div className="flex sm:flex-col items-center sm:items-end gap-4 sm:gap-1 text-center sm:text-right">
-              <div className="text-xs text-gray-500">Last studied</div>
-              <div className="font-medium">
-                {conceptCard.lastStudied || 'Never'}
-              </div>
-            </div>
+            <Progress value={concept.mastery} className="h-2" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Estimated time: {concept.timeEstimate} min</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabs for content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="w-full sm:w-auto grid grid-cols-3 h-auto p-1">
-          <TabsTrigger value="overview" className="py-2">Overview</TabsTrigger>
-          <TabsTrigger value="study" className="py-2">Study</TabsTrigger>
-          <TabsTrigger value="related" className="py-2">Related</TabsTrigger>
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="quiz">Quiz</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
-        
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="mt-4">
-          <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: conceptCard.content || '<p>No content available</p>' }} />
-          </div>
-          
-          {conceptCard.videoUrl && (
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-3">Video Explanation</h3>
-              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                <iframe 
-                  src={conceptCard.videoUrl} 
-                  className="w-full h-full rounded-lg"
-                  allowFullScreen
-                  title={`Video for ${conceptCard.title}`}
-                ></iframe>
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>About this Concept</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{concept.description}</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {concept.contents[1].items.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Understanding Newton's laws is essential for:</p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2">
+                      <li>Engineering design and analysis</li>
+                      <li>Sports science and athletic performance</li>
+                      <li>Vehicle safety and transportation</li>
+                      <li>Space exploration and orbital mechanics</li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          )}
-          
-          {conceptCard.summary && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-2">Key Takeaways</h3>
-              <p className="text-sm text-gray-700">{conceptCard.summary}</p>
-            </div>
-          )}
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        {/* Study Tab */}
-        <TabsContent value="study" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Main Study Action */}
-            <Card className="p-4 border-2 border-blue-200 bg-blue-50">
-              <div className="flex items-start gap-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
+        <TabsContent value="content" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Content</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Introduction</h3>
+                  <p>{concept.contents[0].content}</p>
                 </div>
                 <div>
-                  <h3 className="font-medium mb-2">Study This Concept</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Interactive study mode with explanations, examples, and self-assessment.
-                  </p>
-                  <Button 
-                    onClick={handleStartStudying} 
-                    className="w-full"
-                  >
-                    <Play className="mr-2 h-4 w-4" />
-                    Start Studying
-                  </Button>
+                  <h3 className="text-lg font-semibold mb-2">{concept.contents[1].title}</h3>
+                  <ul className="list-disc pl-5 space-y-2">
+                    {concept.contents[1].items.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
                 </div>
+                {/* More content would be dynamically rendered here */}
               </div>
-            </Card>
-            
-            {/* Flashcards */}
-            <Card className="p-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-violet-100 p-3 rounded-full">
-                  <Brain className="h-6 w-6 text-violet-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Flashcards</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {hasFlashcards 
-                      ? 'Practice with flashcards to improve recall'
-                      : 'No flashcards yet for this concept'}
-                  </p>
-                  {hasFlashcards ? (
-                    <Button 
-                      onClick={handlePracticeFlashcards} 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      <Brain className="mr-2 h-4 w-4" />
-                      Practice Flashcards
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={handleCreateFlashcards} 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Create Flashcards
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
-            
-            {/* Practice Exam */}
-            <Card className="p-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-green-100 p-3 rounded-full">
-                  <FileText className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Practice Questions</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {hasPracticeExams 
-                      ? 'Test your understanding with practice questions'
-                      : 'No practice questions available yet'}
-                  </p>
-                  <Button 
-                    onClick={handleDoPracticeExam} 
-                    variant="outline" 
-                    disabled={!hasPracticeExams}
-                    className="w-full"
-                  >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Take Practice Test
-                  </Button>
-                </div>
-              </div>
-            </Card>
-            
-            {/* Mark Complete */}
-            <Card className="p-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-amber-100 p-3 rounded-full">
-                  <Award className="h-6 w-6 text-amber-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Track Progress</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {conceptCard.status === 'completed'
-                      ? 'You have mastered this concept!'
-                      : 'Mark as complete when you feel confident'}
-                  </p>
-                  <Button 
-                    variant={conceptCard.status === 'completed' ? "outline" : "default"}
-                    className="w-full"
-                    disabled={conceptCard.status === 'completed'}
-                  >
-                    {conceptCard.status === 'completed' ? (
-                      <>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Completed
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Mark as Complete
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-          
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SmartStudyTips conceptName={conceptCard.title} subject={conceptCard.subject} />
-            <RevisionReminder conceptName={conceptCard.title} lastStudied={conceptCard.lastStudied} />
-          </div>
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        {/* Related Tab */}
-        <TabsContent value="related" className="mt-4">
-          <RelatedConceptCards cards={relatedCards} />
-        </TabsContent>
+        {/* ... other tabs would be implemented similarly */}
       </Tabs>
     </div>
   );

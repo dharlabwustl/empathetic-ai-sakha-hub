@@ -1,267 +1,482 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Clock, Award, Play, PlusCircle, LucideIcon, Crown, Lock } from "lucide-react";
-import { SubscriptionType } from '@/types/user/base';
-import CreateExamCardDialog from './CreateExamCardDialog';
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import { CheckCircle, Clock, BookOpen, Calendar, Flag, Plus, BarChart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { SharedPageLayout } from "../SharedPageLayout";
+import CreateExamCardDialog, { ExamCardFormData } from "./CreateExamCardDialog";
+import PurchaseCreditsDialog from "./PurchaseCreditsDialog";
+import { SubscriptionType } from "@/types/user/base";
 
-interface PracticeExam {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  questions: number;
-  timeLimit: number;
-  subject: string;
-  topic: string;
-  lastAttempt?: string;
-  attemptsCount: number;
-  avgScore?: number;
-  status: 'not-started' | 'in-progress' | 'completed';
-  isLocked?: boolean;
-  requiredSubscription?: SubscriptionType;
+// Mock exam data
+const mockExams = [
+  {
+    id: "physics-mechanics",
+    title: "Physics: Mechanics Final",
+    subject: "Physics",
+    topic: "Mechanics",
+    description: "Comprehensive test covering Newton's Laws, energy conservation, momentum and simple harmonic motion.",
+    totalQuestions: 30,
+    timeLimit: 60, // in minutes
+    difficulty: "medium",
+    dueDate: "Tomorrow",
+    progress: 0,
+    status: "not-started",
+    score: null
+  },
+  {
+    id: "chemistry-organic",
+    title: "Organic Chemistry Exam",
+    subject: "Chemistry",
+    topic: "Organic Chemistry",
+    description: "Evaluation of organic compounds, reactions, and mechanisms.",
+    totalQuestions: 25,
+    timeLimit: 45,
+    difficulty: "hard",
+    dueDate: "In 3 days",
+    progress: 0,
+    status: "not-started",
+    score: null
+  },
+  {
+    id: "math-calculus",
+    title: "Calculus Practice Exam",
+    subject: "Mathematics",
+    topic: "Calculus",
+    description: "Derivatives, integrals, and applications.",
+    totalQuestions: 20,
+    timeLimit: 40,
+    difficulty: "medium",
+    dueDate: "Completed",
+    progress: 100,
+    status: "completed",
+    score: 76
+  }
+];
+
+interface ExamCardProps {
+  exam: typeof mockExams[0];
 }
 
-interface PracticeExamsSectionProps {
-  title?: string;
-  description?: string;
-  userSubscription?: SubscriptionType;
-}
-
-const PracticeExamsSection: React.FC<PracticeExamsSectionProps> = ({
-  title = "Practice Exams",
-  description = "Test your knowledge with subject-specific practice exams",
-  userSubscription = SubscriptionType.FREE
-}) => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
   const navigate = useNavigate();
-
-  // Sample exams data - In a real app, this would come from an API or state
-  const [exams, setExams] = useState<PracticeExam[]>([
-    {
-      id: "exam1",
-      title: "Physics Full Mock Test",
-      description: "Comprehensive test covering all physics topics for NEET preparation",
-      difficulty: "Medium",
-      questions: 45,
-      timeLimit: 60,
-      subject: "Physics",
-      topic: "Full Syllabus",
-      lastAttempt: "2023-08-15",
-      attemptsCount: 2,
-      avgScore: 72,
-      status: "in-progress"
-    },
-    {
-      id: "exam2",
-      title: "Biology - Human Physiology",
-      description: "Focused test on digestive, respiratory, and circulatory systems",
-      difficulty: "Hard",
-      questions: 30,
-      timeLimit: 45,
-      subject: "Biology",
-      topic: "Human Physiology",
-      lastAttempt: "2023-08-10",
-      attemptsCount: 3,
-      avgScore: 68,
-      status: "completed"
-    },
-    {
-      id: "exam3",
-      title: "Chemistry - Organic Compounds",
-      description: "Test your knowledge of hydrocarbons, alcohols, and carbonyl compounds",
-      difficulty: "Medium",
-      questions: 25,
-      timeLimit: 40,
-      subject: "Chemistry",
-      topic: "Organic Chemistry",
-      lastAttempt: null,
-      attemptsCount: 0,
-      avgScore: null,
-      status: "not-started"
-    },
-    {
-      id: "exam4",
-      title: "Advanced Physics - Electromagnetism",
-      description: "In-depth test on electric fields, magnetic fields, and electromagnetic induction",
-      difficulty: "Hard",
-      questions: 40,
-      timeLimit: 60,
-      subject: "Physics",
-      topic: "Electromagnetism",
-      lastAttempt: null,
-      attemptsCount: 0,
-      avgScore: null,
-      status: "not-started",
-      isLocked: true,
-      requiredSubscription: SubscriptionType.PRO
-    },
-    {
-      id: "exam5",
-      title: "Chemistry - Thermodynamics",
-      description: "Comprehensive test on thermodynamic principles and applications",
-      difficulty: "Medium",
-      questions: 30,
-      timeLimit: 45,
-      subject: "Chemistry",
-      topic: "Thermodynamics",
-      lastAttempt: null,
-      attemptsCount: 0,
-      avgScore: null,
-      status: "not-started"
-    }
-  ]);
-
+  
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case 'easy': return 'text-green-600 bg-green-50 border-green-200';
-      case 'medium': return 'text-amber-600 bg-amber-50 border-amber-200';
-      case 'hard': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-green-50 text-green-700 border-green-200">Completed</Badge>;
-      case 'in-progress':
-        return <Badge className="bg-blue-50 text-blue-700 border-blue-200">In Progress</Badge>;
-      case 'not-started':
-        return <Badge className="bg-gray-50 text-gray-700 border-gray-200">Not Started</Badge>;
+      case "easy":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "hard":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return null;
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "text-green-600";
+      case "in-progress":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
 
-  const getFilteredExams = () => {
-    if (activeTab === 'all') return exams;
-    return exams.filter(exam => exam.status === activeTab);
+  const handleStartExam = () => {
+    navigate(`/dashboard/student/exam/${exam.id}/start`);
   };
 
-  const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+  const handleReviewExam = () => {
+    navigate(`/dashboard/student/exam/${exam.id}/review`);
   };
-
-  const handleCreateExam = (newExam: PracticeExam) => {
-    setExams(prev => [...prev, newExam]);
-  };
-
+  
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">{title}</h2>
-          <p className="text-muted-foreground">{description}</p>
+    <Card className="h-full flex flex-col hover:shadow-md transition-all">
+      <CardHeader>
+        <div className="flex justify-between">
+          <CardTitle>{exam.title}</CardTitle>
+          <Badge className={getDifficultyColor(exam.difficulty)}>
+            {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
+          </Badge>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create Exam
-        </Button>
-      </div>
-
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all">All Exams</TabsTrigger>
-          <TabsTrigger value="not-started">Not Started</TabsTrigger>
-          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {getFilteredExams().map(exam => (
-              <Card key={exam.id} className={`overflow-hidden ${exam.isLocked ? 'opacity-80' : ''}`}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between">
-                    <Badge variant="outline" className={getDifficultyColor(exam.difficulty)}>
-                      {exam.difficulty}
-                    </Badge>
-                    {getStatusBadge(exam.status)}
-                  </div>
-                  <CardTitle className="text-lg mt-2 flex items-center gap-2">
-                    {exam.title}
-                    {exam.isLocked && (
-                      <Lock className="h-4 w-4 text-gray-400" />
-                    )}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">{exam.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between text-sm mb-2">
-                    <div className="flex items-center">
-                      <FileText className="h-4 w-4 mr-1" />
-                      <span>{exam.questions} questions</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>{exam.timeLimit} min</span>
-                    </div>
-                  </div>
-                  
-                  {exam.attemptsCount > 0 && (
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Best Score</span>
-                        <span className="font-medium">{exam.avgScore}%</span>
-                      </div>
-                      <Progress value={exam.avgScore || 0} className="h-2" />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>Last attempt: {new Date(exam.lastAttempt || Date.now()).toLocaleDateString()}</span>
-                        <span>{exam.attemptsCount} attempts</span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="bg-gray-50 border-t">
-                  {exam.isLocked ? (
-                    <Button
-                      disabled={true}
-                      className="w-full flex gap-2 items-center"
-                      variant="outline"
-                    >
-                      <Lock className="h-4 w-4" />
-                      Requires {exam.requiredSubscription} Plan
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleStartExam(exam.id)}
-                      className="w-full flex gap-2 items-center"
-                      variant={exam.status === 'not-started' ? 'default' : 'outline'}
-                    >
-                      {exam.status === 'completed' ? (
-                        <>
-                          <Award className="h-4 w-4" />
-                          Review Exam
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4" />
-                          {exam.status === 'in-progress' ? 'Continue Exam' : 'Start Exam'}
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
+        <CardDescription className="flex gap-2 items-center">
+          <Badge variant="outline">{exam.subject}</Badge>
+          <Badge variant="outline" className="bg-gray-50">{exam.topic}</Badge>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+          {exam.description}
+        </p>
+        
+        <div className="grid grid-cols-2 gap-y-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
+            <span>{exam.totalQuestions} Questions</span>
           </div>
-        </TabsContent>
-      </Tabs>
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            <span>{exam.timeLimit} min</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span>{exam.dueDate}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {exam.score !== null ? (
+              <>
+                <CheckCircle className={`h-4 w-4 ${exam.score >= 70 ? "text-green-500" : "text-amber-500"}`} />
+                <span className={exam.score >= 70 ? "text-green-600" : "text-amber-600"}>
+                  {exam.score}%
+                </span>
+              </>
+            ) : (
+              <span className={getStatusColor(exam.status)}>
+                {exam.status === "completed" 
+                  ? "Completed" 
+                  : exam.status === "in-progress" 
+                    ? "In Progress" 
+                    : "Not Started"
+                }
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {exam.progress > 0 && (
+          <div className="mt-4">
+            <div className="flex justify-between text-sm mb-1">
+              <span>Progress</span>
+              <span>{exam.progress}%</span>
+            </div>
+            <Progress value={exam.progress} className="h-2" />
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex gap-2">
+        {exam.status === 'completed' ? (
+          <Button className="w-full" variant="outline" onClick={handleReviewExam}>
+            Review Exam
+          </Button>
+        ) : (
+          <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={handleStartExam}>
+            {exam.status === 'in-progress' ? 'Continue Exam' : 'Start Exam'}
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  );
+};
+
+const PracticeExamsSection = () => {
+  const [activeTab, setActiveTab] = useState("all");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
+  const [examForm, setExamForm] = useState({
+    title: "",
+    subject: "physics",
+    topic: "",
+    description: "",
+    difficulty: "medium",
+    questions: "20",
+    timeLimit: "30",
+    tags: ""
+  });
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Mock user data - in a real app this would come from a context or API
+  const [userCredits, setUserCredits] = useState({ standard: 15, exam: 5 });
+  const [userSubscription, setUserSubscription] = useState<SubscriptionType>(SubscriptionType.Pro);
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setExamForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setExamForm(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleCreateExam = () => {
+    // Validation
+    if (!examForm.title.trim() || !examForm.topic.trim() || !examForm.description.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real application, this would create the exam
+    setShowCreateDialog(false);
+    toast({
+      title: "Practice Exam Created",
+      description: "Your new practice exam has been added to your study plan.",
+    });
+    
+    // Reset form
+    setExamForm({
+      title: "",
+      subject: "physics",
+      topic: "",
+      description: "",
+      difficulty: "medium",
+      questions: "20",
+      timeLimit: "30",
+      tags: ""
+    });
+  };
+  
+  const handleCreateCards = (data: ExamCardFormData) => {
+    // In a real app, this would call an API to generate the cards
+    console.log("Creating cards with data:", data);
+    
+    // Deduct credits
+    setUserCredits(prev => ({
+      ...prev,
+      exam: prev.exam - data.cardCount
+    }));
+    
+    toast({
+      title: "Creating Exam Cards",
+      description: `${data.cardCount} exam cards are being created for ${data.subject}: ${data.topic}.`,
+    });
+  };
+  
+  const handlePurchaseComplete = () => {
+    // In a real app, this would update the credit balance from the API
+    setUserCredits(prev => ({
+      ...prev,
+      exam: prev.exam + 20 // Simulating purchase of 20 credits
+    }));
+  };
+  
+  // Filter exams based on tab
+  const filterExams = (tab: string) => {
+    switch (tab) {
+      case "upcoming":
+        return mockExams.filter(exam => exam.status === "not-started");
+      case "completed":
+        return mockExams.filter(exam => exam.status === "completed");
+      default:
+        return mockExams;
+    }
+  };
+  
+  const filteredExams = filterExams(activeTab);
+  
+  return (
+    <SharedPageLayout
+      title="Practice Exams"
+      subtitle="Test your knowledge and track your progress"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-wrap justify-between items-center">
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="all">All Exams</TabsTrigger>
+              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+            <Button variant="outline" size="sm">
+              <Flag className="h-4 w-4 mr-1" />
+              Prioritize
+            </Button>
+            <Button variant="outline" size="sm">
+              <BarChart className="h-4 w-4 mr-1" />
+              Analytics
+            </Button>
+            
+            <CreateExamCardDialog 
+              userSubscription={userSubscription} 
+              userCredits={userCredits}
+              onCreateCards={handleCreateCards}
+              onPurchaseCredits={() => setShowPurchaseCreditsDialog(true)}
+            />
+            
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Create Exam
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Practice Exam</DialogTitle>
+                  <DialogDescription>
+                    Generate a new practice exam for your study plan.
+                    <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Exam Title</Label>
+                    <Input 
+                      id="title" 
+                      placeholder="e.g., Physics Final Preparation" 
+                      value={examForm.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Select 
+                      value={examForm.subject}
+                      onValueChange={(value) => handleSelectChange("subject", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="physics">Physics</SelectItem>
+                        <SelectItem value="chemistry">Chemistry</SelectItem>
+                        <SelectItem value="mathematics">Mathematics</SelectItem>
+                        <SelectItem value="biology">Biology</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="topic">Topic</Label>
+                    <Input 
+                      id="topic" 
+                      placeholder="e.g., Mechanics, Organic Chemistry" 
+                      value={examForm.topic}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Describe what this exam will cover"
+                      value={examForm.description}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="difficulty">Difficulty</Label>
+                      <Select 
+                        value={examForm.difficulty}
+                        onValueChange={(value) => handleSelectChange("difficulty", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="easy">Easy</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="hard">Hard</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="questions">Number of Questions</Label>
+                      <Select 
+                        value={examForm.questions}
+                        onValueChange={(value) => handleSelectChange("questions", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select number" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="10">10 Questions</SelectItem>
+                          <SelectItem value="20">20 Questions</SelectItem>
+                          <SelectItem value="30">30 Questions</SelectItem>
+                          <SelectItem value="40">40 Questions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
+                    <Select 
+                      value={examForm.timeLimit}
+                      onValueChange={(value) => handleSelectChange("timeLimit", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="45">45 minutes</SelectItem>
+                        <SelectItem value="60">60 minutes</SelectItem>
+                        <SelectItem value="90">90 minutes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (comma separated)</Label>
+                    <Input 
+                      id="tags" 
+                      placeholder="e.g., important, revision, final prep"
+                      value={examForm.tags}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                  <Button onClick={handleCreateExam}>Create Exam</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+        
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.05 }}
+        >
+          {filteredExams.length > 0 ? (
+            filteredExams.map((exam) => (
+              <motion.div
+                key={exam.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ExamCard exam={exam} />
+              </motion.div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">No exams found for this category.</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
       
-      <CreateExamCardDialog 
-        open={showCreateDialog} 
-        onOpenChange={setShowCreateDialog} 
-        onCreateExam={handleCreateExam}
-        userSubscription={userSubscription}
+      {/* Purchase Credits Dialog */}
+      <PurchaseCreditsDialog 
+        open={showPurchaseCreditsDialog}
+        onOpenChange={setShowPurchaseCreditsDialog}
+        onPurchaseComplete={handlePurchaseComplete}
       />
-    </div>
+    </SharedPageLayout>
   );
 };
 

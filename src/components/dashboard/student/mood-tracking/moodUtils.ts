@@ -1,63 +1,38 @@
-import { MoodType } from "@/types/user/base";
-import moodThemes from "./MoodTheme";
 
-// Save the current mood to localStorage
-export const storeMoodInLocalStorage = (mood: MoodType) => {
-  localStorage.setItem('current_mood', mood);
-  
-  // Also store in mood history
-  const moodHistory = getMoodHistoryFromLocalStorage();
-  moodHistory.push({
-    mood,
-    timestamp: new Date().toISOString()
-  });
-  
-  // Keep only last 30 days of mood data
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
-  const filteredHistory = moodHistory.filter(entry => 
-    new Date(entry.timestamp) >= thirtyDaysAgo
-  );
-  
-  localStorage.setItem('mood_history', JSON.stringify(filteredHistory));
-};
+import { MoodType } from '@/types/user/base';
+import { speakMessage } from '../voice/voiceUtils';
 
-// Get the current mood from localStorage
+// Function to get the current mood from localStorage
 export const getCurrentMoodFromLocalStorage = (): MoodType | undefined => {
-  const mood = localStorage.getItem('current_mood') as MoodType;
-  return mood || undefined;
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      if (parsedData.mood) {
+        return parsedData.mood as MoodType;
+      }
+    }
+    return undefined;
+  } catch (err) {
+    console.error("Error getting mood from localStorage:", err);
+    return undefined;
+  }
 };
 
-// Get mood history from localStorage
-export interface MoodHistoryEntry {
-  mood: MoodType;
-  timestamp: string;
-}
-
-export const getMoodHistoryFromLocalStorage = (): MoodHistoryEntry[] => {
-  const moodHistory = localStorage.getItem('mood_history');
-  return moodHistory ? JSON.parse(moodHistory) : [];
-};
-
-// Get emoji for a mood
-export const getMoodEmoji = (mood: MoodType): string => {
-  return moodThemes[mood]?.emoji || '😐';
-};
-
-// Get color for a mood
-export const getMoodColor = (mood: MoodType): string => {
-  return moodThemes[mood]?.colors.primary || '#6b7280';
-};
-
-// Get message for a mood
-export const getMoodMessage = (mood: MoodType): string => {
-  return moodThemes[mood]?.message || "How are you feeling today?";
-};
-
-// Get study tip for a mood
-export const getMoodStudyTip = (mood: MoodType): string => {
-  return moodThemes[mood]?.studyTip || "Adjust your study approach based on how you're feeling.";
+// Function to store mood in localStorage
+export const storeMoodInLocalStorage = (mood: MoodType): void => {
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  } catch (err) {
+    console.error("Error storing mood in localStorage:", err);
+  }
 };
 
 // Function to announce a mood-appropriate message based on the test score
