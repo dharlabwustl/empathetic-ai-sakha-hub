@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -41,11 +40,13 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
   ];
   
-  // Learning tools category - updated as requested
+  // Learning tools category - updated with new items
   const learningTools = [
     { icon: <BookOpen size={20} />, title: "Concept Cards", tab: "concepts" },
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
     { icon: <FileText size={20} />, title: "Practice Exams", tab: "practice-exam" },
+    { icon: <BookOpen size={20} />, title: "Exam Syllabus", tab: "syllabus" },
+    { icon: <FileText size={20} />, title: "Previous Year Papers", tab: "previous-year" },
   ];
 
   // AI assistance category

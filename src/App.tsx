@@ -54,6 +54,8 @@ import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
+import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
+import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 
 function App() {
   return (
@@ -151,6 +153,10 @@ function App() {
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
+              
+              {/* Syllabus and Previous Year Analysis routes */}
+              <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
+              <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
