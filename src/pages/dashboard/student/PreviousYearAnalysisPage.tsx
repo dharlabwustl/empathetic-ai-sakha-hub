@@ -1,411 +1,353 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, Filter, BookOpen, Brain, HelpCircle, Book, FileText, ChevronDown } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Progress } from "@/components/ui/progress";
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ArrowLeft, Filter } from 'lucide-react';
 
-// Mock data for previous year papers
-const pyqData = {
-  examName: "NEET",
-  currentYear: 2025,
-  years: [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015],
-  subjects: [
-    { id: "physics", name: "Physics" },
-    { id: "chemistry", name: "Chemistry" },
-    { id: "biology", name: "Biology" }
-  ],
-  topicAnalysis: [
-    {
-      subject: "Physics",
-      topics: [
-        {
-          id: "mechanics",
-          name: "Mechanics",
-          totalQuestions: 42,
-          yearCounts: { "2024": 4, "2023": 5, "2022": 4, "2021": 5, "2020": 4, "2019": 4, "2018": 5, "2017": 3, "2016": 4, "2015": 4 },
-          trend: "stable",
-          difficulty: "medium",
-          importanceLevel: "high",
-          conceptLinks: ["newton-laws", "gravitation", "rotation"]
-        },
-        {
-          id: "electrostatics",
-          name: "Electrostatics",
-          totalQuestions: 30,
-          yearCounts: { "2024": 4, "2023": 3, "2022": 3, "2021": 2, "2020": 3, "2019": 3, "2018": 3, "2017": 3, "2016": 3, "2015": 3 },
-          trend: "stable",
-          difficulty: "hard",
-          importanceLevel: "high",
-          conceptLinks: ["coulomb-law", "electric-field", "potential"]
-        },
-        {
-          id: "optics",
-          name: "Optics",
-          totalQuestions: 25,
-          yearCounts: { "2024": 3, "2023": 2, "2022": 2, "2021": 3, "2020": 2, "2019": 3, "2018": 2, "2017": 3, "2016": 2, "2015": 3 },
-          trend: "decreasing",
-          difficulty: "medium",
-          importanceLevel: "medium",
-          conceptLinks: ["reflection", "refraction", "wave-optics"]
-        }
-      ]
-    },
-    {
-      subject: "Chemistry",
-      topics: [
-        {
-          id: "organic",
-          name: "Organic Chemistry",
-          totalQuestions: 48,
-          yearCounts: { "2024": 6, "2023": 5, "2022": 5, "2021": 4, "2020": 5, "2019": 5, "2018": 4, "2017": 5, "2016": 4, "2015": 5 },
-          trend: "increasing",
-          difficulty: "hard",
-          importanceLevel: "high",
-          conceptLinks: ["hydrocarbon", "functional-groups", "mechanisms"]
-        }
-      ]
-    },
-    {
-      subject: "Biology",
-      topics: [
-        {
-          id: "physiology",
-          name: "Human Physiology",
-          totalQuestions: 50,
-          yearCounts: { "2024": 6, "2023": 6, "2022": 5, "2021": 5, "2020": 5, "2019": 5, "2018": 5, "2017": 4, "2016": 5, "2015": 4 },
-          trend: "increasing",
-          difficulty: "medium",
-          importanceLevel: "high",
-          conceptLinks: ["digestive", "circulatory", "nervous"]
-        }
-      ]
+const PreviousYearAnalysisPage = () => {
+  const navigate = useNavigate();
+  const [activeSubject, setActiveSubject] = useState('physics');
+  const [yearRange, setYearRange] = useState('2016-2025');
+
+  // Mock data for previous year questions
+  const pyqData = {
+    examName: 'NEET',
+    subjects: [
+      {
+        id: 'physics',
+        name: 'Physics',
+        topics: [
+          {
+            name: 'Mechanics',
+            frequency: [
+              { year: 2016, count: 7 },
+              { year: 2017, count: 8 },
+              { year: 2018, count: 6 },
+              { year: 2019, count: 9 },
+              { year: 2020, count: 7 },
+              { year: 2021, count: 8 },
+              { year: 2022, count: 9 },
+              { year: 2023, count: 8 },
+              { year: 2024, count: 9 },
+              { year: 2025, count: 10 },
+            ],
+            trend: 'increasing',
+            importance: 'high',
+            averageDifficulty: 'medium'
+          },
+          {
+            name: 'Thermodynamics',
+            frequency: [
+              { year: 2016, count: 4 },
+              { year: 2017, count: 5 },
+              { year: 2018, count: 3 },
+              { year: 2019, count: 4 },
+              { year: 2020, count: 5 },
+              { year: 2021, count: 4 },
+              { year: 2022, count: 5 },
+              { year: 2023, count: 6 },
+              { year: 2024, count: 5 },
+              { year: 2025, count: 7 },
+            ],
+            trend: 'stable',
+            importance: 'medium',
+            averageDifficulty: 'hard'
+          },
+          {
+            name: 'Electrostatics',
+            frequency: [
+              { year: 2016, count: 5 },
+              { year: 2017, count: 6 },
+              { year: 2018, count: 7 },
+              { year: 2019, count: 5 },
+              { year: 2020, count: 6 },
+              { year: 2021, count: 7 },
+              { year: 2022, count: 8 },
+              { year: 2023, count: 7 },
+              { year: 2024, count: 8 },
+              { year: 2025, count: 9 },
+            ],
+            trend: 'increasing',
+            importance: 'high',
+            averageDifficulty: 'medium'
+          },
+        ]
+      },
+      {
+        id: 'chemistry',
+        name: 'Chemistry',
+        topics: [
+          {
+            name: 'Organic Chemistry',
+            frequency: [
+              { year: 2016, count: 9 },
+              { year: 2017, count: 10 },
+              { year: 2018, count: 8 },
+              { year: 2019, count: 9 },
+              { year: 2020, count: 10 },
+              { year: 2021, count: 11 },
+              { year: 2022, count: 10 },
+              { year: 2023, count: 11 },
+              { year: 2024, count: 12 },
+              { year: 2025, count: 13 },
+            ],
+            trend: 'increasing',
+            importance: 'high',
+            averageDifficulty: 'hard'
+          },
+          {
+            name: 'Inorganic Chemistry',
+            frequency: [
+              { year: 2016, count: 7 },
+              { year: 2017, count: 8 },
+              { year: 2018, count: 7 },
+              { year: 2019, count: 6 },
+              { year: 2020, count: 7 },
+              { year: 2021, count: 8 },
+              { year: 2022, count: 7 },
+              { year: 2023, count: 8 },
+              { year: 2024, count: 9 },
+              { year: 2025, count: 8 },
+            ],
+            trend: 'stable',
+            importance: 'medium',
+            averageDifficulty: 'medium'
+          },
+        ]
+      },
+      {
+        id: 'biology',
+        name: 'Biology',
+        topics: [
+          {
+            name: 'Cell Biology',
+            frequency: [
+              { year: 2016, count: 6 },
+              { year: 2017, count: 7 },
+              { year: 2018, count: 8 },
+              { year: 2019, count: 7 },
+              { year: 2020, count: 8 },
+              { year: 2021, count: 9 },
+              { year: 2022, count: 10 },
+              { year: 2023, count: 9 },
+              { year: 2024, count: 10 },
+              { year: 2025, count: 11 },
+            ],
+            trend: 'increasing',
+            importance: 'high',
+            averageDifficulty: 'medium'
+          },
+          {
+            name: 'Human Physiology',
+            frequency: [
+              { year: 2016, count: 8 },
+              { year: 2017, count: 9 },
+              { year: 2018, count: 10 },
+              { year: 2019, count: 9 },
+              { year: 2020, count: 10 },
+              { year: 2021, count: 11 },
+              { year: 2022, count: 12 },
+              { year: 2023, count: 13 },
+              { year: 2024, count: 14 },
+              { year: 2025, count: 15 },
+            ],
+            trend: 'increasing',
+            importance: 'high',
+            averageDifficulty: 'hard'
+          },
+        ]
+      }
+    ]
+  };
+
+  const activeSubjectData = pyqData.subjects.find(subject => subject.id === activeSubject);
+  
+  // Get trend icon
+  const getTrendIcon = (trend: string) => {
+    switch(trend) {
+      case 'increasing': return '📈';
+      case 'decreasing': return '📉';
+      case 'stable': return '🔁';
+      default: return '🔍';
     }
-  ],
-  sampleQuestions: [
-    {
-      id: "q1",
-      year: 2024,
-      subject: "Physics",
-      topic: "Mechanics",
-      question: "A ball is thrown vertically upward with an initial velocity of 20 m/s. What will be its height when its velocity becomes half of the initial velocity? (g = 10 m/s²)",
-      options: [
-        "7.5 m",
-        "15 m",
-        "20 m",
-        "30 m"
-      ],
-      correctAnswer: "15 m",
-      explanation: "Using v² = u² - 2gh, where v = 10 m/s, u = 20 m/s, g = 10 m/s². We get: (10)² = (20)² - 2(10)h. Solving for h: h = [(20)² - (10)²]/(2×10) = (400 - 100)/20 = 15 m.",
-      conceptLink: "newton-laws",
-      difficulty: "medium"
-    },
-    {
-      id: "q2",
-      year: 2023,
-      subject: "Chemistry",
-      topic: "Organic Chemistry",
-      question: "Which of the following is NOT an example of a nucleophile?",
-      options: [
-        "NH₃",
-        "CN⁻",
-        "BF₃",
-        "OH⁻"
-      ],
-      correctAnswer: "BF₃",
-      explanation: "BF₃ is an electron-deficient compound and acts as a Lewis acid (electrophile), while the rest are electron-rich and act as nucleophiles.",
-      conceptLink: "organic-mechanisms",
-      difficulty: "hard"
+  };
+
+  // Get importance class
+  const getImportanceClass = (importance: string) => {
+    switch(importance) {
+      case 'high': return 'text-red-500';
+      case 'medium': return 'text-amber-500';
+      case 'low': return 'text-green-500';
+      default: return '';
     }
-  ]
-};
-
-// Importance color mapping
-const importanceColors = {
-  "high": "bg-red-100 text-red-800",
-  "medium": "bg-orange-100 text-orange-800",
-  "low": "bg-yellow-100 text-yellow-800"
-};
-
-// Trend icons
-const trendIcons = {
-  "increasing": "📈",
-  "decreasing": "📉",
-  "stable": "🔄"
-};
-
-const PreviousYearAnalysisPage: React.FC = () => {
-  const [selectedSubject, setSelectedSubject] = useState<string>("all");
-  const [selectedYear, setSelectedYear] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"analysis" | "questions">("analysis");
+  };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header with back button and exam info */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div className="container mx-auto py-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <Button variant="outline" asChild className="mb-2">
-            <Link to="/dashboard/student">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-            </Link>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mb-2"
+            onClick={() => navigate('/dashboard/student')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
           </Button>
-          <h1 className="text-2xl sm:text-3xl font-bold">{pyqData.examName} Previous Year Analysis</h1>
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/dashboard/student/syllabus">
-                View Syllabus
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/dashboard/student/study-plan">
-                Study Plan
-              </Link>
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold">{pyqData.examName} Previous Year Analysis (2016-2025)</h1>
+          <p className="text-muted-foreground">
+            Analyze question patterns and topic distribution from previous years
+          </p>
         </div>
+        <div className="flex items-center gap-4">
+          <Select value={yearRange} onValueChange={setYearRange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Year Range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2016-2025">2016-2025</SelectItem>
+              <SelectItem value="2021-2025">Last 5 Years</SelectItem>
+              <SelectItem value="2023-2025">Last 3 Years</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <Filter className="h-4 w-4 mr-2" />
+            More Filters
+          </Button>
+          <Button onClick={() => navigate('/dashboard/student/syllabus')}>
+            View Full Syllabus
+          </Button>
+        </div>
+      </div>
+      
+      <Tabs value={activeSubject} onValueChange={setActiveSubject}>
+        <TabsList className="mb-6">
+          {pyqData.subjects.map(subject => (
+            <TabsTrigger key={subject.id} value={subject.id}>{subject.name}</TabsTrigger>
+          ))}
+        </TabsList>
         
-        {/* Search and filters */}
-        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-          <div className="relative w-full sm:w-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input 
-              placeholder="Search topics..." 
-              className="pl-9 w-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-            <SelectTrigger className="w-full sm:w-32">
-              <SelectValue placeholder="Subject" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Subjects</SelectItem>
-              {pyqData.subjects.map((subject) => (
-                <SelectItem key={subject.id} value={subject.id}>{subject.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-full sm:w-32">
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Years</SelectItem>
-              {pyqData.years.map((year) => (
-                <SelectItem key={year.toString()} value={year.toString()}>{year}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* View toggle */}
-      <div className="mb-6">
-        <Tabs defaultValue="analysis" className="w-full" onValueChange={(value) => setViewMode(value as "analysis" | "questions")}>
-          <TabsList>
-            <TabsTrigger value="analysis">Topic Analysis</TabsTrigger>
-            <TabsTrigger value="questions">Sample Questions</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {viewMode === "analysis" ? (
-        /* Topic Analysis View */
-        <div className="space-y-8">
-          {pyqData.topicAnalysis
-            .filter(item => selectedSubject === "all" || item.subject.toLowerCase() === selectedSubject)
-            .map((subjectData) => (
-              <div key={subjectData.subject} className="space-y-4">
-                <h2 className="text-xl font-semibold">{subjectData.subject}</h2>
-                
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="overflow-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Qs</th>
-                            {pyqData.years.slice(0, 5).map((year) => (
-                              <th key={year} className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{year}</th>
-                            ))}
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Importance</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Study</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {subjectData.topics.map((topic) => (
-                            <tr key={topic.id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap">{topic.name}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-center font-medium">{topic.totalQuestions}</td>
-                              {pyqData.years.slice(0, 5).map((year) => (
-                                <td key={year} className="px-3 py-4 whitespace-nowrap text-center">
-                                  {topic.yearCounts[year.toString()]}
-                                </td>
-                              ))}
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="inline-flex items-center">
-                                  {trendIcons[topic.trend as keyof typeof trendIcons]} {topic.trend}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <Badge variant="outline" className={importanceColors[topic.importanceLevel as keyof typeof importanceColors]}>
-                                  {topic.importanceLevel.charAt(0).toUpperCase() + topic.importanceLevel.slice(1)}
-                                </Badge>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex gap-1">
-                                  <Button size="sm" variant="outline" className="h-8 px-3 text-xs" asChild>
-                                    <Link to={`/dashboard/student/concepts/card/${topic.id}`}>
-                                      <BookOpen className="h-3 w-3 mr-1" /> Concept
-                                    </Link>
-                                  </Button>
-                                  <Button size="sm" variant="outline" className="h-8 px-3 text-xs" asChild>
-                                    <Link to={`/dashboard/student/flashcards/${topic.id}`}>
-                                      <Brain className="h-3 w-3 mr-1" /> Cards
-                                    </Link>
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Topic Frequency Visualization */}
-                <Card className="p-4">
-                  <h3 className="font-medium mb-4">Topic Frequency Heatmap</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {subjectData.topics.map((topic) => (
-                      <div key={topic.id} className="bg-gray-50 rounded-md p-3">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="font-medium">{topic.name}</div>
-                          <Badge>{topic.totalQuestions} Qs</Badge>
-                        </div>
-                        <div className="flex items-center h-8 gap-1">
-                          {Object.entries(topic.yearCounts).slice(0, 10).map(([year, count]) => (
-                            <div 
-                              key={year} 
-                              className="flex-1 flex flex-col items-center"
-                              title={`${year}: ${count} questions`}
-                            >
-                              <div 
-                                className={`w-full ${
-                                  count >= 5 ? 'bg-red-500' : 
-                                  count >= 4 ? 'bg-orange-400' : 
-                                  count >= 3 ? 'bg-yellow-300' : 
-                                  count >= 2 ? 'bg-green-300' : 
-                                  'bg-blue-200'
-                                }`} 
-                                style={{ height: `${count * 5}px`, minHeight: '1px' }}
-                              ></div>
-                              <div className="text-xs mt-1">{year.slice(-2)}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+        {activeSubjectData && (
+          <TabsContent value={activeSubjectData.id}>
+            <div className="grid grid-cols-1 gap-6 mb-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Topic-wise Question Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={activeSubjectData.topics.map(topic => ({
+                          name: topic.name,
+                          total: topic.frequency.reduce((sum, item) => sum + item.count, 0)
+                        }))}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="total" fill="#8884d8" name="Total Questions" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                </Card>
-              </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Topic-wise Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Topic</TableHead>
+                      <TableHead>Total Questions</TableHead>
+                      <TableHead>Trend</TableHead>
+                      <TableHead>Importance</TableHead>
+                      <TableHead>Difficulty</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {activeSubjectData.topics.map(topic => (
+                      <TableRow key={topic.name}>
+                        <TableCell className="font-medium">{topic.name}</TableCell>
+                        <TableCell>{topic.frequency.reduce((sum, item) => sum + item.count, 0)}</TableCell>
+                        <TableCell>
+                          {getTrendIcon(topic.trend)} {topic.trend.charAt(0).toUpperCase() + topic.trend.slice(1)}
+                        </TableCell>
+                        <TableCell className={getImportanceClass(topic.importance)}>
+                          {topic.importance.charAt(0).toUpperCase() + topic.importance.slice(1)}
+                        </TableCell>
+                        <TableCell>
+                          {topic.averageDifficulty.charAt(0).toUpperCase() + topic.averageDifficulty.slice(1)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button size="sm" variant="outline" onClick={() => navigate('/dashboard/student/concepts/landing')}>
+                              Concept Cards
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => navigate('/dashboard/student/flashcards/landing')}>
+                              Flashcards
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {activeSubjectData.topics.map(topic => (
+              <Card key={topic.name} className="mb-6">
+                <CardHeader>
+                  <CardTitle>{topic.name} - Year-wise Question Count</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={topic.frequency}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="count" name="Question Count" fill="#82ca9d" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4">
+                    <p className="font-medium">Strategic Insight:</p>
+                    <p className="text-muted-foreground">
+                      {topic.trend === 'increasing' 
+                        ? `This topic shows an increasing trend and has ${topic.importance === 'high' ? 'high' : 'medium'} importance. Focus on mastering this area.`
+                        : topic.trend === 'decreasing'
+                          ? `This topic shows a decreasing trend but still remains important. Allocate appropriate study time.`
+                          : `This topic has remained stable over the years with ${topic.importance === 'high' ? 'high' : 'medium'} importance.`
+                      }
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-        </div>
-      ) : (
-        /* Sample Questions View */
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Sample Questions</h2>
-          
-          <div className="space-y-4">
-            {pyqData.sampleQuestions
-              .filter(q => selectedSubject === "all" || q.subject.toLowerCase() === selectedSubject)
-              .filter(q => selectedYear === "all" || q.year.toString() === selectedYear)
-              .map((question) => (
-                <Card key={question.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value={question.id} className="border-0">
-                        <div className="p-4 pb-2">
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">{question.year}</Badge>
-                            <Badge variant="outline">{question.subject}</Badge>
-                            <Badge variant="outline">{question.topic}</Badge>
-                            <Badge variant="outline" className={
-                              question.difficulty === "hard" ? "bg-red-50 text-red-800 border-red-200" : 
-                              question.difficulty === "medium" ? "bg-orange-50 text-orange-800 border-orange-200" : 
-                              "bg-green-50 text-green-800 border-green-200"
-                            }>
-                              {question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)}
-                            </Badge>
-                          </div>
-                          
-                          <div className="prose max-w-none dark:prose-invert">
-                            <p>{question.question}</p>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                            {question.options.map((option, index) => (
-                              <div 
-                                key={index} 
-                                className={`p-2 rounded border ${
-                                  option === question.correctAnswer 
-                                    ? "border-green-300 bg-green-50" 
-                                    : "border-gray-200"
-                                }`}
-                              >
-                                <span>{String.fromCharCode(65 + index)}. {option}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <AccordionTrigger className="py-2 px-4">
-                          <span className="text-sm font-normal">View Explanation</span>
-                        </AccordionTrigger>
-                        
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="bg-gray-50 p-3 rounded-md prose-sm max-w-none dark:prose-invert">
-                            <h4>Explanation</h4>
-                            <p>{question.explanation}</p>
-                          </div>
-                          
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <Button size="sm" variant="outline" asChild>
-                              <Link to={`/dashboard/student/concepts/card/${question.conceptLink}`}>
-                                <BookOpen className="mr-2 h-4 w-4" /> View Related Concept
-                              </Link>
-                            </Button>
-                            <Button size="sm" variant="outline" asChild>
-                              <Link to={`/dashboard/student/practice-exam/${question.topic.toLowerCase()}`}>
-                                <FileText className="mr-2 h-4 w-4" /> Practice Similar Questions
-                              </Link>
-                            </Button>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-        </div>
-      )}
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 };

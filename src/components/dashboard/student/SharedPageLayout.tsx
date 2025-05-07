@@ -1,72 +1,54 @@
 
 import React from 'react';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types/user/base';
-import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  activeTab?: string;
   children: React.ReactNode;
-  backButtonUrl?: string;
-  showBackButton?: boolean;
-  hideSidebar?: boolean;
-  hideTabsNav?: boolean;
+  badgeText?: string;
+  actions?: React.ReactNode;
+  footer?: React.ReactNode;
+  headerClassName?: string;
+  contentClassName?: string;
+  footerClassName?: string;
 }
 
-export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
+export function SharedPageLayout({
   title,
   subtitle,
-  activeTab = 'overview',
   children,
-  backButtonUrl = '/dashboard/student',
-  showBackButton = true, // Set to true by default
-  hideSidebar = false,
-  hideTabsNav = false
-}) => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
-  const navigate = useNavigate();
-  
-  if (loading || !userProfile) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Content to display within the shared page layout
-  const pageContent = (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+  badgeText,
+  actions,
+  footer,
+  headerClassName = "",
+  contentClassName = "",
+  footerClassName = "",
+}: SharedPageLayoutProps) {
+  return (
+    <Card className="border bg-card shadow-sm">
+      {/* Header */}
+      <div className={`border-b p-4 ${headerClassName}`}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+              {badgeText && <Badge variant="outline">{badgeText}</Badge>}
+            </div>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+            )}
+          </div>
+          {actions && <div className="flex items-center gap-2 sm:ml-auto">{actions}</div>}
         </div>
-        
-        {showBackButton && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(backButtonUrl)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Button>
-        )}
       </div>
       
-      {/* Main Content */}
-      {children}
-    </div>
+      {/* Content */}
+      <div className={`p-4 ${contentClassName}`}>{children}</div>
+      
+      {/* Footer (if provided) */}
+      {footer && <div className={`border-t p-4 ${footerClassName}`}>{footer}</div>}
+    </Card>
   );
-
-  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
-  return pageContent;
-};
+}

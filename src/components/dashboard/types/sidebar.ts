@@ -1,10 +1,5 @@
 
-import { ReactNode } from "react";
-
-export interface SidebarNavProps {
-  userType: string;
-  userName?: string;
-}
+import { ReactNode } from 'react';
 
 export interface NavigationRoute {
   name: string;

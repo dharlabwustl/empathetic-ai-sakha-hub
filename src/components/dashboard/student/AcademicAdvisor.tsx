@@ -10,7 +10,7 @@ import { format, differenceInCalendarDays } from 'date-fns';
 import type { StudyPlan, NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorProps {
-  userProfile: {
+  userProfile?: {
     examPreparation?: string;
   };
 }
@@ -23,120 +23,114 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   // State for plans
   const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
     id: "plan-1",
+    name: "NEET Preparation",
+    description: "Full study plan for NEET preparation",
     userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: userProfile?.examPreparation || "NEET",
-    examDate: "2024-12-15",
-    createdAt: "2024-04-10T12:00:00Z",
-    updatedAt: "2024-04-10T12:00:00Z",
-    status: 'active',
-    weeklyHours: 42,
-    progressPercentage: 35,
-    daysLeft: 240,
+    startDate: "2024-04-10",
+    endDate: "2024-12-15",
+    progress: 35,
+    status: 'active' as const,
     subjects: [
       {
         id: "physics-1",
         name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 14,
-        priority: "high",
-        proficiency: "medium",
+        difficulty: 'hard' as const,
         completed: false,
+        status: 'in-progress' as const,
+        priority: 'high' as const,
+        hoursPerWeek: 14,
+        proficiency: 60,
         topics: [
-          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
-          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
-          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
+          { id: "mech-1", name: "Mechanics", difficulty: 'medium' as const, completed: false, status: 'in-progress' as const, priority: 'high' as const },
+          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard' as const, completed: false, status: 'pending' as const, priority: 'medium' as const },
+          { id: "electro-1", name: "Electrostatics", difficulty: 'hard' as const, completed: true, status: 'completed' as const, priority: 'high' as const }
         ]
       },
       {
         id: "chem-1",
         name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "medium",
-        proficiency: "weak",
+        difficulty: 'medium' as const,
         completed: false,
+        status: 'in-progress' as const,
+        priority: 'medium' as const,
+        hoursPerWeek: 12,
+        proficiency: 40,
         topics: [
-          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
-          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
-          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
+          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard' as const, completed: false, status: 'pending' as const, priority: 'high' as const },
+          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium' as const, completed: false, status: 'in-progress' as const, priority: 'medium' as const },
+          { id: "equil-1", name: "Equilibrium", difficulty: 'easy' as const, completed: false, status: 'pending' as const, priority: 'low' as const }
         ]
       },
       {
         id: "math-1",
         name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 16,
-        priority: "high",
-        proficiency: "strong",
+        difficulty: 'hard' as const,
         completed: false,
+        status: 'in-progress' as const,
+        priority: 'high' as const,
+        hoursPerWeek: 16,
+        proficiency: 75,
         topics: [
-          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
-          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
+          { id: "calc-1", name: "Calculus", difficulty: 'hard' as const, completed: true, status: 'completed' as const, priority: 'high' as const },
+          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium' as const, completed: true, status: 'completed' as const, priority: 'high' as const },
+          { id: "prob-1", name: "Probability", difficulty: 'medium' as const, completed: false, status: 'in-progress' as const, priority: 'medium' as const }
         ]
       }
-    ],
-    studyHoursPerDay: 6,
-    preferredStudyTime: 'evening',
-    learningPace: 'moderate'
+    ]
   }]);
 
   // State for completed plans
   const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
     id: "plan-old-1",
+    name: "NEET Initial Preparation",
+    description: "First phase of NEET preparation",
     userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: "NEET",
-    examDate: "2024-03-15",
-    createdAt: "2024-01-01T12:00:00Z",
-    updatedAt: "2024-03-15T12:00:00Z",
-    status: 'completed',
-    weeklyHours: 35,
-    progressPercentage: 100,
-    daysLeft: 0,
+    startDate: "2024-01-01",
+    endDate: "2024-03-15",
+    progress: 100,
+    status: 'completed' as const,
     subjects: [
       {
         id: "physics-old",
         name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 10,
-        priority: "medium",
-        proficiency: "weak",
+        difficulty: 'medium' as const,
         completed: true,
+        status: 'completed' as const,
+        priority: 'medium' as const,
+        hoursPerWeek: 10,
+        proficiency: 70,
         topics: [
-          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
+          { id: "mech-old", name: "Mechanics", difficulty: 'medium' as const, completed: true, status: 'completed' as const, priority: 'high' as const },
+          { id: "waves-old", name: "Waves", difficulty: 'medium' as const, completed: true, status: 'completed' as const, priority: 'medium' as const }
         ]
       },
       {
         id: "chem-old",
         name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "low",
-        proficiency: "weak",
+        difficulty: 'easy' as const,
         completed: true,
+        status: 'completed' as const,
+        priority: 'low' as const,
+        hoursPerWeek: 12,
+        proficiency: 80,
         topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
+          { id: "period-old", name: "Periodic Table", difficulty: 'medium' as const, completed: true, status: 'completed' as const, priority: 'medium' as const }
         ]
       },
       {
         id: "math-old",
         name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 13,
-        priority: "high",
-        proficiency: "medium",
+        difficulty: 'hard' as const,
         completed: true,
+        status: 'completed' as const,
+        priority: 'high' as const,
+        hoursPerWeek: 13,
+        proficiency: 65,
         topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
+          { id: "alg-old", name: "Algebra", difficulty: 'hard' as const, completed: true, status: 'completed' as const, priority: 'high' as const }
         ]
       }
-    ],
-    studyHoursPerDay: 5,
-    preferredStudyTime: 'morning',
-    learningPace: 'slow'
+    ]
   }]);
 
   const handleCreatePlan = () => {
@@ -151,7 +145,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
+  const generateTopicsForSubject = (subject: string, proficiency: string) => {
     let topics = [];
     const priorities = ['high', 'medium', 'low'];
     const statuses = ['pending', 'in-progress'];
@@ -189,39 +183,33 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     return topics;
   };
 
-  const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object
+  const handleNewPlanCreated = (plan: any) => {
+    // Create a new plan object using the input plan data
     const newPlan: StudyPlan = {
       id: uuidv4(),
+      name: plan.name || "Study Plan",
+      description: plan.examType ? `Study plan for ${plan.examType}` : undefined,
       userId: "user-1",
-      goal: "NEET Preparation",
-      examGoal: plan.examGoal,
-      examDate: typeof plan.examDate === 'string' ? plan.examDate : format(plan.examDate as Date, 'yyyy-MM-dd'),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      weeklyHours: plan.weeklyHours || 20,
-      progressPercentage: 0,
-      daysLeft: typeof plan.examDate === 'string' 
-        ? differenceInCalendarDays(new Date(plan.examDate), new Date())
-        : differenceInCalendarDays(plan.examDate as Date, new Date()),
-      subjects: plan.subjects.map(subject => {
+      startDate: plan.startDate || new Date().toISOString().split('T')[0],
+      endDate: plan.endDate || new Date().toISOString().split('T')[0],
+      progress: 0,
+      status: 'active' as const,
+      subjects: (plan.selectedSubjects || []).map((subject: any) => {
         // Ensure each subject has the required properties with proper types
+        const subjectName = typeof subject === 'string' ? subject : subject.name;
         const studyPlanSubject: StudyPlanSubject = {
-          id: subject.id || `subject-${uuidv4()}`,
-          name: subject.name,
-          color: subject.color || "#3b82f6",
-          hoursPerWeek: subject.hoursPerWeek || 10,
-          priority: subject.priority || "medium",
-          proficiency: subject.proficiency || "medium",
+          id: `subject-${uuidv4()}`,
+          name: subjectName,
+          difficulty: 'medium' as const,
           completed: false,
-          topics: generateTopicsForSubject(subject.name, subject.proficiency || "medium")
+          status: 'pending' as const,
+          priority: 'medium' as const,
+          hoursPerWeek: Math.floor(plan.studyHoursPerWeek ? plan.studyHoursPerWeek / (plan.selectedSubjects?.length || 1) : 10),
+          proficiency: 0,
+          topics: generateTopicsForSubject(subjectName, 'medium')
         };
         return studyPlanSubject;
-      }),
-      studyHoursPerDay: plan.studyHoursPerDay,
-      preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
+      })
     };
     
     // Move previous active plans to completed
@@ -229,7 +217,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     if (activePlans.length > 0) {
       const oldActivePlans = activePlans.map(plan => ({
         ...plan,
-        status: 'completed' as 'completed'
+        status: 'completed' as const
       }));
       updatedCompletedPlans.push(...oldActivePlans);
     }

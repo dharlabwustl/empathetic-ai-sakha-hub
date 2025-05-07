@@ -1,43 +1,54 @@
 
-import React from 'react';
+import { useState } from 'react';
 import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
+import { 
+  Smile, Frown, Meh, Zap, Coffee, 
+  Heart, AlertCircle, BookOpen, Moon
+} from 'lucide-react';
 
 interface MoodSelectorProps {
+  onMoodSelected: (mood: MoodType) => void;
   currentMood?: MoodType;
-  onMoodSelect: (mood: MoodType) => void;
-  className?: string;
 }
 
-export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
-  const moodOptions = [
-    { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
-    { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
-    { type: MoodType.Motivated, emoji: '💪', label: 'Motivated' },
-    { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
-    { type: MoodType.Stressed, emoji: '😓', label: 'Stressed' },
-    { type: MoodType.Confused, emoji: '🤔', label: 'Confused' },
-    { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
-    { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
-    { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
-    { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
-    { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
-    { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
+const MoodSelector: React.FC<MoodSelectorProps> = ({ onMoodSelected, currentMood }) => {
+  const [selectedMood, setSelectedMood] = useState<MoodType>(
+    currentMood || MoodType.Happy
+  );
+  
+  const moods = [
+    { type: MoodType.Happy, icon: <Smile className="mr-2 h-4 w-4" />, label: 'Happy' },
+    { type: MoodType.Sad, icon: <Frown className="mr-2 h-4 w-4" />, label: 'Sad' },
+    { type: MoodType.Calm, icon: <Meh className="mr-2 h-4 w-4" />, label: 'Calm' },
+    { type: MoodType.Motivated, icon: <Zap className="mr-2 h-4 w-4" />, label: 'Motivated' },
+    { type: MoodType.Tired, icon: <Coffee className="mr-2 h-4 w-4" />, label: 'Tired' },
+    { type: MoodType.Focused, icon: <BookOpen className="mr-2 h-4 w-4" />, label: 'Focused' },
+    { type: MoodType.Stressed, icon: <AlertCircle className="mr-2 h-4 w-4" />, label: 'Stressed' },
+    { type: MoodType.Overwhelmed, icon: <AlertCircle className="mr-2 h-4 w-4" />, label: 'Overwhelmed' }
   ];
-
+  
+  const handleSelect = (mood: MoodType) => {
+    setSelectedMood(mood);
+    onMoodSelected(mood);
+  };
+  
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {moodOptions.map((mood) => (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {moods.map((mood) => (
         <Button
-          key={mood.type}
-          variant={currentMood === mood.type ? "default" : "outline"}
-          onClick={() => onMoodSelect(mood.type)}
-          className="flex flex-col items-center p-2 h-auto"
+          key={mood.label}
+          variant={selectedMood === mood.type ? "default" : "outline"}
+          size="sm"
+          onClick={() => handleSelect(mood.type)}
+          className="flex items-center"
         >
-          <span className="text-xl mb-1">{mood.emoji}</span>
-          <span className="text-xs">{mood.label}</span>
+          {mood.icon}
+          {mood.label}
         </Button>
       ))}
     </div>
   );
 };
+
+export default MoodSelector;

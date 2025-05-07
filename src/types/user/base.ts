@@ -7,6 +7,7 @@ export interface UserProfileBase {
   lastName?: string;
   email?: string;
   photoURL?: string;
+  avatar?: string;  // Added for compatibility
   role?: string;
   loginCount?: number;
   goals?: UserGoal[];
@@ -73,6 +74,14 @@ export interface SubscriptionInfo {
   currency?: string;
 }
 
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin',
+  Parent = 'parent',
+  Guest = 'guest'
+}
+
 export enum SubscriptionType {
   FREE = 'free',
   BASIC = 'basic',
@@ -92,7 +101,10 @@ export enum MoodType {
   Bored = 'bored',
   Focused = 'focused',
   Motivated = 'motivated',
-  Overwhelmed = 'overwhelmed'
+  Overwhelmed = 'overwhelmed',
+  Neutral = 'neutral',
+  Okay = 'okay',
+  Curious = 'curious'
 }
 
 export interface DailyStudyStats {
