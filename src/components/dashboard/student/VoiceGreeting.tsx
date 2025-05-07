@@ -1,123 +1,105 @@
 
-import React, { useState, useEffect } from 'react';
-import { useToast } from "@/hooks/use-toast";
+import React, { useEffect, useState } from 'react';
+import { Volume, Volume2, VolumeX } from 'lucide-react';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
-  userName: string;
-  language?: string;
-  examGoal?: string;
-  todaysTasks?: string[];
-  currentMood?: string;
+  userName?: string;
+  language?: 'en' | 'hi';
 }
 
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
   isFirstTimeUser, 
-  userName, 
-  language = 'en',
-  examGoal = 'your exam',
-  todaysTasks = [],
-  currentMood
+  userName = 'Student',
+  language = 'en'
 }) => {
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
-
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioPlayed, setAudioPlayed] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(false);
+  
   useEffect(() => {
-    // Create audio element if it doesn't exist
-    if (!audioElement) {
-      const audio = new Audio();
-      setAudioElement(audio);
-    }
-
-    // Only play greeting for first time users or if explicitly requested
-    if ((isFirstTimeUser || localStorage.getItem('force_greeting') === 'true') && !hasPlayed) {
-      playGreeting();
-      localStorage.removeItem('force_greeting'); // Clear the force flag after playing
-    }
+    // Check if the greeting has been played already in this session
+    const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
     
-    return () => {
-      // Clean up audio element when component unmounts
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.src = '';
-      }
-    };
-  }, [isFirstTimeUser, userName, audioElement]);
-
-  const getGreetingText = () => {
-    // Time-based greeting
-    const hour = new Date().getHours();
-    let timeGreeting = 'Hello';
-    
-    if (hour < 12) {
-      timeGreeting = 'Good morning';
-    } else if (hour < 18) {
-      timeGreeting = 'Good afternoon';
-    } else {
-      timeGreeting = 'Good evening';
-    }
-    
-    let greetingText = '';
-    
-    if (isFirstTimeUser) {
-      greetingText = `${timeGreeting} ${userName}! Welcome to your personalized learning dashboard. I'm your AI study assistant, ready to help you prepare for ${examGoal}. Take a moment to explore the dashboard. You can access your study plan, concept cards, practice tests, and more. If you need any help, just ask me.`;
-    } else {
-      // Returning user greeting with tasks and mood
-      greetingText = `${timeGreeting} ${userName}! `;
-      
-      // Add mood-based message if available
-      if (currentMood) {
-        if (currentMood.toLowerCase() === 'stressed' || currentMood.toLowerCase() === 'tired') {
-          greetingText += `I notice you're feeling ${currentMood}. Remember to take breaks between study sessions. `;
-        } else if (currentMood.toLowerCase() === 'motivated' || currentMood.toLowerCase() === 'focused') {
-          greetingText += `Great to see you're feeling ${currentMood} today! Let's make the most of your energy. `;
+    // Only play for first time users who haven't heard the greeting yet
+    if (isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) {
+      const playGreeting = async () => {
+        try {
+          // Use a timeout to ensure the component is fully mounted
+          setTimeout(() => {
+            setAudioPlaying(true);
+            
+            // Create text for speech
+            let welcomeText = '';
+            if (language === 'en') {
+              welcomeText = `Welcome to PREPZR, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
+            } else if (language === 'hi') {
+              welcomeText = `प्रेप्ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
+            }
+            
+            // Create speech synthesis utterance
+            const speech = new SpeechSynthesisUtterance(welcomeText);
+            speech.lang = language === 'en' ? 'en-US' : 'hi-IN';
+            speech.rate = 0.9; // Slightly slower for clarity
+            speech.volume = 0.8;
+            
+            // Add event listeners
+            speech.onstart = () => setAudioPlaying(true);
+            speech.onend = () => {
+              setAudioPlaying(false);
+              setAudioPlayed(true);
+              sessionStorage.setItem('voiceGreetingPlayed', 'true');
+            };
+            speech.onerror = () => {
+              console.error("Speech synthesis error");
+              setAudioPlaying(false);
+              setAudioPlayed(true);
+            };
+            
+            // Play the speech
+            window.speechSynthesis.speak(speech);
+          }, 1500);
+        } catch (error) {
+          console.error("Error playing greeting:", error);
+          setAudioPlayed(true);
         }
-      }
+      };
       
-      // Add tasks if available
-      if (todaysTasks && todaysTasks.length > 0) {
-        greetingText += `For today, you should focus on: ${todaysTasks.slice(0, 3).join(', ')}. `;
-      }
-      
-      greetingText += `Let's make progress on your ${examGoal} preparation today!`;
+      playGreeting();
     }
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted]);
+  
+  const handleToggleMute = () => {
+    setAudioMuted(!audioMuted);
     
-    return greetingText;
-  };
-
-  const playGreeting = async () => {
-    if (!audioElement) return;
-    
-    try {
-      // This would normally call a Text-to-Speech API
-      // For now, we're just simulating it
-      const greetingText = getGreetingText();
-      
-      // In a real implementation, this would call an API like ElevenLabs
-      // audioElement.src = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
-      
-      // For demo purposes, we'll just show the greeting as a toast
-      toast({
-        title: "Voice Assistant",
-        description: greetingText,
-        duration: 10000, // 10 seconds
-      });
-      
-      // Simulate voice speaking time
-      setTimeout(() => {
-        setHasPlayed(true);
-      }, 3000);
-      
-      // Mark that we've played the greeting
-      setHasPlayed(true);
-    } catch (error) {
-      console.error("Error playing greeting:", error);
+    if (!audioMuted) {
+      // If currently not muted and about to be muted, stop any speech
+      window.speechSynthesis.cancel();
+      setAudioPlaying(false);
+      setAudioPlayed(true);
+      sessionStorage.setItem('voiceGreetingPlayed', 'true');
     }
   };
-
-  // This component doesn't render anything visible
-  return null;
+  
+  // Don't render anything if already played or not a first-time user
+  if (!isFirstTimeUser || audioPlayed) return null;
+  
+  return (
+    <div 
+      className={`fixed bottom-20 right-5 z-50 p-3 rounded-full shadow-md
+        ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
+        cursor-pointer transition-all duration-300 hover:scale-105`}
+      onClick={handleToggleMute}
+    >
+      {audioMuted ? (
+        <VolumeX className="h-6 w-6" />
+      ) : audioPlaying ? (
+        <Volume2 className="h-6 w-6 animate-pulse" />
+      ) : (
+        <Volume className="h-6 w-6" />
+      )}
+    </div>
+  );
 };
 
 export default VoiceGreeting;

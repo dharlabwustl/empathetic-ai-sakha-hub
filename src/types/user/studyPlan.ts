@@ -1,77 +1,60 @@
 
-export interface StudyPlan {
-  id: string;
-  name: string;
-  description?: string;
-  startDate: string;
-  endDate: string;
-  goalId?: string;
-  userId: string;
-  progress: number;
-  status: 'active' | 'completed' | 'paused';
-  subjects: StudyPlanSubject[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface StudyPlanSubject {
-  id: string;
-  name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  hoursPerWeek?: number;
-  proficiency?: number;
-  topics?: StudyPlanTopic[];
-  progress?: number;
-}
-
+// Study Plan Types
 export interface StudyPlanTopic {
   id: string;
   name: string;
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  duration?: number;
-  scheduledDate?: string;
-  subtopics?: StudyPlanSubtopic[];
+  status: 'completed' | 'in-progress' | 'pending';
+  priority: 'high' | 'medium' | 'low';
+}
+
+export interface StudyPlanSubject {
+  id: string;
+  name: string;
+  color?: string;
+  hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
+  status?: 'completed' | 'in-progress' | 'pending';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  topics?: StudyPlanTopic[];
+}
+
+export interface StudyPlan {
+  id: string;
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  status: 'active' | 'completed' | 'archived' | 'pending';
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  createdAt: string;
+  updatedAt?: string;
+  progressPercent?: number;
+  progressPercentage?: number;
   progress?: number;
-}
-
-export interface StudyPlanSubtopic {
-  id: string;
-  name: string;
-  completed: boolean;
-  duration?: number;
-}
-
-export interface DailyStudySchedule {
-  date: string;
-  topics: ScheduledTopic[];
-  totalHours: number;
-  completed: boolean;
-}
-
-export interface ScheduledTopic {
-  id: string;
-  topicId: string;
-  name: string;
-  subjectName: string;
-  duration: number;
-  startTime: string;
-  endTime: string;
-  completed: boolean;
+  daysLeft?: number;
+  weeklyHours?: number;
+  userId?: string;
 }
 
 export interface NewStudyPlan {
-  name: string;
-  examType: string;
-  startDate: string;
-  endDate: string;
-  studyHoursPerWeek: number;
-  weakSubjects: string[];
-  strongSubjects: string[];
-  selectedSubjects: string[];
+  id?: string;
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
 }
+
+// Export the types to be used in other files
+export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

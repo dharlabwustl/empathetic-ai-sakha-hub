@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 
 // Import pages and components
-import Index from '@/pages/Home';
+import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
@@ -49,14 +49,13 @@ import BatchManagementPage from '@/pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from '@/pages/database/DatabaseSchemaCSVPage';
 import PostSignupWelcome from '@/components/signup/PostSignupWelcome';
 import WelcomeFlow from '@/pages/welcome-flow';
+import adminRoutes from './components/admin/routes';
+import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
-import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
+import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
-
-// Use a variable for admin routes for now until we fix the component
-const adminRoutes: any[] = [];
 
 function App() {
   return (
@@ -76,7 +75,7 @@ function App() {
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
-              <Route path="/flask-guide" element={<FlaskGuidePage />} />
+              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
@@ -156,7 +155,7 @@ function App() {
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* Syllabus and Previous Year Analysis routes */}
-              <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
+              <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
               <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}
