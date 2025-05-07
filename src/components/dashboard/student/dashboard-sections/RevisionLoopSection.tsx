@@ -1,120 +1,131 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RotateCw, AlertTriangle, Check, Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { RevisionItem } from '@/types/student/dashboard';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, CheckCircle, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
-interface RevisionLoopSectionProps {
-  revisionItems: RevisionItem[];
+// Define the RevisionItem type directly here
+interface RevisionItem {
+  id: string;
+  title: string;
+  subject: string;
+  type: 'concept' | 'flashcard' | 'practice';
+  dueDate: string;
+  lastReviewed: string;
+  urgency: 'high' | 'medium' | 'low';
 }
 
-const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionItems }) => {
-  // Helper function to get proper badge for each priority level
-  const getPriorityBadge = (priority: string) => {
-    switch(priority) {
-      case 'high':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">High</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Low</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
-  
-  // Helper function to get icon based on revision item type
-  const getTypeIcon = (type: string) => {
-    switch(type) {
-      case 'concept':
-        return <div className="bg-blue-100 text-blue-700 p-1 rounded-md"><RotateCw className="h-4 w-4" /></div>;
-      case 'flashcard':
-        return <div className="bg-purple-100 text-purple-700 p-1 rounded-md"><RotateCw className="h-4 w-4" /></div>;
-      case 'quiz':
-        return <div className="bg-green-100 text-green-700 p-1 rounded-md"><RotateCw className="h-4 w-4" /></div>;
-      default:
-        return <div className="bg-gray-100 text-gray-700 p-1 rounded-md"><RotateCw className="h-4 w-4" /></div>;
-    }
-  };
+const mockRevisionItems: RevisionItem[] = [
+  {
+    id: "1",
+    title: "Newton's Laws of Motion",
+    subject: "Physics",
+    type: "concept",
+    dueDate: "Today",
+    lastReviewed: "7 days ago",
+    urgency: "high"
+  },
+  {
+    id: "2",
+    title: "Organic Chemistry Mechanisms",
+    subject: "Chemistry",
+    type: "flashcard",
+    dueDate: "Tomorrow",
+    lastReviewed: "3 days ago",
+    urgency: "medium"
+  },
+  {
+    id: "3",
+    title: "Cell Division",
+    subject: "Biology",
+    type: "practice",
+    dueDate: "In 2 days",
+    lastReviewed: "5 days ago",
+    urgency: "low"
+  }
+];
 
+const typeIcons = {
+  concept: <BookOpen className="h-4 w-4" />,
+  flashcard: <CheckCircle className="h-4 w-4" />,
+  practice: <Clock className="h-4 w-4" />
+};
+
+const urgencyColors = {
+  high: "bg-red-100 text-red-800 border-red-200",
+  medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  low: "bg-green-100 text-green-800 border-green-200"
+};
+
+export const RevisionLoopSection = () => {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <div className="flex items-center">
-          <RotateCw className="mr-2 h-5 w-5 text-amber-500" />
-          <CardTitle className="text-lg font-medium">Revision Loop</CardTitle>
-        </div>
-        <Button variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600">
-          View All
-        </Button>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Revision Loop</CardTitle>
       </CardHeader>
-      
-      <CardContent>
-        <div className="text-sm text-muted-foreground mb-4">
-          Smart revision recommendations based on spaced repetition
-        </div>
-        
-        <div className="space-y-3">
-          {revisionItems && revisionItems.length > 0 ? (
-            revisionItems.map(item => (
-              <div 
-                key={item.id}
-                className="p-3 border rounded-lg bg-gradient-to-r from-amber-50/50 to-white dark:from-amber-900/10 dark:to-gray-800/50"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getTypeIcon(item.type)}
-                    <div className="font-medium">{item.title}</div>
-                  </div>
-                  {getPriorityBadge(item.priority)}
-                </div>
-                
-                <div className="flex flex-wrap items-center justify-between text-xs">
-                  <div className="space-x-4 flex">
-                    <span className="text-muted-foreground">{item.subject}</span>
-                    <span className="flex items-center text-muted-foreground">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Due: {new Date(item.dueDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 mt-1 sm:mt-0">
-                    <span className="text-muted-foreground">Retention:</span>
-                    <div className="flex items-center">
-                      <span className={`font-medium ${
-                        item.retentionScore < 50 ? 'text-red-500' : 
-                        item.retentionScore < 75 ? 'text-amber-500' : 
-                        'text-green-500'
-                      }`}>
-                        {item.retentionScore}%
-                      </span>
+      <CardContent className="space-y-4">
+        {mockRevisionItems.length > 0 ? (
+          <>
+            <div className="text-sm text-muted-foreground mb-2">
+              Based on spaced repetition science, these items need your review:
+            </div>
+            <div className="space-y-2">
+              {mockRevisionItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 bg-muted/40 rounded-lg hover:bg-muted/80 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-background p-2 rounded-full">
+                      {typeIcons[item.type]}
+                    </div>
+                    <div>
+                      <div className="font-medium">{item.title}</div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">
+                          {item.subject}
+                        </span>
+                        <span className="bg-muted w-1 h-1 rounded-full" />
+                        <span className="text-muted-foreground">
+                          Last: {item.lastReviewed}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={`${
+                        urgencyColors[item.urgency as keyof typeof urgencyColors]
+                      }`}
+                    >
+                      Due: {item.dueDate}
+                    </Badge>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to={`/dashboard/student/concepts/card/${item.id}`}>
+                        Review
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="mt-3 flex justify-end">
-                  <Button size="sm" variant="outline" className="text-xs h-7">
-                    Review Now
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              <AlertTriangle className="mx-auto h-8 w-8 mb-2 text-amber-500 opacity-70" />
-              <p>No revision items due</p>
-              <Button variant="outline" size="sm" className="mt-3">
-                <Check className="mr-1 h-3 w-3" />
-                All caught up!
+              ))}
+            </div>
+            <div className="text-center pt-2">
+              <Button variant="ghost" size="sm" className="text-primary">
+                View All Due Items
               </Button>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-muted-foreground">
+              No revision items due! You're all caught up.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 };
-
-export default RevisionLoopSection;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -23,6 +22,9 @@ import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlas
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
+import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
+import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -38,6 +40,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
+      <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptStudyPage />} />
       
       {/* Flashcard routes - simplified to direct interactive access */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
@@ -51,6 +54,10 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Syllabus and Previous Years Analysis routes */}
+      <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
+      <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
       
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />

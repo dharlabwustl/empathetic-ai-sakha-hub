@@ -1,307 +1,262 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, ArrowRight, BookOpen, Clock } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { SharedPageLayout } from '../SharedPageLayout';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { BookOpen, Filter, Search, Clock, ChevronRight, ArrowRight, Brain, Calculator } from "lucide-react";
+import FormulaTab from './FormulaTab';
 
-// Mock data for concept cards
-const mockConcepts = [
+// Sample data - in a real app, this would come from an API
+const conceptData = [
   {
     id: '1',
     subject: 'Physics',
-    topic: 'Mechanics',
-    title: 'Newton\'s Laws of Motion',
-    estimatedTime: '45 min',
-    difficulty: 'Medium',
-    tags: ['#Mechanics', '#Force', '#Motion'],
-    status: 'Pending'
+    topics: [
+      { id: 'p1', title: 'Kinematics', difficulty: 'medium', progress: 65 },
+      { id: 'p2', title: 'Newton\'s Laws of Motion', difficulty: 'hard', progress: 40 },
+      { id: 'p3', title: 'Work, Energy and Power', difficulty: 'medium', progress: 25 }
+    ]
   },
   {
     id: '2',
-    subject: 'Mathematics',
-    topic: 'Calculus',
-    title: 'Integration by Parts',
-    estimatedTime: '30 min',
-    difficulty: 'Hard',
-    tags: ['#Calculus', '#Integration'],
-    status: 'Completed'
+    subject: 'Chemistry',
+    topics: [
+      { id: 'c1', title: 'Chemical Bonding', difficulty: 'hard', progress: 30 },
+      { id: 'c2', title: 'Periodic Table', difficulty: 'easy', progress: 80 },
+      { id: 'c3', title: 'Organic Chemistry: Basics', difficulty: 'medium', progress: 55 }
+    ]
   },
   {
     id: '3',
-    subject: 'Chemistry',
-    topic: 'Organic Chemistry',
-    title: 'Functional Groups',
-    estimatedTime: '20 min',
-    difficulty: 'Easy',
-    tags: ['#OrganicChemistry', '#FunctionalGroups'],
-    status: 'Pending'
-  },
-  {
-    id: '4',
     subject: 'Biology',
-    topic: 'Cell Biology',
-    title: 'Cell Structure and Function',
-    estimatedTime: '40 min',
-    difficulty: 'Medium',
-    tags: ['#CellBiology', '#CellStructure'],
-    status: 'Completed'
+    topics: [
+      { id: 'm1', title: 'Osmosis in Plant Cells', difficulty: 'hard', progress: 20 },
+      { id: 'm2', title: 'Coordinate Geometry', difficulty: 'medium', progress: 75 },
+      { id: 'm3', title: 'Probability', difficulty: 'easy', progress: 90 }
+    ]
   }
 ];
 
-// Difficulty badge colors
-const difficultyColors = {
-  Easy: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  Hard: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-};
+const recentConcepts = [
+  { id: 'r1', title: 'Electromagnetic Induction', subject: 'Physics', lastStudied: '2 days ago' },
+  { id: 'r2', title: 'Chemical Equilibrium', subject: 'Chemistry', lastStudied: '3 days ago' },
+  { id: 'r3', title: 'Differential Equations', subject: 'Mathematics', lastStudied: 'yesterday' }
+];
 
-// Status badge colors
-const statusColors = {
-  Pending: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  Completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+const recommendedConcepts = [
+  { id: 'rec1', title: 'Gravitation', subject: 'Physics', importance: 'High', difficultyLevel: 'Hard' },
+  { id: 'rec2', title: 'Acids and Bases', subject: 'Chemistry', importance: 'Medium', difficultyLevel: 'Medium' },
+  { id: 'rec3', title: 'Trigonometric Functions', subject: 'Mathematics', importance: 'High', difficultyLevel: 'Medium' }
+];
+
+// Difficulty color mapping
+const difficultyColors = {
+  easy: 'bg-green-100 text-green-800 border-green-300',
+  medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  hard: 'bg-red-100 text-red-800 border-red-300',
 };
 
 const ConceptCardsView = () => {
-  const [timeFilter, setTimeFilter] = useState('today');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newConcept, setNewConcept] = useState({
-    subject: '',
-    topic: '',
-    title: '',
-    difficulty: 'Medium',
-    tags: ''
-  });
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewConcept(prev => ({ ...prev, [name]: value }));
+  const handleConceptCardClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/card/${conceptId}`);
   };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setNewConcept(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Mock save functionality
-    console.log('New concept created:', newConcept);
-    setIsDialogOpen(false);
-    // Reset form
-    setNewConcept({
-      subject: '',
-      topic: '',
-      title: '',
-      difficulty: 'Medium',
-      tags: ''
-    });
-  };
-
-  // Filter concepts based on selected filters
-  const filteredConcepts = mockConcepts.filter(concept => {
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'pending' && concept.status === 'Pending') return true;
-    if (statusFilter === 'completed' && concept.status === 'Completed') return true;
-    return false;
-  });
 
   return (
-    <SharedPageLayout
-      title="Concept Cards"
-      subtitle="Master key concepts through interactive learning"
-    >
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <Tabs defaultValue="today" className="w-full" onValueChange={setTimeFilter}>
-            <TabsList>
-              <TabsTrigger value="today">Today's</TabsTrigger>
-              <TabsTrigger value="weekly">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="ml-2 whitespace-nowrap">
-                <Plus className="mr-1 h-4 w-4" /> Create Concept Card
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Create New Concept Card</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Select 
-                    value={newConcept.subject} 
-                    onValueChange={(value) => handleSelectChange('subject', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="physics">Physics</SelectItem>
-                      <SelectItem value="chemistry">Chemistry</SelectItem>
-                      <SelectItem value="biology">Biology</SelectItem>
-                      <SelectItem value="mathematics">Mathematics</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Topic</Label>
-                  <Input 
-                    id="topic"
-                    name="topic"
-                    value={newConcept.topic}
-                    onChange={handleInputChange}
-                    placeholder="E.g., Mechanics, Calculus"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="title">Concept Title</Label>
-                  <Input 
-                    id="title"
-                    name="title"
-                    value={newConcept.title}
-                    onChange={handleInputChange}
-                    placeholder="E.g., Newton's Laws of Motion"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="difficulty">Difficulty Level</Label>
-                  <Select 
-                    value={newConcept.difficulty} 
-                    onValueChange={(value) => handleSelectChange('difficulty', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Easy">Easy</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="Hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (comma-separated)</Label>
-                  <Input 
-                    id="tags"
-                    name="tags"
-                    value={newConcept.tags}
-                    onChange={handleInputChange}
-                    placeholder="E.g., #Mechanics, #Force, #Motion"
-                  />
-                </div>
-                
-                <div className="flex justify-between pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">Create Concept Card</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Concept Cards</h1>
+          <p className="text-gray-500 mt-1">Master key concepts and fundamentals</p>
         </div>
         
-        <div className="flex space-x-2 pb-2">
-          <Button 
-            variant={statusFilter === 'all' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('all')}
-          >
-            All
+        <div className="mt-4 md:mt-0 flex gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input 
+              placeholder="Search concepts..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-full md:w-[250px]"
+            />
+          </div>
+          <Button variant="outline" size="icon">
+            <Filter className="h-4 w-4" />
           </Button>
-          <Button 
-            variant={statusFilter === 'pending' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('pending')}
-          >
-            Pending
-          </Button>
-          <Button 
-            variant={statusFilter === 'completed' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('completed')}
-          >
-            Completed
-          </Button>
-          <Button 
-            variant={statusFilter === 'relevant' ? "default" : "outline"} 
-            size="sm" 
-            onClick={() => setStatusFilter('relevant')}
-          >
-            Exam-Relevant
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredConcepts.map((concept) => (
-            <Card key={concept.id} className="dashboard-card overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {concept.subject} • {concept.topic}
-                    </span>
-                    <CardTitle className="text-lg mt-1">{concept.title}</CardTitle>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  <Clock className="mr-1 h-4 w-4" />
-                  <span>{concept.estimatedTime}</span>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge className={difficultyColors[concept.difficulty as keyof typeof difficultyColors]}>
-                    {concept.difficulty}
-                  </Badge>
-                  <Badge className={statusColors[concept.status as keyof typeof statusColors]}>
-                    {concept.status}
-                  </Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {concept.tags.map((tag, index) => (
-                    <span key={index} className="text-xs text-blue-600 dark:text-blue-400">
-                      {tag}{index < concept.tags.length - 1 ? ' ' : ''}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <Button asChild variant="ghost" className="w-full justify-between">
-                  <Link to={`/dashboard/student/concepts/card/${concept.id}`}>
-                    Start Learning
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
         </div>
       </div>
-    </SharedPageLayout>
+      
+      <Tabs defaultValue="all" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="all">All Concepts</TabsTrigger>
+          <TabsTrigger value="recent">Recently Studied</TabsTrigger>
+          <TabsTrigger value="recommended">Recommended</TabsTrigger>
+          <TabsTrigger value="formulas">Formulas</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all">
+          <div className="space-y-8">
+            {conceptData.map((subject) => (
+              <div key={subject.id} className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">{subject.subject}</h2>
+                  <Button variant="ghost" className="text-sm flex items-center gap-1 text-blue-600">
+                    View All <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {subject.topics.map((topic) => (
+                    <Card 
+                      key={topic.id} 
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handleConceptCardClick(topic.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="font-medium">{topic.title}</h3>
+                          <span className={`text-xs px-2 py-1 rounded-md ${difficultyColors[topic.difficulty as keyof typeof difficultyColors]}`}>
+                            {topic.difficulty}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div 
+                              className="bg-blue-600 h-2.5 rounded-full" 
+                              style={{ width: `${topic.progress}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500 ml-2">{topic.progress}%</span>
+                        </div>
+                        
+                        <Button 
+                          variant="outline" 
+                          className="w-full mt-4 text-blue-600 border-blue-200 hover:border-blue-300 hover:bg-blue-50 group"
+                        >
+                          <BookOpen className="mr-2 h-4 w-4" />
+                          Study Now
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="recent">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentConcepts.map((concept) => (
+              <Card 
+                key={concept.id} 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleConceptCardClick(concept.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{concept.title}</h3>
+                      <p className="text-sm text-gray-500">{concept.subject}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center mt-3 text-sm text-gray-500">
+                    <Clock className="mr-1 h-4 w-4" />
+                    <span>Last studied {concept.lastStudied}</span>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4 text-blue-600 border-blue-200 hover:border-blue-300 hover:bg-blue-50 group"
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Continue Studying
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="recommended">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recommendedConcepts.map((concept) => (
+              <Card 
+                key={concept.id} 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleConceptCardClick(concept.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{concept.title}</h3>
+                      <p className="text-sm text-gray-500">{concept.subject}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-md">
+                        {concept.importance}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center mt-3 justify-between">
+                    <span className="text-sm text-gray-500">
+                      Difficulty: {concept.difficultyLevel}
+                    </span>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4 text-blue-600 border-blue-200 hover:border-blue-300 hover:bg-blue-50 group"
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Start Learning
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="formulas">
+          <div className="space-y-4">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6">
+              <div className="flex gap-4 items-center">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <Calculator className="h-6 w-6 text-blue-700" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Formula Learning Lab</h2>
+                  <p className="text-muted-foreground">Interactive practice with key formulas for NEET, JEE and other exams</p>
+                </div>
+                <div className="ml-auto flex gap-2">
+                  <Button variant="outline" className="hidden sm:flex">
+                    <Brain className="mr-2 h-4 w-4" />
+                    My Progress
+                  </Button>
+                  <Button>
+                    <Calculator className="mr-2 h-4 w-4" />
+                    All Formulas
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <FormulaTab />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

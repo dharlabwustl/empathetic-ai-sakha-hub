@@ -98,7 +98,7 @@ const StudentDashboard = () => {
     }
     
     if (!currentMood) {
-      const defaultMood = MoodType.MOTIVATED;
+      const defaultMood = MoodType.Motivated;
       setCurrentMood(defaultMood);
       storeMoodInLocalStorage(defaultMood);
     }
@@ -165,6 +165,21 @@ const StudentDashboard = () => {
     photoURL: profileImage || userProfile.photoURL
   };
 
+  // Get exam goal from user profile if available
+  const examGoal = userProfile?.goals?.[0]?.title || "your exam";
+  
+  // Extract today's tasks from suggested actions or nudges
+  const todaysTasks = [];
+  if (suggestedNextAction) {
+    todaysTasks.push(suggestedNextAction);
+  }
+  
+  if (nudges && nudges.length > 0) {
+    nudges.slice(0, 2).forEach(nudge => {
+      if (nudge.title) todaysTasks.push(nudge.title);
+    });
+  }
+
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
@@ -213,11 +228,14 @@ const StudentDashboard = () => {
         loginCount={userProfile.loginCount}
       />
 
-      {/* Voice Greeting - will play for first time users */}
+      {/* Enhanced Voice Greeting with exam goals and tasks */}
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
         language="en"
+        examGoal={examGoal}
+        todaysTasks={todaysTasks}
+        currentMood={currentMood?.toString()}
       />
     </>
   );
