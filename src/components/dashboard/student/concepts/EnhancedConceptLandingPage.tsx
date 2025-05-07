@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Bookmark, PenLine, Share2, Volume2, VolumeX, Book, ArrowRight, Clock } from "lucide-react";
 import { cn } from '@/lib/utils';
+import FormulaTabContent from './FormulaTabContent';
 
 // Props interface for the component
 interface EnhancedConceptLandingPageProps {
@@ -212,20 +212,9 @@ const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({
                   <p>{concept.visualExplanation.description}</p>
                 </TabsContent>
                 
-                <TabsContent value="formula" className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Key Formulas</h2>
-                  <div className="space-y-4">
-                    {concept.formulas.map((formula, idx) => (
-                      <Card key={idx} className="overflow-hidden">
-                        <CardContent className="p-4">
-                          <div className="text-center bg-gray-50 dark:bg-gray-800 p-4 mb-3 font-mono text-lg">
-                            {formula.equation}
-                          </div>
-                          <p>{formula.description}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                {/* Enhanced Formula Tab with FormulaTabContent component */}
+                <TabsContent value="formula">
+                  <FormulaTabContent conceptId={conceptId} />
                 </TabsContent>
                 
                 <TabsContent value="linked" className="p-6">
