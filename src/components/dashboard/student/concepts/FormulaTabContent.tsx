@@ -1,773 +1,588 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Info, Lightbulb, Check, BookOpen, Brain, Clock, Download, AlertTriangle, ChevronRight } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useToast } from "@/hooks/use-toast";
-import { Download, ArrowRight, HelpCircle, Check, AlertTriangle, RefreshCw, Clock, Star, Brain, Lightbulb } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface FormulaVariable {
-  symbol: string;
-  name: string;
-  unit?: string;
-  description: string;
-}
-
-interface Formula {
-  id: string;
-  title: string;
-  subject: string;
-  chapter: string;
-  level: string;
-  examRelevance: string[];
-  latex: string;
-  rendered: string;
-  description: string;
-  realLifeApplication: string;
-  variables: FormulaVariable[];
-  derivation?: string;
-  visualRepresentation?: string;
-}
-
-interface Problem {
-  id: string;
-  question: string;
-  variables: Record<string, number>;
-  solution: {
-    steps: {
-      instruction: string;
-      expression: string;
-      result: number;
-    }[];
-    finalAnswer: string;
-    units: string;
-  };
-  difficulty: 'easy' | 'medium' | 'hard';
-  hints: string[];
-}
+import { motion } from "framer-motion";
 
 interface FormulaTabContentProps {
   conceptId?: string;
 }
 
 const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
-  const { toast } = useToast();
-  const [activeFormula, setActiveFormula] = useState<Formula | null>(null);
-  const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
-  const [userInputs, setUserInputs] = useState<Record<number, string>>({});
-  const [stepValidation, setStepValidation] = useState<Record<number, boolean>>({});
-  const [hintLevel, setHintLevel] = useState(0);
-  const [showDerivation, setShowDerivation] = useState(false);
-  const [mastery, setMastery] = useState({
-    stage: 'learning', // learning, practicing, mastered
-    accuracy: 0,
-    attempts: 0,
-    timeSpent: 0,
-    correctStreak: 0
-  });
-  const [timer, setTimer] = useState<number>(0);
-  const [timerActive, setTimerActive] = useState(false);
+  const [step, setStep] = useState<number>(1);
+  const [userInput, setUserInput] = useState<Record<string, string>>({});
+  const [showHint, setShowHint] = useState<boolean>(false);
+  const [hintLevel, setHintLevel] = useState<number>(1);
+  const [validationResult, setValidationResult] = useState<{valid: boolean, message: string} | null>(null);
+  const [accuracy, setAccuracy] = useState<number>(0);
+  const [attempts, setAttempts] = useState<number>(0);
+  const [timeSpent, setTimeSpent] = useState<number>(0);
+  const [timeTracking, setTimeTracking] = useState<boolean>(false);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [masteryStage, setMasteryStage] = useState<'learning' | 'practicing' | 'mastered'>('learning');
+  const [showNotes, setShowNotes] = useState<boolean>(false);
 
-  // Mock formula data - in a real app, this would be fetched from API based on conceptId
-  useEffect(() => {
-    // Simulate API fetch delay
-    setTimeout(() => {
-      setActiveFormula({
-        id: "ohms-law",
-        title: "Ohm's Law",
-        subject: "Physics",
-        chapter: "Current Electricity",
-        level: "Class 10-12",
-        examRelevance: ["NEET", "JEE Main", "JEE Advanced"],
-        latex: "V = I \\times R",
-        rendered: "V = I × R",
-        description: "Relates voltage, current, and resistance in an electrical circuit",
-        realLifeApplication: "Used to calculate current in household electrical circuits and electronic devices",
-        variables: [
-          { symbol: "V", name: "Voltage", unit: "Volts (V)", description: "The electric potential difference between two points" },
-          { symbol: "I", name: "Current", unit: "Amperes (A)", description: "The flow rate of electric charge" },
-          { symbol: "R", name: "Resistance", unit: "Ohms (Ω)", description: "Opposition to the flow of electric current" }
-        ],
-        derivation: "Ohm's Law was formulated based on experimental observations by Georg Ohm in 1827. He found that the current through a conductor is directly proportional to the voltage across it, given the temperature remains constant. This gives us I = V/R, which is typically rearranged as V = IR.",
-        visualRepresentation: "circuit-diagram.png" // Would be an actual image in real implementation
-      });
-      
-      generateNewProblem();
-    }, 500);
-  }, [conceptId]);
-
-  // Start timer when problem loads
-  useEffect(() => {
-    if (currentProblem && timerActive) {
-      const interval = setInterval(() => {
-        setTimer(prev => prev + 1);
-      }, 1000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [currentProblem, timerActive]);
-
-  // Generate a new practice problem
-  const generateNewProblem = () => {
-    // Reset states for new problem
-    setUserInputs({});
-    setStepValidation({});
-    setHintLevel(0);
-    setTimer(0);
-    setTimerActive(true);
-    
-    // In a real app, this would call an API to generate a problem
-    // Here we create a simple mock problem
-    const randomResistance = Math.floor(Math.random() * 100) + 10; // 10-110 ohms
-    const randomCurrent = (Math.floor(Math.random() * 50) + 5) / 10; // 0.5-5.5 amps
-    
-    setCurrentProblem({
-      id: `problem-${Date.now()}`,
-      question: `A circuit has a resistance of ${randomResistance} Ω and a current of ${randomCurrent} A flowing through it. Calculate the voltage across the circuit.`,
-      variables: {
-        R: randomResistance,
-        I: randomCurrent,
-        V: randomResistance * randomCurrent
-      },
-      solution: {
-        steps: [
-          {
-            instruction: "Identify the values from the problem",
-            expression: "R = ? Ω, I = ? A",
-            result: 0 // Not applicable for this step
-          },
-          {
-            instruction: "Substitute the values into Ohm's Law: V = I × R",
-            expression: "V = ? × ?",
-            result: 0 // User will calculate
-          },
-          {
-            instruction: "Calculate the voltage",
-            expression: "V = ?",
-            result: randomResistance * randomCurrent
-          }
-        ],
-        finalAnswer: `${(randomResistance * randomCurrent).toFixed(2)}`,
-        units: "Volts (V)"
-      },
-      difficulty: 'medium',
-      hints: [
-        "Remember that Ohm's Law states V = I × R",
-        "Substitute the resistance and current values into the formula",
-        "Multiply the resistance (in Ω) by the current (in A) to get the voltage (in V)"
-      ]
-    });
-    
-    // Update mastery attempts
-    setMastery(prev => ({
-      ...prev,
-      attempts: prev.attempts + 1
-    }));
+  // Example formula data
+  const formula = {
+    title: "Newton's Second Law of Motion",
+    subject: "Physics",
+    description: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.",
+    realLifeApplication: "Used to calculate how much force is needed to accelerate a car or stop a moving object",
+    tags: ["Mechanics", "Force", "Class 11", "NEET"],
+    latexFormula: "F = m \\times a",
+    variables: [
+      { symbol: "F", name: "Force", unit: "Newtons (N)", description: "Net force applied to the object" },
+      { symbol: "m", name: "Mass", unit: "Kilograms (kg)", description: "Mass of the object" },
+      { symbol: "a", name: "Acceleration", unit: "Meters per second squared (m/s²)", description: "Rate of change of velocity" }
+    ],
+    visuals: {
+      type: "physics",
+      description: "Force diagram showing mass and acceleration vectors"
+    },
+    derivation: "Starting with Newton's observation that objects accelerate when forces are applied, he determined that the acceleration is proportional to the force and inversely proportional to the mass. This led to the mathematical expression F = m × a.",
+    commonMistakes: [
+      "Forgetting that both force and acceleration are vector quantities",
+      "Not accounting for all forces in a system when calculating the net force",
+      "Mixing up mass and weight in calculations"
+    ],
+    linkedConcepts: [
+      { id: "c1", name: "Newton's First Law" },
+      { id: "c2", name: "Newton's Third Law" },
+      { id: "c3", name: "Conservation of Momentum" }
+    ]
   };
 
-  // Handle user input change
-  const handleInputChange = (stepIndex: number, value: string) => {
-    setUserInputs(prev => ({
-      ...prev,
-      [stepIndex]: value
-    }));
+  // Problem-solving steps for demonstration
+  const problemSteps = [
+    {
+      instruction: "What is the net force required to accelerate a 2 kg object at 5 m/s²?",
+      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Enter acceleration"}],
+      solution: {mass: "2", acceleration: "5"},
+      expectedOutput: "10",
+      hint1: "Use the formula F = m × a and substitute the values",
+      hint2: "You need to multiply the mass (2 kg) by the acceleration (5 m/s²)",
+      hint3: "Calculate: F = 2 kg × 5 m/s² = 10 N"
+    },
+    {
+      instruction: "Now calculate: If a force of 30 N acts on a 6 kg object, what will be its acceleration?",
+      inputs: [{name: "force", label: "Force (N)", placeholder: "Enter force"}, {name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}],
+      solution: {force: "30", mass: "6"},
+      expectedOutput: "5",
+      hint1: "Rearrange F = m × a to solve for acceleration",
+      hint2: "The formula becomes a = F ÷ m",
+      hint3: "Calculate: a = 30 N ÷ 6 kg = 5 m/s²"
+    },
+    {
+      instruction: "Final problem: A 1500 kg car accelerates from 0 to 20 m/s in 10 seconds. What is the net force acting on the car?",
+      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Calculate and enter acceleration"}],
+      solution: {mass: "1500", acceleration: "2"},
+      expectedOutput: "3000",
+      hint1: "First calculate acceleration: a = change in velocity ÷ time = 20 m/s ÷ 10 s = 2 m/s²",
+      hint2: "Use F = m × a with the mass and calculated acceleration",
+      hint3: "Calculate: F = 1500 kg × 2 m/s² = 3000 N"
+    }
+  ];
+
+  // Current problem being solved
+  const currentProblem = problemSteps[step - 1];
+
+  // Start time tracking
+  const startTracking = () => {
+    if (timeTracking) return;
+    
+    setTimeTracking(true);
+    const intervalId = setInterval(() => {
+      setTimeSpent(prev => prev + 1);
+    }, 1000);
+    
+    setTimer(intervalId);
   };
 
-  // Validate a specific step
-  const validateStep = (stepIndex: number) => {
-    if (!currentProblem) return;
-    
-    const step = currentProblem.solution.steps[stepIndex];
-    
-    // For the first step (identification), we're just checking if they filled it
-    if (stepIndex === 0) {
-      const userAnswer = userInputs[stepIndex] || "";
-      const hasResistance = userAnswer.includes(currentProblem.variables.R.toString()) && userAnswer.toLowerCase().includes("r");
-      const hasCurrent = userAnswer.includes(currentProblem.variables.I.toString()) && userAnswer.toLowerCase().includes("i");
-      
-      const isCorrect = hasResistance && hasCurrent;
-      setStepValidation(prev => ({ ...prev, [stepIndex]: isCorrect }));
-      
-      if (isCorrect) {
-        toast({
-          title: "Step correct",
-          description: "You've correctly identified the values!",
-        });
-      } else {
-        toast({
-          title: "Step incorrect",
-          description: "Make sure to identify both resistance and current values correctly.",
-          variant: "destructive"
-        });
-      }
-      return;
+  // Stop time tracking
+  const stopTracking = () => {
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
     }
-    
-    // For the second step (formula setup)
-    if (stepIndex === 1) {
-      const userAnswer = userInputs[stepIndex] || "";
-      const correctSubstitution = `V = ${currentProblem.variables.I} × ${currentProblem.variables.R}`;
-      const alternateSubstitution = `V = ${currentProblem.variables.I}*${currentProblem.variables.R}`;
-      
-      // Check for variations of the formula with different spacing/symbols
-      const userFormatted = userAnswer.replace(/\s+/g, "").toLowerCase();
-      const correct1 = correctSubstitution.replace(/\s+/g, "").toLowerCase();
-      const correct2 = alternateSubstitution.replace(/\s+/g, "").toLowerCase();
-      const correct3 = `v=${currentProblem.variables.I}*${currentProblem.variables.R}`;
-      const correct4 = `v=${currentProblem.variables.I}×${currentProblem.variables.R}`;
-      
-      const isCorrect = [correct1, correct2, correct3, correct4].some(c => userFormatted.includes(c));
-      setStepValidation(prev => ({ ...prev, [stepIndex]: isCorrect }));
-      
-      if (isCorrect) {
-        toast({
-          title: "Step correct",
-          description: "Good job setting up the formula with correct values!",
-        });
-      } else {
-        toast({
-          title: "Step incorrect",
-          description: `Make sure you're substituting I = ${currentProblem.variables.I} A and R = ${currentProblem.variables.R} Ω into V = I × R`,
-          variant: "destructive"
-        });
-      }
-      return;
-    }
-    
-    // For the final calculation step
-    if (stepIndex === 2) {
-      const userAnswer = parseFloat(userInputs[stepIndex] || "0");
-      const correctAnswer = step.result;
-      
-      // Allow for slight rounding differences
-      const isCorrect = Math.abs(userAnswer - correctAnswer) < 0.01;
-      setStepValidation(prev => ({ ...prev, [stepIndex]: isCorrect }));
-      
-      if (isCorrect) {
-        setTimerActive(false);
-        const newStreak = mastery.correctStreak + 1;
-        
-        toast({
-          title: "Correct!",
-          description: `The voltage is ${currentProblem.solution.finalAnswer} ${currentProblem.solution.units}`,
-        });
-        
-        // Update mastery statistics
-        setMastery(prev => ({
-          ...prev,
-          accuracy: (prev.accuracy * (prev.attempts - 1) + 100) / prev.attempts,
-          timeSpent: prev.timeSpent + timer,
-          correctStreak: newStreak
-        }));
-        
-        // Check if mastery level should change
-        if (newStreak >= 3 && mastery.stage === 'learning') {
-          setMastery(prev => ({ ...prev, stage: 'practicing' }));
-          toast({
-            title: "Level up!",
-            description: "You've advanced to Practice stage!",
-          });
-        } else if (newStreak >= 5 && mastery.stage === 'practicing') {
-          setMastery(prev => ({ ...prev, stage: 'mastered' }));
-          toast({
-            title: "Formula mastered!",
-            description: "You've mastered this formula. Try the challenge problems!",
-          });
-        }
-      } else {
-        toast({
-          title: "Step incorrect",
-          description: "Check your calculation. Remember V = I × R",
-          variant: "destructive"
-        });
-        
-        // Reset streak on wrong answer
-        setMastery(prev => ({
-          ...prev,
-          correctStreak: 0,
-          accuracy: (prev.accuracy * (prev.attempts - 1)) / prev.attempts,
-        }));
-      }
-    }
+    setTimeTracking(false);
   };
 
-  // Show hint based on current hint level
-  const showHint = () => {
-    if (!currentProblem) return;
+  // Handle input change
+  const handleInputChange = (field: string, value: string) => {
+    setUserInput(prev => ({...prev, [field]: value}));
+  };
+
+  // Check user's answer
+  const checkAnswer = () => {
+    startTracking();
+    setAttempts(prev => prev + 1);
     
-    // Don't go beyond available hints
-    if (hintLevel < currentProblem.hints.length) {
-      toast({
-        title: `Hint ${hintLevel + 1}`,
-        description: currentProblem.hints[hintLevel],
-      });
-      setHintLevel(prev => prev + 1);
-    } else {
-      toast({
-        title: "No more hints available",
-        description: "Try solving the problem with the hints you've received.",
-      });
-    }
-  };
-
-  // Download formula notes
-  const downloadNotes = () => {
-    toast({
-      title: "Notes downloaded",
-      description: "Formula summary and examples have been downloaded.",
-    });
-    // In a real implementation, this would generate and download a PDF/document
-  };
-
-  // Generate mastery stage display
-  const getMasteryStage = () => {
-    switch (mastery.stage) {
-      case 'learning':
-        return { icon: <RefreshCw className="h-5 w-5 text-blue-500" />, label: "Learning", color: "bg-blue-500" };
-      case 'practicing':
-        return { icon: <Brain className="h-5 w-5 text-purple-500" />, label: "Practicing", color: "bg-purple-500" };
-      case 'mastered':
-        return { icon: <Check className="h-5 w-5 text-emerald-500" />, label: "Mastered", color: "bg-emerald-500" };
-      default:
-        return { icon: <RefreshCw className="h-5 w-5 text-blue-500" />, label: "Learning", color: "bg-blue-500" };
-    }
-  };
-
-  if (!activeFormula) {
-    return (
-      <div className="flex items-center justify-center p-10">
-        <div className="animate-spin h-8 w-8 border-t-2 border-blue-500 rounded-full"></div>
-      </div>
+    // Check if all inputs match the solution
+    const currentSolution = currentProblem.solution;
+    const allMatch = Object.keys(currentSolution).every(
+      key => userInput[key] === currentSolution[key as keyof typeof currentSolution]
     );
-  }
+    
+    // Calculate expected output
+    let isOutputCorrect = false;
+    if (step === 1) {
+      const mass = parseFloat(userInput.mass || "0");
+      const acceleration = parseFloat(userInput.acceleration || "0");
+      const calculatedForce = mass * acceleration;
+      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
+    } else if (step === 2) {
+      const force = parseFloat(userInput.force || "0");
+      const mass = parseFloat(userInput.mass || "0");
+      const calculatedAcceleration = force / mass;
+      isOutputCorrect = Math.round(calculatedAcceleration * 100) / 100 === parseFloat(currentProblem.expectedOutput);
+    } else if (step === 3) {
+      const mass = parseFloat(userInput.mass || "0");
+      const acceleration = parseFloat(userInput.acceleration || "0");
+      const calculatedForce = mass * acceleration;
+      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
+    }
+    
+    // Update validation result
+    if (isOutputCorrect) {
+      setValidationResult({
+        valid: true,
+        message: "Correct! Well done."
+      });
+      setAccuracy(prev => prev + (1 / problemSteps.length) * 100);
+      
+      // Progress to the next step after a short delay
+      setTimeout(() => {
+        if (step < problemSteps.length) {
+          setStep(prev => prev + 1);
+          setUserInput({});
+          setValidationResult(null);
+          setShowHint(false);
+          setHintLevel(1);
+        } else {
+          // Completed all problems
+          stopTracking();
+          setMasteryStage('mastered');
+        }
+      }, 1500);
+    } else {
+      setValidationResult({
+        valid: false,
+        message: "Not quite right. Try again or use a hint."
+      });
+    }
+  };
 
-  // Format time display
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  // Show next hint level
+  const showNextHint = () => {
+    setShowHint(true);
+    setHintLevel(prev => Math.min(prev + 1, 3));
+  };
+
+  // Get current hint based on level
+  const getCurrentHint = () => {
+    if (!showHint) return null;
+    
+    switch (hintLevel) {
+      case 1:
+        return currentProblem.hint1;
+      case 2:
+        return currentProblem.hint2;
+      case 3:
+        return currentProblem.hint3;
+      default:
+        return currentProblem.hint1;
+    }
+  };
+
+  // Generate a new problem
+  const generateNewProblem = () => {
+    // In a real implementation, this would fetch from an AI endpoint
+    alert("In a production environment, this would generate a new problem using the STEM AI engine");
+  };
+
+  // Download notes
+  const downloadNotes = () => {
+    alert("In a production version, this would download a PDF with the formula summary and notes");
   };
 
   return (
     <div className="p-6">
-      {/* 1. Formula Introduction Block */}
-      <div className="flex flex-col md:flex-row justify-between mb-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold">{activeFormula.title}</h2>
-            <Badge className="bg-blue-100 text-blue-800">{activeFormula.subject}</Badge>
-            <Badge variant="outline">{activeFormula.chapter}</Badge>
-            <Badge variant="outline">{activeFormula.level}</Badge>
-          </div>
-          <p className="text-gray-700 dark:text-gray-300">{activeFormula.description}</p>
-          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-3 text-amber-800 dark:text-amber-300 flex items-start gap-2 max-w-lg">
-            <Lightbulb className="h-5 w-5 shrink-0 mt-0.5" />
-            <span>{activeFormula.realLifeApplication}</span>
-          </div>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {activeFormula.examRelevance.map((exam, index) => (
-              <Badge key={index} variant="outline" className="bg-purple-50 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300">
-                {exam}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main content - Formula and practice section */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 2. Formula Display & Breakdown */}
+          {/* 1. Formula Introduction Block */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Formula</h3>
-              <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-lg mb-4 text-center">
-                <div className="text-3xl font-serif">
-                  <TooltipProvider>
-                    {activeFormula.rendered.split('').map((char, i) => {
-                      // Find the variable this character belongs to
-                      const variable = activeFormula.variables.find(v => v.symbol === char);
-                      
-                      if (variable) {
-                        return (
-                          <Tooltip key={i}>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help text-blue-600 dark:text-blue-400">{char}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="font-medium">{variable.name}</p>
-                              {variable.unit && <p className="text-sm">Unit: {variable.unit}</p>}
-                              <p className="text-xs mt-1">{variable.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        );
-                      }
-                      
-                      return <span key={i}>{char}</span>;
-                    })}
-                  </TooltipProvider>
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {activeFormula.variables.map(variable => (
-                    <div key={variable.symbol} className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
-                      <div className="font-medium text-lg text-blue-600 dark:text-blue-400">{variable.symbol}</div>
-                      <div className="text-sm">{variable.name}</div>
-                      {variable.unit && <div className="text-xs text-gray-500">{variable.unit}</div>}
-                    </div>
-                  ))}
-                </div>
-
-                <Collapsible 
-                  className="mt-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md"
-                  open={showDerivation}
-                  onOpenChange={setShowDerivation}
-                >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between p-3 text-sm font-medium">
-                    <span>Formula Derivation</span>
-                    <span>{showDerivation ? '−' : '+'}</span>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="p-3 border-t border-gray-200 dark:border-gray-700 text-sm">
-                    {activeFormula.derivation || "Derivation not available for this formula."}
-                  </CollapsibleContent>
-                </Collapsible>
-                
-                {activeFormula.visualRepresentation && (
-                  <div className="mt-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
-                    <h4 className="text-sm font-medium mb-2">Visual Representation</h4>
-                    <div className="bg-gray-100 dark:bg-gray-700 h-48 rounded-md flex items-center justify-center text-gray-400">
-                      {/* This would be an actual image in production */}
-                      <p>Circuit diagram visualization</p>
-                    </div>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold">{formula.title}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      {formula.subject}
+                    </Badge>
+                    {formula.tags.map((tag, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
-                )}
+                </div>
+              </div>
+              
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                {formula.description}
+              </p>
+              
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-md p-4 flex items-start">
+                <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 mr-2 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-amber-800 dark:text-amber-300">Real-life Application</p>
+                  <p className="text-amber-700 dark:text-amber-400 text-sm">{formula.realLifeApplication}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 2. Formula Display & Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">Formula Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="flex flex-col items-center mb-6">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 w-full text-center mb-4">
+                  <p className="text-3xl font-serif">{formula.latexFormula}</p>
+                </div>
+                
+                <div className="w-full">
+                  <h3 className="text-md font-medium mb-2">Variable Definitions</h3>
+                  <div className="space-y-2">
+                    {formula.variables.map((variable, idx) => (
+                      <TooltipProvider key={idx}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                              <span className="font-medium text-lg">{variable.symbol}</span>
+                              <span className="text-sm">{variable.name} ({variable.unit})</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            <p>{variable.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="derivation">
+                  <AccordionTrigger>Formula Derivation</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+                      {formula.derivation}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              
+              <div className="mt-6">
+                <h3 className="text-md font-medium mb-3">Visual Representation</h3>
+                <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                  {formula.visuals.type === "physics" && (
+                    <div className="text-center p-4">
+                      <p className="text-gray-500 dark:text-gray-400">{formula.visuals.description}</p>
+                      <p className="text-sm text-gray-400 mt-2">(Interactive visualization would appear here)</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* 3. Interactive Problem Practice Section */}
-          <Card className="border-t-4 border-blue-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Interactive Problem Practice</h3>
-                {timerActive && currentProblem && (
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <Clock className="h-4 w-4 text-amber-500" />
-                    <span>{formatTime(timer)}</span>
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg font-medium">Interactive Practice</CardTitle>
+                <Button variant="outline" size="sm" onClick={generateNewProblem}>
+                  Generate New Problem
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-3">
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-md font-medium">Problem {step} of {problemSteps.length}</h3>
+                  {timeTracking && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="h-4 w-4" />
+                      <span>{Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}</span>
+                    </div>
+                  )}
+                </div>
+                <Progress value={(step / problemSteps.length) * 100} className="h-2" />
+              </div>
+              
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md mb-6">
+                <p className="font-medium">{currentProblem.instruction}</p>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                {currentProblem.inputs.map((input, idx) => (
+                  <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label htmlFor={input.name} className="text-sm font-medium">
+                      {input.label}:
+                    </label>
+                    <input
+                      id={input.name}
+                      type="text"
+                      placeholder={input.placeholder}
+                      value={userInput[input.name] || ''}
+                      onChange={(e) => handleInputChange(input.name, e.target.value)}
+                      className="md:col-span-2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+                
+                {step === 1 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm font-medium">
+                      Force (N):
+                    </label>
+                    <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
+                      {userInput.mass && userInput.acceleration ? 
+                        `${parseFloat(userInput.mass) * parseFloat(userInput.acceleration)} N` : 
+                        "Calculated result will appear here"}
+                    </div>
+                  </div>
+                )}
+                
+                {step === 2 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm font-medium">
+                      Acceleration (m/s²):
+                    </label>
+                    <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
+                      {userInput.force && userInput.mass ? 
+                        `${parseFloat(userInput.force) / parseFloat(userInput.mass)} m/s²` : 
+                        "Calculated result will appear here"}
+                    </div>
+                  </div>
+                )}
+                
+                {step === 3 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label className="text-sm font-medium">
+                      Force (N):
+                    </label>
+                    <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
+                      {userInput.mass && userInput.acceleration ? 
+                        `${parseFloat(userInput.mass) * parseFloat(userInput.acceleration)} N` : 
+                        "Calculated result will appear here"}
+                    </div>
                   </div>
                 )}
               </div>
               
-              {currentProblem ? (
-                <div className="space-y-6">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
-                    <h4 className="font-medium mb-2">Problem:</h4>
-                    <p className="text-blue-800 dark:text-blue-300">{currentProblem.question}</p>
+              {validationResult && (
+                <div className={`p-3 mb-4 rounded-md ${validationResult.valid ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                  {validationResult.valid ? (
+                    <div className="flex items-center gap-2">
+                      <Check className="h-5 w-5" />
+                      <span>{validationResult.message}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      <span>{validationResult.message}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={showNextHint}
+                  disabled={hintLevel >= 3 && showHint}
+                >
+                  {!showHint ? "Show Hint" : `Next Hint (${hintLevel}/3)`}
+                </Button>
+                <Button onClick={checkAnswer}>Check Answer</Button>
+              </div>
+              
+              {showHint && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-md"
+                >
+                  <div className="flex gap-2">
+                    <Lightbulb className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                    <p>{getCurrentHint()}</p>
                   </div>
-                  
-                  <div className="space-y-4">
-                    {currentProblem.solution.steps.map((step, index) => (
-                      <div key={index} className={cn(
-                        "border rounded-md p-4",
-                        stepValidation[index] === true ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800" : 
-                        stepValidation[index] === false ? "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800" : 
-                        "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                      )}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-gray-100 dark:bg-gray-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium">
-                            {index + 1}
-                          </span>
-                          <h5 className="font-medium">{step.instruction}</h5>
-                          {stepValidation[index] === true && <Check className="h-5 w-5 text-green-500" />}
-                          {stepValidation[index] === false && <AlertTriangle className="h-5 w-5 text-red-500" />}
-                        </div>
-                        
-                        <div className="mt-2">
-                          {index === 0 ? (
-                            <Input
-                              placeholder="Type your answer (e.g. R = 50 Ω, I = 2 A)"
-                              value={userInputs[index] || ""}
-                              onChange={(e) => handleInputChange(index, e.target.value)}
-                              className={
-                                stepValidation[index] === true ? "border-green-500 focus-visible:ring-green-500" : 
-                                stepValidation[index] === false ? "border-red-500 focus-visible:ring-red-500" : ""
-                              }
-                              disabled={stepValidation[index] === true}
-                            />
-                          ) : index === 1 ? (
-                            <Input
-                              placeholder="Type the formula with values (e.g. V = 2 × 50)"
-                              value={userInputs[index] || ""}
-                              onChange={(e) => handleInputChange(index, e.target.value)}
-                              className={
-                                stepValidation[index] === true ? "border-green-500 focus-visible:ring-green-500" : 
-                                stepValidation[index] === false ? "border-red-500 focus-visible:ring-red-500" : ""
-                              }
-                              disabled={stepValidation[index] === true || stepValidation[index-1] !== true}
-                            />
-                          ) : (
-                            <Input
-                              placeholder="Enter your final answer (numeric value only)"
-                              value={userInputs[index] || ""}
-                              onChange={(e) => handleInputChange(index, e.target.value)}
-                              type="number"
-                              step="0.01"
-                              className={
-                                stepValidation[index] === true ? "border-green-500 focus-visible:ring-green-500" : 
-                                stepValidation[index] === false ? "border-red-500 focus-visible:ring-red-500" : ""
-                              }
-                              disabled={stepValidation[index] === true || stepValidation[index-1] !== true}
-                            />
-                          )}
-                        </div>
-                        
-                        <div className="flex justify-between mt-3">
-                          {stepValidation[index] !== true && (
-                            <Button 
-                              onClick={() => validateStep(index)} 
-                              size="sm"
-                              disabled={!userInputs[index] || (index > 0 && stepValidation[index-1] !== true)}
-                            >
-                              Check Step
-                            </Button>
-                          )}
-                          
-                          {stepValidation[index] === false && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={showHint}
-                            >
-                              <HelpCircle className="h-4 w-4 mr-1" /> 
-                              Hint
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Right Sidebar - Mastery and Helpful Content */}
+        <div className="space-y-6">
+          {/* 4. Mastery Progress Indicator */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">Mastery Progress</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  {masteryStage === 'learning' && (
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      Learning
+                    </Badge>
+                  )}
+                  {masteryStage === 'practicing' && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                      Practicing
+                    </Badge>
+                  )}
+                  {masteryStage === 'mastered' && (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Mastered
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Accuracy</span>
+                    <span>{Math.round(accuracy)}%</span>
                   </div>
-                  
-                  <div className="flex justify-between items-center pt-2">
-                    <Button 
-                      onClick={generateNewProblem}
-                      className="flex items-center gap-1"
-                    >
-                      <RefreshCw className="h-4 w-4" /> New Problem
-                    </Button>
-                    
-                    {stepValidation[2] === true && (
-                      <Badge 
-                        className="px-3 py-1 text-sm bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                      >
-                        Completed in {formatTime(timer)}
-                      </Badge>
-                    )}
+                  <Progress value={accuracy} className="h-2" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-center">
+                    <p className="text-sm text-gray-500">Attempts</p>
+                    <p className="text-lg font-medium">{attempts}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-center">
+                    <p className="text-sm text-gray-500">Time Spent</p>
+                    <p className="text-lg font-medium">{Math.floor(timeSpent / 60)}m {timeSpent % 60}s</p>
                   </div>
                 </div>
-              ) : (
-                <Button onClick={generateNewProblem}>Generate Problem</Button>
-              )}
+                
+                {masteryStage === 'mastered' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-100 dark:border-green-800">
+                    <div className="flex items-center gap-2">
+                      <Check className="h-5 w-5 text-green-600" />
+                      <p className="font-medium text-green-700">Formula Mastered!</p>
+                    </div>
+                    <p className="text-sm text-green-600 mt-1">
+                      You've demonstrated excellent understanding of this formula.
+                    </p>
+                    <div className="mt-3">
+                      <Button size="sm" variant="default" className="w-full">
+                        Unlock Quiz Mode
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
           
           {/* 5. Hints & Strategy Section */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Tips & Common Mistakes</h3>
-              
-              <div className="space-y-3">
-                <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-                  <h4 className="text-sm font-medium text-red-800 dark:text-red-300">Common Mistake</h4>
-                  <p className="text-sm mt-1">Forgetting to convert units before applying the formula</p>
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">Common Mistakes & Strategies</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-red-600">Common Mistakes</h3>
+                  <ul className="space-y-2 text-sm">
+                    {formula.commonMistakes.map((mistake, idx) => (
+                      <li key={idx} className="bg-gray-50 dark:bg-gray-800 p-2 rounded-md flex gap-2 items-start">
+                        <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>{mistake}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
-                  <h4 className="text-sm font-medium text-amber-800 dark:text-amber-300">Strategy Tip</h4>
-                  <p className="text-sm mt-1">Always identify all variables and check their units before applying the formula</p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300">Remember This</h4>
-                  <p className="text-sm mt-1">Ohm's Law only applies to ohmic conductors with constant resistance</p>
+                <div className="space-y-2 pt-2">
+                  <h3 className="text-sm font-medium text-green-600">Smart Strategy</h3>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-100 dark:border-green-800">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm">Always identify the given variables first and check their units before applying the formula.</p>
+                        <p className="text-xs text-green-600 mt-1">This tip is personalized based on your learning style.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           {/* 7. Linked Content Recommendations */}
-          <Card className="border-t-4 border-indigo-500">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Related Formulas & Concepts</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
-                  <h4 className="font-medium">Power in Electric Circuits</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">P = V × I</p>
-                  <Button variant="link" size="sm" className="p-0 h-auto mt-2">
-                    <span>Explore</span> <ArrowRight className="h-3 w-3 ml-1" />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">Related Concepts</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-3">
+                {formula.linkedConcepts.map((concept, idx) => (
+                  <Button key={idx} variant="outline" className="w-full justify-between" asChild>
+                    <a href={`/dashboard/student/concepts/${concept.id}`}>
+                      <span className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4" />
+                        {concept.name}
+                      </span>
+                      <ChevronRight className="h-4 w-4" />
+                    </a>
                   </Button>
-                </div>
-                
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
-                  <h4 className="font-medium">Resistors in Series</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Rtotal = R1 + R2 + ...</p>
-                  <Button variant="link" size="sm" className="p-0 h-auto mt-2">
-                    <span>Explore</span> <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-                
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
-                  <h4 className="font-medium">Resistors in Parallel</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">1/Rtotal = 1/R1 + 1/R2 + ...</p>
-                  <Button variant="link" size="sm" className="p-0 h-auto mt-2">
-                    <span>Explore</span> <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-                
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
-                  <h4 className="font-medium">Kirchhoff's Laws</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Current and voltage laws for circuit analysis</p>
-                  <Button variant="link" size="sm" className="p-0 h-auto mt-2">
-                    <span>Explore</span> <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="space-y-6">
-          {/* 4. Mastery Progress Indicator */}
-          <Card className="border-t-4 border-green-500">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Formula Mastery Progress</h3>
-              
-              <div className="mb-6">
-                <div className="flex items-center mb-2">
-                  <div className="w-6/12 h-2 rounded-l-full bg-blue-500"></div>
-                  <div className="w-4/12 h-2 bg-purple-500"></div>
-                  <div className="w-2/12 h-2 rounded-r-full bg-gray-200 dark:bg-gray-700"></div>
-                </div>
-                
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <div className="flex flex-col items-center">
-                    <RefreshCw className="h-4 w-4 text-blue-500 mb-1" />
-                    <span>Learning</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Brain className="h-4 w-4 text-purple-500 mb-1" />
-                    <span>Practicing</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Check className="h-4 w-4 text-gray-400 mb-1" />
-                    <span>Mastered</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span>Current Stage</span>
-                    <div className="flex items-center gap-1">
-                      {getMasteryStage().icon}
-                      <span className="font-medium">{getMasteryStage().label}</span>
-                    </div>
-                  </div>
-                  <Progress value={
-                    mastery.stage === 'learning' 
-                      ? 33 
-                      : mastery.stage === 'practicing' 
-                        ? 66 
-                        : 100
-                  } className="h-2" />
-                </div>
-                
-                <div>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span>Accuracy</span>
-                    <span className="font-medium">{Math.round(mastery.accuracy)}%</span>
-                  </div>
-                  <Progress value={mastery.accuracy} className="h-2" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-3">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Problems Attempted</div>
-                    <div className="text-2xl font-semibold">{mastery.attempts}</div>
-                  </div>
-                  
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-3">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Current Streak</div>
-                    <div className="text-2xl font-semibold">{mastery.correctStreak}</div>
-                  </div>
-                  
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-3 col-span-2">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Total Time Spent</div>
-                    <div className="text-2xl font-semibold">{formatTime(mastery.timeSpent)}</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* 6. Concept Mastery Trigger & Unlockables */}
-              {mastery.stage === 'mastered' && (
-                <div className="mt-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-md">
-                  <h4 className="font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Mastery Unlocked!
-                  </h4>
-                  <div className="mt-3 space-y-2">
-                    <Button className="w-full" variant="outline">
-                      Take Challenge Quiz
-                    </Button>
-                    <Button className="w-full" variant="outline">
-                      Share Achievement
-                    </Button>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
           
           {/* 8. Quick Notes Download Button */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Study Resources</h3>
-              
-              <div className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center gap-2 justify-start"
-                  onClick={downloadNotes}
-                >
-                  <Download className="h-4 w-4" />
-                  <span>Formula Summary Sheet</span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center gap-2 justify-start"
-                  onClick={downloadNotes}
-                >
-                  <Download className="h-4 w-4" />
-                  <span>Practice Problems PDF</span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center gap-2 justify-start"
-                  onClick={downloadNotes}
-                >
-                  <Download className="h-4 w-4" />
-                  <span>Common Mistakes Reference</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <Button variant="outline" className="w-full flex gap-2" onClick={downloadNotes}>
+            <Download className="h-4 w-4" />
+            Download Formula Sheet
+          </Button>
+          
+          <Button variant="outline" className="w-full flex gap-2" onClick={() => setShowNotes(!showNotes)}>
+            {showNotes ? "Hide Your Notes" : "Show Your Notes"}
+          </Button>
+          
+          {showNotes && (
+            <Card>
+              <CardContent className="p-4">
+                <textarea 
+                  className="w-full h-32 p-3 border rounded-md bg-background resize-none" 
+                  placeholder="Take notes on this formula here..."
+                />
+                <div className="mt-3 flex justify-end">
+                  <Button size="sm">Save Notes</Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

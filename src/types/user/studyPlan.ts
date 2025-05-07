@@ -5,7 +5,7 @@ export interface StudyPlanTopic {
   name: string;
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending';
+  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
 }
 
@@ -17,7 +17,7 @@ export interface StudyPlanSubject {
   priority: 'high' | 'medium' | 'low';
   proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
-  status?: 'completed' | 'in-progress' | 'pending';
+  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: StudyPlanTopic[];
 }
@@ -54,6 +54,7 @@ export interface NewStudyPlan {
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
+  status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
 // Export the types to be used in other files
