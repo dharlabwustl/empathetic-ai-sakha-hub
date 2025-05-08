@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Info, Lightbulb, Check, BookOpen, Brain, Clock, Download, AlertTriangle, ChevronRight } from "lucide-react";
+import { Info, Lightbulb, Check, BookOpen, Brain, Clock, Download, AlertTriangle, ChevronRight, Calculator } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface FormulaTabContentProps {
   conceptId?: string;
@@ -213,6 +214,16 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
 
   return (
     <div className="p-6">
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+        <h2 className="text-2xl font-bold">Formula Practice</h2>
+        <Button variant="default" className="mt-4 md:mt-0" asChild>
+          <Link to="/dashboard/student/formula-practice-lab">
+            <Calculator className="mr-2 h-4 w-4" />
+            Open Formula Practice Lab
+          </Link>
+        </Button>
+      </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content - Formula and practice section */}
         <div className="lg:col-span-2 space-y-6">

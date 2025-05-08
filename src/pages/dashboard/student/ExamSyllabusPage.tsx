@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, BookOpen, Monitor, Calculator, FileText, ChevronDown, ChevronUp, CheckCircle, Clock } from "lucide-react";
+import { Search, BookOpen, Monitor, Calculator, FileText, ChevronDown, ChevronUp, Check, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 // Mock data for the syllabus
@@ -250,7 +250,7 @@ const ExamSyllabusPage: React.FC = () => {
                                 </Badge>
                                 <div className="flex items-center text-xs text-gray-500">
                                   {topic.completed ? 
-                                    <CheckCircle className="h-4 w-4 text-green-500 mr-1" /> : 
+                                    <Check className="h-4 w-4 text-green-500 mr-1" /> : 
                                     <Clock className="h-4 w-4 text-amber-500 mr-1" />
                                   }
                                   {topic.completed ? 'Completed' : 'Pending'}
