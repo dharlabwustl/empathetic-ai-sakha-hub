@@ -56,6 +56,8 @@ import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardS
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
+import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
+import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 
 function App() {
   return (
@@ -149,13 +151,16 @@ function App() {
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
+              {/* Formula Practice Lab route */}
+              <Route path="/dashboard/student/formula-practice-lab" element={<FormulaPracticeLab />} />
+              
               {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* Syllabus and Previous Year Analysis routes */}
-              <Route path="/dashboard/student/syllabus" element={<SyllabusPage />} />
+              <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
               <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}

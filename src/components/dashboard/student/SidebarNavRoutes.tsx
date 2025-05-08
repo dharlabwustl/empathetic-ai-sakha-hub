@@ -21,7 +21,8 @@ import {
   Heart, 
   Target, 
   User,
-  Calculator
+  Calculator,
+  Flame
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -64,7 +65,7 @@ export const SidebarNavRoutes = ({
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
       { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
       { name: "Formula Practice Lab", path: "/dashboard/student/formula-practice-lab", icon: <Calculator size={20} /> },
-      { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <BookOpen size={20} /> },
+      { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <Flame size={20} /> },
       { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
       { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
       { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },

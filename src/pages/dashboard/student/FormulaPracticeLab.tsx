@@ -3,756 +3,661 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { BookOpen, Brain, Calculator, Clock, Download, Info, Lightbulb, Check, ArrowRight, AlertTriangle, ChevronRight, Video, BookMarked } from "lucide-react";
-import { motion } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
+import { 
+  BookOpen, 
+  Play, 
+  Info, 
+  Calculator, 
+  ChevronRight, 
+  Lightbulb,
+  Video, 
+  NotebookPen, 
+  LineChart, 
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  MicIcon,
+  RefreshCw,
+  ArrowRight
+} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const FormulaPracticeLab: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('info');
-  const [difficultyLevel, setDifficultyLevel] = useState<'easy' | 'medium' | 'hard'>('easy');
-  const [step, setStep] = useState<number>(1);
-  const [userInput, setUserInput] = useState<Record<string, string>>({});
-  const [showHint, setShowHint] = useState<boolean>(false);
-  const [hintLevel, setHintLevel] = useState<number>(1);
-  const [validationResult, setValidationResult] = useState<{valid: boolean, message: string} | null>(null);
-  const [accuracy, setAccuracy] = useState<number>(0);
-  const [attempts, setAttempts] = useState<number>(0);
-  const [timeSpent, setTimeSpent] = useState<number>(0);
-  const [timeTracking, setTimeTracking] = useState<boolean>(false);
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
-  const [masteryStage, setMasteryStage] = useState<'learning' | 'practicing' | 'mastered'>('learning');
-  const [showNotes, setShowNotes] = useState<boolean>(false);
-  const [notes, setNotes] = useState<string>("");
+  const [activeTab, setActiveTab] = useState('info');
+  const [currentStep, setCurrentStep] = useState(1);
+  const [difficulty, setDifficulty] = useState('easy');
+  const [showHint, setShowHint] = useState(false);
+  const [hintLevel, setHintLevel] = useState(1);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [showSolution, setShowSolution] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-  // Example formula data
+  // Mock formula data
   const formula = {
-    title: "Newton's Second Law of Motion",
+    name: "Ohm's Law",
     subject: "Physics",
-    description: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.",
-    realLifeApplication: "Used to calculate how much force is needed to accelerate a car or stop a moving object",
-    tags: ["Mechanics", "Force", "Class 11", "NEET"],
-    latexFormula: "F = m \\times a",
+    description: "Relates voltage, current, and resistance in an electric circuit.",
+    realLifeApplication: "Used in designing electric circuits in household appliances and electronics.",
+    tags: ["Electricity", "12th Grade", "NEET", "JEE"],
+    latex: "V = I × R",
     variables: [
-      { symbol: "F", name: "Force", unit: "Newtons (N)", description: "Net force applied to the object" },
-      { symbol: "m", name: "Mass", unit: "Kilograms (kg)", description: "Mass of the object" },
-      { symbol: "a", name: "Acceleration", unit: "Meters per second squared (m/s²)", description: "Rate of change of velocity" }
+      { symbol: "V", name: "Voltage", unit: "Volts" },
+      { symbol: "I", name: "Current", unit: "Amperes" },
+      { symbol: "R", name: "Resistance", unit: "Ohms" }
     ],
-    derivation: "Starting with Newton's observation that objects accelerate when forces are applied, he determined that the acceleration is proportional to the force and inversely proportional to the mass. This led to the mathematical expression F = m × a.",
-    commonMistakes: [
-      "Forgetting that both force and acceleration are vector quantities",
-      "Not accounting for all forces in a system when calculating the net force",
-      "Mixing up mass and weight in calculations"
+    derivation: "Ohm's law states that the current through a conductor between two points is directly proportional to the voltage across the two points. Introducing the constant of proportionality, the resistance, we get I = V/R, which is equivalent to V = I×R.",
+    video: "https://example.com/ohms-law-video",
+    progress: 65,
+    mastered: false,
+    attempts: 7,
+    averageTime: "1m 45s",
+    accuracy: 82
+  };
+
+  // Mock problem data
+  const problem = {
+    question: "A circuit has a resistance of 5 ohms. If a current of 2 amperes flows through it, what is the voltage across the circuit?",
+    steps: [
+      { id: 1, instruction: "Identify the formula to use", expected: "V = I × R" },
+      { id: 2, instruction: "Substitute the known values", expected: "V = 2A × 5Ω" },
+      { id: 3, instruction: "Calculate the result", expected: "V = 10V" }
     ],
-    linkedConcepts: [
-      { id: "c1", name: "Newton's First Law" },
-      { id: "c2", name: "Newton's Third Law" },
-      { id: "c3", name: "Conservation of Momentum" }
+    solution: "10 Volts",
+    hints: [
+      "Remember Ohm's Law relates voltage, current, and resistance",
+      "Use V = I × R and plug in the values",
+      "Multiply 2 amperes by 5 ohms to get your answer"
     ]
   };
 
-  // Problem-solving steps for demonstration
-  const problemSteps = [
-    {
-      instruction: "What is the net force required to accelerate a 2 kg object at 5 m/s²?",
-      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Enter acceleration"}],
-      solution: {mass: "2", acceleration: "5"},
-      expectedOutput: "10",
-      hint1: "Use the formula F = m × a and substitute the values",
-      hint2: "You need to multiply the mass (2 kg) by the acceleration (5 m/s²)",
-      hint3: "Calculate: F = 2 kg × 5 m/s² = 10 N"
-    },
-    {
-      instruction: "Now calculate: If a force of 30 N acts on a 6 kg object, what will be its acceleration?",
-      inputs: [{name: "force", label: "Force (N)", placeholder: "Enter force"}, {name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}],
-      solution: {force: "30", mass: "6"},
-      expectedOutput: "5",
-      hint1: "Rearrange F = m × a to solve for acceleration",
-      hint2: "The formula becomes a = F ÷ m",
-      hint3: "Calculate: a = 30 N ÷ 6 kg = 5 m/s²"
-    },
-    {
-      instruction: "Final problem: A 1500 kg car accelerates from 0 to 20 m/s in 10 seconds. What is the net force acting on the car?",
-      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Calculate and enter acceleration"}],
-      solution: {mass: "1500", acceleration: "2"},
-      expectedOutput: "3000",
-      hint1: "First calculate acceleration: a = change in velocity ÷ time = 20 m/s ÷ 10 s = 2 m/s²",
-      hint2: "Use F = m × a with the mass and calculated acceleration",
-      hint3: "Calculate: F = 1500 kg × 2 m/s² = 3000 N"
-    }
-  ];
-
-  // Current problem being solved
-  const currentProblem = problemSteps[step - 1];
-
-  // Start time tracking
-  const startTracking = () => {
-    if (timeTracking) return;
-    
-    setTimeTracking(true);
-    const intervalId = setInterval(() => {
-      setTimeSpent(prev => prev + 1);
-    }, 1000);
-    
-    setTimer(intervalId);
+  // Handle generation of a new problem
+  const handleGenerateProblem = () => {
+    setCurrentStep(1);
+    setUserAnswer('');
+    setIsAnswerCorrect(null);
+    setAttemptCount(0);
+    setShowSolution(false);
+    setShowHint(false);
+    setHintLevel(1);
+    setIsTimerRunning(true);
+    // In a real app, this would call an API to generate a new problem
   };
 
-  // Stop time tracking
-  const stopTracking = () => {
-    if (timer) {
-      clearInterval(timer);
-      setTimer(null);
-    }
-    setTimeTracking(false);
-  };
-
-  // Handle input change
-  const handleInputChange = (field: string, value: string) => {
-    setUserInput(prev => ({...prev, [field]: value}));
-  };
-
-  // Check user's answer
-  const checkAnswer = () => {
-    startTracking();
-    setAttempts(prev => prev + 1);
+  // Handle answer validation
+  const handleCheckAnswer = () => {
+    const correctAnswer = problem.steps[currentStep - 1].expected;
+    const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+    setIsAnswerCorrect(isCorrect);
+    setAttemptCount(prev => prev + 1);
     
-    // Check if all inputs match the solution
-    const currentSolution = currentProblem.solution;
-    const allMatch = Object.keys(currentSolution).every(
-      key => userInput[key] === currentSolution[key as keyof typeof currentSolution]
-    );
-    
-    // Calculate expected output
-    let isOutputCorrect = false;
-    if (step === 1) {
-      const mass = parseFloat(userInput.mass || "0");
-      const acceleration = parseFloat(userInput.acceleration || "0");
-      const calculatedForce = mass * acceleration;
-      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
-    } else if (step === 2) {
-      const force = parseFloat(userInput.force || "0");
-      const mass = parseFloat(userInput.mass || "0");
-      const calculatedAcceleration = force / mass;
-      isOutputCorrect = Math.round(calculatedAcceleration * 100) / 100 === parseFloat(currentProblem.expectedOutput);
-    } else if (step === 3) {
-      const mass = parseFloat(userInput.mass || "0");
-      const acceleration = parseFloat(userInput.acceleration || "0");
-      const calculatedForce = mass * acceleration;
-      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
-    }
-    
-    // Update validation result
-    if (isOutputCorrect) {
-      setValidationResult({
-        valid: true,
-        message: "Correct! Well done."
-      });
-      setAccuracy(prev => prev + (1 / problemSteps.length) * 100);
-      
-      // Progress to the next step after a short delay
+    if (isCorrect && currentStep < problem.steps.length) {
       setTimeout(() => {
-        if (step < problemSteps.length) {
-          setStep(prev => prev + 1);
-          setUserInput({});
-          setValidationResult(null);
-          setShowHint(false);
-          setHintLevel(1);
-        } else {
-          // Completed all problems
-          stopTracking();
-          setMasteryStage('mastered');
-        }
-      }, 1500);
-    } else {
-      setValidationResult({
-        valid: false,
-        message: "Not quite right. Try again or use a hint."
-      });
+        setCurrentStep(prev => prev + 1);
+        setUserAnswer('');
+        setIsAnswerCorrect(null);
+      }, 1000);
+    } else if (isCorrect && currentStep === problem.steps.length) {
+      setIsTimerRunning(false);
+      // Completed all steps successfully
     }
-  };
-
-  // Show next hint level
-  const showNextHint = () => {
-    setShowHint(true);
-    setHintLevel(prev => Math.min(prev + 1, 3));
-  };
-
-  // Get current hint based on level
-  const getCurrentHint = () => {
-    if (!showHint) return null;
     
-    switch (hintLevel) {
-      case 1:
-        return currentProblem.hint1;
-      case 2:
-        return currentProblem.hint2;
-      case 3:
-        return currentProblem.hint3;
-      default:
-        return currentProblem.hint1;
+    if (!isCorrect && attemptCount >= 2) {
+      setShowHint(true);
     }
   };
 
-  // Generate a new problem
-  const generateNewProblem = () => {
-    // In a real implementation, this would fetch from an AI endpoint
-    alert("In a production environment, this would generate a new problem using the STEM AI engine");
+  // Handle showing hint
+  const handleGetHint = () => {
+    setShowHint(true);
+    if (hintLevel < 3) {
+      setHintLevel(prev => prev + 1);
+    }
   };
 
-  // Download notes
-  const downloadNotes = () => {
-    alert("In a production version, this would download a PDF with the formula summary and notes");
+  // Show full solution after 3 attempts
+  const handleShowSolution = () => {
+    if (attemptCount >= 2) {
+      setShowSolution(true);
+    }
+  };
+
+  // Reset the current problem and step
+  const handleReset = () => {
+    setUserAnswer('');
+    setIsAnswerCorrect(null);
+    setAttemptCount(0);
+    setShowHint(false);
+    setHintLevel(1);
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Formula Practice Lab</h1>
-          <p className="text-gray-500 mt-1">Master formulas through interactive practice and visualization</p>
+          <h1 className="text-2xl md:text-3xl font-bold">{formula.name} - Formula Practice Lab</h1>
+          <p className="text-gray-500 mt-1">Master formulas interactively with step-by-step guidance</p>
+        </div>
+        
+        <Button onClick={() => window.history.back()} variant="ghost" className="mt-2 md:mt-0">
+          <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+          Back to Formula Tab
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-5 mb-6">
+              <TabsTrigger value="info" className="flex items-center gap-1">
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline">Formula Info</span>
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex items-center gap-1">
+                <Calculator className="h-4 w-4" />
+                <span className="hidden sm:inline">Practice Lab</span>
+              </TabsTrigger>
+              <TabsTrigger value="visual" className="flex items-center gap-1">
+                <Play className="h-4 w-4" />
+                <span className="hidden sm:inline">Visualizer</span>
+              </TabsTrigger>
+              <TabsTrigger value="progress" className="flex items-center gap-1">
+                <LineChart className="h-4 w-4" />
+                <span className="hidden sm:inline">Progress</span>
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="flex items-center gap-1">
+                <NotebookPen className="h-4 w-4" />
+                <span className="hidden sm:inline">Notes</span>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Formula Info Tab */}
+            <TabsContent value="info">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl">{formula.name}</CardTitle>
+                      <p className="text-muted-foreground">{formula.subject}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {formula.tags.map((tag, index) => (
+                        <Badge key={index} variant="outline">{tag}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold mb-2">Description</h3>
+                    <p>{formula.description}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Real-Life Application</h3>
+                    <p className="bg-blue-50 p-3 rounded-md text-blue-800 border border-blue-100">
+                      {formula.realLifeApplication}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Formula</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg border text-center text-xl font-medium">
+                      {formula.latex}
+                    </div>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {formula.variables.map((variable, index) => (
+                        <div key={index} className="text-sm bg-gray-100 p-2 rounded">
+                          {variable.symbol} = {variable.name} ({variable.unit})
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Derivation</h3>
+                    <details className="bg-gray-50 rounded-md">
+                      <summary className="cursor-pointer p-3 font-medium">Show Derivation</summary>
+                      <div className="p-3 pt-0 border-t">
+                        {formula.derivation}
+                      </div>
+                    </details>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Video Explanation</h3>
+                    <div className="bg-gray-100 aspect-video rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <Video className="mx-auto h-12 w-12 text-gray-400" />
+                        <p className="mt-2 text-gray-600">Video Explainer</p>
+                        <Button variant="outline" className="mt-2">
+                          <Play className="mr-2 h-4 w-4" />
+                          Watch Video
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Practice Lab Tab */}
+            <TabsContent value="practice">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between">
+                    <CardTitle className="text-xl">Interactive Practice Lab</CardTitle>
+                    <Select value={difficulty} onValueChange={setDifficulty}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 className="font-semibold text-blue-800">Problem</h3>
+                    <p className="mt-1">{problem.question}</p>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1 text-gray-500" />
+                      <span className="text-sm text-gray-600">Time: {timer}s</span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleGenerateProblem}
+                      className="text-sm"
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3" />
+                      Generate New Problem
+                    </Button>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold">Step {currentStep} of {problem.steps.length}</h3>
+                      <Badge variant={isAnswerCorrect ? "default" : "outline"}>
+                        {isAnswerCorrect ? "Correct" : "Pending"}
+                      </Badge>
+                    </div>
+                    <p className="mb-3 text-gray-600">{problem.steps[currentStep - 1].instruction}</p>
+                    
+                    <div className="flex gap-2 mb-4">
+                      <Input 
+                        value={userAnswer} 
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        placeholder="Enter your answer..."
+                        className={`${isAnswerCorrect === true ? 'border-green-500' : isAnswerCorrect === false ? 'border-red-500' : ''}`}
+                      />
+                      <Button onClick={handleCheckAnswer} disabled={!userAnswer}>Check</Button>
+                    </div>
+
+                    {isAnswerCorrect === false && (
+                      <div className="bg-red-50 p-3 rounded-md text-red-800 border border-red-100 mb-4">
+                        <div className="flex items-start">
+                          <AlertCircle className="h-5 w-5 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Incorrect answer. Try again!</p>
+                            {attemptCount >= 2 && (
+                              <p className="text-sm mt-1">Need help? Use the hint button below.</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isAnswerCorrect === true && (
+                      <div className="bg-green-50 p-3 rounded-md text-green-800 border border-green-100 mb-4">
+                        <div className="flex items-start">
+                          <CheckCircle className="h-5 w-5 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Correct! Well done.</p>
+                            {currentStep < problem.steps.length && (
+                              <p className="text-sm mt-1">Moving to the next step...</p>
+                            )}
+                            {currentStep === problem.steps.length && (
+                              <p className="text-sm mt-1">You've completed this problem!</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {showHint && (
+                      <div className="bg-amber-50 p-3 rounded-md text-amber-800 border border-amber-100 mb-4">
+                        <div className="flex items-start">
+                          <Lightbulb className="h-5 w-5 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Hint Level {hintLevel}:</p>
+                            <p className="text-sm mt-1">{problem.hints[hintLevel - 1]}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {showSolution && (
+                      <div className="bg-blue-50 p-3 rounded-md text-blue-800 border border-blue-100">
+                        <div className="flex items-start">
+                          <Info className="h-5 w-5 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium">Solution:</p>
+                            <p className="text-sm mt-1">{problem.steps[currentStep - 1].expected}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 mt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleGetHint} 
+                        disabled={hintLevel > 3} 
+                        className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                      >
+                        <Lightbulb className="mr-1 h-4 w-4" />
+                        {showHint ? `Next Hint (${hintLevel}/3)` : "Get Hint"}
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={handleShowSolution} 
+                        disabled={attemptCount < 2} 
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        <Info className="mr-1 h-4 w-4" />
+                        Show Solution
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={handleReset}
+                        className="ml-auto"
+                      >
+                        <RefreshCw className="mr-1 h-4 w-4" />
+                        Reset
+                      </Button>
+                      
+                      <Button variant="ghost" className="px-2">
+                        <MicIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Visualizer Tab */}
+            <TabsContent value="visual">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Formula Visualizer</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-100 aspect-video rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <Play className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-gray-600">Interactive Visualization</p>
+                      <Button variant="outline" className="mt-2">
+                        <Play className="mr-2 h-4 w-4" />
+                        Start Animation
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h3 className="font-semibold mb-2">How It Works</h3>
+                    <p className="text-gray-600">
+                      This visualization demonstrates how voltage (V), current (I), and resistance (R) 
+                      relate to each other in an electrical circuit according to Ohm's Law.
+                    </p>
+                    
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-1">Try it yourself:</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span>Voltage (V): 10V</span>
+                          </div>
+                          <Slider defaultValue={[10]} max={20} step={1} />
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span>Resistance (R): 5Ω</span>
+                          </div>
+                          <Slider defaultValue={[5]} max={10} step={0.5} />
+                        </div>
+                        
+                        <div className="bg-blue-50 p-3 rounded-md">
+                          <p className="text-center font-medium">Current (I) = 2A</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Progress Tab */}
+            <TabsContent value="progress">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Your Progress</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-semibold">Mastery Status</h3>
+                      <Badge 
+                        variant={formula.mastered ? "default" : "outline"}
+                        className={formula.mastered ? "bg-green-500" : ""}
+                      >
+                        {formula.mastered ? "Mastered" : "In Progress"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center">
+                      <Progress value={formula.progress} className="h-2 flex-1 mr-4" />
+                      <span className="font-medium">{formula.progress}%</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-3xl font-bold">{formula.attempts}</p>
+                          <p className="text-sm text-gray-500 mt-1">Total Attempts</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-3xl font-bold">{formula.accuracy}%</p>
+                          <p className="text-sm text-gray-500 mt-1">Accuracy</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-3xl font-bold">{formula.averageTime}</p>
+                          <p className="text-sm text-gray-500 mt-1">Avg. Solve Time</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="text-center">
+                          <p className="text-3xl font-bold text-amber-500">
+                            {formula.progress >= 80 ? "★★★" : formula.progress >= 50 ? "★★☆" : "★☆☆"}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">Proficiency</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Next Steps</h3>
+                    <div className="space-y-2">
+                      <Button variant="outline" className="w-full justify-start text-left" asChild>
+                        <a href="/dashboard/student/flashcards">
+                          <ChevronRight className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span>Practice with related flashcards</span>
+                        </a>
+                      </Button>
+                      
+                      <Button variant="outline" className="w-full justify-start text-left" asChild>
+                        <a href="/dashboard/student/concepts">
+                          <ChevronRight className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span>Study related concept cards</span>
+                        </a>
+                      </Button>
+                      
+                      <Button variant="outline" className="w-full justify-start text-left" asChild>
+                        <a href="/dashboard/student/practice-exam">
+                          <ChevronRight className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span>Take a practice test</span>
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Notes Tab */}
+            <TabsContent value="notes">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Your Notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-50 p-4 rounded-lg border h-64">
+                    <textarea 
+                      className="w-full h-full bg-transparent resize-none focus:outline-none" 
+                      placeholder="Add your notes here..."
+                    ></textarea>
+                  </div>
+                  
+                  <div className="mt-6 space-y-4">
+                    <h3 className="font-semibold">Quick Summary</h3>
+                    <div className="space-y-2">
+                      <div className="bg-blue-50 p-3 rounded-md">
+                        <p className="font-medium">Key Formula: V = I × R</p>
+                      </div>
+                      
+                      <div className="bg-green-50 p-3 rounded-md">
+                        <p className="font-medium">Example:</p>
+                        <p className="text-sm mt-1">For a circuit with a resistance of 10 Ω and a current of 2 A, the voltage is V = 2 A × 10 Ω = 20 V.</p>
+                      </div>
+                      
+                      <div className="bg-red-50 p-3 rounded-md">
+                        <p className="font-medium">Common Error:</p>
+                        <p className="text-sm mt-1">Forgetting to convert units before plugging values into the formula.</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <div className="lg:col-span-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Strategy Tips</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start">
+                <Lightbulb className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
+                <p className="text-sm">Always convert to the same units before using in formula</p>
+              </div>
+              <div className="flex items-start">
+                <Lightbulb className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
+                <p className="text-sm">Remember: Voltage (V) = Current (I) × Resistance (R)</p>
+              </div>
+              <div className="flex items-start">
+                <Lightbulb className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
+                <p className="text-sm">Current (I) = Voltage (V) ÷ Resistance (R)</p>
+              </div>
+              <div className="flex items-start">
+                <Lightbulb className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
+                <p className="text-sm">Resistance (R) = Voltage (V) ÷ Current (I)</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Related Formulas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start text-left">
+                <div>
+                  <p className="font-medium">Power in Electrical Circuits</p>
+                  <p className="text-xs text-gray-500 mt-1">P = V × I</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4" />
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start text-left">
+                <div>
+                  <p className="font-medium">Kirchhoff's Voltage Law</p>
+                  <p className="text-xs text-gray-500 mt-1">∑V = 0</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4" />
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start text-left">
+                <div>
+                  <p className="font-medium">Resistors in Series</p>
+                  <p className="text-xs text-gray-500 mt-1">Rtotal = R₁ + R₂ + ...</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Learning Resources</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start text-left">
+                <BookOpen className="h-4 w-4 mr-2" />
+                <span>Electricity Concepts</span>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start text-left">
+                <Video className="h-4 w-4 mr-2" />
+                <span>Circuit Tutorials</span>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start text-left">
+                <Calculator className="h-4 w-4 mr-2" />
+                <span>Practice Problems</span>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="info">Formula Info</TabsTrigger>
-          <TabsTrigger value="practice">Interactive Practice</TabsTrigger>
-          <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-        </TabsList>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content area - changes based on active tab */}
-          <div className="lg:col-span-2">
-            <TabsContent value="info" className="mt-0">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                    <div>
-                      <h2 className="text-2xl font-bold">{formula.title}</h2>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          {formula.subject}
-                        </Badge>
-                        {formula.tags.map((tag, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    {formula.description}
-                  </p>
-                  
-                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-md p-4 flex items-start">
-                    <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 mr-2 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-amber-800 dark:text-amber-300">Real-life Application</p>
-                      <p className="text-amber-700 dark:text-amber-400 text-sm">{formula.realLifeApplication}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-3">Formula Breakdown</h3>
-                    <div className="flex flex-col items-center mb-6">
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 w-full text-center mb-4">
-                        <p className="text-3xl font-serif">{formula.latexFormula}</p>
-                      </div>
-                      
-                      <div className="w-full">
-                        <h3 className="text-md font-medium mb-2">Variable Definitions</h3>
-                        <div className="space-y-2">
-                          {formula.variables.map((variable, idx) => (
-                            <TooltipProvider key={idx}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-                                    <span className="font-medium text-lg">{variable.symbol}</span>
-                                    <span className="text-sm">{variable.name} ({variable.unit})</span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
-                                  <p>{variable.description}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="derivation">
-                        <AccordionTrigger>Formula Derivation</AccordionTrigger>
-                        <AccordionContent>
-                          <p className="p-4 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
-                            {formula.derivation}
-                          </p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-3">Video Explanation</h3>
-                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                      <div className="text-center p-4">
-                        <Video className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                        <p className="text-gray-500">Short video explanation would appear here</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="practice" className="mt-0">
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg font-medium">Interactive Practice</CardTitle>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant={difficultyLevel === 'easy' ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => setDifficultyLevel('easy')}
-                      >
-                        Easy
-                      </Button>
-                      <Button 
-                        variant={difficultyLevel === 'medium' ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => setDifficultyLevel('medium')}
-                      >
-                        Medium
-                      </Button>
-                      <Button 
-                        variant={difficultyLevel === 'hard' ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => setDifficultyLevel('hard')}
-                      >
-                        Hard
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-md font-medium">Problem {step} of {problemSteps.length}</h3>
-                      {timeTracking && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Clock className="h-4 w-4" />
-                          <span>{Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}</span>
-                        </div>
-                      )}
-                    </div>
-                    <Progress value={(step / problemSteps.length) * 100} className="h-2" />
-                  </div>
-                  
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md mb-6">
-                    <p className="font-medium">{currentProblem.instruction}</p>
-                  </div>
-                  
-                  <div className="space-y-4 mb-6">
-                    {currentProblem.inputs.map((input, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <label htmlFor={input.name} className="text-sm font-medium">
-                          {input.label}:
-                        </label>
-                        <input
-                          id={input.name}
-                          type="text"
-                          placeholder={input.placeholder}
-                          value={userInput[input.name] || ''}
-                          onChange={(e) => handleInputChange(input.name, e.target.value)}
-                          className="md:col-span-2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    ))}
-                    
-                    {step === 1 && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <label className="text-sm font-medium">
-                          Force (N):
-                        </label>
-                        <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
-                          {userInput.mass && userInput.acceleration ? 
-                            `${parseFloat(userInput.mass) * parseFloat(userInput.acceleration)} N` : 
-                            "Calculated result will appear here"}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {step === 2 && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <label className="text-sm font-medium">
-                          Acceleration (m/s²):
-                        </label>
-                        <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
-                          {userInput.force && userInput.mass ? 
-                            `${parseFloat(userInput.force) / parseFloat(userInput.mass)} m/s²` : 
-                            "Calculated result will appear here"}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {step === 3 && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <label className="text-sm font-medium">
-                          Force (N):
-                        </label>
-                        <div className="md:col-span-2 p-2 border rounded-md bg-gray-50">
-                          {userInput.mass && userInput.acceleration ? 
-                            `${parseFloat(userInput.mass) * parseFloat(userInput.acceleration)} N` : 
-                            "Calculated result will appear here"}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {validationResult && (
-                    <div className={`p-3 mb-4 rounded-md ${validationResult.valid ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                      {validationResult.valid ? (
-                        <div className="flex items-center gap-2">
-                          <Check className="h-5 w-5" />
-                          <span>{validationResult.message}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-5 w-5" />
-                          <span>{validationResult.message}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" onClick={showNextHint} disabled={hintLevel >= 3 && showHint}>
-                      {!showHint ? "Show Hint" : `Next Hint (${hintLevel}/3)`}
-                    </Button>
-                    <Button onClick={checkAnswer}>Check Answer</Button>
-                  </div>
-                  
-                  {showHint && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-md"
-                    >
-                      <div className="flex gap-2">
-                        <Lightbulb className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                        <p>{getCurrentHint()}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="visualizer" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Formula Visualization</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="aspect-video bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                    <div className="text-center p-6">
-                      <p className="text-gray-500 mb-2">Interactive visualization of the formula would appear here.</p>
-                      <p className="text-sm text-gray-400">This would show a physics simulation of forces acting on objects</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between mt-6">
-                    <Button variant="outline" className="flex items-center gap-2" disabled>
-                      <Calculator className="h-4 w-4" /> 
-                      Interactive Simulator
-                    </Button>
-                    <Button variant="outline" className="flex items-center gap-2" disabled>
-                      <Video className="h-4 w-4" /> 
-                      Play Animation
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="progress" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Your Progress</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                      {masteryStage === 'learning' && (
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          Learning
-                        </Badge>
-                      )}
-                      {masteryStage === 'practicing' && (
-                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                          Practicing
-                        </Badge>
-                      )}
-                      {masteryStage === 'mastered' && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Mastered
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Accuracy</span>
-                        <span>{Math.round(accuracy)}%</span>
-                      </div>
-                      <Progress value={accuracy} className="h-2" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <Card className="bg-gray-50 dark:bg-gray-800 p-3 text-center">
-                        <p className="text-sm text-gray-500">Attempts</p>
-                        <p className="text-lg font-medium">{attempts}</p>
-                      </Card>
-                      <Card className="bg-gray-50 dark:bg-gray-800 p-3 text-center">
-                        <p className="text-sm text-gray-500">Time Spent</p>
-                        <p className="text-lg font-medium">{Math.floor(timeSpent / 60)}m {timeSpent % 60}s</p>
-                      </Card>
-                    </div>
-                    
-                    {masteryStage === 'mastered' && (
-                      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-md border border-green-100 dark:border-green-800">
-                        <div className="flex items-center gap-2">
-                          <Check className="h-5 w-5 text-green-600" />
-                          <p className="font-medium text-green-700">Formula Mastered!</p>
-                        </div>
-                        <p className="text-sm text-green-600 mt-1">
-                          You've demonstrated excellent understanding of this formula.
-                        </p>
-                        <div className="mt-3">
-                          <Button variant="default" className="w-full">
-                            Unlock Advanced Problems
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notes" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Your Notes</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <textarea 
-                    className="w-full h-64 p-3 border rounded-md bg-background resize-none" 
-                    placeholder="Take notes on this formula here..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                  />
-                  <div className="flex justify-between mt-4">
-                    <Button variant="outline" onClick={() => setNotes("")}>
-                      Clear Notes
-                    </Button>
-                    <Button onClick={() => alert("Notes saved")}>
-                      Save Notes
-                    </Button>
-                  </div>
-                  
-                  <div className="mt-6 pt-6 border-t">
-                    <h3 className="text-md font-medium mb-3">Quick Reference</h3>
-                    <div className="bg-gray-50 p-4 rounded-md space-y-3">
-                      <div>
-                        <p className="font-medium">Formula</p>
-                        <p className="text-lg">{formula.latexFormula}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Common Mistakes</p>
-                        <ul className="list-disc list-inside text-sm text-gray-600">
-                          {formula.commonMistakes.map((mistake, i) => (
-                            <li key={i}>{mistake}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                    <Button variant="outline" className="w-full mt-4" onClick={downloadNotes}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Formula Sheet
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </div>
-          
-          {/* Right Sidebar - changes based on active tab */}
-          <div className="space-y-6">
-            {activeTab === "info" && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-medium">Common Mistakes</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="space-y-2">
-                      {formula.commonMistakes.map((mistake, idx) => (
-                        <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-2 rounded-md flex gap-2 items-start">
-                          <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{mistake}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-medium">Related Concepts</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="space-y-3">
-                      {formula.linkedConcepts.map((concept, idx) => (
-                        <Button key={idx} variant="outline" className="w-full justify-between" asChild>
-                          <a href={`/dashboard/student/concepts/${concept.id}`}>
-                            <span className="flex items-center gap-2">
-                              <BookOpen className="h-4 w-4" />
-                              {concept.name}
-                            </span>
-                            <ChevronRight className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-            
-            {activeTab === "practice" && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-medium">Study Tips</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="space-y-4">
-                      <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-100 dark:border-green-800">
-                        <div className="flex items-start gap-2">
-                          <Lightbulb className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm">Always identify the given variables first and check their units before applying the formula.</p>
-                            <p className="text-xs text-green-600 mt-1">This tip is personalized based on your learning style.</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-100 dark:border-blue-800">
-                        <div className="flex items-start gap-2">
-                          <Brain className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm">Try to derive the formula from first principles to understand it better.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-medium">Tools</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" size="sm">
-                        <Calculator className="h-4 w-4 mr-1" /> Calculator
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <BookMarked className="h-4 w-4 mr-1" /> Formula Sheet
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-            
-            {activeTab === "visualizer" && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Visualization Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium mb-2">Speed</p>
-                      <Input type="range" min="0" max="100" className="w-full" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium mb-2">Variables</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button variant="outline" size="sm">Mass: 1kg</Button>
-                        <Button variant="outline" size="sm">Force: 10N</Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            {(activeTab === "progress" || activeTab === "notes") && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-medium">Next Steps</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="space-y-4">
-                    <Button variant="outline" className="w-full justify-between text-left" asChild>
-                      <a href="/dashboard/student/concepts">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4" />
-                          <span>Related Concepts</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4" />
-                      </a>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-between text-left" asChild>
-                      <a href="/dashboard/student/practice-exam">
-                        <div className="flex items-center gap-2">
-                          <Brain className="h-4 w-4" />
-                          <span>Practice Problems</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4" />
-                      </a>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-between text-left" asChild>
-                      <a href="/dashboard/student/flashcards">
-                        <div className="flex items-center gap-2">
-                          <BookMarked className="h-4 w-4" />
-                          <span>Flashcards</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
-      </Tabs>
     </div>
   );
 };
