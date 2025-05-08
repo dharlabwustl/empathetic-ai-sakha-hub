@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -24,6 +25,7 @@ import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import PreviousYearAnalysis from '@/pages/dashboard/student/PreviousYearAnalysis';
+import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -47,6 +49,9 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
+      
+      {/* Formula Practice Lab route */}
+      <Route path="/dashboard/student/formula-practice-lab" element={<FormulaPracticeLab />} />
       
       {/* Practice exam routes */}
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />

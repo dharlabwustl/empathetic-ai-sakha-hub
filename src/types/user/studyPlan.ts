@@ -57,5 +57,5 @@ export interface NewStudyPlan {
   status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
-// Export the types to be used in other files
+// Export types to be used in other files
 export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Bookmark, PenLine, Share2, Volume2, VolumeX, Book, ArrowRight, Clock } from "lucide-react";
+import { BookOpen, Bookmark, PenLine, Share2, Volume2, VolumeX, Book, ArrowRight, Clock, Calculator } from "lucide-react";
 import { cn } from '@/lib/utils';
 import FormulaTabContent from './FormulaTabContent';
+import { Link } from 'react-router-dom';
 
 // Props interface for the component
 interface EnhancedConceptLandingPageProps {
@@ -215,6 +217,19 @@ const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({
                 {/* Enhanced Formula Tab with FormulaTabContent component */}
                 <TabsContent value="formula">
                   <FormulaTabContent conceptId={conceptId} />
+                  <div className="px-6 pb-6 flex justify-center">
+                    <Button 
+                      variant="default" 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                      asChild
+                    >
+                      <Link to="/dashboard/student/formula-practice-lab">
+                        <Calculator className="h-4 w-4" />
+                        PREPZR Formula Lab
+                        <ArrowRight className="h-4 w-4 ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="linked" className="p-6">
