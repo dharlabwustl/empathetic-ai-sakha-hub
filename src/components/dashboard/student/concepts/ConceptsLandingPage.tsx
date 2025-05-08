@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -283,7 +282,7 @@ const ConceptsLandingPage = () => {
           </div>
         </TabsContent>
         
-        {/* Formula Tab with more prominent links to Formula Practice Lab */}
+        {/* Formula Tab */}
         <TabsContent value="formulas">
           <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
             <h2 className="text-xl font-semibold">Important Formulas</h2>
@@ -356,22 +355,23 @@ const ConceptsLandingPage = () => {
             ))}
           </div>
           
-          <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100 flex flex-col items-center">
-            <div className="mb-4">
-              <Calculator className="h-16 w-16 text-indigo-500" />
-            </div>
-            <h3 className="text-xl font-bold text-center text-indigo-800 mb-2">Formula Practice Lab</h3>
-            <p className="text-center text-indigo-600 max-w-2xl mb-4">
-              Master all formulas with our interactive practice lab! Work through step-by-step problems, 
-              visualize formulas in action, and track your progress. Perfect for studying Math, Physics, Chemistry and more.
-            </p>
-            <div className="flex gap-4">
+          <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+            <div className="flex flex-col md:flex-row items-center">
+              <div className="mb-4 md:mb-0 md:mr-6">
+                <Calculator className="h-12 w-12 text-indigo-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-indigo-800">Formula Practice Lab</h3>
+                <p className="mt-1 text-indigo-600">
+                  Master all formulas with our interactive practice lab! Work through step-by-step problems, 
+                  visualize formulas in action, and track your progress.
+                </p>
+              </div>
               <Button 
-                size="lg"
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700"
                 onClick={handleFormulaLabClick}
               >
-                Enter Formula Lab
+                Enter Lab
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
