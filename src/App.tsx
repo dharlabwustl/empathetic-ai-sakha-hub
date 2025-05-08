@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -58,6 +59,7 @@ import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
+import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 
 function App() {
   return (
@@ -133,6 +135,7 @@ function App() {
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+              <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -331,7 +330,10 @@ const ConceptsLandingPage = () => {
                     <Button 
                       variant="outline" 
                       className="text-blue-600 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                      onClick={() => navigate(`/dashboard/student/formula-practice-lab`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/dashboard/student/formula-practice-lab?formula=${formula.id}`);
+                      }}
                     >
                       <Calculator className="mr-1 h-4 w-4" />
                       Practice
@@ -339,6 +341,10 @@ const ConceptsLandingPage = () => {
                     <Button 
                       variant="outline"
                       className="text-purple-600 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/dashboard/student/formula-practice-lab?formula=${formula.id}&mode=learn`);
+                      }}
                     >
                       <BookOpen className="mr-1 h-4 w-4" />
                       Learn
