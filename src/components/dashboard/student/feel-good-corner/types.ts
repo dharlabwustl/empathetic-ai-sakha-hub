@@ -1,11 +1,12 @@
 
-export interface Video {
-  id: string;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  videoUrl: string;
-  duration: string;
-  category: string;
-  tags: string[];
+export interface ChatMessage {
+  text: string;
+  isUser: boolean;
+}
+
+export interface Joke {
+  id: number;
+  content: string;
+  likes: number;
+  author: string;
 }

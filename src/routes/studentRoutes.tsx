@@ -1,50 +1,85 @@
 
 import React from 'react';
-import { Route } from 'react-router-dom';
-
-// Core dashboard pages
-import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
-import SubscriptionPage from '@/pages/subscription/SubscriptionPage';
-import BatchManagementPage from '@/pages/admin/BatchManagementPage';
-import EnhancedProfilePage from '@/pages/dashboard/student/EnhancedProfilePage';
+import { Routes, Route } from 'react-router-dom';
+import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
+import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
+import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+import BacklogView from '@/components/dashboard/student/backlog/BacklogView';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
+import ProfilePage from '@/pages/student/ProfilePage';
+import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
+import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
+import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
+import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import TutorView from '@/pages/dashboard/student/TutorView';
-import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
-
-// Feature modules
-import { conceptRoutes } from '@/features/concepts/routes';
-import { flashcardRoutes } from '@/features/flashcards/routes';
-import { practiceExamRoutes } from '@/features/practice-exams/routes';
-import { formulaRoutes } from '@/features/formula/routes';
+import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
+import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
+import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
+import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
+import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
+import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
+import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
+import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
+import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
+import StudentProfile from '@/pages/dashboard/student/StudentProfile';
+import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
-import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
+import PreviousYearAnalysis from '@/pages/dashboard/student/PreviousYearAnalysis';
+import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 
-// Export studentRoutes as a JSX fragment containing all student routes
-export const studentRoutes = (
-  <>
-    {/* Core pages */}
-    <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
-    <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-    <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
-    <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
-    <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
-    <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
-    <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
-    <Route path="/dashboard/student/tutor" element={<TutorView />} />
-    <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
-    <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
-    
-    {/* Syllabus and Previous Year Analysis routes */}
-    <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
-    <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
-
-    {/* Feature-specific routes from their respective modules */}
-    {conceptRoutes}
-    {flashcardRoutes}
-    {practiceExamRoutes}
-    {formulaRoutes}
-  </>
-);
+export default function StudentRoutes() {
+  return (
+    <Routes>
+      <Route path="/today" element={<TodaysPlanView />} />
+      <Route path="/studyplan" element={<StudyPlanView />} />
+      <Route path="/study-plan" element={<StudyPlanView />} />
+      <Route path="/profile" element={<StudentProfile />} />
+      
+      {/* Concepts routes - Direct linking to concept card detail page */}
+      <Route path="/concepts" element={<ConceptCardsView />} />
+      <Route path="/concepts/landing" element={<ConceptsLandingPage />} />
+      <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
+      <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+      <Route path="/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
+      
+      {/* Flashcards routes - simplified and direct */}
+      <Route path="/flashcards" element={<FlashcardsView />} />
+      <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
+      <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
+      <Route path="/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
+      <Route path="/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
+      <Route path="/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
+      <Route path="/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
+      
+      {/* Formula Practice Lab route */}
+      <Route path="/formula-practice-lab" element={<FormulaPracticeLab />} />
+      
+      {/* Practice exam routes */}
+      <Route path="/practice" element={<PracticeExamsView />} />
+      <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
+      <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
+      <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Syllabus & Previous Years Analysis */}
+      <Route path="/syllabus" element={<ExamSyllabusPage />} />
+      <Route path="/previous-year-analysis" element={<PreviousYearAnalysis />} />
+      
+      {/* Other routes */}
+      <Route path="/notifications" element={<NotificationsView />} />
+      <Route path="/backlog" element={<BacklogView />} />
+      <Route path="/batch" element={<BatchManagementView />} />
+      <Route path="/subscription" element={<SubscriptionView />} />
+      <Route path="/tutor" element={<TutorView />} />
+      <Route path="/ai-tutor" element={<TutorView />} />
+      <Route path="/academic" element={<AcademicAdvisor />} />
+      <Route path="/wellness" element={<FeelGoodCornerView />} />
+      <Route path="/feel-good-corner" element={<FeelGoodCornerView />} />
+    </Routes>
+  );
+}
