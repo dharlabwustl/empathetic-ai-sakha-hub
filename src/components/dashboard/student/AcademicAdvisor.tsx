@@ -106,7 +106,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         completed: true,
         topics: [
           { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
+          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
         ]
       },
       {
@@ -118,7 +118,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         proficiency: "weak",
         completed: true,
         topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
+          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
         ]
       },
       {
@@ -130,7 +130,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         proficiency: "medium",
         completed: true,
         topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
+          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
         ]
       }
     ],

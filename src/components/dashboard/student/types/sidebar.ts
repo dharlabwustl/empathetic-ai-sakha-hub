@@ -1,18 +1,12 @@
 
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 export interface NavigationRoute {
   name: string;
   path: string;
-  icon: ReactElement | React.FC<any>;
-  isPremium?: boolean;
+  icon: ReactNode;
 }
 
-export type UserRouteMap = {
+export interface UserRouteMap {
   [key: string]: NavigationRoute[];
-};
-
-export type NavigationCategory = {
-  title: string;
-  routes: NavigationRoute[];
-};
+}

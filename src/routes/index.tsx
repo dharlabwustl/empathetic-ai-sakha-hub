@@ -15,6 +15,7 @@ import Privacy from '@/pages/Privacy';
 // Admin and Auth related components
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
+import AdminDashboard from '@/components/admin/AdminDashboard';
 import adminRoutes from '@/components/admin/routes';
 import PublicFlaskGuidePage from '@/pages/admin/PublicFlaskGuidePage';
 import FlaskGuidePage from '@/pages/admin/FlaskGuidePage';
