@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import ConceptsPage from '@/pages/dashboard/student/ConceptsPage';
@@ -19,11 +19,10 @@ import NotFoundPage from '@/pages/NotFound';
 const StudentRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={
-        <SidebarLayout>
-          <StudentDashboard />
-        </SidebarLayout>
-      } />
+      {/* Dashboard doesn't need SidebarLayout wrapper as it's handled internally */}
+      <Route path="/" element={<StudentDashboard />} />
+      
+      {/* All other routes need SidebarLayout */}
       <Route path="/today" element={
         <SidebarLayout>
           <TodaysPlanView />
