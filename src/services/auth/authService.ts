@@ -1,3 +1,4 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -56,6 +57,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -89,6 +91,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -115,6 +118,7 @@ const authService = {
     
     // Set the auth data
     this.setAuthData(adminUser);
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -126,8 +130,11 @@ const authService = {
   
   // Logout user
   async logout(): Promise<ApiResponse<void>> {
-    // Always clear local auth data
+    // Clear all auth data from local storage
     this.clearAuthData();
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('user_profile_image');
     
     return {
       success: true,

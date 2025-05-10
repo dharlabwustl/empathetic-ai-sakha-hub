@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell
+  Brain, FileText, Bell, FileSearch, ClipboardList
 } from 'lucide-react';
 import {
   Tooltip,
@@ -21,22 +21,24 @@ const SharedNavigation = () => {
   const currentPath = location.pathname;
   
   const navigationTabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview", tooltip: "Dashboard overview" },
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student", tooltip: "Dashboard overview" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today", tooltip: "View your study plan for today" },
     { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic", tooltip: "Get personalized academic guidance" },
     { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts", tooltip: "Browse concept cards for your subjects" },
     { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards", tooltip: "Practice with flashcards" },
-    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam", tooltip: "Take practice exams" },
+    { id: "practice-exam", label: "Practice Exams", icon: ClipboardList, path: "/dashboard/student/practice-exam", tooltip: "Take practice exams" },
+    { id: "syllabus", label: "Exam Syllabus", icon: FileText, path: "/dashboard/student/syllabus", tooltip: "View your exam syllabus" },
+    { id: "previous-year-analysis", label: "Previous Years", icon: FileSearch, path: "/dashboard/student/previous-year-analysis", tooltip: "Study previous year papers" },
     { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications", tooltip: "Check your notifications" }
   ];
   
   // Helper function to check if a tab is active
   const isActive = (path: string) => {
-    if (currentPath === '/dashboard/student') {
-      return path === '/dashboard/student/overview';
+    if (currentPath === '/dashboard/student' && path === '/dashboard/student') {
+      return true;
     }
     
-    return currentPath.startsWith(path);
+    return currentPath.startsWith(path) && path !== '/dashboard/student';
   };
 
   return (

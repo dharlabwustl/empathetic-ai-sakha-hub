@@ -25,53 +25,23 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Text animation variants
-  const textVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  // Dynamic highlight animation
-  const highlightVariants = {
-    initial: { 
-      backgroundSize: '0% 100%', 
-      backgroundPosition: '0% 100%' 
-    },
-    animate: { 
-      backgroundSize: '100% 100%',
-      backgroundPosition: '100% 100%',
-      transition: { duration: 1.2 }
-    }
-  };
-
   return (
     <section className="relative bg-gradient-to-br from-sky-50 via-white to-violet-50 dark:from-sky-900 dark:via-gray-900 dark:to-violet-900 py-16 md:py-24 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <motion.h2 
-            className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-violet-500 mb-4"
-            initial="hidden"
-            animate="visible"
-            transition={{ duration: 0.8 }}
-            variants={textVariants}
-          >
-            अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
-          </motion.h2>
-          
           <motion.h1 
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 max-w-3xl"
-            initial="hidden"
-            animate="visible"
-            transition={{ duration: 0.8, delay: 0.2 }}
-            variants={textVariants}
+            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 max-w-3xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            We understand Your Mindset, Not Just the Exam.
+            अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ! <span className="text-gray-800 dark:text-white">We understand Your Mindset, Not Just the Exam.</span>
           </motion.h1>
           
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-8">
-            <motion.p
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-8 flex items-center justify-center">
+            <motion.span
               key={currentTagline}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -80,12 +50,21 @@ const HeroSection = () => {
               className="inline-block"
             >
               {taglines[currentTagline]}
-            </motion.p>
+            </motion.span>
             {currentTagline === taglines.length - 1 && (
               <motion.span
                 className="ml-2 inline-block font-bold"
-                initial="initial"
-                animate="animate"
+                initial={{ backgroundSize: '0% 100%' }}
+                animate={{ 
+                  backgroundSize: '100% 100%',
+                  color: ["#8b5cf6", "#3b82f6", "#8b5cf6"],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{ 
+                  backgroundSize: { duration: 1.2 },
+                  color: { duration: 3, repeat: Infinity, repeatType: "reverse" },
+                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+                }}
                 style={{
                   backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6)',
                   backgroundRepeat: 'no-repeat',
@@ -93,7 +72,6 @@ const HeroSection = () => {
                   WebkitBackgroundClip: 'text',
                   color: 'transparent'
                 }}
-                variants={highlightVariants}
               >
                 Crack your exams!
               </motion.span>
@@ -102,7 +80,7 @@ const HeroSection = () => {
           
           <div className="flex flex-col sm:flex-row gap-4">
             {user ? (
-              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 group">
+              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-md hover:shadow-lg group">
                 <Link to="/dashboard/student" className="flex items-center">
                   <SparklesIcon size={18} className="mr-2" />
                   <span>Go to Dashboard</span>
@@ -120,7 +98,7 @@ const HeroSection = () => {
                 <Button 
                   asChild 
                   size="lg" 
-                  className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 group"
+                  className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-md hover:shadow-lg group"
                   onClick={() => {
                     const event = new CustomEvent('open-exam-analyzer');
                     window.dispatchEvent(event);
@@ -131,7 +109,7 @@ const HeroSection = () => {
                     <span>Test Your Exam Readiness</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50">
+                <Button asChild variant="outline" size="lg" className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-sm hover:shadow-md transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50">
                   <Link to="/signup" className="flex items-center">
                     7-Day Free Trial
                     <motion.div
@@ -149,7 +127,7 @@ const HeroSection = () => {
           
           {/* Trusted by students section */}
           <motion.div 
-            className="mt-12 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 py-3 px-6 rounded-full border border-purple-100 dark:border-purple-800"
+            className="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 py-3 px-6 rounded-full border border-purple-100 dark:border-purple-800 shadow-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
