@@ -145,8 +145,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             onClick={handleStudyClick}
           >
             <BookOpen className="mr-2 h-4 w-4" /> 
-            <span className="hidden sm:inline">Study</span>
-            <span className="sm:hidden">Study</span>
+            Study
           </Button>
           <Button 
             variant="outline" 
@@ -154,8 +153,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             onClick={handleFormulaLabClick}
           >
             <Calculator className="mr-2 h-4 w-4" /> 
-            <span className="hidden sm:inline">Formula Lab</span>
-            <span className="sm:hidden">Formulas</span>
+            Formula Lab
           </Button>
         </div>
       </CardFooter>

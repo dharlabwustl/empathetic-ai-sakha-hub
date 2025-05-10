@@ -15,8 +15,7 @@ import {
   LogOut, 
   Bell, 
   User, 
-  Smile,
-  X
+  Smile 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -28,18 +27,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UniversalSidebarProps {
   collapsed?: boolean;
-  onClose?: () => void;
 }
 
-const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false, onClose }) => {
+const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }) => {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
@@ -48,13 +44,6 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false, 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
-  };
-  
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    if (onClose && isMobile) {
-      onClose();
-    }
   };
   
   // Navigation items grouped by categories
@@ -95,20 +84,14 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false, 
 
   return (
     <aside className={cn(
-      "border-r border-border bg-background flex flex-col h-screen z-40",
-      collapsed ? "w-[70px]" : isMobile ? "w-[280px]" : "w-[230px]"
+      "border-r border-border bg-background transition-all duration-300 flex flex-col h-screen",
+      collapsed ? "w-[70px]" : "w-[230px]"
     )}>
-      {/* Logo Section with Close button for mobile */}
-      <div className="border-b border-border p-3 flex justify-between items-center">
+      {/* Logo Section */}
+      <div className="border-b border-border p-3 flex justify-center">
         <Link to="/" className={cn("flex items-center", collapsed ? "justify-center" : "")}>
           <PrepzrLogo width={collapsed ? 40 : 120} height={40} />
         </Link>
-        
-        {isMobile && onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose} className="ms-auto">
-            <X size={18} />
-          </Button>
-        )}
       </div>
       
       {/* Navigation Section */}
@@ -126,21 +109,19 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false, 
                   {group.items.map((item, itemIndex) => (
                     <Tooltip key={itemIndex}>
                       <TooltipTrigger asChild>
-                        <Button 
-                          variant="ghost"
-                          onClick={() => handleNavigation(item.path)}
+                        <Link 
+                          to={item.path}
                           className={cn(
-                            "flex items-center rounded-md w-full px-3 py-2 text-sm transition-colors",
+                            "flex items-center rounded-md px-3 py-2 text-sm transition-colors",
                             isActive(item.path) 
                               ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white" 
                               : "hover:bg-muted",
-                            collapsed ? "justify-center" : "justify-start gap-3",
-                            !collapsed && "justify-start text-left"
+                            collapsed ? "justify-center" : "gap-3"
                           )}
                         >
                           <span className="flex-shrink-0">{item.icon}</span>
                           {!collapsed && <span className="truncate">{item.label}</span>}
-                        </Button>
+                        </Link>
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>{item.tooltip}</p>
