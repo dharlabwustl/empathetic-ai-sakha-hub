@@ -1,49 +1,53 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
-import { 
-  ChevronLeft, Book, BookOpen, Clock, Calendar, BookmarkPlus, Bookmark, 
-  PenLine, Globe, Brain, BarChart2, RotateCw, Timer, Star, AlertCircle, 
-  ArrowRight, Layers, Calculator
-} from 'lucide-react';
-import { ConceptsPageLayout } from './ConceptsPageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft, Calculator } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-// Create a properly typed Lightbulb icon component
-const Lightbulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <line x1="9" y1="18" x2="15" y2="18"></line>
-      <line x1="10" y1="22" x2="14" y2="22"></line>
-      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
-    </svg>
-  );
+// Mock concept card data for testing/development
+const mockConceptCard = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  chapter: "Mechanics",
+  description: "The fundamental principles that describe the relationship between the motion of an object and the forces acting on it.",
+  difficulty: "medium",
+  timeEstimate: 25,
+  mastery: 65,
+  completed: false,
+  important: true
 };
 
-export const ConceptCardDetail = () => {
+// Mock hook for getting concept card details
+const useConceptCardDetails = (id: string) => {
+  const [loading, setLoading] = useState(true);
+  const [conceptCard, setConceptCard] = useState<any>(null);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setConceptCard(mockConceptCard);
+      setLoading(false);
+    }, 500);
+  }, [id]);
+
+  return {
+    conceptCard,
+    loading
+  };
+};
+
+const ConceptCardDetail = () => {
   const { id: conceptId } = useParams();
   const navigate = useNavigate();
   const { conceptCard, loading } = useConceptCardDetails(conceptId || '');
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [userNote, setUserNote] = useState('');
-  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Function to navigate to the concept study page
   const handleStudyClick = () => {
@@ -63,456 +67,269 @@ export const ConceptCardDetail = () => {
     });
   };
 
-  // Function to mark concept as completed
-  const handleMarkCompleted = () => {
-    // In a real app, this would make an API call to update the status
-    toast({
-      title: "Concept marked as completed",
-      description: "Your progress has been updated",
-    });
-  };
-
-  // Function to toggle bookmark
-  const handleToggleBookmark = () => {
+  // Function to toggle bookmark status
+  const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
     toast({
-      title: isBookmarked ? "Bookmark removed" : "Concept bookmarked",
-      description: isBookmarked ? 
-        "This concept has been removed from your bookmarks" : 
-        "You can find this concept in your bookmarks",
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked ? "This concept has been removed from your bookmarks" : "This concept has been added to your bookmarks for easy access",
     });
   };
 
-  // Function to save note
-  const handleSaveNote = () => {
-    setIsEditingNote(false);
-    toast({
-      title: "Note saved",
-      description: "Your note has been saved to this concept",
-    });
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   if (loading) {
     return (
-      <ConceptsPageLayout>
-        <div className="space-y-6 animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+      <div className="container py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
-      </ConceptsPageLayout>
+      </div>
     );
   }
 
   if (!conceptCard) {
     return (
-      <ConceptsPageLayout>
+      <div className="container py-8">
+        <Button 
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
+        >
+          <ArrowLeft size={16} />
+          Back to Concepts
+        </Button>
         <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-2">Concept Card Not Found</h2>
-          <p className="text-gray-600 mb-6">The concept card you're looking for doesn't exist or has been removed.</p>
-          <Link to="/dashboard/student/concepts">
-            <Button variant="outline">Go Back to Concepts</Button>
-          </Link>
+          <h2 className="text-2xl font-bold">Concept not found</h2>
+          <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
         </div>
-      </ConceptsPageLayout>
+      </div>
     );
   }
 
-  const getDifficultyClass = (difficulty: string): string => {
-    switch (difficulty.toLowerCase()) {
-      case 'easy': return 'bg-green-50 text-green-700 border-green-200';
-      case 'medium': return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'hard': return 'bg-red-50 text-red-700 border-red-200';
-      default: return '';
-    }
-  };
-
   return (
-    <ConceptsPageLayout>
-      <div className="space-y-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/dashboard/student/concepts')}
-          className="group mb-6"
-        >
-          <ChevronLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          Back to All Concepts
-        </Button>
-        
-        {/* Concept card header with bookmark option */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Book className="h-6 w-6 text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold">{conceptCard.title}</h1>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <Badge variant="outline">{conceptCard.subject}</Badge>
-                <Badge variant="outline">{conceptCard.chapter}</Badge>
-                <Badge variant="outline" className={getDifficultyClass(conceptCard.difficulty)}>
-                  {conceptCard.difficulty}
-                </Badge>
-                <Badge variant={conceptCard.completed ? "outline" : "default"}>
-                  {conceptCard.completed ? "Completed" : "Pending"}
-                </Badge>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={handleToggleBookmark}
-              className={isBookmarked ? "text-yellow-500 border-yellow-200" : ""}
-            >
-              {isBookmarked ? 
-                <Bookmark className="h-5 w-5 fill-yellow-500" /> : 
-                <BookmarkPlus className="h-5 w-5" />
-              }
-            </Button>
-            
-            {!conceptCard.completed && (
-              <Button variant="default" onClick={handleMarkCompleted}>
-                Mark as Completed
-              </Button>
+    <div className="container py-6">
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
+      
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
+        <div>
+          <h1 className="text-3xl font-bold">{conceptCard.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+              {conceptCard.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+              {conceptCard.chapter}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyColor(conceptCard.difficulty)}>
+              {conceptCard.difficulty.charAt(0).toUpperCase() + conceptCard.difficulty.slice(1)} Difficulty
+            </Badge>
+            {conceptCard.important && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                Important
+              </Badge>
             )}
           </div>
         </div>
-        
-        {/* Concept card content */}
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="prose dark:prose-invert max-w-none">
-              <p className="text-lg font-medium text-gray-700 mb-6">{conceptCard.description}</p>
-              <div className="mt-8">{conceptCard.content}</div>
-              
-              {/* Real-world Applications section */}
-              <div className="mt-8 bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3 flex items-center text-blue-800">
-                  <Globe className="mr-2 h-5 w-5 text-blue-600" />
-                  Real-world Applications
-                </h3>
-                <p className="text-blue-700 mb-4">
-                  This concept is commonly applied in various real-world scenarios:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  <div className="bg-white p-3 rounded shadow-sm border border-blue-100">
-                    <h4 className="font-medium text-blue-800 mb-1">Technology</h4>
-                    <p className="text-sm">Used in smartphone accelerometers to detect orientation changes</p>
-                  </div>
-                  <div className="bg-white p-3 rounded shadow-sm border border-blue-100">
-                    <h4 className="font-medium text-blue-800 mb-1">Medicine</h4>
-                    <p className="text-sm">Applied in medical imaging equipment for precise movement control</p>
-                  </div>
-                  <div className="bg-white p-3 rounded shadow-sm border border-blue-100">
-                    <h4 className="font-medium text-blue-800 mb-1">Transportation</h4>
-                    <p className="text-sm">Critical in vehicle safety systems and aircraft design</p>
-                  </div>
-                </div>
-              </div>
 
-              {/* Examples section */}
-              {conceptCard.examples && conceptCard.examples.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-3">Examples</h3>
-                  <ul className="space-y-2">
-                    {conceptCard.examples.map((example, index) => (
-                      <li key={index} className="bg-blue-50 p-3 rounded-md">{example}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {/* Common mistakes section */}
-              {conceptCard.commonMistakes && conceptCard.commonMistakes.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-3">Common Mistakes to Avoid</h3>
-                  <ul className="space-y-2">
-                    {conceptCard.commonMistakes.map((mistake, index) => (
-                      <li key={index} className="bg-red-50 p-3 rounded-md">{mistake}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {/* Exam relevance section */}
-              {conceptCard.examRelevance && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-3">Exam Relevance</h3>
-                  <div className="bg-purple-50 p-4 rounded-md">
-                    {conceptCard.examRelevance}
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Enhanced Concept Analysis Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl flex items-center text-blue-800">
-              <Brain className="mr-2 h-5 w-5 text-blue-600" />
-              Learning Progress & Analytics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium mb-2 text-gray-700 flex items-center">
-                  <BarChart2 className="mr-1 h-4 w-4 text-blue-600" />
-                  Performance Overview
-                </h4>
-                <div className="space-y-3 bg-white p-3 rounded-md shadow-sm">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Concept Mastery Score</span>
-                      <span className="font-medium">{conceptCard.recallAccuracy || 65}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full" 
-                        style={{ width: `${conceptCard.recallAccuracy || 65}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-xs mt-1 text-gray-600">Based on quiz results and practice exercises</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-medium mb-2 text-gray-700 flex items-center">
-                  <Timer className="mr-1 h-4 w-4 text-amber-600" />
-                  Time & Recall
-                </h4>
-                <div className="space-y-3 bg-white p-3 rounded-md shadow-sm">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-gray-600">First Studied</span>
-                      <span className="font-medium">2 weeks ago</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-600">Last Reviewed</span>
-                      <span className="font-medium">Yesterday</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-600">Avg. Time per Section</span>
-                      <span className="font-medium">4.5 minutes</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-600">Total Time Spent</span>
-                      <span className="font-medium">45 minutes</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="md:col-span-2">
-                <h4 className="font-medium mb-2 text-gray-700 flex items-center">
-                  <RotateCw className="mr-1 h-4 w-4 text-indigo-600" />
-                  Recall & Retention Tracking
-                </h4>
-                <div className="bg-white p-3 rounded-md shadow-sm">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
-                    <div className="flex items-center mb-2 md:mb-0">
-                      <span className="text-sm font-medium mr-2">Retention Score:</span>
-                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">78% Excellent</span>
-                    </div>
-                    <div className="flex items-center text-sm text-indigo-700">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      <span>Next scheduled review: Tomorrow</span>
-                    </div>
-                  </div>
-                  <div className="relative pt-2">
-                    <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
-                      <div className="bg-blue-500 h-full w-2/12 rounded-l"></div>
-                      <div className="bg-blue-300 h-full w-5/12"></div>
-                      <div className="bg-blue-500 h-full w-3/12"></div>
-                      <div className="bg-gray-300 h-full w-2/12 rounded-r"></div>
-                    </div>
-                    <div className="absolute -top-1 left-[16.6%]">
-                      <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white"></div>
-                    </div>
-                    <div className="absolute -top-1 left-[50%]">
-                      <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white"></div>
-                    </div>
-                    <div className="absolute -top-1 left-[83.3%]">
-                      <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white"></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>First study<br/>2 weeks ago</span>
-                    <span>Review #2<br/>1 week ago</span>
-                    <span>Review #3<br/>3 days ago</span>
-                    <span>Next review<br/>Tomorrow</span>
-                  </div>
-                  <div className="mt-3 text-sm">
-                    <div className="flex items-center text-amber-600">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      <span>Spaced repetition: Your recall success is improving with each review</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-blue-200">
-              <h4 className="font-medium mb-3 text-gray-700 flex items-center">
-                <Lightbulb className="mr-1 h-4 w-4 text-amber-500" />
-                Smart Feedback & Recommendations
-              </h4>
-              <div className="bg-amber-50 p-3 rounded-md mb-3">
-                <div className="flex items-start gap-2">
-                  <Star className="h-4 w-4 text-amber-500 mt-0.5" />
-                  <p className="text-sm text-amber-800">
-                    Based on your learning patterns, focus more time on the "Third Law Applications" section where your recall accuracy is lower.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                <Button variant="outline" className="justify-start bg-white">
-                  <Brain className="mr-2 h-4 w-4 text-violet-500" />
-                  <div className="text-left">
-                    <span className="block text-sm">Suggested Next</span>
-                    <span className="block text-xs text-muted-foreground">Conservation of Momentum</span>
-                  </div>
-                </Button>
-                
-                <Button variant="outline" className="justify-start bg-white">
-                  <BookOpen className="mr-2 h-4 w-4 text-blue-500" />
-                  <div className="text-left">
-                    <span className="block text-sm">Practice Quiz</span>
-                    <span className="block text-xs text-muted-foreground">Test your understanding</span>
-                  </div>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* User Notes Section */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center">
-              <PenLine className="mr-2 h-4 w-4" />
-              Your Notes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isEditingNote ? (
-              <div className="space-y-2">
-                <Textarea 
-                  placeholder="Add your personal notes about this concept..."
-                  value={userNote}
-                  onChange={(e) => setUserNote(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => setIsEditingNote(false)}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleSaveNote}>
-                    Save Note
-                  </Button>
-                </div>
-              </div>
-            ) : userNote ? (
-              <div>
-                <div className="bg-muted/30 rounded-md p-3 text-sm mb-3 prose max-w-none">
-                  {userNote}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => setIsEditingNote(true)}
-                >
-                  <PenLine className="h-4 w-4 mr-2" />
-                  Edit Note
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <PenLine className="h-16 w-16 mx-auto mb-3 text-muted-foreground opacity-30" />
-                <p className="text-muted-foreground mb-4">You haven't added any notes yet</p>
-                <Button onClick={() => setIsEditingNote(true)}>
-                  <PenLine className="h-4 w-4 mr-2" />
-                  Add Notes
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Study Buttons - Enhanced UI with Formula Lab button */}
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <Button 
-            size="lg" 
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700"
             onClick={handleStudyClick}
           >
-            <BookOpen className="mr-2 h-5 w-5" />
-            {conceptCard?.completed ? "Review Again" : "Start Learning"}
+            Start Studying
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           
           <Button 
-            size="lg" 
             variant="outline"
-            className="border-indigo-600 text-indigo-700 hover:bg-indigo-50 font-medium px-8 py-6 shadow-md hover:shadow-lg transition-all"
+            className="w-full md:w-auto border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             onClick={handleFormulaLabClick}
           >
-            <Calculator className="mr-2 h-5 w-5" />
+            <Calculator className="mr-2 h-4 w-4" />
             Formula Lab
           </Button>
         </div>
-          
-        {/* Related concepts with smarter recommendations */}
-        {conceptCard.relatedConcepts && conceptCard.relatedConcepts.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-xl font-bold mb-6 text-gray-800 flex items-center">
-              <Layers className="mr-2 h-5 w-5 text-blue-600" />
-              Recommended Related Concepts
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {conceptCard.relatedConcepts.map((relatedId, index) => {
-                // In a real app, we'd fetch actual related concept data
-                const conceptMatchLevel = index === 0 ? "Strong" : index === 1 ? "Medium" : "Basic";
-                const conceptMatchClass = index === 0 ? 
-                  "bg-green-50 border-green-200 text-green-800" : 
-                  index === 1 ? "bg-blue-50 border-blue-200 text-blue-800" : 
-                  "bg-purple-50 border-purple-200 text-purple-800";
-                
-                return (
-                  <Card key={relatedId} className="hover:shadow-md transition-shadow border-l-4 border-blue-500">
-                    <CardContent className="p-4">
-                      <Badge className={`mb-2 ${conceptMatchClass}`}>{conceptMatchLevel} connection</Badge>
-                      <h4 className="font-medium mb-2">Related Concept #{relatedId}</h4>
-                      <p className="text-sm text-gray-600 mb-3">
-                        {index === 0 ? 
-                          "Strongly related - explores direct applications of current concept" :
-                          index === 1 ? 
-                          "Builds upon principles covered in this concept" :
-                          "Complementary topic that enhances understanding"
-                        }
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="w-full flex items-center justify-between"
-                        onClick={() => navigate(`/dashboard/student/concepts/card/${relatedId}`)}
-                      >
-                        <span>Explore Concept</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
-    </ConceptsPageLayout>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Progress</CardTitle>
+          <CardDescription>Your mastery of this concept</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Mastery</span>
+              <span className="text-sm font-medium">{conceptCard.mastery}%</span>
+            </div>
+            <Progress value={conceptCard.mastery} className="h-2" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Estimated time: {conceptCard.timeEstimate} min</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="quiz">Quiz</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>About this Concept</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{conceptCard.description}</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>First Law (Law of Inertia): Objects maintain their state of rest or motion unless acted upon by a force.</li>
+                      <li>Second Law: F = ma. The force equals mass times acceleration.</li>
+                      <li>Third Law: For every action, there is an equal and opposite reaction.</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Understanding Newton's laws is essential for:</p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2">
+                      <li>Engineering design and analysis</li>
+                      <li>Sports science and athletic performance</li>
+                      <li>Vehicle safety and transportation</li>
+                      <li>Space exploration and orbital mechanics</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Other tab contents */}
+        <TabsContent value="content" className="space-y-4">
+          {/* Content tab implementation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Content</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Newton's laws of motion are three fundamental laws that describe the relationship between the motion of an object and the forces acting on it.</p>
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg">Newton's First Law</h3>
+                <p className="mt-2">An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.</p>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg">Newton's Second Law</h3>
+                <p className="mt-2">The acceleration of an object depends directly on the net force acting upon it and inversely on its mass.</p>
+                <div className="p-3 bg-blue-50 mt-2 rounded-md font-mono text-center text-lg">F = ma</div>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg">Newton's Third Law</h3>
+                <p className="mt-2">For every action, there is an equal and opposite reaction.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="examples" className="space-y-4">
+          {/* Examples tab implementation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Applied Examples</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold">First Law Example</h3>
+                  <p className="mt-1">A book on a table remains at rest because the force of gravity pulling it down is balanced by the normal force from the table pushing up.</p>
+                </div>
+                
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h3 className="font-semibold">Second Law Example</h3>
+                  <p className="mt-1">When you push a shopping cart, the acceleration depends on how hard you push (force) and how heavily loaded the cart is (mass).</p>
+                </div>
+                
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <h3 className="font-semibold">Third Law Example</h3>
+                  <p className="mt-1">When a swimmer pushes water backward, the water pushes the swimmer forward with equal force. This is how swimming propels you forward.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="quiz" className="space-y-4">
+          {/* Quiz tab implementation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Test Your Knowledge</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Check your understanding of Newton's Laws with these questions.</p>
+              <Button className="w-full">Start Quiz</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notes" className="space-y-4">
+          {/* Notes tab implementation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea 
+                className="w-full min-h-[200px] p-3 border rounded-md"
+                value={userNote}
+                onChange={(e) => setUserNote(e.target.value)}
+                placeholder="Add your notes about this concept here..."
+              />
+              <div className="mt-4 flex justify-end">
+                <Button>Save Notes</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
