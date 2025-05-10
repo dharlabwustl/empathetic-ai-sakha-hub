@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UniversalSidebar from './UniversalSidebar';
 
 interface SidebarLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
+// This wrapper component ensures consistent sidebar layout across all pages
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   

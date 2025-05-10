@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.email) {
+          if (parsedData.email && parsedData.isAuthenticated === true) {
             // User is already logged in
             setUser({
               id: parsedData.id || '1',
@@ -108,6 +108,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             isAuthenticated: true
           }));
           
+          // Also mark as logged in for other parts of the app
+          localStorage.setItem('isLoggedIn', 'true');
+          
           setUser(newUser);
           setLoading(false);
           console.log("Login successful for:", email);
@@ -121,7 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Logout function
+  // Logout function - enhanced to fully clear authentication state
   const logout = () => {
     // Preserve some user preferences but remove auth data
     const userData = localStorage.getItem('userData');
@@ -134,12 +137,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           completedOnboarding: parsedData.completedOnboarding,
           sawWelcomeTour: parsedData.sawWelcomeTour,
           sawWelcomeSlider: parsedData.sawWelcomeSlider,
-          isAuthenticated: false
+          isAuthenticated: false // Mark as not authenticated
         }));
       } catch (error) {
         console.error('Error during logout:', error);
       }
     }
+    
+    // Remove login state marker
+    localStorage.removeItem('isLoggedIn');
+    
+    // Clear user state
     setUser(null);
     console.log("User logged out");
   };

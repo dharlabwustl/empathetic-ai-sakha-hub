@@ -1,16 +1,99 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import ExamNamesBadge from '../home/hero/ExamNamesBadge';
-import KpiStats from '../home/hero/feature-highlights/KpiStats';
-import { ArrowRight, SparklesIcon } from 'lucide-react';
+import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+// Direct NEET signup modal component
+const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
+  const [examDate, setExamDate] = useState('');
+  const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <motion.div 
+        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl max-w-md w-full"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+      >
+        <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+          Join NEET Preparation
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
+          Enter your details to start your NEET preparation journey with personalized guidance.
+        </p>
+        
+        <form className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Your Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Mobile Number</label>
+            <input
+              type="tel"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              placeholder="+91 9876543210"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">NEET Exam Date</label>
+            <input
+              type="date"
+              value={examDate}
+              onChange={(e) => setExamDate(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              required
+            />
+          </div>
+          
+          <div className="flex gap-3 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600"
+              onClick={() => onContinue({ name, mobile, examDate })}
+            >
+              Start Preparation
+            </Button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
 
 const HeroSection = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentTagline, setCurrentTagline] = useState(0);
+  const [showNeetModal, setShowNeetModal] = useState(false);
+  
   const taglines = [
     "Ace your exams.",
     "Save time.",
@@ -25,22 +108,67 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleStartNeetPrep = (data) => {
+    // Save user selection data to localStorage
+    const userData = {
+      name: data.name,
+      mobile: data.mobile,
+      examGoal: "NEET",
+      targetExamDate: data.examDate,
+      isNewUser: true,
+      completedOnboarding: false,
+      loginCount: 1,
+      createdAt: new Date().toISOString(),
+    };
+    
+    localStorage.setItem("userData", JSON.stringify(userData));
+    
+    toast({
+      title: "Welcome to PREPZR!",
+      description: "Preparing your personalized NEET study plan.",
+    });
+    
+    // Close modal and navigate
+    setShowNeetModal(false);
+    navigate("/welcome-flow?completedOnboarding=false&new=true&exam=NEET");
+  };
+
   return (
-    <section className="relative bg-gradient-to-br from-sky-50 via-white to-violet-50 dark:from-sky-900 dark:via-gray-900 dark:to-violet-900 py-16 md:py-24 lg:py-32 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/80 dark:via-gray-900 dark:to-violet-900/80 py-16 md:py-24 lg:py-32 overflow-hidden">
+      {/* Abstract background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"></div>
+      </div>
+      
+      {/* Grid pattern background */}
       <div className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <motion.h1 
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 max-w-3xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+          <motion.div
+            className="max-w-4xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8 }}
           >
-            अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ! <span className="text-gray-800 dark:text-white">We understand Your Mindset, Not Just the Exam.</span>
-          </motion.h1>
+            <motion.h1 
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block">
+                अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
+              </span>
+              <span className="text-gray-800 dark:text-white block mt-2">
+                We understand Your Mindset, Not Just the Exam.
+              </span>
+            </motion.h1>
+          </motion.div>
           
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-8 flex items-center justify-center">
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-12 flex items-center justify-center">
             <motion.span
               key={currentTagline}
               initial={{ opacity: 0, y: 10 }}
@@ -78,9 +206,14 @@ const HeroSection = () => {
             )}
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4">
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
             {user ? (
-              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-md hover:shadow-lg group">
+              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
                 <Link to="/dashboard/student" className="flex items-center">
                   <SparklesIcon size={18} className="mr-2" />
                   <span>Go to Dashboard</span>
@@ -96,26 +229,26 @@ const HeroSection = () => {
             ) : (
               <>
                 <Button 
-                  asChild 
                   size="lg" 
-                  className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-md hover:shadow-lg group"
-                  onClick={() => {
-                    const event = new CustomEvent('open-exam-analyzer');
-                    window.dispatchEvent(event);
-                  }}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-6 py-6"
+                  onClick={() => setShowNeetModal(true)}
                 >
-                  <Link to="#" className="flex items-center">
-                    <SparklesIcon size={18} className="mr-2" />
-                    <span>Test Your Exam Readiness</span>
-                  </Link>
+                  <Rocket size={20} />
+                  <span className="font-medium">Start NEET Preparation</span>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-sm hover:shadow-md transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50">
-                  <Link to="/signup" className="flex items-center">
-                    7-Day Free Trial
+                
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50 px-6 py-6"
+                >
+                  <Link to="/signup" className="flex items-center gap-2">
+                    <BookOpen size={20} />
+                    <span>7-Day Free Trial</span>
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="ml-2"
                     >
                       <ArrowRight size={18} />
                     </motion.div>
@@ -123,21 +256,23 @@ const HeroSection = () => {
                 </Button>
               </>
             )}
-          </div>
+          </motion.div>
           
-          {/* Trusted by students section */}
-          <motion.div 
-            className="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 py-3 px-6 rounded-full border border-purple-100 dark:border-purple-800 shadow-sm"
+          {/* Stats Section */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="mt-12 w-full"
           >
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-              Trusted by students preparing for: 
-              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-                NEET Launched
-              </span>
-            </p>
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                <StatCard value="10,000+" label="Active Students" highlight />
+                <StatCard value="92%" label="Success Rate" />
+                <StatCard value="24/7" label="AI Tutor Support" />
+                <StatCard value="100+" label="Practice Tests" />
+              </div>
+            </div>
           </motion.div>
           
           {/* Exam Names Badge */}
@@ -145,29 +280,36 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-6 mb-12"
+            className="mt-12 mb-6 w-full"
           >
             <ExamNamesBadge />
           </motion.div>
         </div>
-        
-        {/* Stats Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="mt-12"
-        >
-          <div className="max-w-7xl mx-auto">
-            <h3 className="text-2xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Smart Data. Real Impact. Humanizing exam prep.
-            </h3>
-            <KpiStats />
-          </div>
-        </motion.div>
       </div>
+      
+      {/* NEET Signup Modal */}
+      <NeetSignupModal 
+        isOpen={showNeetModal} 
+        onClose={() => setShowNeetModal(false)}
+        onContinue={handleStartNeetPrep}
+      />
     </section>
   );
 };
+
+// Component for the statistics cards
+const StatCard = ({ value, label, highlight = false }) => (
+  <motion.div
+    className={`p-4 rounded-xl ${highlight ? 'bg-gradient-to-br from-purple-500/10 to-blue-500/10' : 'bg-white/50 dark:bg-white/5'} backdrop-blur-sm shadow-md border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center`}
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+  >
+    <p className={`text-2xl md:text-3xl font-bold ${highlight ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
+      {value}
+    </p>
+    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      {label}
+    </p>
+  </motion.div>
+);
 
 export default HeroSection;

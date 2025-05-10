@@ -5,6 +5,7 @@ import { ThemeProvider } from './components/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import SidebarLayout from './components/dashboard/SidebarLayout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Import pages and components
 import Index from '@/pages/Index';
@@ -61,12 +62,14 @@ import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 
-// Wrap a component with SidebarLayout
-const WithSidebar = ({ Component }: { Component: React.ComponentType<any> }) => {
+// Wrap a component with SidebarLayout and protection
+const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
   return (
-    <SidebarLayout>
-      <Component />
-    </SidebarLayout>
+    <ProtectedRoute>
+      <SidebarLayout>
+        <Component />
+      </SidebarLayout>
+    </ProtectedRoute>
   );
 };
 
@@ -125,58 +128,52 @@ function App() {
               {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-              {/* Student dashboard */}
-              <Route path="/dashboard/student" element={<WithSidebar Component={StudentDashboard} />} />
-              <Route path="/dashboard/student/:tab" element={<WithSidebar Component={StudentDashboard} />} />
+              {/* Student dashboard - Protected with the combined wrapper */}
+              <Route path="/dashboard/student" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
+              <Route path="/dashboard/student/:tab" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
               
-              {/* Apply SidebarLayout to all student dashboard pages */}
-              <Route path="/dashboard/student/today" element={<WithSidebar Component={TodaysPlanView} />} />
-              <Route path="/dashboard/student/feel-good-corner" element={<WithSidebar Component={FeelGoodCornerView} />} />
-              <Route path="/dashboard/student/study-groups" element={<WithSidebar Component={StudyGroupsPage} />} />
-              <Route path="/dashboard/student/subscription" element={<WithSidebar Component={SubscriptionPage} />} />
-              <Route path="/dashboard/student/batch-management" element={<WithSidebar Component={BatchManagementPage} />} />
+              {/* Apply ProtectedSidebarLayout to all student dashboard pages */}
+              <Route path="/dashboard/student/today" element={<ProtectedSidebarRoute Component={TodaysPlanView} />} />
+              <Route path="/dashboard/student/feel-good-corner" element={<ProtectedSidebarRoute Component={FeelGoodCornerView} />} />
+              <Route path="/dashboard/student/study-groups" element={<ProtectedSidebarRoute Component={StudyGroupsPage} />} />
+              <Route path="/dashboard/student/subscription" element={<ProtectedSidebarRoute Component={SubscriptionPage} />} />
+              <Route path="/dashboard/student/batch-management" element={<ProtectedSidebarRoute Component={BatchManagementPage} />} />
               
               {/* Profile routes */}
-              <Route path="/dashboard/student/profile" element={<WithSidebar Component={EnhancedProfilePage} />} />
-              <Route path="/student/profile" element={<WithSidebar Component={ProfilePage} />} />
-              <Route path="/profile" element={<WithSidebar Component={ProfilePage} />} />
+              <Route path="/dashboard/student/profile" element={<ProtectedSidebarRoute Component={EnhancedProfilePage} />} />
+              <Route path="/student/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
+              <Route path="/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
               
               {/* AI Tutor route */}
-              <Route path="/dashboard/student/tutor" element={<WithSidebar Component={TutorView} />} />
+              <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
               
               {/* Concept routes */}
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<WithSidebar Component={ConceptCardDetailPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId" element={<WithSidebar Component={ConceptDetailPage} />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<WithSidebar Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId/study" element={<WithSidebar Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<WithSidebar Component={ConceptStudyLandingPage} />} />
-              <Route path="/dashboard/student/concepts/landing" element={<WithSidebar Component={ConceptsLandingPage} />} />
-              <Route path="/dashboard/student/concepts" element={<WithSidebar Component={ConceptsLandingPage} />} />
+              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardDetailPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
+              <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
+              <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
               
               {/* Direct Flashcard routes */}
-              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<WithSidebar Component={FlashcardInteractive} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId" element={<WithSidebar Component={FlashcardDetailsPage} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<WithSidebar Component={InteractiveFlashcardBrowser} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<WithSidebar Component={EnhancedFlashcardPractice} />} />
-              <Route path="/dashboard/student/flashcards" element={<WithSidebar Component={FlashcardsLandingPage} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<ProtectedSidebarRoute Component={FlashcardInteractive} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId" element={<ProtectedSidebarRoute Component={FlashcardDetailsPage} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<ProtectedSidebarRoute Component={InteractiveFlashcardBrowser} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
+              <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
               
-              {/* Practice exam routes */}
-              <Route path="/dashboard/student/practice-exam" element={<WithSidebar Component={PracticeExamsSection} />} />
-              <Route path="/dashboard/student/practice-exam/:examId/start" element={<WithSidebar Component={ExamTakingPage} />} />
-              <Route path="/dashboard/student/practice-exam/:examId/review" element={<WithSidebar Component={ExamReviewPage} />} />
-              
-              {/* Formula Practice Lab route */}
-              <Route path="/dashboard/student/formula-practice-lab" element={<WithSidebar Component={FormulaPracticeLab} />} />
-              
-              {/* Other routes */}
-              <Route path="/dashboard/student/notifications" element={<WithSidebar Component={NotificationsView} />} />
-              <Route path="/dashboard/student/academic" element={<WithSidebar Component={AcademicAdvisor} />} />
-              <Route path="/dashboard/student/study-plan" element={<WithSidebar Component={StudyPlanView} />} />
-              
-              {/* Syllabus and Previous Year Analysis routes */}
-              <Route path="/dashboard/student/syllabus" element={<WithSidebar Component={ExamSyllabusPage} />} />
-              <Route path="/dashboard/student/previous-year-analysis" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
-              <Route path="/dashboard/student/previous-year" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
+              {/* Other routes - all converted to protected */}
+              <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamsSection} />} />
+              <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
+              <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
+              <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
+              <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
+              <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
+              <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
+              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
+              <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
+              <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

@@ -54,7 +54,8 @@ const authService = {
     const userData = {
       name: demoUser.name,
       email: demoUser.email,
-      mood: 'Motivated'
+      mood: 'Motivated',
+      isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
@@ -88,7 +89,8 @@ const authService = {
     const userDataObj = {
       name: mockUser.name,
       email: mockUser.email,
-      mood: 'Motivated'
+      mood: 'Motivated',
+      isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
@@ -128,12 +130,29 @@ const authService = {
     };
   },
   
-  // Logout user
+  // Logout user - enhanced for complete logout
   async logout(): Promise<ApiResponse<void>> {
     // Clear all auth data from local storage
     this.clearAuthData();
+    
+    // Remove login state marker
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
+    
+    // Update user data to reflect logged out status
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        localStorage.setItem('userData', JSON.stringify({
+          ...parsedData,
+          isAuthenticated: false
+        }));
+      } catch (error) {
+        console.error('Error updating user data during logout:', error);
+      }
+    }
+    
+    // Clear other user-related data
     localStorage.removeItem('user_profile_image');
     
     return {
