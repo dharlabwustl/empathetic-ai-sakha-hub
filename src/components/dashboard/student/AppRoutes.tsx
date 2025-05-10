@@ -1,73 +1,40 @@
 
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
-import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
-import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
-import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
-import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
-import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
-import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
-import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
-import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
-import TutorView from '@/pages/dashboard/student/TutorView';
-import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
-import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
-import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import StudentProfile from '@/pages/student/ProfilePage';
-import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
-import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
-import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
-import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
-import ConceptCardStudyPage from '@/pages/dashboard/student/concept/ConceptCardStudyPage';
-import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
-import PreviousYearAnalysis from '@/pages/dashboard/student/PreviousYearAnalysis';
-import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import DashboardOverview from "./DashboardOverview";
+import TodaysPlanView from "./todays-plan/TodaysPlanView";
+import StudyPlanView from "./studyplan/StudyPlanView";
+import { ConceptsView } from "./concepts/ConceptsView";
+import ConceptDetailPage from "@/pages/dashboard/student/ConceptDetailPage";
+import { FlashcardsView } from "./flashcards/FlashcardsView";
+import NotificationsView from "./notifications/NotificationsView";
+import PracticeExamsView from "./practice-exam/PracticeExamsView";
+import FeelGoodCorner from "./feel-good-corner/FeelGoodCorner";
+import AcademicAdvisorView from "./academic/AcademicAdvisorView";
+import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
+import ConceptStudyPage from "./concepts/ConceptStudyPage";
+import FormulaLabPage from "./formula-lab/FormulaLabPage";
+import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 
-export default function AppRoutes() {
-  const { dashboardData } = useStudentDashboardData();
-  
+const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
-      <Route path="/dashboard/student/profile" element={<StudentProfile />} />
-      
-      {/* Concepts routes - Direct linking to concept card detail page */}
-      <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
-      <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
-      <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-      <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
-      <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptCardStudyPage />} />
-      
-      {/* Flashcard routes - simplified to direct interactive access */}
-      <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
-      <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
-      <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
-      <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
-      <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
-      <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
-      
-      {/* Formula Practice Lab route */}
-      <Route path="/dashboard/student/formula-practice-lab" element={<FormulaPracticeLab />} />
-      
-      {/* Practice exam routes */}
-      <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
-      <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
-      <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-      
-      {/* Syllabus & Previous Years Analysis */}
-      <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
-      <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysis />} />
-      
-      {/* Other routes */}
-      <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCorner />} />
-      <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
-      <Route path="/dashboard/student/academic" element={<AcademicAdvisor />} />
-      <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
-      <Route path="/dashboard/student/tutor" element={<TutorView />} />
+      <Route path="/" element={<DashboardOverview />} />
+      <Route path="/today" element={<TodaysPlanView />} />
+      <Route path="/plan" element={<StudyPlanView />} />
+      <Route path="/concepts" element={<ConceptsView />} />
+      <Route path="/concepts/:id" element={<ConceptDetailPage />} />
+      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+      <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
+      <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
+      <Route path="/flashcards" element={<FlashcardsView />} />
+      <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
+      <Route path="/notifications" element={<NotificationsView />} />
+      <Route path="/practice-exam" element={<PracticeExamsView />} />
+      <Route path="/feel-good" element={<FeelGoodCorner />} />
+      <Route path="/academic-advisor" element={<AcademicAdvisorView />} />
     </Routes>
   );
-}
+};
+
+export default AppRoutes;

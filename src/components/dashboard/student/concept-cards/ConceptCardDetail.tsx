@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
 import { 
   ChevronLeft, Book, BookOpen, Clock, Calendar, BookmarkPlus, Bookmark, 
   PenLine, Globe, Brain, BarChart2, RotateCw, Timer, Star, AlertCircle, 
-  ArrowRight, Layers
+  ArrowRight, Layers, Calculator
 } from 'lucide-react';
 import { ConceptsPageLayout } from './ConceptsPageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,6 +51,15 @@ export const ConceptCardDetail = () => {
     toast({
       title: "Loading study materials",
       description: "Preparing your personalized learning experience",
+    });
+  };
+
+  // Function to navigate to formula lab for this concept
+  const handleFormulaLabClick = () => {
+    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
+    toast({
+      title: "Loading Formula Lab",
+      description: "Preparing practice exercises for this concept",
     });
   };
 
@@ -436,8 +445,8 @@ export const ConceptCardDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Study Button - Enhanced UI */}
-        <div className="flex justify-center mt-6">
+        {/* Study Buttons - Enhanced UI with Formula Lab button */}
+        <div className="flex justify-center gap-4 mt-6">
           <Button 
             size="lg" 
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
@@ -445,6 +454,16 @@ export const ConceptCardDetail = () => {
           >
             <BookOpen className="mr-2 h-5 w-5" />
             {conceptCard?.completed ? "Review Again" : "Start Learning"}
+          </Button>
+          
+          <Button 
+            size="lg" 
+            variant="outline"
+            className="border-indigo-600 text-indigo-700 hover:bg-indigo-50 font-medium px-8 py-6 shadow-md hover:shadow-lg transition-all"
+            onClick={handleFormulaLabClick}
+          >
+            <Calculator className="mr-2 h-5 w-5" />
+            Formula Lab
           </Button>
         </div>
           
