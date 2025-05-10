@@ -1,9 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UserProfileBase as UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
-import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
@@ -78,7 +77,7 @@ const DashboardContent = ({
   };
   
   // Mark voice as tested
-  useEffect(() => {
+  React.useEffect(() => {
     const timer = setTimeout(() => {
       setHasTestedVoice(true);
       localStorage.setItem('voice-tested', 'true');
@@ -110,15 +109,6 @@ const DashboardContent = ({
       
       {/* Quick Access Buttons for all pages */}
       <QuickAccess />
-      
-      {/* Tabs navigation */}
-      {!hideTabsNav && (
-        <DashboardTabs 
-          activeTab={activeTab} 
-          onTabChange={onTabChange} 
-          tabContents={{}}
-        />
-      )}
       
       {/* Content area - Using custom content if provided, otherwise the generated tab content */}
       <div className="mt-4">
