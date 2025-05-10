@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import ConceptCardStudyPage from './ConceptCardStudyPage';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   
-  // Redirect to the new ConceptCardStudyPage which has the new design
-  return <Navigate to={`/dashboard/student/concepts/${conceptId}/study`} replace />;
+  // Use the unified ConceptCardStudyPage component
+  return <ConceptCardStudyPage />;
 };
 
 export default ConceptStudyPage;
