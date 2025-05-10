@@ -14,6 +14,7 @@ import AcademicAdvisorView from "./academic/AcademicAdvisorView";
 import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
 import FormulaLabPage from "./formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
+import FormulaPracticePage from "@/pages/dashboard/student/formula-practice/FormulaPracticePage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -24,6 +25,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:id" element={<ConceptDetailPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
+      <Route path="/formula-practice" element={<FormulaPracticePage />} />
+      <Route path="/formula-practice/:examGoalId" element={<FormulaPracticePage />} />
       <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />

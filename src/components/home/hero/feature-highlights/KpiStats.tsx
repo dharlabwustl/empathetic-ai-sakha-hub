@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
-import { Users, Brain, Calendar, Heart } from 'lucide-react';
+import { Users, Brain, Calendar, Heart, Calculator, Book, Award, Clock } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 import { useState } from 'react';
 
@@ -11,7 +11,11 @@ const useKpiData = () => {
     totalStudents: 0,
     averageConcepts: 0,
     totalStudyPlans: 0,
-    verifiedMoodImprovement: 0
+    verifiedMoodImprovement: 0,
+    formulasPracticed: 0,
+    questionsAttempted: 0,
+    accuracyRate: 0,
+    averageStudyTime: 0
   });
   
   useEffect(() => {
@@ -19,19 +23,27 @@ const useKpiData = () => {
       try {
         const stats = await adminService.getDashboardStats();
         setKpiData({
-          totalStudents: stats.totalStudents || 10000,
-          averageConcepts: stats.averageConcepts || 850,
-          totalStudyPlans: stats.totalStudyPlans || 12000,
-          verifiedMoodImprovement: stats.verifiedMoodImprovement || 72
+          totalStudents: stats.totalStudents || 25000,
+          averageConcepts: stats.averageConcepts || 950,
+          totalStudyPlans: stats.totalStudyPlans || 18500,
+          verifiedMoodImprovement: stats.verifiedMoodImprovement || 85,
+          formulasPracticed: stats.formulasPracticed || 120000,
+          questionsAttempted: stats.questionsAttempted || 750000,
+          accuracyRate: stats.accuracyRate || 92,
+          averageStudyTime: stats.averageStudyTime || 3.5
         });
       } catch (error) {
         console.error("Failed to fetch KPI data:", error);
         // Use fallback data
         setKpiData({
-          totalStudents: 10000,
-          averageConcepts: 850,
-          totalStudyPlans: 12000,
-          verifiedMoodImprovement: 72
+          totalStudents: 25000,
+          averageConcepts: 950,
+          totalStudyPlans: 18500,
+          verifiedMoodImprovement: 85,
+          formulasPracticed: 120000,
+          questionsAttempted: 750000,
+          accuracyRate: 92,
+          averageStudyTime: 3.5
         });
       }
     };
@@ -110,24 +122,24 @@ const KpiStats = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
       <StatCard 
         icon={<Users size={24} className="text-white" />} 
-        value={`+${kpiData.totalStudents.toLocaleString()}`} 
+        value={`${kpiData.totalStudents.toLocaleString()}+`} 
         label="Students Helped"
         delay={0}
         gradient="from-blue-500 to-violet-500"
       />
       
       <StatCard 
-        icon={<Brain size={24} className="text-white" />} 
-        value={`${kpiData.averageConcepts}/Student`} 
-        label="Concepts Mastered Avg"
+        icon={<Calculator size={24} className="text-white" />} 
+        value={`${kpiData.formulasPracticed.toLocaleString()}+`} 
+        label="Formulas Practiced"
         delay={1}
         gradient="from-violet-500 to-purple-500"
       />
       
       <StatCard 
-        icon={<Calendar size={24} className="text-white" />} 
-        value={`${kpiData.totalStudyPlans.toLocaleString()}+`} 
-        label="Dynamic Study Plans Delivered"
+        icon={<Award size={24} className="text-white" />} 
+        value={`${kpiData.accuracyRate}%`} 
+        label="Accuracy Rate"
         delay={2}
         gradient="from-indigo-500 to-blue-500"
       />
