@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UserProfileBase as UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
@@ -76,16 +76,6 @@ const DashboardContent = ({
     setShowReturnRecap(false);
   };
   
-  // Mark voice as tested
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setHasTestedVoice(true);
-      localStorage.setItem('voice-tested', 'true');
-    }, 15000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   // Common layout structure for all tabs
   return (
     <div className="h-full flex flex-col">
