@@ -8,13 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { ArrowRight, ArrowLeft, Calendar as CalendarIcon, Info } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
 import SubjectsStep from '@/components/dashboard/student/onboarding/SubjectsStep';
 import { useStudyPlanWizard } from '@/components/dashboard/student/academic/hooks/useStudyPlanWizard';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -29,12 +26,12 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   examGoal = '',
   onCreatePlan
 }) => {
-  const navigate = useNavigate();
   const {
     step,
     formData,
     setFormData,
     strongSubjects,
+    mediumSubjects,
     weakSubjects,
     handleToggleSubject,
     handlePaceChange,
@@ -42,23 +39,9 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handleExamGoalSelect,
     handleNext,
     handleBack
-  } = useStudyPlanWizard({ 
-    examGoal, 
-    onCreatePlan: (plan) => {
-      onCreatePlan(plan);
-      // Navigate to academic advisor page after plan creation
-      setTimeout(() => {
-        navigate('/dashboard/student/academic');
-      }, 300);
-    }, 
-    onClose 
-  });
+  } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
-  // Define common exam goals
-  const examGoals = [
-    'NEET', 'JEE Main', 'JEE Advanced', 'UPSC', 'CAT', 'GATE', 
-    'Bank PO', 'SSC', 'GMAT', 'GRE'
-  ];
+  const examGoals = ['NEET'];
 
   const renderStep = () => {
     switch (step) {
@@ -68,31 +51,18 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             <div>
               <h2 className="text-xl font-semibold mb-2">Choose Your Exam</h2>
               <p className="text-muted-foreground">Select the exam you're preparing for</p>
-              
-              <Alert className="mt-3 bg-blue-50 text-blue-800 border-blue-200">
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  Creating a new study plan will reset your current progress. Only create a new plan if you're changing exams or want to start fresh.
-                </AlertDescription>
-              </Alert>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {examGoals.map((goal) => (
-                <Tooltip key={goal}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={formData.examGoal === goal ? "default" : "outline"}
-                      className={cn("h-20 flex flex-col", 
-                        formData.examGoal === goal && "border-2 border-primary")}
-                      onClick={() => handleExamGoalSelect(goal)}
-                    >
-                      <span>{goal}</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Set your study plan for {goal}</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Button
+                  key={goal}
+                  variant={formData.examGoal === goal ? "default" : "outline"}
+                  className={cn("h-20 flex flex-col", 
+                    formData.examGoal === goal && "border-2 border-primary")}
+                  onClick={() => handleExamGoalSelect(goal)}
+                >
+                  <span>{goal}</span>
+                </Button>
               ))}
             </div>
           </div>
@@ -134,26 +104,18 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-sm text-muted-foreground">
-                Setting your exam date helps us create a properly paced study plan
-              </p>
             </div>
           </div>
         );
       case 3:
         return (
           <div className="max-h-[400px] overflow-y-auto pr-2">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold mb-2">Your Subjects</h2>
-              <p className="text-muted-foreground">
-                Select your strong and weak subjects to personalize your plan
-              </p>
-            </div>
             <SubjectsStep
               examType={formData.examGoal}
               strongSubjects={strongSubjects}
               weakSubjects={weakSubjects}
               handleToggleSubject={handleToggleSubject}
+              mediumSubjects={mediumSubjects}
             />
           </div>
         );
@@ -182,9 +144,6 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                   className="w-full"
                 />
               </div>
-              <p className="text-sm text-muted-foreground">
-                Be realistic about how much time you can dedicate each day
-              </p>
             </div>
           </div>
         );
@@ -250,13 +209,6 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                 <Label htmlFor="aggressive">Aggressive - I want to cover as much as possible quickly</Label>
               </div>
             </RadioGroup>
-
-            <Alert className="mt-3 bg-green-50 text-green-800 border-green-200">
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                After creating your plan, you'll be taken to the Academic Advisor where you can view and manage it.
-              </AlertDescription>
-            </Alert>
           </div>
         );
       default:
@@ -268,7 +220,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>{step === 1 ? "Create New Study Plan" : `${formData.examGoal} Study Plan - Step ${step}/6`}</DialogTitle>
+          <DialogTitle>Create Study Plan</DialogTitle>
         </DialogHeader>
         <div className="my-4 overflow-y-auto pr-1">{renderStep()}</div>
         <DialogFooter className="flex justify-between sm:justify-between mt-4">

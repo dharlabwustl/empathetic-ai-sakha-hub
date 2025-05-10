@@ -3,7 +3,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Bell, Calendar } from "lucide-react";
 import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { MoodType } from "@/types/user/base";
 import { 
   Tooltip,
   TooltipContent,
@@ -18,7 +17,7 @@ interface TopNavigationControlsProps {
   formattedTime: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: MoodType;
+  mood?: string;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -88,36 +87,20 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
               >
                 <Calendar className="h-4 w-4" />
-                <span className="sr-only">View study plan</span>
+                <span className="hidden sm:inline">Study Plan</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>View study plan</p>
+              <p>View your study calendar based on your exam goals</p>
             </TooltipContent>
           </Tooltip>
           
-          {/* Help Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onOpenTour}
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span className="sr-only">Open help tour</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Help & Tour</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Notifications Icon */}
+          {/* Notification Icon */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -133,7 +116,25 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>Notifications</p>
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Tour Guide Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
             </TooltipContent>
           </Tooltip>
         </div>
