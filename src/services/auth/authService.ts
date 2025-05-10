@@ -92,6 +92,7 @@ const authService = {
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('new_user_signup', 'true'); // Mark as a new user for onboarding
     
     // Return success response
     return {
