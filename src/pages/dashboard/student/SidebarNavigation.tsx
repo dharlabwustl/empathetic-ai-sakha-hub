@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight, Smile, FileText } from "lucide-react";
+  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight, Smile, FileText, FileSearch, ClipboardList } from "lucide-react";
 
 interface SidebarNavigationProps {
   activeTab: string;
@@ -19,9 +19,10 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
     { icon: <MessageSquare size={20} />, title: "24/7 AI Tutor", tab: "tutor" },
     { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
-    { icon: <BookOpen size={20} />, title: "Exam Syllabus", tab: "syllabus" },
-    { icon: <FileText size={20} />, title: "Previous Years", tab: "previous-year-analysis" },
-    { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "exams" },
+    { icon: <BookOpen size={20} />, title: "Concepts", tab: "concepts" },
+    { icon: <ClipboardList size={20} />, title: "Practice Exams", tab: "practice-exam" },
+    { icon: <FileText size={20} />, title: "Exam Syllabus", tab: "syllabus" },
+    { icon: <FileSearch size={20} />, title: "Previous Years", tab: "previous-year-analysis" },
     { icon: <LineChart size={20} />, title: "Progress", tab: "progress" },
     { icon: <Activity size={20} />, title: "Motivation", tab: "motivation" },
     { icon: <Heart size={20} />, title: "Mental Health", tab: "wellness" },
@@ -40,6 +41,18 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
         break;
       case 'previous-year-analysis':
         navigate('/dashboard/student/previous-year-analysis');
+        break;
+      case 'practice-exam':
+        navigate('/dashboard/student/practice-exam');
+        break;
+      case 'concepts':
+        navigate('/dashboard/student/concepts');
+        break;
+      case 'flashcards':
+        navigate('/dashboard/student/flashcards');
+        break;
+      case 'academic':
+        navigate('/dashboard/student/academic');
         break;
       default:
         navigate(`/dashboard/student/${tab}`);

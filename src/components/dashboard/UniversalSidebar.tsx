@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   BookOpen, 
@@ -35,9 +35,15 @@ interface UniversalSidebarProps {
 const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }) => {
   const location = useLocation();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
+  };
+  
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
   
   // Navigation items grouped by categories
@@ -140,7 +146,7 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
                   "w-full text-destructive hover:text-destructive hover:bg-destructive/10",
                   collapsed ? "justify-center p-2" : "justify-start"
                 )}
-                onClick={() => logout()}
+                onClick={handleLogout}
               >
                 <LogOut size={20} className="flex-shrink-0" />
                 {!collapsed && <span className="ml-2">Logout</span>}
