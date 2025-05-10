@@ -15,6 +15,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
+import UniversalSidebar from "@/components/dashboard/UniversalSidebar";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -131,74 +132,79 @@ const DashboardLayout = ({
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-        <TopNavigationControls 
-          hideSidebar={hideSidebar}
-          onToggleSidebar={onToggleSidebar}
-          formattedDate={formattedDate}
-          formattedTime={formattedTime}
-          onOpenTour={handleOpenTour}
-          userName={userProfile.name}
-          mood={currentMood}
-          isFirstTimeUser={isFirstTimeUser}
-          onViewStudyPlan={onViewStudyPlan}
-        />
-
-        {/* Subscription Banner */}
-        <SubscriptionBanner 
-          planType={subscriptionDetails.planType}
-          expiryDate={subscriptionDetails.expiryDate}
-          isExpired={subscriptionDetails.isExpired}
-        />
-
-        {/* Enhanced Dashboard Header */}
-        <div className="mb-6">
-          <EnhancedDashboardHeader 
-            userProfile={userProfile}
-            formattedTime={formattedTime}
+      <div className="flex min-h-screen">
+        {/* Universal Sidebar */}
+        {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
+        
+        <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
+          <TopNavigationControls 
+            hideSidebar={hideSidebar}
+            onToggleSidebar={onToggleSidebar}
             formattedDate={formattedDate}
+            formattedTime={formattedTime}
+            onOpenTour={handleOpenTour}
+            userName={userProfile.name}
+            mood={currentMood}
+            isFirstTimeUser={isFirstTimeUser}
             onViewStudyPlan={onViewStudyPlan}
-            currentMood={currentMood}
-            onMoodChange={onMoodChange}
-            upcomingEvents={upcomingEvents}
           />
-        </div>
 
-        {/* Surrounding Influences Section */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
-        
-        {isMobile && (
+          {/* Subscription Banner */}
+          <SubscriptionBanner 
+            planType={subscriptionDetails.planType}
+            expiryDate={subscriptionDetails.expiryDate}
+            isExpired={subscriptionDetails.isExpired}
+          />
+
+          {/* Enhanced Dashboard Header */}
           <div className="mb-6">
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          </div>
-        )}
-        
-        {/* Main Content - either custom children or standard dashboard content */}
-        {children ? (
-          <div className="mt-6">{children}</div>
-        ) : (
-          <div className="mt-4 sm:mt-6">
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={onTabChange}
+            <EnhancedDashboardHeader 
               userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showTour}
-              handleSkipTour={onSkipTour}
-              handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav || isMobile}
-              lastActivity={lastActivity}
-              suggestedNextAction={suggestedNextAction}
+              formattedTime={formattedTime}
+              formattedDate={formattedDate}
+              onViewStudyPlan={onViewStudyPlan}
+              currentMood={currentMood}
+              onMoodChange={onMoodChange}
+              upcomingEvents={upcomingEvents}
             />
           </div>
-        )}
-      </main>
+
+          {/* Surrounding Influences Section */}
+          <SurroundingInfluencesSection 
+            influenceMeterCollapsed={influenceMeterCollapsed}
+            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          />
+          
+          {isMobile && (
+            <div className="mb-6">
+              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+            </div>
+          )}
+          
+          {/* Main Content - either custom children or standard dashboard content */}
+          {children ? (
+            <div className="mt-6">{children}</div>
+          ) : (
+            <div className="mt-4 sm:mt-6">
+              <DashboardContent
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                userProfile={userProfile}
+                kpis={kpis}
+                nudges={nudges}
+                markNudgeAsRead={markNudgeAsRead}
+                features={features}
+                showWelcomeTour={showTour}
+                handleSkipTour={onSkipTour}
+                handleCompleteTour={onCompleteTour}
+                hideTabsNav={hideTabsNav || isMobile}
+                lastActivity={lastActivity}
+                suggestedNextAction={suggestedNextAction}
+              />
+            </div>
+          )}
+        </main>
+      </div>
       
       <ChatAssistant userType="student" />
       

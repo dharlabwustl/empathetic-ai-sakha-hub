@@ -5,6 +5,7 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import EnhancedNavigation from '@/components/dashboard/student/EnhancedNavigation';
 import PersonalizedQuickAccess from '@/components/dashboard/student/PersonalizedQuickAccess';
 
 interface DashboardTabsProps {
@@ -105,6 +106,14 @@ const DashboardContent = ({
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
+        />
+      )}
+      
+      {/* Enhanced Navigation Tabs */}
+      {!hideTabsNav && (
+        <EnhancedNavigation 
+          activeTab={activeTab} 
+          onTabChange={onTabChange}
         />
       )}
       

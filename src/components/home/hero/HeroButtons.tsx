@@ -7,7 +7,7 @@ import { ArrowRight, SparklesIcon } from "lucide-react";
 export interface HeroButtonsProps {
   scrollToFeatures?: () => void;
   scrollToForWhom?: () => void;
-  onAnalyzeClick?: () => void;
+  onAnalyzeClick: () => void;
 }
 
 const HeroButtons: React.FC<HeroButtonsProps> = ({

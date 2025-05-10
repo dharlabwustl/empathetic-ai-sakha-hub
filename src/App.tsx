@@ -61,10 +61,10 @@ import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 
 // Wrap a component with SidebarLayout and protection
-const ProtectedSidebarRoute = ({ Component, hideSidebar = false }: { Component: React.ComponentType<any>, hideSidebar?: boolean }) => {
+const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
   return (
     <ProtectedRoute>
-      <SidebarLayout hideSidebar={hideSidebar}>
+      <SidebarLayout>
         <Component />
       </SidebarLayout>
     </ProtectedRoute>

@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import ExamNamesBadge from '../home/hero/ExamNamesBadge';
 import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
 
 // Direct NEET signup modal component
 const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
@@ -88,35 +87,12 @@ const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
   );
 };
 
-// Function to fetch KPI stats from backend
-const fetchKpiData = async () => {
-  // In a production environment, this would fetch from an API
-  // For now, we'll return mock data
-  return {
-    studentsHelped: "+10,000",
-    successRate: "92%",
-    studyPlansDelivered: "12,000+",
-    reducedAnxiety: "72%"
-  };
-};
-
 const HeroSection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentTagline, setCurrentTagline] = useState(0);
   const [showNeetModal, setShowNeetModal] = useState(false);
-  
-  // Fetch KPI data from backend
-  const { data: kpiStats = {
-    studentsHelped: "+10,000",
-    successRate: "92%", 
-    studyPlansDelivered: "12,000+",
-    reducedAnxiety: "72%"
-  }} = useQuery({
-    queryKey: ['kpiStats'],
-    queryFn: fetchKpiData
-  });
   
   const taglines = [
     "Ace your exams.",
@@ -183,12 +159,12 @@ const HeroSection = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
               </span>
-              <div className="text-gray-800 dark:text-white mt-2">
+              <span className="text-gray-800 dark:text-white block mt-2">
                 We understand Your Mindset, Not Just the Exam.
-              </div>
+              </span>
             </motion.h1>
           </motion.div>
           
@@ -282,7 +258,7 @@ const HeroSection = () => {
             )}
           </motion.div>
           
-          {/* Stats Section - Now using dynamic KPI data */}
+          {/* Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -291,10 +267,10 @@ const HeroSection = () => {
           >
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                <StatCard value={kpiStats.studentsHelped} label="Active Students" highlight />
-                <StatCard value={kpiStats.successRate} label="Success Rate" />
-                <StatCard value={kpiStats.studyPlansDelivered} label="Study Plans Delivered" />
-                <StatCard value={kpiStats.reducedAnxiety} label="Feel Reduced Anxiety" />
+                <StatCard value="10,000+" label="Active Students" highlight />
+                <StatCard value="92%" label="Success Rate" />
+                <StatCard value="24/7" label="AI Tutor Support" />
+                <StatCard value="100+" label="Practice Tests" />
               </div>
             </div>
           </motion.div>
