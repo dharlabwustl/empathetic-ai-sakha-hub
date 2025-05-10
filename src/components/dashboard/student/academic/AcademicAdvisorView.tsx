@@ -1,22 +1,30 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
 import { UserProfileType } from "@/types/user";
-import { useAcademicPlans } from './hooks/useAcademicPlans';
 import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
 import StudyPlanSections from "./components/StudyPlanSections";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-interface AcademicAdvisorViewProps {
-  userProfile: UserProfileType;
-}
-
-const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }) => {
+const AcademicAdvisorView: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  
+  // Listen for custom event to open the dialog
+  useEffect(() => {
+    const openDialogHandler = () => {
+      setShowCreateDialog(true);
+    };
+    
+    document.addEventListener('openCreateStudyPlan', openDialogHandler);
+    
+    return () => {
+      document.removeEventListener('openCreateStudyPlan', openDialogHandler);
+    };
+  }, []);
   
   // Mock study plans for demo
   const demoStudyPlans: StudyPlan[] = [
@@ -35,6 +43,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "high",
+          proficiency: "medium",
           hoursPerWeek: 6
         },
         {
@@ -44,6 +53,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "medium",
+          proficiency: "strong",
           hoursPerWeek: 4
         },
         {
@@ -53,6 +63,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "completed",
           priority: "high",
+          proficiency: "weak",
           hoursPerWeek: 8
         }
       ],
@@ -76,6 +87,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "high",
+          proficiency: "weak",
           hoursPerWeek: 8
         },
         {
@@ -85,6 +97,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "medium",
+          proficiency: "medium",
           hoursPerWeek: 6
         },
         {
@@ -94,6 +107,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "low",
+          proficiency: "weak",
           hoursPerWeek: 10
         }
       ],
@@ -117,6 +131,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
+          proficiency: "medium",
           hoursPerWeek: 5
         },
         {
@@ -126,6 +141,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
+          proficiency: "strong",
           hoursPerWeek: 4
         },
         {
@@ -135,6 +151,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "in-progress",
           priority: "medium",
+          proficiency: "weak",
           hoursPerWeek: 6
         }
       ],
@@ -176,11 +193,11 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-medium">Academic Progress</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-sm">Current Goal</span>
-                <span className="font-medium text-lg">{userProfile.goals?.[0]?.title || "NEET"}</span>
+                <span className="font-medium text-lg">NEET</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-sm">Subjects</span>
@@ -200,7 +217,8 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
             <h2 className="text-xl font-semibold">Study Plans</h2>
             <Button onClick={handleCreatePlanClick} className="flex gap-1 items-center">
               <PlusCircle className="h-4 w-4 mr-1" />
-              Create New Plan
+              <span className="hidden sm:inline">Create New Plan</span>
+              <span className="sm:hidden">New Plan</span>
             </Button>
           </div>
 
@@ -217,7 +235,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           isOpen={showCreateDialog}
           onClose={() => setShowCreateDialog(false)}
           onCreatePlan={handleCreatePlan}
-          examGoal={userProfile.goals?.[0]?.title}
+          examGoal="NEET"
         />
       </div>
     </SharedPageLayout>

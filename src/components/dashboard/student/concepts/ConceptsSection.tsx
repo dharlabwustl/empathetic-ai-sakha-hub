@@ -16,7 +16,7 @@ const ConceptsSection = () => {
   
   if (loading) {
     return (
-      <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {[...Array(3)].map((_, i) => (
           <Card key={i} className="h-40 animate-pulse">
             <CardContent className="p-0 h-full">
@@ -24,7 +24,7 @@ const ConceptsSection = () => {
             </CardContent>
           </Card>
         ))}
-      </>
+      </div>
     );
   }
   
@@ -39,7 +39,7 @@ const ConceptsSection = () => {
   }
   
   return (
-    <>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {todaysCards.map((card) => (
         <Link key={card.id} to={`/dashboard/student/concepts/card/${card.id}`}>
           <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
@@ -77,7 +77,7 @@ const ConceptsSection = () => {
           </Card>
         </Link>
       ))}
-    </>
+    </div>
   );
 };
 

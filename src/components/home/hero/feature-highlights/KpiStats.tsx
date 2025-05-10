@@ -81,7 +81,7 @@ const StatCard = ({
       className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-700"
     >
       <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${gradient}`}></div>
-      <div className="p-5 md:p-6">
+      <div className="p-4 md:p-6">
         <div className="flex items-center justify-between mb-2">
           <div className={`p-2 rounded-lg bg-gradient-to-br ${gradient} bg-opacity-10`}>
             {icon}
@@ -92,12 +92,12 @@ const StatCard = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: delay * 0.1 + 0.5 }}
-          className={`text-xl md:text-2xl lg:text-3xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
+          className={`text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
         >
           {value}
         </motion.h3>
         
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{label}</p>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{label}</p>
       </div>
     </motion.div>
   );
@@ -107,9 +107,9 @@ const KpiStats = () => {
   const kpiData = useKpiData();
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
       <StatCard 
-        icon={<Users size={24} className="text-white" />} 
+        icon={<Users size={20} className="text-white" />} 
         value={`+${kpiData.totalStudents.toLocaleString()}`} 
         label="Students Helped"
         delay={0}
@@ -117,7 +117,7 @@ const KpiStats = () => {
       />
       
       <StatCard 
-        icon={<Brain size={24} className="text-white" />} 
+        icon={<Brain size={20} className="text-white" />} 
         value={`${kpiData.averageConcepts}/Student`} 
         label="Concepts Mastered Avg"
         delay={1}
@@ -125,7 +125,7 @@ const KpiStats = () => {
       />
       
       <StatCard 
-        icon={<Calendar size={24} className="text-white" />} 
+        icon={<Calendar size={20} className="text-white" />} 
         value={`${kpiData.totalStudyPlans.toLocaleString()}+`} 
         label="Dynamic Study Plans Delivered"
         delay={2}
@@ -133,7 +133,7 @@ const KpiStats = () => {
       />
       
       <StatCard 
-        icon={<Heart size={24} className="text-white" />} 
+        icon={<Heart size={20} className="text-white" />} 
         value={`${kpiData.verifiedMoodImprovement}%`} 
         label="Feel Stress Reduced"
         delay={3}

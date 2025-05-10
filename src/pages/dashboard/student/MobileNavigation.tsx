@@ -22,7 +22,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   
   const navItems = [
     { icon: <Home size={16} />, title: "Dashboard", tab: "overview", tooltip: "Go to dashboard" },
-    { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today", tooltip: "View your study plan for today" },
+    { icon: <Calendar size={16} />, title: "Today", tab: "today", tooltip: "View your study plan for today" },
     { icon: <GraduationCap size={16} />, title: "Academic", tab: "academic", tooltip: "Get academic guidance" },
     { icon: <Headphones size={16} />, title: "AI Tutor", tab: "tutor", tooltip: "Chat with your AI tutor" },
     { icon: <BookOpen size={16} />, title: "Concepts", tab: "concepts", tooltip: "Browse concept cards" },
@@ -44,8 +44,8 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
 
   return (
     <TooltipProvider>
-      <div className="md:hidden mb-6 overflow-x-auto tab-scrollbar pb-3">
-        <div className="flex gap-3 px-1">
+      <div className="md:hidden mb-6 overflow-x-auto scrollbar-hide pb-3">
+        <div className="flex gap-2 px-1">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
@@ -60,7 +60,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                   onClick={() => handleTabChange(item.tab)}
                 >
                   {item.icon}
-                  <span className="ml-2 whitespace-nowrap">{item.title}</span>
+                  <span className="ml-1 text-xs whitespace-nowrap">{item.title}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
