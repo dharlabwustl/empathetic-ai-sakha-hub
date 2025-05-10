@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
@@ -45,7 +46,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            We understand Your Mindset, Not Just the Exam.{" "}
+            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to{" "}
             <motion.span 
               className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-bold"
               animate={{ 
@@ -58,8 +59,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 repeatType: "reverse"
               }}
             >
-              Ace your exams. Save time. Stress less. Study smarter.
-            </motion.span>
+              Crack Exams
+            </motion.span>.
           </motion.p>
           
           <motion.div

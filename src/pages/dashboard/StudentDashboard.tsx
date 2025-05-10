@@ -11,7 +11,6 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
-import FormulaLabPage from "@/components/dashboard/student/formula-lab/FormulaLabPage";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -165,37 +164,6 @@ const StudentDashboard = () => {
     ...userProfile,
     photoURL: profileImage || userProfile.photoURL
   };
-
-  // Check for formula-practice-lab route
-  if (location.pathname.includes('/formula-practice-lab')) {
-    return (
-      <DashboardLayout
-        userProfile={enhancedUserProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab="formula-practice-lab"
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showTourModal}
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTourWrapper}
-        onCompleteTour={handleCompleteTourWrapper}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-        onProfileImageUpdate={handleProfileImageUpdate}
-      >
-        <FormulaLabPage />
-      </DashboardLayout>
-    );
-  }
 
   // Custom content based on active tab
   const getTabContent = () => {
