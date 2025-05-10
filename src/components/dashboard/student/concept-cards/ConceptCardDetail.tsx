@@ -37,9 +37,9 @@ const Lightbulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
 };
 
 export const ConceptCardDetail = () => {
-  const { id } = useParams();
+  const { id: conceptId } = useParams();
   const navigate = useNavigate();
-  const { conceptCard, loading } = useConceptCardDetails(id || '');
+  const { conceptCard, loading } = useConceptCardDetails(conceptId || '');
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [userNote, setUserNote] = useState('');
@@ -47,7 +47,7 @@ export const ConceptCardDetail = () => {
 
   // Function to navigate to the concept study page
   const handleStudyClick = () => {
-    navigate(`/dashboard/student/concepts/${id}/study`);
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
     toast({
       title: "Loading study materials",
       description: "Preparing your personalized learning experience",
@@ -56,7 +56,7 @@ export const ConceptCardDetail = () => {
 
   // Function to navigate to formula lab for this concept
   const handleFormulaLabClick = () => {
-    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
+    navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`);
     toast({
       title: "Loading Formula Lab",
       description: "Preparing practice exercises for this concept",
