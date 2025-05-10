@@ -16,6 +16,10 @@ const adminRoutes: RouteObject[] = [
     path: "/admin/flask-guide",
     element: <AdminRouteGuard><FlaskGuidePage /></AdminRouteGuard>,
   },
+  {
+    path: "/admin/dashboard",
+    element: <AdminRouteGuard><AdminDashboard /></AdminRouteGuard>,
+  },
   // Add a fallback route to redirect to dashboard
   {
     path: "/admin/*",

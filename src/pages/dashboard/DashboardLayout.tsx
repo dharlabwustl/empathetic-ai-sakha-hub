@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardContent from "./student/DashboardContent";
 import StudyPlanDialog from "./student/StudyPlanDialog";
@@ -17,6 +15,8 @@ import { getFeatures } from "./student/utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import UnifiedSidebar from "@/components/dashboard/UnifiedSidebar";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -72,7 +72,6 @@ const DashboardLayout = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
   
-  // Initialize showTour state
   const [showTour, setShowTour] = useState(false);
   
   useEffect(() => {
@@ -144,105 +143,107 @@ const DashboardLayout = ({
   const subscriptionDetails = getSubscriptionDetails();
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      {/* Fixed Sidebar Navigation */}
-      <SidebarNav 
-        userType="student" 
-        userName={userProfile.name} 
-        onTabChange={onTabChange}
-        activeTab={activeTab}
-      />
-      
-      <main className={`transition-all duration-300 text-base ml-0 md:ml-64 p-4 sm:p-6 pb-20 md:pb-6`}>
-        <TopNavigationControls 
-          hideSidebar={hideSidebar}
-          onToggleSidebar={onToggleSidebar}
-          formattedDate={formattedDate}
-          formattedTime={formattedTime}
-          onOpenTour={handleOpenTour}
-          userName={userProfile.name}
-          mood={currentMood}
-          isFirstTimeUser={isFirstTimeUser}
-          onViewStudyPlan={onViewStudyPlan}
+    <SidebarProvider>
+      <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''} flex w-full`}>
+        {/* Unified Sidebar - now using our new UnifiedSidebar component */}
+        <UnifiedSidebar 
+          userType="student" 
+          userName={userProfile.name} 
+          activeTab={activeTab}
+          onTabChange={onTabChange}
         />
-
-        {/* Subscription Banner */}
-        <SubscriptionBanner 
-          planType={subscriptionDetails.planType}
-          expiryDate={subscriptionDetails.expiryDate}
-          isExpired={subscriptionDetails.isExpired}
-        />
-
-        {/* Enhanced Dashboard Header */}
-        <div className="mb-6">
-          <EnhancedDashboardHeader 
-            userProfile={userProfile}
-            formattedTime={formattedTime}
+        
+        <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">
+          <TopNavigationControls 
+            hideSidebar={hideSidebar}
+            onToggleSidebar={onToggleSidebar}
             formattedDate={formattedDate}
-            onViewStudyPlan={onViewStudyPlan}
-            currentMood={currentMood}
-            onMoodChange={onMoodChange}
-            upcomingEvents={upcomingEvents}
+            formattedTime={formattedTime}
+            onOpenTour={handleOpenTour}
+            userName={userProfile.name}
+            mood={currentMood}
             isFirstTimeUser={isFirstTimeUser}
+            onViewStudyPlan={onViewStudyPlan}
           />
-        </div>
 
-        {/* Surrounding Influences Section */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
-        
-        {isMobile && (
+          {/* Subscription Banner */}
+          <SubscriptionBanner 
+            planType={subscriptionDetails.planType}
+            expiryDate={subscriptionDetails.expiryDate}
+            isExpired={subscriptionDetails.isExpired}
+          />
+
+          {/* Enhanced Dashboard Header */}
           <div className="mb-6">
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          </div>
-        )}
-        
-        {/* Main Content */}
-        {children ? (
-          <div className="mt-6">{children}</div>
-        ) : (
-          <div className="mt-4 sm:mt-6">
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={onTabChange}
+            <EnhancedDashboardHeader 
               userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showWelcomeTour}
-              handleSkipTour={onSkipTour}
-              handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav || isMobile}
-              lastActivity={lastActivity}
-              suggestedNextAction={suggestedNextAction}
+              formattedTime={formattedTime}
+              formattedDate={formattedDate}
+              onViewStudyPlan={onViewStudyPlan}
+              currentMood={currentMood}
+              onMoodChange={onMoodChange}
+              upcomingEvents={upcomingEvents}
+              isFirstTimeUser={isFirstTimeUser}
             />
           </div>
+
+          {/* Surrounding Influences Section */}
+          <SurroundingInfluencesSection 
+            influenceMeterCollapsed={influenceMeterCollapsed}
+            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          />
+          
+          {isMobile && (
+            <div className="mb-6">
+              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+            </div>
+          )}
+          
+          {/* Main Content */}
+          {children ? (
+            <div className="mt-6">{children}</div>
+          ) : (
+            <div className="mt-4 sm:mt-6">
+              <DashboardContent
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                userProfile={userProfile}
+                kpis={kpis}
+                nudges={nudges}
+                markNudgeAsRead={markNudgeAsRead}
+                features={features}
+                showWelcomeTour={showWelcomeTour}
+                handleSkipTour={onSkipTour}
+                handleCompleteTour={onCompleteTour}
+                hideTabsNav={hideTabsNav || isMobile}
+                lastActivity={lastActivity}
+                suggestedNextAction={suggestedNextAction}
+              />
+            </div>
+          )}
+        </main>
+        
+        <ChatAssistant userType="student" />
+        
+        {showStudyPlan && (
+          <StudyPlanDialog 
+            userProfile={userProfile} 
+            onClose={onCloseStudyPlan} 
+          />
         )}
-      </main>
-      
-      <ChatAssistant userType="student" />
-      
-      {showStudyPlan && (
-        <StudyPlanDialog 
-          userProfile={userProfile} 
-          onClose={onCloseStudyPlan} 
+        
+        <WelcomeTour
+          onSkipTour={handleCloseTour}
+          onCompleteTour={handleCompleteTourAndClose}
+          isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
+          loginCount={userProfile.loginCount}
+          open={showTour}
+          onOpenChange={setShowTour}
         />
-      )}
-      
-      <WelcomeTour
-        onSkipTour={handleCloseTour}
-        onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={isFirstTimeUser || !userProfile.loginCount || userProfile.loginCount <= 1}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
-        open={showTour}
-        onOpenChange={setShowTour}
-      />
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
