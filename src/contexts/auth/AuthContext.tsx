@@ -1,160 +1,155 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import authService, { AuthUser, LoginCredentials, RegisterData } from '@/services/auth/authService';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { UserRole } from '@/types/user/base';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: User | null;
   loading: boolean;
-  login: (credentials: LoginCredentials) => Promise<boolean>;
-  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
-  googleSignIn: () => Promise<boolean>;
-  logout: () => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// Create the context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// Auth provider props
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
+// Auth provider component
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
-  // Initialize authentication state
+  // Check for existing user in localStorage on component mount
   useEffect(() => {
-    const initializeAuth = async () => {
+    const checkAuth = () => {
       setLoading(true);
-      try {
-        // Check if token exists and is valid
-        const isAuthenticated = await authService.verifyToken();
-        
-        if (isAuthenticated) {
-          const currentUser = authService.getCurrentUser();
-          setUser(currentUser);
+      
+      // Check if user data exists in localStorage
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        try {
+          const parsedData = JSON.parse(userData);
+          if (parsedData.email) {
+            // User is already logged in
+            setUser({
+              id: parsedData.id || '1',
+              name: parsedData.name || 'User',
+              email: parsedData.email,
+              role: parsedData.role || UserRole.Student
+            });
+            console.log("User authenticated from localStorage:", parsedData.email);
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('userData');
         }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-        authService.clearAuthData(); // Clear any invalid auth data
-      } finally {
-        setLoading(false);
       }
+      
+      setLoading(false);
     };
     
-    initializeAuth();
+    checkAuth();
   }, []);
 
   // Login function
-  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
-    try {
-      const response = await authService.login(credentials);
-      
-      if (response.success && response.data) {
-        setUser(response.data);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Register function
-  const register = async (name: string, email: string, phone: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    try {
-      const userData: RegisterData = {
-        name,
-        email,
-        phoneNumber: phone,
-        password
-      };
-      
-      const response = await authService.register(userData);
-      
-      if (response.success && response.data) {
-        setUser(response.data);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Registration error:", error);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Google Sign In (mock)
-  const googleSignIn = async (): Promise<boolean> => {
-    setLoading(true);
-    try {
-      // Mock Google sign in response
-      const mockResponse = await authService.register({
-        name: "Google User",
-        email: `google_user_${Date.now()}@gmail.com`,
-        phoneNumber: "",
-        password: "google_auth"
-      });
-      
-      if (mockResponse.success && mockResponse.data) {
-        setUser(mockResponse.data);
-        localStorage.setItem('should_prompt_study_plan', 'true');
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Google sign in error:", error);
-      return false;
-    } finally {
-      setLoading(false);
-    }
+    
+    return new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        if (email && password && password.length >= 2) {
+          const newUser: User = {
+            id: '1',
+            name: email.split('@')[0] || 'Student',
+            email: email,
+            role: UserRole.Student
+          };
+          
+          // Check if this is a returning user
+          const existingData = localStorage.getItem('userData');
+          let loginCount = 1;
+          let sawWelcomeSlider = false;
+          let sawWelcomeTour = false;
+          
+          if (existingData) {
+            try {
+              const parsedData = JSON.parse(existingData);
+              loginCount = (parsedData.loginCount || 0) + 1;
+              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
+              sawWelcomeTour = parsedData.sawWelcomeTour === true;
+            } catch (error) {
+              console.error('Error parsing existing user data:', error);
+            }
+          }
+          
+          // Save user data to localStorage
+          localStorage.setItem('userData', JSON.stringify({
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+            lastLogin: new Date().toISOString(),
+            loginCount: loginCount,
+            sawWelcomeSlider: sawWelcomeSlider,
+            sawWelcomeTour: sawWelcomeTour,
+            mood: 'Motivated',
+            isAuthenticated: true
+          }));
+          
+          setUser(newUser);
+          setLoading(false);
+          console.log("Login successful for:", email);
+          resolve(true);
+        } else {
+          setLoading(false);
+          console.log("Login failed for:", email);
+          resolve(false);
+        }
+      }, 800);
+    });
   };
 
   // Logout function
-  const logout = async (): Promise<void> => {
-    try {
-      await authService.logout();
-      setUser(null);
-      // Ensure all auth-related items are cleared from localStorage
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('user_profile_image');
-      localStorage.removeItem('sakha_auth_token');
-      localStorage.removeItem('sakha_auth_user');
-      localStorage.removeItem('new_user_signup');
-      localStorage.removeItem('sawWelcomeTour');
-      localStorage.removeItem('sawWelcomeSlider');
-      localStorage.removeItem('dashboard_tour_completed');
-      localStorage.removeItem('hasSeenSplash');
-      sessionStorage.removeItem('hasSeenSplash');
-      
-      // Navigate to login page after logout
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout error:", error);
+  const logout = () => {
+    // Preserve some user preferences but remove auth data
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        // Only keep preferences and mood, remove auth data
+        localStorage.setItem('userData', JSON.stringify({
+          mood: parsedData.mood,
+          completedOnboarding: parsedData.completedOnboarding,
+          sawWelcomeTour: parsedData.sawWelcomeTour,
+          sawWelcomeSlider: parsedData.sawWelcomeSlider,
+          isAuthenticated: false
+        }));
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
     }
+    setUser(null);
+    console.log("User logged out");
   };
-
+  
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
         login,
-        register,
-        googleSignIn,
         logout,
         isAuthenticated: !!user
       }}
@@ -162,4 +157,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

@@ -1,19 +1,14 @@
 
-import React, { useState } from "react";
-import { Menu, ChevronDown, Lightbulb, LogOut, User, Bell, ExternalLink, AlignLeft, BookOpen } from "lucide-react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { MoodType } from "@/types/user/base";
-import { getMoodEmoji } from "./mood-tracking/moodUtils";
+import { HelpCircle, Bell, Calendar } from "lucide-react";
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
@@ -22,7 +17,7 @@ interface TopNavigationControlsProps {
   formattedTime: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: MoodType | null;
+  mood?: string;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -35,136 +30,116 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   onOpenTour,
   userName,
   mood,
-  isFirstTimeUser = false,
-  onViewStudyPlan,
+  isFirstTimeUser,
+  onViewStudyPlan
 }) => {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: "Logged out successfully",
-        description: "We hope to see you soon!",
-      });
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout failed:", error);
-      toast({
-        title: "Logout failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="flex items-center space-x-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-          onClick={onToggleSidebar}
-        >
-          <AlignLeft size={20} />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
-        <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
-          {formattedDate} | {formattedTime}
-        </span>
-      </div>
-
-      <div className="flex items-center space-x-1 sm:space-x-2">
-        {/* Study Plan Button */}
-        {onViewStudyPlan && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-sm hidden sm:flex items-center gap-1"
-            onClick={onViewStudyPlan}
-          >
-            <BookOpen size={16} />
-            <span>Study Plan</span>
-          </Button>
-        )}
-
-        {/* Tour Button - Only show during first login */}
-        {isFirstTimeUser && onOpenTour && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onOpenTour}
-            className="text-sm flex items-center gap-1"
-          >
-            <Lightbulb size={16} />
-            <span className="hidden sm:inline">Tour</span>
-          </Button>
-        )}
+    <TooltipProvider delayDuration={0}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={onToggleSidebar}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Toggle navigation menu</p>
+            </TooltipContent>
+          </Tooltip>
+          <div>
+            <h2 className="text-lg font-semibold">{formattedTime}</h2>
+            <p className="text-muted-foreground text-sm">{formattedDate}</p>
+          </div>
+        </div>
         
-        {/* Mood Button */}
-        {mood && (
-          <Button variant="ghost" size="sm" asChild className="text-lg p-2">
-            <span>{getMoodEmoji(mood)}</span>
-          </Button>
-        )}
-
-        {/* Notifications Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell size={18} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72 bg-white border border-gray-200 shadow-lg rounded-lg">
-            <h3 className="font-semibold p-3 border-b">Notifications</h3>
-            <div className="max-h-72 overflow-auto">
-              <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
-                <p className="text-sm font-medium">Time to revise Biology</p>
-                <p className="text-xs text-gray-500">10 minutes ago</p>
-              </div>
-              <div className="p-3 hover:bg-gray-50 cursor-pointer">
-                <p className="text-sm font-medium">New NEET practice test available</p>
-                <p className="text-xs text-gray-500">1 hour ago</p>
-              </div>
-            </div>
-            <DropdownMenuSeparator />
-            <Button variant="ghost" size="sm" className="w-full justify-center text-blue-600">
-              View all notifications
-            </Button>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* User Dropdown */}
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger asChild onClick={() => setIsOpen(!isOpen)}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1 text-sm font-normal"
-            >
-              <span className="hidden md:inline">{userName || "User"}</span>
-              <ChevronDown size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg">
-            <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          {/* Voice Announcer Integration */}
+          <VoiceAnnouncer 
+            userName={userName}
+            mood={mood}
+            isFirstTimeUser={isFirstTimeUser}
+          />
+          
+          {/* Calendar Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your study calendar based on your exam goals</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Notification Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Tour Guide Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

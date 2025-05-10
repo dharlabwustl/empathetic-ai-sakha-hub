@@ -30,13 +30,9 @@ import {
 
 interface UniversalSidebarProps {
   collapsed?: boolean;
-  onLogout?: () => void;
 }
 
-const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ 
-  collapsed = false, 
-  onLogout 
-}) => {
+const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }) => {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -46,19 +42,8 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({
   };
   
   const handleLogout = async () => {
-    try {
-      if (onLogout) {
-        await onLogout();
-      } else {
-        await logout();
-      }
-      // Navigate to login page after logout
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Force navigate to login even if logout fails
-      navigate('/login');
-    }
+    await logout();
+    navigate('/login');
   };
   
   // Navigation items grouped by categories

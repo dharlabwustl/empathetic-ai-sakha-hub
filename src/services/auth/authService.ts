@@ -30,7 +30,6 @@ export interface AuthUser {
 // Local storage keys
 const AUTH_TOKEN_KEY = 'sakha_auth_token';
 const AUTH_USER_KEY = 'sakha_auth_user';
-const IS_LOGGED_IN_KEY = 'isLoggedIn';
 
 // Authentication service
 const authService = {
@@ -58,7 +57,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userData));
-    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -92,8 +91,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
-    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
-    localStorage.setItem('new_user_signup', 'true'); // Mark as a new user for onboarding
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -120,7 +118,7 @@ const authService = {
     
     // Set the auth data
     this.setAuthData(adminUser);
-    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Return success response
     return {
@@ -134,8 +132,10 @@ const authService = {
   async logout(): Promise<ApiResponse<void>> {
     // Clear all auth data from local storage
     this.clearAuthData();
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('user_profile_image');
     
-    // Return success response
     return {
       success: true,
       data: null,
@@ -156,12 +156,6 @@ const authService = {
   clearAuthData(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem(IS_LOGGED_IN_KEY);
-    localStorage.removeItem('userData');
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('sakha_auth_token');
-    localStorage.removeItem('sakha_auth_user');
-    localStorage.removeItem('new_user_signup');
     apiClient.setAuthToken(null);
   },
   
@@ -178,19 +172,18 @@ const authService = {
   
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return localStorage.getItem(IS_LOGGED_IN_KEY) === 'true' && !!this.getToken();
+    return !!this.getToken();
   },
   
   // Verify if token is still valid
   async verifyToken(): Promise<boolean> {
     const token = this.getToken();
-    const isLoggedIn = localStorage.getItem(IS_LOGGED_IN_KEY) === 'true';
     
-    if (!token || !isLoggedIn) {
+    if (!token) {
       return false;
     }
     
-    // For demo, return true to simulate valid token
+    // For demo, always return true to simulate valid token
     return true;
   },
   
