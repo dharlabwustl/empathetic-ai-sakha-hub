@@ -15,7 +15,6 @@ import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
-import UniversalSidebar from "@/components/dashboard/UniversalSidebar";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -133,8 +132,7 @@ const DashboardLayout = ({
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
-        {/* Universal Sidebar */}
-        {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
+        {/* IMPORTANT: Only show the UniversalSidebar from the parent component - removed sidebar from here to fix double sidebar issue */}
         
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
           <TopNavigationControls 

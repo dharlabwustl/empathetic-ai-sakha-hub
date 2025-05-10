@@ -174,7 +174,7 @@ const StudentDashboard = () => {
   return (
     <DashboardLayout
       userProfile={enhancedUserProfile}
-      hideSidebar={hideSidebar}
+      hideSidebar={false}
       hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
       activeTab={activeTab}
       kpis={kpis}

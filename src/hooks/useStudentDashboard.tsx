@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfileType, UserRole } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { adminService } from '@/services/adminService';
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ export const useStudentDashboard = () => {
   // Mock initialization
   useEffect(() => {
     // Simulate loading
-    setTimeout(() => {
+    setTimeout(async () => {
       // Set mock user profile
       setUserProfile({
         id: "1",
@@ -38,13 +39,27 @@ export const useStudentDashboard = () => {
         avatar: '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png'
       });
       
-      // Set mock KPIs
-      setKpis([
-        { id: "1", title: "Streak Days", value: 12, icon: "🔥", change: 2, changeType: "positive" },
-        { id: "2", title: "Concepts Mastered", value: 48, icon: "📚", change: 5, changeType: "positive" },
-        { id: "3", title: "Practice Tests", value: 24, icon: "✅", change: 3, changeType: "positive" },
-        { id: "4", title: "Study Time", value: 28, unit: "hours", icon: "⏱️", change: 4, changeType: "positive" }
-      ]);
+      // Get stats from admin service for KPIs
+      try {
+        const stats = await adminService.getDashboardStats();
+        
+        // Set KPIs with data from admin service
+        setKpis([
+          { id: "1", title: "Streak Days", value: 12, icon: "🔥", change: 2, changeType: "positive" },
+          { id: "2", title: "Concepts Mastered", value: stats.averageConcepts || 48, icon: "📚", change: 5, changeType: "positive" },
+          { id: "3", title: "Study Plans", value: Math.round(stats.totalStudyPlans / 500), unit: "delivered", icon: "📝", change: 3, changeType: "positive" },
+          { id: "4", title: "Feel Stress Reduced", value: stats.verifiedMoodImprovement || 72, unit: "%", icon: "💆", change: 4, changeType: "positive" }
+        ]);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+        // Fallback KPIs if admin service fails
+        setKpis([
+          { id: "1", title: "Streak Days", value: 12, icon: "🔥", change: 2, changeType: "positive" },
+          { id: "2", title: "Concepts Mastered", value: 48, icon: "📚", change: 5, changeType: "positive" },
+          { id: "3", title: "Study Plans", value: 24, unit: "delivered", icon: "📝", change: 3, changeType: "positive" },
+          { id: "4", title: "Feel Stress Reduced", value: 72, unit: "%", icon: "💆", change: 4, changeType: "positive" }
+        ]);
+      }
       
       // Set mock nudges
       setNudges([
