@@ -1,257 +1,158 @@
 
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { 
+  BookOpen, 
+  Calendar, 
+  FileSearch, 
+  FileText, 
+  Brain, 
+  ClipboardList, 
+  GraduationCap, 
+  Headphones, 
+  LayoutDashboard, 
+  LogOut, 
+  Bell, 
+  User, 
+  Smile 
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import PrepzrLogo from '../common/PrepzrLogo';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  GraduationCap, 
-  BookOpen, 
-  Brain, 
-  FileText, 
-  Bell, 
-  Smile, 
-  Headphones,
-  ClipboardList,
-  FileSearch,
-  User,
-  LogOut
-} from "lucide-react";
-import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 interface UniversalSidebarProps {
   collapsed?: boolean;
 }
 
-interface NavigationItem {
-  name: string;
-  path: string;
-  icon: React.ReactElement;
-  tooltip: string;
-}
-
-interface NavigationCategory {
-  title: string;
-  items: NavigationItem[];
-}
-
-export const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }) => {
+const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }) => {
   const location = useLocation();
+  const { logout } = useAuth();
   
-  const navigationCategories: NavigationCategory[] = [
+  const isActive = (path: string) => {
+    return location.pathname.startsWith(path);
+  };
+  
+  // Navigation items grouped by categories
+  const navItems = [
     {
-      title: "Your Learning Journey",
+      category: "Your Learning Journey",
       items: [
-        { 
-          name: "Dashboard", 
-          path: "/dashboard/student", 
-          icon: <LayoutDashboard size={20} />, 
-          tooltip: "Go to your dashboard overview" 
-        },
-        { 
-          name: "Today's Plan", 
-          path: "/dashboard/student/today", 
-          icon: <CalendarDays size={20} />, 
-          tooltip: "View your study plan for today" 
-        },
-        { 
-          name: "Academic Advisor", 
-          path: "/dashboard/student/academic", 
-          icon: <GraduationCap size={20} />, 
-          tooltip: "Get personalized academic guidance" 
-        },
+        { path: "/dashboard/student", icon: <LayoutDashboard size={20} />, label: "Dashboard", tooltip: "Overview of your study progress" },
+        { path: "/dashboard/student/academic", icon: <GraduationCap size={20} />, label: "Academic Advisor", tooltip: "Get personalized academic guidance" },
+        { path: "/dashboard/student/today", icon: <Calendar size={20} />, label: "Today's Plan", tooltip: "View your daily study plan" },
       ]
     },
     {
-      title: "Learning Tools",
+      category: "Learning Tools",
       items: [
-        { 
-          name: "Concept Cards", 
-          path: "/dashboard/student/concepts", 
-          icon: <BookOpen size={20} />, 
-          tooltip: "Browse concept cards for your subjects" 
-        },
-        { 
-          name: "Flashcards", 
-          path: "/dashboard/student/flashcards", 
-          icon: <Brain size={20} />, 
-          tooltip: "Practice with flashcards" 
-        },
-        { 
-          name: "Practice Exams", 
-          path: "/dashboard/student/practice-exam", 
-          icon: <ClipboardList size={20} />, 
-          tooltip: "Take practice exams" 
-        },
-        { 
-          name: "Exam Syllabus", 
-          path: "/dashboard/student/syllabus", 
-          icon: <FileText size={20} />, 
-          tooltip: "View your exam syllabus" 
-        },
-        { 
-          name: "Previous Years", 
-          path: "/dashboard/student/previous-year-analysis", 
-          icon: <FileSearch size={20} />, 
-          tooltip: "Analyze previous year question papers" 
-        },
+        { path: "/dashboard/student/syllabus", icon: <FileText size={20} />, label: "Exam Syllabus", tooltip: "Complete exam syllabus" },
+        { path: "/dashboard/student/previous-year-analysis", icon: <FileSearch size={20} />, label: "Previous Year Papers", tooltip: "Analyze previous year questions" },
+        { path: "/dashboard/student/concepts", icon: <BookOpen size={20} />, label: "Concept Cards", tooltip: "Learn key concepts" },
+        { path: "/dashboard/student/flashcards", icon: <Brain size={20} />, label: "Flashcards", tooltip: "Practice with flashcards" },
+        { path: "/dashboard/student/practice-exam", icon: <ClipboardList size={20} />, label: "Practice Exams", tooltip: "Take practice tests" },
       ]
     },
     {
-      title: "AI Assistance",
+      category: "AI Assistance",
       items: [
-        { 
-          name: "Feel Good Corner", 
-          path: "/dashboard/student/feel-good-corner", 
-          icon: <Smile size={20} />, 
-          tooltip: "Take a mental wellness break" 
-        },
-        { 
-          name: "24/7 AI Tutor", 
-          path: "/dashboard/student/tutor", 
-          icon: <Headphones size={20} />, 
-          tooltip: "Chat with your AI tutor anytime" 
-        },
+        { path: "/dashboard/student/feel-good-corner", icon: <Smile size={20} />, label: "Feel Good Corner", tooltip: "Boost your mood and motivation" },
+        { path: "/dashboard/student/tutor", icon: <Headphones size={20} />, label: "24/7 AI Tutor", tooltip: "Get help anytime, anywhere" },
       ]
     },
     {
-      title: "Personal",
+      category: "Personal",
       items: [
-        { 
-          name: "Profile", 
-          path: "/dashboard/student/profile", 
-          icon: <User size={20} />, 
-          tooltip: "Manage your profile" 
-        },
-        { 
-          name: "Notifications", 
-          path: "/dashboard/student/notifications", 
-          icon: <Bell size={20} />, 
-          tooltip: "Check your notifications" 
-        },
+        { path: "/dashboard/student/profile", icon: <User size={20} />, label: "Profile", tooltip: "View and edit your profile" },
+        { path: "/dashboard/student/notifications", icon: <Bell size={20} />, label: "Notifications", tooltip: "Check your notifications" },
       ]
     }
   ];
 
-  // Helper function to check if a path is active
-  const isActive = (path: string) => {
-    // Exact match for main dashboard
-    if (path === '/dashboard/student' && location.pathname === '/dashboard/student') {
-      return true;
-    }
-    
-    // Special handling for nested routes
-    const currentPath = location.pathname;
-    if (path !== '/dashboard/student') {
-      return currentPath.startsWith(path);
-    }
-    
-    return false;
-  };
-
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className={cn(
-        "hidden lg:flex h-screen flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
-        collapsed ? "w-[70px]" : "w-[250px]"
-      )}>
-        {/* PREPZR Logo */}
-        <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-center items-center">
-          <Link to="/" className="flex justify-center items-center">
-            {!collapsed ? (
-              <PrepzrLogo width={120} height={40} />
-            ) : (
-              <PrepzrLogo width={40} height={40} />
-            )}
-          </Link>
-        </div>
-        
-        {/* Navigation Categories */}
-        <div className="flex flex-col flex-grow p-2 overflow-y-auto">
-          {navigationCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="mb-4">
-              {/* Category Title - Only show when not collapsed */}
-              {!collapsed && (
-                <h3 className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {category.title}
-                </h3>
-              )}
-              
-              {/* Category Items */}
-              {category.items.map((item) => (
-                <Tooltip key={item.path}>
-                  <TooltipTrigger asChild>
-                    <motion.div
-                      whileHover={{ 
-                        scale: 1.02,
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 mb-1",
-                          isActive(item.path)
-                            ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300",
-                          collapsed && "justify-center"
-                        )}
-                      >
-                        <span className="transition-transform duration-200 group-hover:scale-110">
-                          {item.icon}
-                        </span>
-                        {!collapsed && <span>{item.name}</span>}
-                      </Link>
-                    </motion.div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
-                    <p className="text-sm">{item.tooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          ))}
-          
-          {/* Logout Button */}
-          <div className="mt-auto">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.02,
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Link
-                    to="/login"
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 mb-1",
-                      "hover:bg-gray-100 dark:hover:bg-gray-800 text-red-500 dark:text-red-400",
-                      collapsed && "justify-center"
-                    )}
-                  >
-                    <LogOut size={20} />
-                    {!collapsed && <span>Logout</span>}
-                  </Link>
-                </motion.div>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
-                <p className="text-sm">Logout from your account</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
+    <aside className={cn(
+      "border-r border-border bg-background transition-all duration-300 flex flex-col h-screen",
+      collapsed ? "w-[70px]" : "w-[230px]"
+    )}>
+      {/* Logo Section */}
+      <div className="border-b border-border p-3 flex justify-center">
+        <Link to="/" className={cn("flex items-center", collapsed ? "justify-center" : "")}>
+          <PrepzrLogo width={collapsed ? 40 : 120} height={40} />
+        </Link>
       </div>
-    </TooltipProvider>
+      
+      {/* Navigation Section */}
+      <ScrollArea className="flex-grow">
+        <div className="px-3 py-2">
+          <TooltipProvider>
+            {navItems.map((group, groupIndex) => (
+              <div key={groupIndex} className="mb-6">
+                {!collapsed && (
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 px-3">
+                    {group.category}
+                  </div>
+                )}
+                <div className="space-y-1">
+                  {group.items.map((item, itemIndex) => (
+                    <Tooltip key={itemIndex}>
+                      <TooltipTrigger asChild>
+                        <Link 
+                          to={item.path}
+                          className={cn(
+                            "flex items-center rounded-md px-3 py-2 text-sm transition-colors",
+                            isActive(item.path) 
+                              ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white" 
+                              : "hover:bg-muted",
+                            collapsed ? "justify-center" : "gap-3"
+                          )}
+                        >
+                          <span className="flex-shrink-0">{item.icon}</span>
+                          {!collapsed && <span className="truncate">{item.label}</span>}
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{item.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </TooltipProvider>
+        </div>
+      </ScrollArea>
+      
+      {/* Logout Button */}
+      <div className="border-t border-border p-3">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className={cn(
+                  "w-full text-destructive hover:text-destructive hover:bg-destructive/10",
+                  collapsed ? "justify-center p-2" : "justify-start"
+                )}
+                onClick={() => logout()}
+              >
+                <LogOut size={20} className="flex-shrink-0" />
+                {!collapsed && <span className="ml-2">Logout</span>}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Logout from your account</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </aside>
   );
 };
 

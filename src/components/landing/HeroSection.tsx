@@ -33,10 +33,10 @@ const HeroSection = () => {
             ) : (
               <>
                 <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600">
-                  <Link to="/signup">Get Started Free</Link>
+                  <Link to="/signup">Test Your Exam Readiness</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/login">Log In</Link>
+                  <Link to="/signup">7-Day Free Trial</Link>
                 </Button>
               </>
             )}
