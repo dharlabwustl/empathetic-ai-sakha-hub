@@ -1,6 +1,5 @@
-
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from './components/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
@@ -60,11 +59,12 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
+import FormulaLabPage from "@/components/dashboard/student/formula-lab/FormulaLabPage";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <BrowserRouter>
+      <Router>
         <AuthProvider>
           <AdminAuthProvider>
             <Routes>
@@ -155,7 +155,7 @@ function App() {
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
               {/* Formula Practice Lab route */}
-              <Route path="/dashboard/student/formula-practice-lab" element={<FormulaPracticeLab />} />
+              <Route path="/dashboard/student/formula-practice-lab" element={<FormulaLabPage />} />
               
               {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
@@ -172,7 +172,7 @@ function App() {
             <Toaster />
           </AdminAuthProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
     </ThemeProvider>
   );
 }
