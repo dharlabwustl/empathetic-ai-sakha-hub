@@ -12,7 +12,6 @@ import PracticeExamsView from "./practice-exam/PracticeExamsView";
 import FeelGoodCorner from "./feel-good-corner/FeelGoodCorner";
 import AcademicAdvisorView from "./academic/AcademicAdvisorView";
 import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
-import ConceptStudyPage from "./concepts/ConceptStudyPage";
 import FormulaLabPage from "./formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 
@@ -24,15 +23,16 @@ const AppRoutes: React.FC = () => {
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:id" element={<ConceptDetailPage />} />
-      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
       <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
       <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/practice-exam" element={<PracticeExamsView />} />
-      <Route path="/feel-good" element={<FeelGoodCorner />} />
+      <Route path="/feel-good-corner" element={<FeelGoodCorner />} />
+      <Route path="/academic" element={<AcademicAdvisorView />} />
       <Route path="/academic-advisor" element={<AcademicAdvisorView />} />
+      <Route path="/tutor" element={<DashboardOverview />} />
     </Routes>
   );
 };

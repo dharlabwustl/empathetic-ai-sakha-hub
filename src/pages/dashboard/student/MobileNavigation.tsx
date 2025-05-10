@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -44,8 +45,8 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
 
   return (
     <TooltipProvider>
-      <div className="md:hidden mb-6 overflow-x-auto tab-scrollbar pb-3">
-        <div className="flex gap-3 px-1">
+      <ScrollArea className="md:hidden mb-6 w-full">
+        <div className="flex gap-3 px-1 pb-3 overflow-x-auto">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
@@ -69,7 +70,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
             </Tooltip>
           ))}
         </div>
-      </div>
+      </ScrollArea>
     </TooltipProvider>
   );
 };

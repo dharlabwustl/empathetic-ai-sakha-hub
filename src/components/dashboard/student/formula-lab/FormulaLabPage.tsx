@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -21,11 +20,16 @@ import {
   RefreshCw,
   ArrowRight,
   FileText,
-  Eye
+  Eye,
+  CheckCircle,
+  Download,
+  HelpCircle,
+  Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// Enhanced styling for different difficulty levels
 const DifficultyBadge = ({ level }: { level: string }) => {
   const classes = {
     easy: "bg-green-100 text-green-800 border-green-200",
@@ -59,10 +63,12 @@ const FormulaLabPage: React.FC = () => {
     steps: string[];
     currentStep: number;
     showAnswer: boolean;
+    hint?: string;
   }>>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [showHelperTools, setShowHelperTools] = useState(false);
   
   // Mock concept data
   const conceptData = {
@@ -85,6 +91,7 @@ const FormulaLabPage: React.FC = () => {
         userAnswer: '',
         isCorrect: null,
         steps: generateStepsByDifficulty(difficulty, index),
+        hint: generateHintByDifficulty(difficulty, index),
         currentStep: 0,
         showAnswer: false
       }));
@@ -130,6 +137,28 @@ const FormulaLabPage: React.FC = () => {
     };
     
     return answers[diff as keyof typeof answers][index % 3];
+  };
+  
+  const generateHintByDifficulty = (diff: string, index: number) => {
+    const hints = {
+      easy: [
+        "Use Newton's Second Law: F = ma",
+        "Remember to solve for a: a = F/m",
+        "Rearrange Newton's Second Law to solve for mass: m = F/a"
+      ],
+      medium: [
+        "Calculate the net force first by subtracting friction",
+        "Find acceleration first using kinematics, then use F = ma",
+        "Remember to calculate net force before applying F = ma"
+      ],
+      hard: [
+        "Break this down step by step: 1) Calculate acceleration 2) Find total force needed 3) Add friction",
+        "Consider the net force on each mass and the tension in the string",
+        "At terminal velocity, the force of gravity equals the drag force"
+      ]
+    };
+    
+    return hints[diff as keyof typeof hints][index % 3];
   };
   
   const generateStepsByDifficulty = (diff: string, index: number) => {
@@ -186,6 +215,14 @@ const FormulaLabPage: React.FC = () => {
     }));
   };
   
+  // Handle showing a hint
+  const handleShowHint = (questionId: number) => {
+    toast({
+      title: "Hint",
+      description: questions.find(q => q.id === questionId)?.hint || "Try using Newton's Second Law",
+    });
+  };
+  
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -226,12 +263,39 @@ const FormulaLabPage: React.FC = () => {
     return (correctAnswers / questions.length) * 100;
   };
   
+  // Handle download of practice questions
+  const handleDownloadQuestions = () => {
+    const questionsText = questions.map(q => 
+      `Question ${q.id}: ${q.question}\n\n`
+    ).join('\n');
+    
+    const blob = new Blob([questionsText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `formula-practice-${conceptData.subject}-${difficulty}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Questions Downloaded",
+      description: "Your practice questions have been downloaded."
+    });
+  };
+  
+  // Toggle helper tools
+  const toggleHelperTools = () => {
+    setShowHelperTools(!showHelperTools);
+  };
+  
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-8">
         <Button 
           variant="ghost"
-          onClick={() => navigate(`/dashboard/student/concepts/card/${conceptId}`)}
+          onClick={() => navigate(`/dashboard/student/concepts/${conceptId}`)}
           className="flex items-center mb-2"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
@@ -246,9 +310,10 @@ const FormulaLabPage: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
           <TabsTrigger value="practice">Practice Formulas</TabsTrigger>
           <TabsTrigger value="reference">Formula Reference</TabsTrigger>
+          <TabsTrigger value="calculator" className="hidden md:block">Formula Calculator</TabsTrigger>
         </TabsList>
         
         <TabsContent value="practice" className="space-y-6">
@@ -298,7 +363,15 @@ const FormulaLabPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center">
+                <Button
+                  variant="outline"
+                  onClick={toggleHelperTools}
+                  className="text-sm"
+                >
+                  {showHelperTools ? "Hide Tools" : "Show Helper Tools"}
+                </Button>
+                
                 <Button 
                   onClick={generateQuestions} 
                   disabled={loading}
@@ -311,6 +384,30 @@ const FormulaLabPage: React.FC = () => {
                   )}
                 </Button>
               </div>
+              
+              {showHelperTools && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <h3 className="text-sm font-semibold mb-2 text-blue-800">Helper Tools</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <Button variant="outline" size="sm" className="text-xs" onClick={() => setActiveTab('calculator')}>
+                      <Calculator className="mr-1 h-3 w-3" />
+                      Calculator
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs" onClick={() => setActiveTab('reference')}>
+                      <FileText className="mr-1 h-3 w-3" />
+                      Formulas
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs" onClick={handleDownloadQuestions} disabled={questions.length === 0}>
+                      <Download className="mr-1 h-3 w-3" />
+                      Download
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Share2 className="mr-1 h-3 w-3" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
           
@@ -375,14 +472,25 @@ const FormulaLabPage: React.FC = () => {
                           Question {idx + 1}
                           <DifficultyBadge level={difficulty} />
                         </CardTitle>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleShowAnswer(question.id)}
-                        >
-                          <Eye className="mr-1 h-4 w-4" />
-                          {question.showAnswer ? 'Hide' : 'Show'} Answer
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleShowHint(question.id)}
+                            className="text-blue-600"
+                          >
+                            <HelpCircle className="mr-1 h-4 w-4" />
+                            Hint
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleShowAnswer(question.id)}
+                          >
+                            <Eye className="mr-1 h-4 w-4" />
+                            {question.showAnswer ? 'Hide' : 'Show'} Answer
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -448,7 +556,10 @@ const FormulaLabPage: React.FC = () => {
                         </div>
                         
                         {question.isCorrect === true && (
-                          <p className="text-sm text-green-600">Correct! {question.currentStep < question.steps.length - 1 ? "Continue with the next step." : "All steps completed!"}</p>
+                          <p className="text-sm text-green-600 flex items-center gap-1">
+                            <CheckCircle className="h-3 w-3" />
+                            Correct! {question.currentStep < question.steps.length - 1 ? "Continue with the next step." : "All steps completed!"}
+                          </p>
                         )}
                         
                         {question.isCorrect === false && (
@@ -510,6 +621,56 @@ const FormulaLabPage: React.FC = () => {
                     <p><strong>μ</strong> = Coefficient of friction (dimensionless)</p>
                     <p><strong>N</strong> = Normal force (newtons, N)</p>
                   </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Button 
+                  onClick={() => navigate(`/dashboard/student/concepts/${conceptId}`)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Back to Concept Details
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="calculator" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Physics Formula Calculator</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium">Newton's Second Law Calculator</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="mass">Mass (kg)</Label>
+                      <Input id="mass" type="number" placeholder="Enter mass" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="accel">Acceleration (m/s²)</Label>
+                      <Input id="accel" type="number" placeholder="Enter acceleration" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="force">Force (N)</Label>
+                      <Input id="force" type="number" placeholder="Result" readOnly />
+                    </div>
+                  </div>
+                  <Button className="w-full">Calculate Force</Button>
+                </div>
+                
+                <div className="p-4 bg-blue-50 rounded-md">
+                  <h3 className="font-medium text-blue-800 mb-2">Quick Tips</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-blue-700">
+                    <li>Leave the field you want to calculate empty</li>
+                    <li>For F = ma, fill in any two values to calculate the third</li>
+                    <li>Common errors: forgetting units, calculation errors</li>
+                    <li>Always double-check your math with the calculator</li>
+                  </ul>
                 </div>
               </div>
             </CardContent>

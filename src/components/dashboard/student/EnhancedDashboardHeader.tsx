@@ -1,37 +1,38 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { UserProfileBase } from "@/types/user/base";
-import { Calendar, ChevronRight, Bell, Star, Zap, CheckSquare } from "lucide-react";
-import { MoodType } from '@/types/user/base';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
-import { motion } from "framer-motion";
-import { useNavigate } from 'react-router-dom';
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { speakMessage, getMotivationalMessage, fixPronunciation } from './voice/voiceUtils';
+import { Clock, CalendarDays, CheckCircle2, BrainCircuit, Plus, GraduationCap } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import CreateStudyPlanWizard from './academic/CreateStudyPlanWizard';
+
+type EventType = 'exam' | 'task' | 'class';
+
+interface UpcomingEvent {
+  title: string;
+  time: string;
+  type: EventType;
+  daysLeft?: number;
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  description?: string;
+  targetDate?: Date;
+  progress?: number;
+}
 
 interface EnhancedDashboardHeaderProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
   onViewStudyPlan: () => void;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
-  streakDays?: number;
-  upcomingEvents?: Array<{
-    title: string;
-    time: string;
-    type: 'exam' | 'task' | 'deadline';
-  }>;
-  isFirstTimeUser?: boolean;
+  upcomingEvents?: UpcomingEvent[];
 }
 
 const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
@@ -41,250 +42,154 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   onViewStudyPlan,
   currentMood,
   onMoodChange,
-  streakDays = 7,
-  upcomingEvents = [],
-  isFirstTimeUser = false
+  upcomingEvents = []
 }) => {
-  const [dailyProgress, setDailyProgress] = useState<number>(
-    Math.floor(Math.random() * 60) + 20
-  ); // Simulated progress between 20-80%
-  const [previousMood, setPreviousMood] = useState<MoodType | undefined>(currentMood);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   
-  useEffect(() => {
-    // If mood changed, provide voice feedback
-    if (currentMood && previousMood !== currentMood) {
-      const moodFeedback = getMoodFeedback(currentMood);
-      speakMessage(moodFeedback, { 
-        enabled: true, 
-        volume: 1.0, 
-        pitch: 1.1, // Higher pitch for female voice
-        rate: 0.95, // A bit faster for energetic delivery
-        language: 'en-IN', 
-        autoGreet: true, 
-        muted: false 
-      });
-      setPreviousMood(currentMood);
+  // Extract goals from user profile
+  const goals = userProfile.goals || [
+    {
+      id: '1',
+      title: 'NEET Exam',
+      targetDate: new Date(new Date().getFullYear(), 4, 15), // May 15
+      progress: 45
     }
-  }, [currentMood, previousMood]);
-  
-  const getGreetingTime = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  };
-  
-  const getMoodEmoji = (mood?: MoodType) => {
-    if (!mood) return "😊";
-    switch(mood) {
-      case MoodType.Motivated: return "🚀";
-      case MoodType.Focused: return "🎯";
-      case MoodType.Tired: return "😴";
-      case MoodType.Anxious: return "😰";
-      case MoodType.Happy: return "😊";
-      case MoodType.Neutral: return "😐";
-      case MoodType.Stressed: return "😓";
-      case MoodType.Sad: return "😢";
-      default: return "😊";
-    }
-  };
-  
-  const getMoodFeedback = (mood: MoodType): string => {
-    switch(mood) {
-      case MoodType.Motivated:
-        return `Fantastic to see you're feeling motivated, ${userProfile.name}! This is the perfect energy for tackling challenging topics. I've adjusted your study plan to include some advanced material!`;
-      case MoodType.Focused:
-        return `I notice you're focused today, ${userProfile.name}! Let's make the most of this wonderful concentration with some deep learning sessions!`;
-      case MoodType.Tired:
-        return `I understand you're feeling tired, ${userProfile.name}. No worries! Let's adjust your plan with shorter study sessions and more breaks today.`;
-      case MoodType.Anxious:
-        return `I see you're feeling anxious, ${userProfile.name}. Let's start with some easier review topics to build your confidence. Remember, it's completely normal to feel this way before important exams!`;
-      case MoodType.Happy:
-        return `You're in a great mood today, ${userProfile.name}! Let's use this amazing positive energy for some creative problem-solving exercises!`;
-      case MoodType.Neutral:
-        return `Thanks for sharing how you feel, ${userProfile.name}! We'll keep your regular study pace for today.`;
-      case MoodType.Stressed:
-        return `I understand you're feeling stressed, ${userProfile.name}. Let's adjust today's plan to include some helpful relaxation techniques between study sessions.`;
-      case MoodType.Sad:
-        return `I'm sorry you're feeling down today, ${userProfile.name}. Let's focus on some enjoyable review topics, and remember it's absolutely okay to take breaks when needed.`;
-      default:
-        return `Thanks for sharing how you're feeling today, ${userProfile.name}! I'll adjust your recommendations to match your mood.`;
-    }
-  };
-  
-  const getStudyRecommendation = () => {
-    const recommendations = [
-      "Focus on Physics for 2 hours today",
-      "Complete 20 Biology flashcards",
-      "Practice NEET mock test #3",
-      "Review yesterday's Chemistry notes",
-      "Take a 10-minute break every hour"
-    ];
-    return recommendations[Math.floor(Math.random() * recommendations.length)];
-  };
-  
-  const moodOptions = [
-    {type: MoodType.Motivated, label: "Motivated", emoji: "🚀"},
-    {type: MoodType.Focused, label: "Focused", emoji: "🎯"},
-    {type: MoodType.Tired, label: "Tired", emoji: "😴"},
-    {type: MoodType.Anxious, label: "Anxious", emoji: "😰"},
-    {type: MoodType.Happy, label: "Happy", emoji: "😊"},
-    {type: MoodType.Neutral, label: "Neutral", emoji: "😐"},
-    {type: MoodType.Stressed, label: "Stressed", emoji: "😓"},
-    {type: MoodType.Sad, label: "Sad", emoji: "😢"}
   ];
 
-  const navigate = useNavigate();
-
-  // Extract pending tasks from upcoming events for voice announcer
-  const pendingTasks = upcomingEvents.map(event => ({
-    title: event.title,
-    due: event.time
-  }));
+  // Calculate days until exam
+  const calculateDaysUntil = (date?: Date) => {
+    if (!date) return null;
+    
+    const today = new Date();
+    const targetDate = new Date(date);
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
   
-  // Set profile image
-  const profileImage = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
+  const createStudyPlan = (newPlan: any) => {
+    console.log("Creating new study plan:", newPlan);
+    setDialogOpen(false);
+    // In a real app, this would save the plan to the backend
+  };
+  
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/40 p-4 sm:p-6 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
-            <AvatarImage 
-              src={profileImage} 
-              alt={userProfile.name || "User"} 
-              onError={(e) => {
-                console.error("Failed to load avatar image:", e);
-                const target = e.target as HTMLImageElement;
-                target.src = '/lovable-uploads/d0884669-4a9b-4446-b8ba-35df0d503371.png';
-              }}
-            />
-            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
-              {userProfile.name?.charAt(0) || "U"}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div>
-            <div className="text-sm text-muted-foreground">
-              {getGreetingTime()}
-            </div>
-            <h1 className="text-2xl font-bold">{userProfile.name}</h1>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-              <span>{formattedDate}</span>
-              <span>•</span>
-              <span>{formattedTime}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:mt-0">
-          <div className="block">
-            <VoiceAnnouncer 
-              userName={userProfile.name}
-              mood={currentMood}
-              isFirstTimeUser={isFirstTimeUser}
-              pendingTasks={pendingTasks}
-              examGoal="NEET"
-            />
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 border-indigo-100 dark:border-indigo-800/30"
-              >
-                <span className="text-xl">{getMoodEmoji(currentMood)}</span>
-                <span>I'm feeling {currentMood?.toLowerCase() || "great"}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>How are you feeling today?</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {moodOptions.map((mood) => (
-                <DropdownMenuItem 
-                  key={mood.type} 
-                  onClick={() => onMoodChange?.(mood.type)}
-                  className="cursor-pointer"
-                >
-                  <span className="mr-2">{mood.emoji}</span>
-                  {mood.label}
-                  {currentMood === mood.type && (
-                    <span className="ml-auto">✓</span>
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button onClick={onViewStudyPlan} className="bg-indigo-600 hover:bg-indigo-700">
-            View Study Plan
-          </Button>
+    <div className="space-y-6 mb-8">
+      {/* Top row - Greeting and time */}
+      <div className="flex flex-wrap justify-between items-start gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold">Hello, {userProfile.name || 'Student'}!</h1>
+          <p className="text-muted-foreground flex items-center">
+            <Clock className="mr-2 h-4 w-4" />
+            <span>{formattedTime}</span>
+            <span className="mx-2">•</span>
+            <CalendarDays className="mr-2 h-4 w-4" />
+            <span>{formattedDate}</span>
+          </p>
         </div>
       </div>
       
-      {/* Progress & Insights Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Daily Progress */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Today's Progress</h3>
-          <div className="mb-3">
-            <div className="flex justify-between mb-1 text-sm">
-              <span className="font-medium">{dailyProgress}% Completed</span>
-              <span className="text-muted-foreground">{Math.ceil((100-dailyProgress)/10)} tasks left</span>
-            </div>
-            <Progress value={dailyProgress} className="h-2" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Tip: {getStudyRecommendation()}
-          </p>
-        </div>
-        
-        {/* Streak Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Study Streak</h3>
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-amber-500" />
-            <span className="text-xl font-bold">{streakDays} days</span>
-          </div>
-          <div className="flex items-center gap-1 mt-2">
-            {Array.from({length: 7}).map((_, i) => (
-              <motion.div 
-                key={i}
-                className={`h-2 w-full rounded-full ${i < streakDays % 7 ? 'bg-amber-500' : 'bg-gray-200 dark:bg-gray-700'}`}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ delay: i * 0.1, duration: 0.3 }}
-              />
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Keep your streak going! Study today to maintain momentum.
-          </p>
-        </div>
-        
-        {/* Upcoming Events */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Upcoming Events</h3>
-          <div className="space-y-2 mt-3">
-            {upcomingEvents.map((event, index) => (
-              <div 
-                key={index} 
-                className="flex items-center justify-between p-2 bg-card hover:bg-card/80 rounded-md cursor-pointer"
-                onClick={() => navigate(event.type === 'exam' ? '/dashboard/student/practice-exam' : '/dashboard/student/today')}
-              >
+      {/* Middle row - Exam goal and study plan */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Exam Goal Card */}
+        <Card className="lg:col-span-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/30">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-wrap justify-between items-start gap-4">
+              <div>
                 <div className="flex items-center gap-2">
-                  {event.type === 'exam' ? <CheckSquare className="h-4 w-4 text-primary" /> : <Calendar className="h-4 w-4 text-primary" />}
-                  <span className="text-sm font-medium">{event.title}</span>
+                  <GraduationCap className="h-5 w-5 text-indigo-600" />
+                  <h3 className="text-lg font-medium">Your Exam Preparation</h3>
                 </div>
-                <span className="text-xs text-muted-foreground">{event.time}</span>
+                
+                {goals.map((goal) => (
+                  <div key={goal.id} className="mt-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-indigo-600">{goal.title}</Badge>
+                      {goal.targetDate && (
+                        <Badge variant="outline">
+                          {calculateDaysUntil(goal.targetDate)} days left
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {goal.progress !== undefined && (
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>Progress</span>
+                          <span>{goal.progress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-indigo-600 rounded-full" 
+                            style={{ width: `${goal.progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Click to view your full schedule
-          </p>
-        </div>
+              
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white flex gap-1 items-center">
+                    <Plus className="h-4 w-4" />
+                    Create New Study Plan
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                  <CreateStudyPlanWizard 
+                    onCreatePlan={createStudyPlan} 
+                    onClose={handleDialogClose} 
+                    examGoal={goals[0]?.title}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Upcoming Events Card */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium">Upcoming Events</h3>
+            </div>
+            
+            {upcomingEvents.length > 0 ? (
+              <ul className="space-y-3">
+                {upcomingEvents.map((event, i) => (
+                  <li key={i} className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={
+                        event.type === 'exam' 
+                          ? 'bg-red-50 text-red-700 border-red-200'
+                          : event.type === 'task'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-green-50 text-green-700 border-green-200'
+                      }>
+                        {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                      </Badge>
+                      <span>{event.title}</span>
+                    </div>
+                    <span className="text-muted-foreground">{event.time}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">No upcoming events scheduled</p>
+            )}
+            
+            <Button variant="outline" className="w-full mt-3 text-sm">
+              View Schedule
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

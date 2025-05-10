@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Book, BookOpen, Clock } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 
 const ConceptsSection = () => {
   const { conceptCards, loading } = useUserStudyPlan();
+  const navigate = useNavigate();
   
   // Filter to show only today's concepts
   const todaysCards = conceptCards
@@ -38,10 +39,18 @@ const ConceptsSection = () => {
     );
   }
   
+  const handleCardClick = (cardId: string) => {
+    navigate(`/dashboard/student/concepts/${cardId}`);
+  };
+  
   return (
     <>
       {todaysCards.map((card) => (
-        <Link key={card.id} to={`/dashboard/student/concepts/card/${card.id}`}>
+        <div 
+          key={card.id} 
+          onClick={() => handleCardClick(card.id)}
+          className="cursor-pointer"
+        >
           <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
             <CardContent className="p-4 h-full flex flex-col">
               <div className="flex items-start justify-between mb-2">
@@ -75,7 +84,7 @@ const ConceptsSection = () => {
               </div>
             </CardContent>
           </Card>
-        </Link>
+        </div>
       ))}
     </>
   );

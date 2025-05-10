@@ -1,16 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, BookOpen, Star, Check, Flag, Brain } from 'lucide-react';
+import { ArrowLeft, Clock, BookOpen, Star, Check, Flag, Brain, Calculator } from 'lucide-react';
 
 const ConceptDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  // Start with the "learn" tab active by default
+  const [activeTab, setActiveTab] = useState('learn');
 
   // In a real app, fetch concept details by ID from API
   // For now, we'll use mock data
@@ -27,6 +29,7 @@ const ConceptDetailPage = () => {
     priority: 1,
     cardCount: 15,
     isRecommended: true,
+    hasFormulas: true, // Flag to indicate if this concept has formulas
     content: {
       summary: "Newton's three laws of motion describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics.",
       keyPoints: [
@@ -44,6 +47,10 @@ const ConceptDetailPage = () => {
 
   const handleBackToConcepts = () => {
     navigate('/dashboard/student/concepts');
+  };
+
+  const handleOpenFormulaLab = () => {
+    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
   };
 
   return (
@@ -123,7 +130,11 @@ const ConceptDetailPage = () => {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="learn" className="space-y-4">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab} 
+          className="space-y-4"
+        >
           <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="learn">Learn</TabsTrigger>
             <TabsTrigger value="practice">Practice</TabsTrigger>
@@ -151,6 +162,19 @@ const ConceptDetailPage = () => {
                     <li key={index}>{example}</li>
                   ))}
                 </ul>
+
+                {/* Show Formula Lab button only if this concept has formulas */}
+                {concept.hasFormulas && (
+                  <div className="mt-6">
+                    <Button 
+                      onClick={handleOpenFormulaLab} 
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Calculator className="h-4 w-4" />
+                      <span>Open Formula Lab</span>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

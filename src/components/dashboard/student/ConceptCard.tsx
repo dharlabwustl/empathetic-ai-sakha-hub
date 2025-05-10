@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight, ArrowLeft, Calculator } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 import { MouseClickEvent } from '@/types/user';
 
 interface ConceptCardProps {
@@ -39,44 +39,20 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     'hard': 'bg-red-100 text-red-800 border-red-200'
   };
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent) => {
     // Navigate directly to concept card detail page
     if (onView) {
       onView();
     } else {
-      navigate(`/dashboard/student/concepts/card/${id}`);
+      navigate(`/dashboard/student/concepts/${id}`);
     }
   };
 
-  const handleStudyClick = (e: MouseClickEvent) => {
-    // Prevent the parent card click handler from being called
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Navigate directly to the concept card detail
-    navigate(`/dashboard/student/concepts/card/${id}`);
-  };
-  
-  const handleFormulaLabClick = (e: MouseClickEvent) => {
-    // Prevent the parent card click handler from being called
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Navigate to formula lab
-    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
-  };
-
-  const handleBackToDashboard = (e: MouseClickEvent) => {
-    // Prevent the parent card click handler from being called
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Navigate back to the dashboard
-    navigate('/dashboard/student');
-  };
-
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200 overflow-hidden border-2 border-gray-100">
+    <Card 
+      className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200 overflow-hidden border-2 border-gray-100 cursor-pointer"
+      onClick={handleCardClick}
+    >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize`}>
@@ -89,8 +65,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
           )}
         </div>
         <CardTitle 
-          className="text-lg font-semibold mt-2 cursor-pointer hover:text-blue-600 transition-colors"
-          onClick={handleCardClick}
+          className="text-lg font-semibold mt-2 hover:text-blue-600 transition-colors"
         >
           {title}
         </CardTitle>
@@ -128,34 +103,14 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         )}
       </CardContent>
       
-      <CardFooter className="pt-2 flex flex-col gap-2">
+      <CardFooter className="pt-2">
         <Button 
-          variant="outline" 
-          size="sm"
-          className="w-full flex justify-center items-center gap-1"
-          onClick={handleBackToDashboard}
+          variant="default" 
+          className="w-full flex justify-between items-center"
         >
-          <ArrowLeft className="h-4 w-4" /> 
-          Back to Dashboard
+          <span>Study Now</span>
+          <ArrowRight className="h-4 w-4" />
         </Button>
-        <div className="grid grid-cols-2 gap-2 w-full">
-          <Button 
-            variant="default" 
-            className="w-full group"
-            onClick={handleStudyClick}
-          >
-            <BookOpen className="mr-2 h-4 w-4" /> 
-            Study
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full group border-blue-200 text-blue-700 hover:bg-blue-50"
-            onClick={handleFormulaLabClick}
-          >
-            <Calculator className="mr-2 h-4 w-4" /> 
-            Formula Lab
-          </Button>
-        </div>
       </CardFooter>
     </Card>
   );
