@@ -61,10 +61,12 @@ import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 
 // Wrap a component with SidebarLayout and protection
-const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
+const ProtectedSidebarRoute = ({ Component, hideSidebar = false }: { Component: React.ComponentType<any>, hideSidebar?: boolean }) => {
   return (
     <ProtectedRoute>
-      <Component />
+      <SidebarLayout hideSidebar={hideSidebar}>
+        <Component />
+      </SidebarLayout>
     </ProtectedRoute>
   );
 };
@@ -124,11 +126,11 @@ function App() {
               {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-              {/* Student dashboard - With SidebarLayout via the component */}
+              {/* Student dashboard - Protected with the combined wrapper */}
               <Route path="/dashboard/student" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
               <Route path="/dashboard/student/:tab" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
               
-              {/* Apply ProtectedSidebarRoute to all student dashboard pages */}
+              {/* Apply ProtectedSidebarLayout to all student dashboard pages */}
               <Route path="/dashboard/student/today" element={<ProtectedSidebarRoute Component={TodaysPlanView} />} />
               <Route path="/dashboard/student/feel-good-corner" element={<ProtectedSidebarRoute Component={FeelGoodCornerView} />} />
               <Route path="/dashboard/student/study-groups" element={<ProtectedSidebarRoute Component={StudyGroupsPage} />} />

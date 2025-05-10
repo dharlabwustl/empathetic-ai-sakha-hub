@@ -178,15 +178,15 @@ const HeroSection = () => {
             transition={{ duration: 0.8 }}
           >
             <motion.h1 
-              className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-none"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
-              </div>
-              <div className="text-gray-800 dark:text-white mt-4">
+              </span>
+              <div className="text-gray-800 dark:text-white mt-2">
                 We understand Your Mindset, Not Just the Exam.
               </div>
             </motion.h1>

@@ -24,7 +24,8 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   subtitle,
   children,
   backButtonUrl = '/dashboard/student',
-  showBackButton = true
+  showBackButton = true,
+  hideSidebar = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();

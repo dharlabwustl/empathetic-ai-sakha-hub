@@ -5,6 +5,7 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -122,6 +123,9 @@ const DashboardContent = ({
           loginCount={userProfile.loginCount}
         />
       )}
+      
+      {/* Quick Access Buttons for all pages */}
+      <QuickAccess />
       
       {/* Content area - Using custom content if provided, otherwise the generated tab content */}
       <div className="mt-4">

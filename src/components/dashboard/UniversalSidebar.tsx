@@ -84,11 +84,11 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
 
   return (
     <aside className={cn(
-      "border-r border-border bg-background transition-all duration-300 flex flex-col h-screen shadow-lg",
-      collapsed ? "w-[70px]" : "w-[250px]"
+      "border-r border-border bg-background transition-all duration-300 flex flex-col h-screen",
+      collapsed ? "w-[70px]" : "w-[230px]"
     )}>
       {/* Logo Section */}
-      <div className="border-b border-border p-3 flex justify-center bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+      <div className="border-b border-border p-3 flex justify-center">
         <Link to="/" className={cn("flex items-center", collapsed ? "justify-center" : "")}>
           <PrepzrLogo width={collapsed ? 40 : 120} height={40} />
         </Link>
@@ -101,7 +101,7 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
             {navItems.map((group, groupIndex) => (
               <div key={groupIndex} className="mb-6">
                 {!collapsed && (
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 px-3 font-semibold">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 px-3">
                     {group.category}
                   </div>
                 )}
@@ -114,12 +114,12 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
                           className={cn(
                             "flex items-center rounded-md px-3 py-2 text-sm transition-colors",
                             isActive(item.path) 
-                              ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md" 
-                              : "hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-300",
+                              ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white" 
+                              : "hover:bg-muted",
                             collapsed ? "justify-center" : "gap-3"
                           )}
                         >
-                          <span className={cn("flex-shrink-0", isActive(item.path) ? "text-white" : "text-gray-600 dark:text-gray-300")}>{item.icon}</span>
+                          <span className="flex-shrink-0">{item.icon}</span>
                           {!collapsed && <span className="truncate">{item.label}</span>}
                         </Link>
                       </TooltipTrigger>
@@ -136,14 +136,14 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
       </ScrollArea>
       
       {/* Logout Button */}
-      <div className="border-t border-border p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+      <div className="border-t border-border p-3">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
                 variant="ghost" 
                 className={cn(
-                  "w-full text-destructive hover:text-white hover:bg-destructive",
+                  "w-full text-destructive hover:text-destructive hover:bg-destructive/10",
                   collapsed ? "justify-center p-2" : "justify-start"
                 )}
                 onClick={handleLogout}
