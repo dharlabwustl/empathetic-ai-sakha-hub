@@ -1,12 +1,11 @@
 
-import React, { useState } from 'react';
-import { UserProfileBase as UserProfileType } from "@/types/user/base";
+import React, { useState, useEffect } from 'react';
+import { UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
-import VoiceTestPanel from '@/components/dashboard/student/VoiceTestPanel';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -86,6 +85,31 @@ const DashboardContent = ({
     return () => clearTimeout(timer);
   }, []);
 
+  // Tab metadata for titles and subtitles
+  const tabTitles = {
+    "overview": "Dashboard Overview",
+    "today": "Today's Plan",
+    "academic": "Academic Advisor",
+    "tutor": "24/7 AI Tutor",
+    "concepts": "Concept Cards",
+    "flashcards": "Flashcards",
+    "practice-exam": "Practice Exams",
+    "feel-good-corner": "Feel Good Corner",
+    "notifications": "Notifications"
+  };
+
+  const tabSubtitles = {
+    "overview": "Your personalized learning dashboard",
+    "today": "Your personalized daily study schedule",
+    "academic": "Get guidance for your academic journey",
+    "tutor": "Get 24/7 help with your studies from our AI tutor",
+    "concepts": "Master key concepts and fundamentals",
+    "flashcards": "Review and memorize with smart flashcards",
+    "practice-exam": "Test your knowledge and track progress",
+    "feel-good-corner": "Take a break and boost your motivation",
+    "notifications": "Stay updated with important alerts"
+  };
+
   // Common layout structure for all tabs
   return (
     <div className="h-full flex flex-col">
@@ -100,28 +124,23 @@ const DashboardContent = ({
         />
       )}
       
-      {/* Voice Test Panel - Show only if voice hasn't been tested */}
-      {!hasTestedVoice && (
-        <div className="mb-4">
-          <VoiceTestPanel userName={userProfile.name} />
-        </div>
-      )}
-      
       {/* Quick Access Buttons for all pages */}
       <QuickAccess />
       
       {/* Content area - Using custom content if provided, otherwise the generated tab content */}
       <div className="mt-4">
-        {children || tabContents[activeTab] || (
+        {children || (
           <SharedPageLayout
-            title="Coming Soon"
-            subtitle="This feature is under development. Check back later."
+            title={tabTitles[activeTab as keyof typeof tabTitles] || "Coming Soon"}
+            subtitle={tabSubtitles[activeTab as keyof typeof tabSubtitles] || "This feature is under development"}
           >
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                This feature is currently being developed and will be available soon.
-              </p>
-            </div>
+            {tabContents[activeTab] || (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  This feature is currently being developed and will be available soon.
+                </p>
+              </div>
+            )}
           </SharedPageLayout>
         )}
       </div>
@@ -131,5 +150,3 @@ const DashboardContent = ({
 
 export default DashboardContent;
 export type { DashboardTabsProps };
-
-import { useEffect } from 'react';
