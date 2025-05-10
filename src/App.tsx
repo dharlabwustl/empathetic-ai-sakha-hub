@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -19,7 +20,7 @@ import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import AppRoutes from './components/dashboard/student/AppRoutes';
-import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
+import ConceptCardDetail from './components/dashboard/student/concept-cards/ConceptCardDetail';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
@@ -145,11 +146,12 @@ function App() {
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
               
-              {/* Concept routes */}
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardDetailPage} />} />
+              {/* Concept routes - Updated for direct linking */}
+              <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
               <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
               <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
               <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />

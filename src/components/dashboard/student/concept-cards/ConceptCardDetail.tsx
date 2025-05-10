@@ -239,6 +239,18 @@ const ConceptCardDetail = () => {
                   </CardContent>
                 </Card>
               </div>
+              
+              {/* Formula Lab Button in Overview Tab */}
+              <div className="mt-6">
+                <Button 
+                  onClick={handleFormulaLabClick}
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Calculator className="h-5 w-5" />
+                  Practice in Formula Lab
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

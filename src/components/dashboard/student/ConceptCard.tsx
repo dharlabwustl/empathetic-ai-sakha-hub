@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight, ArrowLeft } from "lucide-react";
+import { BookOpen, ArrowRight, ArrowLeft, Calculator } from "lucide-react";
 import { MouseClickEvent } from '@/types/user';
 
 interface ConceptCardProps {
@@ -53,8 +53,17 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    // Navigate directly to the study URL with /conceptId/study format
-    navigate(`/dashboard/student/concepts/${id}/study`);
+    // Navigate directly to the concept card detail
+    navigate(`/dashboard/student/concepts/card/${id}`);
+  };
+  
+  const handleFormulaLabClick = (e: MouseClickEvent) => {
+    // Prevent the parent card click handler from being called
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Navigate to formula lab
+    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
   };
 
   const handleBackToDashboard = (e: MouseClickEvent) => {
@@ -129,15 +138,24 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
           <ArrowLeft className="h-4 w-4" /> 
           Back to Dashboard
         </Button>
-        <Button 
-          variant="default" 
-          className="w-full group"
-          onClick={handleStudyClick}
-        >
-          <BookOpen className="mr-2 h-4 w-4" /> 
-          Study
-          <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:translate-x-0.5 transition-transform" />
-        </Button>
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Button 
+            variant="default" 
+            className="w-full group"
+            onClick={handleStudyClick}
+          >
+            <BookOpen className="mr-2 h-4 w-4" /> 
+            Study
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full group border-blue-200 text-blue-700 hover:bg-blue-50"
+            onClick={handleFormulaLabClick}
+          >
+            <Calculator className="mr-2 h-4 w-4" /> 
+            Formula Lab
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
