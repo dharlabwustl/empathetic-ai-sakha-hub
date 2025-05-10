@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/landing/HeroSection';
+import HeroSection from '@/components/home/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -84,17 +84,12 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* KPI Stats is inside HeroSection */}
-        
-        {/* Add the AchievementsSection right after KPI Stats */}
         <AchievementsSection />
         
         <WhatIsSection />
         
-        {/* Add the ChampionMethodologySection right after WhatIsSection */}
         <ChampionMethodologySection />
         
-        {/* Add the EcosystemAnimation section after ChampionMethodologySection */}
         <EcosystemAnimation />
         
         <div ref={featuresRef}>

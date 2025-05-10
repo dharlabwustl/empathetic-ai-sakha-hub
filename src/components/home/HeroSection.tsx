@@ -72,7 +72,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <HeroButtons 
               scrollToFeatures={scrollToFeatures} 
               scrollToForWhom={scrollToForWhom}
-              openExamAnalyzer={openExamAnalyzer}
+              onAnalyzeClick={openExamAnalyzer}
             />
           </motion.div>
         </div>
