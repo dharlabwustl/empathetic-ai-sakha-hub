@@ -31,8 +31,8 @@ const HeroSection: React.FC = () => {
     }
   };
   
-  // Updated animated title text
-  const titleText = "We understand Your Mindset, Not Just the Exam.";
+  // Premium animated title text
+  const titleText = "India's 1st Emotionally Intelligent Study Partner";
   const titleLetters = titleText.split("");
   
   return (
@@ -72,7 +72,21 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          Ace your exams. Save time. Stress less. Study smarter.
+          Tuned to Your Mood, Habits, Mind & Mission to{" "}
+          <motion.span 
+            className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-bold"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              color: ["#9333ea", "#ec4899", "#9333ea"]
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          >
+            Crack Exams
+          </motion.span>.
         </motion.p>
         
         <motion.div 

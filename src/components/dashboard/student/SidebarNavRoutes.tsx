@@ -22,8 +22,7 @@ import {
   Target, 
   User,
   Calculator,
-  Flame,
-  FunctionSquare
+  Flame
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -47,8 +46,7 @@ const tooltipDescriptions: Record<string, string> = {
   Wellness: "Track and maintain your study-life balance",
   Profile: "Manage your account settings and preferences",
   "Exam Syllabus": "View your complete exam syllabus and track progress",
-  "Formula Practice Lab": "Master formulas through interactive practice",
-  "Formula Mastery": "Practice formulas with step-by-step guidance"
+  "Formula Practice Lab": "Master formulas through interactive practice"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -67,7 +65,6 @@ export const SidebarNavRoutes = ({
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
       { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
       { name: "Formula Practice Lab", path: "/dashboard/student/formula-practice-lab", icon: <Calculator size={20} /> },
-      { name: "Formula Mastery", path: "/dashboard/student/formula-mastery", icon: <FunctionSquare size={20} /> },
       { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <Flame size={20} /> },
       { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
       { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
@@ -121,7 +118,7 @@ export const SidebarNavRoutes = ({
                     to={route.path}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                      location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)
+                      location.pathname === route.path
                         ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
                         : "hover:bg-accent hover:shadow-md",
                       collapsed && "justify-center"
