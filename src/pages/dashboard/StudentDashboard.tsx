@@ -11,6 +11,7 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import DashboardContent from "@/components/dashboard/student/DashboardContent";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -177,8 +178,8 @@ const StudentDashboard = () => {
     <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
+        hideSidebar={false}
+        hideTabsNav={true} // Always hide tabs nav to prevent double sidebar
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}

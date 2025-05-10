@@ -19,11 +19,7 @@ import NotFoundPage from '@/pages/NotFound';
 const StudentRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={
-        <SidebarLayout>
-          <StudentDashboard />
-        </SidebarLayout>
-      } />
+      <Route path="/" element={<StudentDashboard />} />
       <Route path="/today" element={
         <SidebarLayout>
           <TodaysPlanView />

@@ -2,8 +2,25 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const ExamNamesBadge = () => {
+  const navigate = useNavigate();
+  
+  const handleNeetExamClick = () => {
+    // Set exam goal as NEET in localStorage for the signup flow
+    const userData = {
+      examGoal: "NEET",
+      isNewUser: true,
+      completedOnboarding: false
+    };
+    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("new_user_signup", "true");
+    
+    // Navigate to signup page
+    navigate("/signup?exam=NEET");
+  };
+  
   return (
     <motion.div 
       className="flex flex-wrap justify-center items-center gap-2"
@@ -22,6 +39,8 @@ const ExamNamesBadge = () => {
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleNeetExamClick}
+          style={{ cursor: 'pointer' }}
         >
           <Badge className="bg-green-600 hover:bg-green-700 px-3 py-1 text-white flex items-center gap-1.5">
             <motion.span
@@ -41,7 +60,7 @@ const ExamNamesBadge = () => {
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              Launched
+              LIVE
             </motion.span>
           </Badge>
         </motion.div>

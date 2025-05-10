@@ -2,6 +2,45 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import { Users, Brain, Award, BookOpen, Calendar, Heart } from 'lucide-react';
+import { adminService } from '@/services/adminService';
+import { useState } from 'react';
+
+// Get KPI data from admin service
+const useKpiData = () => {
+  const [kpiData, setKpiData] = useState({
+    totalStudents: 0,
+    averageConcepts: 0,
+    totalStudyPlans: 0,
+    verifiedMoodImprovement: 0
+  });
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const stats = await adminService.getDashboardStats();
+        setKpiData({
+          totalStudents: stats.totalStudents,
+          averageConcepts: stats.averageConcepts,
+          totalStudyPlans: stats.totalStudyPlans,
+          verifiedMoodImprovement: stats.verifiedMoodImprovement
+        });
+      } catch (error) {
+        console.error("Failed to fetch KPI data:", error);
+        // Use fallback data
+        setKpiData({
+          totalStudents: 10000,
+          averageConcepts: 850,
+          totalStudyPlans: 12000,
+          verifiedMoodImprovement: 72
+        });
+      }
+    };
+    
+    fetchData();
+  }, []);
+  
+  return kpiData;
+}
 
 const StatCard = ({ 
   icon, 
@@ -65,11 +104,13 @@ const StatCard = ({
 };
 
 const KpiStats = () => {
+  const kpiData = useKpiData();
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
       <StatCard 
         icon={<Users size={24} className="text-white" />} 
-        value="+10,000" 
+        value={`+${kpiData.totalStudents.toLocaleString()}`} 
         label="Students Helped"
         delay={0}
         gradient="from-blue-500 to-violet-500"
@@ -77,41 +118,25 @@ const KpiStats = () => {
       
       <StatCard 
         icon={<Brain size={24} className="text-white" />} 
-        value="850/Student" 
+        value={`${kpiData.averageConcepts}/Student`} 
         label="Concepts Mastered Avg"
         delay={1}
         gradient="from-violet-500 to-purple-500"
       />
       
       <StatCard 
-        icon={<Award size={24} className="text-white" />} 
-        value="95%" 
-        label="Success Rate"
-        delay={2}
-        gradient="from-purple-500 to-pink-500"
-      />
-      
-      <StatCard 
-        icon={<BookOpen size={24} className="text-white" />} 
-        value="2,000,000+" 
-        label="Flashcards Reviewed"
-        delay={3}
-        gradient="from-pink-500 to-red-500"
-      />
-      
-      <StatCard 
         icon={<Calendar size={24} className="text-white" />} 
-        value="12,000+" 
+        value={`${kpiData.totalStudyPlans.toLocaleString()}+`} 
         label="Study Plans Delivered"
-        delay={4}
+        delay={2}
         gradient="from-indigo-500 to-blue-500"
       />
       
       <StatCard 
         icon={<Heart size={24} className="text-white" />} 
-        value="72%" 
+        value={`${kpiData.verifiedMoodImprovement}%`} 
         label="Feel Reduced Anxiety"
-        delay={5}
+        delay={3}
         gradient="from-green-500 to-teal-500"
       />
     </div>

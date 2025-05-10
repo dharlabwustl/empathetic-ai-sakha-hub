@@ -175,7 +175,7 @@ const StudentDashboard = () => {
     <DashboardLayout
       userProfile={enhancedUserProfile}
       hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
+      hideTabsNav={true} // Always hide tabs nav to prevent double sidebar
       activeTab={activeTab}
       kpis={kpis}
       nudges={nudges}
