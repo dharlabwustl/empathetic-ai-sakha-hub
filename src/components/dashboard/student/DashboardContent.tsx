@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { UserProfileBase as UserProfileType } from "@/types/user/base";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { UserProfileBase } from '@/types/user/base';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -17,7 +17,7 @@ interface DashboardTabsProps {
 interface DashboardContentProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  userProfile: UserProfileType;
+  userProfile: UserProfileBase;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
