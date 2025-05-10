@@ -172,32 +172,30 @@ const StudentDashboard = () => {
   const modifiedShowWelcomeTour = false;
 
   return (
-    <>
-      <DashboardLayout
-        userProfile={enhancedUserProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={modifiedShowWelcomeTour}
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTour}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-      >
-        {getTabContent()}
-      </DashboardLayout>
-    </>
+    <DashboardLayout
+      userProfile={enhancedUserProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={modifiedShowWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+      onMoodChange={handleMoodChange}
+    >
+      {getTabContent()}
+    </DashboardLayout>
   );
 };
 
