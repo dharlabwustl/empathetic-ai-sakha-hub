@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/auth/AuthContext';
 import { 
   BookOpen, 
   Calendar, 
@@ -42,8 +42,12 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
   };
   
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    // Complete logout process
+    logout();
+    
+    // Force navigation to login page after logout
+    console.log("Navigating to login page after logout");
+    navigate('/login', { replace: true });
   };
   
   // Navigation items grouped by categories
