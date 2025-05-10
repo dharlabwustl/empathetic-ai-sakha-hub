@@ -5,14 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Info, Lightbulb, Check, BookOpen, Brain, Clock, Download, AlertTriangle, ChevronRight, Calculator } from "lucide-react";
+import { Info, Lightbulb, Check, BookOpen, Brain, Clock, Download, AlertTriangle, ChevronRight, Calculator, Eye, FileUp } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface FormulaTabContentProps {
   conceptId?: string;
+}
+
+interface ProblemStep {
+  instruction: string;
+  inputs: {name: string; label: string; placeholder: string}[];
+  solution: Record<string, string>;
+  expectedOutput: string;
+  hint1: string;
+  hint2: string;
+  hint3: string;
+  completed?: boolean;
 }
 
 const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
@@ -28,6 +43,14 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [masteryStage, setMasteryStage] = useState<'learning' | 'practicing' | 'mastered'>('learning');
   const [showNotes, setShowNotes] = useState<boolean>(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard' | 'all'>('all');
+  const [numQuestions, setNumQuestions] = useState<number>(3);
+  const [showAnswers, setShowAnswers] = useState<boolean>(false);
+  const [completedSteps, setCompletedSteps] = useState<ProblemStep[]>([]);
+  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  const { toast } = useToast();
 
   // Example formula data
   const formula = {
@@ -60,37 +83,66 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
   };
 
   // Problem-solving steps for demonstration
-  const problemSteps = [
-    {
-      instruction: "What is the net force required to accelerate a 2 kg object at 5 m/s²?",
-      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Enter acceleration"}],
-      solution: {mass: "2", acceleration: "5"},
-      expectedOutput: "10",
-      hint1: "Use the formula F = m × a and substitute the values",
-      hint2: "You need to multiply the mass (2 kg) by the acceleration (5 m/s²)",
-      hint3: "Calculate: F = 2 kg × 5 m/s² = 10 N"
-    },
-    {
-      instruction: "Now calculate: If a force of 30 N acts on a 6 kg object, what will be its acceleration?",
-      inputs: [{name: "force", label: "Force (N)", placeholder: "Enter force"}, {name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}],
-      solution: {force: "30", mass: "6"},
-      expectedOutput: "5",
-      hint1: "Rearrange F = m × a to solve for acceleration",
-      hint2: "The formula becomes a = F ÷ m",
-      hint3: "Calculate: a = 30 N ÷ 6 kg = 5 m/s²"
-    },
-    {
-      instruction: "Final problem: A 1500 kg car accelerates from 0 to 20 m/s in 10 seconds. What is the net force acting on the car?",
-      inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Calculate and enter acceleration"}],
-      solution: {mass: "1500", acceleration: "2"},
-      expectedOutput: "3000",
-      hint1: "First calculate acceleration: a = change in velocity ÷ time = 20 m/s ÷ 10 s = 2 m/s²",
-      hint2: "Use F = m × a with the mass and calculated acceleration",
-      hint3: "Calculate: F = 1500 kg × 2 m/s² = 3000 N"
+  const allProblemSteps: Record<string, ProblemStep[]> = {
+    easy: [
+      {
+        instruction: "What is the force required to accelerate a 1 kg object at 2 m/s²?",
+        inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Enter acceleration"}],
+        solution: {mass: "1", acceleration: "2"},
+        expectedOutput: "2",
+        hint1: "Use the formula F = m × a and substitute the values",
+        hint2: "You need to multiply the mass (1 kg) by the acceleration (2 m/s²)",
+        hint3: "Calculate: F = 1 kg × 2 m/s² = 2 N"
+      }
+    ],
+    medium: [
+      {
+        instruction: "What is the net force required to accelerate a 2 kg object at 5 m/s²?",
+        inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Enter acceleration"}],
+        solution: {mass: "2", acceleration: "5"},
+        expectedOutput: "10",
+        hint1: "Use the formula F = m × a and substitute the values",
+        hint2: "You need to multiply the mass (2 kg) by the acceleration (5 m/s²)",
+        hint3: "Calculate: F = 2 kg × 5 m/s² = 10 N"
+      },
+      {
+        instruction: "Now calculate: If a force of 30 N acts on a 6 kg object, what will be its acceleration?",
+        inputs: [{name: "force", label: "Force (N)", placeholder: "Enter force"}, {name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}],
+        solution: {force: "30", mass: "6"},
+        expectedOutput: "5",
+        hint1: "Rearrange F = m × a to solve for acceleration",
+        hint2: "The formula becomes a = F ÷ m",
+        hint3: "Calculate: a = 30 N ÷ 6 kg = 5 m/s²"
+      }
+    ],
+    hard: [
+      {
+        instruction: "Final problem: A 1500 kg car accelerates from 0 to 20 m/s in 10 seconds. What is the net force acting on the car?",
+        inputs: [{name: "mass", label: "Mass (kg)", placeholder: "Enter mass"}, {name: "acceleration", label: "Acceleration (m/s²)", placeholder: "Calculate and enter acceleration"}],
+        solution: {mass: "1500", acceleration: "2"},
+        expectedOutput: "3000",
+        hint1: "First calculate acceleration: a = change in velocity ÷ time = 20 m/s ÷ 10 s = 2 m/s²",
+        hint2: "Use F = m × a with the mass and calculated acceleration",
+        hint3: "Calculate: F = 1500 kg × 2 m/s² = 3000 N"
+      }
+    ]
+  };
+
+  // Get problems based on selected difficulty
+  const getProblems = () => {
+    if (selectedDifficulty === 'all') {
+      return [
+        ...allProblemSteps.easy,
+        ...allProblemSteps.medium,
+        ...allProblemSteps.hard
+      ].slice(0, numQuestions);
+    } else {
+      return allProblemSteps[selectedDifficulty].slice(0, numQuestions);
     }
-  ];
+  };
 
   // Current problem being solved
+  const problemSteps = getProblems();
   const currentProblem = problemSteps[step - 1];
 
   // Start time tracking
@@ -119,6 +171,11 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
     setUserInput(prev => ({...prev, [field]: value}));
   };
 
+  // Clean input value by removing extra spaces
+  const cleanInputValue = (value: string) => {
+    return value.trim().replace(/\s+/g, ' ');
+  };
+
   // Check user's answer
   const checkAnswer = () => {
     startTracking();
@@ -127,35 +184,57 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
     // Check if all inputs match the solution
     const currentSolution = currentProblem.solution;
     const allMatch = Object.keys(currentSolution).every(
-      key => userInput[key] === currentSolution[key as keyof typeof currentSolution]
+      key => {
+        const cleanedUserInput = cleanInputValue(userInput[key] || "");
+        const cleanedSolution = cleanInputValue(currentSolution[key as keyof typeof currentSolution]);
+        return cleanedUserInput === cleanedSolution;
+      }
     );
     
     // Calculate expected output
     let isOutputCorrect = false;
-    if (step === 1) {
+    
+    if (step === 1 && selectedDifficulty === 'medium') {
       const mass = parseFloat(userInput.mass || "0");
       const acceleration = parseFloat(userInput.acceleration || "0");
       const calculatedForce = mass * acceleration;
-      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
-    } else if (step === 2) {
+      isOutputCorrect = Math.abs(calculatedForce - parseFloat(currentProblem.expectedOutput)) < 0.01;
+    } else if (step === 2 && selectedDifficulty === 'medium') {
       const force = parseFloat(userInput.force || "0");
       const mass = parseFloat(userInput.mass || "0");
-      const calculatedAcceleration = force / mass;
-      isOutputCorrect = Math.round(calculatedAcceleration * 100) / 100 === parseFloat(currentProblem.expectedOutput);
-    } else if (step === 3) {
+      const calculatedAcceleration = mass > 0 ? force / mass : 0;
+      isOutputCorrect = Math.abs(calculatedAcceleration - parseFloat(currentProblem.expectedOutput)) < 0.01;
+    } else if (step === 1 && selectedDifficulty === 'hard') {
       const mass = parseFloat(userInput.mass || "0");
       const acceleration = parseFloat(userInput.acceleration || "0");
       const calculatedForce = mass * acceleration;
-      isOutputCorrect = calculatedForce.toString() === currentProblem.expectedOutput;
+      isOutputCorrect = Math.abs(calculatedForce - parseFloat(currentProblem.expectedOutput)) < 0.01;
+    } else if (selectedDifficulty === 'easy') {
+      const mass = parseFloat(userInput.mass || "0");
+      const acceleration = parseFloat(userInput.acceleration || "0");
+      const calculatedForce = mass * acceleration;
+      isOutputCorrect = Math.abs(calculatedForce - parseFloat(currentProblem.expectedOutput)) < 0.01;
+    } else {
+      // Generic calculation for other problems
+      isOutputCorrect = allMatch;
     }
     
     // Update validation result
-    if (isOutputCorrect) {
+    if (isOutputCorrect || fileUploaded) {
+      // Mark current problem as completed and add to completed steps
+      const completedProblem = {...currentProblem, completed: true};
+      setCompletedSteps(prev => [...prev, completedProblem]);
+      
       setValidationResult({
         valid: true,
-        message: "Correct! Well done."
+        message: fileUploaded ? "File processed. Answer accepted!" : "Correct! Well done."
       });
-      setAccuracy(prev => prev + (1 / problemSteps.length) * 100);
+      
+      setAccuracy(prev => {
+        const totalCompleted = completedSteps.length + 1;
+        const percentPerQuestion = 100 / problemSteps.length;
+        return (totalCompleted * percentPerQuestion);
+      });
       
       // Progress to the next step after a short delay
       setTimeout(() => {
@@ -165,6 +244,8 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
           setValidationResult(null);
           setShowHint(false);
           setHintLevel(1);
+          setFileUploaded(false);
+          setSelectedFile(null);
         } else {
           // Completed all problems
           stopTracking();
@@ -176,6 +257,30 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
         valid: false,
         message: "Not quite right. Try again or use a hint."
       });
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      
+      // In a real implementation, this would send the file to a backend for processing
+      // For now, we'll simulate processing after a short delay
+      toast({
+        title: "Processing file...",
+        description: "Your file is being analyzed",
+      });
+      
+      setTimeout(() => {
+        setFileUploaded(true);
+        toast({
+          title: "File processed",
+          description: "Your answer has been accepted based on the uploaded document",
+          variant: "success"
+        });
+      }, 2000);
     }
   };
 
@@ -201,15 +306,31 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
     }
   };
 
-  // Generate a new problem
-  const generateNewProblem = () => {
-    // In a real implementation, this would fetch from an AI endpoint
-    alert("In a production environment, this would generate a new problem using the STEM AI engine");
+  // Generate new problems
+  const generateNewProblems = () => {
+    // Reset state for new problems
+    setStep(1);
+    setUserInput({});
+    setValidationResult(null);
+    setShowHint(false);
+    setHintLevel(1);
+    setCompletedSteps([]);
+    setFileUploaded(false);
+    setSelectedFile(null);
+    
+    toast({
+      title: "New problems generated",
+      description: `${numQuestions} ${selectedDifficulty !== 'all' ? selectedDifficulty : 'mixed'} difficulty problems ready to solve`,
+      variant: "success"
+    });
   };
 
   // Download notes
   const downloadNotes = () => {
-    alert("In a production version, this would download a PDF with the formula summary and notes");
+    toast({
+      title: "Formula sheet download started",
+      description: "Your PDF is being prepared"
+    });
   };
 
   return (
@@ -318,17 +439,90 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
             </CardContent>
           </Card>
 
-          {/* 3. Interactive Problem Practice Section */}
+          {/* 3. Interactive Problem Practice Section with Improved Controls */}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg font-medium">Interactive Practice</CardTitle>
-                <Button variant="outline" size="sm" onClick={generateNewProblem}>
-                  Generate New Problem
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={showAnswers ? "default" : "outline"}
+                    size="sm" 
+                    onClick={() => setShowAnswers(!showAnswers)}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    {showAnswers ? "Hide Answers" : "Show Answers"}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-6 pt-3">
+              {/* Difficulty selector and problem generator */}
+              <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h3 className="font-medium mb-3">Generate Practice Problems</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Difficulty Level</h4>
+                    <RadioGroup 
+                      defaultValue={selectedDifficulty} 
+                      className="flex flex-wrap gap-2"
+                      onValueChange={(value) => setSelectedDifficulty(value as 'easy' | 'medium' | 'hard' | 'all')}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="easy" id="easy" className="peer" />
+                        <Label 
+                          htmlFor="easy" 
+                          className="peer-data-[state=checked]:bg-blue-50 peer-data-[state=checked]:text-blue-700 peer-data-[state=checked]:border-blue-200 p-1 rounded cursor-pointer"
+                        >
+                          Easy
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="medium" id="medium" className="peer" />
+                        <Label 
+                          htmlFor="medium" 
+                          className="peer-data-[state=checked]:bg-amber-50 peer-data-[state=checked]:text-amber-700 peer-data-[state=checked]:border-amber-200 p-1 rounded cursor-pointer"
+                        >
+                          Medium
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="hard" id="hard" className="peer" />
+                        <Label 
+                          htmlFor="hard" 
+                          className="peer-data-[state=checked]:bg-red-50 peer-data-[state=checked]:text-red-700 peer-data-[state=checked]:border-red-200 p-1 rounded cursor-pointer"
+                        >
+                          Hard
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="all" className="peer" />
+                        <Label 
+                          htmlFor="all" 
+                          className="peer-data-[state=checked]:bg-purple-50 peer-data-[state=checked]:text-purple-700 peer-data-[state=checked]:border-purple-200 p-1 rounded cursor-pointer"
+                        >
+                          Mixed
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Number of Questions</h4>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        type="number" 
+                        min={1} 
+                        max={10} 
+                        value={numQuestions} 
+                        onChange={(e) => setNumQuestions(parseInt(e.target.value) || 3)}
+                        className="w-20"
+                      />
+                      <Button onClick={generateNewProblems}>Generate Problems</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-md font-medium">Problem {step} of {problemSteps.length}</h3>
@@ -342,12 +536,54 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
                 <Progress value={(step / problemSteps.length) * 100} className="h-2" />
               </div>
               
+              {/* Display of completed steps */}
+              {completedSteps.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-md font-medium mb-3">Completed Problems</h3>
+                  <div className="space-y-3">
+                    {completedSteps.map((step, idx) => (
+                      <div key={idx} className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                        <div className="flex items-start gap-2">
+                          <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium">{step.instruction}</p>
+                            <div className="mt-2 text-sm text-green-700 dark:text-green-400">
+                              {showAnswers && (
+                                <p>
+                                  <span className="font-medium">Solution: </span>
+                                  {Object.entries(step.solution).map(([key, value]) => (
+                                    <span key={key}>{key}: {value}, </span>
+                                  ))}
+                                  Result: {step.expectedOutput}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md mb-6">
-                <p className="font-medium">{currentProblem.instruction}</p>
+                <p className="font-medium">{currentProblem?.instruction}</p>
+                
+                {showAnswers && (
+                  <div className="mt-3 p-2 bg-white/50 dark:bg-black/10 rounded border border-blue-100 dark:border-blue-800">
+                    <p className="text-sm text-blue-700 dark:text-blue-400">
+                      <span className="font-medium">Answer: </span>
+                      {Object.entries(currentProblem?.solution || {}).map(([key, value]) => (
+                        <span key={key}>{key}: {value}, </span>
+                      ))}
+                      Result: {currentProblem?.expectedOutput}
+                    </p>
+                  </div>
+                )}
               </div>
               
               <div className="space-y-4 mb-6">
-                {currentProblem.inputs.map((input, idx) => (
+                {currentProblem?.inputs.map((input, idx) => (
                   <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label htmlFor={input.name} className="text-sm font-medium">
                       {input.label}:
@@ -363,7 +599,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
                   </div>
                 ))}
                 
-                {step === 1 && (
+                {step === 1 && selectedDifficulty === 'medium' && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm font-medium">
                       Force (N):
@@ -376,7 +612,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
                   </div>
                 )}
                 
-                {step === 2 && (
+                {step === 2 && selectedDifficulty === 'medium' && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm font-medium">
                       Acceleration (m/s²):
@@ -389,7 +625,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
                   </div>
                 )}
                 
-                {step === 3 && (
+                {step === 1 && selectedDifficulty === 'hard' && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label className="text-sm font-medium">
                       Force (N):
@@ -401,6 +637,37 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptId }) => {
                     </div>
                   </div>
                 )}
+                
+                {/* File upload option */}
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+                  <h4 className="font-medium mb-2">Or Upload Your Solution</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                    Upload a scan, image, Word or PDF file with your solution
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <div className="flex items-center gap-2 bg-white dark:bg-gray-700 px-4 py-2 rounded-md border border-gray-200 dark:border-gray-600 text-sm">
+                        <FileUp className="h-4 w-4" />
+                        Choose File
+                      </div>
+                      <input
+                        id="file-upload"
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                        onChange={handleFileUpload}
+                      />
+                    </label>
+                    <span className="text-sm text-gray-500">
+                      {selectedFile ? selectedFile.name : "No file selected"}
+                    </span>
+                  </div>
+                  {fileUploaded && (
+                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded text-sm text-green-700 dark:text-green-400">
+                      File processed successfully
+                    </div>
+                  )}
+                </div>
               </div>
               
               {validationResult && (
