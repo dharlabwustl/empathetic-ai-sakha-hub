@@ -1,280 +1,164 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import authService, { AuthUser } from '@/services/auth/authService';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import authService, { AuthUser, LoginCredentials, RegisterData } from '@/services/auth/authService';
 
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  adminLogin: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, phoneNumber: string, password: string, role?: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  isAuthenticated: () => boolean;
-  isAdmin: () => boolean;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
   googleSignIn: () => Promise<boolean>;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
+
+  // Initialize authentication state
   useEffect(() => {
-    const initAuth = async () => {
+    const initializeAuth = async () => {
+      setLoading(true);
       try {
-        // Check if token is valid
-        const isValid = await authService.verifyToken();
+        // Check if token exists and is valid
+        const isAuthenticated = await authService.verifyToken();
         
-        if (isValid) {
+        if (isAuthenticated) {
           const currentUser = authService.getCurrentUser();
           setUser(currentUser);
-        } else {
-          // If token is invalid, clear auth data
-          authService.clearAuthData();
-          setUser(null);
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
-        authService.clearAuthData();
-        setUser(null);
+        console.error("Auth initialization error:", error);
+        authService.clearAuthData(); // Clear any invalid auth data
       } finally {
         setLoading(false);
       }
     };
     
-    initAuth();
+    initializeAuth();
   }, []);
-  
-  const login = async (email: string, password: string): Promise<boolean> => {
+
+  // Login function
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+    setLoading(true);
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login(credentials);
       
       if (response.success && response.data) {
         setUser(response.data);
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
-        
         return true;
-      } else {
-        toast({
-          title: "Login failed",
-          description: response.error || "Invalid email or password",
-          variant: "destructive",
-        });
-        
-        return false;
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      
-      toast({
-        title: "Login failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      
       return false;
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
-  
-  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+
+  // Register function
+  const register = async (name: string, email: string, phone: string, password: string): Promise<boolean> => {
+    setLoading(true);
     try {
-      const response = await authService.adminLogin({ email, password });
-      
-      if (response.success && response.data) {
-        setUser(response.data);
-        
-        toast({
-          title: "Admin login successful",
-          description: "Welcome to the admin dashboard",
-        });
-        
-        return true;
-      } else {
-        toast({
-          title: "Admin login failed",
-          description: response.error || "Invalid credentials or insufficient permissions",
-          variant: "destructive",
-        });
-        
-        return false;
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      
-      toast({
-        title: "Admin login failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      
-      return false;
-    }
-  };
-  
-  const register = async (
-    name: string,
-    email: string,
-    phoneNumber: string,
-    password: string,
-    role: string = 'student'
-  ): Promise<boolean> => {
-    try {
-      const response = await authService.register({
+      const userData: RegisterData = {
         name,
         email,
-        phoneNumber,
-        password,
-        role
-      });
+        phoneNumber: phone,
+        password
+      };
+      
+      const response = await authService.register(userData);
       
       if (response.success && response.data) {
         setUser(response.data);
-        
-        toast({
-          title: "Registration successful",
-          description: "Your account has been created",
-        });
-        
         return true;
-      } else {
-        toast({
-          title: "Registration failed",
-          description: response.error || "Could not create your account",
-          variant: "destructive",
-        });
-        
-        return false;
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      
-      toast({
-        title: "Registration failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      
       return false;
+    } catch (error) {
+      console.error("Registration error:", error);
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
-  
+
+  // Google Sign In (mock)
+  const googleSignIn = async (): Promise<boolean> => {
+    setLoading(true);
+    try {
+      // Mock Google sign in response
+      const mockResponse = await authService.register({
+        name: "Google User",
+        email: `google_user_${Date.now()}@gmail.com`,
+        phoneNumber: "",
+        password: "google_auth"
+      });
+      
+      if (mockResponse.success && mockResponse.data) {
+        setUser(mockResponse.data);
+        localStorage.setItem('should_prompt_study_plan', 'true');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
   const logout = async (): Promise<void> => {
     try {
       await authService.logout();
       setUser(null);
-      
-      // Clear additional auth-related storage items
+      // Ensure all auth-related items are cleared from localStorage
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userData');
       localStorage.removeItem('user_profile_image');
       localStorage.removeItem('sakha_auth_token');
       localStorage.removeItem('sakha_auth_user');
+      localStorage.removeItem('new_user_signup');
+      localStorage.removeItem('sawWelcomeTour');
+      localStorage.removeItem('sawWelcomeSlider');
+      localStorage.removeItem('dashboard_tour_completed');
+      localStorage.removeItem('hasSeenSplash');
+      sessionStorage.removeItem('hasSeenSplash');
       
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out",
-      });
-      
+      // Navigate to login page after logout
       navigate('/login');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      
-      toast({
-        title: "Logout failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      console.error("Logout error:", error);
     }
   };
-  
-  const isAuthenticated = (): boolean => {
-    return authService.isAuthenticated();
-  };
-  
-  const isAdmin = (): boolean => {
-    return authService.isAdmin();
-  };
-  
-  // Google Sign In function
-  const googleSignIn = async (): Promise<boolean> => {
-    try {
-      // Mock Google Sign-in for demo
-      const mockGoogleUser = {
-        id: `google_user_${Date.now()}`,
-        name: 'Google User',
-        email: `user${Date.now()}@gmail.com`,
-        role: 'student',
-        token: `google_token_${Date.now()}`
-      };
-      
-      // Set the auth data
-      authService.setAuthData(mockGoogleUser);
-      setUser(mockGoogleUser);
-      
-      // Save user data in localStorage for mood tracking
-      const userData = {
-        name: mockGoogleUser.name,
-        email: mockGoogleUser.email,
-        mood: 'Motivated'
-      };
-      localStorage.setItem('userData', JSON.stringify(userData));
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('new_user_signup', 'true'); // Mark as new user for onboarding
-      
-      toast({
-        title: "Google login successful",
-        description: "Welcome to PREPZR!",
-      });
-      
-      return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      
-      toast({
-        title: "Google login failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      
-      return false;
-    }
-  };
-  
-  const value = {
-    user,
-    loading,
-    login,
-    adminLogin,
-    register,
-    logout,
-    isAuthenticated,
-    isAdmin,
-    googleSignIn
-  };
-  
+
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        googleSignIn,
+        logout,
+        isAuthenticated: !!user
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

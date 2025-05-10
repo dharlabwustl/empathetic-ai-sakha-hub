@@ -1,28 +1,29 @@
 
-import React from 'react';
+import React from "react";
+import { MenuIcon, Calendar, BellIcon, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import { MoodType } from "@/types/user/base";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour?: () => void;
+  onOpenTour: () => void;
   userName?: string;
-  mood?: string;
+  mood?: MoodType | null;
   isFirstTimeUser?: boolean;
-  onViewStudyPlan?: () => void;
+  onViewStudyPlan: () => void;
 }
 
-const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
+const TopNavigationControls = ({
   hideSidebar,
   onToggleSidebar,
   formattedDate,
@@ -31,115 +32,115 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   userName,
   mood,
   isFirstTimeUser,
-  onViewStudyPlan
-}) => {
+  onViewStudyPlan,
+}: TopNavigationControlsProps) => {
+  const navigate = useNavigate();
+
+  const getTimeOfDayGreeting = () => {
+    const hour = new Date().getHours();
+    
+    if (hour >= 5 && hour < 12) {
+      return "Good Morning";
+    } else if (hour >= 12 && hour < 17) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+  
+  const getMoodText = () => {
+    switch (mood) {
+      case MoodType.Motivated:
+        return "You're feeling motivated today!";
+      case MoodType.Focused:
+        return "You're in a focused state of mind!";
+      case MoodType.Confident:
+        return "You're feeling confident today!";
+      case MoodType.Happy:
+        return "You're feeling happy today!";
+      case MoodType.Calm:
+        return "You're feeling calm today.";
+      case MoodType.Tired:
+        return "You seem tired today, take some breaks.";
+      case MoodType.Stressed:
+        return "You're feeling stressed, remember to relax!";
+      case MoodType.Anxious:
+        return "You're feeling anxious, deep breaths help.";
+      case MoodType.Confused:
+        return "You seem confused today, ask for help!";
+      default:
+        return "";
+    }
+  };
+
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={onToggleSidebar}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6"
-                >
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Toggle navigation menu</p>
-            </TooltipContent>
-          </Tooltip>
-          <div>
-            <h2 className="text-lg font-semibold">{formattedTime}</h2>
-            <p className="text-muted-foreground text-sm">{formattedDate}</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {/* Voice Announcer Integration */}
-          <VoiceAnnouncer 
-            userName={userName}
-            mood={mood}
-            isFirstTimeUser={isFirstTimeUser}
-          />
-          
-          {/* Calendar Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Notification Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Tour Guide Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className="md:flex"
+          aria-label="Toggle sidebar"
+        >
+          <MenuIcon className="h-5 w-5" />
+        </Button>
+        <div className="hidden lg:flex lg:flex-col">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200">
+            {formattedDate}
+          </h4>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formattedTime}
+          </p>
         </div>
       </div>
-    </TooltipProvider>
+
+      <div className="flex-1 mx-4">
+        <div className="hidden md:block text-center">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            {getTimeOfDayGreeting()}, {userName || "Student"}!
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {getMoodText()}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/dashboard/student/notifications")}
+          className="relative"
+          aria-label="Notifications"
+        >
+          <BellIcon className="h-5 w-5" />
+          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="User menu">
+              <UserCircle2 className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => navigate("/dashboard/student/profile")}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onViewStudyPlan}>
+              View Study Plan
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onOpenTour}>
+              Welcome Tour
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/login")}>
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 

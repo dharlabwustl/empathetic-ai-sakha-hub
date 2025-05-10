@@ -5,6 +5,7 @@ import { ThemeProvider } from './components/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import SidebarLayout from './components/dashboard/SidebarLayout';
+import { OnboardingProvider } from "@/components/signup/OnboardingContext";
 
 // Import pages and components
 import Index from '@/pages/Index';
@@ -76,110 +77,112 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <AdminAuthProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/register" element={<SignUp />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
-              
-              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
-              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
+            <OnboardingProvider>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/register" element={<SignUp />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
+                
+                {/* Public Flask Guide route - explicitly defined outside of admin routes */}
+                <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
-              {/* Admin routes */}
-              <Route path="/admin/dashboard" element={
-                <AdminRouteGuard>
-                  <AdminDashboard />
-                </AdminRouteGuard>
-              } />
-              
-              {/* Add other admin routes */}
-              {adminRoutes.map((route, index) => (
-                <Route 
-                  key={index} 
-                  path={route.path} 
-                  element={
-                    <AdminRouteGuard>
-                      {route.element}
-                    </AdminRouteGuard>
-                  } 
-                />
-              ))}
+                {/* Admin routes */}
+                <Route path="/admin/dashboard" element={
+                  <AdminRouteGuard>
+                    <AdminDashboard />
+                  </AdminRouteGuard>
+                } />
+                
+                {/* Add other admin routes */}
+                {adminRoutes.map((route, index) => (
+                  <Route 
+                    key={index} 
+                    path={route.path} 
+                    element={
+                      <AdminRouteGuard>
+                        {route.element}
+                      </AdminRouteGuard>
+                    } 
+                  />
+                ))}
 
-              {/* Legacy route for compatibility */}
-              <Route path="/admin/flask-guide" element={
-                <AdminRouteGuard>
-                  <FlaskGuidePage />
-                </AdminRouteGuard>
-              } />
-              
-              {/* Post-signup flow - Welcome flow */}
-              <Route path="/welcome" element={<WelcomeToPrepr />} />
-              <Route path="/post-signup" element={<PostSignupWelcome />} />
-              <Route path="/welcome-flow" element={<WelcomeFlow />} />
-              
-              {/* Post-login welcome back screen */}
-              <Route path="/welcome-back" element={<PostLoginWelcome />} />
+                {/* Legacy route for compatibility */}
+                <Route path="/admin/flask-guide" element={
+                  <AdminRouteGuard>
+                    <FlaskGuidePage />
+                  </AdminRouteGuard>
+                } />
+                
+                {/* Post-signup flow - Welcome flow */}
+                <Route path="/welcome" element={<WelcomeToPrepr />} />
+                <Route path="/post-signup" element={<PostSignupWelcome />} />
+                <Route path="/welcome-flow" element={<WelcomeFlow />} />
+                
+                {/* Post-login welcome back screen */}
+                <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-              {/* Student dashboard routes - All with consistent sidebar */}
-              <Route path="/dashboard/student" element={<WithSidebar Component={StudentDashboard} />} />
-              <Route path="/dashboard/student/:tab" element={<WithSidebar Component={StudentDashboard} />} />
-              <Route path="/dashboard/student/today" element={<WithSidebar Component={TodaysPlanView} />} />
-              <Route path="/dashboard/student/feel-good-corner" element={<WithSidebar Component={FeelGoodCornerView} />} />
-              <Route path="/dashboard/student/study-groups" element={<WithSidebar Component={StudyGroupsPage} />} />
-              <Route path="/dashboard/student/subscription" element={<WithSidebar Component={SubscriptionPage} />} />
-              <Route path="/dashboard/student/batch-management" element={<WithSidebar Component={BatchManagementPage} />} />
-              
-              {/* Profile routes */}
-              <Route path="/dashboard/student/profile" element={<WithSidebar Component={EnhancedProfilePage} />} />
-              <Route path="/student/profile" element={<WithSidebar Component={ProfilePage} />} />
-              <Route path="/profile" element={<WithSidebar Component={ProfilePage} />} />
-              
-              {/* AI Tutor route */}
-              <Route path="/dashboard/student/tutor" element={<WithSidebar Component={TutorView} />} />
-              
-              {/* Concept routes */}
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<WithSidebar Component={ConceptCardDetailPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId" element={<WithSidebar Component={ConceptDetailPage} />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<WithSidebar Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId/study" element={<WithSidebar Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<WithSidebar Component={ConceptStudyLandingPage} />} />
-              <Route path="/dashboard/student/concepts/landing" element={<WithSidebar Component={ConceptsLandingPage} />} />
-              <Route path="/dashboard/student/concepts" element={<WithSidebar Component={ConceptsLandingPage} />} />
-              
-              {/* Direct Flashcard routes */}
-              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<WithSidebar Component={FlashcardInteractive} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId" element={<WithSidebar Component={FlashcardDetailsPage} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<WithSidebar Component={InteractiveFlashcardBrowser} />} />
-              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<WithSidebar Component={EnhancedFlashcardPractice} />} />
-              <Route path="/dashboard/student/flashcards" element={<WithSidebar Component={FlashcardsLandingPage} />} />
-              
-              {/* Practice exam routes */}
-              <Route path="/dashboard/student/practice-exam" element={<WithSidebar Component={PracticeExamsSection} />} />
-              <Route path="/dashboard/student/practice-exam/:examId/start" element={<WithSidebar Component={ExamTakingPage} />} />
-              <Route path="/dashboard/student/practice-exam/:examId/review" element={<WithSidebar Component={ExamReviewPage} />} />
-              
-              {/* Formula Practice Lab route */}
-              <Route path="/dashboard/student/formula-practice-lab" element={<WithSidebar Component={FormulaPracticeLab} />} />
-              
-              {/* Other routes */}
-              <Route path="/dashboard/student/notifications" element={<WithSidebar Component={NotificationsView} />} />
-              <Route path="/dashboard/student/academic" element={<WithSidebar Component={AcademicAdvisor} />} />
-              <Route path="/dashboard/student/study-plan" element={<WithSidebar Component={StudyPlanView} />} />
-              
-              {/* Syllabus and Previous Year Analysis routes */}
-              <Route path="/dashboard/student/syllabus" element={<WithSidebar Component={ExamSyllabusPage} />} />
-              <Route path="/dashboard/student/previous-year-analysis" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
-              <Route path="/dashboard/student/previous-year" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
-              
-              {/* 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
+                {/* Student dashboard routes - All with consistent sidebar */}
+                <Route path="/dashboard/student" element={<StudentDashboard />} />
+                <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+                <Route path="/dashboard/student/today" element={<WithSidebar Component={TodaysPlanView} />} />
+                <Route path="/dashboard/student/feel-good-corner" element={<WithSidebar Component={FeelGoodCornerView} />} />
+                <Route path="/dashboard/student/study-groups" element={<WithSidebar Component={StudyGroupsPage} />} />
+                <Route path="/dashboard/student/subscription" element={<WithSidebar Component={SubscriptionPage} />} />
+                <Route path="/dashboard/student/batch-management" element={<WithSidebar Component={BatchManagementPage} />} />
+                
+                {/* Profile routes */}
+                <Route path="/dashboard/student/profile" element={<WithSidebar Component={EnhancedProfilePage} />} />
+                <Route path="/student/profile" element={<WithSidebar Component={ProfilePage} />} />
+                <Route path="/profile" element={<WithSidebar Component={ProfilePage} />} />
+                
+                {/* AI Tutor route */}
+                <Route path="/dashboard/student/tutor" element={<WithSidebar Component={TutorView} />} />
+                
+                {/* Concept routes */}
+                <Route path="/dashboard/student/concepts/card/:conceptId" element={<WithSidebar Component={ConceptCardDetailPage} />} />
+                <Route path="/dashboard/student/concepts/:conceptId" element={<WithSidebar Component={ConceptDetailPage} />} />
+                <Route path="/dashboard/student/concepts/study/:conceptId" element={<WithSidebar Component={ConceptCardStudyPage} />} />
+                <Route path="/dashboard/student/concepts/:conceptId/study" element={<WithSidebar Component={ConceptCardStudyPage} />} />
+                <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<WithSidebar Component={ConceptStudyLandingPage} />} />
+                <Route path="/dashboard/student/concepts/landing" element={<WithSidebar Component={ConceptsLandingPage} />} />
+                <Route path="/dashboard/student/concepts" element={<WithSidebar Component={ConceptsLandingPage} />} />
+                
+                {/* Direct Flashcard routes */}
+                <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<WithSidebar Component={FlashcardInteractive} />} />
+                <Route path="/dashboard/student/flashcards/:flashcardId" element={<WithSidebar Component={FlashcardDetailsPage} />} />
+                <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<WithSidebar Component={InteractiveFlashcardBrowser} />} />
+                <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<WithSidebar Component={EnhancedFlashcardPractice} />} />
+                <Route path="/dashboard/student/flashcards" element={<WithSidebar Component={FlashcardsLandingPage} />} />
+                
+                {/* Practice exam routes */}
+                <Route path="/dashboard/student/practice-exam" element={<WithSidebar Component={PracticeExamsSection} />} />
+                <Route path="/dashboard/student/practice-exam/:examId/start" element={<WithSidebar Component={ExamTakingPage} />} />
+                <Route path="/dashboard/student/practice-exam/:examId/review" element={<WithSidebar Component={ExamReviewPage} />} />
+                
+                {/* Formula Practice Lab route */}
+                <Route path="/dashboard/student/formula-practice-lab" element={<WithSidebar Component={FormulaPracticeLab} />} />
+                
+                {/* Other routes */}
+                <Route path="/dashboard/student/notifications" element={<WithSidebar Component={NotificationsView} />} />
+                <Route path="/dashboard/student/academic" element={<WithSidebar Component={AcademicAdvisor} />} />
+                <Route path="/dashboard/student/study-plan" element={<WithSidebar Component={StudyPlanView} />} />
+                
+                {/* Syllabus and Previous Year Analysis routes */}
+                <Route path="/dashboard/student/syllabus" element={<WithSidebar Component={ExamSyllabusPage} />} />
+                <Route path="/dashboard/student/previous-year-analysis" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
+                <Route path="/dashboard/student/previous-year" element={<WithSidebar Component={PreviousYearAnalysisPage} />} />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </OnboardingProvider>
           </AdminAuthProvider>
         </AuthProvider>
       </BrowserRouter>

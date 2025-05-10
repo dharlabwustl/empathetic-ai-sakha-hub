@@ -1,6 +1,30 @@
 
 import React, { createContext, useContext, useState } from 'react';
 
+// Define the types of steps in the onboarding process
+export type OnboardingStep = 'role' | 'goal' | 'demographics' | 'personality' | 'sentiment' | 'habits' | 'interests' | 'signup' | 'welcome';
+
+// Define the user roles
+export enum UserRole {
+  Student = 'Student',
+  Professional = 'Professional',
+  Researcher = 'Researcher',
+  Entrepreneur = 'Entrepreneur',
+  Teacher = 'Teacher',
+}
+
+// Define goal types
+export type UserGoal = 'NEET' | 'IIT-JEE' | 'UPSC' | 'CAT' | 'SSC' | 'Banking' | 'GATE' | 'CLAT' | 'Defense' | 'Other';
+
+// Define personality types
+export enum PersonalityType {
+  Analytical = 'Analytical',
+  Creative = 'Creative',
+  Practical = 'Practical',
+  Social = 'Social',
+  Reflective = 'Reflective',
+}
+
 interface OnboardingContextType {
   step: number;
   nextStep: () => void;
@@ -15,6 +39,7 @@ interface OnboardingContextType {
   setSkipOnboarding: (value: boolean) => void;
   shouldPromptStudyPlan: boolean;
   setShouldPromptStudyPlan: (value: boolean) => void;
+  onboardingData: any;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -30,6 +55,7 @@ export const useOnboarding = () => {
 export const OnboardingProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [onboardingData, setOnboardingData] = useState({});
   const [isGoogleSignUp, setIsGoogleSignUp] = useState(false);
   const [skipOnboarding, setSkipOnboarding] = useState(false);
   const [shouldPromptStudyPlan, setShouldPromptStudyPlan] = useState(false);
@@ -44,6 +70,7 @@ export const OnboardingProvider: React.FC<{children: React.ReactNode}> = ({ chil
 
   const updateFormData = (update: Partial<any>) => {
     setFormData(prev => ({ ...prev, ...update }));
+    setOnboardingData(prev => ({ ...prev, ...update }));
   };
 
   return (
@@ -61,7 +88,8 @@ export const OnboardingProvider: React.FC<{children: React.ReactNode}> = ({ chil
         skipOnboarding,
         setSkipOnboarding,
         shouldPromptStudyPlan,
-        setShouldPromptStudyPlan
+        setShouldPromptStudyPlan,
+        onboardingData
       }}
     >
       {children}
