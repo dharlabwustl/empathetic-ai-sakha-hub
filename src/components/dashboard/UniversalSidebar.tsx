@@ -42,20 +42,8 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
   };
   
   const handleLogout = async () => {
-    try {
-      await logout();
-      // Clear all local storage items related to authentication
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('user_profile_image');
-      localStorage.removeItem('sakha_auth_token');
-      localStorage.removeItem('sakha_auth_user');
-      
-      // Navigate to login page
-      navigate('/login');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    await logout();
+    navigate('/login');
   };
   
   // Navigation items grouped by categories
