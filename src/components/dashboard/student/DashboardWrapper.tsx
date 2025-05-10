@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
-import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
 import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
 import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
 import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
 import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
 import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
+import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
 
 interface DashboardWrapperProps {
   userProfile: UserProfileBase;
@@ -59,48 +59,42 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
 
   return (
-    <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-      {/* Sidebar toggle button */}
-      <SidebarToggleButton hideSidebar={hideSidebar} onToggle={onToggleSidebar} />
+    <div className="flex min-h-screen">
+      {/* Universal Sidebar */}
+      {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
       
-      {/* Top navigation controls */}
-      <TopNavigationControls 
-        hideSidebar={hideSidebar}
-        onToggleSidebar={onToggleSidebar}
-        formattedDate={formattedDate}
-        formattedTime={formattedTime}
-      />
-      
-      {/* Dashboard header */}
-      <DashboardHeader 
-        userProfile={userProfile}
-        formattedTime={formattedTime}
-        formattedDate={formattedDate}
-        onViewStudyPlan={onViewStudyPlan}
-      />
+      <main className={`transition-all duration-300 flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
+        {/* Sidebar toggle button */}
+        <SidebarToggleButton hideSidebar={hideSidebar} onToggle={onToggleSidebar} />
+        
+        {/* Top navigation controls */}
+        <TopNavigationControls 
+          hideSidebar={hideSidebar}
+          onToggleSidebar={onToggleSidebar}
+          formattedDate={formattedDate}
+          formattedTime={formattedTime}
+        />
+        
+        {/* Dashboard header */}
+        <DashboardHeader 
+          userProfile={userProfile}
+          formattedTime={formattedTime}
+          formattedDate={formattedDate}
+          onViewStudyPlan={onViewStudyPlan}
+        />
 
-      {/* Surrounding Influences Meter */}
-      <SurroundingInfluencesSection 
-        influenceMeterCollapsed={influenceMeterCollapsed}
-        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-      />
-      
-      {/* Mobile Navigation */}
-      {isMobile && (
-        <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-      )}
-      
-      {/* Main dashboard content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        {/* Left navigation sidebar (desktop) */}
-        {!hideSidebar && !isMobile && (
-          <SidebarNavigation 
-            activeTab={activeTab} 
-            onTabChange={onTabChange} 
-          />
+        {/* Surrounding Influences Meter */}
+        <SurroundingInfluencesSection 
+          influenceMeterCollapsed={influenceMeterCollapsed}
+          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+        />
+        
+        {/* Mobile Navigation */}
+        {isMobile && (
+          <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
         )}
         
-        {/* Main content area */}
+        {/* Main dashboard content area */}
         <MainContent 
           hideTabsNav={hideTabsNav}
           activeTab={activeTab}
@@ -118,8 +112,8 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
           lastActivity={lastActivity}
           suggestedNextAction={suggestedNextAction}
         />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 };
 

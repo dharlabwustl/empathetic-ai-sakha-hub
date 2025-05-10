@@ -3,10 +3,11 @@ import React from 'react';
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import SidebarNav from "@/components/dashboard/SidebarNav";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 import VoiceAnnouncer from '@/components/dashboard/student/voice/VoiceAnnouncer';
+import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardContainerProps {
   userProfile: UserProfileBase;
@@ -53,15 +54,12 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   lastActivity,
   suggestedNextAction
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-      {/* Main sidebar navigation */}
-      <SidebarNav 
-        userType="student" 
-        userName={userProfile.name}
-        activeTab={activeTab}
-        onTabChange={onTabChange} 
-      />
+    <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
+      {/* Universal sidebar */}
+      {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
       
       {/* Main dashboard content */}
       <DashboardWrapper 
