@@ -13,8 +13,8 @@ import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
-import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
+import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 
 const StudentRoutes = () => {
   return (
@@ -74,7 +74,12 @@ const StudentRoutes = () => {
           <StudentProfile />
         </SidebarLayout>
       } />
-      <Route path="/loading" element={<DashboardLoading />} />
+      <Route path="/notifications" element={
+        <SidebarLayout>
+          <NotificationsView />
+        </SidebarLayout>
+      } />
+      <Route path="/loading" element={<StudentDashboard />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

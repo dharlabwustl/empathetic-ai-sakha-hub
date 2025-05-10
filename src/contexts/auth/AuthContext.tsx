@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UserRole } from '@/types/user/base';
 
 interface User {
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -40,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.email) {
+          if (parsedData.email && parsedData.isAuthenticated === true) {
             // User is already logged in
             setUser({
               id: parsedData.id || '1',
@@ -123,25 +125,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    // Preserve some user preferences but remove auth data
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        // Only keep preferences and mood, remove auth data
-        localStorage.setItem('userData', JSON.stringify({
-          mood: parsedData.mood,
-          completedOnboarding: parsedData.completedOnboarding,
-          sawWelcomeTour: parsedData.sawWelcomeTour,
-          sawWelcomeSlider: parsedData.sawWelcomeSlider,
-          isAuthenticated: false
-        }));
-      } catch (error) {
-        console.error('Error during logout:', error);
-      }
-    }
+    // Clear all auth data
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('sakha_auth_token');
+    localStorage.removeItem('sakha_auth_user');
+    
+    // Set user to null
     setUser(null);
-    console.log("User logged out");
+    
+    // Redirect to login page
+    navigate('/login');
+    console.log("User logged out completely");
   };
   
   return (

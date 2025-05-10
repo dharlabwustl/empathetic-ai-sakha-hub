@@ -15,7 +15,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
       {/* Universal Sidebar - Always shown unless on mobile */}
       {!isMobile && <UniversalSidebar collapsed={false} />}
       
-      <div className="flex-1">
+      <div className="flex-1 p-4 sm:p-6">
         {children}
       </div>
     </div>

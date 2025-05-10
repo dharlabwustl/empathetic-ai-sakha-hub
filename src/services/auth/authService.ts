@@ -1,6 +1,6 @@
 
 import apiClient from '../api/apiClient';
-import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
+import { API_ENDPOINTS } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
 
 // Auth service types
@@ -34,12 +34,12 @@ const AUTH_USER_KEY = 'sakha_auth_user';
 // Authentication service
 const authService = {
   // Login user
-  async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
+  async login(credentials: LoginCredentials) {
     console.log("Auth service logging in with:", credentials);
     
     // For demo purposes, allow any email/password combination
     // In a real app, this would validate against a backend
-    const demoUser: AuthUser = {
+    const demoUser = {
       id: `user_${Date.now()}`,
       name: credentials.email.split('@')[0] || 'Demo User',
       email: credentials.email,
@@ -54,7 +54,8 @@ const authService = {
     const userData = {
       name: demoUser.name,
       email: demoUser.email,
-      mood: 'Motivated'
+      mood: 'Motivated',
+      isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
@@ -68,11 +69,11 @@ const authService = {
   },
   
   // Register user
-  async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
+  async register(userData: RegisterData) {
     console.log("Auth service registering user:", userData);
     
     // For demo, create a mock successful response
-    const mockUser: AuthUser = {
+    const mockUser = {
       id: `user_${Date.now()}`,
       name: userData.name,
       email: userData.email,
@@ -88,7 +89,8 @@ const authService = {
     const userDataObj = {
       name: mockUser.name,
       email: mockUser.email,
-      mood: 'Motivated'
+      mood: 'Motivated',
+      isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
@@ -102,12 +104,12 @@ const authService = {
   },
   
   // Admin login
-  async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
+  async adminLogin(credentials: LoginCredentials) {
     console.log("Admin login with:", credentials);
     
     // For demo purposes, allow any email
     // In a real app, this would validate against admin accounts only
-    const adminUser: AuthUser = {
+    const adminUser = {
       id: `admin_${Date.now()}`,
       name: 'Admin User',
       email: credentials.email,
@@ -129,12 +131,21 @@ const authService = {
   },
   
   // Logout user
-  async logout(): Promise<ApiResponse<void>> {
+  async logout() {
     // Clear all auth data from local storage
     this.clearAuthData();
+    
+    // Also clear all other related data
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userData');
     localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('sawWelcomeTour');
+    localStorage.removeItem('sawWelcomeSlider');
+    localStorage.removeItem('hasSeenSplash');
+    localStorage.removeItem('voice-tested');
+    
+    // Remove any session storage items
+    sessionStorage.removeItem('hasSeenSplash');
     
     return {
       success: true,
@@ -144,7 +155,7 @@ const authService = {
   },
   
   // Set auth data in local storage and configure API client
-  setAuthData(user: AuthUser): void {
+  setAuthData(user) {
     if (user && user.token) {
       localStorage.setItem(AUTH_TOKEN_KEY, user.token);
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
@@ -153,48 +164,57 @@ const authService = {
   },
   
   // Clear auth data from local storage
-  clearAuthData(): void {
+  clearAuthData() {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
     apiClient.setAuthToken(null);
   },
   
   // Get current authenticated user
-  getCurrentUser(): AuthUser | null {
+  getCurrentUser() {
     const userJson = localStorage.getItem(AUTH_USER_KEY);
     return userJson ? JSON.parse(userJson) : null;
   },
   
   // Get auth token
-  getToken(): string | null {
+  getToken() {
     return localStorage.getItem(AUTH_TOKEN_KEY);
   },
   
   // Check if user is authenticated
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  isAuthenticated() {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        return parsedData.isAuthenticated === true;
+      } catch (error) {
+        return false;
+      }
+    }
+    return false;
   },
   
   // Verify if token is still valid
-  async verifyToken(): Promise<boolean> {
+  async verifyToken() {
     const token = this.getToken();
     
     if (!token) {
       return false;
     }
     
-    // For demo, always return true to simulate valid token
-    return true;
+    // Also check if user is properly authenticated
+    return this.isAuthenticated();
   },
   
   // Check if user has admin access
-  isAdmin(): boolean {
+  isAdmin() {
     const user = this.getCurrentUser();
     return user?.role === 'admin';
   },
   
   // Check if user has specific permissions
-  hasPermission(permission: string): boolean {
+  hasPermission(permission: string) {
     const user = this.getCurrentUser();
     if (!user || user.role !== 'admin') return false;
     
@@ -203,7 +223,7 @@ const authService = {
   },
   
   // Initialize auth state from local storage
-  initializeAuth(): void {
+  initializeAuth() {
     const token = this.getToken();
     if (token) {
       apiClient.setAuthToken(token);
