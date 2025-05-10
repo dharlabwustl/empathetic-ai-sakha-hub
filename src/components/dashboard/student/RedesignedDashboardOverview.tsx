@@ -22,9 +22,6 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
 
-// Import SharedNavigation for the navigation bar
-import SharedNavigation from './SharedNavigation';
-
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
   kpis: KpiData[];
@@ -91,11 +88,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       initial="hidden"
       animate="visible"
     >
-      {/* Add SharedNavigation at the top */}
-      <motion.div variants={itemVariants}>
-        <SharedNavigation />
-      </motion.div>
-
       <motion.div variants={itemVariants}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div>
@@ -110,26 +102,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
-      <motion.div 
-        variants={itemVariants}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-      >
-        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
-        <SmartSuggestionsCenter 
-          performance={{
-            accuracy: 85,
-            quizScores: 90,
-            conceptProgress: 75,
-            streak: 7
-          }}
-        />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
-      </motion.div>
-
-      {/* Exam Readiness Score - added below the KPI section */}
+      {/* Exam Readiness Score and KPI section moved to the top */}
       <motion.div 
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
@@ -180,6 +153,25 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      <motion.div 
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
+        <SmartSuggestionsCenter 
+          performance={{
+            accuracy: 85,
+            quizScores: 90,
+            conceptProgress: 75,
+            streak: 7
+          }}
+        />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -240,8 +232,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       <motion.div variants={itemVariants}>
         <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
       </motion.div>
-
-      {/* We'll remove the revisionItems and milestones rendering since they're causing errors */}
     </motion.div>
   );
 }

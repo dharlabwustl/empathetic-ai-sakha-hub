@@ -172,35 +172,30 @@ const StudentDashboard = () => {
   const modifiedShowWelcomeTour = false;
 
   return (
-    <div className="flex h-screen">
-      {/* Universal sidebar is handled inside DashboardLayout, not here */}
-      <div className="flex-1">
-        <DashboardLayout
-          userProfile={enhancedUserProfile}
-          hideSidebar={false}
-          hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
-          activeTab={activeTab}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          showWelcomeTour={modifiedShowWelcomeTour}
-          onTabChange={handleTabChange}
-          onViewStudyPlan={handleViewStudyPlan}
-          onToggleSidebar={toggleSidebar}
-          onToggleTabsNav={toggleTabsNav}
-          onSkipTour={handleSkipTour}
-          onCompleteTour={handleCompleteTour}
-          showStudyPlan={showStudyPlan}
-          onCloseStudyPlan={handleCloseStudyPlan}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          currentMood={currentMood}
-          onMoodChange={handleMoodChange}
-        >
-          {getTabContent()}
-        </DashboardLayout>
-      </div>
-    </div>
+    <DashboardLayout
+      userProfile={enhancedUserProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={modifiedShowWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+      onMoodChange={handleMoodChange}
+    >
+      {getTabContent()}
+    </DashboardLayout>
   );
 };
 
