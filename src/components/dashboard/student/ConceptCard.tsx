@@ -40,11 +40,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = () => {
-    // Navigate to concept landing page
+    // Navigate directly to concept card detail page
     if (onView) {
       onView();
     } else {
-      navigate(`/dashboard/student/concepts/landing`);
+      navigate(`/dashboard/student/concepts/card/${id}`);
     }
   };
 

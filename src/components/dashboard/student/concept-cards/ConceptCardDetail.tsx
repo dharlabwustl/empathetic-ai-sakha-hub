@@ -243,9 +243,7 @@ const ConceptCardDetail = () => {
           </Card>
         </TabsContent>
         
-        {/* Other tab contents */}
         <TabsContent value="content" className="space-y-4">
-          {/* Content tab implementation */}
           <Card>
             <CardHeader>
               <CardTitle>Detailed Content</CardTitle>
@@ -270,7 +268,6 @@ const ConceptCardDetail = () => {
         </TabsContent>
         
         <TabsContent value="examples" className="space-y-4">
-          {/* Examples tab implementation */}
           <Card>
             <CardHeader>
               <CardTitle>Applied Examples</CardTitle>
@@ -297,7 +294,6 @@ const ConceptCardDetail = () => {
         </TabsContent>
         
         <TabsContent value="quiz" className="space-y-4">
-          {/* Quiz tab implementation */}
           <Card>
             <CardHeader>
               <CardTitle>Test Your Knowledge</CardTitle>
@@ -310,7 +306,6 @@ const ConceptCardDetail = () => {
         </TabsContent>
         
         <TabsContent value="notes" className="space-y-4">
-          {/* Notes tab implementation */}
           <Card>
             <CardHeader>
               <CardTitle>Your Notes</CardTitle>
