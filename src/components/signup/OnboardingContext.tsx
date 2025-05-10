@@ -13,6 +13,8 @@ interface OnboardingContextType {
   setIsGoogleSignUp: (value: boolean) => void;
   skipOnboarding: boolean;
   setSkipOnboarding: (value: boolean) => void;
+  shouldPromptStudyPlan: boolean;
+  setShouldPromptStudyPlan: (value: boolean) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ export const OnboardingProvider: React.FC<{children: React.ReactNode}> = ({ chil
   const [formData, setFormData] = useState({});
   const [isGoogleSignUp, setIsGoogleSignUp] = useState(false);
   const [skipOnboarding, setSkipOnboarding] = useState(false);
+  const [shouldPromptStudyPlan, setShouldPromptStudyPlan] = useState(false);
 
   const nextStep = () => {
     setStep(prev => prev + 1);
@@ -56,7 +59,9 @@ export const OnboardingProvider: React.FC<{children: React.ReactNode}> = ({ chil
         isGoogleSignUp,
         setIsGoogleSignUp,
         skipOnboarding,
-        setSkipOnboarding
+        setSkipOnboarding,
+        shouldPromptStudyPlan,
+        setShouldPromptStudyPlan
       }}
     >
       {children}

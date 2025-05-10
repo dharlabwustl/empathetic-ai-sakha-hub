@@ -22,7 +22,7 @@ const SignUpContent: React.FC = () => {
   const { register, googleSignIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { setIsGoogleSignUp } = useOnboarding();
+  const { setIsGoogleSignUp, setShouldPromptStudyPlan } = useOnboarding();
   
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +64,9 @@ const SignUpContent: React.FC = () => {
       
       if (success) {
         setIsGoogleSignUp(true);
+        setShouldPromptStudyPlan(true); // Flag to show study plan prompt later
         localStorage.setItem('new_user_signup', 'true');
-        navigate('/dashboard/student?new=true');
+        navigate('/welcome?source=google'); // Go through regular welcome flow
       }
     } catch (error) {
       console.error('Google signup error:', error);

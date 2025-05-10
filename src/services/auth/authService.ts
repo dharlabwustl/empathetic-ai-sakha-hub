@@ -133,10 +133,8 @@ const authService = {
   async logout(): Promise<ApiResponse<void>> {
     // Clear all auth data from local storage
     this.clearAuthData();
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('user_profile_image');
     
+    // Return success response
     return {
       success: true,
       data: null,
@@ -157,6 +155,12 @@ const authService = {
   clearAuthData(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('sakha_auth_token');
+    localStorage.removeItem('sakha_auth_user');
+    localStorage.removeItem('new_user_signup');
     apiClient.setAuthToken(null);
   },
   

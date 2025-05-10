@@ -125,11 +125,9 @@ function App() {
               {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-              {/* Student dashboard */}
+              {/* Student dashboard routes - All with consistent sidebar */}
               <Route path="/dashboard/student" element={<WithSidebar Component={StudentDashboard} />} />
               <Route path="/dashboard/student/:tab" element={<WithSidebar Component={StudentDashboard} />} />
-              
-              {/* Apply SidebarLayout to all student dashboard pages */}
               <Route path="/dashboard/student/today" element={<WithSidebar Component={TodaysPlanView} />} />
               <Route path="/dashboard/student/feel-good-corner" element={<WithSidebar Component={FeelGoodCornerView} />} />
               <Route path="/dashboard/student/study-groups" element={<WithSidebar Component={StudyGroupsPage} />} />

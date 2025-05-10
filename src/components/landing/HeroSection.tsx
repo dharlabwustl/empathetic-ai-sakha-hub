@@ -32,15 +32,15 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <motion.div
-            className="mb-6 max-w-3xl"
+            className="mb-6 max-w-5xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tighter mb-4">
-              <span className="text-gray-900 dark:text-white">अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tighter mb-4">
+              <span className="text-black dark:text-white whitespace-normal">अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!</span>
             </h1>
-            <h2 className="text-xl md:text-2xl lg:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-semibold">
+            <h2 className="text-xl md:text-2xl lg:text-3xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">
               We understand Your Mindset, Not Just the Exam.
             </h2>
           </motion.div>
@@ -129,21 +129,6 @@ const HeroSection = () => {
               </>
             )}
           </div>
-          
-          {/* Trusted by students section - simplified, removed duplication */}
-          <motion.div 
-            className="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 py-3 px-6 rounded-full border border-purple-100 dark:border-purple-800 shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-              Trusted by students preparing for: 
-              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-                NEET Launched
-              </span>
-            </p>
-          </motion.div>
           
           {/* Exam Names Badge */}
           <motion.div
