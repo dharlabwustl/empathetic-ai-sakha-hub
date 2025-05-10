@@ -15,11 +15,28 @@ import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
 import FormulaLabPage from "./formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
 
 const AppRoutes: React.FC = () => {
+  // Get user profile for required props
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  
+  // Mock KPI data for overview
+  const mockKpis = [
+    { id: "1", title: "Study Hours", value: 12, change: 2, changeType: "positive" },
+    { id: "2", title: "Concepts Mastered", value: 48, change: 5, changeType: "positive" },
+    { id: "3", title: "Study Plans", value: 3, change: 1, changeType: "positive" },
+    { id: "4", title: "Mood Improvement", value: 72, unit: "%", change: 8, changeType: "positive" }
+  ];
+
+  if (loading || !userProfile) {
+    return <div>Loading routes...</div>;
+  }
+
   return (
     <Routes>
-      <Route path="/" element={<DashboardOverview />} />
+      <Route path="/" element={<DashboardOverview userProfile={userProfile} kpis={mockKpis} />} />
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
@@ -31,10 +48,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/practice-exam" element={<PracticeExamsView />} />
       <Route path="/feel-good-corner" element={<FeelGoodCorner />} />
-      <Route path="/academic" element={<AcademicAdvisorView />} />
-      <Route path="/academic-advisor" element={<AcademicAdvisorView />} />
+      <Route path="/academic" element={<AcademicAdvisorView userProfile={userProfile} />} />
+      <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
-      <Route path="/tutor" element={<DashboardOverview />} />
+      <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={mockKpis} />} />
     </Routes>
   );
 };
