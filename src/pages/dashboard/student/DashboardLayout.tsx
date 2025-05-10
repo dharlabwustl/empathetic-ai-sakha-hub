@@ -9,13 +9,11 @@ import SurroundingInfluencesSection from "@/components/dashboard/student/Surroun
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
-import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
-import { SubscriptionType } from "@/types/user/base";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
 import UniversalSidebar from "@/components/dashboard/UniversalSidebar";
 
@@ -76,14 +74,13 @@ const DashboardLayout = ({
   const features = getFeatures();
   const navigate = useNavigate();
   
-  // Fixed: Don't force disable tour popup
+  // Don't force disable tour popup
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
   // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
   const handleOpenTour = () => {
-    // Fixed: Actually open the tour when requested
     setShowTour(true);
   };
   
@@ -127,7 +124,7 @@ const DashboardLayout = ({
   
   const subscriptionDetails = getSubscriptionDetails();
 
-  // Sample upcoming events (in a real app, these would come from a backend)
+  // Sample upcoming events
   const upcomingEvents = [
     { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' as const },
     { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' as const }
@@ -152,14 +149,14 @@ const DashboardLayout = ({
             onViewStudyPlan={onViewStudyPlan}
           />
 
-          {/* Subscription Banner - Add at the top of dashboard */}
+          {/* Subscription Banner */}
           <SubscriptionBanner 
             planType={subscriptionDetails.planType}
             expiryDate={subscriptionDetails.expiryDate}
             isExpired={subscriptionDetails.isExpired}
           />
 
-          {/* Enhanced Dashboard Header with proper profile image handling */}
+          {/* Enhanced Dashboard Header */}
           <div className="mb-6">
             <EnhancedDashboardHeader 
               userProfile={userProfile}
@@ -218,7 +215,7 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour - Fix open property to use state variable */}
+      {/* WelcomeTour */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}

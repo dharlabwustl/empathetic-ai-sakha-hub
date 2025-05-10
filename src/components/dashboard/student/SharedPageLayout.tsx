@@ -23,13 +23,10 @@ interface SharedPageLayoutProps {
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
-  activeTab = 'overview',
   children,
   backButtonUrl = '/dashboard/student',
   showBackButton = true,
-  hideSidebar = false,
-  hideTabsNav = false,
-  showQuickAccess = false
+  hideSidebar = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();

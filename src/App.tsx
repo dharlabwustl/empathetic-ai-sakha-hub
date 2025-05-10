@@ -17,7 +17,6 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
@@ -25,7 +24,6 @@ import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
-import EnhancedFlashcardPage from '@/pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import ProfilePage from '@/pages/student/ProfilePage';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
