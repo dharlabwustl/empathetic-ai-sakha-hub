@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UserProfileBase as UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
@@ -131,3 +131,5 @@ const DashboardContent = ({
 
 export default DashboardContent;
 export type { DashboardTabsProps };
+
+import { useEffect } from 'react';

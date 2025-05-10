@@ -5,7 +5,6 @@ import { UserRole } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SharedPageLayoutProps {
@@ -40,12 +39,9 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
     );
   }
 
-  // Content to display within the shared page layout
+  // Content to display within the shared page layout - without sidebar as it's already in DashboardLayout
   return (
     <div className="flex min-h-screen">
-      {/* Universal Sidebar - Always shown unless on mobile */}
-      {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
-      
       <div className="flex-1 p-4 sm:p-6 space-y-6">
         {/* Page Header */}
         <div className="flex justify-between items-center">
