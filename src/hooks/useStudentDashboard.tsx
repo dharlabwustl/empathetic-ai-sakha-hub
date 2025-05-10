@@ -42,13 +42,12 @@ export const useStudentDashboard = () => {
       // Get stats from admin service for KPIs
       try {
         const stats = await adminService.getDashboardStats();
-        console.log("Dashboard stats received:", stats);
         
         // Set KPIs with data from admin service
         setKpis([
           { id: "1", title: "Streak Days", value: 12, icon: "🔥", change: 2, changeType: "positive" },
           { id: "2", title: "Concepts Mastered", value: stats.averageConcepts || 48, icon: "📚", change: 5, changeType: "positive" },
-          { id: "3", title: "Study Plans", value: stats.totalStudyPlans ? Math.round(stats.totalStudyPlans / 500) : 24, unit: "delivered", icon: "📝", change: 3, changeType: "positive" },
+          { id: "3", title: "Study Plans", value: Math.round(stats.totalStudyPlans / 500), unit: "delivered", icon: "📝", change: 3, changeType: "positive" },
           { id: "4", title: "Feel Stress Reduced", value: stats.verifiedMoodImprovement || 72, unit: "%", icon: "💆", change: 4, changeType: "positive" }
         ]);
       } catch (error) {
