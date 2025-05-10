@@ -44,7 +44,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   // Content to display within the shared page layout
   return (
     <div className="flex min-h-screen">
-      {/* Universal Sidebar */}
+      {/* Universal Sidebar - Always shown unless on mobile */}
       {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
       
       <div className="flex-1 p-4 sm:p-6 space-y-6">

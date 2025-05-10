@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -85,7 +86,7 @@ const Index = () => {
         
         {/* KPI Stats is inside HeroSection */}
         
-        {/* Add the new AchievementsSection right after KPI Stats */}
+        {/* Add the AchievementsSection right after KPI Stats */}
         <AchievementsSection />
         
         <WhatIsSection />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
@@ -62,7 +61,8 @@ export default function StudentRoutes() {
       
       {/* Practice exam routes */}
       <Route path="/practice" element={<PracticeExamsView />} />
-      <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
+      <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
+      <Route path="/practice-exam/:subject?" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
       
