@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
@@ -10,7 +11,6 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
-import DashboardContent from "./DashboardContent";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -175,28 +175,31 @@ const StudentDashboard = () => {
 
   return (
     <>
-      {/* Direct content without DashboardLayout to avoid double sidebar */}
-      <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-        <div className="flex-1 p-4 sm:p-6 pb-20 md:pb-6">
-          <DashboardContent
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            userProfile={enhancedUserProfile}
-            kpis={kpis}
-            nudges={nudges}
-            markNudgeAsRead={markNudgeAsRead}
-            features={features}
-            showWelcomeTour={showTourModal}
-            handleSkipTour={handleSkipTourWrapper}
-            handleCompleteTour={handleCompleteTourWrapper}
-            hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
-            lastActivity={lastActivity}
-            suggestedNextAction={suggestedNextAction}
-          >
-            {getTabContent()}
-          </DashboardContent>
-        </div>
-      </div>
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={showTourModal} // Pass the tour modal state
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+        onProfileImageUpdate={handleProfileImageUpdate}
+      >
+        {getTabContent()}
+      </DashboardLayout>
       
       {/* Welcome Tour Modal - will show once for new users */}
       <WelcomeTour

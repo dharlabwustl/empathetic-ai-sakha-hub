@@ -3,24 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import { Users, Brain, Award, BookOpen, Calendar, Heart } from 'lucide-react';
 
-interface KpiValue {
-  value: string;
-  label: string;
-}
-
-// Mock API data - in a real app this would come from your backend
-const getKpiData = (): Record<string, KpiValue> => {
-  // This function would typically fetch from an API
-  return {
-    studentsHelped: { value: "+10,000", label: "Students Helped" },
-    conceptsMastered: { value: "850/Student", label: "Concepts Mastered Avg" },
-    successRate: { value: "95%", label: "Success Rate" },
-    studyPlansDelivered: { value: "12,000+", label: "Study Plans Delivered" },
-    stressReduced: { value: "72%", label: "Feel Reduced Anxiety" },
-    flashcardsReviewed: { value: "2,000,000+", label: "Flashcards Reviewed" }
-  };
-};
-
 const StatCard = ({ 
   icon, 
   value, 
@@ -83,56 +65,54 @@ const StatCard = ({
 };
 
 const KpiStats = () => {
-  const kpiData = getKpiData();
-  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
       <StatCard 
         icon={<Users size={24} className="text-white" />} 
-        value={kpiData.studentsHelped.value}
-        label={kpiData.studentsHelped.label}
+        value="+10,000" 
+        label="Students Helped"
         delay={0}
         gradient="from-blue-500 to-violet-500"
       />
       
       <StatCard 
         icon={<Brain size={24} className="text-white" />} 
-        value={kpiData.conceptsMastered.value}
-        label={kpiData.conceptsMastered.label}
+        value="850/Student" 
+        label="Concepts Mastered Avg"
         delay={1}
         gradient="from-violet-500 to-purple-500"
       />
       
       <StatCard 
         icon={<Award size={24} className="text-white" />} 
-        value={kpiData.successRate.value}
-        label={kpiData.successRate.label}
+        value="95%" 
+        label="Success Rate"
         delay={2}
         gradient="from-purple-500 to-pink-500"
       />
       
       <StatCard 
-        icon={<Calendar size={24} className="text-white" />} 
-        value={kpiData.studyPlansDelivered.value}
-        label={kpiData.studyPlansDelivered.label}
+        icon={<BookOpen size={24} className="text-white" />} 
+        value="2,000,000+" 
+        label="Flashcards Reviewed"
         delay={3}
+        gradient="from-pink-500 to-red-500"
+      />
+      
+      <StatCard 
+        icon={<Calendar size={24} className="text-white" />} 
+        value="12,000+" 
+        label="Study Plans Delivered"
+        delay={4}
         gradient="from-indigo-500 to-blue-500"
       />
       
       <StatCard 
         icon={<Heart size={24} className="text-white" />} 
-        value={kpiData.stressReduced.value}
-        label={kpiData.stressReduced.label}
-        delay={4}
-        gradient="from-green-500 to-teal-500"
-      />
-      
-      <StatCard 
-        icon={<BookOpen size={24} className="text-white" />} 
-        value={kpiData.flashcardsReviewed.value}
-        label={kpiData.flashcardsReviewed.label}
+        value="72%" 
+        label="Feel Reduced Anxiety"
         delay={5}
-        gradient="from-pink-500 to-red-500"
+        gradient="from-green-500 to-teal-500"
       />
     </div>
   );

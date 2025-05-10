@@ -4,7 +4,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SharedPageLayoutProps {
@@ -24,17 +24,12 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   subtitle,
   children,
   backButtonUrl = '/dashboard/student',
-  showBackButton,
+  showBackButton = true,
   hideSidebar = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
-  const location = useLocation();
   const isMobile = useIsMobile();
-  
-  // Determine if back button should be shown based on the current route
-  const isDashboardPage = location.pathname === '/dashboard/student' || location.pathname === '/dashboard/student/';
-  const shouldShowBackButton = showBackButton !== undefined ? showBackButton : !isDashboardPage;
   
   if (loading || !userProfile) {
     return (
@@ -54,7 +49,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
           {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
         </div>
         
-        {shouldShowBackButton && (
+        {showBackButton && (
           <Button 
             variant="outline" 
             size="sm" 

@@ -2,16 +2,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
 const ExamNamesBadge = () => {
-  const navigate = useNavigate();
-
-  const handleNeetSignup = () => {
-    // Navigate to signup with NEET as the exam goal
-    navigate('/signup?examGoal=NEET');
-  };
-
   return (
     <motion.div 
       className="flex flex-wrap justify-center items-center gap-2"
@@ -30,8 +22,6 @@ const ExamNamesBadge = () => {
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleNeetSignup}
-          style={{ cursor: 'pointer' }}
         >
           <Badge className="bg-green-600 hover:bg-green-700 px-3 py-1 text-white flex items-center gap-1.5">
             <motion.span
@@ -51,7 +41,7 @@ const ExamNamesBadge = () => {
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              Live
+              Launched
             </motion.span>
           </Badge>
         </motion.div>
