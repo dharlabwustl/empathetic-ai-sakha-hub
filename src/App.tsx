@@ -60,6 +60,7 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
+import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -137,6 +138,7 @@ function App() {
               <Route path="/dashboard/student/study-groups" element={<ProtectedSidebarRoute Component={StudyGroupsPage} />} />
               <Route path="/dashboard/student/subscription" element={<ProtectedSidebarRoute Component={SubscriptionPage} />} />
               <Route path="/dashboard/student/batch-management" element={<ProtectedSidebarRoute Component={BatchManagementPage} />} />
+              <Route path="/dashboard/student/formula-practice" element={<ProtectedSidebarRoute Component={FormulaPracticePage} />} />
               
               {/* Profile routes */}
               <Route path="/dashboard/student/profile" element={<ProtectedSidebarRoute Component={EnhancedProfilePage} />} />

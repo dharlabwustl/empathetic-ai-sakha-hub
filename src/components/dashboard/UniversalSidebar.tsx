@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -15,7 +15,8 @@ import {
   LogOut, 
   Bell, 
   User, 
-  Smile 
+  Smile,
+  Calculator 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -36,6 +37,7 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [showFormulaTab, setShowFormulaTab] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
@@ -45,6 +47,36 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
     await logout();
     navigate('/login');
   };
+  
+  // Check if user has a formula-heavy exam goal
+  useEffect(() => {
+    const checkExamGoal = () => {
+      // In a real app, this would check the user's profile
+      // For now, simulate the check with localStorage
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        try {
+          const parsedData = JSON.parse(userData);
+          
+          // List of formula-heavy exam goals
+          const formulaHeavyExams = ['JEE', 'NEET', 'CAT', 'GMAT', 'GRE', 'Physics', 'Chemistry', 'Mathematics'];
+          
+          // Check if user's exam goal is in the list
+          if (parsedData.examGoal && formulaHeavyExams.includes(parsedData.examGoal)) {
+            setShowFormulaTab(true);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+        }
+      }
+      
+      // Default: show for demo purposes
+      setShowFormulaTab(true);
+    };
+    
+    checkExamGoal();
+  }, []);
   
   // Navigation items grouped by categories
   const navItems = [
@@ -64,6 +96,7 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
         { path: "/dashboard/student/concepts", icon: <BookOpen size={20} />, label: "Concept Cards", tooltip: "Learn key concepts" },
         { path: "/dashboard/student/flashcards", icon: <Brain size={20} />, label: "Flashcards", tooltip: "Practice with flashcards" },
         { path: "/dashboard/student/practice-exam", icon: <ClipboardList size={20} />, label: "Practice Exams", tooltip: "Take practice tests" },
+        ...(showFormulaTab ? [{ path: "/dashboard/student/formula-practice", icon: <Calculator size={20} />, label: "Formula Practice", tooltip: "Interactive formula practice lab" }] : []),
       ]
     },
     {

@@ -75,6 +75,7 @@ export interface UserProfileBase {
   email: string;
   bio?: string;
   avatar?: string;
+  photoURL?: string;
   phoneNumber?: string;
   mobileNumber?: string; // Added mobile number field
   role: 'student' | 'teacher' | 'admin';
@@ -135,6 +136,7 @@ export interface SubjectProgress {
   quizzesCompleted: number;
   masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
   isWeakSubject?: boolean; // Added to track weak subjects
+  proficiency?: number; // Added for academic advisor view
 }
 
 export interface PaymentMethod {
@@ -163,4 +165,14 @@ export interface SubscriptionPlan {
   features: string[];
   type: SubscriptionType;
   maxMembers?: number;
+}
+
+// Added for study plan topics
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: string;
+  completed: boolean;
+  status: string;
+  priority: string;
 }
