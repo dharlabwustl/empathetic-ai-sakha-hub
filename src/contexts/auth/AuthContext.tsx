@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
-import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: string;
@@ -38,12 +37,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Check if user data exists in localStorage
       const userData = localStorage.getItem('userData');
-      const isAuthenticated = localStorage.getItem('isAuthenticated');
-      
-      if (userData && isAuthenticated === 'true') {
+      if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.email && parsedData.isAuthenticated === true) {
+          if (parsedData.email) {
             // User is already logged in
             setUser({
               id: parsedData.id || '1',
@@ -52,16 +49,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               role: parsedData.role || UserRole.Student
             });
             console.log("User authenticated from localStorage:", parsedData.email);
-          } else {
-            // User data exists but is not authenticated
-            localStorage.removeItem('userData');
-            localStorage.removeItem('isAuthenticated');
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
           // Clear invalid data
           localStorage.removeItem('userData');
-          localStorage.removeItem('isAuthenticated');
         }
       }
       
@@ -102,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
           
-          // Save user data to localStorage with authentication flag
+          // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
             name: newUser.name,
@@ -115,9 +107,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             mood: 'Motivated',
             isAuthenticated: true
           }));
-          
-          // Set authentication flag
-          localStorage.setItem('isAuthenticated', 'true');
           
           setUser(newUser);
           setLoading(false);
@@ -132,21 +121,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Logout function - completely clear auth data
+  // Logout function
   const logout = () => {
-    // Clear all authentication data
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('sakha_auth_token');
-    localStorage.removeItem('sakha_auth_user');
-    
-    // Clear any other app-specific data that should be reset
-    localStorage.removeItem('last_activity');
-    localStorage.removeItem('dashboard_settings');
-    
+    // Preserve some user preferences but remove auth data
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        // Only keep preferences and mood, remove auth data
+        localStorage.setItem('userData', JSON.stringify({
+          mood: parsedData.mood,
+          completedOnboarding: parsedData.completedOnboarding,
+          sawWelcomeTour: parsedData.sawWelcomeTour,
+          sawWelcomeSlider: parsedData.sawWelcomeSlider,
+          isAuthenticated: false
+        }));
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    }
     setUser(null);
-    console.log("User logged out completely");
+    console.log("User logged out");
   };
   
   return (
