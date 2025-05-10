@@ -46,6 +46,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
+            <span className="block mb-3">We understand Your Mindset, Not Just the Exam.</span>
             India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to{" "}
             <motion.span 
               className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-bold"
@@ -76,7 +77,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </motion.div>
         </div>
         
-        {/* Exam Names Badge - Now positioned directly after the hero intro */}
+        {/* Exam Names Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,7 +87,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
 
-        {/* KPI Stats Section - Right after ExamNamesBadge */}
+        {/* KPI Stats Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
