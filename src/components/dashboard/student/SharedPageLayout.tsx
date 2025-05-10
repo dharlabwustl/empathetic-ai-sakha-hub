@@ -17,6 +17,7 @@ interface SharedPageLayoutProps {
   showBackButton?: boolean;
   hideSidebar?: boolean;
   hideTabsNav?: boolean;
+  showQuickAccess?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
@@ -27,7 +28,8 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   backButtonUrl = '/dashboard/student',
   showBackButton = true,
   hideSidebar = false,
-  hideTabsNav = false
+  hideTabsNav = false,
+  showQuickAccess = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
