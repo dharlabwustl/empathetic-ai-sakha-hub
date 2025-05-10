@@ -1,258 +1,195 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { useOnboarding } from "./OnboardingContext";
-import SignupProgressBar from "./SignupProgressBar";
-import StepRenderer from "./StepRenderer";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useOnboarding } from './OnboardingContext';
+import { Eye, EyeOff, Mail } from 'lucide-react';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
 
-const SignupContent = () => {
+const SignUpContent: React.FC = () => {
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  const { register, googleSignIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleRoleSelect = (role: UserRole) => {
-    // Only allow student role
-    setOnboardingData({ ...onboardingData, role: UserRole.Student });
-    goToNextStep();
-  };
-
-  const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, examGoal: goal });
-    goToNextStep();
-  };
-
-  const handleDemographicsSubmit = (data: Record<string, string>) => {
-    setOnboardingData({ 
-      ...onboardingData, 
-      demographics: data,
-      targetExamDate: data.examDate // Save exam date specifically
-    });
-    goToNextStep();
-  };
-
-  const handlePersonalitySelect = (personality: PersonalityType) => {
-    setOnboardingData({ ...onboardingData, personalityType: personality });
-    goToNextStep();
-  };
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setOnboardingData({ ...onboardingData, mood });
-    goToNextStep();
-  };
+  const { setIsGoogleSignUp } = useOnboarding();
   
-  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
-    setOnboardingData({ ...onboardingData, studyTime: time });
-    goToNextStep();
-  };
-  
-  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    setOnboardingData({ ...onboardingData, studyPace: pace });
-    goToNextStep();
-  };
-  
-  const handleStudyHoursSelect = (hours: number) => {
-    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
-    goToNextStep();
-  };
-
-  const handleHabitsSubmit = (habits: Record<string, string>) => {
-    setOnboardingData({ ...onboardingData, habits });
-    goToNextStep();
-  };
-
-  const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests });
-    goToNextStep();
-  };
-
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
-    setIsLoading(true);
-
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Simple validation
+    if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setLoading(true);
     try {
-      // Set name from form data
-      const finalData = {
-        ...onboardingData,
-        name: formValues.name,
-        mobile: formValues.mobile,
-      };
-
-      setOnboardingData(finalData);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        ...finalData,
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-      }));
-
-      // Show success message
-      toast({
-        title: "Account created successfully!",
-        description: "Redirecting to your personalized dashboard.",
-      });
-
-      // Go to welcome flow
-      setTimeout(() => {
-        navigate("/welcome-flow?completedOnboarding=true&new=true");
-      }, 1000);
+      const success = await register(name, email, phone, password);
+      
+      if (success) {
+        localStorage.setItem('new_user_signup', 'true');
+        navigate('/dashboard/student?new=true');
+      }
     } catch (error) {
-      console.error("Error creating account:", error);
+      console.error('Signup error:', error);
       toast({
-        title: "Account creation failed",
-        description: "Please try again later.",
-        variant: "destructive"
+        title: "Signup Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
       });
-      setIsLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handlers = {
-    handleRoleSelect,
-    handleGoalSelect,
-    handleDemographicsSubmit,
-    handlePersonalitySelect,
-    handleMoodSelect,
-    handleStudyTimeSelect,
-    handleStudyPaceSelect,
-    handleStudyHoursSelect,
-    handleHabitsSubmit,
-    handleInterestsSubmit,
-    handleSignupSubmit,
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
-  };
-
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google Sign Up",
-      description: "Google authentication would be implemented here.",
-    });
-
-    // Mock successful signup for demonstration
-    setTimeout(() => {
-      // Store mock data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        name: "Google User",
-        email: "googleuser@example.com",
-        role: "student",
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-        onboardingCompleted: false,
-      }));
-
-      navigate("/welcome");
-    }, 2000);
-  };
-
-  return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      variants={cardVariants}
-      className="w-full max-w-md mx-auto"
-    >
-      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-2xl rounded-xl border-0 transform transition-all duration-500 hover:shadow-purple-200/30 dark:hover:shadow-purple-500/10">
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        <div className="p-6 md:p-8">
-          <motion.div 
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex flex-col items-center mb-6"
-          >
-            <PrepzrLogo width={120} height={120} className="animate-pulse" />
-            <motion.h1 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="mt-4 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
-            >
-              Join PREPZR
-            </motion.h1>
-            <motion.p 
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="text-gray-500 text-sm text-center mt-1"
-            >
-              Create your personalized study partner
-            </motion.p>
-          </motion.div>
-
-          <SignupProgressBar currentStep={currentStep} />
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -20, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-6"
-            >
-              <StepRenderer 
-                step={currentStep}
-                onboardingData={onboardingData}
-                handlers={handlers}
-                isLoading={isLoading}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {currentStep === "role" && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300 dark:border-gray-700"></span>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">Or sign up with</span>
-                </div>
-              </div>
-              <motion.div 
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="mt-4"
-              >
-                <button
-                  type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-300 hover:shadow-md dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                  onClick={handleGoogleSignup}
-                >
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
-                  Sign up with Google
-                </button>
-              </motion.div>
-            </div>
-          )}
-        </div>
-      </Card>
+  
+  const handleGoogleSignUp = async () => {
+    setLoading(true);
+    try {
+      const success = await googleSignIn();
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="mt-6 text-center text-xs text-gray-500"
-      >
-        <p>By signing up, you agree to our <a href="/terms" className="text-blue-600 hover:underline transition-colors">Terms of Service</a> and <a href="/privacy" className="text-blue-600 hover:underline transition-colors">Privacy Policy</a></p>
-      </motion.div>
-    </motion.div>
+      if (success) {
+        setIsGoogleSignUp(true);
+        localStorage.setItem('new_user_signup', 'true');
+        navigate('/dashboard/student?new=true');
+      }
+    } catch (error) {
+      console.error('Google signup error:', error);
+      toast({
+        title: "Google Signup Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <Card className="w-full max-w-md shadow-xl border-gray-100 dark:border-gray-700">
+      <CardHeader className="space-y-1 items-center text-center">
+        <div className="mb-4">
+          <PrepzrLogo width={120} height={40} />
+        </div>
+        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardDescription>Enter your details to create your account</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input 
+              id="name" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input 
+              id="email" 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="youremail@example.com"
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input 
+              id="phone" 
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Your phone number"
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input 
+                id="password" 
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a password"
+                required
+                disabled={loading}
+                className="pr-10"
+              />
+              <button 
+                type="button"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+          
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating account..." : "Create account"}
+          </Button>
+        </form>
+        
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300"></span>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white dark:bg-gray-800 px-2 text-gray-500">Or continue with</span>
+          </div>
+        </div>
+        
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          onClick={handleGoogleSignUp} 
+          disabled={loading}
+          type="button"
+        >
+          <Mail className="mr-2 h-4 w-4" />
+          Google
+        </Button>
+        
+        <div className="text-center text-sm">
+          Already have an account?{" "}
+          <Button 
+            variant="link" 
+            className="p-0 h-auto" 
+            onClick={() => navigate('/login')}
+            disabled={loading}
+          >
+            Login
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export default SignupContent;
+export default SignUpContent;
