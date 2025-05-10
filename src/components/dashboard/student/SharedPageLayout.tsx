@@ -42,7 +42,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   }
 
   // Content to display within the shared page layout
-  const pageContent = (
+  return (
     <div className="flex min-h-screen">
       {/* Universal Sidebar */}
       {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
@@ -73,7 +73,4 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
       </div>
     </div>
   );
-
-  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
-  return pageContent;
 };

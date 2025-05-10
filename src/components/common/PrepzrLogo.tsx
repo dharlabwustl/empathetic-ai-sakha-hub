@@ -1,32 +1,16 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 interface PrepzrLogoProps {
-  className?: string;
-  width?: number | string;
-  height?: number | string;
-  showText?: boolean;
+  width?: number;
+  height?: number;
 }
 
-const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
-  className = "", 
-  width = 240, 
-  height = "auto",
-  showText = true
-}) => {
+const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 120, height = 40 }) => {
   return (
-    <Link to="/" className={`flex items-center ${className}`}>
-      <img 
-        src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" 
-        alt="PREPZR Logo" 
-        style={{ 
-          width: typeof width === 'number' ? `${width}px` : width,
-          height: typeof height === 'number' ? `${height}px` : height,
-          objectFit: 'contain'
-        }}
-      />
-    </Link>
+    <div style={{ width, height }} className="flex items-center justify-center">
+      <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500">PREPZR</span>
+    </div>
   );
 };
 

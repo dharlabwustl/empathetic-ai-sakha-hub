@@ -21,10 +21,24 @@ import {
   Heart, 
   Target, 
   User,
-  Calculator,
-  Flame
+  LogOut,
+  FileText,
+  FileSearch,
+  ClipboardList,
+  Headphones,
+  Smile,
+  GraduationCap
 } from "lucide-react";
-import { NavigationRoute, UserRouteMap } from "./types/sidebar";
+
+interface NavigationRoute {
+  name: string;
+  path: string;
+  icon: React.ReactNode;
+}
+
+interface UserRouteMap {
+  [key: string]: NavigationRoute[];
+}
 
 interface SidebarNavRoutesProps {
   userType: string;
@@ -45,8 +59,10 @@ const tooltipDescriptions: Record<string, string> = {
   Notifications: "Stay updated with important alerts",
   Wellness: "Track and maintain your study-life balance",
   Profile: "Manage your account settings and preferences",
-  "Exam Syllabus": "View your complete exam syllabus and track progress",
-  "Formula Practice Lab": "Master formulas through interactive practice"
+  "Exam Syllabus": "View your complete exam syllabus",
+  "Previous Year Analysis": "Study and analyze previous year papers",
+  "Practice Exams": "Take practice tests to prepare for exams",
+  "Concept Cards": "Learn key concepts with interactive cards"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -59,18 +75,16 @@ export const SidebarNavRoutes = ({
   const userTypeRoutes: UserRouteMap = {
     student: [
       { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
-      { name: "24/7 Tutor", path: "/dashboard/student/tutor", icon: <MessageSquare size={20} /> },
-      { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
-      { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
+      { name: "Today's Plan", path: "/dashboard/student/today", icon: <Calendar size={20} /> },
+      { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <GraduationCap size={20} /> },
+      { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
-      { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
-      { name: "Formula Practice Lab", path: "/dashboard/student/formula-practice-lab", icon: <Calculator size={20} /> },
-      { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <Flame size={20} /> },
-      { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
-      { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
-      { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
-      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
-      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
+      { name: "Practice Exams", path: "/dashboard/student/practice-exam", icon: <ClipboardList size={20} /> },
+      { name: "Exam Syllabus", path: "/dashboard/student/syllabus", icon: <FileText size={20} /> },
+      { name: "Previous Year Analysis", path: "/dashboard/student/previous-year-analysis", icon: <FileSearch size={20} /> },
+      { name: "Feel Good Corner", path: "/dashboard/student/feel-good-corner", icon: <Smile size={20} /> },
+      { name: "24/7 AI Tutor", path: "/dashboard/student/tutor", icon: <Headphones size={20} /> },
+      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> }
     ],
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
@@ -94,7 +108,7 @@ export const SidebarNavRoutes = ({
     ]
   };
   
-  const routes = userTypeRoutes[userType as keyof typeof userTypeRoutes] || userTypeRoutes.student;
+  const routes = userTypeRoutes[userType as keyof UserRouteMap] || userTypeRoutes.student;
   
   const commonRoutes: NavigationRoute[] = [
     { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> }
