@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import CreateStudyPlanWizard from './academic/CreateStudyPlanWizard';
+import MoodLogButton from './mood-tracking/MoodLogButton';
 
 type EventType = 'exam' | 'task' | 'class';
 
@@ -80,7 +81,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   return (
     <div className="space-y-6 mb-8">
       {/* Top row - Greeting and time */}
-      <div className="flex flex-wrap justify-between items-start gap-4">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold">Hello, {userProfile.name || 'Student'}!</h1>
           <p className="text-muted-foreground flex items-center">
@@ -91,6 +92,15 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             <span>{formattedDate}</span>
           </p>
         </div>
+
+        {/* Mood Log Button */}
+        {onMoodChange && (
+          <MoodLogButton
+            currentMood={currentMood}
+            onMoodChange={onMoodChange}
+            buttonSize="md"
+          />
+        )}
       </div>
       
       {/* Middle row - Exam goal and study plan */}
@@ -132,6 +142,18 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                     )}
                   </div>
                 ))}
+
+                {/* Change exam or study plan button */}
+                <div className="mt-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDialogOpen(true)}
+                    className="text-xs"
+                  >
+                    Change exam or update study plan
+                  </Button>
+                </div>
               </div>
               
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -143,6 +165,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                   <CreateStudyPlanWizard 
+                    isOpen={true}
                     onCreatePlan={createStudyPlan} 
                     onClose={handleDialogClose} 
                     examGoal={goals[0]?.title}
@@ -188,6 +211,61 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             <Button variant="outline" className="w-full mt-3 text-sm">
               View Schedule
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* KPI Cards Row - Updated KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 flex flex-col">
+            <span className="text-sm text-muted-foreground">Dynamic Study Plans</span>
+            <span className="text-2xl font-bold mt-1">124</span>
+            <div className="flex items-center mt-2 text-xs text-emerald-600">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+              <span>+18% this month</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4 flex flex-col">
+            <span className="text-sm text-muted-foreground">Stress Reduced</span>
+            <span className="text-2xl font-bold mt-1">43%</span>
+            <div className="flex items-center mt-2 text-xs text-emerald-600">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+              <span>+7% improvement</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4 flex flex-col">
+            <span className="text-sm text-muted-foreground">Total Students</span>
+            <span className="text-2xl font-bold mt-1">1,248</span>
+            <div className="flex items-center mt-2 text-xs text-emerald-600">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+              <span>+24% this month</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4 flex flex-col">
+            <span className="text-sm text-muted-foreground">Success Rate</span>
+            <span className="text-2xl font-bold mt-1">92%</span>
+            <div className="flex items-center mt-2 text-xs text-emerald-600">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+              <span>+3% improvement</span>
+            </div>
           </CardContent>
         </Card>
       </div>

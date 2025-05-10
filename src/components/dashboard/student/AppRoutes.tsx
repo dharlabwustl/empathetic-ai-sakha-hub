@@ -15,11 +15,32 @@ import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
 import FormulaLabPage from "./formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
+import { useKpiTracking } from "@/hooks/useKpiTracking";
+
+interface DashboardOverviewProps {
+  userProfile: any;
+  kpis: any[];
+}
+
+interface AcademicAdvisorViewProps {
+  userProfile: any;
+}
 
 const AppRoutes: React.FC = () => {
+  // Get user profile and KPIs to pass to components
+  const { userProfile } = useUserProfile(UserRole.Student);
+  const { kpis } = useKpiTracking();
+  
+  // If user profile is loading, show loading state
+  if (!userProfile) {
+    return <div>Loading...</div>;
+  }
+  
   return (
     <Routes>
-      <Route path="/" element={<DashboardOverview />} />
+      <Route path="/" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
@@ -31,10 +52,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/practice-exam" element={<PracticeExamsView />} />
       <Route path="/feel-good-corner" element={<FeelGoodCorner />} />
-      <Route path="/academic" element={<AcademicAdvisorView />} />
-      <Route path="/academic-advisor" element={<AcademicAdvisorView />} />
+      <Route path="/academic" element={<AcademicAdvisorView userProfile={userProfile} />} />
+      <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
-      <Route path="/tutor" element={<DashboardOverview />} />
+      <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
     </Routes>
   );
 };

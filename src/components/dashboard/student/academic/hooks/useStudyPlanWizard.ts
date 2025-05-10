@@ -27,8 +27,10 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
   const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
+  // Added mediumSubjects state to fix errors
+  const [mediumSubjects, setMediumSubjects] = useState<string[]>([]);
 
-  const handleToggleSubject = (subject: string, type: 'strong' | 'weak') => {
+  const handleToggleSubject = (subject: string, type: 'strong' | 'weak' | 'medium') => {
     if (type === 'strong') {
       if (strongSubjects.includes(subject)) {
         setStrongSubjects(strongSubjects.filter(s => s !== subject));
@@ -36,16 +38,34 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         if (weakSubjects.includes(subject)) {
           setWeakSubjects(weakSubjects.filter(s => s !== subject));
         }
+        if (mediumSubjects.includes(subject)) {
+          setMediumSubjects(mediumSubjects.filter(s => s !== subject));
+        }
         setStrongSubjects([...strongSubjects, subject]);
       }
-    } else {
+    } else if (type === 'weak') {
       if (weakSubjects.includes(subject)) {
         setWeakSubjects(weakSubjects.filter(s => s !== subject));
       } else {
         if (strongSubjects.includes(subject)) {
           setStrongSubjects(strongSubjects.filter(s => s !== subject));
         }
+        if (mediumSubjects.includes(subject)) {
+          setMediumSubjects(mediumSubjects.filter(s => s !== subject));
+        }
         setWeakSubjects([...weakSubjects, subject]);
+      }
+    } else {
+      if (mediumSubjects.includes(subject)) {
+        setMediumSubjects(mediumSubjects.filter(s => s !== subject));
+      } else {
+        if (strongSubjects.includes(subject)) {
+          setStrongSubjects(strongSubjects.filter(s => s !== subject));
+        }
+        if (weakSubjects.includes(subject)) {
+          setWeakSubjects(weakSubjects.filter(s => s !== subject));
+        }
+        setMediumSubjects([...mediumSubjects, subject]);
       }
     }
   };
@@ -59,6 +79,15 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         hoursPerWeek: formData.studyHoursPerDay || 4,
         priority: 'medium' as const,
         proficiency: 'strong' as const,
+        completed: false 
+      })),
+      ...mediumSubjects.map(subject => ({ 
+        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
+        name: subject, 
+        color: getRandomColor(),
+        hoursPerWeek: formData.studyHoursPerDay || 4,
+        priority: 'medium' as const,
+        proficiency: 'medium' as const,
         completed: false 
       })),
       ...weakSubjects.map(subject => ({ 
@@ -91,6 +120,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     // Clear subjects when changing exam goal
     setStrongSubjects([]);
     setWeakSubjects([]);
+    setMediumSubjects([]);
     setStep(2); // Move to next step after goal selection
   };
 
@@ -110,6 +140,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
       setStep(1);
       setStrongSubjects([]);
       setWeakSubjects([]);
+      setMediumSubjects([]);
       setFormData({
         title: '',
         goal: '',
@@ -144,6 +175,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     setFormData,
     strongSubjects,
     weakSubjects,
+    mediumSubjects,
     handleToggleSubject,
     handlePaceChange,
     handleStudyTimeChange,
