@@ -41,7 +41,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handleBack
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
-  const examGoals = ['NEET'];
+  const examGoals = ['NEET', 'JEE', 'CAT', 'UPSC', 'GATE', 'SSC', 'Banking', 'Other'];
 
   const renderStep = () => {
     switch (step) {
@@ -111,7 +111,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
         return (
           <div className="max-h-[400px] overflow-y-auto pr-2">
             <SubjectsStep
-              examType={formData.examGoal}
+              examType={formData.examGoal || ''}
               strongSubjects={strongSubjects}
               weakSubjects={weakSubjects}
               handleToggleSubject={handleToggleSubject}
