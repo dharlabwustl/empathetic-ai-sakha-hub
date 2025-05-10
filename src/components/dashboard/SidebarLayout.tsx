@@ -14,8 +14,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children, hideSidebar = f
   
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-      {/* Universal Sidebar - Always shown unless on mobile */}
-      {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
+      {/* Universal Sidebar - Always shown unless on mobile or explicitly hidden */}
+      {!isMobile && !hideSidebar && <UniversalSidebar />}
       
       <div className="flex-1">
         {children}
