@@ -1,6 +1,7 @@
 
 import React from 'react';
 import UnifiedSidebar from '@/components/dashboard/UnifiedSidebar';
+import WithTooltip from '@/components/dashboard/student/utils/TooltipUtils';
 
 interface SidebarNavigationProps {
   activeTab: string;

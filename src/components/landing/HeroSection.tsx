@@ -31,7 +31,7 @@ const HeroSection: React.FC = () => {
     }
   };
   
-  // Updated animated title text
+  // Updated animated title text with the requested text
   const titleText = "We understand Your Mindset, Not Just the Exam.";
   const titleLetters = titleText.split("");
   
