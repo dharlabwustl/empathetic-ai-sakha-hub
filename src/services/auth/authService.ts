@@ -30,6 +30,7 @@ export interface AuthUser {
 // Local storage keys
 const AUTH_TOKEN_KEY = 'sakha_auth_token';
 const AUTH_USER_KEY = 'sakha_auth_user';
+const IS_LOGGED_IN_KEY = 'isLoggedIn';
 
 // Authentication service
 const authService = {
@@ -57,7 +58,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userData));
-    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
     
     // Return success response
     return {
@@ -91,7 +92,7 @@ const authService = {
       mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
-    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
     localStorage.setItem('new_user_signup', 'true'); // Mark as a new user for onboarding
     
     // Return success response
@@ -119,7 +120,7 @@ const authService = {
     
     // Set the auth data
     this.setAuthData(adminUser);
-    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem(IS_LOGGED_IN_KEY, 'true');
     
     // Return success response
     return {
@@ -155,7 +156,7 @@ const authService = {
   clearAuthData(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem(IS_LOGGED_IN_KEY);
     localStorage.removeItem('userData');
     localStorage.removeItem('user_profile_image');
     localStorage.removeItem('sakha_auth_token');
@@ -177,18 +178,19 @@ const authService = {
   
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return localStorage.getItem(IS_LOGGED_IN_KEY) === 'true' && !!this.getToken();
   },
   
   // Verify if token is still valid
   async verifyToken(): Promise<boolean> {
     const token = this.getToken();
+    const isLoggedIn = localStorage.getItem(IS_LOGGED_IN_KEY) === 'true';
     
-    if (!token) {
+    if (!token || !isLoggedIn) {
       return false;
     }
     
-    // For demo, always return true to simulate valid token
+    // For demo, return true to simulate valid token
     return true;
   },
   

@@ -1,10 +1,7 @@
 
-// This component is no longer needed as we're using UniversalSidebar everywhere.
-// This is a placeholder file to prevent import errors.
-// All navigation should use UniversalSidebar instead.
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
 
 interface SidebarNavigationProps {
   activeTab: string;
@@ -14,13 +11,13 @@ interface SidebarNavigationProps {
 const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) => {
   const navigate = useNavigate();
   
-  // Note: This component is deprecated.
-  // Please use UniversalSidebar component instead.
-  console.warn('SidebarNavigation is deprecated. Please use UniversalSidebar instead.');
+  // This component is now a wrapper for UniversalSidebar
+  // to prevent breaking changes in existing components
+  console.warn('SidebarNavigation is deprecated. Please use UniversalSidebar directly.');
   
   return (
     <div className="hidden">
-      {/* This component is deprecated */}
+      {/* Use Universal Sidebar across the app */}
     </div>
   );
 };

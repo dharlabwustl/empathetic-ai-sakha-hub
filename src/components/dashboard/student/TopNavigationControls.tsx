@@ -1,29 +1,33 @@
 
-import React from "react";
-import { MenuIcon, Calendar, BellIcon, UserCircle2 } from "lucide-react";
+import React, { useState } from "react";
+import { Menu, ChevronDown, Lightbulb, LogOut, User, Bell, ExternalLink, AlignLeft, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
+import { MoodType } from "@/types/user/base";
+import { getMoodEmoji } from "./mood-tracking/moodUtils";
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import { MoodType } from "@/types/user/base";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour: () => void;
+  onOpenTour?: () => void;
   userName?: string;
   mood?: MoodType | null;
   isFirstTimeUser?: boolean;
-  onViewStudyPlan: () => void;
+  onViewStudyPlan?: () => void;
 }
 
-const TopNavigationControls = ({
+const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   hideSidebar,
   onToggleSidebar,
   formattedDate,
@@ -31,110 +35,130 @@ const TopNavigationControls = ({
   onOpenTour,
   userName,
   mood,
-  isFirstTimeUser,
+  isFirstTimeUser = false,
   onViewStudyPlan,
-}: TopNavigationControlsProps) => {
+}) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const getTimeOfDayGreeting = () => {
-    const hour = new Date().getHours();
-    
-    if (hour >= 5 && hour < 12) {
-      return "Good Morning";
-    } else if (hour >= 12 && hour < 17) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
-    }
-  };
-  
-  const getMoodText = () => {
-    switch (mood) {
-      case MoodType.Motivated:
-        return "You're feeling motivated today!";
-      case MoodType.Focused:
-        return "You're in a focused state of mind!";
-      case MoodType.Confident:
-        return "You're feeling confident today!";
-      case MoodType.Happy:
-        return "You're feeling happy today!";
-      case MoodType.Calm:
-        return "You're feeling calm today.";
-      case MoodType.Tired:
-        return "You seem tired today, take some breaks.";
-      case MoodType.Stressed:
-        return "You're feeling stressed, remember to relax!";
-      case MoodType.Anxious:
-        return "You're feeling anxious, deep breaths help.";
-      case MoodType.Confused:
-        return "You seem confused today, ask for help!";
-      default:
-        return "";
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out successfully",
+        description: "We hope to see you soon!",
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast({
+        title: "Logout failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center space-x-2">
+    <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center space-x-3">
         <Button
           variant="ghost"
-          size="icon"
+          size="sm"
+          className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
           onClick={onToggleSidebar}
-          className="md:flex"
-          aria-label="Toggle sidebar"
         >
-          <MenuIcon className="h-5 w-5" />
+          <AlignLeft size={20} />
+          <span className="sr-only">Toggle sidebar</span>
         </Button>
-        <div className="hidden lg:flex lg:flex-col">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200">
-            {formattedDate}
-          </h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {formattedTime}
-          </p>
-        </div>
+        <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+          {formattedDate} | {formattedTime}
+        </span>
       </div>
 
-      <div className="flex-1 mx-4">
-        <div className="hidden md:block text-center">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
-            {getTimeOfDayGreeting()}, {userName || "Student"}!
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {getMoodText()}
-          </p>
-        </div>
-      </div>
+      <div className="flex items-center space-x-1 sm:space-x-2">
+        {/* Study Plan Button */}
+        {onViewStudyPlan && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-sm hidden sm:flex items-center gap-1"
+            onClick={onViewStudyPlan}
+          >
+            <BookOpen size={16} />
+            <span>Study Plan</span>
+          </Button>
+        )}
 
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/dashboard/student/notifications")}
-          className="relative"
-          aria-label="Notifications"
-        >
-          <BellIcon className="h-5 w-5" />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-        </Button>
+        {/* Tour Button - Only show during first login */}
+        {isFirstTimeUser && onOpenTour && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenTour}
+            className="text-sm flex items-center gap-1"
+          >
+            <Lightbulb size={16} />
+            <span className="hidden sm:inline">Tour</span>
+          </Button>
+        )}
+        
+        {/* Mood Button */}
+        {mood && (
+          <Button variant="ghost" size="sm" asChild className="text-lg p-2">
+            <span>{getMoodEmoji(mood)}</span>
+          </Button>
+        )}
 
+        {/* Notifications Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="User menu">
-              <UserCircle2 className="h-5 w-5" />
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell size={18} />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onClick={() => navigate("/dashboard/student/profile")}>
+          <DropdownMenuContent align="end" className="w-72 bg-white border border-gray-200 shadow-lg rounded-lg">
+            <h3 className="font-semibold p-3 border-b">Notifications</h3>
+            <div className="max-h-72 overflow-auto">
+              <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+                <p className="text-sm font-medium">Time to revise Biology</p>
+                <p className="text-xs text-gray-500">10 minutes ago</p>
+              </div>
+              <div className="p-3 hover:bg-gray-50 cursor-pointer">
+                <p className="text-sm font-medium">New NEET practice test available</p>
+                <p className="text-xs text-gray-500">1 hour ago</p>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <Button variant="ghost" size="sm" className="w-full justify-center text-blue-600">
+              View all notifications
+            </Button>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* User Dropdown */}
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild onClick={() => setIsOpen(!isOpen)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-sm font-normal"
+            >
+              <span className="hidden md:inline">{userName || "User"}</span>
+              <ChevronDown size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg">
+            <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
+              <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onViewStudyPlan}>
-              View Study Plan
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onOpenTour}>
-              Welcome Tour
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/login")}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
