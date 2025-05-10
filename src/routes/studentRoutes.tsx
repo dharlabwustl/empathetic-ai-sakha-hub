@@ -15,123 +15,64 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
-import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
-import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
-import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
-import { useAuth } from '@/contexts/auth/AuthContext';
-import { Navigate } from 'react-router-dom';
-
-// Protected Route component to ensure authentication
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  // Show loading state while checking authentication
-  if (loading) {
-    return <DashboardLoading />;
-  }
-  
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return <>{children}</>;
-};
 
 const StudentRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <StudentDashboard />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <StudentDashboard />
+        </SidebarLayout>
       } />
       <Route path="/today" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <TodaysPlanView />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <TodaysPlanView />
+        </SidebarLayout>
       } />
       <Route path="/academic" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <AcademicAdvisorView />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <AcademicAdvisorView />
+        </SidebarLayout>
       } />
       <Route path="/concepts" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <ConceptsLandingPage />
-          </SidebarLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/concepts/:conceptId" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <ConceptDetailPage />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <ConceptsPage />
+        </SidebarLayout>
       } />
       <Route path="/flashcards" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <FlashcardsLandingPage />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <FlashcardsPage />
+        </SidebarLayout>
       } />
       <Route path="/practice-exam" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <PracticeExamsList />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <PracticeExamsList />
+        </SidebarLayout>
       } />
       <Route path="/syllabus" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <ExamSyllabusPage />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <ExamSyllabusPage />
+        </SidebarLayout>
       } />
       <Route path="/previous-year-analysis" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <PreviousYearAnalysisPage />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <PreviousYearAnalysisPage />
+        </SidebarLayout>
       } />
       <Route path="/feel-good-corner" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <FeelGoodCornerPage />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <FeelGoodCornerPage />
+        </SidebarLayout>
       } />
       <Route path="/tutor" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <TutorView />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <TutorView />
+        </SidebarLayout>
       } />
       <Route path="/profile" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <StudentProfile />
-          </SidebarLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/notifications" element={
-        <ProtectedRoute>
-          <SidebarLayout>
-            <NotificationsView />
-          </SidebarLayout>
-        </ProtectedRoute>
+        <SidebarLayout>
+          <StudentProfile />
+        </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
       <Route path="*" element={<NotFoundPage />} />

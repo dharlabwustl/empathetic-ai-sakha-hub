@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.email && parsedData.isAuthenticated === true) {
+          if (parsedData.email) {
             // User is already logged in
             setUser({
               id: parsedData.id || '1',
@@ -49,15 +49,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               role: parsedData.role || UserRole.Student
             });
             console.log("User authenticated from localStorage:", parsedData.email);
-          } else {
-            // Clear user state if not authenticated
-            setUser(null);
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
           // Clear invalid data
           localStorage.removeItem('userData');
-          setUser(null);
         }
       }
       
@@ -125,24 +121,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Logout function - Enhanced for complete logout
+  // Logout function
   const logout = () => {
-    console.log("Logout function called");
-    
-    // Clear authentication state completely
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('user_profile_image');
-    
-    // Clear session storage as well
-    sessionStorage.clear();
-    
-    // Reset user state
+    // Preserve some user preferences but remove auth data
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        // Only keep preferences and mood, remove auth data
+        localStorage.setItem('userData', JSON.stringify({
+          mood: parsedData.mood,
+          completedOnboarding: parsedData.completedOnboarding,
+          sawWelcomeTour: parsedData.sawWelcomeTour,
+          sawWelcomeSlider: parsedData.sawWelcomeSlider,
+          isAuthenticated: false
+        }));
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    }
     setUser(null);
-    
-    // Add debug information
-    console.log("User logged out - Auth state cleared");
-    console.log("isAuthenticated after logout:", false);
+    console.log("User logged out");
   };
   
   return (

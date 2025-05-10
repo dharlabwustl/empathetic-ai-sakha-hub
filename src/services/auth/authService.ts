@@ -54,8 +54,7 @@ const authService = {
     const userData = {
       name: demoUser.name,
       email: demoUser.email,
-      mood: 'Motivated',
-      isAuthenticated: true
+      mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
@@ -89,8 +88,7 @@ const authService = {
     const userDataObj = {
       name: mockUser.name,
       email: mockUser.email,
-      mood: 'Motivated',
-      isAuthenticated: true
+      mood: 'Motivated'
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
@@ -130,39 +128,13 @@ const authService = {
     };
   },
   
-  // Logout user - Enhanced for complete logout
+  // Logout user
   async logout(): Promise<ApiResponse<void>> {
-    console.log("Auth service logout called");
-    
     // Clear all auth data from local storage
     this.clearAuthData();
-    
-    // Reset login state
     localStorage.removeItem('isLoggedIn');
-    
-    // Clear any user data while preserving minimal preferences
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        // Set isAuthenticated to false explicitly
-        localStorage.setItem('userData', JSON.stringify({
-          isAuthenticated: false
-        }));
-      } catch (error) {
-        console.error('Error during logout:', error);
-        localStorage.removeItem('userData');
-      }
-    } else {
-      localStorage.removeItem('userData');
-    }
-    
-    // Clear profile image
+    localStorage.removeItem('userData');
     localStorage.removeItem('user_profile_image');
-    
-    // Clear session storage
-    sessionStorage.clear();
-    
-    console.log("Auth service logout completed - all auth data cleared");
     
     return {
       success: true,
@@ -200,25 +172,7 @@ const authService = {
   
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    // Check both token and userData.isAuthenticated
-    const token = this.getToken();
-    
-    if (!token) {
-      return false;
-    }
-    
-    // Also verify in userData
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const parsed = JSON.parse(userData);
-        return parsed.isAuthenticated === true;
-      }
-    } catch (e) {
-      console.error("Error checking authentication state:", e);
-    }
-    
-    return false;
+    return !!this.getToken();
   },
   
   // Verify if token is still valid
@@ -229,20 +183,7 @@ const authService = {
       return false;
     }
     
-    // Also check userData.isAuthenticated
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const parsed = JSON.parse(userData);
-        if (parsed.isAuthenticated !== true) {
-          return false;
-        }
-      }
-    } catch (e) {
-      console.error("Error verifying token:", e);
-      return false;
-    }
-    
+    // For demo, always return true to simulate valid token
     return true;
   },
   
