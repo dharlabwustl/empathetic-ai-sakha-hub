@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
+import { adminService } from '@/services/adminService';
 import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,32 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
+  
+  // Load KPI data from admin backend
+  const [adminKpis, setAdminKpis] = useState({
+    totalStudents: 0,
+    averageConcepts: 0,
+    totalStudyPlans: 0,
+    verifiedMoodImprovement: 0
+  });
+
+  useEffect(() => {
+    const fetchAdminKpis = async () => {
+      try {
+        const stats = await adminService.getDashboardStats();
+        setAdminKpis({
+          totalStudents: stats.totalStudents,
+          averageConcepts: stats.averageConcepts,
+          totalStudyPlans: stats.totalStudyPlans,
+          verifiedMoodImprovement: stats.verifiedMoodImprovement
+        });
+      } catch (err) {
+        console.error("Error fetching admin KPIs:", err);
+      }
+    };
+    
+    fetchAdminKpis();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -123,13 +150,13 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                   <div className="text-sm text-muted-foreground">Concepts Mastered</div>
-                  <div className="text-2xl font-bold">45/60</div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400">75% completed</div>
+                  <div className="text-2xl font-bold">{adminKpis.averageConcepts}/70</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400">{Math.round(adminKpis.averageConcepts/70*100)}% completed</div>
                 </div>
                 <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                  <div className="text-sm text-muted-foreground">Flashcards Reviewed</div>
-                  <div className="text-2xl font-bold">120/150</div>
-                  <div className="text-xs text-green-600 dark:text-green-400">80% completed</div>
+                  <div className="text-sm text-muted-foreground">Study Plans</div>
+                  <div className="text-2xl font-bold">{adminKpis.totalStudyPlans}</div>
+                  <div className="text-xs text-green-600 dark:text-green-400">Personalized for you</div>
                 </div>
               </div>
               
@@ -141,8 +168,8 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
                     <span className="font-medium">12.5 hrs</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Practice Tests</span>
-                    <span className="font-medium">8 completed</span>
+                    <span>Anxiety Reduction</span>
+                    <span className="font-medium">{adminKpis.verifiedMoodImprovement}%</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Avg. Score</span>
