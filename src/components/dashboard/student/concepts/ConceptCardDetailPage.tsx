@@ -1,352 +1,269 @@
-
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { 
-  ArrowLeft, BookOpen, Check, CheckCircle, Clock, Edit, 
-  MessageSquare, Play, PlayCircle, Puzzle, Star 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import ConceptCardLinks from './ConceptCardLinks';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft } from 'lucide-react';
 
-// Mock data for concept cards
-const getMockConceptCard = (conceptId: string) => {
-  return {
-    id: conceptId,
-    title: "Newton's Laws of Motion",
-    subject: "Physics",
-    chapter: "Mechanics",
-    difficulty: "Medium",
-    estimatedTime: 15,
-    completion: 75,
-    recallAccuracy: 85,
-    lastReviewed: "2 days ago",
-    content: "Newton's three laws of motion describe the relationship between the motion of an object and the forces acting on it.",
-    details: [
-      {
-        subtitle: "First Law (Law of Inertia)",
-        content: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an unbalanced force.",
-        examples: [
-          "A book sitting on a table remains at rest unless a force moves it.",
-          "Passengers in a car tend to continue moving forward when the car suddenly stops."
-        ],
-        applicationQuestions: [
-          "Why do you jerk forward when a car suddenly stops?",
-          "How does a seat belt protect you during a collision?"
-        ]
-      },
-      {
-        subtitle: "Second Law (F = ma)",
-        content: "The acceleration of an object depends on the mass of the object and the amount of force applied. F = ma where F is force, m is mass, and a is acceleration.",
-        examples: [
-          "A small force applied to a light object produces the same acceleration as a large force applied to a heavy object.",
-          "It requires more force to accelerate a truck than a car at the same rate."
-        ],
-        applicationQuestions: [
-          "Why is it harder to push a heavy shopping cart than an empty one?",
-          "How does the mass of a rocket affect the amount of fuel needed for liftoff?"
-        ]
-      },
-      {
-        subtitle: "Third Law (Action-Reaction)",
-        content: "For every action, there is an equal and opposite reaction. Forces always occur in pairs.",
-        examples: [
-          "When you push against a wall, the wall pushes back with equal force.",
-          "Rockets propel forward by expelling gas backwards."
-        ],
-        applicationQuestions: [
-          "How does a rocket move forward in the vacuum of space?",
-          "Why does a rowboat move when you paddle water backwards?"
-        ]
-      }
-    ],
-    keyPoints: [
-      "Force is required to change an object's state of motion.",
-      "Greater force produces greater acceleration for the same mass.",
-      "Forces always occur in equal and opposite pairs."
-    ],
-    practiceQuestions: [
-      {
-        question: "A book is at rest on a table. Which of Newton's laws explains why it doesn't fall through the table?",
-        options: [
-          "First law",
-          "Second law",
-          "Third law",
-          "None of the above"
-        ],
-        correctAnswer: "Third law"
-      },
-      {
-        question: "According to Newton's second law, if the mass of an object is doubled while the force remains constant, the acceleration will:",
-        options: [
-          "Double",
-          "Remain the same",
-          "Halve",
-          "Become zero"
-        ],
-        correctAnswer: "Halve"
-      }
-    ],
-    relatedConcepts: [
-      "Force and Motion",
-      "Momentum",
-      "Work and Energy"
-    ]
-  };
+// Mock data for the concept detail
+const mockConceptData = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  chapter: "Mechanics",
+  description: "The fundamental principles that describe the relationship between the motion of an object and the forces acting on it.",
+  difficulty: "medium",
+  timeEstimate: 25,
+  mastery: 65,
+  completed: false,
+  important: true,
+  contents: [
+    {
+      type: 'text',
+      content: "Newton's laws of motion are three physical laws that describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics."
+    },
+    {
+      type: 'list',
+      title: "The Three Laws",
+      items: [
+        "First Law (Law of Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
+        "Second Law: The acceleration of an object depends directly on the net force acting upon it and inversely on its mass. (F = ma)",
+        "Third Law: For every action, there is an equal and opposite reaction."
+      ]
+    },
+    // ... other content sections would be here
+  ],
+  examples: [
+    {
+      title: "First Law Example",
+      description: "A book on a table remains at rest unless pushed. When pushed, it moves in the direction of the force applied."
+    },
+    {
+      title: "Second Law Example",
+      description: "A cart accelerates in proportion to the force applied to it. If the mass is doubled, the acceleration is halved for the same force."
+    },
+    {
+      title: "Third Law Example",
+      description: "When a swimmer pushes water backward, the water pushes the swimmer forward with equal force."
+    },
+  ],
+  quizQuestions: [
+    {
+      question: "What is Newton's First Law also known as?",
+      options: ["Law of Acceleration", "Law of Inertia", "Law of Action-Reaction", "Law of Gravity"],
+      correctAnswer: 1
+    },
+    {
+      question: "In the equation F = ma, what does 'm' represent?",
+      options: ["Motion", "Momentum", "Mass", "Movement"],
+      correctAnswer: 2
+    },
+    // ... more questions
+  ]
 };
 
-const ConceptCardDetailPage = () => {
+const ConceptCardDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
-  const [activeTab, setActiveTab] = useState("overview");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [concept, setConcept] = useState<typeof mockConceptData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // In a real app, fetch the concept data based on conceptId
+    // For now, use mock data
+    setTimeout(() => {
+      setConcept(mockConceptData);
+      setLoading(false);
+    }, 500);
+  }, [conceptId]);
+
+  const handleStartStudy = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
+  };
   
-  const { data: conceptCard, isLoading } = useQuery({
-    queryKey: ['conceptCard', conceptId],
-    queryFn: () => Promise.resolve(getMockConceptCard(conceptId || '1')),
-  });
-  
-  if (isLoading || !conceptCard) {
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-primary rounded-full"></div>
+      <div className="container py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
       </div>
     );
   }
-  
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link to="/dashboard/student/concepts">
-                <Button variant="ghost" size="sm" className="flex items-center">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Concepts
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-sm">Return to all concept cards</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" variant="outline" className="flex items-center">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Add Notes
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-sm">Add your personal notes to this concept</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" className="flex items-center">
-                  <Play className="mr-2 h-4 w-4" />
-                  Study Now
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-sm">Start studying this concept</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+
+  if (!concept) {
+    return (
+      <div className="container py-8">
+        <Button 
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
+        >
+          <ArrowLeft size={16} />
+          Back to Concepts
+        </Button>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Concept not found</h2>
+          <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="container py-6">
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
+        <div>
+          <h1 className="text-3xl font-bold">{concept.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+              {concept.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+              {concept.chapter}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+              {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
+            </Badge>
+            {concept.important && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                Important
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <Button 
+          className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700"
+          onClick={handleStartStudy}
+        >
+          Start Studying
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Progress</CardTitle>
+          <CardDescription>Your mastery of this concept</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Mastery</span>
+              <span className="text-sm font-medium">{concept.mastery}%</span>
+            </div>
+            <Progress value={concept.mastery} className="h-2" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Estimated time: {concept.timeEstimate} min</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="quiz">Quiz</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl">{conceptCard.title}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {conceptCard.subject} • Chapter: {conceptCard.chapter} • 
-                    <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
-                      {conceptCard.difficulty}
-                    </Badge>
-                  </CardDescription>
-                </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <Star className="h-4 w-4 text-yellow-500" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-sm">Add to favorites</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <CardTitle>About this Concept</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-4 mb-6">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="practice">Practice</TabsTrigger>
-                  <TabsTrigger value="related">Related</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="overview">
-                  <div className="space-y-6">
-                    <p className="text-gray-700 dark:text-gray-300">{conceptCard.content}</p>
-                    
-                    <h3 className="text-lg font-medium">Key Points</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {conceptCard.keyPoints.map((point, index) => (
-                        <li key={index} className="text-gray-700 dark:text-gray-300">{point}</li>
+              <p>{concept.description}</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {concept.contents[1].items.map((item, index) => (
+                        <li key={index}>{item}</li>
                       ))}
                     </ul>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="details">
-                  <div className="space-y-8">
-                    {conceptCard.details.map((detail, index) => (
-                      <div key={index} className="space-y-3">
-                        <h3 className="text-lg font-medium">{detail.subtitle}</h3>
-                        <p className="text-gray-700 dark:text-gray-300">{detail.content}</p>
-                        
-                        <h4 className="text-md font-medium">Examples:</h4>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {detail.examples.map((example, i) => (
-                            <li key={i} className="text-gray-700 dark:text-gray-300">{example}</li>
-                          ))}
-                        </ul>
-                        
-                        <h4 className="text-md font-medium">Application Questions:</h4>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {detail.applicationQuestions.map((question, i) => (
-                            <li key={i} className="text-gray-700 dark:text-gray-300">{question}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="practice">
-                  <div className="space-y-6">
-                    {conceptCard.practiceQuestions.map((qa, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <p className="font-medium mb-3">Q{index + 1}: {qa.question}</p>
-                        <div className="space-y-2 ml-4">
-                          {qa.options.map((option, i) => (
-                            <div key={i} className="flex items-center space-x-2">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center ${option === qa.correctAnswer ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                                {option === qa.correctAnswer && <Check className="h-3 w-3" />}
-                              </div>
-                              <span>{option}</span>
-                              {option === qa.correctAnswer && <span className="text-green-500 text-sm">(Correct)</span>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="related">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Related Concepts</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {conceptCard.relatedConcepts.map((concept, index) => (
-                        <Button key={index} variant="outline" className="justify-start">
-                          <BookOpen className="mr-2 h-4 w-4 text-blue-500" />
-                          {concept}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-          
-          {/* Add the ConceptCardLinks component */}
-          <ConceptCardLinks conceptId={conceptId || '1'} conceptTitle={conceptCard.title} />
-        </div>
-        
-        <div>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Your Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-500">Completion</span>
-                  <span className="text-sm font-medium">{conceptCard.completion}%</span>
-                </div>
-                <Progress value={conceptCard.completion} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-500">Recall Accuracy</span>
-                  <span className="text-sm font-medium">{conceptCard.recallAccuracy}%</span>
-                </div>
-                <Progress value={conceptCard.recallAccuracy} className="h-2" />
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-500">
-                <Clock className="mr-2 h-4 w-4" />
-                <span>Estimated study time: {conceptCard.estimatedTime} minutes</span>
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-500">
-                <CheckCircle className="mr-2 h-4 w-4" />
-                <span>Last reviewed: {conceptCard.lastReviewed}</span>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Understanding Newton's laws is essential for:</p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2">
+                      <li>Engineering design and analysis</li>
+                      <li>Sports science and athletic performance</li>
+                      <li>Vehicle safety and transportation</li>
+                      <li>Space exploration and orbital mechanics</li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
-          
+        </TabsContent>
+        <TabsContent value="content" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Learning Resources</CardTitle>
+              <CardTitle>Detailed Content</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <PlayCircle className="mr-2 h-4 w-4 text-red-500" />
-                <span>Watch Video Tutorial</span>
-              </Button>
-              
-              <Button variant="outline" className="w-full justify-start">
-                <Puzzle className="mr-2 h-4 w-4 text-green-500" />
-                <span>Interactive Simulation</span>
-              </Button>
-              
-              <Button variant="outline" className="w-full justify-start">
-                <MessageSquare className="mr-2 h-4 w-4 text-violet-500" />
-                <span>Ask AI Tutor</span>
-              </Button>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Introduction</h3>
+                  <p>{concept.contents[0].content}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{concept.contents[1].title}</h3>
+                  <ul className="list-disc pl-5 space-y-2">
+                    {concept.contents[1].items.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                {/* More content would be dynamically rendered here */}
+              </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+        {/* ... other tabs would be implemented similarly */}
+      </Tabs>
     </div>
   );
 };

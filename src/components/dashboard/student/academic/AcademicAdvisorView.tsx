@@ -31,7 +31,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-1",
           name: "Physics",
-          proficiency: "medium",
           difficulty: "medium",
           completed: false,
           status: "in-progress",
@@ -41,7 +40,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-2",
           name: "Chemistry",
-          proficiency: "low",
           difficulty: "easy",
           completed: false,
           status: "pending",
@@ -51,7 +49,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-3",
           name: "Biology",
-          proficiency: "high",
           difficulty: "hard",
           completed: false,
           status: "completed",
@@ -75,7 +72,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-4",
           name: "Physics",
-          proficiency: "low",
           difficulty: "hard",
           completed: false,
           status: "pending",
@@ -85,7 +81,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-5",
           name: "Chemistry",
-          proficiency: "medium",
           difficulty: "medium",
           completed: false,
           status: "in-progress",
@@ -95,7 +90,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-6",
           name: "Mathematics",
-          proficiency: "low",
           difficulty: "hard",
           completed: false,
           status: "pending",
@@ -119,7 +113,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-7",
           name: "History",
-          proficiency: "high",
           difficulty: "medium",
           completed: true,
           status: "completed",
@@ -129,7 +122,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-8",
           name: "Geography",
-          proficiency: "high",
           difficulty: "easy",
           completed: true,
           status: "completed",
@@ -139,7 +131,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
         {
           id: "subj-9",
           name: "Economics",
-          proficiency: "medium",
           difficulty: "hard",
           completed: true,
           status: "in-progress",

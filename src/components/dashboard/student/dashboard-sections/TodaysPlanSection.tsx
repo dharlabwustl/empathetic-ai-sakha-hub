@@ -21,11 +21,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
   // Render appropriate message based on mood
   const getMoodBasedMessage = () => {
     switch(currentMood) {
-      case MoodType.Tired:
-      case MoodType.Stressed:
+      case MoodType.TIRED:
+      case MoodType.STRESSED:
         return "Your plan has been adjusted for today based on your mood. Focus on lighter review tasks.";
-      case MoodType.Focused:
-      case MoodType.Motivated:
+      case MoodType.FOCUSED:
+      case MoodType.MOTIVATED:
         return "Great energy today! Your plan includes some challenging concepts to leverage your focus.";
       default:
         return "Your personalized study plan for today is ready.";

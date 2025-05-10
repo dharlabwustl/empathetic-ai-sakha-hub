@@ -164,7 +164,7 @@ function App() {
               
               {/* Syllabus and Previous Year Analysis routes */}
               <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
-              <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
+              <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

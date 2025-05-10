@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import type { StudyPlanSubject } from '@/types/user/studyPlan';
+import type { NewStudyPlanSubject } from '@/types/user/studyPlan';
 
 export const useOnboardingForm = (examGoal: string, onComplete: () => void) => {
   const { toast } = useToast();
@@ -13,8 +13,8 @@ export const useOnboardingForm = (examGoal: string, onComplete: () => void) => {
   // Form state
   const [examDate, setExamDate] = useState<Date | undefined>();
   const [studyHours, setStudyHours] = useState<number>(4);
-  const [strongSubjects, setStrongSubjects] = useState<StudyPlanSubject[]>([]);
-  const [weakSubjects, setWeakSubjects] = useState<StudyPlanSubject[]>([]);
+  const [strongSubjects, setStrongSubjects] = useState<NewStudyPlanSubject[]>([]);
+  const [weakSubjects, setWeakSubjects] = useState<NewStudyPlanSubject[]>([]);
   const [studyPace, setStudyPace] = useState<"Aggressive" | "Balanced" | "Relaxed">("Balanced");
   const [studyTime, setStudyTime] = useState<"Morning" | "Afternoon" | "Evening" | "Night">("Evening");
 
@@ -74,15 +74,9 @@ export const useOnboardingForm = (examGoal: string, onComplete: () => void) => {
   };
 
   const handleToggleSubject = (subject: string, type: 'strong' | 'weak') => {
-    const newSubject: StudyPlanSubject = {
-      id: `subj-${Date.now()}`,
+    const newSubject: NewStudyPlanSubject = {
       name: subject,
-      difficulty: type === 'strong' ? 'easy' : 'hard',
-      proficiency: type === 'strong' ? 'strong' : 'weak',
-      completed: false,
-      status: 'pending',
-      priority: type === 'strong' ? 'medium' : 'high',
-      hoursPerWeek: type === 'strong' ? 4 : 6
+      proficiency: type === 'strong' ? 'strong' : 'weak'
     };
 
     if (type === 'strong') {

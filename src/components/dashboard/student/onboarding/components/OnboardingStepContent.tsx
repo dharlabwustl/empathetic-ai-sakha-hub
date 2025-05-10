@@ -5,14 +5,14 @@ import StudyHoursStep from "../StudyHoursStep";
 import SubjectsStep from "../SubjectsStep";
 import StudyTimeStep from "../StudyTimeStep";
 import StudyPaceStep from "../StudyPaceStep";
-import type { StudyPlanSubject } from '@/types/user/studyPlan';
+import type { NewStudyPlanSubject } from '@/types/user/studyPlan';
 
 interface OnboardingStepContentProps {
   currentStep: number;
   examDate: Date | undefined;
   studyHours: number;
-  strongSubjects: StudyPlanSubject[];
-  weakSubjects: StudyPlanSubject[];
+  strongSubjects: NewStudyPlanSubject[];
+  weakSubjects: NewStudyPlanSubject[];
   studyPace: "Aggressive" | "Balanced" | "Relaxed";
   studyTime: "Morning" | "Afternoon" | "Evening" | "Night";
   examGoal: string;
@@ -38,9 +38,12 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   setStudyPace,
   setStudyTime
 }) => {
-  // Extract subject names for the SubjectsStep component
+  // Extract subject names for the legacy SubjectsStep interface
   const strongSubjectNames = strongSubjects.map(s => s.name);
   const weakSubjectNames = weakSubjects.map(s => s.name);
+
+  // Combine subjects for the SubjectsStep component
+  const allSubjects = [...strongSubjects, ...weakSubjects];
 
   switch (currentStep) {
     case 1:
@@ -56,6 +59,8 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
     case 3:
       return (
         <SubjectsStep
+          subjects={allSubjects}
+          setSubjects={() => {/* This is handled by handleToggleSubject */}}
           examType={examGoal}
           strongSubjects={strongSubjectNames}
           weakSubjects={weakSubjectNames}

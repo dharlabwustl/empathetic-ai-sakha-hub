@@ -94,7 +94,7 @@ export const SidebarNavRoutes = ({
     ]
   };
   
-  const routes = userTypeRoutes[userType] || userTypeRoutes.student;
+  const routes = userTypeRoutes[userType as keyof typeof userTypeRoutes] || userTypeRoutes.student;
   
   const commonRoutes: NavigationRoute[] = [
     { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> }
