@@ -91,16 +91,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             <span>{formattedDate}</span>
           </p>
         </div>
-        
-        {/* Mood button */}
-        {onMoodChange && (
-          <div>
-            <MoodLogButton
-              currentMood={currentMood}
-              onMoodChange={onMoodChange}
-            />
-          </div>
-        )}
       </div>
       
       {/* Middle row - Exam goal and study plan */}
@@ -153,7 +143,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                   <CreateStudyPlanWizard 
-                    isOpen={dialogOpen}
                     onCreatePlan={createStudyPlan} 
                     onClose={handleDialogClose} 
                     examGoal={goals[0]?.title}
