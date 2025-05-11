@@ -151,38 +151,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // First clear React state
     setUser(null);
     
-    // Call authService logout method
-    authService.logout()
-      .then(() => {
-        console.log("Logout completed successfully");
-        toast({
-          title: "Logged out",
-          description: "You have been logged out successfully",
-        });
-      })
-      .catch(error => {
-        console.error("Error during logout:", error);
-        
-        // Fallback logout method if service call fails
-        try {
-          // Clear all storage
-          localStorage.clear();
-          sessionStorage.clear();
+    // Clear all authentication data from localStorage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('mood_history');
+    
+    // Clear session data
+    sessionStorage.clear();
+    
+    // Additional cleanup for persisted data
+    try {
+      // Clear any other app-specific storage
+      const keys = Object.keys(localStorage);
+      for (const key of keys) {
+        if (key.includes('user') || key.includes('auth') || key.includes('token')) {
+          localStorage.removeItem(key);
+        }
+      }
+      
+      // Use authService for additional logout tasks
+      authService.logout()
+        .then(() => {
+          console.log("AuthService logout completed successfully");
           
-          // Force page navigation
-          console.log("Forcing navigation after logout error");
+          // Force navigation to login page
           window.location.href = '/login';
           
           toast({
             title: "Logged out",
-            description: "You have been logged out (fallback method)",
+            description: "You have been logged out successfully",
+          });
+        })
+        .catch(error => {
+          console.error("Error during authService logout:", error);
+          
+          // Even if service call fails, ensure user is logged out
+          toast({
+            title: "Logged out",
+            description: "You have been logged out (with some warnings)",
             variant: "destructive"
           });
-        } catch (e) {
-          console.error("Critical error during logout fallback:", e);
-          alert("Unable to log out properly. Please close your browser to complete logout.");
-        }
+          
+          // Force navigation to login page as fallback
+          window.location.href = '/login';
+        });
+    } catch (e) {
+      console.error("Critical error during logout:", e);
+      
+      // Last resort - force page reload to clear all state
+      toast({
+        title: "Emergency Logout",
+        description: "Forcing page reload to complete logout",
+        variant: "destructive"
       });
+      
+      // Force navigation to login page
+      window.location.href = '/login';
+    }
   };
   
   return (
