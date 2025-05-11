@@ -77,8 +77,40 @@ export const useMoodStudyIntegration = () => {
       duration: 5000
     });
     
-    // Voice announcement
-    const moodMessage = `I see you're feeling ${mood.toLowerCase()}. ${recommendationMessage}`;
+    // Voice announcement with personalized acknowledgment
+    let acknowledgment = "";
+    
+    switch(mood) {
+      case MoodType.Happy:
+        acknowledgment = "Great to hear you're feeling happy today! ";
+        break;
+      case MoodType.Motivated:
+        acknowledgment = "Excellent! You're feeling motivated today! ";
+        break;
+      case MoodType.Focused:
+        acknowledgment = "Noted you're feeling focused today. Let's keep up the pace! ";
+        break;
+      case MoodType.Tired:
+        acknowledgment = "I understand you're feeling tired today. ";
+        break;
+      case MoodType.Stressed:
+        acknowledgment = "I notice you're feeling stressed. ";
+        break;
+      case MoodType.Anxious:
+        acknowledgment = "I understand you're feeling anxious. ";
+        break;
+      case MoodType.Confused:
+        acknowledgment = "It's okay to feel confused sometimes. ";
+        break;
+      case MoodType.Neutral:
+        acknowledgment = "You're feeling neutral today. That's completely fine. ";
+        break;
+      default:
+        acknowledgment = `I've recorded that you're feeling ${mood.toLowerCase()}. `;
+    }
+    
+    // Combine acknowledgment with recommendation for personalized response
+    const moodMessage = `${acknowledgment}${recommendationMessage}`;
     speakMessage(moodMessage);
     
   }, [speakMessage, toast]);

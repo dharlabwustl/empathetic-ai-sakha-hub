@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, Speaker } from "lucide-react";
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { MoodType } from "@/types/user/base";
+import { useNavigate } from 'react-router-dom';
 
 interface VoiceStudyAssistantProps {
   userName?: string;
@@ -23,6 +24,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const navigate = useNavigate();
   
   const {
     voiceSettings,
@@ -40,6 +42,8 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     voiceInitialized
   } = useVoiceAnnouncer({ userName });
   
+  const { toast } = useToast();
+  
   // Initialize suggestions
   useEffect(() => {
     // Combine different types of voice commands
@@ -52,6 +56,15 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       "Create new flashcard",
     ];
     
+    const navigationCommands = [
+      "Take me to dashboard",
+      "Show my concept cards",
+      "Go to flashcards",
+      "Open formula practice",
+      "Show my profile",
+      "Take me to exam syllabus"
+    ];
+    
     const taskCommands = [
       "Mark task as complete",
       "Add new task",
@@ -60,7 +73,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     ];
     
     // Randomize and limit suggestions
-    const allCommands = [...moodCommands, ...studyCommands, ...taskCommands];
+    const allCommands = [...moodCommands, ...studyCommands, ...taskCommands, ...navigationCommands];
     const shuffled = allCommands.sort(() => 0.5 - Math.random());
     setSuggestions(shuffled.slice(0, 6));
   }, []);
@@ -74,6 +87,49 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
+    
+    // Navigation related commands
+    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
+      speakMessage("Taking you to the dashboard");
+      navigate('/dashboard/student');
+      return;
+    }
+    
+    if (lowerCommand.includes('concept') || lowerCommand.includes('cards')) {
+      speakMessage("Opening concept cards section");
+      navigate('/dashboard/student/concepts');
+      return;
+    }
+    
+    if (lowerCommand.includes('flashcard')) {
+      speakMessage("Taking you to the flashcards section");
+      navigate('/dashboard/student/flashcards');
+      return;
+    }
+    
+    if (lowerCommand.includes('formula') || lowerCommand.includes('formulas')) {
+      speakMessage("Opening the formula practice lab");
+      navigate('/dashboard/student/formula-practice');
+      return;
+    }
+    
+    if (lowerCommand.includes('profile') || lowerCommand.includes('settings')) {
+      speakMessage("Taking you to your profile settings");
+      navigate('/dashboard/student/profile');
+      return;
+    }
+    
+    if (lowerCommand.includes('syllabus') || lowerCommand.includes('exam syllabus')) {
+      speakMessage("Opening exam syllabus section");
+      navigate('/dashboard/student/syllabus');
+      return;
+    }
+    
+    if (lowerCommand.includes('tutor') || lowerCommand.includes('ai tutor')) {
+      speakMessage("Connecting you to your AI tutor");
+      navigate('/dashboard/student/tutor');
+      return;
+    }
     
     // Mood related commands
     if (lowerCommand.includes('feeling') || lowerCommand.includes('mood')) {
@@ -96,15 +152,14 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       return;
     }
     
-    // Formula lab related commands
-    if (lowerCommand.includes('formula lab')) {
-      speakMessage("Opening the formula lab. You can practice with interactive formulas here.");
-      // Navigate to formula lab (this would need to be implemented)
+    // Help commands
+    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+      speakMessage("I can help you navigate through Prep-zer, update your mood, manage your study plan, and more. Try asking me to take you to a specific section, or tell me how you're feeling today.");
       return;
     }
     
     // If no command recognized
-    speakMessage("I'm not sure how to help with that. Try asking about your mood, study plan, or tasks.");
+    speakMessage("I'm not sure how to help with that. Try asking about your mood, study plan, or say 'help' to learn what I can do.");
   };
   
   const handleMoodCommand = (command: string) => {

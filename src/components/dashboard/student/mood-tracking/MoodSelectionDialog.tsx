@@ -1,67 +1,66 @@
 
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MoodType } from "@/types/user/base";
-import { getMoodEmoji, getMoodLabel } from "./moodUtils";
+import { getMoodEmoji } from "./moodUtils";
 
 interface MoodSelectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedMood?: MoodType;
   onSelectMood: (mood: MoodType) => void;
+  currentMood?: MoodType | null;
 }
 
-export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
+const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   isOpen,
   onClose,
-  selectedMood,
   onSelectMood,
+  currentMood
 }) => {
-  const moods: { label: string; emoji: string; value: MoodType }[] = [
-    { label: getMoodLabel(MoodType.HAPPY), emoji: getMoodEmoji(MoodType.HAPPY), value: MoodType.HAPPY },
-    { label: getMoodLabel(MoodType.MOTIVATED), emoji: getMoodEmoji(MoodType.MOTIVATED), value: MoodType.MOTIVATED },
-    { label: getMoodLabel(MoodType.FOCUSED), emoji: getMoodEmoji(MoodType.FOCUSED), value: MoodType.FOCUSED },
-    { label: getMoodLabel(MoodType.NEUTRAL), emoji: getMoodEmoji(MoodType.NEUTRAL), value: MoodType.NEUTRAL },
-    { label: getMoodLabel(MoodType.TIRED), emoji: getMoodEmoji(MoodType.TIRED), value: MoodType.TIRED },
-    { label: getMoodLabel(MoodType.ANXIOUS), emoji: getMoodEmoji(MoodType.ANXIOUS), value: MoodType.ANXIOUS },
-    { label: getMoodLabel(MoodType.STRESSED), emoji: getMoodEmoji(MoodType.STRESSED), value: MoodType.STRESSED },
-    { label: getMoodLabel(MoodType.SAD), emoji: getMoodEmoji(MoodType.SAD), value: MoodType.SAD },
+  const moods = [
+    { type: MoodType.Happy, label: "Happy", description: "Feeling good and positive" },
+    { type: MoodType.Motivated, label: "Motivated", description: "Ready to accomplish goals" },
+    { type: MoodType.Focused, label: "Focused", description: "Concentrated and attentive" },
+    { type: MoodType.Neutral, label: "Neutral", description: "Neither particularly good nor bad" },
+    { type: MoodType.Tired, label: "Tired", description: "Low energy and fatigued" },
+    { type: MoodType.Confused, label: "Confused", description: "Uncertain or unclear about concepts" },
+    { type: MoodType.Anxious, label: "Anxious", description: "Worried or nervous" },
+    { type: MoodType.Stressed, label: "Stressed", description: "Under pressure or overwhelmed" }
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>How are you feeling today?</DialogTitle>
+          <DialogTitle className="text-center text-xl">How are you feeling today?</DialogTitle>
+          <DialogDescription className="text-center">
+            Select your current mood to get personalized study recommendations
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Logging your mood helps us personalize your study plan and recommendations.
-          </p>
-          <div className="grid grid-cols-4 gap-3">
-            {moods.map((mood) => (
-              <Button
-                key={mood.value}
-                variant="outline"
-                className={`flex flex-col items-center px-2 py-3 h-auto ${
-                  selectedMood === mood.value ? "border-primary ring-1 ring-primary" : ""
-                } hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200`}
-                onClick={() => onSelectMood(mood.value)}
-              >
-                <span className="text-2xl mb-1">{mood.emoji}</span>
-                <span className="text-xs">{mood.label}</span>
-              </Button>
-            ))}
-          </div>
-          
-          <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-muted-foreground mb-2">
-              Your mood affects study recommendations and helps us optimize your learning experience.
-            </p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4">
+          {moods.map(mood => (
+            <Button
+              key={mood.type}
+              variant="outline"
+              className={`flex flex-col items-center h-auto py-3 px-2 gap-2 transition-all ${
+                currentMood === mood.type ? 
+                'bg-primary/10 border-primary' : 
+                'hover:bg-primary/5'
+              }`}
+              onClick={() => onSelectMood(mood.type)}
+            >
+              <span className="text-2xl">{getMoodEmoji(mood.type)}</span>
+              <div className="text-center">
+                <div className="font-medium">{mood.label}</div>
+                <div className="text-xs text-muted-foreground line-clamp-1">{mood.description}</div>
+              </div>
+            </Button>
+          ))}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default MoodSelectionDialog;

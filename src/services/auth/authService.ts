@@ -1,3 +1,4 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -191,8 +192,8 @@ const authService = {
       }
       
       // Revoke any stored credentials
-      if (navigator.credentials && navigator.credentials.preventSilentAccess) {
-        navigator.credentials.preventSilentAccess();
+      if (navigator.credentials && 'preventSilentAccess' in navigator.credentials) {
+        await navigator.credentials.preventSilentAccess();
         console.log("Prevented silent access to credentials");
       }
       
@@ -250,7 +251,7 @@ const authService = {
     sessionStorage.clear();
     
     // Revoke any stored credentials
-    if (navigator.credentials && navigator.credentials.preventSilentAccess) {
+    if (navigator.credentials && 'preventSilentAccess' in navigator.credentials) {
       navigator.credentials.preventSilentAccess();
     }
     

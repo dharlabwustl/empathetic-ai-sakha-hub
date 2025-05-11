@@ -2,7 +2,92 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { MoodType } from '@/types/user/base';
-import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
+
+// Default voice settings
+export const DEFAULT_VOICE_SETTINGS = {
+  enabled: true,
+  volume: 0.8,
+  rate: 1,
+  pitch: 1,
+  language: 'en-US',
+  voice: null,
+  muted: false
+};
+
+// Language options
+export const LANGUAGE_OPTIONS = [
+  { value: 'en-US', label: 'English (US)' },
+  { value: 'en-GB', label: 'English (UK)' },
+  { value: 'en-IN', label: 'English (India)' },
+  { value: 'hi-IN', label: 'Hindi' },
+];
+
+// Type for supported languages
+export type SupportedLanguage = 'en-US' | 'en-GB' | 'en-IN' | 'hi-IN';
+
+// Function to find best matching voice for language
+export const findBestVoice = (language: string) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  
+  const voices = window.speechSynthesis.getVoices();
+  
+  // Try to find an exact match first
+  let voice = voices.find(voice => voice.lang === language);
+  
+  // If no exact match, try to find a voice that starts with the language code
+  if (!voice) {
+    const langPrefix = language.split('-')[0];
+    voice = voices.find(voice => voice.lang.startsWith(langPrefix));
+  }
+  
+  // If still no match, return null or a default voice
+  return voice || null;
+};
+
+// Function to improve pronunciation of specific terms
+export const fixPronunciation = (text: string): string => {
+  // Replace PREPZR with a phonetic spelling that pronounces it correctly
+  return text.replace(/PREPZR/gi, 'Prep-zer');
+};
+
+// Main voice function to speak a message
+export const speakMessage = (message: string, settings: VoiceSettings) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  
+  // Stop any current speech
+  window.speechSynthesis.cancel();
+  
+  // Create utterance
+  const utterance = new SpeechSynthesisUtterance();
+  
+  // Fix pronunciation
+  utterance.text = fixPronunciation(message);
+  utterance.volume = settings.volume;
+  utterance.rate = settings.rate;
+  utterance.pitch = settings.pitch;
+  utterance.lang = settings.language;
+  
+  // Find appropriate voice
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    const voice = settings.voice || findBestVoice(settings.language);
+    if (voice) utterance.voice = voice;
+  }
+  
+  // Add event listeners
+  utterance.onstart = () => {
+    document.body.classList.add('voice-speaking');
+    document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
+  };
+  
+  utterance.onend = () => {
+    document.body.classList.remove('voice-speaking');
+    document.dispatchEvent(new Event('voice-speaking-ended'));
+  };
+  
+  // Speak
+  window.speechSynthesis.speak(utterance);
+};
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
@@ -130,30 +215,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     };
   }, []);
   
-  // Function to get study recommendation based on mood
-  const getMoodRecommendation = (mood: MoodType): string => {
-    switch(mood) {
-      case MoodType.Happy:
-        return "This is a great time to tackle challenging topics or try some practice tests.";
-      case MoodType.Motivated:
-        return "Channel that motivation into focused study sessions on high-priority subjects.";
-      case MoodType.Focused:
-        return "Perfect time for in-depth concept exploration and difficult problem sets.";
-      case MoodType.Tired:
-        return "Consider lighter review sessions with breaks, or focusing on easier topics today.";
-      case MoodType.Stressed:
-        return "Try shorter study sessions with mindfulness breaks, and review familiar material.";
-      case MoodType.Anxious:
-        return "Start with topics you're confident in, then gradually approach challenging areas.";
-      case MoodType.Confused:
-        return "Let's go back to basics and review foundational concepts before moving forward.";
-      case MoodType.Neutral:
-        return "A balanced approach works well - mix review with new material, and take regular breaks.";
-      default:
-        return "Let's adjust your study plan based on how you're feeling throughout the day.";
-    }
-  };
-  
   // Update settings in local storage whenever they change
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -193,27 +254,26 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   // Function to speak a message
   const speakMessage = useCallback((message: string, forceSpeech: boolean = false) => {
     // Only speak if enabled or force speech is true
-    if (voiceSettings.enabled || forceSpeech) {
-      if (!voiceSettings.muted || forceSpeech) {
-        // Fix pronunciation before speaking
-        speakVoiceMessage(message, voiceSettings);
-      }
+    if ((voiceSettings.enabled || forceSpeech) && (!voiceSettings.muted || forceSpeech)) {
+      // Fix pronunciation before speaking
+      const fixedMessage = fixPronunciation(message);
+      speakMessage(fixedMessage, voiceSettings);
     }
   }, [voiceSettings]);
   
   // Test voice function with language support
   const testVoice = useCallback(() => {
     // Use language-specific test messages
-    let testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant.`;
+    let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
       testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
@@ -295,6 +355,30 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       Array.from(supportedLanguageCodes).some(code => code.includes(lang.value))
     );
   }, [availableVoices]);
+  
+  // Get study recommendation for a mood
+  const getMoodRecommendation = useCallback((mood: MoodType): string => {
+    switch(mood) {
+      case MoodType.Happy:
+        return "This is a great time to tackle challenging topics or try some practice tests.";
+      case MoodType.Motivated:
+        return "Channel that motivation into focused study sessions on high-priority subjects.";
+      case MoodType.Focused:
+        return "Perfect time for in-depth concept exploration and difficult problem sets.";
+      case MoodType.Tired:
+        return "Consider lighter review sessions with breaks, or focusing on easier topics today.";
+      case MoodType.Stressed:
+        return "Try shorter study sessions with mindfulness breaks, and review familiar material.";
+      case MoodType.Anxious:
+        return "Start with topics you're confident in, then gradually approach challenging areas.";
+      case MoodType.Confused:
+        return "Let's go back to basics and review foundational concepts before moving forward.";
+      case MoodType.Neutral:
+        return "A balanced approach works well - mix review with new material, and take regular breaks.";
+      default:
+        return "Let's adjust your study plan based on how you're feeling throughout the day.";
+    }
+  }, []);
   
   return {
     voiceSettings,

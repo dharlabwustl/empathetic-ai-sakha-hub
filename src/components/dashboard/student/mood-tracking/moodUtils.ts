@@ -1,3 +1,4 @@
+
 import { MoodType } from '@/types/user/base';
 
 // Function to get a study recommendation based on the current mood
@@ -22,6 +23,35 @@ export const getMoodRecommendation = (mood: MoodType): string => {
     default:
       return "Let's adjust your study plan based on how you're feeling throughout the day.";
   }
+};
+
+// Function to get emoji for a mood
+export const getMoodEmoji = (mood: MoodType): string => {
+  switch(mood) {
+    case MoodType.Happy:
+      return "😊";
+    case MoodType.Motivated:
+      return "🔥";
+    case MoodType.Focused:
+      return "🎯";
+    case MoodType.Tired:
+      return "😴";
+    case MoodType.Stressed:
+      return "😰";
+    case MoodType.Anxious:
+      return "😟";
+    case MoodType.Confused:
+      return "🤔";
+    case MoodType.Neutral:
+      return "😐";
+    default:
+      return "🙂";
+  }
+};
+
+// Function to get display label for a mood
+export const getMoodLabel = (mood: MoodType): string => {
+  return mood.toString();
 };
 
 // Function to store mood in localStorage
@@ -104,4 +134,16 @@ export const analyzeMoodTrends = () => {
     moodCounts,
     totalEntries: moodHistory.length
   };
+};
+
+// Function to get voice commands for moods
+export const getMoodVoiceCommands = (): string[] => {
+  return [
+    "I'm feeling happy today",
+    "I'm feeling tired",
+    "I'm feeling stressed",
+    "I'm feeling motivated",
+    "I'm feeling confused",
+    "I'm feeling anxious"
+  ];
 };
