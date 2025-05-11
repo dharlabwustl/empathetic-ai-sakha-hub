@@ -1,8 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -31,8 +29,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -128,29 +124,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Logout function - enhanced to fully clear authentication state and redirect to login
+  // Logout function - enhanced to fully clear authentication state
   const logout = () => {
-    // Remove all auth data completely
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('user_profile_image');
+    // Preserve some user preferences but remove auth data
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        // Only keep preferences and mood, remove auth data
+        localStorage.setItem('userData', JSON.stringify({
+          mood: parsedData.mood,
+          completedOnboarding: parsedData.completedOnboarding,
+          sawWelcomeTour: parsedData.sawWelcomeTour,
+          sawWelcomeSlider: parsedData.sawWelcomeSlider,
+          isAuthenticated: false // Mark as not authenticated
+        }));
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    }
     
-    // Clear other related data
-    localStorage.removeItem('token');
-    localStorage.removeItem('lastRoute');
+    // Remove login state marker
+    localStorage.removeItem('isLoggedIn');
     
     // Clear user state
     setUser(null);
     console.log("User logged out");
-    
-    // Show logout confirmation
-    toast({
-      title: "Logged out successfully",
-      description: "You have been signed out of your account",
-    });
-    
-    // Redirect to login page
-    navigate('/login', { replace: true });
   };
   
   return (

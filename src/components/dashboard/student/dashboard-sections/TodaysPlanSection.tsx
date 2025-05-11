@@ -1,119 +1,85 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import TaskList from './TaskList';
-import { MoodSelector } from '../mood-tracking/MoodSelector';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { BadgeCheck, Brain, Calendar } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+import { Badge } from '@/components/ui/badge';
 
-const getTodaysPlanBasedOnMood = (mood?: MoodType) => {
-  if (!mood) return defaultTasks;
+interface TodaysPlanSectionProps {
+  studyPlan: any;
+  currentMood?: MoodType;
+}
 
-  switch (mood) {
-    case MoodType.Tired:
-      return [
-        { id: '1', title: 'Review flashcards (15 min)', completed: false, type: 'review' },
-        { id: '2', title: 'Take a short break (20 min)', completed: false, type: 'break' },
-        { id: '3', title: 'Watch concept video on Cell Structure', completed: false, type: 'video' },
-      ];
-    case MoodType.Stressed:
-      return [
-        { id: '1', title: 'Breathing exercise (5 min)', completed: false, type: 'wellness' },
-        { id: '2', title: 'Review simple concepts (20 min)', completed: false, type: 'review' },
-        { id: '3', title: 'Organize study notes', completed: false, type: 'organization' },
-      ];
-    case MoodType.Focused:
-      return [
-        { id: '1', title: 'Practice problem set - Physics', completed: false, type: 'practice' },
-        { id: '2', title: 'Review Chemistry formulas', completed: false, type: 'review' },
-        { id: '3', title: 'Take a mock test', completed: false, type: 'test' },
-      ];
-    case MoodType.Motivated:
-      return [
-        { id: '1', title: 'Master new concepts - Organic Chemistry', completed: false, type: 'learn' },
-        { id: '2', title: 'Solve advanced problems - Physics', completed: false, type: 'practice' },
-        { id: '3', title: 'Create comprehensive study notes', completed: false, type: 'create' },
-      ];
-    default:
-      return defaultTasks;
-  }
-};
-
-const defaultTasks = [
-  { id: '1', title: 'Review Biology notes', completed: false, type: 'review' },
-  { id: '2', title: 'Practice Physics problems', completed: false, type: 'practice' },
-  { id: '3', title: 'Watch Chemistry video lesson', completed: false, type: 'video' },
-];
-
-const TodaysPlanSection = () => {
+const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ 
+  studyPlan,
+  currentMood 
+}) => {
   const navigate = useNavigate();
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [tasks, setTasks] = useState(defaultTasks);
-
-  // Get mood from localStorage on component mount
-  useEffect(() => {
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const data = JSON.parse(userData);
-        if (data.mood) {
-          setCurrentMood(data.mood as MoodType);
-        }
-      }
-    } catch (error) {
-      console.error('Error retrieving mood from localStorage:', error);
+  
+  // Render appropriate message based on mood
+  const getMoodBasedMessage = () => {
+    switch(currentMood) {
+      case MoodType.TIRED:
+      case MoodType.STRESSED:
+        return "Your plan has been adjusted for today based on your mood. Focus on lighter review tasks.";
+      case MoodType.FOCUSED:
+      case MoodType.MOTIVATED:
+        return "Great energy today! Your plan includes some challenging concepts to leverage your focus.";
+      default:
+        return "Your personalized study plan for today is ready.";
     }
-  }, []);
-
-  // Update tasks when mood changes
-  useEffect(() => {
-    setTasks(getTodaysPlanBasedOnMood(currentMood));
-  }, [currentMood]);
-
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    
-    // Save to localStorage
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const data = JSON.parse(userData);
-        data.mood = mood;
-        localStorage.setItem('userData', JSON.stringify(data));
-      } else {
-        localStorage.setItem('userData', JSON.stringify({ mood }));
-      }
-    } catch (error) {
-      console.error('Error saving mood to localStorage:', error);
-    }
-    
-    // Update tasks based on new mood
-    setTasks(getTodaysPlanBasedOnMood(mood));
-  };
-
-  const handleViewFullPlan = () => {
-    navigate('/dashboard/student/today');
   };
 
   return (
-    <Card className="col-span-12 md:col-span-6 lg:col-span-4">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">Today's Study Plan</CardTitle>
-        <Button variant="ghost" size="sm" className="gap-1" onClick={handleViewFullPlan}>
-          Full Plan <ArrowRight className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground mb-2">How are you feeling today?</p>
-          <MoodSelector
-            selectedMood={currentMood}
-            onSelectMood={handleMoodChange}
-          />
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-violet-600" />
+            Today's Study Plan
+          </CardTitle>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <BadgeCheck className="h-3 w-3 mr-1" />
+            Personalized
+          </Badge>
         </div>
-        <TaskList tasks={tasks.slice(0, 3)} />
+      </CardHeader>
+      
+      <CardContent>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {getMoodBasedMessage()}
+          </p>
+          
+          <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-800/50">
+            <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Quick Summary</h4>
+            <ul className="space-y-1 text-sm">
+              <li className="flex justify-between">
+                <span>Tasks for today:</span>
+                <span className="font-medium">5</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Estimated time:</span>
+                <span className="font-medium">2h 15m</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Priority subject:</span>
+                <span className="font-medium">Physics</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="text-center">
+            <Button 
+              onClick={() => navigate('/dashboard/student/today')}
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600"
+            >
+              View Study Plan
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

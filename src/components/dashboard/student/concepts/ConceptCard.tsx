@@ -40,7 +40,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   
   const handleStudyNow = () => {
     // Direct user to concept detail page
-    navigate(`/dashboard/student/concepts/${id}/overview`);
+    navigate(`/dashboard/student/concepts/${id}`);
   };
   
   // Generate difficulty color
