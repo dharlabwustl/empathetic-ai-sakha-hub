@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -43,7 +42,6 @@ import PracticeExamsSection from '@/components/dashboard/student/practice-exam/P
 import PostLoginWelcome from '@/components/login/PostLoginWelcome';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
-import FlaskDeveloperGuide from '@/pages/admin/FlaskDeveloperGuide';
 import FlaskGuidePage from '@/pages/admin/FlaskGuidePage';
 import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from '@/pages/admin/BatchManagementPage';
@@ -151,8 +149,8 @@ function App() {
               {/* Concept routes - Updated for direct linking */}
               <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
               <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
               <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
               <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />

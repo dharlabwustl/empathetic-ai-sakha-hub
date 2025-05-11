@@ -11,18 +11,18 @@ interface MoodSelectorProps {
 
 export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
   const moodOptions = [
-    { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
-    { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
-    { type: MoodType.Motivated, emoji: '💪', label: 'Motivated' },
-    { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
-    { type: MoodType.Stressed, emoji: '😓', label: 'Stressed' },
-    { type: MoodType.Confused, emoji: '🤔', label: 'Confused' },
-    { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
-    { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
-    { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
-    { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
-    { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
-    { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
+    { type: MoodType.HAPPY, emoji: '😊', label: 'Happy' },
+    { type: MoodType.FOCUSED, emoji: '🧐', label: 'Focused' },
+    { type: MoodType.MOTIVATED, emoji: '💪', label: 'Motivated' },
+    { type: MoodType.TIRED, emoji: '😴', label: 'Tired' },
+    { type: MoodType.STRESSED, emoji: '😓', label: 'Stressed' },
+    { type: MoodType.CONFUSED, emoji: '🤔', label: 'Confused' },
+    { type: MoodType.ANXIOUS, emoji: '😰', label: 'Anxious' },
+    { type: MoodType.NEUTRAL, emoji: '😐', label: 'Neutral' },
+    { type: MoodType.OKAY, emoji: '👍', label: 'Okay' },
+    { type: MoodType.OVERWHELMED, emoji: '😩', label: 'Overwhelmed' },
+    { type: MoodType.CURIOUS, emoji: '🤓', label: 'Curious' },
+    { type: MoodType.SAD, emoji: '😔', label: 'Sad' },
   ];
 
   return (

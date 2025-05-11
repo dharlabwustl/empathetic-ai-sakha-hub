@@ -138,9 +138,7 @@ const ConceptDetailPage = () => {
           <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="learn">Learn</TabsTrigger>
             <TabsTrigger value="practice">Practice</TabsTrigger>
-            <TabsTrigger value="formula" className={concept.hasFormulas ? "" : "hidden"}>
-              Formula Lab
-            </TabsTrigger>
+            <TabsTrigger value="formula">Formula Lab</TabsTrigger>
             <TabsTrigger value="test">Test</TabsTrigger>
           </TabsList>
           

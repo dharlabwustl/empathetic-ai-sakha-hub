@@ -147,13 +147,27 @@ const authService = {
     sessionStorage.removeItem('isLoggedIn');
     sessionStorage.removeItem('authToken');
     
+    // Clear any cookie that might be used for auth
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    
     // Reset API client
     apiClient.setAuthToken(null);
     
+    // Remove any auto-login or remember me flags
+    localStorage.removeItem('autoLoginEnabled');
+    localStorage.removeItem('rememberMe');
+    localStorage.removeItem('lastLoggedInUser');
+    
     console.log("Logout complete - All authentication data cleared");
     
-    // Redirect to login page
-    // window.location.href = '/login';
+    // Redirect to login page after a small delay
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 100);
     
     return {
       success: true,
