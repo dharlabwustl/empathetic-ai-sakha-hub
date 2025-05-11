@@ -258,24 +258,7 @@ const HeroSection = () => {
             )}
           </motion.div>
           
-          {/* Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="mt-12 w-full"
-          >
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                <StatCard value="10,000+" label="Active Students" highlight />
-                <StatCard value="92%" label="Success Rate" />
-                <StatCard value="24/7" label="AI Tutor Support" />
-                <StatCard value="100+" label="Practice Tests" />
-              </div>
-            </div>
-          </motion.div>
-          
-          {/* Exam Names Badge */}
+          {/* Exam Names Badge - Kept but removed the Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -296,20 +279,5 @@ const HeroSection = () => {
     </section>
   );
 };
-
-// Component for the statistics cards
-const StatCard = ({ value, label, highlight = false }) => (
-  <motion.div
-    className={`p-4 rounded-xl ${highlight ? 'bg-gradient-to-br from-purple-500/10 to-blue-500/10' : 'bg-white/50 dark:bg-white/5'} backdrop-blur-sm shadow-md border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center`}
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-  >
-    <p className={`text-2xl md:text-3xl font-bold ${highlight ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
-      {value}
-    </p>
-    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-      {label}
-    </p>
-  </motion.div>
-);
 
 export default HeroSection;

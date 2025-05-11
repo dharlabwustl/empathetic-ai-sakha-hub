@@ -58,6 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Clear potentially corrupted data
             localStorage.removeItem('userData');
             localStorage.removeItem('isLoggedIn');
+            console.log("Invalid auth state detected - clearing localStorage");
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
@@ -138,22 +139,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Enhanced logout function - completely clears authentication state
+  // Enhanced logout function with forceful page navigation
   const logout = () => {
-    // Call the authService logout method
+    // First clear React state
+    setUser(null);
+    
+    // Then call the authService logout method
     authService.logout().then(() => {
-      setUser(null);
       console.log("User logged out completely via AuthContext");
       
-      // Force a page refresh to ensure all components reset their state
-      window.location.href = '/login';
+      // Force a complete page refresh to reset all state
+      // Using replace instead of href for more thorough clearing
+      window.location.replace('/login');
     }).catch(error => {
       console.error("Error during logout:", error);
+      
       // Try direct approach if service call fails
       localStorage.removeItem('userData');
       localStorage.removeItem('isLoggedIn');
-      setUser(null);
-      window.location.href = '/login';
+      sessionStorage.clear();
+      
+      // Force hard navigation
+      window.location.replace('/login');
     });
   };
   

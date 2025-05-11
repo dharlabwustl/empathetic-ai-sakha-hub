@@ -149,7 +149,7 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
-    localStorage.removeItem('dashboard_tour_completed'); // Added this line to ensure tour state is cleared too
+    localStorage.removeItem('dashboard_tour_completed'); 
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
@@ -159,8 +159,9 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Redirect to login page after logout - using hard navigation to ensure clean state
-    window.location.href = '/login';
+    // Using window.location.replace instead of href to ensure complete page refresh
+    // This prevents any cached state from persisting
+    window.location.replace('/login');
     
     return {
       success: true,
@@ -186,8 +187,8 @@ const authService = {
     localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
     
-    // Force redirect to login screen
-    window.location.href = '/login';
+    // Force redirect to login screen with replace to ensure complete refresh
+    window.location.replace('/login');
   },
   
   // Get current authenticated user

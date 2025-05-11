@@ -54,18 +54,21 @@ const KpiStats = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col space-y-8">
+      <div className="flex flex-col space-y-6">
         {/* Circular KPI selector */}
-        <div className="flex justify-center space-x-6 md:space-x-12">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
           {kpiData.map((kpi) => (
             <motion.div
               key={kpi.id}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveKpi(kpi.id)}
-              className={`cursor-pointer flex flex-col items-center`}
+              className="cursor-pointer flex flex-col items-center"
             >
-              <div className={`rounded-full ${kpi.color} ${activeKpi === kpi.id ? 'ring-4 ring-offset-2' : ''} p-4 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shadow-lg transition-all duration-300`}>
+              <div 
+                className={`rounded-full ${kpi.color} ${activeKpi === kpi.id ? 'ring-4 ring-offset-2' : ''} 
+                p-4 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shadow-lg transition-all duration-300`}
+              >
                 {kpi.icon}
               </div>
               <span className="mt-2 text-xs md:text-sm font-medium text-center">{kpi.label}</span>
@@ -73,33 +76,32 @@ const KpiStats = () => {
           ))}
         </div>
 
-        {/* Selected KPI display */}
+        {/* Selected KPI display - more compact with just key info */}
         <motion.div
           key={activeKpi}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
+          className="mx-auto max-w-3xl"
         >
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center justify-between">
-                {kpiData.map((kpi) => (
-                  kpi.id === activeKpi && (
-                    <React.Fragment key={kpi.id}>
-                      <div className="flex items-center mb-4 md:mb-0">
-                        <div className={`mr-4 p-3 rounded-full ${kpi.color}`}>
-                          {kpi.icon}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-medium">{kpi.label}</h3>
-                          <p className="text-gray-500">{kpi.description}</p>
-                        </div>
+          <Card className="overflow-hidden">
+            <CardContent className="p-4">
+              {kpiData.map((kpi) => (
+                kpi.id === activeKpi && (
+                  <div key={kpi.id} className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center">
+                      <div className={`mr-4 p-3 rounded-full ${kpi.color}`}>
+                        {kpi.icon}
                       </div>
-                      <div className="text-3xl font-bold text-blue-600">{kpi.value}</div>
-                    </React.Fragment>
-                  )
-                ))}
-              </div>
+                      <div>
+                        <h3 className="text-lg font-semibold">{kpi.label}</h3>
+                        <p className="text-gray-500 text-sm">{kpi.description}</p>
+                      </div>
+                    </div>
+                    <div className="text-3xl font-bold text-blue-600">{kpi.value}</div>
+                  </div>
+                )
+              ))}
             </CardContent>
           </Card>
         </motion.div>
