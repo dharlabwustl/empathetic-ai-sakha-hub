@@ -35,6 +35,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "high",
+          proficiency: "medium",
           hoursPerWeek: 6
         },
         {
@@ -44,6 +45,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "medium",
+          proficiency: "strong",
           hoursPerWeek: 4
         },
         {
@@ -53,6 +55,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "completed",
           priority: "high",
+          proficiency: "weak",
           hoursPerWeek: 8
         }
       ],
@@ -76,6 +79,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "high",
+          proficiency: "weak",
           hoursPerWeek: 8
         },
         {
@@ -85,6 +89,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "in-progress",
           priority: "medium",
+          proficiency: "medium",
           hoursPerWeek: 6
         },
         {
@@ -94,6 +99,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: false,
           status: "pending",
           priority: "low",
+          proficiency: "weak",
           hoursPerWeek: 10
         }
       ],
@@ -117,6 +123,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
+          proficiency: "strong",
           hoursPerWeek: 5
         },
         {
@@ -126,6 +133,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "completed",
           priority: "high",
+          proficiency: "strong",
           hoursPerWeek: 4
         },
         {
@@ -135,6 +143,7 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           completed: true,
           status: "in-progress",
           priority: "medium",
+          proficiency: "medium",
           hoursPerWeek: 6
         }
       ],

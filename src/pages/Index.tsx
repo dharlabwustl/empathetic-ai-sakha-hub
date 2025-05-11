@@ -17,6 +17,7 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
+import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -84,17 +85,19 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* KPI Stats is inside HeroSection */}
+        {/* KPI Stats moved here as requested - right after hero section */}
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Our Impact</h2>
+          <KpiStats />
+        </div>
         
         {/* Add the AchievementsSection right after KPI Stats */}
         <AchievementsSection />
         
         <WhatIsSection />
         
-        {/* Add the ChampionMethodologySection right after WhatIsSection */}
         <ChampionMethodologySection />
         
-        {/* Add the EcosystemAnimation section after ChampionMethodologySection */}
         <EcosystemAnimation />
         
         <div ref={featuresRef}>
