@@ -1,144 +1,280 @@
 
-import React from 'react';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Slider } from "@/components/ui/slider";
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CustomProgress } from "@/components/ui/custom-progress";
+import { Users, Sliders, Eye, AlertTriangle, ExternalLink } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PieChart, PieChartData } from '@/components/charts/PieChart';
 
-interface SurroundingInfluencesSectionProps {
-  influenceMeterCollapsed: boolean;
-  setInfluenceMeterCollapsed: (collapsed: boolean) => void;
-}
-
-const SurroundingInfluencesSection: React.FC<SurroundingInfluencesSectionProps> = ({
-  influenceMeterCollapsed,
-  setInfluenceMeterCollapsed
+const SurroundingInfluencesSection = ({
+  influenceMeterCollapsed = true,
+  setInfluenceMeterCollapsed = () => {}
 }) => {
-  // Function to handle changes to the influence sliders
-  const handleInfluenceChange = (influenceType: string, value: number[]) => {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
+  
+  const handleConfigure = () => {
     toast({
-      title: `${influenceType} influence updated`,
-      description: `${influenceType} influence set to ${value[0]}%`,
+      title: "Configure Surrounding Influences",
+      description: "Opening configuration interface for influence tracking",
+      variant: "default"
+    });
+  };
+  
+  const handleViewDashboard = () => {
+    toast({
+      title: "Visual Dashboard",
+      description: "Opening visual analytics for surrounding influences",
+      variant: "default"
+    });
+  };
+  
+  const handleTuneModel = () => {
+    toast({
+      title: "Model Tuning",
+      description: "Starting the tuning process for the hybrid behavior model",
+      variant: "default"
     });
   };
 
-  // Toggle the collapsed state of the influence meter
-  const toggleInfluenceMeter = () => {
-    setInfluenceMeterCollapsed(!influenceMeterCollapsed);
-  };
+  // Influence data for the chart
+  const peerInfluenceData: PieChartData[] = [
+    { name: "Positive", value: 68, color: "#3b82f6" },
+    { name: "Neutral", value: 22, color: "#94a3b8" },
+    { name: "Negative", value: 10, color: "#ef4444" }
+  ];
 
-  return (
-    <Card className="mb-6 overflow-hidden">
-      <div 
-        className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-between cursor-pointer"
-        onClick={toggleInfluenceMeter}
-      >
-        <h3 className="font-medium flex items-center">
-          <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 p-1 rounded mr-2">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M19 12H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M9 12H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M12 19V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M12 9V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </span>
-          Surrounding Influences
-        </h3>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          {influenceMeterCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+  const environmentalData: PieChartData[] = [
+    { name: "Positive", value: 42, color: "#8b5cf6" },
+    { name: "Neutral", value: 40, color: "#94a3b8" },
+    { name: "Negative", value: 18, color: "#f97316" }
+  ];
+
+  const studyConfidenceData: PieChartData[] = [
+    { name: "High", value: 75, color: "#22c55e" },
+    { name: "Medium", value: 15, color: "#eab308" },
+    { name: "Low", value: 10, color: "#ef4444" }
+  ];
+
+  if (influenceMeterCollapsed) {
+    return (
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full flex items-center justify-between"
+          onClick={() => setInfluenceMeterCollapsed(false)}
+        >
+          <div className="flex items-center">
+            <Users className="h-4 w-4 mr-2 text-blue-500" />
+            <span>Surrounding Influences Meter</span>
+          </div>
+          <Badge variant="outline" className="text-sm">View</Badge>
         </Button>
       </div>
-      
-      {!influenceMeterCollapsed && (
-        <CardContent className="pt-4">
-          <p className="text-sm text-muted-foreground mb-4">
-            Log how different factors are affecting your ability to study today. This helps Prepzr optimize your study experience.
-          </p>
+    );
+  }
+
+  return (
+    <Card className="mb-6">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="text-blue-400" size={20} />
+            <span>Surrounding Influence Meter</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleConfigure}>Configure</Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setInfluenceMeterCollapsed(true)}
+              className="h-8 w-8 p-0"
+            >
+              ×
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-3 mb-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="model">Model</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium">Physical Environment</label>
-                <span className="text-xs text-muted-foreground">65%</span>
+          <TabsContent value="overview">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Peer Influence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={peerInfluenceData} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">68%</span> positive influence
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Environmental Factors</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={environmentalData} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">42%</span> positive environment
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Study Confidence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={studyConfidenceData} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">75%</span> high confidence
+                  </div>
+                </div>
               </div>
-              <Slider
-                defaultValue={[65]}
-                max={100}
-                step={1}
-                className="mb-1"
-                onValueChange={(value) => handleInfluenceChange("Physical Environment", value)}
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Distracting</span>
-                <span>Neutral</span>
-                <span>Conducive</span>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium">Key Insights</h3>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    Last 7 days
+                  </Badge>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span>Positive study environment improved by 12%</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <span>Peer distractions are moderate during evenings</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span>Noise levels affecting focus during peak hours</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium">Study Material Quality</label>
-                <span className="text-xs text-muted-foreground">80%</span>
-              </div>
-              <Slider
-                defaultValue={[80]}
-                max={100}
-                step={1}
-                className="mb-1"
-                onValueChange={(value) => handleInfluenceChange("Study Material Quality", value)}
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Poor</span>
-                <span>Adequate</span>
-                <span>Excellent</span>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium">Sleep Quality</label>
-                <span className="text-xs text-muted-foreground">50%</span>
-              </div>
-              <Slider
-                defaultValue={[50]}
-                max={100}
-                step={1}
-                className="mb-1"
-                onValueChange={(value) => handleInfluenceChange("Sleep Quality", value)}
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Poor</span>
-                <span>Adequate</span>
-                <span>Well-rested</span>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium">Overall Study Effectiveness</label>
-                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">72%</span>
-              </div>
-              <Progress value={72} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-2">Your overall study effectiveness based on all factors.</p>
-            </div>
-            
-            <div className="flex justify-end">
-              <Button onClick={() => {
-                toast({
-                  title: "Influences saved",
-                  description: "Your surrounding influences have been recorded. Prepzr will use this to personalize your study experience."
-                });
-              }}>
-                Save Influences
+              
+              <Button 
+                onClick={handleViewDashboard} 
+                className="w-full flex items-center justify-center gap-1"
+                variant="outline"
+              >
+                <Eye size={16} />
+                View Full Dashboard
               </Button>
             </div>
-          </div>
-        </CardContent>
-      )}
+          </TabsContent>
+          
+          <TabsContent value="metrics">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Tracked Metrics</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="text-sm font-medium mb-1">Peer Influence</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-600">Measures social impact</div>
+                      <Badge variant="secondary">High priority</Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="text-sm font-medium mb-1">Noise Level</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-600">Environmental factor</div>
+                      <Badge variant="secondary">Medium priority</Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="text-sm font-medium mb-1">Study Space</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-600">Physical environment</div>
+                      <Badge variant="secondary">Medium priority</Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="text-sm font-medium mb-1">Device Distractions</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-600">Digital interruptions</div>
+                      <Badge variant="secondary">High priority</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Prepzr Alerts</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-red-50 dark:bg-red-900/30 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle size={16} className="text-red-500" />
+                      <span className="text-sm">High distraction environment</span>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7">View</Button>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/30 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle size={16} className="text-amber-500" />
+                      <span className="text-sm">Moderate peer influence</span>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7">View</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="model">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Hybrid Model Settings</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Sliders size={16} className="text-blue-500" />
+                      <span className="text-sm">Behavior Tracking</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30">Enabled</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Sliders size={16} className="text-purple-500" />
+                      <span className="text-sm">LLM Integration</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30">Enabled</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Sliders size={16} className="text-pink-500" />
+                      <span className="text-sm">Real-time Analysis</span>
+                    </div>
+                    <Badge variant="outline" className="text-amber-600 bg-amber-50 dark:bg-amber-900/30">Partial</Badge>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between">
+                <Button variant="outline" className="flex items-center gap-1">
+                  <ExternalLink size={16} />
+                  View Logs
+                </Button>
+                <Button onClick={handleTuneModel} className="bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700">
+                  Tune Model
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
     </Card>
   );
 };

@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -149,6 +148,8 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
+    localStorage.removeItem('sakha_auth_token');
+    localStorage.removeItem('sakha_auth_user');
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();

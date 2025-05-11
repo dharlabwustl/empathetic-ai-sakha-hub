@@ -43,6 +43,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     navigate(`/dashboard/student/concepts/card/${id}`);
   };
 
+  const handleStudyNowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/dashboard/student/concepts/card/${id}`);
+  };
+
   return (
     <Card 
       className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200 overflow-hidden border-2 border-gray-100 cursor-pointer"
@@ -102,10 +107,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         <Button 
           variant="default" 
           className="w-full flex justify-between items-center"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/dashboard/student/concepts/card/${id}`);
-          }}
+          onClick={handleStudyNowClick}
         >
           <span>Study Now</span>
           <ArrowRight className="h-4 w-4" />
