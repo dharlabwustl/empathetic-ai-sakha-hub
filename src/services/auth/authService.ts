@@ -130,7 +130,7 @@ const authService = {
     };
   },
   
-  // Enhanced logout - completely clears all auth data and redirects to login
+  // Logout user - enhanced for complete logout
   async logout(): Promise<ApiResponse<void>> {
     // Clear all auth data from local storage
     this.clearAuthData();
@@ -138,15 +138,22 @@ const authService = {
     // Remove login state marker
     localStorage.removeItem('isLoggedIn');
     
-    // Clear user data completely (instead of just updating status)
-    localStorage.removeItem('userData');
+    // Update user data to reflect logged out status
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        localStorage.setItem('userData', JSON.stringify({
+          ...parsedData,
+          isAuthenticated: false
+        }));
+      } catch (error) {
+        console.error('Error updating user data during logout:', error);
+      }
+    }
     
     // Clear other user-related data
     localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('auth_token');
-    
-    // Redirect to login page
-    window.location.href = '/login';
     
     return {
       success: true,
