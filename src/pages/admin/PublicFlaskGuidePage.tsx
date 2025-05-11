@@ -18,13 +18,13 @@ const PublicFlaskGuidePage = () => {
   const downloadFlaskGuide = () => {
     try {
       // Create a Blob with the content
-      const blob = new Blob([flaskGuideContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const blob = new Blob([flaskGuideContent], { type: 'text/markdown' });
       
       // Create a download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'flask-backend-integration-guide.docx';
+      link.download = 'flask-backend-integration-guide.md';
       
       // Append to body, click, and clean up
       document.body.appendChild(link);
@@ -36,6 +36,8 @@ const PublicFlaskGuidePage = () => {
         title: "Download Started",
         description: "Flask Guide is being downloaded.",
       });
+      
+      console.log("Flask guide download initiated");
     } catch (error) {
       console.error("Download failed:", error);
       toast({
@@ -49,11 +51,11 @@ const PublicFlaskGuidePage = () => {
   // Function to download signup database mapping
   const downloadSignupMapping = () => {
     try {
-      const blob = new Blob([signupDatabaseMapping], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const blob = new Blob([signupDatabaseMapping], { type: 'text/markdown' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'signup-database-mapping.docx';
+      link.download = 'signup-database-mapping.md';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -63,6 +65,8 @@ const PublicFlaskGuidePage = () => {
         title: "Download Started",
         description: "Signup Database Mapping is being downloaded.",
       });
+      
+      console.log("Signup mapping download initiated");
     } catch (error) {
       console.error("Download failed:", error);
       toast({
@@ -76,11 +80,11 @@ const PublicFlaskGuidePage = () => {
   // Function to download pagewise database mapping
   const downloadPagewiseMapping = () => {
     try {
-      const blob = new Blob([pagewiseDatabaseMapping], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const blob = new Blob([pagewiseDatabaseMapping], { type: 'text/markdown' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'pagewise-database-mapping.docx';
+      link.download = 'pagewise-database-mapping.md';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -90,6 +94,8 @@ const PublicFlaskGuidePage = () => {
         title: "Download Started",
         description: "Pagewise Database Mapping is being downloaded.",
       });
+      
+      console.log("Pagewise mapping download initiated");
     } catch (error) {
       console.error("Download failed:", error);
       toast({
