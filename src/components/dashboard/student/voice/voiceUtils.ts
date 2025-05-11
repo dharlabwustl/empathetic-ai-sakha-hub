@@ -1,461 +1,350 @@
 import { VoiceSettings } from '@/types/voice';
+import { MoodType } from '@/types/user/base';
+import { NavigateFunction } from 'react-router-dom';
 
 // Default voice settings
+export interface VoiceSettings {
+  muted?: boolean;
+  pitch?: number;
+  rate?: number;
+  volume?: number;
+  voice?: SpeechSynthesisVoice | null;
+  language?: string;
+}
+
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  volume: 1.0,
-  rate: 1.0,
-  pitch: 1.0,
-  language: 'en-IN',
-  enabled: true,
   muted: false,
+  pitch: 1.0,
+  rate: 1.0,
+  volume: 1.0,
   voice: null,
-  autoGreet: true
+  language: 'en-IN' // Default to Indian English
 };
 
-// Language options for the voice assistant
-export const LANGUAGE_OPTIONS = [
-  { value: 'en-IN', label: 'English (Indian)' },
-  { value: 'hi-IN', label: 'Hindi' },
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'en-GB', label: 'English (UK)' }
-];
-
-// Find the best matching voice based on language
-export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
-  if (!voices || voices.length === 0) {
-    console.log('No voices available');
-    return null;
-  }
-
-  // First, try to find an exact match for the language
-  let matchingVoice = voices.find(v => v.lang === language);
+// Get appropriate greeting based on time of day and user state
+export const getGreeting = (
+  userName?: string,
+  mood?: string,
+  isFirstTimeUser?: boolean
+): string => {
+  const hour = new Date().getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
   
-  // If no exact match, try to find a voice that starts with the language code
-  if (!matchingVoice) {
-    const langPrefix = language.split('-')[0];
-    matchingVoice = voices.find(v => v.lang.startsWith(`${langPrefix}-`));
+  if (isFirstTimeUser) {
+    return `Welcome to PREPZR, ${userName || 'student'}! I'm your voice assistant. How can I help you prepare for your exams today?`;
   }
   
-  // If still no match, use any voice
-  if (!matchingVoice) {
-    console.log(`No matching voice found for ${language}, using default voice`);
-    return voices[0]; // Default to first available voice
+  const greetingBase = `Good ${timeOfDay}, ${userName || 'student'}! `;
+  
+  if (mood) {
+    const normalizedMood = mood.toLowerCase();
+    
+    if (normalizedMood === 'motivated' || normalizedMood === 'focused') {
+      return `${greetingBase}Great to see you're feeling ${normalizedMood}! Let's make the most of your study session today.`;
+    } 
+    else if (normalizedMood === 'tired' || normalizedMood === 'stressed') {
+      return `${greetingBase}I see you're feeling ${normalizedMood}. Let me suggest some lighter study activities today, or perhaps a short break?`;
+    }
+    else if (normalizedMood === 'confused') {
+      return `${greetingBase}I notice you're feeling confused. Would you like me to explain a concept or help you find resources?`;
+    }
+    else if (normalizedMood === 'bored') {
+      return `${greetingBase}Feeling bored? Let's try something more engaging. How about a quiz or some interactive content?`;
+    }
   }
   
-  return matchingVoice;
+  return `${greetingBase}How can I assist with your studies today?`;
 };
 
-// Function to fix pronunciation of certain words for better speech quality
-export const fixPronunciation = (text: string, language: string): string => {
-  let fixedText = text;
-  
-  if (language.startsWith('en')) {
-    // Fix English pronunciations
-    fixedText = fixedText
-      .replace(/PREPZR/gi, 'prep zee are')
-      .replace(/NEET/gi, 'neet')
-      .replace(/JEE/gi, 'J E E')
-      .replace(/AI/g, 'A I');
-  } else if (language === 'hi-IN') {
-    // Fix Hindi pronunciations if needed
-    fixedText = fixedText
-      .replace(/PREPZR/gi, 'प्रेप ज़ेड आर')
-      .replace(/NEET/gi, 'नीट')
-      .replace(/JEE/gi, 'जे ई ई');
+// Get a reminder announcement
+export const getReminderAnnouncement = (upcomingTasks: Array<{title: string, due?: string}> = []): string => {
+  if (upcomingTasks.length === 0) {
+    return "You don't have any upcoming tasks or tests scheduled. Would you like to create a study plan?";
   }
   
-  return fixedText;
+  if (upcomingTasks.length === 1) {
+    const task = upcomingTasks[0];
+    return `Just a reminder: you have "${task.title}" ${task.due ? `due ${task.due}` : "coming up"}. Would you like to work on it now?`;
+  }
+  
+  return `You have ${upcomingTasks.length} upcoming tasks. The most urgent is "${upcomingTasks[0].title}" ${upcomingTasks[0].due ? `due ${upcomingTasks[0].due}` : "coming up"}.`;
 };
 
-// Function to speak a message with proper event dispatching
-export const speakMessage = (message: string, settingsOrForceFlag: VoiceSettings | boolean = DEFAULT_VOICE_SETTINGS): void => {
-  if (!message || message.trim() === '') return;
-  
-  // Handle case when second parameter is just a boolean (force flag)
-  let settings: VoiceSettings = DEFAULT_VOICE_SETTINGS;
-  let forceSpeak = false;
-  
-  if (typeof settingsOrForceFlag === 'boolean') {
-    forceSpeak = settingsOrForceFlag;
-  } else {
-    settings = settingsOrForceFlag;
+// Get motivational message based on progress or mood
+export const getMotivationalMessage = (
+  progress?: number,
+  mood?: string
+): string => {
+  if (progress !== undefined) {
+    if (progress < 25) {
+      return "You're just getting started, but every journey begins with a single step. Keep going!";
+    } else if (progress < 50) {
+      return "You're making steady progress. Keep up the momentum!";
+    } else if (progress < 75) {
+      return "You're over halfway there! Your dedication is really showing.";
+    } else {
+      return "You're in the final stretch! Stay focused and you'll achieve your goals.";
+    }
   }
   
-  // Check if speech synthesis is available
-  if (!window.speechSynthesis) {
-    console.error('Speech synthesis not supported');
-    return;
+  if (mood) {
+    const normalizedMood = mood.toLowerCase();
+    
+    if (normalizedMood === 'stressed' || normalizedMood === 'tired') {
+      return "Remember that taking breaks is part of effective studying. Your wellbeing matters as much as your grades.";
+    }
+    else if (normalizedMood === 'motivated') {
+      return "That's the spirit! Motivation is what gets you started, habit is what keeps you going.";
+    }
   }
   
-  // Don't speak if voice is disabled and not forced
-  if (!settings.enabled && !forceSpeak) return;
-  if (settings.muted && !forceSpeak) return;
+  // Default motivational messages
+  const motivationalMessages = [
+    "Small daily improvements lead to outstanding results.",
+    "The expert in anything was once a beginner.",
+    "Success is the sum of small efforts repeated day in and day out.",
+    "Your potential is limitless. Keep learning, keep growing.",
+    "Every challenge you overcome makes the next one easier."
+  ];
   
-  // Create utterance
-  const utterance = new SpeechSynthesisUtterance();
+  return motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+};
+
+// Fix pronunciation for certain technical terms
+export const fixPronunciation = (text: string): string => {
+  // Replace technical terms with phonetic spellings for better pronunciation
+  const replacements: {[key: string]: string} = {
+    'pH': 'p H',
+    'mRNA': 'm R N A',
+    'DNA': 'D N A',
+    'RNA': 'R N A',
+    'LaTeX': 'Lay Tech',
+    'dx/dt': 'd x by d t',
+    'f(x)': 'f of x',
+    '∫': 'integral',
+    '∑': 'sum of',
+    'π': 'pi',
+    '→': 'arrow',
+    '≈': 'approximately equal to',
+    '≠': 'not equal to',
+    '≤': 'less than or equal to',
+    '≥': 'greater than or equal to',
+    '±': 'plus or minus',
+    '∞': 'infinity',
+    '∂': 'partial',
+    'Δ': 'delta',
+    'λ': 'lambda',
+    'μ': 'mu',
+    'σ': 'sigma',
+    'θ': 'theta',
+    'Ω': 'omega'
+  };
+  
+  let modifiedText = text;
+  
+  // Apply all replacements
+  Object.entries(replacements).forEach(([symbol, pronunciation]) => {
+    modifiedText = modifiedText.replace(new RegExp(symbol, 'g'), pronunciation);
+  });
+  
+  return modifiedText;
+};
+
+// Speak a message with optional voice settings
+export const speakMessage = (
+  message: string,
+  settings: VoiceSettings = DEFAULT_VOICE_SETTINGS
+): void => {
+  if (!message || settings.muted) return;
   
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
-  // Fix pronunciation based on language
-  const fixedMessage = fixPronunciation(message, settings.language);
+  // Create a new speech object
+  const speech = new SpeechSynthesisUtterance();
   
-  // Set utterance properties
-  utterance.text = fixedMessage;
-  utterance.volume = settings.volume;
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.lang = settings.language;
+  // Apply settings
+  speech.text = fixPronunciation(message);
+  speech.volume = settings.volume || 1;
+  speech.rate = settings.rate || 1;
+  speech.pitch = settings.pitch || 1;
   
-  // Get available voices and set the best matching one
-  const voices = window.speechSynthesis.getVoices();
-  const selectedVoice = settings.voice || findBestVoice(settings.language, voices);
-  
-  if (selectedVoice) {
-    utterance.voice = selectedVoice;
+  // Set language if specified
+  if (settings.language) {
+    speech.lang = settings.language;
   }
   
-  // Dispatch an event when speech starts
-  const startEvent = new CustomEvent('voice-speaking-started', { 
-    detail: { message: fixedMessage }
+  // If a specific voice is requested, try to use it
+  if (settings.voice) {
+    speech.voice = settings.voice;
+  } else {
+    // Otherwise, try to find a good voice for the language
+    const voices = window.speechSynthesis.getVoices();
+    const voicesForLanguage = voices.filter(voice => 
+      voice.lang.startsWith(speech.lang.split('-')[0])
+    );
+    
+    // Prefer female voices if available
+    const femaleVoice = voicesForLanguage.find(voice => 
+      voice.name.includes('female') || 
+      voice.name.includes('Female') || 
+      voice.name.includes('woman') ||
+      voice.name.includes('Woman') ||
+      voice.name.toLowerCase().includes('zira') ||
+      voice.name.toLowerCase().includes('samantha')
+    );
+    
+    if (femaleVoice) {
+      speech.voice = femaleVoice;
+    } else if (voicesForLanguage.length > 0) {
+      speech.voice = voicesForLanguage[0];
+    }
+  }
+  
+  // Add event listeners for speech start and end
+  speech.addEventListener('start', () => {
+    document.dispatchEvent(new CustomEvent('voice-speaking-started', { 
+      detail: { message } 
+    }));
   });
   
-  document.dispatchEvent(startEvent);
-  document.body.classList.add('voice-speaking');
+  speech.addEventListener('end', () => {
+    document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
+  });
   
-  // Speak the utterance
-  utterance.onend = () => {
-    document.dispatchEvent(new Event('voice-speaking-ended'));
-    document.body.classList.remove('voice-speaking');
-  };
-  
-  window.speechSynthesis.speak(utterance);
+  // Speak the text
+  window.speechSynthesis.speak(speech);
 };
 
-// Get appropriate greeting based on time of day, user's name, and mood
-export const getGreeting = (userName?: string, mood?: string, isFirstTime?: boolean): string => {
-  const hour = new Date().getHours();
-  const language = localStorage.getItem('voiceAssistantLanguage') || 'en-IN';
-  
-  if (language === 'hi-IN') {
-    let timeGreeting = "नमस्ते";
-    
-    if (hour < 12) timeGreeting = "सुप्रभात";
-    else if (hour < 17) timeGreeting = "शुभ दोपहर";
-    else timeGreeting = "शुभ संध्या";
-    
-    const name = userName ? `, ${userName}` : '';
-    
-    if (isFirstTime) {
-      return `${timeGreeting}${name}! PREPZR में आपका स्वागत है। मैं आपका आवाज़ सहायक हूँ। मैं आपको प्लेटफॉर्म में नेविगेट करने, प्रश्नों का उत्तर देने और अध्ययन सुझाव प्रदान करने में मदद कर सकता हूँ।`;
-    }
-    
-    // General greeting in Hindi
-    return `${timeGreeting}${name}! मैं आज आपकी पढ़ाई में कैसे मदद कर सकता हूँ?`;
-  } else {
-    // English greeting (keep existing code)
-    let timeGreeting = "Hello";
-    
-    if (hour < 12) timeGreeting = "Good morning";
-    else if (hour < 17) timeGreeting = "Good afternoon";
-    else timeGreeting = "Good evening";
-    
-    const name = userName ? `, ${userName}` : '';
-    
-    if (isFirstTime) {
-      return `${timeGreeting}${name}! Welcome to PREPZR. I'm your voice assistant. I can help you navigate the platform, answer questions, and provide study recommendations.`;
-    }
-    
-    // General greeting
-    return `${timeGreeting}${name}! How can I help you with your studies today?`;
-  }
-};
+// Process user voice commands
+export interface VoiceCommandHandlers {
+  startTest?: () => void;
+  showFlashcards?: () => void;
+  examGoal?: string;
+}
 
-// Get announcement for pending tasks and reminders
-export const getReminderAnnouncement = (pendingTasks: Array<{title: string, due?: string}> = []): string => {
-  const language = localStorage.getItem('voiceAssistantLanguage') || 'en-IN';
-  
-  if (language === 'hi-IN') {
-    if (pendingTasks.length === 0) {
-      return "आज आपका कोई बकाया कार्य नहीं है। अपने काम पर नज़र रखने के लिए बहुत अच्छा!";
-    }
-    
-    const taskCount = pendingTasks.length;
-    let announcement = `आपके पास ${taskCount} बकाया कार्य ${taskCount === 1 ? 'है' : 'हैं'}। `;
-    
-    if (taskCount <= 3) {
-      // List the tasks if there are only a few
-      announcement += "इनमें शामिल हैं: ";
-      pendingTasks.forEach((task, index) => {
-        if (index > 0) {
-          announcement += (index === taskCount - 1) ? " और " : ", ";
-        }
-        announcement += task.title;
-        if (task.due) {
-          announcement += ` जिसकी नियत तारीख ${task.due} है`;
-        }
-      });
-    } else {
-      // Just mention the first couple if there are many
-      announcement += `जिनमें ${pendingTasks[0].title} और ${pendingTasks[1].title}, और अन्य शामिल हैं।`;
-    }
-    
-    return announcement;
-  } else {
-    // English version (keep existing code)
-    if (pendingTasks.length === 0) {
-      return "You have no pending tasks for today. Great job staying on top of your work!";
-    }
-    
-    const taskCount = pendingTasks.length;
-    let announcement = `You have ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'} pending. `;
-    
-    if (taskCount <= 3) {
-      // List the tasks if there are only a few
-      announcement += "These include: ";
-      pendingTasks.forEach((task, index) => {
-        if (index > 0) {
-          announcement += (index === taskCount - 1) ? " and " : ", ";
-        }
-        announcement += task.title;
-        if (task.due) {
-          announcement += ` due ${task.due}`;
-        }
-      });
-    } else {
-      // Just mention the first couple if there are many
-      announcement += `Including ${pendingTasks[0].title} and ${pendingTasks[1].title}, among others.`;
-    }
-    
-    return announcement;
-  }
-};
-
-// Get motivational message based on context
-export const getMotivationalMessage = (examGoal?: string): string => {
-  const language = localStorage.getItem('voiceAssistantLanguage') || 'en-IN';
-  
-  if (language === 'hi-IN') {
-    const messages = [
-      "याद रखें, लगातार अध्ययन सफलता की ओर ले जाता है। आप बहुत अच्छा कर रहे हैं!",
-      "छोटे दैनिक सुधार समय के साथ उत्कृष्ट परिणाम लाते हैं।",
-      "हर अध्ययन सत्र आपको अपने लक्ष्य के एक कदम और करीब लाता है।",
-      "सफलता छोटे प्रयासों का योग है जो दिन-प्रतिदिन दोहराए जाते हैं।",
-      "आपका भविष्य का स्वरूप आज आप जो कड़ी मेहनत कर रहे हैं उसके लिए आपका धन्यवाद करेगा।"
-    ];
-    
-    // Exam-specific motivational messages in Hindi
-    const examSpecificMessages: Record<string, string[]> = {
-      'NEET': [
-        "अपनी NEET की तैयारी पर ध्यान केंद्रित रखें। आपकी मेहनत रंग लाएगी!",
-        "NEET परीक्षा के लिए लगातार अभ्यास की आवश्यकता है। आप सही रास्ते पर हैं!",
-        "आपकी NEET की यात्रा एक स्प्रिंट नहीं, मैराथन है। प्रतिदिन अपने ज्ञान को बढ़ाते रहें।"
-      ],
-      'JEE': [
-        "JEE की तैयारी के लिए दृढ़ता की आवश्यकता है। आप इसे कर सकते हैं!",
-        "हर JEE समस्या जिसे आप हल करते हैं, आपकी समझ को मजबूत बनाती है।",
-        "आपकी JEE सफलता की कहानी हर अध्ययन सत्र के साथ लिखी जा रही है।"
-      ]
-    };
-    
-    // If we have an exam goal and specific messages for it, include them in the possible messages
-    let possibleMessages = [...messages];
-    if (examGoal && examSpecificMessages[examGoal]) {
-      possibleMessages = [...possibleMessages, ...examSpecificMessages[examGoal]];
-    }
-    
-    // Return a random message
-    return possibleMessages[Math.floor(Math.random() * possibleMessages.length)];
-  } else {
-    // English version (keep existing code)
-    const messages = [
-      "Remember, consistent study leads to success. You're doing great!",
-      "Small daily improvements lead to outstanding results over time.",
-      "Every study session brings you one step closer to your goal.",
-      "Success is the sum of small efforts repeated day in and day out.",
-      "Your future self will thank you for the hard work you're putting in today."
-    ];
-    
-    // Exam-specific motivational messages
-    const examSpecificMessages: Record<string, string[]> = {
-      'NEET': [
-        "Stay focused on your NEET preparation. Your dedication will pay off!",
-        "The NEET exam requires consistent practice. You're on the right track!",
-        "Your NEET journey is a marathon, not a sprint. Keep building your knowledge daily."
-      ],
-      'JEE': [
-        "JEE preparation demands persistence. You've got this!",
-        "Every JEE problem you solve strengthens your understanding.",
-        "Your JEE success story is being written with every study session."
-      ]
-    };
-    
-    // If we have an exam goal and specific messages for it, include them in the possible messages
-    let possibleMessages = [...messages];
-    if (examGoal && examSpecificMessages[examGoal]) {
-      possibleMessages = [...possibleMessages, ...examSpecificMessages[examGoal]];
-    }
-    
-    // Return a random message
-    return possibleMessages[Math.floor(Math.random() * possibleMessages.length)];
-  }
-};
-
-// Process user voice input and provide appropriate response
+// Process user voice commands
 export const processUserQuery = (
   query: string,
-  navigate: any,
-  options: {
-    startTest?: () => void,
-    showFlashcards?: () => void,
-    examGoal?: string
-  } = {}
+  navigate: NavigateFunction,
+  handlers: VoiceCommandHandlers = {}
 ): string => {
   const lowerQuery = query.toLowerCase();
-  const language = localStorage.getItem('voiceAssistantLanguage') || 'en-IN';
   
-  if (language === 'hi-IN') {
-    // Handle navigation commands in Hindi
-    if (lowerQuery.includes('डैशबोर्ड') || lowerQuery.includes('होम')) {
-      if (navigate) navigate('/dashboard/student');
-      return "आपको स्टूडेंट डैशबोर्ड पर ले जा रहा हूँ।";
-    }
-    
-    if (lowerQuery.includes('अध्ययन योजना') || lowerQuery.includes('शेड्यूल')) {
-      if (navigate) navigate('/dashboard/student/study-plan');
-      return "आपकी अध्ययन योजना खोल रहा हूँ।";
-    }
-    
-    if (lowerQuery.includes('अभ्यास') || lowerQuery.includes('परीक्षा') || lowerQuery.includes('टेस्ट')) {
-      if (options.startTest) {
-        options.startTest();
-        return "अभी एक अभ्यास परीक्षा शुरू कर रहा हूँ।";
-      }
-      if (navigate) navigate('/dashboard/student/practice');
-      return "अभ्यास परीक्षा अनुभाग खोल रहा हूँ।";
-    }
-    
-    if (lowerQuery.includes('फ्लैशकार्ड')) {
-      if (options.showFlashcards) {
-        options.showFlashcards();
-        return "आपके फ्लैशकार्ड खोल रहा हूँ।";
-      }
-      if (navigate) navigate('/dashboard/student/flashcards');
-      return "आपको अपने फ्लैशकार्ड पर ले जा रहा हूँ।";
-    }
-    
-    if (lowerQuery.includes('प्रोफ़ाइल') || lowerQuery.includes('अकाउंट') || lowerQuery.includes('सेटिंग्स')) {
-      if (navigate) navigate('/dashboard/student/profile');
-      return "आपकी प्रोफ़ाइल सेटिंग्स खोल रहा हूँ।";
-    }
-    
-    // Handle voice control commands in Hindi
-    if (lowerQuery.includes('म्यूट') || lowerQuery.includes('बंद करो') || lowerQuery.includes('चुप रहो')) {
-      return "MUTE_COMMAND";
-    }
-    
-    if (lowerQuery.includes('अनम्यूट') || lowerQuery.includes('बात करो') || lowerQuery.includes('फिर से बोलो')) {
-      return "UNMUTE_COMMAND";
-    }
-    
-    // Handle language switch commands
-    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
-      return "I'll speak English now. How can I help you with your studies?";
-    }
-    
-    // Handle informational queries in Hindi
-    if (lowerQuery.includes('मदद') || lowerQuery.includes('आप क्या कर सकते हो')) {
-      return "मैं आपको डैशबोर्ड में नेविगेट करने, आपकी अध्ययन सामग्री तक पहुंचने, अभ्यास परीक्षा शुरू करने, आपके शेड्यूल की जांच करने और प्रेरणात्मक सहायता प्रदान करने में मदद कर सकता हूं। बस मुझसे पूछें कि आपको क्या चाहिए!";
-    }
-    
-    if (lowerQuery.includes('प्रेरणा') || lowerQuery.includes('मोटिवेशन')) {
-      return getMotivationalMessage(options.examGoal);
-    }
-    
-    // Study groups related commands in Hindi
-    if (lowerQuery.includes('अध्ययन समूह') || lowerQuery.includes('स्टडी ग्रुप')) {
-      if (navigate) navigate('/dashboard/student/study-groups');
-      return "आपको अध्ययन समूह पृष्ठ पर ले जा रहा हूँ।";
-    }
-    
-    if (lowerQuery.includes('दैनिक चुनौती') || lowerQuery.includes('डेली चैलेंज')) {
-      if (navigate) navigate('/dashboard/student/daily-challenge');
-      return "आपको दैनिक चुनौती पृष्ठ पर ले जा रहा हूँ।";
-    }
-    
-    // Default response in Hindi
-    return "मैंने ठीक से नहीं समझा। आप मुझसे विभिन्न खंडों पर नेविगेट करने, अभ्यास परीक्षा शुरू करने या अध्ययन योजना में मदद करने के लिए कह सकते हैं।";
-  } else {
-    // English commands (keep existing code)
-    // Handle navigation commands
-    if (lowerQuery.includes('dashboard') || lowerQuery.includes('home')) {
-      if (navigate) navigate('/dashboard/student');
-      return "Taking you to the student dashboard.";
-    }
-    
-    if (lowerQuery.includes('study plan') || lowerQuery.includes('schedule')) {
-      if (navigate) navigate('/dashboard/student/study-plan');
-      return "Opening your study plan now.";
-    }
-    
-    if (lowerQuery.includes('practice') || lowerQuery.includes('test') || lowerQuery.includes('exam')) {
-      if (options.startTest) {
-        options.startTest();
-        return "Starting a practice test for you now.";
-      }
-      if (navigate) navigate('/dashboard/student/practice');
-      return "Opening the practice test section.";
-    }
-    
-    if (lowerQuery.includes('flashcard') || lowerQuery.includes('flash card')) {
-      if (options.showFlashcards) {
-        options.showFlashcards();
-        return "Opening your flashcards now.";
-      }
-      if (navigate) navigate('/dashboard/student/flashcards');
-      return "Taking you to your flashcards.";
-    }
-    
-    if (lowerQuery.includes('profile') || lowerQuery.includes('account') || lowerQuery.includes('settings')) {
-      if (navigate) navigate('/dashboard/student/profile');
-      return "Opening your profile settings.";
-    }
-    
-    // Handle voice control commands
-    if (lowerQuery.includes('mute') || lowerQuery.includes('stop talking') || lowerQuery.includes('be quiet')) {
-      return "MUTE_COMMAND";
-    }
-    
-    if (lowerQuery.includes('unmute') || lowerQuery.includes('start talking') || lowerQuery.includes('speak again')) {
-      return "UNMUTE_COMMAND";
-    }
-    
-    // Handle language switch commands
-    if (lowerQuery.includes('speak hindi') || lowerQuery.includes('hindi mode') || lowerQuery.includes('in hindi')) {
-      return "मैं अब हिंदी में बात करूंगा। मैं आपकी किस प्रकार सहायता कर सकता हूँ?";
-    }
-    
-    // Handle informational queries
-    if (lowerQuery.includes('help') || lowerQuery.includes('what can you do')) {
-      return "I can help you navigate the dashboard, access your study materials, open practice tests, check your schedule, and provide motivational support. Just ask me what you need!";
-    }
-    
-    if (lowerQuery.includes('motivation') || lowerQuery.includes('motivate me')) {
-      return getMotivationalMessage(options.examGoal);
-    }
-    
-    // Study groups related commands
-    if (lowerQuery.includes('study group') || lowerQuery.includes('study groups')) {
-      if (navigate) navigate('/dashboard/student/study-groups');
-      return "Taking you to the study groups page.";
-    }
-    
-    if (lowerQuery.includes('daily challenge') || lowerQuery.includes('challenge')) {
-      if (navigate) navigate('/dashboard/student/daily-challenge');
-      return "Taking you to the daily challenge page.";
-    }
-    
-    // Default response if nothing specific matched
-    return "I didn't quite catch that. You can ask me to navigate to different sections, start a practice test, or help with your study plan.";
+  // Check for mute/unmute commands
+  if (lowerQuery.includes('mute') || lowerQuery.includes('stop talking')) {
+    return "MUTE_COMMAND";
   }
+  
+  if (lowerQuery.includes('unmute') || lowerQuery.includes('start talking')) {
+    return "UNMUTE_COMMAND";
+  }
+  
+  // Navigation commands
+  if (lowerQuery.includes('go to dashboard') || lowerQuery.includes('show dashboard') || lowerQuery.includes('open dashboard')) {
+    navigate('/dashboard/student');
+    return "Opening the dashboard for you.";
+  }
+  
+  if (lowerQuery.includes('go to profile') || lowerQuery.includes('show profile') || lowerQuery.includes('open profile')) {
+    navigate('/dashboard/student/profile');
+    return "Taking you to your profile page.";
+  }
+  
+  if (lowerQuery.includes('go to concepts') || lowerQuery.includes('show concepts') || lowerQuery.includes('open concepts')) {
+    navigate('/dashboard/student/concepts');
+    return "Opening the concepts page where you can explore different topics.";
+  }
+  
+  if (lowerQuery.includes('go to flashcards') || lowerQuery.includes('show flashcards') || lowerQuery.includes('open flashcards')) {
+    if (handlers.showFlashcards) {
+      handlers.showFlashcards();
+    } else {
+      navigate('/dashboard/student/flashcards');
+    }
+    return "Here are your flashcards. You can review them to reinforce your knowledge.";
+  }
+  
+  if (lowerQuery.includes('go to academic advisor') || lowerQuery.includes('show academic advisor') || lowerQuery.includes('open academic advisor')) {
+    navigate('/dashboard/student/academic');
+    return "Opening your academic advisor page with personalized study recommendations.";
+  }
+  
+  if (lowerQuery.includes('go to today') || lowerQuery.includes('show today') || lowerQuery.includes('today\'s plan') || lowerQuery.includes('daily plan')) {
+    navigate('/dashboard/student/today');
+    return "Here's your study plan for today. Let's make progress together!";
+  }
+  
+  // Study actions
+  if (lowerQuery.includes('start test') || lowerQuery.includes('take test') || lowerQuery.includes('begin test')) {
+    if (handlers.startTest) {
+      handlers.startTest();
+    } else {
+      navigate('/dashboard/student/practice-exam');
+    }
+    return "Starting a practice test for you. Good luck!";
+  }
+  
+  // Mood-based queries
+  if (lowerQuery.includes('feeling stressed') || lowerQuery.includes('i am stressed') || lowerQuery.includes('stress')) {
+    navigate('/dashboard/student/feel-good-corner');
+    return "I'm sorry to hear that you're feeling stressed. I've opened the Feel Good Corner where you can find relaxation exercises and resources to help manage stress.";
+  }
+  
+  if (lowerQuery.includes('feeling tired') || lowerQuery.includes('i am tired') || lowerQuery.includes('too tired')) {
+    return "It sounds like you need a break. Remember, effective studying includes rest periods. Consider taking a 15-minute break to refresh your mind, or try doing a shorter, high-impact study session with our flashcards.";
+  }
+  
+  // Information queries
+  if (lowerQuery.includes('what is my exam') || lowerQuery.includes('when is my exam') || lowerQuery.includes('exam date')) {
+    const examGoal = handlers.examGoal || "your target exam";
+    return `You're currently preparing for ${examGoal}. To see exact dates and more details, check your academic advisor page.`;
+  }
+  
+  if (lowerQuery.includes('help') || lowerQuery.includes('what can you do') || lowerQuery.includes('what can i ask')) {
+    return "I'm your PREPZR voice assistant. You can ask me to navigate through different sections like 'go to flashcards' or 'open today's plan'. I can help with actions like 'start a practice test', answer questions about your progress, or provide study tips. Just speak naturally and I'll do my best to help!";
+  }
+  
+  if (lowerQuery.includes('how am i doing') || lowerQuery.includes('my progress') || lowerQuery.includes('how is my progress')) {
+    navigate('/dashboard/student/academic');
+    return "I've opened your academic advisor page where you can see detailed information about your progress. You've been making steady improvements!";
+  }
+  
+  // Study tips
+  if (lowerQuery.includes('study tip') || lowerQuery.includes('how to study better') || lowerQuery.includes('study advice')) {
+    const studyTips = [
+      "Break your study sessions into 25-minute focused periods with 5-minute breaks, known as the Pomodoro Technique.",
+      "Review your notes within 24 hours of taking them to significantly improve retention.",
+      "Use practice tests to identify knowledge gaps and focus your efforts more effectively.",
+      "Teaching concepts to others, even imaginary students, can help solidify your understanding.",
+      "Create mind maps to visualize connections between different concepts.",
+      "Alternate between different subjects rather than studying one subject for too long."
+    ];
+    
+    return studyTips[Math.floor(Math.random() * studyTips.length)];
+  }
+  
+  // Mood management
+  if (lowerQuery.includes('motivate me') || lowerQuery.includes('need motivation') || lowerQuery.includes('feel motivated')) {
+    return getMotivationalMessage();
+  }
+  
+  // Language preference
+  if (lowerQuery.includes('speak hindi') || lowerQuery.includes('talk in hindi') || lowerQuery.includes('hindi mode')) {
+    return "मैं अब हिंदी में बात करूंगा। आप मुझसे अपनी पढ़ाई के बारे में कुछ भी पूछ सकते हैं।";
+  }
+  
+  if (lowerQuery.includes('speak english') || lowerQuery.includes('talk in english') || lowerQuery.includes('english mode')) {
+    return "I'm now speaking in English. How can I help with your studies?";
+  }
+  
+  // Default responses
+  const defaultResponses = [
+    "I'm not sure I understood that. Try asking about your study plan, concepts, or how to navigate to different parts of the app.",
+    "Could you rephrase that? You can ask me to help you navigate the app, start a practice test, or provide study tips.",
+    "I didn't quite catch that. I can help you with your studies by showing your daily plan, concepts, or flashcards.",
+    "I'm still learning. Could you try asking me to help with something specific like opening your study plan or providing a study tip?"
+  ];
+  
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 };

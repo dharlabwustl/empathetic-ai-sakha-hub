@@ -1,277 +1,428 @@
 
 import React, { useState } from 'react';
-import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
-import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
-import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
-import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
-import { useToast } from '@/hooks/use-toast';
-import { v4 as uuidv4 } from 'uuid';
-import { format, differenceInCalendarDays } from 'date-fns';
-import type { StudyPlan, NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { UserProfileType, StudyPlanTopic } from '@/types/user/base';
+import { Check, Clock, Calendar, AlertTriangle, ArrowRight, BookOpen } from 'lucide-react';
 
 interface AcademicAdvisorProps {
-  userProfile: {
-    examPreparation?: string;
-  };
+  userProfile?: UserProfileType;
 }
 
 const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
-  const { toast } = useToast();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('topics');
+  const navigate = useNavigate();
 
-  // State for plans
-  const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
-    id: "plan-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: userProfile?.examPreparation || "NEET",
-    examDate: "2024-12-15",
-    createdAt: "2024-04-10T12:00:00Z",
-    updatedAt: "2024-04-10T12:00:00Z",
-    status: 'active',
-    weeklyHours: 42,
-    progressPercentage: 35,
-    daysLeft: 240,
-    subjects: [
+  // Sample study plan data
+  const studyPlan = {
+    examGoal: userProfile?.goals?.[0]?.title || 'NEET 2023',
+    progressPercent: 42,
+    streak: 5,
+    daysRemaining: 45,
+    readinessScore: 68,
+    topics: [
+      { 
+        id: '1', 
+        name: 'Cell Structure and Organization', 
+        difficulty: 'easy' as const, 
+        completed: true, 
+        status: 'completed' as const,
+        priority: 'high' as const
+      },
+      { 
+        id: '2', 
+        name: 'Newton\'s Laws of Motion', 
+        difficulty: 'medium' as const, 
+        completed: false, 
+        status: 'in-progress' as const,
+        priority: 'high' as const
+      },
+      { 
+        id: '3', 
+        name: 'Periodic Table and Elements', 
+        difficulty: 'hard' as const, 
+        completed: false, 
+        status: 'not-started' as const,
+        priority: 'medium' as const
+      },
+    ],
+    timeSpent: {
+      total: 120,
+      bySubject: [
+        { subject: 'Physics', hours: 45 },
+        { subject: 'Chemistry', hours: 35 },
+        { subject: 'Biology', hours: 40 },
+      ]
+    },
+    recommendations: [
       {
-        id: "physics-1",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 14,
-        priority: "high",
-        proficiency: "medium",
-        completed: false,
-        topics: [
-          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
-          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
-          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
-        ]
+        id: '1',
+        title: 'Focus on Organic Chemistry',
+        description: 'Your performance in recent tests indicates a need for additional focus.',
+        tags: ['chemistry', 'urgent']
       },
       {
-        id: "chem-1",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "medium",
-        proficiency: "weak",
-        completed: false,
-        topics: [
-          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
-          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
-          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
-        ]
-      },
-      {
-        id: "math-1",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 16,
-        priority: "high",
-        proficiency: "strong",
-        completed: false,
-        topics: [
-          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
-          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
-        ]
+        id: '2',
+        title: 'Increase practice test frequency',
+        description: 'Taking more practice tests will improve your exam readiness.',
+        tags: ['practice', 'suggestion']
       }
     ],
-    studyHoursPerDay: 6,
-    preferredStudyTime: 'evening',
-    learningPace: 'moderate'
-  }]);
-
-  // State for completed plans
-  const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
-    id: "plan-old-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: "NEET",
-    examDate: "2024-03-15",
-    createdAt: "2024-01-01T12:00:00Z",
-    updatedAt: "2024-03-15T12:00:00Z",
-    status: 'completed',
-    weeklyHours: 35,
-    progressPercentage: 100,
-    daysLeft: 0,
-    subjects: [
+    achievements: [
       {
-        id: "physics-old",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 10,
-        priority: "medium",
-        proficiency: "weak",
+        id: '1',
+        name: '5-Day Streak',
         completed: true,
-        topics: [
-          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
+        status: 'completed' as const,
+        priority: 'high' as const
       },
       {
-        id: "chem-old",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "low",
-        proficiency: "weak",
+        id: '2',
+        name: 'Master 10 Physics Concepts',
         completed: true,
-        topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
+        status: 'completed' as const,
+        priority: 'medium' as const
       },
       {
-        id: "math-old",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 13,
-        priority: "high",
-        proficiency: "medium",
+        id: '3',
+        name: 'Complete 5 Practice Tests',
         completed: true,
-        topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
-        ]
+        status: 'completed' as const,
+        priority: 'high' as const
       }
     ],
-    studyHoursPerDay: 5,
-    preferredStudyTime: 'morning',
-    learningPace: 'slow'
-  }]);
-
-  const handleCreatePlan = () => {
-    setShowCreateDialog(true);
+    masteredConcepts: 48,
+    totalConceptsRequired: 105,
   };
 
-  const handleViewPlanDetails = (planId: string) => {
-    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
-    if (plan) {
-      setSelectedPlan(plan);
-    }
+  const handleNewStudyPlan = () => {
+    navigate('/dashboard/student/create-study-plan');
   };
 
-  // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
-    let topics = [];
-    const priorities = ['high', 'medium', 'low'];
-    const statuses = ['pending', 'in-progress'];
-    
-    // Generate topics based on subject
-    switch(subject.toLowerCase()) {
-      case 'physics':
-        topics = [
-          { id: `phys-${Date.now()}-1`, name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `phys-${Date.now()}-2`, name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `phys-${Date.now()}-3`, name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      case 'chemistry':
-        topics = [
-          { id: `chem-${Date.now()}-1`, name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `chem-${Date.now()}-2`, name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `chem-${Date.now()}-3`, name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'easy' as const, completed: false }
-        ];
-        break;
-      case 'mathematics':
-        topics = [
-          { id: `math-${Date.now()}-1`, name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `math-${Date.now()}-2`, name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `math-${Date.now()}-3`, name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      default:
-        topics = [
-          { id: `gen-${Date.now()}-1`, name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `gen-${Date.now()}-2`, name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false }
-        ];
-    }
-    
-    return topics;
-  };
-
-  const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object
-    const newPlan: StudyPlan = {
-      id: uuidv4(),
-      userId: "user-1",
-      goal: "NEET Preparation",
-      examGoal: plan.examGoal,
-      examDate: typeof plan.examDate === 'string' ? plan.examDate : format(plan.examDate as Date, 'yyyy-MM-dd'),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      weeklyHours: plan.weeklyHours || 20,
-      progressPercentage: 0,
-      daysLeft: typeof plan.examDate === 'string' 
-        ? differenceInCalendarDays(new Date(plan.examDate), new Date())
-        : differenceInCalendarDays(plan.examDate as Date, new Date()),
-      subjects: plan.subjects.map(subject => {
-        // Ensure each subject has the required properties with proper types
-        const studyPlanSubject: StudyPlanSubject = {
-          id: subject.id || `subject-${uuidv4()}`,
-          name: subject.name,
-          color: subject.color || "#3b82f6",
-          hoursPerWeek: subject.hoursPerWeek || 10,
-          priority: subject.priority || "medium",
-          proficiency: subject.proficiency || "medium",
-          completed: false,
-          topics: generateTopicsForSubject(subject.name, subject.proficiency || "medium")
-        };
-        return studyPlanSubject;
-      }),
-      studyHoursPerDay: plan.studyHoursPerDay,
-      preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
-    };
-    
-    // Move previous active plans to completed
-    const updatedCompletedPlans = [...completedPlans];
-    if (activePlans.length > 0) {
-      const oldActivePlans = activePlans.map(plan => ({
-        ...plan,
-        status: 'completed' as 'completed'
-      }));
-      updatedCompletedPlans.push(...oldActivePlans);
-    }
-    
-    // Add the new plan as the active one
-    setActivePlans([newPlan]);
-    setCompletedPlans(updatedCompletedPlans);
-    
-    // Show toast
-    toast({
-      title: "Success",
-      description: "Your new study plan has been created and is now active!",
-    });
-    
-    setShowCreateDialog(false);
+  const handleViewTopic = (topicId: string) => {
+    navigate(`/dashboard/student/concepts/${topicId}`);
   };
 
   return (
-    <div className="space-y-12">
-      <AcademicHeader examGoal={userProfile?.examPreparation} />
+    <div className="space-y-6">
+      {/* Plan Overview Card */}
+      <Card className="bg-white dark:bg-gray-950">
+        <CardContent className="p-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Left column */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Academic Advisor</h2>
+                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                  AI Powered
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">
+                  Current Goal: <span className="text-blue-600">{studyPlan.examGoal}</span>
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Progress value={studyPlan.progressPercent} className="h-2 flex-1" />
+                  <span className="text-sm font-medium">{studyPlan.progressPercent}%</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium">Days Remaining</span>
+                  </div>
+                  <p className="text-2xl font-bold mt-1">{studyPlan.daysRemaining}</p>
+                </div>
+                
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-amber-600" />
+                    <span className="font-medium">Study Streak</span>
+                  </div>
+                  <p className="text-2xl font-bold mt-1">{studyPlan.streak} days</p>
+                </div>
+              </div>
+              
+              <Button onClick={handleNewStudyPlan} className="w-full mt-4">
+                Create New Study Plan
+              </Button>
+            </div>
+            
+            {/* Right column - Readiness */}
+            <div>
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 h-full">
+                <h3 className="font-semibold mb-3">Exam Readiness</h3>
+                
+                <div className="mb-4">
+                  <div className="flex justify-between items-center text-sm mb-1">
+                    <span>Overall Readiness Score</span>
+                    <span className="font-semibold">{studyPlan.readinessScore}%</span>
+                  </div>
+                  <Progress value={studyPlan.readinessScore} className="h-2" />
+                </div>
+                
+                <div className="space-y-3 mt-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Concepts Mastered</span>
+                      <span>{studyPlan.masteredConcepts}/{studyPlan.totalConceptsRequired}</span>
+                    </div>
+                    <Progress value={(studyPlan.masteredConcepts / studyPlan.totalConceptsRequired) * 100} className="h-1.5" />
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium mb-2 text-sm">Priority Focus Areas</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li className="flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3 text-red-500" />
+                        <span>Organic Chemistry</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3 text-amber-500" />
+                        <span>Newton's Laws of Motion</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
-      <StudyPlansList
-        activePlans={activePlans}
-        completedPlans={completedPlans}
-        onCreatePlan={handleCreatePlan}
-        onViewPlanDetails={handleViewPlanDetails}
-      />
-
-      <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        examGoal={userProfile?.examPreparation}
-        onCreatePlan={handleNewPlanCreated}
-      />
-
-      {selectedPlan && (
-        <StudyPlanDetail
-          plan={selectedPlan}
-          isOpen={!!selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-        />
-      )}
+      {/* Tabs Section */}
+      <Tabs defaultValue="topics" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="topics">Topics & Progress</TabsTrigger>
+          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="topics" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Current Topic Progress</h3>
+              
+              <div className="space-y-3">
+                {studyPlan.topics.map((topic) => (
+                  <div 
+                    key={topic.id}
+                    className={`p-3 border rounded-md flex justify-between items-center gap-2 ${
+                      topic.completed 
+                        ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/50' 
+                        : (topic.status === 'in-progress' 
+                          ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/50' 
+                          : 'bg-white dark:bg-gray-800')
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {topic.completed ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (topic.status === 'in-progress' ? (
+                          <Clock className="h-4 w-4 text-blue-600" />
+                        ) : (
+                          <BookOpen className="h-4 w-4 text-gray-600" />
+                        ))}
+                        <h4 className="font-medium">{topic.name}</h4>
+                        
+                        <Badge variant={
+                          topic.difficulty === 'easy' ? 'default' : 
+                          topic.difficulty === 'medium' ? 'secondary' : 
+                          'destructive'
+                        } className="ml-2">
+                          {topic.difficulty}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground mt-1 ml-6">
+                        Status: {topic.status === 'completed' ? 'Completed' : 
+                                topic.status === 'in-progress' ? 'In Progress' : 'Not Started'}
+                      </p>
+                    </div>
+                    
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="whitespace-nowrap"
+                      onClick={() => handleViewTopic(topic.id)}
+                    >
+                      View Topic <ArrowRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Subject Time Distribution</h3>
+              
+              <div className="space-y-4">
+                {studyPlan.timeSpent.bySubject.map((subject, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between mb-1">
+                      <span>{subject.subject}</span>
+                      <span>{subject.hours} hours</span>
+                    </div>
+                    <Progress 
+                      value={(subject.hours / studyPlan.timeSpent.total) * 100} 
+                      className="h-2" 
+                    />
+                  </div>
+                ))}
+                
+                <div className="text-sm text-right text-muted-foreground">
+                  Total: {studyPlan.timeSpent.total} hours
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="recommendations" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Personalized Recommendations</h3>
+              
+              <div className="space-y-4">
+                {studyPlan.recommendations.map((rec) => (
+                  <div key={rec.id} className="p-4 border rounded-md">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      {rec.tags.includes('urgent') && (
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      )}
+                      {rec.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {rec.description}
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      {rec.tags.map((tag, idx) => (
+                        <Badge key={idx} variant="outline" className="capitalize">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="study-tips">
+                  <AccordionTrigger>Study Tips</AccordionTrigger>
+                  <AccordionContent>
+                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                      <li>Break study sessions into 25-minute focused periods with 5-minute breaks</li>
+                      <li>Review your notes within 24 hours of creating them to improve retention</li>
+                      <li>Use practice tests to identify knowledge gaps</li>
+                      <li>Teach concepts to others to solidify your understanding</li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="improvement-areas">
+                  <AccordionTrigger>Areas for Improvement</AccordionTrigger>
+                  <AccordionContent>
+                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                      <li>Spend more time on organic chemistry reactions and mechanisms</li>
+                      <li>Practice numerical problems in physics, especially mechanics</li>
+                      <li>Review biology diagrams and terminology regularly</li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="achievements" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Your Achievements</h3>
+              
+              <div className="space-y-3">
+                {studyPlan.achievements.map((achievement) => (
+                  <div 
+                    key={achievement.id}
+                    className="p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/50 rounded-md"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      <h4 className="font-medium">{achievement.name}</h4>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Study Milestones</h3>
+              
+              <div className="relative pl-6 border-l border-gray-200 dark:border-gray-700 space-y-6">
+                <div className="relative">
+                  <div className="absolute -left-[23px] p-1 bg-green-100 dark:bg-green-900/30 border-2 border-green-500 rounded-full">
+                    <Check className="h-3 w-3 text-green-700 dark:text-green-400" />
+                  </div>
+                  <h4 className="font-medium">Started Study Plan</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">August 15, 2023</p>
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute -left-[23px] p-1 bg-green-100 dark:bg-green-900/30 border-2 border-green-500 rounded-full">
+                    <Check className="h-3 w-3 text-green-700 dark:text-green-400" />
+                  </div>
+                  <h4 className="font-medium">Completed 25% of Curriculum</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">October 5, 2023</p>
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute -left-[23px] p-1 bg-green-100 dark:bg-green-900/30 border-2 border-green-500 rounded-full">
+                    <Check className="h-3 w-3 text-green-700 dark:text-green-400" />
+                  </div>
+                  <h4 className="font-medium">Reached 50% Exam Readiness</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">November 20, 2023</p>
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute -left-[23px] p-1 bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-400 rounded-full">
+                    <Clock className="h-3 w-3 text-blue-700 dark:text-blue-400" />
+                  </div>
+                  <h4 className="font-medium">Complete Full Curriculum</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">January 15, 2024 (Estimated)</p>
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute -left-[23px] p-1 bg-gray-100 dark:bg-gray-800 border-2 border-gray-400 rounded-full">
+                    <span className="block h-3 w-3"></span>
+                  </div>
+                  <h4 className="font-medium">Exam Day</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">February 20, 2024</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

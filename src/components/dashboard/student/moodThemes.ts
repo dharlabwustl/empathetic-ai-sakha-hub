@@ -1,7 +1,7 @@
 
-import { MoodType } from "@/types/user/base";
+import { MoodType } from '@/types/user/base';
 
-interface MoodTheme {
+export interface MoodTheme {
   backgroundColor: string;
   textColor: string;
   borderColor: string;
@@ -11,139 +11,232 @@ interface MoodTheme {
   emoji: string;
   message: string;
   studyTip: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    darkPrimary: string;
+    darkSecondary: string;
+    darkAccent: string;
+  };
 }
 
-type MoodThemes = {
-  [key in MoodType]: MoodTheme
-};
+export interface MoodThemes {
+  [key in MoodType]: MoodTheme;
+  confused: MoodTheme;
+  calm: MoodTheme;
+}
 
-export const moodThemes: MoodThemes = {
+const moodThemes: MoodThemes = {
   [MoodType.Happy]: {
-    backgroundColor: "#FEF3C7",
-    textColor: "#92400E",
-    borderColor: "#FCD34D",
-    darkBackgroundColor: "rgba(251, 191, 36, 0.2)",
-    darkTextColor: "#FBBF24",
-    darkBorderColor: "#D97706",
-    emoji: "😊",
-    message: "You're in a good mood!",
-    studyTip: "This is a great time to tackle challenging subjects or start new material."
-  },
-  [MoodType.Motivated]: {
-    backgroundColor: "#ECFDF5",
-    textColor: "#065F46",
-    borderColor: "#6EE7B7",
-    darkBackgroundColor: "rgba(16, 185, 129, 0.2)",
-    darkTextColor: "#10B981",
-    darkBorderColor: "#059669",
-    emoji: "💪",
-    message: "You're feeling motivated today!",
-    studyTip: "Channel this energy into your most important topics and aim for deep work sessions."
-  },
-  [MoodType.Focused]: {
-    backgroundColor: "#EFF6FF",
-    textColor: "#1E40AF",
-    borderColor: "#93C5FD",
-    darkBackgroundColor: "rgba(59, 130, 246, 0.2)",
-    darkTextColor: "#3B82F6",
-    darkBorderColor: "#2563EB",
-    emoji: "🧠",
-    message: "You're in a focused state of mind!",
-    studyTip: "Perfect time for complex problem-solving and detailed conceptual work."
-  },
-  [MoodType.Neutral]: {
-    backgroundColor: "#F3F4F6",
-    textColor: "#4B5563",
-    borderColor: "#D1D5DB",
-    darkBackgroundColor: "rgba(107, 114, 128, 0.2)",
-    darkTextColor: "#9CA3AF",
-    darkBorderColor: "#6B7280",
-    emoji: "😐",
-    message: "You're feeling neutral today.",
-    studyTip: "Good for balanced study sessions across multiple subjects."
-  },
-  [MoodType.Tired]: {
-    backgroundColor: "#EEF2FF",
-    textColor: "#4338CA",
-    borderColor: "#A5B4FC",
-    darkBackgroundColor: "rgba(79, 70, 229, 0.2)",
-    darkTextColor: "#818CF8",
-    darkBorderColor: "#4F46E5",
-    emoji: "😴",
-    message: "You're feeling tired today.",
-    studyTip: "Try shorter study sessions with more frequent breaks. Focus on review rather than new material."
-  },
-  [MoodType.Anxious]: {
-    backgroundColor: "#FEF3C7",
-    textColor: "#92400E",
-    borderColor: "#FCD34D",
-    darkBackgroundColor: "rgba(245, 158, 11, 0.2)",
-    darkTextColor: "#FBBF24",
-    darkBorderColor: "#D97706",
-    emoji: "😰",
-    message: "You're feeling anxious today.",
-    studyTip: "Start with something easy to build confidence. Take breaks for deep breathing exercises."
+    backgroundColor: '#f0fdf4',
+    textColor: '#166534',
+    borderColor: '#bbf7d0',
+    darkBackgroundColor: '#052e16',
+    darkTextColor: '#4ade80',
+    darkBorderColor: '#166534',
+    emoji: '😊',
+    message: "You're feeling happy today! This positive energy can enhance your learning.",
+    studyTip: "Happiness boosts creativity. Try tackling challenging problems or creative assignments today.",
+    colors: {
+      primary: '#10b981',
+      secondary: '#34d399',
+      accent: '#a7f3d0',
+      darkPrimary: '#059669',
+      darkSecondary: '#10b981',
+      darkAccent: '#6ee7b7'
+    }
   },
   [MoodType.Stressed]: {
-    backgroundColor: "#FEE2E2",
-    textColor: "#B91C1C",
-    borderColor: "#FECACA",
-    darkBackgroundColor: "rgba(239, 68, 68, 0.2)",
-    darkTextColor: "#EF4444",
-    darkBorderColor: "#DC2626",
-    emoji: "😓",
-    message: "You're feeling stressed today.",
-    studyTip: "Choose review activities over new concepts. Break tasks into smaller chunks."
+    backgroundColor: '#fff1f2',
+    textColor: '#9f1239',
+    borderColor: '#fecdd3',
+    darkBackgroundColor: '#4c0519',
+    darkTextColor: '#fb7185',
+    darkBorderColor: '#9f1239',
+    emoji: '😰',
+    message: "You're feeling stressed. Let's find ways to make studying more manageable.",
+    studyTip: "Break tasks into smaller chunks and focus on one at a time. Take regular short breaks.",
+    colors: {
+      primary: '#f43f5e',
+      secondary: '#fb7185',
+      accent: '#fecdd3',
+      darkPrimary: '#e11d48',
+      darkSecondary: '#f43f5e',
+      darkAccent: '#fda4af'
+    }
   },
-  [MoodType.Sad]: {
-    backgroundColor: "#F3E8FF",
-    textColor: "#6D28D9",
-    borderColor: "#DDD6FE",
-    darkBackgroundColor: "rgba(139, 92, 246, 0.2)",
-    darkTextColor: "#A78BFA",
-    darkBorderColor: "#7C3AED",
-    emoji: "😢",
-    message: "You're feeling down today.",
-    studyTip: "Focus on subjects you enjoy. Set small, achievable goals to boost your mood."
+  [MoodType.Motivated]: {
+    backgroundColor: '#ecfeff',
+    textColor: '#155e75',
+    borderColor: '#a5f3fc',
+    darkBackgroundColor: '#083344',
+    darkTextColor: '#22d3ee',
+    darkBorderColor: '#155e75',
+    emoji: '🚀',
+    message: "You're motivated today! Perfect time to make significant progress.",
+    studyTip: "Channel your motivation into your most challenging subjects or tasks now.",
+    colors: {
+      primary: '#06b6d4',
+      secondary: '#22d3ee',
+      accent: '#a5f3fc',
+      darkPrimary: '#0891b2',
+      darkSecondary: '#06b6d4',
+      darkAccent: '#67e8f9'
+    }
   },
-  [MoodType.Curious]: {
-    backgroundColor: "#CFFAFE",
-    textColor: "#0E7490",
-    borderColor: "#A5F3FC",
-    darkBackgroundColor: "rgba(6, 182, 212, 0.2)",
-    darkTextColor: "#22D3EE",
-    darkBorderColor: "#0891B2",
-    emoji: "🤔",
-    message: "You're feeling curious today!",
-    studyTip: "Great time to explore new topics or dive deeper into concepts that interest you."
+  [MoodType.Tired]: {
+    backgroundColor: '#fef3c7',
+    textColor: '#92400e',
+    borderColor: '#fde68a',
+    darkBackgroundColor: '#451a03',
+    darkTextColor: '#fbbf24',
+    darkBorderColor: '#92400e',
+    emoji: '😴',
+    message: "You're feeling tired. Let's adapt your study approach accordingly.",
+    studyTip: "Focus on review rather than new material. Use active methods like practice questions to stay engaged.",
+    colors: {
+      primary: '#d97706',
+      secondary: '#f59e0b',
+      accent: '#fde68a',
+      darkPrimary: '#b45309',
+      darkSecondary: '#d97706',
+      darkAccent: '#fbbf24'
+    }
   },
-  [MoodType.Okay]: {
-    backgroundColor: "#E5E7EB",
-    textColor: "#374151",
-    borderColor: "#D1D5DB",
-    darkBackgroundColor: "rgba(75, 85, 99, 0.2)",
-    darkTextColor: "#9CA3AF",
-    darkBorderColor: "#4B5563",
-    emoji: "👍",
-    message: "You're feeling okay today.",
-    studyTip: "Good for steady progress. Mix review with new material for best results."
+  [MoodType.Focused]: {
+    backgroundColor: '#eff6ff',
+    textColor: '#1e40af',
+    borderColor: '#bfdbfe',
+    darkBackgroundColor: '#172554',
+    darkTextColor: '#3b82f6',
+    darkBorderColor: '#1e40af',
+    emoji: '🧠',
+    message: "You're feeling focused. This is ideal for deep learning sessions.",
+    studyTip: "Take advantage of your focus by tackling your most complex or detail-oriented subjects.",
+    colors: {
+      primary: '#3b82f6',
+      secondary: '#60a5fa',
+      accent: '#bfdbfe',
+      darkPrimary: '#2563eb',
+      darkSecondary: '#3b82f6',
+      darkAccent: '#93c5fd'
+    }
+  },
+  [MoodType.Confident]: {
+    backgroundColor: '#faf5ff',
+    textColor: '#6b21a8',
+    borderColor: '#e9d5ff',
+    darkBackgroundColor: '#3b0764',
+    darkTextColor: '#a855f7',
+    darkBorderColor: '#6b21a8',
+    emoji: '💪',
+    message: "You're feeling confident. Great time to challenge yourself!",
+    studyTip: "Test your knowledge with practice exams or challenging problems.",
+    colors: {
+      primary: '#8b5cf6',
+      secondary: '#a855f7',
+      accent: '#e9d5ff',
+      darkPrimary: '#7c3aed',
+      darkSecondary: '#8b5cf6',
+      darkAccent: '#d8b4fe'
+    }
+  },
+  [MoodType.Confused]: {
+    backgroundColor: '#fdf4ff',
+    textColor: '#86198f',
+    borderColor: '#f5d0fe',
+    darkBackgroundColor: '#4a044e',
+    darkTextColor: '#d946ef',
+    darkBorderColor: '#86198f',
+    emoji: '🤔',
+    message: "You're feeling confused. Let's clarify concepts step by step.",
+    studyTip: "Revisit foundational concepts and seek additional explanations for challenging topics.",
+    colors: {
+      primary: '#d946ef',
+      secondary: '#e879f9',
+      accent: '#f5d0fe',
+      darkPrimary: '#c026d3',
+      darkSecondary: '#d946ef',
+      darkAccent: '#f0abfc'
+    }
+  },
+  [MoodType.Bored]: {
+    backgroundColor: '#f1f5f9',
+    textColor: '#475569',
+    borderColor: '#cbd5e1',
+    darkBackgroundColor: '#1e293b',
+    darkTextColor: '#94a3b8',
+    darkBorderColor: '#475569',
+    emoji: '😑',
+    message: "You're feeling bored. Let's find ways to make studying more engaging.",
+    studyTip: "Try a change of environment, study method, or subject to reignite your interest.",
+    colors: {
+      primary: '#64748b',
+      secondary: '#94a3b8',
+      accent: '#e2e8f0',
+      darkPrimary: '#475569',
+      darkSecondary: '#64748b',
+      darkAccent: '#cbd5e1'
+    }
+  },
+  [MoodType.Anxious]: {
+    backgroundColor: '#fefce8',
+    textColor: '#854d0e',
+    borderColor: '#fef08a',
+    darkBackgroundColor: '#422006',
+    darkTextColor: '#facc15',
+    darkBorderColor: '#854d0e',
+    emoji: '😟',
+    message: "You're feeling anxious. Let's manage those feelings to help you study effectively.",
+    studyTip: "Start with small, achievable tasks to build momentum and confidence.",
+    colors: {
+      primary: '#eab308',
+      secondary: '#facc15',
+      accent: '#fef08a',
+      darkPrimary: '#ca8a04',
+      darkSecondary: '#eab308',
+      darkAccent: '#fde047'
+    }
+  },
+  [MoodType.Calm]: {
+    backgroundColor: '#f0f9ff',
+    textColor: '#0c4a6e',
+    borderColor: '#bae6fd',
+    darkBackgroundColor: '#082f49',
+    darkTextColor: '#38bdf8',
+    darkBorderColor: '#0c4a6e',
+    emoji: '😌',
+    message: "You're feeling calm. This balanced state is perfect for thoughtful study.",
+    studyTip: "Use this calm state for comprehensive review or connecting concepts across subjects.",
+    colors: {
+      primary: '#0ea5e9',
+      secondary: '#38bdf8',
+      accent: '#bae6fd',
+      darkPrimary: '#0284c7',
+      darkSecondary: '#0ea5e9',
+      darkAccent: '#7dd3fc'
+    }
   },
   [MoodType.Overwhelmed]: {
-    backgroundColor: "#FFEDD5",
-    textColor: "#9A3412",
-    borderColor: "#FED7AA",
-    darkBackgroundColor: "rgba(234, 88, 12, 0.2)",
-    darkTextColor: "#FDBA74",
-    darkBorderColor: "#C2410C",
-    emoji: "😵",
-    message: "You're feeling overwhelmed today.",
-    studyTip: "Break work into the smallest possible tasks. Focus on one thing at a time."
+    backgroundColor: '#ffedd5',
+    textColor: '#9a3412',
+    borderColor: '#fed7aa',
+    darkBackgroundColor: '#431407',
+    darkTextColor: '#fb923c',
+    darkBorderColor: '#9a3412',
+    emoji: '😵',
+    message: "You're feeling overwhelmed. Let's break things down to make them manageable.",
+    studyTip: "Create a prioritized list and focus on just one task at a time.",
+    colors: {
+      primary: '#f97316',
+      secondary: '#fb923c',
+      accent: '#fed7aa',
+      darkPrimary: '#ea580c',
+      darkSecondary: '#f97316',
+      darkAccent: '#fdba74'
+    }
   }
 };
 
-export const getMoodTheme = (mood: MoodType | undefined): MoodTheme => {
-  if (!mood || !(mood in moodThemes)) {
-    return moodThemes[MoodType.Neutral]; // Default to neutral
-  }
-  return moodThemes[mood];
-};
+export default moodThemes;
