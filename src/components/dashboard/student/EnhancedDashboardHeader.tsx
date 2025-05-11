@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import CreateStudyPlanWizard from './academic/CreateStudyPlanWizard';
-import { MoodSelector } from './mood-tracking/MoodSelector';
 
 type EventType = 'exam' | 'task' | 'class';
 
@@ -78,9 +77,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     setDialogOpen(false);
   };
 
-  // Calculate exam readiness score
-  const examReadinessScore = 68; // This would be calculated based on various factors
-
   return (
     <div className="space-y-6 mb-8">
       {/* Top row - Greeting and time */}
@@ -96,11 +92,13 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           </p>
         </div>
         
-        {/* Mood Selector */}
+        {/* Mood button */}
         {onMoodChange && (
-          <div className="flex items-center">
-            <span className="text-sm text-muted-foreground mr-2">How are you feeling?</span>
-            <MoodSelector currentMood={currentMood} onMoodChange={onMoodChange} />
+          <div>
+            <MoodLogButton
+              currentMood={currentMood}
+              onMoodChange={onMoodChange}
+            />
           </div>
         )}
       </div>
@@ -120,34 +118,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 {goals.map((goal) => (
                   <div key={goal.id} className="mt-2 space-y-2">
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-indigo-600 text-lg px-3 py-1">{goal.title}</Badge>
+                      <Badge className="bg-indigo-600">{goal.title}</Badge>
                       {goal.targetDate && (
                         <Badge variant="outline">
                           {calculateDaysUntil(goal.targetDate)} days left
                         </Badge>
                       )}
-                    </div>
-                    
-                    {/* Exam Readiness Score */}
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md mt-3">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Exam Readiness</span>
-                        <span className="font-medium">{examReadinessScore}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-green-500 rounded-full" 
-                          style={{ width: `${examReadinessScore}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
-                    {/* Study Streak */}
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md mt-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Study Streak: <span className="font-medium">7 days</span></span>
-                      </div>
                     </div>
                     
                     {goal.progress !== undefined && (
@@ -177,6 +153,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                   <CreateStudyPlanWizard 
+                    isOpen={dialogOpen}
                     onCreatePlan={createStudyPlan} 
                     onClose={handleDialogClose} 
                     examGoal={goals[0]?.title}
