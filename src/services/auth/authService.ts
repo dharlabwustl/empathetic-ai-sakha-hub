@@ -1,3 +1,4 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -131,53 +132,34 @@ const authService = {
   
   // Enhanced logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
-    try {
-      // Clear all authentication data from local storage
-      localStorage.removeItem('userData');
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
-      localStorage.removeItem('user_profile_image');
-      localStorage.removeItem('prepzr_remembered_email');
-      localStorage.removeItem('admin_logged_in');
-      localStorage.removeItem('admin_user');
-      localStorage.removeItem('new_user_signup');
-      localStorage.removeItem('sawWelcomeTour');
-      localStorage.removeItem('completedOnboarding');
-      localStorage.removeItem('hasSeenSplash');
-      localStorage.removeItem('voiceSettings');
-      localStorage.removeItem('voiceAssistantLanguage');
-      localStorage.removeItem('voiceAssistantOnboardingSeen');
-      localStorage.removeItem('current_mood');
-      localStorage.removeItem('mood_history');
-      
-      // Clear any session storage items that might contain auth data
-      sessionStorage.removeItem('userData');
-      sessionStorage.removeItem('isLoggedIn');
-      sessionStorage.removeItem('authToken');
-      sessionStorage.removeItem('hasSeenSplash');
-      
-      // Reset API client
-      apiClient.setAuthToken(null);
-      
-      console.log("Logout complete - All authentication data cleared");
-      
-      // Force reload the page to ensure clean state
-      window.location.href = '/login';
-      
-      return {
-        success: true,
-        data: null,
-        error: null
-      };
-    } catch (error) {
-      console.error("Error during logout:", error);
-      return {
-        success: false,
-        data: null,
-        error: "Failed to complete logout"
-      };
-    }
+    // Clear all authentication data from local storage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('prepzr_remembered_email');
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    
+    // Clear any session storage items that might contain auth data
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('authToken');
+    
+    // Reset API client
+    apiClient.setAuthToken(null);
+    
+    console.log("Logout complete - All authentication data cleared");
+    
+    // Redirect to login page
+    // window.location.href = '/login';
+    
+    return {
+      success: true,
+      data: null,
+      error: null
+    };
   },
   
   // Set auth data in local storage and configure API client
