@@ -92,6 +92,7 @@ function App() {
               
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
+              <Route path="/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
