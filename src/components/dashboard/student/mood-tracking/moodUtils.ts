@@ -1,96 +1,104 @@
+
 import { MoodType } from "@/types/user/base";
 
-export const getMoodEmoji = (mood?: MoodType): string => {
-  if (!mood) return "😐";
-  
+export const storeMoodInLocalStorage = (mood: MoodType): void => {
+  try {
+    localStorage.setItem('current_mood', mood);
+    
+    // Also store in mood history
+    const now = new Date();
+    const moodEntry = {
+      mood,
+      timestamp: now.toISOString()
+    };
+    
+    // Get existing mood history
+    const moodHistoryString = localStorage.getItem('mood_history');
+    const moodHistory = moodHistoryString ? JSON.parse(moodHistoryString) : [];
+    
+    // Add new entry and limit history to 30 entries
+    moodHistory.unshift(moodEntry);
+    if (moodHistory.length > 30) {
+      moodHistory.pop();
+    }
+    
+    localStorage.setItem('mood_history', JSON.stringify(moodHistory));
+  } catch (error) {
+    console.error('Error storing mood in localStorage:', error);
+  }
+};
+
+export const getCurrentMoodFromLocalStorage = (): MoodType | undefined => {
+  try {
+    const mood = localStorage.getItem('current_mood') as MoodType;
+    return mood || undefined;
+  } catch (error) {
+    console.error('Error retrieving mood from localStorage:', error);
+    return undefined;
+  }
+};
+
+export const getMoodHistoryFromLocalStorage = (): Array<{mood: MoodType, timestamp: string}> => {
+  try {
+    const moodHistoryString = localStorage.getItem('mood_history');
+    return moodHistoryString ? JSON.parse(moodHistoryString) : [];
+  } catch (error) {
+    console.error('Error retrieving mood history from localStorage:', error);
+    return [];
+  }
+};
+
+export const getFormattedMoodDate = (timestamp: string): string => {
+  try {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  } catch (error) {
+    return 'Unknown date';
+  }
+};
+
+export const getMoodEmoji = (mood: MoodType): string => {
   switch (mood) {
     case MoodType.Happy:
       return "😊";
+    case MoodType.Sad:
+      return "😔";
+    case MoodType.Stressed:
+      return "😰";
+    case MoodType.Tired:
+      return "😴";
     case MoodType.Motivated:
       return "💪";
     case MoodType.Focused:
       return "🧠";
-    case MoodType.Tired:
-      return "😴";
-    case MoodType.Stressed:
-      return "😰";
-    case MoodType.Anxious:
-      return "😨";
+    case MoodType.Confused:
+      return "😕";
     case MoodType.Overwhelmed:
-      return "🥴";
-    case MoodType.Curious:
-      return "🤔";
-    case MoodType.Calm:
-      return "😌";
-    case MoodType.Sad:
-      return "😢";
+      return "😫";
     default:
       return "😐";
   }
 };
 
-export const getMoodColor = (mood?: MoodType): string => {
-  if (!mood) return "bg-gray-200 text-gray-700";
-  
+export const getMoodColor = (mood: MoodType): string => {
   switch (mood) {
     case MoodType.Happy:
-      return "bg-green-100 text-green-700";
-    case MoodType.Motivated:
-      return "bg-blue-100 text-blue-700";
-    case MoodType.Focused:
-      return "bg-indigo-100 text-indigo-700";
-    case MoodType.Tired:
-      return "bg-yellow-100 text-yellow-700";
-    case MoodType.Stressed:
-      return "bg-red-100 text-red-700";
-    case MoodType.Anxious:
-      return "bg-orange-100 text-orange-700";
-    case MoodType.Overwhelmed:
-      return "bg-purple-100 text-purple-700";
-    case MoodType.Curious:
-      return "bg-cyan-100 text-cyan-700";
-    case MoodType.Calm:
-      return "bg-teal-100 text-teal-700";
+      return "#4ade80"; // green-400
     case MoodType.Sad:
-      return "bg-gray-100 text-gray-700";
+      return "#60a5fa"; // blue-400
+    case MoodType.Stressed:
+      return "#f87171"; // red-400
+    case MoodType.Tired:
+      return "#a78bfa"; // violet-400
+    case MoodType.Motivated:
+      return "#fb923c"; // orange-400
+    case MoodType.Focused:
+      return "#22d3ee"; // cyan-400
+    case MoodType.Confused:
+      return "#fbbf24"; // amber-400
+    case MoodType.Overwhelmed:
+      return "#f43f5e"; // rose-500
     default:
-      return "bg-gray-200 text-gray-700";
+      return "#94a3b8"; // slate-400
   }
-};
-
-export const storeMoodInLocalStorage = (mood: MoodType): void => {
-  localStorage.setItem("currentMood", mood);
-  
-  // Also save with timestamp for mood history
-  const moodHistory = JSON.parse(localStorage.getItem("moodHistory") || "[]");
-  moodHistory.push({
-    mood,
-    timestamp: new Date().toISOString(),
-  });
-  
-  // Keep only the last 30 days of mood data
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
-  const filteredHistory = moodHistory.filter((entry: any) => 
-    new Date(entry.timestamp) >= thirtyDaysAgo
-  );
-  
-  localStorage.setItem("moodHistory", JSON.stringify(filteredHistory));
-};
-
-export const getCurrentMoodFromLocalStorage = (): MoodType | undefined => {
-  const mood = localStorage.getItem("currentMood") as MoodType | null;
-  return mood || undefined;
-};
-
-export const getMoodHistoryFromLocalStorage = () => {
-  return JSON.parse(localStorage.getItem("moodHistory") || "[]");
-};
-
-export const getMoodLabel = (mood?: MoodType): string => {
-  if (!mood) return "Not Set";
-  
-  // Convert enum value to readable text (e.g., "HAPPY" to "Happy")
-  return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
 };

@@ -16,11 +16,45 @@ import FormulaLabPage from "./formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
 
+// Enhanced KPI data for the dashboard
+const updatedKpis = [
+  {
+    id: "total-students",
+    title: "Total Students",
+    value: 24650,
+    change: 1250,
+    changeType: "increase"
+  },
+  {
+    id: "success-rate",
+    title: "Success Rate",
+    value: 92,
+    unit: "%",
+    change: 5,
+    changeType: "increase"
+  },
+  {
+    id: "study-plans",
+    title: "Dynamic Study Plans",
+    value: 14520,
+    change: 820,
+    changeType: "increase"
+  },
+  {
+    id: "stress-reduced",
+    title: "Feel Stress Reduced",
+    value: 85,
+    unit: "%",
+    change: 10,
+    changeType: "increase"
+  }
+];
+
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<DashboardOverview />} />
-      <Route path="/today" element={<TodaysPlanView />} />
+      <Route path="/" element={<DashboardOverview kpis={updatedKpis} />} />
+      <Route path="/today" element={<TodaysPlanView kpis={updatedKpis} />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:id" element={<ConceptDetailPage />} />

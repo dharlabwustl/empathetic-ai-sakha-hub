@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { ArrowRight, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar as CalendarIcon, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SubjectsStep from '@/components/dashboard/student/onboarding/SubjectsStep';
 import { useStudyPlanWizard } from '@/components/dashboard/student/academic/hooks/useStudyPlanWizard';
@@ -57,14 +57,37 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                 <Button
                   key={goal}
                   variant={formData.examGoal === goal ? "default" : "outline"}
-                  className={cn("h-20 flex flex-col", 
-                    formData.examGoal === goal && "border-2 border-primary")}
+                  className={cn(
+                    "h-20 flex flex-col", 
+                    formData.examGoal === goal && "border-2 border-primary relative"
+                  )}
                   onClick={() => handleExamGoalSelect(goal)}
                 >
                   <span>{goal}</span>
+                  {formData.examGoal === goal && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1">
+                      <Check className="h-3 w-3" />
+                    </span>
+                  )}
                 </Button>
               ))}
             </div>
+            {formData.examGoal === 'Other' && (
+              <div className="mt-4">
+                <Label htmlFor="customExam">Enter exam name</Label>
+                <Input 
+                  id="customExam"
+                  placeholder="Custom exam name"
+                  value={formData.title || ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    title: e.target.value,
+                    examGoal: e.target.value || 'Other'
+                  }))}
+                  className="mt-1"
+                />
+              </div>
+            )}
           </div>
         );
       case 2:
@@ -105,6 +128,18 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                 </PopoverContent>
               </Popover>
             </div>
+
+            {/* Days until exam calculation */}
+            {formData.examDate && (
+              <div className="p-3 bg-muted rounded-md">
+                <div className="text-center">
+                  <p className="text-muted-foreground text-sm">Days until exam</p>
+                  <p className="text-2xl font-bold">
+                    {Math.ceil((new Date(formData.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         );
       case 3:
@@ -144,6 +179,12 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                   className="w-full"
                 />
               </div>
+              {/* Weekly calculation */}
+              {formData.studyHoursPerDay && (
+                <div className="p-3 bg-muted rounded-md">
+                  <p className="text-sm text-muted-foreground">Weekly study hours: <span className="font-medium">{formData.studyHoursPerDay * 7}</span></p>
+                </div>
+              )}
             </div>
           </div>
         );
