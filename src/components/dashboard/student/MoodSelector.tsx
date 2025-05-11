@@ -26,16 +26,64 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
   className = '',
   buttonSize = 'md'
 }) => {
-  // Define the moods with their icons and labels
+  // Define the moods with their icons, labels, and recommendation messages
   const moods = [
-    { type: MoodType.Happy, icon: Smile, label: 'Happy', color: 'text-yellow-500' },
-    { type: MoodType.Tired, icon: Frown, label: 'Tired', color: 'text-blue-500' },
-    { type: MoodType.Motivated, icon: Zap, label: 'Motivated', color: 'text-purple-500' },
-    { type: MoodType.Focused, icon: Target, label: 'Focused', color: 'text-green-500' },
-    { type: MoodType.Neutral, icon: Meh, label: 'Neutral', color: 'text-gray-500' },
-    { type: MoodType.Anxious, icon: AlertCircle, label: 'Anxious', color: 'text-orange-500' },
-    { type: MoodType.Stressed, icon: AlertTriangle, label: 'Stressed', color: 'text-red-500' },
-    { type: MoodType.Confused, icon: HelpCircle, label: 'Confused', color: 'text-cyan-500' }
+    { 
+      type: MoodType.Happy, 
+      icon: Smile, 
+      label: 'Happy', 
+      color: 'text-yellow-500',
+      message: "Great that you're feeling happy! It's a perfect time to tackle some challenging topics."
+    },
+    { 
+      type: MoodType.Tired, 
+      icon: Frown, 
+      label: 'Tired', 
+      color: 'text-blue-500',
+      message: "I see you're feeling tired. Let's focus on lighter review sessions and take regular breaks."
+    },
+    { 
+      type: MoodType.Motivated, 
+      icon: Zap, 
+      label: 'Motivated', 
+      color: 'text-purple-500',
+      message: "You're motivated! Perfect time to make progress on your most important subjects."
+    },
+    { 
+      type: MoodType.Focused, 
+      icon: Target, 
+      label: 'Focused', 
+      color: 'text-green-500',
+      message: "Focused mode activated! Let's dive into some concept quizzes to maximize your concentration."
+    },
+    { 
+      type: MoodType.Neutral, 
+      icon: Meh, 
+      label: 'Neutral', 
+      color: 'text-gray-500',
+      message: "Feeling neutral today. A balanced study session with varied activities might work well."
+    },
+    { 
+      type: MoodType.Anxious, 
+      icon: AlertCircle, 
+      label: 'Anxious', 
+      color: 'text-orange-500',
+      message: "I notice you're feeling anxious. Let's try some confidence-building review of topics you know well."
+    },
+    { 
+      type: MoodType.Stressed, 
+      icon: AlertTriangle, 
+      label: 'Stressed', 
+      color: 'text-red-500',
+      message: "Stress detected. Consider a lighter study load today with breaks and some mindfulness exercises."
+    },
+    { 
+      type: MoodType.Confused, 
+      icon: HelpCircle, 
+      label: 'Confused', 
+      color: 'text-cyan-500',
+      message: "Feeling confused is normal during learning. Let's review some fundamentals to build clarity."
+    }
   ];
   
   // Size classes based on the buttonSize prop
@@ -43,6 +91,23 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
     sm: 'p-1.5',
     md: 'p-2',
     lg: 'p-3'
+  };
+  
+  // Function to handle mood selection and trigger voice assistant
+  const handleMoodChange = (mood: MoodType) => {
+    onMoodChange(mood);
+    
+    // Find the selected mood's message
+    const selectedMood = moods.find(m => m.type === mood);
+    if (selectedMood) {
+      // Trigger voice assistant event with the mood's message
+      const voiceEvent = new CustomEvent('voice-assistant-speak', {
+        detail: {
+          message: `Noted you're feeling ${selectedMood.label.toLowerCase()} today. ${selectedMood.message}`
+        }
+      });
+      document.dispatchEvent(voiceEvent);
+    }
   };
   
   return (
@@ -57,7 +122,7 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
             variant={isActive ? 'default' : 'ghost'}
             size="sm"
             className={`${sizeClasses[buttonSize]} ${isActive ? 'bg-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-800'} rounded-full`}
-            onClick={() => onMoodChange(mood.type)}
+            onClick={() => handleMoodChange(mood.type)}
             title={mood.label}
           >
             <Icon

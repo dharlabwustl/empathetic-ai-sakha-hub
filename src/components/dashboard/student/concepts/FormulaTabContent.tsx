@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calculator, FileText, ArrowRight } from 'lucide-react';
+import { Calculator } from 'lucide-react';
 
 interface FormulaTabContentProps {
   conceptId: string;
@@ -10,117 +10,87 @@ interface FormulaTabContentProps {
   handleOpenFormulaLab: () => void;
 }
 
-const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
+const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ 
   conceptId,
   conceptTitle,
   handleOpenFormulaLab
 }) => {
-  // In a real app, these formulas would come from an API
+  // Example formulas related to Newton's Laws (if conceptId is 1)
   const formulas = [
     {
       id: "f1",
       name: "Newton's Second Law",
       formula: "F = ma",
+      variables: [
+        { symbol: "F", name: "Force", unit: "N (Newton)" },
+        { symbol: "m", name: "Mass", unit: "kg (Kilogram)" },
+        { symbol: "a", name: "Acceleration", unit: "m/s² (Meter per second squared)" }
+      ],
       description: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass."
     },
     {
       id: "f2",
       name: "Weight Formula",
       formula: "W = mg",
+      variables: [
+        { symbol: "W", name: "Weight", unit: "N (Newton)" },
+        { symbol: "m", name: "Mass", unit: "kg (Kilogram)" },
+        { symbol: "g", name: "Gravitational acceleration", unit: "m/s² (typically 9.8 m/s² on Earth)" }
+      ],
       description: "Weight is the force exerted on an object due to gravity."
-    },
-    {
-      id: "f3",
-      name: "Momentum Formula",
-      formula: "p = mv",
-      description: "Linear momentum is the product of an object's mass and its velocity."
     }
   ];
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-blue-500" />
-            Formula Lab
-          </CardTitle>
-          <CardDescription>
-            Practice and master formulas related to {conceptTitle}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {formulas.map((formula) => (
-              <div key={formula.id} className="p-4 border rounded-lg bg-card">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium">{formula.name}</h3>
-                </div>
-                <div className="px-4 py-2 bg-muted rounded-md mb-3">
-                  <p className="text-center font-mono text-lg">{formula.formula}</p>
-                </div>
-                <p className="text-sm text-muted-foreground">{formula.description}</p>
-              </div>
-            ))}
+    <Card className="border border-gray-100 dark:border-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calculator className="h-5 w-5 text-blue-600" />
+            <span>Formula Lab</span>
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-3">
-          <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700"
-            onClick={handleOpenFormulaLab}
-          >
-            <Calculator className="mr-2 h-4 w-4" />
+          <Button onClick={handleOpenFormulaLab} className="bg-blue-600 hover:bg-blue-700">
             Open Formula Lab
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Practice formulas with interactive calculator and step-by-step explanations</p>
-          </div>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Why Use Formula Lab?</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                  <Calculator className="h-4 w-4 text-blue-600" />
-                </div>
-                <span className="font-medium">Interactive Practice</span>
+        </CardTitle>
+        <CardDescription>
+          Practice and master formulas related to {conceptTitle}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {formulas.map((formula, index) => (
+            <div key={index} className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-lg">
+              <h3 className="text-lg font-medium mb-3">{formula.name}</h3>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-md flex items-center justify-center mb-4 shadow-sm">
+                <span className="text-xl md:text-2xl font-serif">{formula.formula}</span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Apply formulas with different values to see how they work
-              </p>
-            </div>
-            
-            <div className="flex flex-col space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
-                  <FileText className="h-4 w-4 text-green-600" />
-                </div>
-                <span className="font-medium">Step-by-Step Solutions</span>
+              <h4 className="font-medium text-sm mb-2">Variables:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                {formula.variables.map((variable, vIndex) => (
+                  <div key={vIndex} className="bg-white dark:bg-gray-800 p-3 rounded-md text-sm shadow-sm">
+                    <span className="font-bold">{variable.symbol}</span>: {variable.name} ({variable.unit})
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-muted-foreground">
-                See the detailed steps to solve any problem
-              </p>
+              <p className="text-sm text-muted-foreground">{formula.description}</p>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button 
-            className="w-full"
-            variant="outline"
-            onClick={handleOpenFormulaLab}
-          >
-            Start Practicing
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-3 border-t pt-4">
+        <h4 className="font-medium">In the Formula Lab you can:</h4>
+        <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+          <li>Practice with interactive formula calculators</li>
+          <li>See step-by-step solutions for different problems</li>
+          <li>Get hints and explanations for each formula</li>
+          <li>Track your understanding of each formula</li>
+        </ul>
+        <Button variant="outline" onClick={handleOpenFormulaLab} className="mt-3 w-full sm:w-auto">
+          Start Formula Practice
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

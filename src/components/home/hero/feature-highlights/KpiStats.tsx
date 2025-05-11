@@ -54,23 +54,23 @@ const KpiStats = () => {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 mb-8 p-1 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl">
+        <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 mb-8 p-2 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl">
           {tabs.map(tab => (
             <TabsTrigger 
               key={tab.id} 
               value={tab.id}
-              className={`relative text-sm md:text-base py-3 transition-all duration-300 ${
+              className={`relative text-sm md:text-base py-4 px-2 transition-all duration-300 ${
                 activeTab === tab.id ? "font-medium" : ""
               }`}
             >
               {activeTab === tab.id && (
                 <motion.div 
-                  className="absolute inset-0 bg-white dark:bg-gray-700 rounded-lg shadow-md z-0"
+                  className="absolute inset-0 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-0"
                   layoutId="activeTabBackground"
                   transition={{ type: "spring", duration: 0.5 }}
                 />
               )}
-              <span className="relative z-10">{tab.title}</span>
+              <span className="relative z-10 font-medium">{tab.title}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -85,13 +85,13 @@ const KpiStats = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
-                  <Card className="overflow-hidden border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-all duration-300">
-                    <CardContent className="p-6">
+                  <Card className="overflow-hidden border-gray-200 dark:border-gray-800 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl">
+                    <CardContent className="p-8">
                       <div className="flex flex-col items-center text-center">
-                        <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-blue-500 mb-2">
+                        <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-blue-500 mb-3">
                           {metric.value}
                         </div>
-                        <div className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-1">
+                        <div className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
                           {metric.label}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">

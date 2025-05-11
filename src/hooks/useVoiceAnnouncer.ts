@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
+import { MoodType } from '@/types/user/base';
 import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAnnouncerProps {
@@ -54,19 +55,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setAvailableVoices(voices);
         setVoiceInitialized(true);
         console.log("Voice system initialized with available voices:", voices.length);
-        
-        // Log available voices and languages
-        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
-        const availableLanguages = new Set(voices.map(v => v.lang));
-        console.log("Available languages:", Array.from(availableLanguages));
-        
-        // Check if we have Hindi voices
-        const hindiVoices = voices.filter(v => v.lang.includes('hi-IN'));
-        console.log("Hindi voices available:", hindiVoices.length > 0, hindiVoices.map(v => v.name));
-        
-        // Check for Indian English voices
-        const indianVoices = voices.filter(v => v.lang.includes('en-IN'));
-        console.log("Indian English voices available:", indianVoices.length > 0, indianVoices.map(v => v.name));
       };
       
       // Ensure voices are loaded before initializing
@@ -123,15 +111,48 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       console.log("Speech ended");
     };
     
+    // Custom event for voice assistant to speak mood-based messages
+    const handleVoiceAssistantSpeak = (event: any) => {
+      if (event.detail && event.detail.message) {
+        speakMessage(event.detail.message, true);
+      }
+    };
+    
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
     document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
+    document.addEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
     
     return () => {
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
+      document.removeEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
       document.head.removeChild(styleElement);
     };
   }, []);
+  
+  // Function to get study recommendation based on mood
+  const getMoodRecommendation = (mood: MoodType): string => {
+    switch(mood) {
+      case MoodType.Happy:
+        return "This is a great time to tackle challenging topics or try some practice tests.";
+      case MoodType.Motivated:
+        return "Channel that motivation into focused study sessions on high-priority subjects.";
+      case MoodType.Focused:
+        return "Perfect time for in-depth concept exploration and difficult problem sets.";
+      case MoodType.Tired:
+        return "Consider lighter review sessions with breaks, or focusing on easier topics today.";
+      case MoodType.Stressed:
+        return "Try shorter study sessions with mindfulness breaks, and review familiar material.";
+      case MoodType.Anxious:
+        return "Start with topics you're confident in, then gradually approach challenging areas.";
+      case MoodType.Confused:
+        return "Let's go back to basics and review foundational concepts before moving forward.";
+      case MoodType.Neutral:
+        return "A balanced approach works well - mix review with new material, and take regular breaks.";
+      default:
+        return "Let's adjust your study plan based on how you're feeling throughout the day.";
+    }
+  };
   
   // Update settings in local storage whenever they change
   useEffect(() => {
@@ -290,7 +311,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     voiceInitialized,
     transcript,
     availableVoices,
-    supportedLanguages: getSupportedLanguages()
+    supportedLanguages: getSupportedLanguages(),
+    getMoodRecommendation
   };
 };
 

@@ -208,31 +208,27 @@ const HeroSection = () => {
           <div className="max-w-4xl">
             {/* Hindi text line with enhanced gradient */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              variants={textVariants}
-              style={{fontFamily: "'Poppins', 'Noto Sans Devanagari', sans-serif"}}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6"
+              style={{ fontFamily: "'Noto Sans Devanagari', 'Poppins', sans-serif", fontWeight: 800 }}
             >
-              <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
-                अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
-              </span>
+              अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
             </motion.h1>
             
             {/* English text line with different animation timing */}
             <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
               className="text-3xl md:text-4xl lg:text-5xl font-medium text-gray-800 dark:text-white"
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              variants={textVariants}
             >
-              We understand Your Mindset, Not Just the Exam.
+              We Understand Your Mindset, Not Just the Exam.
             </motion.h2>
           </div>
           
-          {/* Animated taglines */}
+          {/* Animated taglines with improved gradient animations */}
           <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-12 flex items-center justify-center mt-6">
             <motion.span
               key={currentTagline}
@@ -322,79 +318,6 @@ const HeroSection = () => {
                 </Button>
               </>
             )}
-          </motion.div>
-          
-          {/* Dashboard preview with enhanced animations */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="mt-8 sm:mt-16 relative max-w-5xl mx-auto"
-          >
-            <motion.div 
-              className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800"
-              whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <div className="bg-gray-100 dark:bg-gray-800 h-12 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full" />
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                  <div className="w-3 h-3 bg-green-500 rounded-full" />
-                </div>
-                <div className="mx-auto text-sm text-gray-500 dark:text-gray-400">
-                  Prepzr Dashboard
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-900 aspect-[16/9] sm:aspect-[16/8]">
-                <img 
-                  src="/img/dashboard-preview.png" 
-                  alt="Prepzr Dashboard Preview" 
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            </motion.div>
-            
-            {/* Enhanced decorative background elements with animations */}
-            <motion.div 
-              className="absolute -top-40 -left-40 h-80 w-80 bg-purple-300 dark:bg-purple-900/30 rounded-full filter blur-3xl opacity-30 mix-blend-multiply dark:mix-blend-soft-light"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.4, 0.3],
-              }}
-              transition={{
-                duration: 12,
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-            />
-            <motion.div 
-              className="absolute -bottom-40 -right-40 h-80 w-80 bg-indigo-300 dark:bg-indigo-900/30 rounded-full filter blur-3xl opacity-30 mix-blend-multiply dark:mix-blend-soft-light"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{
-                duration: 15,
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 2
-              }}
-            />
-            <motion.div 
-              className="absolute top-1/4 left-1/3 h-80 w-80 bg-pink-300 dark:bg-pink-900/30 rounded-full filter blur-3xl opacity-20 mix-blend-multiply dark:mix-blend-soft-light"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.2, 0.3, 0.2],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 1
-              }}
-            />
           </motion.div>
           
           {/* Exam Names Badge - kept as is */}
