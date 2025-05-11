@@ -9,8 +9,8 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
   }, [conceptId]);
   
-  // Redirect to the concept detail page with the correct URL structure
-  return <Navigate to={`/dashboard/student/concepts/${conceptId}`} replace />;
+  // Redirect to the concept card detail page with the correct URL structure
+  return <Navigate to={`/dashboard/student/concepts/card/${conceptId}`} replace />;
 };
 
 export default ConceptStudyPage;

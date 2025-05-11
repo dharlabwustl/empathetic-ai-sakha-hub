@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import authService from '@/services/auth/authService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -40,7 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // If authenticated, render the children
   if (userIsAuthenticated) {
-    return children;
+    return <>{children}</>;
   }
   
   // Otherwise, redirect to login page with return path
