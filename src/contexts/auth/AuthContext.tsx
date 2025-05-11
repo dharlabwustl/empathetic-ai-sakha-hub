@@ -124,32 +124,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Logout function - enhanced to fully clear authentication state
+  // Improved logout function to completely clear authentication state
   const logout = () => {
-    // Preserve some user preferences but remove auth data
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        // Only keep preferences and mood, remove auth data
-        localStorage.setItem('userData', JSON.stringify({
-          mood: parsedData.mood,
-          completedOnboarding: parsedData.completedOnboarding,
-          sawWelcomeTour: parsedData.sawWelcomeTour,
-          sawWelcomeSlider: parsedData.sawWelcomeSlider,
-          isAuthenticated: false // Mark as not authenticated
-        }));
-      } catch (error) {
-        console.error('Error during logout:', error);
-      }
-    }
-    
-    // Remove login state marker
+    // Clear all authentication data
+    localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user_profile_image');
     
-    // Clear user state
+    // Clear any other auth-related data
+    localStorage.removeItem('auth_token');
+    
+    // Set user to null
     setUser(null);
-    console.log("User logged out");
+    
+    // Redirect to login page
+    window.location.href = '/login';
+    
+    console.log("User logged out completely");
   };
   
   return (

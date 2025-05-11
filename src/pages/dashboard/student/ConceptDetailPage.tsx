@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, BookOpen, Star, Check, Flag, Brain, Calculator } from 'lucide-react';
+import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
 
 const ConceptDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -49,6 +50,7 @@ const ConceptDetailPage = () => {
     navigate('/dashboard/student/concepts');
   };
 
+  // Handler for opening the formula lab page
   const handleOpenFormulaLab = () => {
     navigate(`/dashboard/student/concepts/${id}/formula-lab`);
   };
@@ -193,49 +195,11 @@ const ConceptDetailPage = () => {
           </TabsContent>
           
           <TabsContent value="formula" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Formula Lab</CardTitle>
-                <CardDescription>Practice solving numeric problems with interactive formulas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Strengthen your understanding of {concept.title} by practicing with formula-based problems.
-                </p>
-                
-                <div className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-6 rounded-lg border border-blue-100 dark:border-blue-900/50 mb-6">
-                  <h3 className="font-medium text-lg mb-3 text-blue-800 dark:text-blue-300">Key Formulas for {concept.title}</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
-                        <span className="font-medium text-lg">F = m×a</span>
-                      </div>
-                      <span>Force equals mass times acceleration (Newton's Second Law)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
-                        <span className="font-medium text-lg">a = F/m</span>
-                      </div>
-                      <span>Acceleration equals force divided by mass</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
-                        <span className="font-medium text-lg">F₁ = -F₂</span>
-                      </div>
-                      <span>For every action, there is an equal and opposite reaction (Newton's Third Law)</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={handleOpenFormulaLab} 
-                  className="w-full flex items-center justify-center gap-2"
-                >
-                  <Calculator className="h-4 w-4" />
-                  <span>Open Interactive Formula Lab</span>
-                </Button>
-              </CardContent>
-            </Card>
+            <FormulaTabContent 
+              conceptId={id || "1"} 
+              conceptTitle={concept.title} 
+              onOpenFormulaLab={handleOpenFormulaLab} 
+            />
           </TabsContent>
           
           <TabsContent value="test" className="space-y-4">
