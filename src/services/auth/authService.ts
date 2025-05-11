@@ -132,86 +132,42 @@ const authService = {
   
   // Enhanced logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
-    console.log("Executing complete logout...");
+    // Clear all authentication data from local storage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('prepzr_remembered_email');
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('sawWelcomeTour');
+    localStorage.removeItem('hasSeenTour');
+    localStorage.removeItem('hasSeenSplash');
+    localStorage.removeItem('voiceSettings');
+    localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('study_time_allocations');
+    localStorage.removeItem('current_mood');
+    localStorage.removeItem('mood_history');
+    localStorage.removeItem('dashboard_tour_completed'); 
     
-    try {
-      // Create a list of all keys to clear
-      const keysToRemove = [
-        // Auth keys
-        'userData',
-        'isLoggedIn',
-        AUTH_TOKEN_KEY,
-        AUTH_USER_KEY,
-        'user_profile_image',
-        'prepzr_remembered_email',
-        'admin_logged_in',
-        'admin_user',
-        
-        // User preferences and settings
-        'sawWelcomeTour',
-        'hasSeenTour',
-        'hasSeenSplash',
-        'voiceSettings',
-        'new_user_signup',
-        'study_time_allocations',
-        'dashboard_tour_completed',
-        
-        // Mood tracking data
-        'current_mood',
-        'mood_history',
-        
-        // Any other app-specific data
-        'lastAccessedConcept',
-        'recentSearches',
-        'userPrefs',
-        'cachedData'
-      ];
-      
-      // Log which keys are being cleared
-      console.log("Clearing the following localStorage keys:", keysToRemove);
-      
-      // Clear all specific keys
-      keysToRemove.forEach(key => {
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
-          console.log(`Removed: ${key}`);
-        }
-      });
-      
-      // Clear any session storage items
-      console.log("Clearing all session storage");
-      sessionStorage.clear();
-      
-      // Reset API client
-      apiClient.setAuthToken(null);
-      
-      console.log("Logout complete - All authentication data cleared");
-      
-      // In a production environment, we would also invalidate the token on the server
-      
-      // Force a navigation to login page
-      console.log("Forcing navigation to login page");
-      window.location.href = '/login';
-      
-      return {
-        success: true,
-        data: null,
-        error: null
-      };
-    } catch (error) {
-      console.error("Error during logout:", error);
-      
-      // Failsafe: If something goes wrong, try direct approach
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/login';
-      
-      return {
-        success: false,
-        data: null,
-        error: "Error during logout, but forced clearing of storage anyway"
-      };
-    }
+    // Clear any session storage items that might contain auth data
+    sessionStorage.clear();
+    
+    // Reset API client
+    apiClient.setAuthToken(null);
+    
+    console.log("Logout complete - All authentication data cleared");
+    
+    // Using window.location.replace instead of href to ensure complete page refresh
+    // This prevents any cached state from persisting
+    window.location.replace('/login');
+    
+    return {
+      success: true,
+      data: null,
+      error: null
+    };
   },
   
   // Set auth data in local storage and configure API client
