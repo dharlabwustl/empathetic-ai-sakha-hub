@@ -54,11 +54,32 @@ const DocumentationHubPage: React.FC = () => {
       </div>
       
       <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl font-bold">PREPZR Documentation Downloads</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Click on the buttons below to download documentation files directly
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-4">PREPZR Documentation Downloads</h1>
+          <p className="text-xl text-gray-500 dark:text-gray-400">
+            Click on the buttons below to download documentation files
           </p>
+        </div>
+        
+        {/* BIG PROMINENT DOWNLOAD BUTTONS AT THE TOP */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
+          <Button 
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 px-8 text-lg"
+            onClick={() => downloadAsDocument(signupDatabaseMapping, 'signup-database-mapping.docx')}
+            size="lg"
+          >
+            <Download className="h-6 w-6" />
+            Download Signup Database Mapping
+          </Button>
+          
+          <Button 
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-6 px-8 text-lg"
+            onClick={() => downloadAsDocument(pagewiseDatabaseMapping, 'pagewise-mapping.docx')}
+            size="lg"
+          >
+            <Download className="h-6 w-6" />
+            Download Pagewise Database Mapping
+          </Button>
         </div>
         
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
