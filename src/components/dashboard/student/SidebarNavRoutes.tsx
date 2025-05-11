@@ -85,7 +85,7 @@ export const SidebarNavRoutes = ({
       { name: "Feel Good Corner", path: "/dashboard/student/feel-good-corner", icon: <Smile size={20} /> },
       { name: "24/7 AI Tutor", path: "/dashboard/student/tutor", icon: <Headphones size={20} /> },
       { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
-      { name: "Documentation", path: "/documentation/pagewise-mapping", icon: <FileText size={20} /> }
+      { name: "Documentation", path: "/documentation", icon: <FileText size={20} /> }
     ],
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },

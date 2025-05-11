@@ -17,6 +17,7 @@ import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
 import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
+import DocumentationHubPage from '@/pages/documentation/DocumentationHubPage';
 import MainLayout from '@/components/layouts/MainLayout';
 
 const StudentRoutes = () => {
@@ -76,6 +77,11 @@ const StudentRoutes = () => {
       <Route path="/loading" element={<DashboardLoading />} />
       
       {/* Documentation routes - make them publicly accessible */}
+      <Route path="/documentation" element={
+        <MainLayout>
+          <DocumentationHubPage />
+        </MainLayout>
+      } />
       <Route path="/documentation/signup-database-mapping" element={
         <MainLayout>
           <SignupDatabaseMappingPage />
@@ -87,9 +93,24 @@ const StudentRoutes = () => {
         </MainLayout>
       } />
       
+      {/* Direct access to documentation */}
+      <Route path="/signup-database-mapping" element={
+        <MainLayout>
+          <SignupDatabaseMappingPage />
+        </MainLayout>
+      } />
+      <Route path="/pagewise-mapping" element={
+        <MainLayout>
+          <PagewiseDatabaseMappingPage />
+        </MainLayout>
+      } />
+      
       {/* Make test.prepzr.com paths accessible */}
+      <Route path="/test.prepzr.com/documentation" element={<DocumentationHubPage />} />
       <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

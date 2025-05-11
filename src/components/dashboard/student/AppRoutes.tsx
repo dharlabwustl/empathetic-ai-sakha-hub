@@ -19,6 +19,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 import SignupDatabaseMappingPage from "@/pages/documentation/SignupDatabaseMappingPage";
 import PagewiseDatabaseMappingPage from "@/pages/documentation/PagewiseDatabaseMappingPage";
+import DocumentationHubPage from "@/pages/documentation/DocumentationHubPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -44,12 +45,14 @@ const AppRoutes: React.FC = () => {
       <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
       
       {/* Documentation routes */}
+      <Route path="/documentation" element={<DocumentationHubPage />} />
       <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       
       {/* Make test.prepzr.com paths accessible */}
+      <Route path="/test.prepzr.com/documentation" element={<DocumentationHubPage />} />
       <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
