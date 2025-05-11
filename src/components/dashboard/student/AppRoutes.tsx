@@ -42,6 +42,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
       <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
+      
+      {/* Documentation routes */}
       <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
     </Routes>
