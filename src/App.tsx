@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -62,6 +63,7 @@ import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
 import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
+import DocumentationHubPage from '@/pages/documentation/DocumentationHubPage';
 import MainLayout from '@/components/layouts/MainLayout';
 
 // Wrap a component with SidebarLayout and protection
@@ -92,17 +94,21 @@ const App = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Public documentation routes - FULLY ACCESSIBLE */}
+              {/* Documentation Download Routes - These should work regardless of URL structure */}
+              <Route path="/downloads" element={<DocumentationHubPage />} />
+              <Route path="/docs" element={<DocumentationHubPage />} />
+              <Route path="/documentation" element={<DocumentationHubPage />} />
+              <Route path="/documentation/downloads" element={<DocumentationHubPage />} />
               <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
-              <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               
               {/* Handle test.prepzr.com URL formats */}
+              <Route path="/test.prepzr.com/downloads" element={<DocumentationHubPage />} />
+              <Route path="/test.prepzr.com/docs" element={<DocumentationHubPage />} />
+              <Route path="/test.prepzr.com/documentation" element={<DocumentationHubPage />} />
+              <Route path="/test.prepzr.com/documentation/downloads" element={<DocumentationHubPage />} />
               <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
-              <Route path="/test.prepzr.com/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/test.prepzr.com/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               
