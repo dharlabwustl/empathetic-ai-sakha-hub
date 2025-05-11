@@ -149,7 +149,20 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
-    localStorage.removeItem('dashboard_tour_completed'); 
+    localStorage.removeItem('dashboard_tour_completed');
+    
+    // Additional keys to clear
+    localStorage.removeItem('study_plan');
+    localStorage.removeItem('user_preferences');
+    localStorage.removeItem('session_data');
+    localStorage.removeItem('concept_progress');
+    localStorage.removeItem('exam_history');
+    localStorage.removeItem('flash_cards');
+    localStorage.removeItem('last_login');
+    localStorage.removeItem('temp_auth');
+    localStorage.removeItem('selected_subjects');
+    localStorage.removeItem('saved_notes');
+    localStorage.removeItem('practice_results');
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
@@ -179,13 +192,16 @@ const authService = {
     }
   },
   
-  // Clear auth data from local storage
+  // Clear auth data from local storage and force redirect
   clearAuthData(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
+    
+    // Clear any potential persistent login data
+    document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
     // Force redirect to login screen with replace to ensure complete refresh
     window.location.replace('/login');
@@ -199,7 +215,7 @@ const authService = {
   
   // Get auth token
   getToken(): string | null {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return localStorage.setItem(AUTH_TOKEN_KEY, localStorage.getItem(AUTH_TOKEN_KEY) || null);
   },
   
   // Check if user is authenticated

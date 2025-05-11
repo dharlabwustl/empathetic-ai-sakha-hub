@@ -1,7 +1,10 @@
+
 import { MoodType } from "@/types/user/base";
 
 // Function to get the appropriate emoji for each mood
-export const getMoodEmoji = (mood: MoodType): string => {
+export const getMoodEmoji = (mood: MoodType | undefined): string => {
+  if (!mood) return "😐"; // Default neutral emoji if no mood is provided
+  
   switch (mood) {
     case MoodType.HAPPY:
       return "😊";
@@ -30,7 +33,7 @@ export const getMoodEmoji = (mood: MoodType): string => {
     case MoodType.CALM:
       return "😌";
     default:
-      return "❓";
+      return "😐"; // Fallback to neutral
   }
 };
 
@@ -136,7 +139,7 @@ export const getMoodRecommendation = (mood: MoodType): string => {
   }
 };
 
-// Save current mood to localStorage
+// Save current mood to localStorage with study plan adjustments
 export const storeMoodInLocalStorage = (mood: MoodType): void => {
   // Store the current mood
   localStorage.setItem("current_mood", mood);
@@ -157,6 +160,10 @@ export const storeMoodInLocalStorage = (mood: MoodType): void => {
     const trimmedHistory = moodHistory.slice(0, 50);
     
     localStorage.setItem("mood_history", JSON.stringify(trimmedHistory));
+    
+    // Update study time allocations based on mood
+    updateStudyTimeAllocationsByMood(mood);
+    
   } catch (error) {
     console.error("Error storing mood history:", error);
   }
@@ -359,5 +366,103 @@ export const analyzeMoodTrends = () => {
 
 // Get label for mood
 export const getMoodLabel = (mood: MoodType): string => {
-  return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
+  return mood.toString().charAt(0).toUpperCase() + mood.toString().slice(1).toLowerCase();
+};
+
+// Update study time allocations based on mood
+export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
+  try {
+    // Get current allocations or create default
+    const currentAllocations = localStorage.getItem("study_time_allocations");
+    let allocations = currentAllocations ? JSON.parse(currentAllocations) : {
+      theory: 30,      // minutes per day
+      practice: 30,    // minutes per day
+      revision: 30,    // minutes per day
+      breaks: 15,      // minutes per day
+      difficulty: "medium" // can be easy, medium, hard
+    };
+    
+    // Adjust based on mood
+    switch(mood) {
+      case MoodType.HAPPY:
+      case MoodType.MOTIVATED:
+        // More productive moods - increase practice and challenge
+        allocations.theory = 30;
+        allocations.practice = 45;
+        allocations.revision = 20;
+        allocations.breaks = 10;
+        allocations.difficulty = "hard";
+        break;
+        
+      case MoodType.FOCUSED:
+      case MoodType.CALM:
+        // Deep-work moods - more theory and deep learning
+        allocations.theory = 45; 
+        allocations.practice = 30;
+        allocations.revision = 20;
+        allocations.breaks = 15;
+        allocations.difficulty = "medium";
+        break;
+        
+      case MoodType.TIRED:
+      case MoodType.STRESSED:
+      case MoodType.OVERWHELMED:
+        // Low-energy moods - more breaks, less challenging content
+        allocations.theory = 20;
+        allocations.practice = 20;
+        allocations.revision = 40;
+        allocations.breaks = 30;
+        allocations.difficulty = "easy";
+        break;
+        
+      case MoodType.ANXIOUS:
+      case MoodType.SAD:
+        // Emotional moods - focus on revision to build confidence
+        allocations.theory = 20;
+        allocations.practice = 25;
+        allocations.revision = 35; 
+        allocations.breaks = 25;
+        allocations.difficulty = "easy";
+        break;
+        
+      case MoodType.CURIOUS:
+        // Explorative mood - more theory and new concepts
+        allocations.theory = 50;
+        allocations.practice = 25;
+        allocations.revision = 15;
+        allocations.breaks = 15; 
+        allocations.difficulty = "medium";
+        break;
+        
+      default:
+        // Neutral, Okay - balanced approach
+        allocations.theory = 30;
+        allocations.practice = 30;
+        allocations.revision = 30;
+        allocations.breaks = 15;
+        allocations.difficulty = "medium";
+        break;
+    }
+    
+    // Save updated allocations with timestamp
+    allocations.lastUpdated = new Date().toISOString();
+    allocations.basedOnMood = mood;
+    localStorage.setItem("study_time_allocations", JSON.stringify(allocations));
+    
+    console.log(`Study time allocations updated based on ${mood} mood:`, allocations);
+    
+  } catch (error) {
+    console.error("Error updating study time allocations:", error);
+  }
+};
+
+// Get current study time allocations
+export const getStudyTimeAllocations = () => {
+  try {
+    const allocations = localStorage.getItem("study_time_allocations");
+    return allocations ? JSON.parse(allocations) : null;
+  } catch (error) {
+    console.error("Error retrieving study time allocations:", error);
+    return null;
+  }
 };
