@@ -1,6 +1,7 @@
 
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
+import { validateCredentials } from './accountData';
 
 // Auth service types
 export interface LoginCredentials {
@@ -27,8 +28,8 @@ export interface AuthUser {
 }
 
 // Local storage keys
-const AUTH_TOKEN_KEY = 'auth_token';
-const AUTH_USER_KEY = 'auth_user';
+const AUTH_TOKEN_KEY = 'sakha_auth_token';
+const AUTH_USER_KEY = 'sakha_auth_user';
 
 // Authentication service
 const authService = {
@@ -181,20 +182,12 @@ const authService = {
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
-    
-    // Force redirect to home/login after logout
-    window.location.href = '/login';
   },
   
   // Get current authenticated user
   getCurrentUser(): AuthUser | null {
-    try {
-      const userJson = localStorage.getItem(AUTH_USER_KEY);
-      return userJson ? JSON.parse(userJson) : null;
-    } catch (error) {
-      console.error("Error parsing user from local storage:", error);
-      return null;
-    }
+    const userJson = localStorage.getItem(AUTH_USER_KEY);
+    return userJson ? JSON.parse(userJson) : null;
   },
   
   // Get auth token

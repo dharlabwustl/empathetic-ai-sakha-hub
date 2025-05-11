@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useAnimation, useInView } from 'framer-motion';
+import { Users, Brain, Calendar, Heart } from 'lucide-react';
 import { adminService } from '@/services/adminService';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-// Get KPI data from admin service but don't display it in the hero section
+// Get KPI data from admin service
 const useKpiData = () => {
   const [kpiData, setKpiData] = useState({
     totalStudents: 0,

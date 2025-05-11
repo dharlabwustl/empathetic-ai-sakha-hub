@@ -1,87 +1,85 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import MoodSelector from './MoodSelector';
 import { MoodType } from '@/types/user/base';
-import { useToast } from '@/hooks/use-toast';
 import { getMoodEmoji } from './mood-tracking/moodUtils';
+import { MoodSelectionDialog } from './mood-tracking/MoodSelectionDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  showLabel?: boolean;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange }) => {
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({
+  currentMood,
+  onMoodChange,
+  className = '',
+  size = "sm",
+  showLabel = true,
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentMood);
   const { toast } = useToast();
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setSelectedMood(mood);
+  
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
   };
 
-  const handleSaveMood = () => {
-    if (selectedMood && onMoodChange) {
-      onMoodChange(selectedMood);
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleMoodChange = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
       
-      // Save mood to local storage
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        try {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = selectedMood;
-          localStorage.setItem('userData', JSON.stringify(parsedData));
-        } catch (err) {
-          console.error('Error updating mood in localStorage:', err);
-        }
-      } else {
-        localStorage.setItem('userData', JSON.stringify({ mood: selectedMood }));
-      }
-      
-      setIsDialogOpen(false);
-      
+      // Show toast confirmation
       toast({
-        title: "Mood updated",
-        description: `Your mood has been logged successfully.`
+        title: "Mood Updated",
+        description: `Your mood has been set to ${mood.toLowerCase()}.`,
       });
+      
+      // Trigger custom event for other components to react to
+      const moodChangeEvent = new CustomEvent('mood-changed', { 
+        detail: { mood, timestamp: new Date().toISOString() } 
+      });
+      document.dispatchEvent(moodChangeEvent);
     }
+    handleCloseDialog();
   };
-
+  
+  const sizeClasses = {
+    sm: "text-sm h-9 px-3",
+    md: "text-base h-10 px-4",
+    lg: "text-lg h-11 px-5"
+  };
+  
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center space-x-1">
-          <span className="text-lg">
-            {currentMood ? getMoodEmoji(currentMood) : "😊"}
+    <>
+      <Button
+        variant="outline"
+        size={size}
+        onClick={handleOpenDialog}
+        className={`flex items-center gap-1.5 ${sizeClasses[size]} ${className}`}
+      >
+        <span className="text-lg">{getMoodEmoji(currentMood)}</span>
+        {showLabel && (
+          <span className="hidden sm:inline">
+            {currentMood ? `Feeling ${currentMood.toLowerCase()}` : "Log Mood"}
           </span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center">How are you feeling today?</DialogTitle>
-          <DialogDescription className="text-center">
-            Tracking your mood helps us personalize your study experience.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <MoodSelector 
-            onMoodSelect={handleMoodSelect} 
-            selectedMood={selectedMood} 
-          />
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSaveMood}>
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        )}
+      </Button>
+
+      <MoodSelectionDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        selectedMood={currentMood}
+        onSelectMood={handleMoodChange}
+      />
+    </>
   );
 };
 

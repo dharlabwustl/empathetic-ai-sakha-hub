@@ -1,23 +1,23 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sun, Moon, Bell, HelpCircle, MenuIcon, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/hooks/useAuth";
-import { MoodType } from "@/types/user/base";
-import { getMoodEmoji } from "./mood-tracking/moodUtils";
-import { useNavigate } from "react-router-dom";
-import MoodLogButton from "./MoodLogButton";
+import { HelpCircle, Bell, Calendar } from "lucide-react";
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour: () => void;
+  onOpenTour?: () => void;
   userName?: string;
-  mood?: MoodType;
+  mood?: string;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -28,125 +28,118 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   formattedDate,
   formattedTime,
   onOpenTour,
-  userName = "Student",
+  userName,
   mood,
-  isFirstTimeUser = false,
+  isFirstTimeUser,
   onViewStudyPlan
 }) => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const handleToggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
-  
-  const handleLogout = () => {
-    logout();
-    // Clear all auth data
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('prepzr_remembered_email');
-    localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('sawWelcomeTour');
-    localStorage.removeItem('hasSeenTour');
-    localStorage.removeItem('hasSeenSplash');
-    localStorage.removeItem('voiceSettings');
-    localStorage.removeItem('new_user_signup');
-    localStorage.removeItem('study_time_allocations');
-    
-    // Clear any session storage items
-    sessionStorage.clear();
-    
-    // Redirect to home/login after logout
-    navigate('/login');
-  };
-  
-  const handleViewHelp = () => {
-    navigate('/help');
-  };
-  
-  const handleViewProfile = () => {
-    navigate('/profile');
-  };
-
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="lg:hidden">
-          {hideSidebar ? <MenuIcon className="h-5 w-5" /> : <X className="h-5 w-5" />}
-        </Button>
-        <div>
-          <div className="text-sm text-muted-foreground">{formattedDate}</div>
-          <div className="text-xl font-semibold">{formattedTime}</div>
+    <TooltipProvider delayDuration={0}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={onToggleSidebar}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Toggle navigation menu</p>
+            </TooltipContent>
+          </Tooltip>
+          <div>
+            <h2 className="text-lg font-semibold">{formattedTime}</h2>
+            <p className="text-muted-foreground text-sm">{formattedDate}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Voice Announcer Integration */}
+          <VoiceAnnouncer 
+            userName={userName}
+            mood={mood}
+            isFirstTimeUser={isFirstTimeUser}
+          />
+          
+          {/* Calendar Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your study calendar based on your exam goals</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Notification Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Tour Guide Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
-
-      <div className="flex items-center space-x-2">
-        {/* Mood Button */}
-        <MoodLogButton currentMood={mood as MoodType} />
-        
-        {/* Help Button */}
-        <Button variant="ghost" size="icon" onClick={handleViewHelp}>
-          <HelpCircle className="h-5 w-5" />
-        </Button>
-        
-        {/* Theme Toggle */}
-        <Button variant="ghost" size="icon" onClick={handleToggleDarkMode}>
-          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
-
-        {/* User Menu */}
-        <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Avatar>
-                <AvatarImage src="/img/avatar.png" />
-                <AvatarFallback>
-                  {userName?.charAt(0) || "S"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Settings</SheetTitle>
-              <SheetDescription>Manage your account settings and preferences.</SheetDescription>
-            </SheetHeader>
-            <div className="py-6 space-y-4">
-              <div className="flex items-center space-x-3 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={handleViewProfile}>
-                <Avatar>
-                  <AvatarImage src="/img/avatar.png" />
-                  <AvatarFallback>{userName?.charAt(0) || "S"}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{userName}</div>
-                  <div className="text-sm text-muted-foreground">View profile</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={onOpenTour}>
-                <HelpCircle className="h-5 w-5" />
-                <span>View Welcome Tour</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={onViewStudyPlan}>
-                <Bell className="h-5 w-5" />
-                <span>View Study Plan</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={handleLogout}>
-                <X className="h-5 w-5" />
-                <span>Logout</span>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
