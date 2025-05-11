@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
 import authService from '@/services/auth/authService';
+import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -30,6 +31,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -144,13 +146,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // First clear React state
     setUser(null);
     
-    // Then call the authService logout method
+    // Show logout notification
+    toast({
+      title: "Logging out...",
+      description: "You are being securely logged out of the system.",
+    });
+    
+    // Then call the authService logout method which will handle full logout
     authService.logout().then(() => {
       console.log("User logged out completely via AuthContext");
       
       // Force a complete page refresh to reset all state
-      // Using replace instead of href for more thorough clearing
-      window.location.replace('/login');
+      // This will be handled by authService.logout() now
     }).catch(error => {
       console.error("Error during logout:", error);
       
@@ -160,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       sessionStorage.clear();
       
       // Force hard navigation
-      window.location.replace('/login');
+      window.location.href = '/login';
     });
   };
   

@@ -1,20 +1,18 @@
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import { ThemeProvider } from './components/theme-provider';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router } from 'react-router-dom';
+import App from './App';
+import { AuthProvider } from './contexts/AuthContext';
+import './styles/index.css';
+import './styles/concept-card-animation.css'; // Import the custom CSS for concept cards
 
-// Add mood-based theme styles
-import './mood-themes.css';
-
-const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element not found');
-
-createRoot(rootElement).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="light" attribute="class">
-      <App />
-    </ThemeProvider>
-  </React.StrictMode>
+    <Router>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </Router>
+  </React.StrictMode>,
 );

@@ -132,42 +132,65 @@ const authService = {
   
   // Enhanced logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
-    // Clear all authentication data from local storage
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('prepzr_remembered_email');
-    localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('sawWelcomeTour');
-    localStorage.removeItem('hasSeenTour');
-    localStorage.removeItem('hasSeenSplash');
-    localStorage.removeItem('voiceSettings');
-    localStorage.removeItem('new_user_signup');
-    localStorage.removeItem('study_time_allocations');
-    localStorage.removeItem('current_mood');
-    localStorage.removeItem('mood_history');
-    localStorage.removeItem('dashboard_tour_completed'); 
-    
-    // Clear any session storage items that might contain auth data
-    sessionStorage.clear();
-    
-    // Reset API client
-    apiClient.setAuthToken(null);
-    
-    console.log("Logout complete - All authentication data cleared");
-    
-    // Using window.location.replace instead of href to ensure complete page refresh
-    // This prevents any cached state from persisting
-    window.location.replace('/login');
-    
-    return {
-      success: true,
-      data: null,
-      error: null
-    };
+    try {
+      console.log("Starting complete logout process");
+      
+      // Clear all authentication data from local storage
+      const keys = [
+        'userData', 'isLoggedIn', AUTH_TOKEN_KEY, AUTH_USER_KEY, 'user_profile_image',
+        'prepzr_remembered_email', 'admin_logged_in', 'admin_user', 'sawWelcomeTour',
+        'hasSeenTour', 'hasSeenSplash', 'voiceSettings', 'new_user_signup',
+        'study_time_allocations', 'current_mood', 'mood_history', 'dashboard_tour_completed'
+      ];
+      
+      // Clear each key one by one
+      keys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+          console.log(`Cleared: ${key}`);
+        } catch (e) {
+          console.error(`Failed to clear ${key}:`, e);
+        }
+      });
+      
+      // Clear any session storage items that might contain auth data
+      try {
+        sessionStorage.clear();
+        console.log("Session storage cleared");
+      } catch (e) {
+        console.error("Error clearing session storage:", e);
+      }
+      
+      // Reset API client
+      apiClient.setAuthToken(null);
+      console.log("API client auth token reset");
+      
+      console.log("Logout complete - All authentication data cleared");
+      
+      // Force page navigation to login screen
+      window.location.href = '/login';
+      
+      return {
+        success: true,
+        data: null,
+        error: null
+      };
+    } catch (error) {
+      console.error("Critical error during logout:", error);
+      
+      // Last resort approach for logout
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Force navigation regardless of errors
+      window.location.href = '/login';
+      
+      return {
+        success: false,
+        data: null,
+        error: "Error during logout process"
+      };
+    }
   },
   
   // Set auth data in local storage and configure API client
@@ -187,8 +210,8 @@ const authService = {
     localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
     
-    // Force redirect to login screen with replace to ensure complete refresh
-    window.location.replace('/login');
+    // Force redirect to login screen
+    window.location.href = '/login';
   },
   
   // Get current authenticated user
