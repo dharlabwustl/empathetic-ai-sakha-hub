@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
-import { Users, Brain, Calendar, Heart } from 'lucide-react';
+import { Users, Brain, Calendar, Heart, Star, BookOpen } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 import { useState } from 'react';
 
@@ -11,7 +11,9 @@ const useKpiData = () => {
     totalStudents: 0,
     averageConcepts: 0,
     totalStudyPlans: 0,
-    verifiedMoodImprovement: 0
+    verifiedMoodImprovement: 0,
+    formulaPracticeSuccess: 0,
+    examSuccessRate: 0
   });
   
   useEffect(() => {
@@ -22,7 +24,9 @@ const useKpiData = () => {
           totalStudents: stats.totalStudents || 15000, // Updated number
           averageConcepts: stats.averageConcepts || 950, // Updated number
           totalStudyPlans: stats.totalStudyPlans || 18000, // Updated number
-          verifiedMoodImprovement: stats.verifiedMoodImprovement || 84 // Updated percentage
+          verifiedMoodImprovement: stats.verifiedMoodImprovement || 84, // Updated percentage
+          formulaPracticeSuccess: stats.formulaPracticeSuccess || 92, // New KPI
+          examSuccessRate: stats.examSuccessRate || 78 // New KPI
         });
       } catch (error) {
         console.error("Failed to fetch KPI data:", error);
@@ -31,7 +35,9 @@ const useKpiData = () => {
           totalStudents: 15000,
           averageConcepts: 950,
           totalStudyPlans: 18000,
-          verifiedMoodImprovement: 84
+          verifiedMoodImprovement: 84,
+          formulaPracticeSuccess: 92,
+          examSuccessRate: 78
         });
       }
     };
@@ -107,7 +113,7 @@ const KpiStats = () => {
   const kpiData = useKpiData();
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
       <StatCard 
         icon={<Users size={24} className="text-white" />} 
         value={`+${kpiData.totalStudents.toLocaleString()}`} 
@@ -138,6 +144,24 @@ const KpiStats = () => {
         label="Feel Stress Reduced"
         delay={3}
         gradient="from-green-500 to-teal-500"
+      />
+
+      {/* New KPI - Formula Practice Success */}
+      <StatCard 
+        icon={<BookOpen size={24} className="text-white" />} 
+        value={`${kpiData.formulaPracticeSuccess}%`} 
+        label="Formula Practice Success"
+        delay={4}
+        gradient="from-amber-500 to-orange-500"
+      />
+      
+      {/* New KPI - Exam Success Rate */}
+      <StatCard 
+        icon={<Star size={24} className="text-white" />} 
+        value={`${kpiData.examSuccessRate}%`} 
+        label="Exam Success Rate"
+        delay={5}
+        gradient="from-cyan-500 to-blue-500"
       />
     </div>
   );

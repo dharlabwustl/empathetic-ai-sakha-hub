@@ -51,7 +51,7 @@ const SurroundingInfluencesMeter = () => {
       </div>
       
       <div className="mt-4 text-sm text-gray-500">
-        These factors can significantly impact your study performance. The Prepzr app helps you optimize your learning environment.
+        These factors can significantly impact your study performance. Monitoring them helps you optimize your learning environment.
       </div>
     </div>
   );

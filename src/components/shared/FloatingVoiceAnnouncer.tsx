@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,6 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { motion } from 'framer-motion';
-import { useToast } from '@/hooks/use-toast';
-import { MoodType } from '@/types/user/base';
 
 interface FloatingVoiceAnnouncerProps {
   isOpen: boolean;
@@ -16,7 +13,6 @@ interface FloatingVoiceAnnouncerProps {
 }
 
 const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen, onClose }) => {
-  const { toast } = useToast();
   const {
     isListening,
     isSpeaking,
@@ -115,148 +111,6 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       const response = "I'll speak English now.";
       setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
       speakMessage(response);
-      setProcessingInput(false);
-      return;
-    }
-    
-    // Mood tracking commands
-    if (text.toLowerCase().includes('log mood') || text.toLowerCase().includes('update mood') || 
-        text.toLowerCase().includes('change mood') || text.toLowerCase().includes('set mood')) {
-      
-      // Handle specific mood mentions
-      let detectedMood: MoodType | null = null;
-      
-      if (text.toLowerCase().includes('happy')) detectedMood = MoodType.HAPPY;
-      else if (text.toLowerCase().includes('sad')) detectedMood = MoodType.SAD;
-      else if (text.toLowerCase().includes('focus')) detectedMood = MoodType.FOCUSED;
-      else if (text.toLowerCase().includes('motivate')) detectedMood = MoodType.MOTIVATED;
-      else if (text.toLowerCase().includes('tired')) detectedMood = MoodType.TIRED;
-      else if (text.toLowerCase().includes('stress')) detectedMood = MoodType.STRESSED;
-      else if (text.toLowerCase().includes('confus')) detectedMood = MoodType.CONFUSED;
-      else if (text.toLowerCase().includes('anxious')) detectedMood = MoodType.ANXIOUS;
-      else if (text.toLowerCase().includes('neutral')) detectedMood = MoodType.NEUTRAL;
-      else if (text.toLowerCase().includes('okay') || text.toLowerCase().includes('ok')) detectedMood = MoodType.OKAY;
-      else if (text.toLowerCase().includes('overwhelm')) detectedMood = MoodType.OVERWHELMED;
-      
-      if (detectedMood) {
-        // Update mood in localStorage
-        try {
-          const userData = localStorage.getItem('userData');
-          if (userData) {
-            const userObj = JSON.parse(userData);
-            userObj.mood = detectedMood;
-            localStorage.setItem('userData', JSON.stringify(userObj));
-            
-            // Trigger custom event for other components to react to
-            const moodChangeEvent = new CustomEvent('mood-changed', { 
-              detail: { mood: detectedMood, timestamp: new Date().toISOString() } 
-            });
-            document.dispatchEvent(moodChangeEvent);
-            
-            // Show toast
-            toast({
-              title: "Mood Updated",
-              description: `Your mood has been set to ${detectedMood.toLowerCase()}.`,
-            });
-            
-            const response = `I've updated your mood to ${detectedMood.toLowerCase()}. Is there anything else I can help you with?`;
-            setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-            if (!voiceSettings.muted) {
-              speakMessage(response);
-            }
-          } else {
-            const response = "I couldn't update your mood because you don't appear to be logged in. Please log in first.";
-            setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-            if (!voiceSettings.muted) {
-              speakMessage(response);
-            }
-          }
-        } catch (e) {
-          console.error("Failed to update mood", e);
-          const response = "Sorry, I had trouble updating your mood. Please try again.";
-          setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-          if (!voiceSettings.muted) {
-            speakMessage(response);
-          }
-        }
-      } else {
-        const response = "What mood would you like to set? You can say happy, sad, focused, motivated, tired, stressed, confused, anxious, neutral, okay, or overwhelmed.";
-        setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-        if (!voiceSettings.muted) {
-          speakMessage(response);
-        }
-      }
-      
-      setProcessingInput(false);
-      return;
-    }
-    
-    // Study plan commands
-    if (text.toLowerCase().includes('study plan') || text.toLowerCase().includes('my plan')) {
-      const response = "I'll open your study plan. You can see your assignments, progress, and upcoming tasks there.";
-      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-      if (!voiceSettings.muted) {
-        speakMessage(response);
-      }
-      
-      // Redirect to study plan page after a short delay
-      setTimeout(() => {
-        window.location.href = '/dashboard/student/study-plan';
-      }, 2000);
-      
-      setProcessingInput(false);
-      return;
-    }
-    
-    // Daily tasks commands
-    if (text.toLowerCase().includes('daily tasks') || text.toLowerCase().includes('today\'s plan') || 
-        text.toLowerCase().includes('todays tasks') || text.toLowerCase().includes('my tasks')) {
-      const response = "I'll show you today's tasks and study plan.";
-      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-      if (!voiceSettings.muted) {
-        speakMessage(response);
-      }
-      
-      // Redirect to today's plan page after a short delay
-      setTimeout(() => {
-        window.location.href = '/dashboard/student/today';
-      }, 2000);
-      
-      setProcessingInput(false);
-      return;
-    }
-    
-    // Dashboard navigation
-    if (text.toLowerCase().includes('go to dashboard') || text.toLowerCase().includes('main dashboard')) {
-      const response = "Taking you to the dashboard now.";
-      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-      if (!voiceSettings.muted) {
-        speakMessage(response);
-      }
-      
-      // Redirect to dashboard
-      setTimeout(() => {
-        window.location.href = '/dashboard/student';
-      }, 2000);
-      
-      setProcessingInput(false);
-      return;
-    }
-    
-    // Practice exam commands
-    if (text.toLowerCase().includes('practice exam') || text.toLowerCase().includes('practice test') || 
-        text.toLowerCase().includes('take exam') || text.toLowerCase().includes('mock test')) {
-      const response = "I'll take you to the practice exam section where you can test your knowledge.";
-      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
-      if (!voiceSettings.muted) {
-        speakMessage(response);
-      }
-      
-      // Redirect to practice exam page
-      setTimeout(() => {
-        window.location.href = '/dashboard/student/practice-exam';
-      }, 2000);
-      
       setProcessingInput(false);
       return;
     }
@@ -401,7 +255,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
                 <span>Switch between English and Hindi languages</span>
               </li>
             </ul>
-            <p className="text-xs text-gray-500 mb-4">Try asking: "Help me with my study plan" or "Show me today's tasks" or "Set my mood to happy"</p>
+            <p className="text-xs text-gray-500 mb-4">Try asking: "Help me with my study plan" or "Tell me about PREPZR features"</p>
             <Button 
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
               onClick={() => setShowOnboarding(false)}
@@ -570,6 +424,61 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
           >
             Send
           </Button>
+        </div>
+        
+        {/* Status indicators */}
+        <div className="flex items-center justify-between mt-2">
+          {/* Listening indicator */}
+          {isListening && (
+            <div className="text-center text-xs text-indigo-600 animate-pulse">
+              Listening... Say something or click the mic to stop
+            </div>
+          )}
+          
+          {/* Mute indicator */}
+          {voiceSettings.muted && (
+            <div className="text-center text-xs text-gray-500 flex items-center gap-1">
+              <VolumeOff size={12} />
+              <span>Voice is muted</span>
+            </div>
+          )}
+          
+          {/* Language indicator */}
+          <div className="text-xs text-gray-500 flex items-center gap-1 ml-auto">
+            <Globe size={12} />
+            <span>{voiceSettings.language === 'hi-IN' ? 'Hindi' : 'English'}</span>
+          </div>
+        </div>
+        
+        {/* Suggestion buttons */}
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setInput("Help me with my study plan")}
+          >
+            Help me with my study plan
+          </Button>
+          {voiceSettings.language === 'hi-IN' ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => setInput("अंग्रेज़ी में बोलो")}
+            >
+              Switch to English
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => setInput("Switch to Hindi")}
+            >
+              Switch to Hindi
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -39,7 +39,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       // Show toast confirmation
       toast({
         title: "Mood Updated",
-        description: `Your mood has been set to ${mood.toLowerCase()}`,
+        description: `Your mood has been set to ${mood.toLowerCase()}.`,
       });
       
       // Trigger custom event for other components to react to
@@ -47,18 +47,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         detail: { mood, timestamp: new Date().toISOString() } 
       });
       document.dispatchEvent(moodChangeEvent);
-      
-      // Also store the mood in localStorage for persistence
-      try {
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const userObj = JSON.parse(userData);
-          userObj.mood = mood;
-          localStorage.setItem('userData', JSON.stringify(userObj));
-        }
-      } catch (e) {
-        console.error("Failed to update mood in localStorage", e);
-      }
     }
     handleCloseDialog();
   };

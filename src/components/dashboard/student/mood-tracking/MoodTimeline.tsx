@@ -1,91 +1,52 @@
-import React from 'react';
-import { format, isToday, isYesterday, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-import { MoodEntry } from '@/types/user/base';
-import { getMoodTheme } from './moodThemes';
+import React from "react";
+import { MoodType } from "@/types/user/base";
+import { Card } from "@/components/ui/card";
+import { getMoodTheme } from "./moodThemes";
+import { motion } from "framer-motion";
 
-interface MoodTimelineProps {
-  userMoods: MoodEntry[];
+interface MoodTheme {
+  emoji: string;
+  label: string;
+  colors: {
+    light: string;
+    dark: string;
+  };
 }
 
-const MoodTimeline: React.FC<MoodTimelineProps> = ({ userMoods }) => {
-  // Function to calculate the percentage position of a date within the timeline
-  const calculatePercentage = (date: Date | string): number => {
-    const now = new Date();
-    let start: Date, end: Date;
-    
-    if (isToday(now)) {
-      start = startOfDay(now);
-      end = endOfDay(now);
-    } else if (isYesterday(now)) {
-      start = startOfDay(now);
-      end = endOfDay(now);
-    } else {
-      start = startOfDay(now);
-      end = endOfDay(now);
-    }
-    
-    const totalTime = end.getTime() - start.getTime();
-    const moodTime = new Date(date).getTime() - start.getTime();
-    
-    return (moodTime / totalTime) * 100;
-  };
-  
-  const formatTime = (date: Date | string): string => {
-    return format(new Date(date), 'h:mm a');
-  };
-  
-  const renderMoodPoints = () => {
-    return userMoods.map((entry, index) => {
-      const theme = getMoodTheme(entry.mood);
-      const percentage = calculatePercentage(entry.date);
-      
-      return (
-        <div
-          key={index}
-          className={`absolute w-3 h-3 rounded-full ${theme.bgColor || 'bg-blue-500'} border-2 border-white`}
-          style={{ left: `${percentage}%`, transform: 'translate(-50%, -50%)' }}
-          title={`${formatTime(entry.date)}: ${entry.mood}`}
-        />
-      );
-    });
-  };
-  
-  const renderMoodLabels = () => {
-    return userMoods.map((entry, index) => {
-      const theme = getMoodTheme(entry.mood);
-      const percentage = calculatePercentage(entry.date);
-      
-      // Don't show labels that would be too close together
-      if (index > 0 && 
-          percentage - calculatePercentage(userMoods[index-1].date) < 15) {
-        return null;
-      }
-      
-      return (
-        <div
-          key={index}
-          className="absolute text-xs"
-          style={{
-            left: `${percentage}%`,
-            transform: 'translateX(-50%)',
-            top: '20px'
-          }}
-        >
-          <span className={theme.textColor || 'text-blue-500'}>
-            {formatTime(entry.date)}
-          </span>
-        </div>
-      );
-    });
-  };
+interface MoodTimelineProps {
+  moodHistory: Array<{
+    mood: MoodType;
+    timestamp: Date;
+  }>;
+}
 
+const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
+  const lastSevenDays = moodHistory.slice(0, 7).reverse();
+  
   return (
-    <div className="relative h-10 bg-gray-100 rounded-full mt-4 overflow-hidden">
-      <div className="h-full bg-gradient-to-r from-sky-500 to-violet-500">
-        {renderMoodPoints()}
+    <Card className="p-4">
+      <h4 className="text-sm font-medium mb-4">Your Mood Timeline</h4>
+      <div className="flex items-center justify-between space-x-2">
+        {lastSevenDays.map((entry, index) => (
+          <motion.div
+            key={index}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="flex flex-col items-center"
+          >
+            <div 
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).colors.background}`}
+              title={`${entry.mood} on ${entry.timestamp.toLocaleDateString()}`}
+            >
+              <span className="text-xs">{entry.timestamp.getDate()}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full mt-1 bg-current" 
+                 style={{ color: getMoodTheme(entry.mood).colors.text }} />
+          </motion.div>
+        ))}
       </div>
-      {renderMoodLabels()}
-    </div>
+    </Card>
   );
 };
 

@@ -215,33 +215,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     }
   ];
 
-  const completedTopics = [
-    {
-      id: '1',
-      name: 'Cell Structure',
-      difficulty: 'medium' as const,
-      completed: true,
-      status: 'completed' as const,
-      priority: 1
-    },
-    {
-      id: '2',
-      name: 'DNA Replication',
-      difficulty: 'medium' as const,
-      completed: true,
-      status: 'completed' as const,
-      priority: 2
-    },
-    {
-      id: '3',
-      name: 'Genetic Engineering',
-      difficulty: 'hard' as const,
-      completed: true,
-      status: 'completed' as const,
-      priority: 3
-    }
-  ];
-
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
     // Create a new plan object
     const newPlan: StudyPlan = {
