@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { ArrowRight, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar as CalendarIcon, Clock, BookOpen, Gauge } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SubjectsStep from '@/components/dashboard/student/onboarding/SubjectsStep';
 import { useStudyPlanWizard } from '@/components/dashboard/student/academic/hooks/useStudyPlanWizard';
+import { Badge } from '@/components/ui/badge';
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -42,6 +43,10 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
   const examGoals = ['NEET', 'JEE', 'CAT', 'UPSC', 'GATE', 'SSC', 'Banking', 'Other'];
+
+  // Progress calculation
+  const totalSteps = 6;
+  const progressPercent = Math.round((step / totalSteps) * 100);
 
   const renderStep = () => {
     switch (step) {
@@ -104,12 +109,33 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                   />
                 </PopoverContent>
               </Popover>
+              
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-800">
+                <div className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-medium text-blue-800 dark:text-blue-300">Exam Goal: {formData.examGoal}</h3>
+                </div>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                  We'll create a personalized study plan based on your target date and exam goal.
+                </p>
+              </div>
             </div>
           </div>
         );
       case 3:
         return (
           <div className="max-h-[400px] overflow-y-auto pr-2">
+            <div className="mb-4 sticky top-0 z-10 bg-white dark:bg-gray-950 pt-2 pb-2">
+              <h2 className="text-xl font-semibold mb-1">Subject Proficiency</h2>
+              <p className="text-muted-foreground">
+                Choose your strong, average, and weak subjects for {formData.examGoal}
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Strong</Badge>
+                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Average</Badge>
+                <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Weak</Badge>
+              </div>
+            </div>
             <SubjectsStep
               examType={formData.examGoal || ''}
               strongSubjects={strongSubjects}
@@ -143,6 +169,30 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                   }
                   className="w-full"
                 />
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md text-center">
+                  <Clock className="h-5 w-5 mx-auto mb-2 text-blue-600" />
+                  <p className="text-sm text-blue-700 dark:text-blue-400">Weekly Hours</p>
+                  <p className="font-bold text-lg text-blue-800 dark:text-blue-300">
+                    {formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-md text-center">
+                  <BookOpen className="h-5 w-5 mx-auto mb-2 text-green-600" />
+                  <p className="text-sm text-green-700 dark:text-green-400">Subjects</p>
+                  <p className="font-bold text-lg text-green-800 dark:text-green-300">
+                    {strongSubjects.length + weakSubjects.length + mediumSubjects.length}
+                  </p>
+                </div>
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-md text-center">
+                  <Gauge className="h-5 w-5 mx-auto mb-2 text-purple-600" />
+                  <p className="text-sm text-purple-700 dark:text-purple-400">Coverage</p>
+                  <p className="font-bold text-lg text-purple-800 dark:text-purple-300">
+                    {Math.min(formData.studyHoursPerDay ? formData.studyHoursPerDay * 5 : 0, 100)}%
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -209,6 +259,19 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                 <Label htmlFor="aggressive">Aggressive - I want to cover as much as possible quickly</Label>
               </div>
             </RadioGroup>
+            
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-md mt-4 border border-green-100 dark:border-green-800">
+              <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Ready to Create Your Plan</h3>
+              <p className="text-sm text-green-700 dark:text-green-400 mb-1">
+                Your personalized study plan for {formData.examGoal} will include:
+              </p>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-green-700 dark:text-green-400">
+                <li>Daily and weekly schedule based on your availability</li>
+                <li>Focus areas for your weak subjects</li>
+                <li>Study materials tailored to your learning pace</li>
+                <li>Progress tracking and study streak monitoring</li>
+              </ul>
+            </div>
           </div>
         );
       default:
@@ -220,7 +283,24 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Create Study Plan</DialogTitle>
+          <DialogTitle className="flex items-center justify-between">
+            <span>Create Study Plan</span>
+            <Badge className="ml-2">{formData.examGoal}</Badge>
+          </DialogTitle>
+          
+          {/* Progress bar */}
+          <div className="w-full mt-2">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <span>Step {step} of {totalSteps}</span>
+              <span>{progressPercent}%</span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
+            </div>
+          </div>
         </DialogHeader>
         <div className="my-4 overflow-y-auto pr-1">{renderStep()}</div>
         <DialogFooter className="flex justify-between sm:justify-between mt-4">

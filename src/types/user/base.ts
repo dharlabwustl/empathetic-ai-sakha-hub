@@ -69,6 +69,18 @@ export enum PersonalityType {
   Kinesthetic = 'kinesthetic'
 }
 
+// Added interfaces for tracking study streaks and exam readiness
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: Date | string;
+}
+
+export interface ExamReadiness {
+  percentage: number;
+  lastUpdated: Date | string;
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
@@ -90,9 +102,11 @@ export interface UserProfileBase {
     id: string;
     title: string;
     description?: string;
-    targetDate?: Date;
+    targetDate?: Date | string;
     progress?: number;
   }[];
+  streak?: StudyStreak; // Added study streak field
+  examReadiness?: ExamReadiness; // Added exam readiness field
   preferences?: {
     theme?: 'light' | 'dark' | 'system';
     notifications?: boolean;
@@ -121,12 +135,6 @@ export interface UserProfileBase {
 export type UserProfileType = UserProfileBase;
 
 // Additional types that might be useful
-export interface StudyStreak {
-  current: number;
-  longest: number;
-  lastStudyDate: Date;
-}
-
 export interface SubjectProgress {
   id?: string;
   subject: string;

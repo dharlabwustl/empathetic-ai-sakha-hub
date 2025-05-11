@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
-import { UserProfileType } from "@/types/user";
+import { UserProfileType } from "@/types/user/base";
 import { useAcademicPlans } from './hooks/useAcademicPlans';
 import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
 import StudyPlanSections from "./components/StudyPlanSections";

@@ -1,35 +1,22 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Clock, CalendarDays, CheckCircle2, BrainCircuit, Plus, GraduationCap } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { UserProfileType, MoodType } from "@/types/user/base";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import CreateStudyPlanWizard from './academic/CreateStudyPlanWizard';
-
-type EventType = 'exam' | 'task' | 'class';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { UserProfileType, MoodType } from '@/types/user/base';
+import MoodLogButton from './MoodLogButton';
+import { CalendarCheck, Clock, TrendingUp, Award, Users, ChartBar } from 'lucide-react';
 
 interface UpcomingEvent {
   title: string;
   time: string;
-  type: EventType;
-  daysLeft?: number;
-}
-
-interface Goal {
-  id: string;
-  title: string;
-  description?: string;
-  targetDate?: Date;
-  progress?: number;
+  type: 'exam' | 'task' | 'meeting';
 }
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
-  onViewStudyPlan: () => void;
+  onViewStudyPlan?: () => void;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
   upcomingEvents?: UpcomingEvent[];
@@ -44,152 +31,146 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   onMoodChange,
   upcomingEvents = []
 }) => {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+  // Add streak and exam readiness to the user profile type
+  const streak = userProfile?.streak || { current: 12, longest: 24, lastStudyDate: new Date() };
+  const examReadiness = userProfile?.examReadiness || { percentage: 72, lastUpdated: new Date() };
   
-  // Extract goals from user profile
-  const goals = userProfile.goals || [
+  // KPIs for hero section
+  const kpis = [
     {
-      id: '1',
-      title: 'NEET Exam',
-      targetDate: new Date(new Date().getFullYear(), 4, 15), // May 15
-      progress: 45
+      title: "Total Students",
+      value: "37,583+",
+      change: "+12% this month",
+      icon: <Users className="h-4 w-4" />
+    },
+    {
+      title: "Success Rate",
+      value: "94.2%",
+      change: "+3.4% this year",
+      icon: <TrendingUp className="h-4 w-4" />
+    },
+    {
+      title: "Study Plans",
+      value: "108,735",
+      change: "Delivered to students",
+      icon: <CalendarCheck className="h-4 w-4" />
+    },
+    {
+      title: "Stress Reduced",
+      value: "62%",
+      change: "Reported by users",
+      icon: <ChartBar className="h-4 w-4" />
     }
   ];
 
-  // Calculate days until exam
-  const calculateDaysUntil = (date?: Date) => {
-    if (!date) return null;
-    
-    const today = new Date();
-    const targetDate = new Date(date);
-    const diffTime = targetDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
-  };
-  
-  const createStudyPlan = (newPlan: any) => {
-    console.log("Creating new study plan:", newPlan);
-    setDialogOpen(false);
-    // In a real app, this would save the plan to the backend
-  };
-  
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-  };
-
   return (
-    <div className="space-y-6 mb-8">
-      {/* Top row - Greeting and time */}
-      <div className="flex flex-wrap justify-between items-start gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold">Hello, {userProfile.name || 'Student'}!</h1>
-          <p className="text-muted-foreground flex items-center">
-            <Clock className="mr-2 h-4 w-4" />
-            <span>{formattedTime}</span>
-            <span className="mx-2">•</span>
-            <CalendarDays className="mr-2 h-4 w-4" />
-            <span>{formattedDate}</span>
+    <div className="space-y-6">
+      {/* Top Section with Greeting and Mood Tracking */}
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Hello, {userProfile?.name?.split(' ')[0] || 'Student'}
+          </h1>
+          <p className="text-muted-foreground">
+            {formattedDate} • {formattedTime}
           </p>
         </div>
-      </div>
-      
-      {/* Middle row - Exam goal and study plan */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Exam Goal Card */}
-        <Card className="lg:col-span-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/30">
-          <CardContent className="p-4 md:p-6">
-            <div className="flex flex-wrap justify-between items-start gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-indigo-600" />
-                  <h3 className="text-lg font-medium">Your Exam Preparation</h3>
-                </div>
-                
-                {goals.map((goal) => (
-                  <div key={goal.id} className="mt-2 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-indigo-600">{goal.title}</Badge>
-                      {goal.targetDate && (
-                        <Badge variant="outline">
-                          {calculateDaysUntil(goal.targetDate)} days left
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    {goal.progress !== undefined && (
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Progress</span>
-                          <span>{goal.progress}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-indigo-600 rounded-full" 
-                            style={{ width: `${goal.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white flex gap-1 items-center">
-                    <Plus className="h-4 w-4" />
-                    Create New Study Plan
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                  <CreateStudyPlanWizard 
-                    onCreatePlan={createStudyPlan} 
-                    onClose={handleDialogClose} 
-                    examGoal={goals[0]?.title}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Upcoming Events Card */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-medium">Upcoming Events</h3>
-            </div>
-            
-            {upcomingEvents.length > 0 ? (
-              <ul className="space-y-3">
-                {upcomingEvents.map((event, i) => (
-                  <li key={i} className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={
-                        event.type === 'exam' 
-                          ? 'bg-red-50 text-red-700 border-red-200'
-                          : event.type === 'task'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-green-50 text-green-700 border-green-200'
-                      }>
-                        {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                      </Badge>
-                      <span>{event.title}</span>
-                    </div>
-                    <span className="text-muted-foreground">{event.time}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">No upcoming events scheduled</p>
-            )}
-            
-            <Button variant="outline" className="w-full mt-3 text-sm">
-              View Schedule
+        <div className="flex items-center gap-2">
+          <MoodLogButton 
+            currentMood={currentMood} 
+            onMoodChange={onMoodChange}
+          />
+          {onViewStudyPlan && (
+            <Button onClick={onViewStudyPlan} size="sm">
+              View Study Plan
             </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Stats Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Exam Goal Card */}
+        <Card className="overflow-hidden border-blue-200 dark:border-blue-800">
+          <div className="bg-gradient-to-r from-blue-500 to-violet-500 p-3">
+            <h3 className="font-medium text-white">Exam Goal</h3>
+          </div>
+          <CardContent className="p-4">
+            <h2 className="text-2xl font-bold">{userProfile?.goals?.[0]?.title || 'NEET'}</h2>
+            <div className="flex justify-between items-center mt-2">
+              <div className="text-sm text-muted-foreground">Target Date</div>
+              <div className="text-sm font-medium">
+                {userProfile?.goals?.[0]?.targetDate 
+                  ? new Date(userProfile.goals[0].targetDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                  : 'May 15, 2025'}
+              </div>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Study Streak Card */}
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-12 w-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center rounded-full">
+              <Award className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-sm text-muted-foreground">Study Streak</h3>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold">{streak.current} days</span>
+                <span className="text-xs text-muted-foreground">(Longest: {streak.longest})</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Exam Readiness Card */}
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center rounded-full">
+              <ChartBar className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-sm text-muted-foreground">Exam Readiness</h3>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold">{examReadiness.percentage}%</span>
+                <span className="text-xs text-emerald-600">+5% this week</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Next Study Session Card */}
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-12 w-12 bg-violet-100 dark:bg-violet-900/30 text-violet-600 flex items-center justify-center rounded-full">
+              <Clock className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-sm text-muted-foreground">Next Session</h3>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold">Physics</span>
+                <span className="text-xs text-muted-foreground">Today, 4:00 PM</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* KPI Statistics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {kpis.map((kpi, index) => (
+          <Card key={index}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                {kpi.icon}
+                <h3 className="text-sm font-medium">{kpi.title}</h3>
+              </div>
+              <p className="text-2xl font-bold">{kpi.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{kpi.change}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

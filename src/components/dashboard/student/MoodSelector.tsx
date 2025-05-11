@@ -41,3 +41,5 @@ export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: Mood
     </div>
   );
 };
+
+export default MoodSelector;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
@@ -248,7 +247,7 @@ const TodaysPlanView = () => {
           </CardContent>
         </Card>
       </div>
-
+      
       {/* Today's tasks with tabs */}
       <Card>
         <CardHeader className="pb-3">
