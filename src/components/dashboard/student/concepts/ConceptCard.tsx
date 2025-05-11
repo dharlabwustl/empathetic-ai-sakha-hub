@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Clock, ArrowRight, Star } from "lucide-react";
-import { motion } from "framer-motion";
+import { Clock, BookOpen, Star, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export interface ConceptCardProps {
   id: string | number;
@@ -38,8 +38,9 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  const handleCardClick = () => {
-    navigate(`/dashboard/student/concepts/card/${id}`);
+  const handleStudyNow = () => {
+    // Direct user to concept detail page
+    navigate(`/dashboard/student/concepts/${id}`);
   };
   
   // Generate difficulty color
@@ -50,108 +51,75 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   
   // Format difficulty text with first letter capitalized
   const formattedDifficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
+  
   return (
-    <div className="group perspective-1000 h-full">
-      <div className="relative h-full w-full transform-style-3d transition-all duration-500 hover:cursor-pointer">
-        {/* Front of the card */}
-        <div 
-          className="absolute inset-0 backface-hidden"
-          onClick={handleCardClick}
-        >
-          <Card className="h-full flex flex-col p-5 border-2 border-gray-100 hover:border-primary/20 transition-all">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex gap-2">
-                <Badge variant="outline" className={difficultyColor}>
-                  {formattedDifficulty}
-                </Badge>
-                <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200 flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
-                  <span>{timeEstimate} min</span>
-                </Badge>
-              </div>
-              {isRecommended && (
-                <Badge className="bg-blue-500">
-                  <Star className="h-3 w-3 mr-1 fill-current" />
-                  <span>Recommended</span>
-                </Badge>
-              )}
-              {isNew && !isRecommended && (
-                <Badge className="bg-green-500">New</Badge>
-              )}
-            </div>
-            
-            <h3 className="text-lg font-semibold mb-2">{title}</h3>
-            
-            {(subject || chapter) && (
-              <p className="text-sm text-muted-foreground mb-3">
-                {subject}{chapter && ` • ${chapter}`}
-              </p>
+    <Card className={`h-full flex flex-col ${className}`}>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg font-semibold leading-tight">{title}</CardTitle>
+            {subject && chapter && (
+              <CardDescription className="text-sm mt-1">
+                {subject} • {chapter}
+              </CardDescription>
             )}
-            
-            {description && (
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                {description}
-              </p>
-            )}
-            
-            <div className="mt-auto">
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>Progress</span>
-                <span>{progress}%</span>
-              </div>
-              <Progress value={progress} className="h-1.5" />
-              
-              <div className="flex justify-end mt-4">
-                <motion.div 
-                  className="flex items-center text-primary text-sm font-medium"
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <span>Study Now</span>
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </motion.div>
-              </div>
-            </div>
-          </Card>
+          </div>
+          {isRecommended && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 ml-2 flex items-center">
+              <Star className="h-3 w-3 mr-1 fill-current" />
+              <span>Recommended</span>
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="py-2 flex-grow">
+        <div className="mb-3 flex flex-wrap gap-2">
+          {/* Difficulty badge */}
+          <Badge variant="outline" className={difficultyColor}>
+            {formattedDifficulty}
+          </Badge>
+          
+          {/* Time estimate badge */}
+          <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200 flex items-center">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>{timeEstimate} min</span>
+          </Badge>
+          
+          {/* Show "New" badge if specified */}
+          {isNew && (
+            <Badge className="bg-green-500">New</Badge>
+          )}
         </div>
         
-        {/* Back of the card - with flip animation */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180" onClick={handleCardClick}>
-          <Card className="h-full flex flex-col p-5 justify-between bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-center">{title}</h3>
-              
-              <p className="text-sm text-center">
-                {description || `Master the key concepts of ${title} to improve your understanding.`}
-              </p>
-              
-              {tags && tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 justify-center">
-                  {tags.map((tag, i) => (
-                    <Badge key={i} variant="outline" className="text-xs bg-primary/10">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-4 flex justify-center">
-              <motion.div 
-                className="flex items-center text-primary font-medium gap-2"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Study Now</span>
-                <ArrowRight className="h-5 w-5" />
-              </motion.div>
-            </div>
-          </Card>
+        {/* Description */}
+        {description && (
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{description}</p>
+        )}
+        
+        {/* Progress bar */}
+        <div>
+          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <span>Progress</span>
+            <span>{progress}%</span>
+          </div>
+          <Progress value={progress} className="h-1.5" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+      
+      <CardFooter className="pt-3 pb-4 flex justify-end">
+        {/* Study Now button */}
+        <Button 
+          size="sm" 
+          className="gap-1" 
+          onClick={handleStudyNow}
+        >
+          <BookOpen className="h-4 w-4" />
+          <span>Study Now</span>
+          <ArrowRight className="h-4 w-4 ml-1" />
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
