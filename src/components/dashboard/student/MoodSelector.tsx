@@ -1,41 +1,41 @@
 
 import React from 'react';
-import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
+import { MoodType } from '@/types/user/base';
 
 interface MoodSelectorProps {
-  currentMood?: MoodType;
   onMoodSelect: (mood: MoodType) => void;
-  className?: string;
+  selectedMood?: MoodType;
 }
 
-export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
-  const moodOptions = [
-    { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
-    { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
-    { type: MoodType.Motivated, emoji: '💪', label: 'Motivated' },
-    { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
-    { type: MoodType.Stressed, emoji: '😓', label: 'Stressed' },
-    { type: MoodType.Confused, emoji: '🤔', label: 'Confused' },
-    { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
-    { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
-    { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
-    { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
-    { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
-    { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
+const MoodSelector: React.FC<MoodSelectorProps> = ({ onMoodSelect, selectedMood }) => {
+  // Define available moods using the enum properly
+  const availableMoods = [
+    { mood: MoodType.HAPPY, label: 'Happy', emoji: '😊' },
+    { mood: MoodType.FOCUSED, label: 'Focused', emoji: '🧠' },
+    { mood: MoodType.MOTIVATED, label: 'Motivated', emoji: '💪' },
+    { mood: MoodType.TIRED, label: 'Tired', emoji: '😴' },
+    { mood: MoodType.STRESSED, label: 'Stressed', emoji: '😰' },
+    { mood: MoodType.CONFUSED, label: 'Confused', emoji: '😕' },
+    { mood: MoodType.ANXIOUS, label: 'Anxious', emoji: '😟' },
+    { mood: MoodType.NEUTRAL, label: 'Neutral', emoji: '😐' },
+    { mood: MoodType.OKAY, label: 'Okay', emoji: '👌' },
+    { mood: MoodType.OVERWHELMED, label: 'Overwhelmed', emoji: '🥴' },
+    { mood: MoodType.CURIOUS, label: 'Curious', emoji: '🤔' },
+    { mood: MoodType.SAD, label: 'Sad', emoji: '😢' }
   ];
 
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {moodOptions.map((mood) => (
+    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+      {availableMoods.map(({ mood, label, emoji }) => (
         <Button
-          key={mood.type}
-          variant={currentMood === mood.type ? "default" : "outline"}
-          onClick={() => onMoodSelect(mood.type)}
-          className="flex flex-col items-center p-2 h-auto"
+          key={mood}
+          onClick={() => onMoodSelect(mood)}
+          variant={selectedMood === mood ? "default" : "outline"}
+          className="flex flex-col items-center justify-center py-3 h-auto"
         >
-          <span className="text-xl mb-1">{mood.emoji}</span>
-          <span className="text-xs">{mood.label}</span>
+          <span className="text-xl mb-1">{emoji}</span>
+          <span className="text-xs">{label}</span>
         </Button>
       ))}
     </div>

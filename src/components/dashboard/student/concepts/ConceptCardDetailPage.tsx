@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,6 +83,10 @@ const ConceptCardDetailPage: React.FC = () => {
 
   const handleStartStudy = () => {
     navigate(`/dashboard/student/concepts/${conceptId}/study`);
+  };
+  
+  const handleFormulaLabClick = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`);
   };
   
   const handleBack = () => {
@@ -193,12 +198,14 @@ const ConceptCardDetailPage: React.FC = () => {
       </Card>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
-        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
+        <TabsList className="grid grid-cols-3 md:grid-cols-7 md:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="examples">Examples</TabsTrigger>
           <TabsTrigger value="quiz">Quiz</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="formula-lab">Formula Lab</TabsTrigger>
+          <TabsTrigger value="insights">AI Insights</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <Card>
@@ -257,12 +264,135 @@ const ConceptCardDetailPage: React.FC = () => {
                     ))}
                   </ul>
                 </div>
-                {/* More content would be dynamically rendered here */}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        {/* ... other tabs would be implemented similarly */}
+        <TabsContent value="examples" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Practical Examples</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {concept.examples.map((example, index) => (
+                  <div key={index} className="border-b pb-4 last:border-b-0 last:pb-0">
+                    <h3 className="text-lg font-semibold mb-2">{example.title}</h3>
+                    <p>{example.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="quiz" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Self-Assessment</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {concept.quizQuestions.map((question, qIndex) => (
+                  <div key={qIndex} className="border rounded-lg p-4">
+                    <h3 className="font-semibold mb-3">Question {qIndex + 1}: {question.question}</h3>
+                    <div className="space-y-2">
+                      {question.options.map((option, oIndex) => (
+                        <div 
+                          key={oIndex} 
+                          className={`p-3 border rounded-md cursor-pointer ${
+                            oIndex === question.correctAnswer ? 'hover:bg-green-50 hover:border-green-200' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="notes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <textarea 
+                  className="w-full min-h-[200px] p-3 border rounded-md" 
+                  placeholder="Add your personal notes about this concept here..."
+                ></textarea>
+                <Button>Save Notes</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="formula-lab" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Formula Lab</CardTitle>
+              <CardDescription>Practice with key formulas related to this concept</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold">Key Formulas:</h3>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-white p-2 rounded-md">F = ma</div>
+                      <span>Force equals mass times acceleration (Newton's Second Law)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-white p-2 rounded-md">p = mv</div>
+                      <span>Momentum equals mass times velocity</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button onClick={handleFormulaLabClick} className="w-full">
+                  Open Interactive Formula Lab
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="insights" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Insights</CardTitle>
+              <CardDescription>Personalized insights and suggestions based on your learning patterns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-purple-800 dark:text-purple-300">Learning Pattern Analysis</h3>
+                  <p className="mt-2">Based on your interaction with similar physics concepts, you learn best with visual examples and practical applications.</p>
+                </div>
+                
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-green-800 dark:text-green-300">Suggested Focus Areas</h3>
+                  <ul className="mt-2 list-disc pl-5 space-y-1">
+                    <li>Spend more time on understanding the mathematical formulations of Newton's Second Law</li>
+                    <li>Review examples that apply multiple laws simultaneously</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-300">Connected Concepts</h3>
+                  <p className="mt-2">This concept is strongly related to:</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer">Friction</Badge>
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer">Momentum</Badge>
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer">Circular Motion</Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
