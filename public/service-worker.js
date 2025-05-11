@@ -1,191 +1,169 @@
-// Service Worker for PREPZR app
 
-const CACHE_NAME = 'prepzr-cache-v1';
+// PREPZR Service Worker
+const CACHE_NAME = 'prepzr-app-v1';
+
+// Assets to cache for offline usage
 const urlsToCache = [
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
   '/img/app-icon-192.png',
   '/img/app-icon-512.png',
-  '/img/logo.png',
-  '/img/grid.svg',
-  // Add essential CSS and JS files
-  '/assets/index.css',
-  '/assets/index.js'
+  '/css/main.css',
+  '/js/main.js'
 ];
 
-// Install event - cache essential files
-self.addEventListener('install', (event) => {
+// Install service worker and cache all essential assets
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(cache => {
+        console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
   );
+  // Force activation of new service worker if an update is available
+  self.skipWaiting();
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+// Activate service worker and clean up old caches
+self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache or network
-self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+// Handle fetch requests with a network-first strategy
+self.addEventListener('fetch', event => {
+  // Skip requests to browser-sync endpoints in development
+  if (event.request.url.includes('/browser-sync/')) {
     return;
   }
-  
-  // Skip API requests
-  if (event.request.url.includes('/api/')) {
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
     return;
   }
   
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response from cache
-        if (response) {
-          return response;
-        }
-        
-        // Clone the request
-        const fetchRequest = event.request.clone();
-        
-        // Make network request and cache the response
-        return fetch(fetchRequest).then(
-          (response) => {
-            // Check if valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+    fetch(event.request)
+      .then(response => {
+        // If online, return the fresh content and update cache
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME)
+          .then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        return response;
+      })
+      .catch(() => {
+        // If offline, look for content in cache
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            // Return cached content or offline page as fallback
+            if (cachedResponse) {
+              return cachedResponse;
             }
             
-            // Clone the response
-            const responseToCache = response.clone();
+            // For HTML document requests, serve offline page
+            if (event.request.headers.get('accept').includes('text/html')) {
+              return caches.match('/offline.html');
+            }
             
-            // Open cache and store response
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return response;
-          }
-        ).catch(() => {
-          // If fetch fails, return offline page for HTML requests
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('/offline.html');
-          }
-        });
+            // Return a default response for other assets
+            return new Response(
+              'Network error, resource unavailable offline',
+              {
+                status: 408,
+                headers: { 'Content-Type': 'text/plain' }
+              }
+            );
+          });
       })
   );
 });
 
-// Handle push notifications
-self.addEventListener('push', (event) => {
-  if (event.data) {
-    const data = event.data.json();
-    const options = {
-      body: data.body,
-      icon: '/img/app-icon-192.png',
-      badge: '/img/notification-badge.png',
-      data: {
-        url: data.url || '/'
-      }
-    };
-    
-    event.waitUntil(
-      self.registration.showNotification('PREPZR', options)
-    );
+// Handle background sync for offline actions
+self.addEventListener('sync', function(event) {
+  if (event.tag === 'syncMoodUpdate') {
+    event.waitUntil(syncMoodData());
   }
 });
 
-// Handle notification clicks
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      const url = event.notification.data?.url || '/dashboard/student';
-      
-      // Check if a window is already open and navigate to it
-      for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
+// Sync mood data when coming back online
+async function syncMoodData() {
+  try {
+    // Check for any pending mood updates
+    const pendingMoodUpdates = await localforage.getItem('pendingMoodUpdates');
+    
+    if (pendingMoodUpdates && pendingMoodUpdates.length) {
+      // Process each pending update
+      for (const update of pendingMoodUpdates) {
+        // Send to server
+        await fetch('/api/mood-tracking', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(update)
+        });
       }
       
-      // Otherwise, open a new window
-      return clients.openWindow(url);
-    })
+      // Clear pending updates after successful sync
+      await localforage.setItem('pendingMoodUpdates', []);
+      
+      // Notify any open clients that sync is complete
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SYNC_COMPLETE',
+          message: 'Mood data synchronized successfully.'
+        });
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Sync failed:', error);
+    return false;
+  }
+}
+
+// Listen for push notifications
+self.addEventListener('push', event => {
+  const data = event.data.json();
+  
+  const title = data.title || 'PREPZR Update';
+  const options = {
+    body: data.body || 'New update available',
+    icon: '/img/app-icon-192.png',
+    badge: '/img/notification-badge.png',
+    data: {
+      url: data.url || '/'
+    }
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
   );
 });
 
-// Handle sync events for offline updates
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-mood-logs') {
-    event.waitUntil(syncMoodLogs());
-  }
+// Handle notification clicks
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
   
-  if (event.tag === 'sync-study-progress') {
-    event.waitUntil(syncStudyProgress());
-  }
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url || '/')
+  );
 });
-
-// Function to sync mood logs
-async function syncMoodLogs() {
-  try {
-    // Get pending mood logs from IndexedDB
-    const pendingLogs = await getPendingMoodLogs();
-    
-    if (pendingLogs.length === 0) {
-      return;
-    }
-    
-    // Send each log to server
-    await Promise.all(pendingLogs.map(async (log) => {
-      const response = await fetch('/api/mood-logs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(log)
-      });
-      
-      if (response.ok) {
-        await markMoodLogSynced(log.id);
-      }
-    }));
-  } catch (error) {
-    console.error('Error syncing mood logs:', error);
-  }
-}
-
-// Function to sync study progress
-async function syncStudyProgress() {
-  // Similar implementation as syncMoodLogs
-  console.log('Syncing study progress...');
-}
-
-// Placeholder functions for IndexedDB operations
-async function getPendingMoodLogs() {
-  // In a real implementation, this would get data from IndexedDB
-  return [];
-}
-
-async function markMoodLogSynced(id) {
-  // In a real implementation, this would update IndexedDB
-  console.log(`Marked mood log ${id} as synced`);
-}

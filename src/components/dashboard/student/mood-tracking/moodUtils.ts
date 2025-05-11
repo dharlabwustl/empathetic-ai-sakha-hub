@@ -3,23 +3,23 @@ import { MoodType } from '@/types/user/base';
 // Get emoji for each mood type
 export const getMoodEmoji = (mood?: MoodType): string => {
   switch (mood) {
-    case MoodType.Happy:
+    case MoodType.HAPPY:
       return '😊';
-    case MoodType.Focused:
+    case MoodType.FOCUSED:
       return '🧐';
-    case MoodType.Motivated:
+    case MoodType.MOTIVATED:
       return '💪';
-    case MoodType.Tired:
+    case MoodType.TIRED:
       return '😴';
-    case MoodType.Stressed:
+    case MoodType.STRESSED:
       return '😰';
-    case MoodType.Confused:
+    case MoodType.CONFUSED:
       return '😕';
-    case MoodType.Anxious:
+    case MoodType.ANXIOUS:
       return '😟';
-    case MoodType.Neutral:
+    case MoodType.NEUTRAL:
       return '😐';
-    case MoodType.Sad:
+    case MoodType.SAD:
       return '😢';
     default:
       return '😐';
@@ -29,7 +29,7 @@ export const getMoodEmoji = (mood?: MoodType): string => {
 // Get label for each mood type
 export const getMoodLabel = (mood?: MoodType): string => {
   if (!mood) return 'Neutral';
-  return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
+  return mood.charAt(0) + mood.slice(1).toLowerCase();
 };
 
 // Store mood in localStorage
@@ -94,23 +94,23 @@ export const getMoodHistoryFromLocalStorage = () => {
 // Get study recommendation based on mood
 export const getStudyRecommendationForMood = (mood: MoodType): string => {
   switch (mood) {
-    case MoodType.Happy:
+    case MoodType.HAPPY:
       return "Great mood! This is an excellent time to tackle challenging topics or try some interactive practice questions.";
-    case MoodType.Focused:
+    case MoodType.FOCUSED:
       return "You're in the zone! Focus on deep learning, complex problems, and concept connections now.";
-    case MoodType.Motivated:
+    case MoodType.MOTIVATED:
       return "Channel your motivation into tackling difficult subjects or reviewing material you've been struggling with.";
-    case MoodType.Tired:
+    case MoodType.TIRED:
       return "Consider shorter study sessions with more frequent breaks. Focus on review rather than new material.";
-    case MoodType.Stressed:
+    case MoodType.STRESSED:
       return "Take a few minutes for a breathing exercise, then try some easier review material to build confidence.";
-    case MoodType.Confused:
+    case MoodType.CONFUSED:
       return "Let's focus on foundational concepts. Try using the AI tutor to explain difficult topics step by step.";
-    case MoodType.Anxious:
+    case MoodType.ANXIOUS:
       return "Practice some test questions under untimed conditions to build confidence, and remember to take breaks.";
-    case MoodType.Neutral:
+    case MoodType.NEUTRAL:
       return "This is a good time for balanced study - mix review with new material and theoretical with practical.";
-    case MoodType.Sad:
+    case MoodType.SAD:
       return "Consider visiting the Feel Good Corner before studying, or choose topics you enjoy to help lift your mood.";
     default:
       return "Focus on your regular study plan and adjust as needed based on how you feel.";
@@ -131,8 +131,8 @@ export const analyzeMoodTrends = () => {
     
     // Check for stress signals (multiple stressed, anxious entries)
     const stressfulMoods = recentMoods.filter(entry => 
-      entry.mood === MoodType.Stressed || 
-      entry.mood === MoodType.Anxious
+      entry.mood === MoodType.STRESSED || 
+      entry.mood === MoodType.ANXIOUS
     );
     
     // Check for improvement (stressed/anxious to motivated/happy)
@@ -140,16 +140,16 @@ export const analyzeMoodTrends = () => {
     const newestTwo = recentMoods.slice(-2);
     
     const oldestWereNegative = oldestTwo.some(entry => 
-      entry.mood === MoodType.Stressed || 
-      entry.mood === MoodType.Anxious ||
-      entry.mood === MoodType.Tired ||
-      entry.mood === MoodType.Sad
+      entry.mood === MoodType.STRESSED || 
+      entry.mood === MoodType.ANXIOUS ||
+      entry.mood === MoodType.TIRED ||
+      entry.mood === MoodType.SAD
     );
     
     const newestArePositive = newestTwo.some(entry => 
-      entry.mood === MoodType.Happy || 
-      entry.mood === MoodType.Motivated ||
-      entry.mood === MoodType.Focused
+      entry.mood === MoodType.HAPPY || 
+      entry.mood === MoodType.MOTIVATED ||
+      entry.mood === MoodType.FOCUSED
     );
     
     return {
@@ -188,7 +188,7 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
     
     // Adjust based on mood
     switch (mood) {
-      case MoodType.Tired:
+      case MoodType.TIRED:
         // Less new content, more review when tired
         allocations = {
           newConcepts: 15,
@@ -196,8 +196,8 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
           practice: 35
         };
         break;
-      case MoodType.Motivated:
-      case MoodType.Focused:
+      case MoodType.MOTIVATED:
+      case MoodType.FOCUSED:
         // More new content and practice when motivated or focused
         allocations = {
           newConcepts: 35,
@@ -205,8 +205,8 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
           practice: 45
         };
         break;
-      case MoodType.Stressed:
-      case MoodType.Anxious:
+      case MoodType.STRESSED:
+      case MoodType.ANXIOUS:
         // More review, less new content when stressed
         allocations = {
           newConcepts: 10,
@@ -214,7 +214,7 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
           practice: 40
         };
         break;
-      case MoodType.Confused:
+      case MoodType.CONFUSED:
         // Much more review, focused on fundamentals
         allocations = {
           newConcepts: 5,
@@ -222,7 +222,7 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
           practice: 30
         };
         break;
-      case MoodType.Happy:
+      case MoodType.HAPPY:
         // Balanced approach when happy
         allocations = {
           newConcepts: 30,
@@ -240,6 +240,12 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
   } catch (error) {
     console.error('Error updating study time allocations:', error);
   }
+};
+
+// Fix PREPZR pronunciation
+export const fixPrepzrPronunciation = (text: string): string => {
+  // Replace "PREPZR" with phonetic spelling for better pronunciation
+  return text.replace(/PREPZR/gi, "Prep-zer");
 };
 
 // Add manifest.json to enable mobile app-like installation

@@ -20,14 +20,14 @@ export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   onSelectMood,
 }) => {
   const moods: { label: string; emoji: string; value: MoodType }[] = [
-    { label: "Happy", emoji: getMoodEmoji(MoodType.Happy), value: MoodType.Happy },
-    { label: "Motivated", emoji: getMoodEmoji(MoodType.Motivated), value: MoodType.Motivated },
-    { label: "Focused", emoji: getMoodEmoji(MoodType.Focused), value: MoodType.Focused },
-    { label: "Neutral", emoji: getMoodEmoji(MoodType.Neutral), value: MoodType.Neutral },
-    { label: "Tired", emoji: getMoodEmoji(MoodType.Tired), value: MoodType.Tired },
-    { label: "Anxious", emoji: getMoodEmoji(MoodType.Anxious), value: MoodType.Anxious },
-    { label: "Stressed", emoji: getMoodEmoji(MoodType.Stressed), value: MoodType.Stressed },
-    { label: "Sad", emoji: getMoodEmoji(MoodType.Sad), value: MoodType.Sad },
+    { label: "Happy", emoji: getMoodEmoji(MoodType.HAPPY), value: MoodType.HAPPY },
+    { label: "Motivated", emoji: getMoodEmoji(MoodType.MOTIVATED), value: MoodType.MOTIVATED },
+    { label: "Focused", emoji: getMoodEmoji(MoodType.FOCUSED), value: MoodType.FOCUSED },
+    { label: "Neutral", emoji: getMoodEmoji(MoodType.NEUTRAL), value: MoodType.NEUTRAL },
+    { label: "Tired", emoji: getMoodEmoji(MoodType.TIRED), value: MoodType.TIRED },
+    { label: "Anxious", emoji: getMoodEmoji(MoodType.ANXIOUS), value: MoodType.ANXIOUS },
+    { label: "Stressed", emoji: getMoodEmoji(MoodType.STRESSED), value: MoodType.STRESSED },
+    { label: "Sad", emoji: getMoodEmoji(MoodType.SAD), value: MoodType.SAD },
   ];
 
   return (

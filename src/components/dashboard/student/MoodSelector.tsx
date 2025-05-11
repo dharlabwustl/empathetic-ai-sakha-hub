@@ -12,15 +12,15 @@ interface MoodSelectorProps {
 
 export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
   const moodOptions = [
-    { type: MoodType.Happy, label: 'Happy' },
-    { type: MoodType.Focused, label: 'Focused' },
-    { type: MoodType.Motivated, label: 'Motivated' },
-    { type: MoodType.Tired, label: 'Tired' },
-    { type: MoodType.Stressed, label: 'Stressed' },
-    { type: MoodType.Confused, label: 'Confused' },
-    { type: MoodType.Anxious, label: 'Anxious' },
-    { type: MoodType.Neutral, label: 'Neutral' },
-    { type: MoodType.Sad, label: 'Sad' }
+    { type: MoodType.HAPPY, label: 'Happy' },
+    { type: MoodType.FOCUSED, label: 'Focused' },
+    { type: MoodType.MOTIVATED, label: 'Motivated' },
+    { type: MoodType.TIRED, label: 'Tired' },
+    { type: MoodType.STRESSED, label: 'Stressed' },
+    { type: MoodType.CONFUSED, label: 'Confused' },
+    { type: MoodType.ANXIOUS, label: 'Anxious' },
+    { type: MoodType.NEUTRAL, label: 'Neutral' },
+    { type: MoodType.SAD, label: 'Sad' }
   ];
 
   return (

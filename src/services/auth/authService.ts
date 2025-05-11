@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -149,7 +148,16 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
-    localStorage.removeItem('dashboard_tour_completed'); 
+    localStorage.removeItem('dashboard_tour_completed');
+    localStorage.removeItem('exam_progress');
+    localStorage.removeItem('practice_history');
+    localStorage.removeItem('saved_concepts');
+    localStorage.removeItem('user_preferences');
+    
+    // Clear any cookies related to auth
+    document.cookie.split(";").forEach(function(c) {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();

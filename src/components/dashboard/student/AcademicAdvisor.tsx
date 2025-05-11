@@ -191,27 +191,27 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const mockTopics: StudyPlanTopic[] = [
     {
       id: "topic1",
-      name: "Kinematics",
+      name: "Cell Biology and Evolution",
       difficulty: "medium",
       completed: true, 
       status: "completed",
-      priority: "high"
+      priority: 1
     },
     {
       id: "topic2",
-      name: "Newton's Laws of Motion",
+      name: "Ecosystem and Biodiversity",
       difficulty: "medium",
       completed: true, 
       status: "completed",
-      priority: "high"
+      priority: 2
     },
     {
       id: "topic3",
-      name: "Electromagnetic Theory",
+      name: "Organic Molecules & Chemical Reactions",
       difficulty: "hard",
       completed: true, 
       status: "completed",
-      priority: "medium"
+      priority: 3
     }
   ];
 

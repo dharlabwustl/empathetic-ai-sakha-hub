@@ -73,23 +73,133 @@
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
       }
+      
+      /* Highlight animations */
+      .highlight-animated {
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% { opacity: 0.8; transform: scale(0.98); }
+        50% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0.8; transform: scale(0.98); }
+      }
+      
+      /* Install prompt animation */
+      .install-prompt {
+        animation: bounce 1s ease infinite;
+      }
+      
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      /* Add to home screen button pulse */
+      .add-to-home {
+        position: relative;
+      }
+      
+      .add-to-home::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 9999px;
+        background: rgba(139, 92, 246, 0.5);
+        z-index: -1;
+        opacity: 0;
+        animation: pulse-ring 2s infinite;
+      }
+      
+      @keyframes pulse-ring {
+        0% { opacity: 0.7; transform: scale(0.9); }
+        70% { opacity: 0; transform: scale(1.1); }
+        100% { opacity: 0; }
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Service worker registration -->
+    <!-- Service worker registration with enhanced PWA support -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')
             .then(registration => {
               console.log('Service Worker registered with scope:', registration.scope);
+              
+              // Handle updates
+              registration.onupdatefound = () => {
+                const installingWorker = registration.installing;
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed') {
+                    if (navigator.serviceWorker.controller) {
+                      console.log('New content is available; please refresh.');
+                      // Show update notification to user
+                      const updateNotification = document.createElement('div');
+                      updateNotification.className = 'fixed bottom-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg z-50';
+                      updateNotification.innerHTML = `
+                        <div class="flex items-center justify-between gap-4">
+                          <span>New version available!</span>
+                          <button class="px-3 py-1 bg-white text-indigo-600 rounded-md">Update</button>
+                        </div>
+                      `;
+                      document.body.appendChild(updateNotification);
+                      
+                      // Handle update click
+                      updateNotification.querySelector('button').addEventListener('click', () => {
+                        window.location.reload();
+                      });
+                    } else {
+                      console.log('Content is cached for offline use.');
+                    }
+                  }
+                };
+              };
             })
             .catch(error => {
               console.error('Service Worker registration failed:', error);
             });
+            
+          // Handle PWA installation events
+          let deferredPrompt;
+          const addToHomeBtn = document.createElement('button');
+          addToHomeBtn.style.display = 'none';
+          addToHomeBtn.className = 'add-to-home fixed bottom-4 left-4 z-50 bg-indigo-600 text-white py-3 px-4 rounded-full shadow-lg';
+          addToHomeBtn.textContent = 'Install PREPZR App';
+          document.body.appendChild(addToHomeBtn);
+          
+          window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67+ from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Update UI to notify the user they can add to home screen
+            addToHomeBtn.style.display = 'block';
+            
+            addToHomeBtn.addEventListener('click', (e) => {
+              // Hide our user interface that shows our install button
+              addToHomeBtn.style.display = 'none';
+              // Show the install prompt
+              deferredPrompt.prompt();
+              // Wait for the user to respond to the prompt
+              deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                  console.log('User accepted the install prompt');
+                } else {
+                  console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+              });
+            });
+          });
+          
+          // Handle app installed event
+          window.addEventListener('appinstalled', (evt) => {
+            console.log('PREPZR app was installed.', evt);
+          });
         });
       }
     </script>

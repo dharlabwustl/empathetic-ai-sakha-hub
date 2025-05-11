@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -494,14 +493,20 @@ const SurroundingInfluencesSection = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
                     <span className="text-sm">Non-peak hour study time</span>
-                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 60 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${getActiveData().proactiveness[0].value > 60 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"}`}
+                    >
                       {getActiveData().proactiveness[0].value > 60 ? "Excellent" : "Good"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
                     <span className="text-sm">Self-initiated revision</span>
-                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 55 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
-                      {getActiveData().proactiveness[0].value > 55 ? "Excellent" : "Good"}
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${getActiveData().proactiveness[1].value > 60 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"}`}
+                    >
+                      {getActiveData().proactiveness[1].value > 60 ? "Excellent" : "Good"}
                     </Badge>
                   </div>
                 </div>
