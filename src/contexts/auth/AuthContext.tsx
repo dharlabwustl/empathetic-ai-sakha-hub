@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
 import authService from '@/services/auth/authService';
@@ -156,8 +155,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authService.logout().then(() => {
       console.log("User logged out completely via AuthContext");
       
+      // Additional cleanup to ensure complete logout
+      localStorage.clear();
+      sessionStorage.clear();
+      
       // Force a complete page refresh to reset all state
-      // This will be handled by authService.logout() now
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 300);
     }).catch(error => {
       console.error("Error during logout:", error);
       

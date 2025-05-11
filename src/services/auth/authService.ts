@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -167,8 +166,10 @@ const authService = {
       
       console.log("Logout complete - All authentication data cleared");
       
-      // Force page navigation to login screen
-      window.location.href = '/login';
+      // Force page navigation to login screen after a short delay
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
       
       return {
         success: true,
