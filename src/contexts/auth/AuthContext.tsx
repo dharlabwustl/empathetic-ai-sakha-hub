@@ -133,23 +133,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('AUTH_USER_KEY');
     localStorage.removeItem('user_profile_image');
     localStorage.removeItem('prepzr_remembered_email');
-    localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('hasSeenTour');
-    localStorage.removeItem('hasSeenSplash');
-    localStorage.removeItem('voiceSettings');
-    localStorage.removeItem('new_user_signup');
-    localStorage.removeItem('study_time_allocations');
     
-    // Clear any session storage items too
-    sessionStorage.clear();
+    // Clear any session storage items that might contain auth data
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('authToken');
     
     // Clear user state
     setUser(null);
     console.log("User logged out completely - all authentication data cleared");
     
-    // Force reload to ensure clean state
-    window.location.href = '/login';
+    // Force reload to ensure clean state (optional but recommended)
+    // window.location.href = '/login';
   };
   
   return (
