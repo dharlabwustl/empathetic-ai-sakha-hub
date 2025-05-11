@@ -1,3 +1,4 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -148,8 +149,6 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
-    localStorage.removeItem('sakha_auth_token');
-    localStorage.removeItem('sakha_auth_user');
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
@@ -159,8 +158,10 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Force redirect to home/login after logout
-    window.location.href = '/login';
+    // Redirect to login page after logout
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 100);
     
     return {
       success: true,
@@ -185,6 +186,9 @@ const authService = {
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
+    
+    // Force redirect to login screen
+    window.location.href = '/login';
   },
   
   // Get current authenticated user
@@ -195,7 +199,7 @@ const authService = {
   
   // Get auth token
   getToken(): string | null {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return localStorage.setItem('sawWelcomeTour', 'false') || localStorage.getItem(AUTH_TOKEN_KEY);
   },
   
   // Check if user is authenticated
