@@ -1,547 +1,616 @@
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Calculator, CheckCircle2, ChevronRight, FileUp, ExternalLink, Lightbulb, AlignJustify, RotateCcw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useRef, useCallback } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/hooks/use-toast";
+import { Calculator, CheckCircle2, ChevronRight, Upload, List, ArrowRight, ArrowLeft, Eye } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Mock data - In a real app, these would come from an API
-const subjects = [
-  { id: 'physics', name: 'Physics', formulas: 120, types: ['Mechanics', 'Electromagnetism', 'Thermodynamics', 'Optics', 'Modern Physics'] },
-  { id: 'chemistry', name: 'Chemistry', formulas: 95, types: ['Physical Chemistry', 'Inorganic Chemistry', 'Organic Chemistry'] },
-  { id: 'mathematics', name: 'Mathematics', formulas: 150, types: ['Algebra', 'Calculus', 'Geometry', 'Trigonometry', 'Statistics'] }
-];
+type Difficulty = 'easy' | 'medium' | 'hard';
 
-const topics = {
-  physics: [
-    { id: 'kinematics', name: 'Kinematics', questions: 24, difficulty: 'medium' },
-    { id: 'dynamics', name: 'Dynamics', questions: 32, difficulty: 'hard' },
-    { id: 'gravitation', name: 'Gravitation', questions: 18, difficulty: 'medium' },
-    { id: 'thermodynamics', name: 'Thermodynamics', questions: 28, difficulty: 'hard' },
-    { id: 'electrostatics', name: 'Electrostatics', questions: 22, difficulty: 'medium' },
-    { id: 'optics', name: 'Optics', questions: 20, difficulty: 'easy' },
-    { id: 'nuclear', name: 'Nuclear Physics', questions: 16, difficulty: 'hard' }
-  ],
-  chemistry: [
-    { id: 'stoichiometry', name: 'Stoichiometry', questions: 18, difficulty: 'medium' },
-    { id: 'thermochemistry', name: 'Thermochemistry', questions: 20, difficulty: 'hard' },
-    { id: 'atomic', name: 'Atomic Structure', questions: 15, difficulty: 'medium' },
-    { id: 'periodic', name: 'Periodic Table', questions: 12, difficulty: 'easy' },
-    { id: 'bonding', name: 'Chemical Bonding', questions: 22, difficulty: 'medium' },
-    { id: 'equilibrium', name: 'Chemical Equilibrium', questions: 25, difficulty: 'hard' }
-  ],
-  mathematics: [
-    { id: 'functions', name: 'Functions', questions: 30, difficulty: 'medium' },
-    { id: 'limits', name: 'Limits & Continuity', questions: 25, difficulty: 'medium' },
-    { id: 'derivatives', name: 'Derivatives', questions: 35, difficulty: 'hard' },
-    { id: 'integration', name: 'Integration', questions: 40, difficulty: 'hard' },
-    { id: 'vectors', name: 'Vectors', questions: 22, difficulty: 'medium' },
-    { id: 'matrices', name: 'Matrices & Determinants', questions: 28, difficulty: 'medium' },
-    { id: 'probability', name: 'Probability', questions: 20, difficulty: 'medium' }
-  ]
-};
+interface Formula {
+  id: string;
+  title: string;
+  formula: string;
+  description: string;
+  variables: { [key: string]: { name: string; unit: string; } };
+}
 
-const difficultyLevels = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' }
-];
+interface Step {
+  description: string;
+  formula?: string;
+  result?: string | number;
+}
 
-const FormulaPracticePage: React.FC = () => {
+const FormulaPracticePage = () => {
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const [selectedSubject, setSelectedSubject] = useState('physics');
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [difficulty, setDifficulty] = useState('medium');
-  const [questionCount, setQuestionCount] = useState(5);
-  const [practiceMode, setPracticeMode] = useState('step-by-step');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [currentQuestion, setCurrentQuestion] = useState<any>(null);
-  const [solutionSteps, setSolutionSteps] = useState<string[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
-  const [showSolution, setShowSolution] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState('practice');
+  const [selectedSubject, setSelectedSubject] = useState<string>('physics');
+  const [selectedTopic, setSelectedTopic] = useState<string>('kinematics');
+  const [selectedFormula, setSelectedFormula] = useState<Formula | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [questionCount, setQuestionCount] = useState<number>(3);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [userAnswer, setUserAnswer] = useState<string>('');
+  const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const [showSteps, setShowSteps] = useState<boolean>(false);
+  const [solutionSteps, setSolutionSteps] = useState<Step[]>([]);
   
-  // Load topics when subject changes
-  useEffect(() => {
-    if (selectedSubject && topics[selectedSubject as keyof typeof topics].length > 0) {
-      setSelectedTopic(topics[selectedSubject as keyof typeof topics][0].id);
+  // Mock data for subjects, topics, and formulas
+  const subjects = [
+    { id: 'physics', name: 'Physics' },
+    { id: 'chemistry', name: 'Chemistry' },
+    { id: 'math', name: 'Mathematics' }
+  ];
+  
+  const topics = {
+    physics: [
+      { id: 'kinematics', name: 'Kinematics' },
+      { id: 'dynamics', name: 'Dynamics' },
+      { id: 'energy', name: 'Energy & Work' }
+    ],
+    chemistry: [
+      { id: 'stoichiometry', name: 'Stoichiometry' },
+      { id: 'thermodynamics', name: 'Thermodynamics' },
+      { id: 'electrochemistry', name: 'Electrochemistry' }
+    ],
+    math: [
+      { id: 'calculus', name: 'Calculus' },
+      { id: 'algebra', name: 'Algebra' },
+      { id: 'geometry', name: 'Geometry' }
+    ]
+  };
+  
+  const formulas = {
+    kinematics: [
+      {
+        id: 'velocity',
+        title: 'Final Velocity',
+        formula: 'v = u + at',
+        description: 'Calculate the final velocity of an object with constant acceleration',
+        variables: {
+          v: { name: 'Final velocity', unit: 'm/s' },
+          u: { name: 'Initial velocity', unit: 'm/s' },
+          a: { name: 'Acceleration', unit: 'm/s²' },
+          t: { name: 'Time', unit: 's' }
+        }
+      },
+      {
+        id: 'distance',
+        title: 'Distance',
+        formula: 's = ut + (1/2)at²',
+        description: 'Calculate the distance traveled by an object with constant acceleration',
+        variables: {
+          s: { name: 'Distance', unit: 'm' },
+          u: { name: 'Initial velocity', unit: 'm/s' },
+          a: { name: 'Acceleration', unit: 'm/s²' },
+          t: { name: 'Time', unit: 's' }
+        }
+      }
+    ],
+    dynamics: [
+      {
+        id: 'force',
+        title: 'Force',
+        formula: 'F = ma',
+        description: "Calculate force using Newton's Second Law",
+        variables: {
+          F: { name: 'Force', unit: 'N' },
+          m: { name: 'Mass', unit: 'kg' },
+          a: { name: 'Acceleration', unit: 'm/s²' }
+        }
+      }
+    ]
+  };
+  
+  // Mock questions
+  const generateQuestion = useCallback(() => {
+    if (!selectedFormula) return null;
+    
+    // Generate parameters based on difficulty
+    const baseValue = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 20;
+    const u = Math.round(Math.random() * baseValue);
+    const a = Math.round(Math.random() * baseValue / 2) + 1;
+    const t = Math.round(Math.random() * baseValue / 4) + 1;
+    
+    if (selectedFormula.id === 'velocity') {
+      const answer = u + a * t;
+      const steps = [
+        { description: `Start with the formula for final velocity:`, formula: 'v = u + at' },
+        { description: `Substitute initial velocity u = ${u} m/s, acceleration a = ${a} m/s², and time t = ${t} s:`, formula: `v = ${u} + ${a} × ${t}` },
+        { description: `Multiply acceleration by time:`, formula: `v = ${u} + ${a * t}` },
+        { description: `Add initial velocity to get final velocity:`, formula: `v = ${answer} m/s`, result: answer }
+      ];
+      
+      return {
+        questionText: `A car starts with an initial velocity of ${u} m/s and accelerates at ${a} m/s². What is its velocity after ${t} seconds?`,
+        parameters: { u, a, t },
+        answer: answer,
+        unit: 'm/s',
+        steps
+      };
+    } else if (selectedFormula.id === 'distance') {
+      const answer = u * t + 0.5 * a * t * t;
+      const steps = [
+        { description: `Start with the formula for distance:`, formula: 's = ut + (1/2)at²' },
+        { description: `Substitute initial velocity u = ${u} m/s, acceleration a = ${a} m/s², and time t = ${t} s:`, formula: `s = ${u} × ${t} + (1/2) × ${a} × ${t}²` },
+        { description: `Calculate the first term:`, formula: `s = ${u * t} + (1/2) × ${a} × ${t}²` },
+        { description: `Calculate the second term:`, formula: `s = ${u * t} + (1/2) × ${a} × ${t * t}` },
+        { description: `s = ${u * t} + ${0.5 * a * t * t}` },
+        { description: `Add the terms to find the distance:`, formula: `s = ${answer} m`, result: answer }
+      ];
+      
+      return {
+        questionText: `A train starts with an initial velocity of ${u} m/s and accelerates at ${a} m/s². How far does it travel in ${t} seconds?`,
+        parameters: { u, a, t },
+        answer: answer,
+        unit: 'm',
+        steps
+      };
+    } else if (selectedFormula.id === 'force') {
+      const m = Math.round(Math.random() * baseValue) + 1;
+      const answer = m * a;
+      const steps = [
+        { description: `Start with the formula for force:`, formula: 'F = ma' },
+        { description: `Substitute mass m = ${m} kg and acceleration a = ${a} m/s²:`, formula: `F = ${m} × ${a}` },
+        { description: `Multiply mass and acceleration to get force:`, formula: `F = ${answer} N`, result: answer }
+      ];
+      
+      return {
+        questionText: `A box with a mass of ${m} kg is pushed and accelerates at ${a} m/s². What is the force applied to the box?`,
+        parameters: { m, a },
+        answer: answer,
+        unit: 'N',
+        steps
+      };
     }
-  }, [selectedSubject]);
-
-  // Generate a practice question
-  const generateQuestion = () => {
-    // In a real app, this would make an API call
-    setIsCorrect(null);
-    setShowSolution(false);
-    setCurrentStep(0);
-    setUserAnswers([]);
     
-    // Mock question generation
-    const question = {
-      id: Math.random().toString(36).substring(7),
-      text: "A ball is thrown vertically upward with an initial velocity of 20 m/s. Calculate the maximum height it reaches. (Take g = 9.8 m/s²)",
-      difficulty: difficulty,
-      formula: "h = v²/(2g)",
-      steps: [
-        "Identify the formula to calculate maximum height when initial velocity is given",
-        "Substitute the values: v = 20 m/s, g = 9.8 m/s²",
-        "Calculate h = (20 m/s)²/(2 × 9.8 m/s²)"
-      ],
-      answers: ["h = v²/(2g)", "h = (20)²/(2 × 9.8)", "h = 400/(19.6) = 20.41 m"],
-      finalAnswer: "20.41 m"
-    };
+    return null;
+  }, [selectedFormula, difficulty]);
+  
+  // Generate questions
+  const [questions, setQuestions] = useState<any[]>([]);
+  
+  // Generate a new set of questions
+  const generateQuestions = () => {
+    if (!selectedFormula) {
+      toast({
+        title: "Select a formula first",
+        description: "Please select a formula to generate questions",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    setCurrentQuestion(question);
-    setSolutionSteps(question.steps);
-    setUserAnswers(new Array(question.steps.length).fill(''));
+    const newQuestions = [];
+    for (let i = 0; i < questionCount; i++) {
+      const question = generateQuestion();
+      if (question) newQuestions.push(question);
+    }
+    
+    setQuestions(newQuestions);
+    setCurrentQuestionIndex(0);
+    setUserAnswer('');
+    setShowAnswer(false);
+    setShowSteps(false);
+    setSolutionSteps([]);
     
     toast({
-      title: "New practice question generated",
-      description: "Try solving step-by-step to improve your understanding",
+      title: "Questions generated",
+      description: `${questionCount} ${difficulty} questions have been generated`,
     });
   };
-
-  const checkStepAnswer = () => {
-    if (!currentQuestion) return;
+  
+  // Handle answer checking
+  const checkAnswer = () => {
+    if (!questions[currentQuestionIndex]) return;
     
-    // In a real app, this would validate against the correct answer for the current step
-    const isStepCorrect = Math.random() > 0.3; // Simulate 70% chance of being correct
+    // Clean up user answer to remove spaces and handle formatting
+    const cleanAnswer = userAnswer.replace(/\s+/g, '');
+    const correctAnswerStr = String(questions[currentQuestionIndex].answer);
     
-    if (isStepCorrect) {
+    const isCorrect = cleanAnswer === correctAnswerStr;
+    
+    if (isCorrect) {
       toast({
         title: "Correct!",
-        description: currentStep < solutionSteps.length - 1 ? "Proceed to the next step." : "You've completed all steps!",
-        variant: "default",
+        description: `Your answer is correct.`,
+        variant: "success"
       });
-      
-      if (currentStep < solutionSteps.length - 1) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        setIsCorrect(true);
-      }
     } else {
       toast({
         title: "Not quite right",
-        description: "Try again or check the hint for this step.",
-        variant: "destructive",
+        description: `Try again or view the solution.`,
+        variant: "warning"
       });
     }
   };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+  
+  // Handle navigation between questions
+  const goToNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setUserAnswer('');
+      setShowAnswer(false);
+      setShowSteps(false);
+      setSolutionSteps([]);
+    }
+  };
+  
+  const goToPreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setUserAnswer('');
+      setShowAnswer(false);
+      setShowSteps(false);
+      setSolutionSteps([]);
+    }
+  };
+  
+  // Handle showing solution
+  const toggleShowAnswer = () => {
+    setShowAnswer(!showAnswer);
+    if (!showSteps && !showAnswer) {
+      setSolutionSteps(questions[currentQuestionIndex]?.steps || []);
+      setShowSteps(true);
+    }
+  };
+  
+  // Handle step-by-step solution
+  const showNextStep = () => {
+    if (!questions[currentQuestionIndex]) return;
     
-    const file = e.target.files[0];
-    // In a real app, this would upload the file to the server for processing
+    const allSteps = questions[currentQuestionIndex].steps;
+    if (!showSteps) {
+      setShowSteps(true);
+      setSolutionSteps([allSteps[0]]);
+    } else if (solutionSteps.length < allSteps.length) {
+      setSolutionSteps(allSteps.slice(0, solutionSteps.length + 1));
+    }
+  };
+  
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
     
     toast({
       title: "File uploaded",
-      description: "Your answer is being processed...",
+      description: `"${file.name}" has been uploaded for answer verification.`,
     });
     
-    // Simulate processing delay
+    // In a real app, this would process the file contents
+    // For now, just simulate a match
     setTimeout(() => {
-      const isAnswerCorrect = Math.random() > 0.3; // Simulate 70% chance of being correct
-      setIsCorrect(isAnswerCorrect);
-      
       toast({
-        title: isAnswerCorrect ? "Correct answer!" : "Incorrect answer",
-        description: isAnswerCorrect 
-          ? "Great job! Your solution is correct." 
-          : "Your solution has some errors. Check the detailed feedback.",
-        variant: isAnswerCorrect ? "default" : "destructive",
+        title: "Answer verification",
+        description: `The answer in your document matches the expected solution.`,
+        variant: "success"
       });
-    }, 2000);
+    }, 1500);
+  };
+  
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+  
+  // When topic changes, reset selected formula
+  const handleTopicChange = (topic: string) => {
+    setSelectedTopic(topic);
+    setSelectedFormula(null);
+  };
+  
+  // When formula changes, reset questions
+  const handleFormulaChange = (formulaId: string) => {
+    const formulaList = formulas[selectedTopic as keyof typeof formulas] || [];
+    const formula = formulaList.find(f => f.id === formulaId) || null;
+    setSelectedFormula(formula);
+    setQuestions([]);
+    setUserAnswer('');
+    setShowAnswer(false);
+    setShowSteps(false);
+    setSolutionSteps([]);
   };
 
   return (
-    <SharedPageLayout
-      title="Formula Practice"
-      subtitle="Master mathematical formulas through interactive practice"
-      showBackButton={true}
-      backButtonUrl="/dashboard/student"
-    >
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6">
-          <TabsTrigger value="practice">Practice Problems</TabsTrigger>
-          <TabsTrigger value="formulas">Formula Library</TabsTrigger>
-        </TabsList>
-        
-        {/* Practice Tab */}
-        <TabsContent value="practice" className="space-y-6">
+    <SharedPageLayout title="Formula Practice Lab" subtitle="Master formulas and concepts with interactive practice">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-1 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Generate Practice Problems</CardTitle>
-              <CardDescription>
-                Select a subject, topic, and difficulty level to practice formula-based problems
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-blue-600" />
+                <span>Formula Selection</span>
+              </CardTitle>
+              <CardDescription>Choose a subject and formula to practice</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Select
-                    value={selectedSubject}
-                    onValueChange={setSelectedSubject}
-                  >
-                    <SelectTrigger id="subject">
-                      <SelectValue placeholder="Select a subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subjects.map((subject) => (
-                        <SelectItem key={subject.id} value={subject.id}>
-                          {subject.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Topic</Label>
-                  <Select
-                    value={selectedTopic}
-                    onValueChange={setSelectedTopic}
-                  >
-                    <SelectTrigger id="topic">
-                      <SelectValue placeholder="Select a topic" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedSubject && topics[selectedSubject as keyof typeof topics].map((topic) => (
-                        <SelectItem key={topic.id} value={topic.id}>
-                          {topic.name} ({topic.questions} questions)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
+              {/* Subject selection */}
               <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty Level</Label>
-                <Select
-                  value={difficulty}
-                  onValueChange={setDifficulty}
-                >
-                  <SelectTrigger id="difficulty">
-                    <SelectValue placeholder="Select difficulty" />
+                <Label htmlFor="subject">Subject</Label>
+                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                  <SelectTrigger id="subject">
+                    <SelectValue placeholder="Select subject" />
                   </SelectTrigger>
                   <SelectContent>
-                    {difficultyLevels.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        {level.label}
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <Label htmlFor="questionCount">Number of Questions</Label>
-                  <span className="text-sm font-medium">{questionCount}</span>
-                </div>
-                <Slider
-                  id="questionCount"
-                  min={1}
-                  max={10}
-                  step={1}
-                  value={[questionCount]}
-                  onValueChange={(values) => setQuestionCount(values[0])}
-                />
-              </div>
-              
+              {/* Topic selection */}
               <div className="space-y-2">
-                <Label htmlFor="practiceMode">Practice Mode</Label>
-                <Select
-                  value={practiceMode}
-                  onValueChange={setPracticeMode}
+                <Label htmlFor="topic">Topic</Label>
+                <Select 
+                  value={selectedTopic} 
+                  onValueChange={handleTopicChange}
+                  disabled={!selectedSubject}
                 >
-                  <SelectTrigger id="practiceMode">
-                    <SelectValue placeholder="Select practice mode" />
+                  <SelectTrigger id="topic">
+                    <SelectValue placeholder="Select topic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="step-by-step">Step-by-step Solution</SelectItem>
-                    <SelectItem value="final-answer">Final Answer Only</SelectItem>
-                    <SelectItem value="file-upload">Upload Written Solution</SelectItem>
+                    {topics[selectedSubject as keyof typeof topics]?.map((topic) => (
+                      <SelectItem key={topic.id} value={topic.id}>
+                        {topic.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={generateQuestion}>
-                Generate Practice Question
+              
+              {/* Formula selection */}
+              <div className="space-y-2">
+                <Label htmlFor="formula">Formula</Label>
+                <Select 
+                  value={selectedFormula?.id || ''} 
+                  onValueChange={handleFormulaChange}
+                  disabled={!selectedTopic}
+                >
+                  <SelectTrigger id="formula">
+                    <SelectValue placeholder="Select formula" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formulas[selectedTopic as keyof typeof formulas]?.map((formula) => (
+                      <SelectItem key={formula.id} value={formula.id}>
+                        {formula.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Difficulty selection */}
+              <div className="space-y-2">
+                <Label htmlFor="difficulty">Difficulty</Label>
+                <Tabs defaultValue="medium" value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}>
+                  <TabsList className="grid grid-cols-3 w-full">
+                    <TabsTrigger value="easy">Easy</TabsTrigger>
+                    <TabsTrigger value="medium">Medium</TabsTrigger>
+                    <TabsTrigger value="hard">Hard</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              {/* Number of questions */}
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label htmlFor="questions">Number of Questions</Label>
+                  <span className="text-sm">{questionCount}</span>
+                </div>
+                <Slider 
+                  id="questions" 
+                  min={1} 
+                  max={10} 
+                  step={1} 
+                  value={[questionCount]} 
+                  onValueChange={(vals) => setQuestionCount(vals[0])}
+                />
+              </div>
+              
+              <Button 
+                onClick={generateQuestions} 
+                disabled={!selectedFormula}
+                className="w-full"
+              >
+                Generate Questions
               </Button>
-            </CardFooter>
+            </CardContent>
           </Card>
           
-          {currentQuestion && (
+          {selectedFormula && (
             <Card>
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Practice Problem</CardTitle>
-                  <Badge variant={difficulty === 'easy' ? 'outline' : difficulty === 'medium' ? 'secondary' : 'destructive'}>
+              <CardHeader>
+                <CardTitle className="text-lg">{selectedFormula.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Badge className="bg-blue-600 text-white">Formula</Badge>
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-md">
+                  <p className="text-xl font-semibold text-center">{selectedFormula.formula}</p>
+                </div>
+                
+                <p className="text-sm text-muted-foreground">{selectedFormula.description}</p>
+                
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium mb-2">Variables:</h4>
+                  <ul className="space-y-1">
+                    {Object.entries(selectedFormula.variables).map(([symbol, {name, unit}]) => (
+                      <li key={symbol} className="text-sm flex justify-between">
+                        <span className="font-medium">{symbol}</span>
+                        <span className="text-muted-foreground">{name} [{unit}]</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        
+        <div className="xl:col-span-2">
+          {questions.length > 0 && currentQuestionIndex < questions.length ? (
+            <Card className="mb-6">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between">
+                  <CardTitle className="text-lg">
+                    Question {currentQuestionIndex + 1} of {questions.length}
+                  </CardTitle>
+                  <Badge variant={difficulty === 'easy' ? 'success' : difficulty === 'medium' ? 'warning' : 'destructive'}>
                     {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                   </Badge>
                 </div>
-                <CardDescription className="text-base font-medium text-foreground mt-1">
-                  {currentQuestion.text}
-                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {practiceMode === 'step-by-step' && (
-                  <div className="space-y-6">
-                    <div className="bg-muted p-4 rounded-md">
-                      <h3 className="font-medium text-sm mb-2 flex items-center">
-                        <AlignJustify className="h-4 w-4 mr-1" />
-                        Step {currentStep + 1} of {solutionSteps.length}
-                      </h3>
-                      <p className="text-sm">{solutionSteps[currentStep]}</p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="stepAnswer">Your Solution for this Step</Label>
-                      <Textarea
-                        id="stepAnswer"
-                        placeholder="Enter your solution for this step..."
-                        value={userAnswers[currentStep] || ''}
-                        onChange={(e) => {
-                          const newAnswers = [...userAnswers];
-                          newAnswers[currentStep] = e.target.value;
-                          setUserAnswers(newAnswers);
-                        }}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      <Button onClick={checkStepAnswer} disabled={!userAnswers[currentStep]}>
-                        Check Answer
-                      </Button>
-                      
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
-                        {showSolution ? 'Hide Solution' : 'Show Solution'}
-                      </Button>
-                      
-                      <Button variant="outline" className="ml-auto">
-                        <Lightbulb className="h-4 w-4 mr-1" />
-                        Hint
-                      </Button>
-                      
-                      <Button variant="outline">
-                        <Calculator className="h-4 w-4 mr-1" />
-                        Calculator
-                      </Button>
-                    </div>
-                    
-                    {showSolution && (
-                      <Alert>
-                        <AlertTitle>Solution for Step {currentStep + 1}</AlertTitle>
-                        <AlertDescription className="font-mono">
-                          {currentQuestion.answers[currentStep]}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                )}
+              <CardContent className="space-y-6">
+                {/* Question */}
+                <div className="bg-muted/30 p-4 rounded-md">
+                  <p className="text-lg">{questions[currentQuestionIndex].questionText}</p>
+                </div>
                 
-                {practiceMode === 'final-answer' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="finalAnswer">Your Answer</Label>
-                      <Input
-                        id="finalAnswer"
-                        placeholder="Enter your final answer..."
-                        value={userAnswers[0] || ''}
-                        onChange={(e) => setUserAnswers([e.target.value])}
-                      />
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      <Button onClick={() => setIsCorrect(userAnswers[0] === currentQuestion.finalAnswer)} disabled={!userAnswers[0]}>
-                        Check Answer
-                      </Button>
-                      
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
-                        {showSolution ? 'Hide Solution' : 'Show Solution'}
-                      </Button>
-                      
-                      <Button variant="outline" className="ml-auto">
-                        <Calculator className="h-4 w-4 mr-1" />
-                        Calculator
-                      </Button>
-                    </div>
-                    
-                    {showSolution && (
-                      <Alert>
-                        <AlertTitle>Complete Solution</AlertTitle>
-                        <AlertDescription className="space-y-2">
-                          {currentQuestion.steps.map((step: string, index: number) => (
-                            <div key={index} className="space-y-1">
-                              <div className="text-sm font-medium">Step {index + 1}:</div>
-                              <div className="pl-4 font-mono">{step}</div>
-                              <div className="pl-4 font-mono text-primary">{currentQuestion.answers[index]}</div>
-                            </div>
-                          ))}
-                          <div className="mt-2 font-bold">Final Answer: {currentQuestion.finalAnswer}</div>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    {isCorrect !== null && (
-                      <Alert variant={isCorrect ? "default" : "destructive"}>
-                        <AlertTitle className="flex items-center">
-                          {isCorrect ? <CheckCircle2 className="h-4 w-4 mr-1" /> : <RotateCcw className="h-4 w-4 mr-1" />}
-                          {isCorrect ? "Correct Answer!" : "Not quite right"}
-                        </AlertTitle>
-                        <AlertDescription>
-                          {isCorrect 
-                            ? "Great job! You've solved this problem correctly." 
-                            : `The correct answer is: ${currentQuestion.finalAnswer}`}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                )}
+                {/* Formula reminder */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Formula:</span>
+                  <span className="font-mono bg-muted px-2 py-0.5 rounded">{selectedFormula?.formula}</span>
+                </div>
                 
-                {practiceMode === 'file-upload' && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Upload a scan or photo of your handwritten solution. The system will analyze 
-                      your work and provide feedback.
-                    </p>
-                    
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <FileUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm mb-4">Drag and drop your file here, or click to select</p>
-                      <Input 
-                        id="file-upload" 
-                        type="file" 
-                        className="hidden" 
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={handleFileUpload}
-                      />
-                      <Button variant="outline" onClick={() => document.getElementById('file-upload')?.click()}>
-                        Select File
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Supported formats: JPG, PNG, PDF (max 5MB)
+                {/* User answer input */}
+                <div className="space-y-2">
+                  <Label htmlFor="answer">Your Answer</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="answer"
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      placeholder={`Enter your answer in ${questions[currentQuestionIndex].unit}`}
+                      className="flex-1"
+                    />
+                    <Button onClick={checkAnswer} variant="outline">
+                      Check
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Answer and solution */}
+                <div className="space-y-4">
+                  {showAnswer && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <h4 className="font-semibold">Correct Answer:</h4>
+                      </div>
+                      <p className="text-lg font-semibold">
+                        {questions[currentQuestionIndex].answer} {questions[currentQuestionIndex].unit}
                       </p>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
-                        {showSolution ? 'Hide Solution' : 'Show Solution'}
-                      </Button>
-                      
-                      <Button variant="outline" className="ml-auto">
-                        <Calculator className="h-4 w-4 mr-1" />
-                        Calculator
-                      </Button>
-                    </div>
-                    
-                    {isCorrect !== null && (
-                      <Alert variant={isCorrect ? "default" : "destructive"}>
-                        <AlertTitle className="flex items-center">
-                          {isCorrect ? <CheckCircle2 className="h-4 w-4 mr-1" /> : <RotateCcw className="h-4 w-4 mr-1" />}
-                          {isCorrect ? "Correct Solution!" : "Needs Improvement"}
-                        </AlertTitle>
-                        <AlertDescription>
-                          {isCorrect 
-                            ? "Great job! Your solution method is correct." 
-                            : "There are some issues with your solution. Review the correct approach below."}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    {showSolution && (
-                      <Alert>
-                        <AlertTitle>Complete Solution</AlertTitle>
-                        <AlertDescription className="space-y-2">
-                          {currentQuestion.steps.map((step: string, index: number) => (
-                            <div key={index} className="space-y-1">
-                              <div className="text-sm font-medium">Step {index + 1}:</div>
-                              <div className="pl-4 font-mono">{step}</div>
-                              <div className="pl-4 font-mono text-primary">{currentQuestion.answers[index]}</div>
+                  )}
+                  
+                  {/* Step-by-step solution */}
+                  {showSteps && solutionSteps.length > 0 && (
+                    <div className="border rounded-md overflow-hidden">
+                      <div className="bg-muted p-3 flex items-center justify-between">
+                        <h4 className="font-medium">Solution Steps</h4>
+                        <Badge variant="outline">{solutionSteps.length} of {questions[currentQuestionIndex].steps.length}</Badge>
+                      </div>
+                      <div className="p-4 space-y-3">
+                        {solutionSteps.map((step, index) => (
+                          <div key={index} className="flex gap-3 items-start">
+                            <div className="mt-1 h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-800">
+                              {index + 1}
                             </div>
-                          ))}
-                          <div className="mt-2 font-bold">Final Answer: {currentQuestion.finalAnswer}</div>
-                        </AlertDescription>
-                      </Alert>
-                    )}
+                            <div>
+                              <p>{step.description}</p>
+                              {step.formula && (
+                                <div className="mt-1 p-2 bg-muted/50 rounded font-mono">
+                                  {step.formula}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Actions */}
+                <div className="flex justify-between pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={toggleShowAnswer} className="flex gap-1 items-center">
+                      <Eye className="h-4 w-4" />
+                      {showAnswer ? "Hide Answer" : "Show Answer"}
+                    </Button>
+                    <Button variant="outline" onClick={showNextStep} className="flex gap-1 items-center">
+                      <List className="h-4 w-4" />
+                      {!showSteps ? "Show Steps" : "Next Step"}
+                    </Button>
                   </div>
-                )}
+                  
+                  <div>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      onChange={handleFileUpload} 
+                      accept=".pdf,.doc,.docx,.jpg,.png"
+                    />
+                    <Button variant="outline" onClick={triggerFileUpload} className="flex gap-1 items-center">
+                      <Upload className="h-4 w-4" />
+                      Upload Answer
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Navigation */}
+                <div className="flex justify-between mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={goToPreviousQuestion}
+                    disabled={currentQuestionIndex === 0}
+                    className="flex items-center"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Previous
+                  </Button>
+                  <Button
+                    onClick={goToNextQuestion}
+                    disabled={currentQuestionIndex === questions.length - 1}
+                    className="flex items-center"
+                  >
+                    Next
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentQuestion(null)}>
-                  Back to Settings
-                </Button>
-                <Button onClick={generateQuestion}>
-                  New Question
-                </Button>
-              </CardFooter>
+            </Card>
+          ) : (
+            <Card className={cn("border-dashed border-2 h-[400px] flex items-center justify-center", questions.length === 0 ? "border-gray-300" : "border-red-300")}>
+              <div className="text-center p-6">
+                <Calculator className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Questions Generated Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  {selectedFormula 
+                    ? "Click the 'Generate Questions' button to create practice problems."
+                    : "Select a formula first, then generate questions to practice."}
+                </p>
+                {selectedFormula && (
+                  <Button onClick={generateQuestions}>Generate Questions</Button>
+                )}
+              </div>
             </Card>
           )}
-        </TabsContent>
-        
-        {/* Formula Library Tab */}
-        <TabsContent value="formulas" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Formula Reference Library</CardTitle>
-              <CardDescription>
-                Browse formulas by subject and topic
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {subjects.map((subject) => (
-                  <Card key={subject.id} className="overflow-hidden">
-                    <CardHeader className="bg-muted/50">
-                      <CardTitle className="text-lg">{subject.name}</CardTitle>
-                      <CardDescription>{subject.formulas} formulas</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <ul className="space-y-3">
-                        {subject.types.slice(0, 3).map((type, idx) => (
-                          <li key={idx} className="flex items-center text-sm">
-                            <ChevronRight className="h-4 w-4 mr-2 text-primary" />
-                            {type}
-                          </li>
-                        ))}
-                        {subject.types.length > 3 && (
-                          <li className="text-xs text-muted-foreground pl-6">
-                            +{subject.types.length - 3} more topics
-                          </li>
-                        )}
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button variant="outline" className="w-full text-sm" onClick={() => setActiveTab('practice')}>
-                        <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                        View Formulas & Practice
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </SharedPageLayout>
   );
 };
