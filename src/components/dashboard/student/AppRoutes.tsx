@@ -17,6 +17,8 @@ import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/Flashcard
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
+import SignupDatabaseMappingPage from "@/pages/documentation/SignupDatabaseMappingPage";
+import PagewiseDatabaseMappingPage from "@/pages/documentation/PagewiseDatabaseMappingPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -40,6 +42,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
       <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
+      <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
     </Routes>
   );
 };

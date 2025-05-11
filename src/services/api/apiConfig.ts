@@ -43,17 +43,50 @@ export const API_ENDPOINTS = {
     GOALS: (studentId: string) => `/students/${studentId}/goals`,
     ONBOARDING: (studentId: string) => `/students/${studentId}/onboarding`,
     STUDY_PLAN: (studentId: string) => `/students/${studentId}/study-plan`,
+    DAILY_PLAN: (studentId: string) => `/students/${studentId}/daily-plan`,
     MOOD_LOGS: (studentId: string) => `/students/${studentId}/mood-logs`,
+    MOOD_HISTORY: (studentId: string) => `/students/${studentId}/mood-logs/history`,
+    MOOD_TRENDS: (studentId: string) => `/students/${studentId}/mood-logs/trends`,
     DOUBTS: (studentId: string) => `/students/${studentId}/doubts`,
     STUDY_SESSIONS: (studentId: string) => `/students/${studentId}/study-sessions`,
-    STUDY_HABITS: (studentId: string) => `/students/${studentId}/study-habits`
+    STUDY_HABITS: (studentId: string) => `/students/${studentId}/study-habits`,
+    STATISTICS: (studentId: string) => `/students/${studentId}/statistics`,
+    PREFERENCES: (studentId: string) => `/students/${studentId}/preferences`,
+    CONCEPTS: (studentId: string) => `/students/${studentId}/concepts`,
+    CONCEPT_PROGRESS: (studentId: string, conceptId: string) => 
+      `/students/${studentId}/concepts/${conceptId}/progress`,
+    FLASHCARDS: {
+      DECKS: (studentId: string) => `/students/${studentId}/flashcards/decks`,
+      STATS: (studentId: string) => `/students/${studentId}/flashcards/stats`,
+      PROGRESS: (studentId: string, cardId: string) => 
+        `/students/${studentId}/flashcards/${cardId}/progress`
+    },
+    EXAMS: {
+      LIST: (studentId: string) => `/students/${studentId}/exams`,
+      STATS: (studentId: string) => `/students/${studentId}/exams/stats`,
+      START: (studentId: string, examId: string) => `/students/${studentId}/exams/${examId}/start`,
+      SUBMIT: (studentId: string, examId: string) => `/students/${studentId}/exams/${examId}/submit`,
+      RESULTS: (studentId: string, examId: string) => `/students/${studentId}/exams/${examId}/results`
+    },
+    STUDY_PLANS: (studentId: string) => `/students/${studentId}/study-plans`,
+    BREAKS: (studentId: string) => `/students/${studentId}/breaks`,
+    ACTIVITY: (studentId: string) => `/students/${studentId}/activity`
   },
   CONTENT: {
     CONCEPTS: '/content/concepts',
     FLASHCARDS: '/content/flashcards',
+    FLASHCARD_DECKS: {
+      LIST: '/content/flashcards/decks',
+      CARDS: (deckId: string) => `/content/flashcards/decks/${deckId}/cards`
+    },
     QUESTIONS: '/content/questions',
     EXAMS: '/content/exams',
-    FEEL_GOOD: '/content/feel-good'
+    EXAM_QUESTIONS: (examId: string) => `/content/exams/${examId}/questions`,
+    FEEL_GOOD: '/content/feel-good',
+    FEEL_GOOD_EXERCISES: '/content/feel-good/exercises',
+    STUDY_TIPS: '/content/study-tips',
+    SUBJECTS: '/content/subjects',
+    TOPICS: '/content/topics'
   },
   AI: {
     PERSONALIZE: '/ai/personalize',
