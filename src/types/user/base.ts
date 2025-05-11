@@ -1,16 +1,18 @@
+
 export enum MoodType {
-  HAPPY = "happy",
-  MOTIVATED = "motivated",
-  FOCUSED = "focused",
-  TIRED = "tired",
-  STRESSED = "stressed",
-  ANXIOUS = "anxious",
-  OVERWHELMED = "overwhelmed",
-  CURIOUS = "curious",
-  CALM = "calm",
-  SAD = "sad",
-  NEUTRAL = "neutral",
-  OKAY = "okay"
+  Happy = 'happy',
+  Focused = 'focused',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Curious = 'curious',
+  Okay = 'okay',
+  Overwhelmed = 'overwhelmed',
+  Anxious = 'anxious',
+  Motivated = 'motivated',
+  Confused = 'confused',
+  Neutral = 'neutral',
+  Sad = 'sad',
+  Calm = 'calm',
 }
 
 export enum SubscriptionType {

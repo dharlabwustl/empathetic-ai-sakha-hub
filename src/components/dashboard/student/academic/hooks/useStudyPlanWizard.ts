@@ -24,9 +24,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
     learningPace: 'moderate',
-    examDate: new Date(),
-    streak: Math.floor(Math.random() * 20) + 1, // Mock data for streak
-    examReadiness: Math.floor(Math.random() * 31) + 60 // Mock data for exam readiness (60-90%)
+    examDate: new Date()
   });
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
@@ -154,9 +152,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',
         learningPace: 'moderate',
-        examDate: new Date(),
-        streak: Math.floor(Math.random() * 20) + 1,
-        examReadiness: Math.floor(Math.random() * 31) + 60
+        examDate: new Date()
       });
       onClose();
       toast({

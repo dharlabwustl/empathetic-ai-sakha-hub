@@ -1,14 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Clock, CalendarDays, CheckCircle2, BrainCircuit, Plus, GraduationCap, Flame, Target } from "lucide-react";
+import { Clock, CalendarDays, CheckCircle2, BrainCircuit, Plus, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileType, MoodType } from "@/types/user/base";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import CreateStudyPlanWizard from './academic/CreateStudyPlanWizard';
-import { Progress } from "@/components/ui/progress";
-import MoodSelector from './MoodSelector';
 
 type EventType = 'exam' | 'task' | 'class';
 
@@ -69,15 +67,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
     return diffDays > 0 ? diffDays : 0;
   };
   
-  // Calculate streak and readiness score
-  const calculateStreak = () => {
-    return userProfile.streak || Math.floor(Math.random() * 20) + 1; // Mock data
-  };
-  
-  const calculateReadinessScore = () => {
-    return userProfile.examReadiness || Math.floor(Math.random() * 41) + 60; // 60-100% range for mock data
-  };
-  
   const createStudyPlan = (newPlan: any) => {
     console.log("Creating new study plan:", newPlan);
     setDialogOpen(false);
@@ -87,9 +76,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const handleDialogClose = () => {
     setDialogOpen(false);
   };
-
-  const streak = calculateStreak();
-  const readinessScore = calculateReadinessScore();
 
   return (
     <div className="space-y-6 mb-8">
@@ -105,14 +91,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             <span>{formattedDate}</span>
           </p>
         </div>
-        
-        {/* Mood selector */}
-        <div className="shrink-0">
-          <MoodSelector 
-            currentMood={currentMood} 
-            onMoodChange={onMoodChange} 
-          />
-        </div>
       </div>
       
       {/* Middle row - Exam goal and study plan */}
@@ -122,17 +100,17 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           <CardContent className="p-4 md:p-6">
             <div className="flex flex-wrap justify-between items-start gap-4">
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2">
                   <GraduationCap className="h-5 w-5 text-indigo-600" />
                   <h3 className="text-lg font-medium">Your Exam Preparation</h3>
                 </div>
                 
                 {goals.map((goal) => (
-                  <div key={goal.id} className="mt-2 space-y-4">
+                  <div key={goal.id} className="mt-2 space-y-2">
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-indigo-600 text-md px-3 py-1 shadow-sm">{goal.title}</Badge>
+                      <Badge className="bg-indigo-600">{goal.title}</Badge>
                       {goal.targetDate && (
-                        <Badge variant="outline" className="bg-white/70 shadow-sm">
+                        <Badge variant="outline">
                           {calculateDaysUntil(goal.targetDate)} days left
                         </Badge>
                       )}
@@ -144,7 +122,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                           <span>Progress</span>
                           <span>{goal.progress}%</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-indigo-600 rounded-full" 
                             style={{ width: `${goal.progress}%` }}
@@ -152,40 +130,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                         </div>
                       </div>
                     )}
-                    
-                    <div className="flex flex-wrap gap-4 mt-2">
-                      {/* Readiness Score */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1 text-xs mb-1 text-gray-600">
-                          <Target className="h-3 w-3" />
-                          <span>Readiness Score</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${
-                                readinessScore >= 80 ? "bg-green-500" : 
-                                readinessScore >= 60 ? "bg-yellow-500" : 
-                                "bg-red-500"
-                              }`} 
-                              style={{ width: `${readinessScore}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-semibold">{readinessScore}%</span>
-                        </div>
-                      </div>
-                      
-                      {/* Streak */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1 text-xs mb-1 text-gray-600">
-                          <Flame className="h-3 w-3" />
-                          <span>Study Streak</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-sm font-semibold">{streak} days</span>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -197,12 +141,13 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                     Create New Study Plan
                   </Button>
                 </DialogTrigger>
-                <CreateStudyPlanWizard 
-                  onCreatePlan={createStudyPlan} 
-                  onClose={handleDialogClose} 
-                  examGoal={goals[0]?.title}
-                  isOpen={dialogOpen}
-                />
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                  <CreateStudyPlanWizard 
+                    onCreatePlan={createStudyPlan} 
+                    onClose={handleDialogClose} 
+                    examGoal={goals[0]?.title}
+                  />
+                </DialogContent>
               </Dialog>
             </div>
           </CardContent>
