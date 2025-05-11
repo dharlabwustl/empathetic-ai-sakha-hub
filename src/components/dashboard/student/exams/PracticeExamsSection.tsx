@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -202,6 +201,7 @@ const PracticeExamsSection = () => {
   // Mock user data - in a real app this would come from a context or API
   const [userCredits, setUserCredits] = useState({ standard: 15, exam: 5 });
   const [userSubscription, setUserSubscription] = useState<SubscriptionType>(SubscriptionType.Pro);
+  const [userProfile, setUserProfile] = useState({ subscription: SubscriptionType.Pro });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -325,7 +325,9 @@ const PracticeExamsSection = () => {
                   <DialogTitle>Create New Practice Exam</DialogTitle>
                   <DialogDescription>
                     Generate a new practice exam for your study plan.
-                    <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
+                    <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 ml-2">
+                      {userProfile?.subscription === SubscriptionType.PRO ? 'PRO' : 'Free'}
+                    </Badge>
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-2">

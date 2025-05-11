@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { StudyPlanBreakdown } from '@/components/dashboard/student/study-plan/StudyPlanBreakdown';
 import { Button } from '@/components/ui/button';
 import { Plus, Download, Calendar } from 'lucide-react';
 import { StudyPlanSubject } from '@/types/user/studyPlan';
+import TimeAllocationEditor from '@/components/dashboard/student/study-plan/TimeAllocationEditor';
 
 // Mock data for demonstration purposes
 const mockStudyPlan = {
@@ -133,6 +133,7 @@ const StudyPlanView = () => {
         examName={studyPlan.examName}
         weeklyHours={studyPlan.weeklyHours}
       />
+      <TimeAllocationEditor />
     </SharedPageLayout>
   );
 };

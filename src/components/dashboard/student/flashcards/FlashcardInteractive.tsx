@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -978,17 +977,26 @@ const FlashcardInteractive = () => {
       </div>
       
       <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
+        .katex-display {
+          margin: 0;
+          text-align: center;
         }
-        .backface-hidden {
+        .card-front, .card-back {
           backface-visibility: hidden;
-        }
-        .transform-style-3d {
+          transition: transform 0.8s;
           transform-style: preserve-3d;
         }
-        .rotate-y-180 {
+        .card-front {
+          transform: rotateY(0deg);
+        }
+        .card-back {
           transform: rotateY(180deg);
+        }
+        .card-flipped .card-front {
+          transform: rotateY(180deg);
+        }
+        .card-flipped .card-back {
+          transform: rotateY(0deg);
         }
       `}</style>
     </SharedPageLayout>

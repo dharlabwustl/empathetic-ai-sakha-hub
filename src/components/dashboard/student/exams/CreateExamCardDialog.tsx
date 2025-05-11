@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Dialog, 
@@ -16,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { Plus, Info, CreditCard, AlertCircle } from 'lucide-react';
+import { Plus, Info, CreditCard, AlertCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SubscriptionType } from '@/types/user/base';
 
@@ -25,6 +24,9 @@ interface CreateExamCardDialogProps {
   userCredits: {
     standard: number;
     exam: number;
+  };
+  userProfile?: {
+    subscription: SubscriptionType;
   };
   onCreateCards: (data: ExamCardFormData) => void;
   onPurchaseCredits: () => void;
@@ -53,6 +55,7 @@ const subjectTopicMap: Record<string, string[]> = {
 const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
   userSubscription = SubscriptionType.Free,
   userCredits = { standard: 0, exam: 0 },
+  userProfile,
   onCreateCards,
   onPurchaseCredits
 }) => {
@@ -72,6 +75,9 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
   
   // Check if user has enough credits
   const hasEnoughCredits = userCredits.exam >= formData.cardCount;
+  
+  // Check if user has a free subscription
+  const isFreeUser = userProfile?.subscription === SubscriptionType.FREE;
   
   // Available topics based on selected subject
   const availableTopics = useMemo(() => {
@@ -188,6 +194,13 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
               <p className="text-sm text-amber-800">
                 You don't have enough exam credits. Each card requires 1 credit.
               </p>
+            </div>
+          )}
+          
+          {isFreeUser && (
+            <div className="mt-4 bg-amber-50 p-3 rounded-lg border border-amber-200 text-amber-800 text-sm">
+              <AlertTriangle className="h-4 w-4 inline-block mr-1 text-amber-600" />
+              You are on a {SubscriptionType.FREE} plan. Upgrade to create unlimited practice exams.
             </div>
           )}
           

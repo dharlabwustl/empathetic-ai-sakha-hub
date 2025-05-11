@@ -1,4 +1,3 @@
-
 // Dashboard data types for student interfaces
 
 export interface DashboardData {
@@ -73,12 +72,17 @@ export interface RevisionStats {
 export interface RevisionItem {
   id: string;
   title: string;
-  type: "concept" | "flashcard" | "quiz";
+  type: 'concept' | 'flashcard' | 'question';
   subject: string;
-  lastReviewed: string;
-  retentionScore: number;
-  dueDate: string;
-  priority: "high" | "medium" | "low";
+  topic?: string;
+  chapter?: string;
+  lastReviewed: Date | string;
+  dueDate: Date | string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  mastery: number;
+  priority: number;
+  status: 'pending' | 'in-progress' | 'completed';
+  tags?: string[];
 }
 
 export interface Milestone {

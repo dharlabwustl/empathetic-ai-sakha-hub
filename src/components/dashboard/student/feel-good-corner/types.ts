@@ -1,12 +1,11 @@
 
-export interface ChatMessage {
-  text: string;
-  isUser: boolean;
-}
-
-export interface Joke {
-  id: number;
-  content: string;
-  likes: number;
-  author: string;
+export interface Video {
+  id: string;
+  title: string;
+  thumbnail: string;
+  duration: string;
+  channel: string;
+  views: string;
+  publishedAt: string;
+  videoId: string;
 }
