@@ -147,6 +147,8 @@ const authService = {
     localStorage.removeItem('voiceSettings');
     localStorage.removeItem('new_user_signup');
     localStorage.removeItem('study_time_allocations');
+    localStorage.removeItem('current_mood');
+    localStorage.removeItem('mood_history');
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
@@ -199,7 +201,7 @@ const authService = {
   isAuthenticated(): boolean {
     const token = this.getToken();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    return !!token || isLoggedIn;
+    return !!token && isLoggedIn; // Both must be true for authenticated state
   },
   
   // Verify if token is still valid

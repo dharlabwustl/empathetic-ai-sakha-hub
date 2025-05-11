@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
+import authService from '@/services/auth/authService';
 
 interface User {
   id: string;
@@ -35,9 +36,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = () => {
       setLoading(true);
       
-      // Check if user data exists in localStorage
+      // Check if user data exists in localStorage and if user is authenticated
       const userData = localStorage.getItem('userData');
-      if (userData) {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      
+      if (userData && isLoggedIn === 'true') {
         try {
           const parsedData = JSON.parse(userData);
           if (parsedData.email && parsedData.isAuthenticated === true) {
@@ -54,7 +57,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error('Error parsing user data:', error);
           // Clear invalid data
           localStorage.removeItem('userData');
+          localStorage.removeItem('isLoggedIn');
         }
+      } else {
+        // No valid authentication data, ensure user is null
+        setUser(null);
       }
       
       setLoading(false);
@@ -126,25 +133,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Enhanced logout function - completely clears authentication state
   const logout = () => {
-    // Clear all authentication data
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('AUTH_TOKEN_KEY');
-    localStorage.removeItem('AUTH_USER_KEY');
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('prepzr_remembered_email');
-    
-    // Clear any session storage items that might contain auth data
-    sessionStorage.removeItem('userData');
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('authToken');
-    
-    // Clear user state
-    setUser(null);
-    console.log("User logged out completely - all authentication data cleared");
-    
-    // Force reload to ensure clean state (optional but recommended)
-    // window.location.href = '/login';
+    // Call the authService logout method
+    authService.logout().then(() => {
+      setUser(null);
+      console.log("User logged out completely via AuthContext");
+    }).catch(error => {
+      console.error("Error during logout:", error);
+    });
   };
   
   return (

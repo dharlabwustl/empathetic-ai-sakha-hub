@@ -1,3 +1,4 @@
+
 import { MoodType } from '@/types/user/base';
 
 export const getMoodEmoji = (mood?: MoodType): string => {
@@ -170,6 +171,50 @@ export const analyzeMoodTrends = (): {
     improved: positiveShift,
     stressSignals
   };
+};
+
+// Get mood impact recommendations
+export const getMoodSupportResources = (mood: MoodType) => {
+  switch (mood) {
+    case MoodType.Anxious:
+      return {
+        resources: ['5-minute breathing exercise', 'Guided meditation', 'Anxiety management tips'],
+        activities: ['Take a 5-minute breathing break', 'Go for a short walk', 'Listen to calming music'],
+        studyTips: ['Break tasks into smaller chunks', 'Use the Pomodoro technique', 'Focus on one topic at a time'],
+        message: "Remember to take breaks and be kind to yourself. You're doing great!"
+      };
+    case MoodType.Tired:
+      return {
+        resources: ['Power nap guide', 'Energy-boosting exercises', 'Study efficiency tips'],
+        activities: ['Take a 20-minute power nap', 'Do 5 minutes of stretching', 'Have a healthy snack'],
+        studyTips: ['Work on easier topics', 'Use active recall instead of passive reading', 'Try shorter study sessions'],
+        message: "Rest is part of effective studying. Take care of your energy levels."
+      };
+    // Add more mood-specific resources...
+    default:
+      return {
+        resources: ['General wellness tips', 'Study technique guide', 'Focus improvement strategies'],
+        activities: ['Take regular breaks', 'Stay hydrated', 'Get some fresh air'],
+        studyTips: ['Mix up your study routine', 'Try different learning methods', 'Review your progress regularly'],
+        message: "Maintain a balanced approach to studying for best results."
+      };
+  }
+};
+
+// Helper functions for voice commands related to mood
+export const getMoodVoiceCommands = () => {
+  return [
+    "How am I feeling today?",
+    "Log my mood",
+    "I'm feeling tired",
+    "I'm feeling stressed",
+    "I'm feeling motivated",
+    "Record that I'm anxious",
+    "What mood did I record yesterday?",
+    "How has my mood been this week?",
+    "Give me study tips for my current mood",
+    "How should I adjust my study plan based on my mood?"
+  ];
 };
 
 // Helper functions for mood analysis
