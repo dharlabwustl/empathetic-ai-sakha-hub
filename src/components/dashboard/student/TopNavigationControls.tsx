@@ -1,28 +1,23 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Button } from '@/components/ui/button';
+import { Menu, Bell, User, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MoodType } from '@/types/user/base';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
-  formattedDate: string;
-  formattedTime: string;
+  formattedDate?: string;
+  formattedTime?: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: string;
+  mood?: MoodType;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
 
-const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
+const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({ 
   hideSidebar,
   onToggleSidebar,
   formattedDate,
@@ -33,113 +28,70 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   isFirstTimeUser,
   onViewStudyPlan
 }) => {
+  const navigate = useNavigate();
+  
+  const handleProfileClick = () => {
+    navigate('/dashboard/student/profile');
+  };
+  
+  const handleNotificationsClick = () => {
+    navigate('/dashboard/student/notifications');
+  };
+  
+  const handleHelpClick = () => {
+    if (onOpenTour) {
+      onOpenTour();
+    } else {
+      // Fallback if tour function not provided
+      navigate('/dashboard/student/help');
+    }
+  };
+  
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={onToggleSidebar}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6"
-                >
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Toggle navigation menu</p>
-            </TooltipContent>
-          </Tooltip>
-          <div>
-            <h2 className="text-lg font-semibold">{formattedTime}</h2>
-            <p className="text-muted-foreground text-sm">{formattedDate}</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {/* Voice Announcer Integration */}
-          <VoiceAnnouncer 
-            userName={userName}
-            mood={mood}
-            isFirstTimeUser={isFirstTimeUser}
-          />
-          
-          {/* Calendar Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Notification Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Tour Guide Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+    <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center">
+        <Button 
+          variant="outline" 
+          size="icon"
+          className="mr-2 md:hidden"
+          onClick={onToggleSidebar}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
       </div>
-    </TooltipProvider>
+      
+      <div className="flex items-center space-x-1 sm:space-x-2">
+        {isFirstTimeUser && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="hidden sm:flex items-center gap-1 h-8"
+            onClick={handleHelpClick}
+          >
+            <HelpCircle className="h-4 w-4" />
+            <span className="text-xs">Help</span>
+          </Button>
+        )}
+        
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-8 w-8"
+          onClick={handleNotificationsClick}
+        >
+          <Bell className="h-4 w-4" />
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-8 w-8"
+          onClick={handleProfileClick}
+        >
+          <User className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,22 +9,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoodType } from '@/types/user/base';
 import { Smile, Frown, Zap, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
-interface MoodLogButtonProps {
+interface MoodSelectorProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
+  loading?: boolean;
+  className?: string;
   size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
+const MoodSelector: React.FC<MoodSelectorProps> = ({
   currentMood,
   onMoodChange,
+  loading = false,
+  className = '',
   size = 'default'
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  
   // Function to get icon based on mood
   const getMoodIcon = () => {
     switch(currentMood) {
@@ -41,34 +41,21 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     }
   };
   
-  const handleUpdateMood = (mood: MoodType) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (onMoodChange) {
-        onMoodChange(mood);
-      }
-      
-      toast({
-        title: "Mood updated",
-        description: `Your mood has been updated to ${mood.toLowerCase()}.`,
-        duration: 3000
-      });
-      
-      setIsLoading(false);
-    }, 500);
+  const handleMoodChange = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
+    }
   };
   
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size={size} 
-          className="flex items-center gap-2 bg-white dark:bg-gray-800 shadow-sm"
+        <Button
+          variant="outline"
+          size={size}
+          className={`flex items-center gap-2 ${className}`}
         >
-          {isLoading ? (
+          {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             getMoodIcon()
@@ -78,24 +65,24 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.HAPPY)}>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => handleMoodChange(MoodType.HAPPY)}>
           <Smile className="mr-2 h-4 w-4 text-green-500" />
           Happy
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.MOTIVATED)}>
+        <DropdownMenuItem onClick={() => handleMoodChange(MoodType.MOTIVATED)}>
           <Zap className="mr-2 h-4 w-4 text-amber-500" />
           Motivated
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.FOCUSED)}>
+        <DropdownMenuItem onClick={() => handleMoodChange(MoodType.FOCUSED)}>
           <Zap className="mr-2 h-4 w-4 text-blue-500" />
           Focused
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.TIRED)}>
+        <DropdownMenuItem onClick={() => handleMoodChange(MoodType.TIRED)}>
           <Frown className="mr-2 h-4 w-4 text-orange-500" />
           Tired
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.STRESSED)}>
+        <DropdownMenuItem onClick={() => handleMoodChange(MoodType.STRESSED)}>
           <Frown className="mr-2 h-4 w-4 text-red-500" />
           Stressed
         </DropdownMenuItem>
@@ -104,4 +91,4 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   );
 };
 
-export default MoodLogButton;
+export default MoodSelector;
