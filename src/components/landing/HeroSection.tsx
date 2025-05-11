@@ -95,11 +95,10 @@ const HeroSection = () => {
   const [showNeetModal, setShowNeetModal] = useState(false);
   
   const taglines = [
-    "Ace your exams",
-    "Save time",
-    "Stress free",
-    "Study smarter",
-    "Crack your exams"
+    "Ace your exams.",
+    "Save time.",
+    "Stress less.",
+    "Study smarter."
   ];
 
   useEffect(() => {
@@ -134,162 +133,88 @@ const HeroSection = () => {
     navigate("/welcome-flow?completedOnboarding=false&new=true&exam=NEET");
   };
 
-  // Animation variants for staggered text lines
-  const textVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({ 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
-        duration: 0.7, 
-        delay: 0.2 + custom * 0.1,
-        ease: "easeOut" 
-      } 
-    })
-  };
-
   return (
     <section className="relative bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/80 dark:via-gray-900 dark:to-violet-900/80 py-16 md:py-24 lg:py-32 overflow-hidden">
-      {/* Abstract background elements with enhanced animations */}
+      {/* Abstract background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
-          className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.4, 0.3],
-          }}
-          transition={{ 
-            duration: 8,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <motion.div 
-          className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ 
-            duration: 10,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: 1
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.15, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{ 
-            duration: 9,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: 2
-          }}
-        />
+        <div className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"></div>
       </div>
       
-      {/* Enhanced grid pattern background with subtle animation */}
-      <motion.div 
-        className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"
-        animate={{ 
-          backgroundPosition: ["0% 0%", "1% 1%", "0% 0%"],
-        }}
-        transition={{ 
-          duration: 20,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      />
+      {/* Grid pattern background */}
+      <div className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <div className="max-w-4xl">
-            {/* Hindi text line with enhanced gradient and modern font styling */}
+          <motion.div
+            className="max-w-4xl"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
             <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6"
-              style={{ 
-                fontFamily: "'Noto Sans Devanagari', 'Poppins', sans-serif", 
-                fontWeight: 800,
-                letterSpacing: '-0.02em'
-              }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
             >
-              अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block">
+                अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
+              </span>
+              <span className="text-gray-800 dark:text-white block mt-2">
+                We understand Your Mindset, Not Just the Exam.
+              </span>
             </motion.h1>
-            
-            {/* English text line with clean, supportive font styling */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+          </motion.div>
+          
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-12 flex items-center justify-center">
+            <motion.span
+              key={currentTagline}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-800 dark:text-white"
-              style={{ 
-                fontFamily: "'Inter', 'Roboto', sans-serif", 
-                letterSpacing: '-0.01em'
-              }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              className="inline-block"
             >
-              We Understand Your Mindset, Not Just the Exam.
-            </motion.h2>
+              {taglines[currentTagline]}
+            </motion.span>
+            {currentTagline === taglines.length - 1 && (
+              <motion.span
+                className="ml-2 inline-block font-bold"
+                initial={{ backgroundSize: '0% 100%' }}
+                animate={{ 
+                  backgroundSize: '100% 100%',
+                  color: ["#8b5cf6", "#3b82f6", "#8b5cf6"],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{ 
+                  backgroundSize: { duration: 1.2 },
+                  color: { duration: 3, repeat: Infinity, repeatType: "reverse" },
+                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+                }}
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6)',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent'
+                }}
+              >
+                Crack your exams!
+              </motion.span>
+            )}
           </div>
           
-          {/* Animated taglines with improved gradient animations */}
-          <div className="relative h-16 sm:h-20 flex items-center justify-center mt-8">
-            <div className="absolute w-full flex justify-center items-center">
-              {taglines.map((phrase, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ 
-                    opacity: currentTagline === index ? 1 : 0,
-                    y: currentTagline === index ? 0 : 40
-                  }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute text-2xl sm:text-3xl md:text-4xl font-bold"
-                  style={{ 
-                    background: "linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899)",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundSize: "200% auto",
-                    animation: "gradient 2s linear infinite"
-                  }}
-                >
-                  {phrase}
-                </motion.span>
-              ))}
-            </div>
-          </div>
-          
-          <style jsx>{`
-            @keyframes gradient {
-              0% {
-                background-position: 0% 50%;
-              }
-              50% {
-                background-position: 100% 50%;
-              }
-              100% {
-                background-position: 0% 50%;
-              }
-            }
-          `}</style>
-          
-          {/* Call to action buttons with enhanced animations */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4 my-10"
+            className="flex flex-col sm:flex-row gap-4 mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
           >
             {user ? (
               <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
-                <Link to="/dashboard/student" className="flex items-center px-6 py-6">
+                <Link to="/dashboard/student" className="flex items-center">
                   <SparklesIcon size={18} className="mr-2" />
                   <span>Go to Dashboard</span>
                   <motion.div
@@ -333,11 +258,11 @@ const HeroSection = () => {
             )}
           </motion.div>
           
-          {/* Exam Names Badge - kept as is */}
+          {/* Exam Names Badge - Kept but removed the Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
             className="mt-12 mb-6 w-full"
           >
             <ExamNamesBadge />

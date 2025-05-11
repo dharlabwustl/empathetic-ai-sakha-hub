@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { UserProfile } from '@/types/user/base';
+import { UserProfileBase } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
 
 export interface UsersTabProps {
-  users: UserProfile[];
+  users: UserProfileBase[];
 }
 
 const UsersTab: React.FC<UsersTabProps> = ({ users }) => {

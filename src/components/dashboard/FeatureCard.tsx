@@ -1,96 +1,78 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { LucideIcon } from 'lucide-react';
 import { SubscriptionType } from '@/types/user/base';
-import { Lock } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface FeatureCardProps {
   title: string;
   description: string;
-  icon: React.ReactNode;
-  requiresSubscription?: boolean;
-  userSubscription?: SubscriptionType;
+  icon: LucideIcon;
+  path: string;
+  isPremium?: boolean;
   comingSoon?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
+  userSubscription?: SubscriptionType;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
-  icon,
-  requiresSubscription = false,
-  userSubscription = SubscriptionType.Free,
+  icon: Icon,
+  path,
+  isPremium = false,
   comingSoon = false,
-  disabled = false,
-  onClick
+  userSubscription = SubscriptionType.FREE
 }) => {
-  const { toast } = useToast();
-
-  const handleCardClick = () => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
     if (comingSoon) {
-      toast({
-        title: "Coming Soon",
-        description: `${title} will be available soon. Stay tuned!`,
-        variant: "default",
-      });
       return;
     }
-
-    if (requiresSubscription && userSubscription === SubscriptionType.Free) {
-      toast({
-        title: "Subscription Required",
-        description: `${title} requires a premium subscription. Please upgrade to access this feature.`,
-        variant: "default",
-      });
-      return;
+    
+    if (isPremium && userSubscription === SubscriptionType.FREE) {
+      // Show upgrade prompt
+      // For now, just navigate anyway
     }
-
-    if (disabled) {
-      return;
-    }
-
-    if (onClick) {
-      onClick();
-    }
+    
+    navigate(path);
   };
-
-  const isLocked = requiresSubscription && userSubscription === SubscriptionType.Free;
-
+  
   return (
-    <Card 
-      className={`border overflow-hidden transition-all duration-300 cursor-pointer ${disabled ? 'opacity-60' : 'hover:shadow-md'}`}
-      onClick={handleCardClick}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <div className="w-10 h-10 mr-3 flex items-center justify-center rounded-full bg-primary/10 text-primary">
-              {icon}
+    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${isPremium && userSubscription === SubscriptionType.FREE ? 'border-amber-200 dark:border-amber-800' : ''}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/40 dark:to-blue-900/40 p-2 rounded-lg">
+              <Icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
-            <CardTitle className="text-lg">{title}</CardTitle>
+            <div>
+              <h3 className="font-medium">{title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+            </div>
           </div>
-          {isLocked && (
-            <Lock size={18} className="text-muted-foreground" />
+          
+          {isPremium && userSubscription === SubscriptionType.FREE && (
+            <span className="text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded">
+              Premium
+            </span>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="pb-2 text-sm text-muted-foreground">
-        <p>{description}</p>
+        
+        <div className="mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full text-sm"
+            onClick={handleClick}
+            disabled={comingSoon}
+          >
+            {comingSoon ? 'Coming Soon' : isPremium && userSubscription === SubscriptionType.FREE ? 'Upgrade to Access' : 'Open'}
+          </Button>
+        </div>
       </CardContent>
-      <CardFooter className="pt-0">
-        {comingSoon ? (
-          <div className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/30 px-2 py-0.5 rounded">
-            Coming Soon
-          </div>
-        ) : isLocked ? (
-          <div className="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/30 px-2 py-0.5 rounded">
-            Premium Feature
-          </div>
-        ) : null}
-      </CardFooter>
     </Card>
   );
 };

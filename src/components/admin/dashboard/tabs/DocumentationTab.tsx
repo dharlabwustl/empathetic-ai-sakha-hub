@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Card, 
@@ -24,7 +25,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
 
 const DocumentationTab = () => {
   const { toast } = useToast();
@@ -150,36 +150,31 @@ const DocumentationTab = () => {
       title: "System Architecture",
       description: "Complete technical architecture of Sakha platform",
       date: "Updated 1 month ago",
-      tags: ["architecture", "system"],
-      url: null
+      tags: ["architecture", "system"]
     },
     {
       title: "Flask Backend Integration",
       description: "How the React frontend connects to Flask API",
       date: "Updated 2 weeks ago",
-      tags: ["flask", "api", "backend"],
-      url: "/flask-guide" // Add direct URL for easy access
+      tags: ["flask", "api", "backend"]
     },
     {
       title: "Database Schema",
       description: "Complete database schema documentation",
       date: "Updated 3 weeks ago",
-      tags: ["database", "schema"],
-      url: null
+      tags: ["database", "schema"]
     },
     {
       title: "API Documentation",
       description: "Full API reference for Sakha platform",
       date: "Updated 1 week ago",
-      tags: ["api", "reference"],
-      url: null
+      tags: ["api", "reference"]
     },
     {
       title: "Security Practices",
       description: "Security protocols and practices implemented",
       date: "Updated 2 months ago",
-      tags: ["security", "practices"],
-      url: null
+      tags: ["security", "practices"]
     }
   ];
 
@@ -212,28 +207,6 @@ const DocumentationTab = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
-          <h3 className="font-semibold text-blue-800 dark:text-blue-300">Direct Access to Documentation</h3>
-          <p className="mt-1 text-sm text-blue-600 dark:text-blue-400">
-            Frontend developers can directly access the Flask Integration Guide at: 
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900 border-blue-200 dark:border-blue-700">
-              <code className="text-sm">/flask-guide</code>
-            </Badge>
-            <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900 border-blue-200 dark:border-blue-700">
-              <code className="text-sm">/dashboard/admin/flask-guide</code>
-            </Badge>
-          </div>
-          <div className="mt-3">
-            <Link to="/flask-guide">
-              <Button size="sm" variant="outline" className="text-blue-600 border-blue-300 hover:bg-blue-50">
-                Open Flask Guide
-              </Button>
-            </Link>
-          </div>
-        </div>
-
         <Tabs defaultValue="getting-started" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6">
             <TabsTrigger value="getting-started" className="flex items-center gap-2">

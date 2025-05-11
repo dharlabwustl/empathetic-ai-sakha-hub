@@ -1,176 +1,189 @@
 
-import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import authService, { AuthUser, LoginCredentials, RegisterData } from '@/services/auth/authService';
-import { ApiResponse } from '@/services/api/apiConfig';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { UserRole } from '@/types/user/base';
+import authService from '@/services/auth/authService';
 
-interface AuthContextType {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  login: (credentials: LoginCredentials) => Promise<ApiResponse<AuthUser>>;
-  register: (data: RegisterData) => Promise<ApiResponse<AuthUser>>;
-  adminLogin: (credentials: LoginCredentials) => Promise<ApiResponse<AuthUser>>;
-  logout: () => Promise<void>;
-  clearError: () => void;
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  error: null,
-  login: () => Promise.resolve({ success: false, data: null, error: 'Context not initialized' }),
-  register: () => Promise.resolve({ success: false, data: null, error: 'Context not initialized' }),
-  adminLogin: () => Promise.resolve({ success: false, data: null, error: 'Context not initialized' }),
-  logout: () => Promise.resolve(),
-  clearError: () => {}
-});
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  isAuthenticated: boolean;
+}
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+// Create the context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-  const clearError = useCallback(() => setError(null), []);
+// Auth provider props
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
+// Auth provider component
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing user in localStorage on component mount
   useEffect(() => {
-    const initializeAuth = async () => {
-      setIsLoading(true);
+    const checkAuth = () => {
+      setLoading(true);
       
-      try {
-        // Check if user is already logged in
-        if (authService.isAuthenticated()) {
-          const currentUser = authService.getCurrentUser();
-          if (currentUser) {
-            // Verify token is still valid
-            const isValid = await authService.verifyToken();
-            if (isValid) {
-              setUser(currentUser);
-            } else {
-              // Token is invalid, clear auth data
-              await authService.clearAuthData();
-              setUser(null);
-            }
+      // Check if user data exists in localStorage and if user is authenticated
+      const userData = localStorage.getItem('userData');
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      
+      if (userData && isLoggedIn === 'true') {
+        try {
+          const parsedData = JSON.parse(userData);
+          if (parsedData.email && parsedData.isAuthenticated === true) {
+            // User is already logged in
+            setUser({
+              id: parsedData.id || '1',
+              name: parsedData.name || 'User',
+              email: parsedData.email,
+              role: parsedData.role || UserRole.Student
+            });
+            console.log("User authenticated from localStorage:", parsedData.email);
+          } else {
+            // Invalid authentication state
+            setUser(null);
+            // Clear potentially corrupted data
+            localStorage.removeItem('userData');
+            localStorage.removeItem('isLoggedIn');
+            console.log("Invalid auth state detected - clearing localStorage");
           }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isLoggedIn');
+          setUser(null);
         }
-      } catch (err) {
-        console.error('Error initializing auth:', err);
+      } else {
+        // No valid authentication data, ensure user is null
         setUser(null);
-      } finally {
-        setIsLoading(false);
       }
+      
+      setLoading(false);
     };
-
-    initializeAuth();
+    
+    checkAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> => {
-    setIsLoading(true);
-    setError(null);
+  // Login function
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setLoading(true);
     
-    try {
-      const result = await authService.login(credentials);
-      
-      if (result.success && result.data) {
-        setUser(result.data);
-      } else {
-        setError(result.error || 'Login failed');
-      }
-      
-      setIsLoading(false);
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      setIsLoading(false);
-      return { success: false, data: null, error: errorMessage };
-    }
+    return new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        if (email && password && password.length >= 2) {
+          const newUser: User = {
+            id: '1',
+            name: email.split('@')[0] || 'Student',
+            email: email,
+            role: UserRole.Student
+          };
+          
+          // Check if this is a returning user
+          const existingData = localStorage.getItem('userData');
+          let loginCount = 1;
+          let sawWelcomeSlider = false;
+          let sawWelcomeTour = false;
+          
+          if (existingData) {
+            try {
+              const parsedData = JSON.parse(existingData);
+              loginCount = (parsedData.loginCount || 0) + 1;
+              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
+              sawWelcomeTour = parsedData.sawWelcomeTour === true;
+            } catch (error) {
+              console.error('Error parsing existing user data:', error);
+            }
+          }
+          
+          // Save user data to localStorage
+          localStorage.setItem('userData', JSON.stringify({
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+            lastLogin: new Date().toISOString(),
+            loginCount: loginCount,
+            sawWelcomeSlider: sawWelcomeSlider,
+            sawWelcomeTour: sawWelcomeTour,
+            mood: 'MOTIVATED',
+            isAuthenticated: true
+          }));
+          
+          // Also mark as logged in for other parts of the app
+          localStorage.setItem('isLoggedIn', 'true');
+          
+          setUser(newUser);
+          setLoading(false);
+          console.log("Login successful for:", email);
+          resolve(true);
+        } else {
+          setLoading(false);
+          console.log("Login failed for:", email);
+          resolve(false);
+        }
+      }, 800);
+    });
   };
 
-  const register = async (data: RegisterData): Promise<ApiResponse<AuthUser>> => {
-    setIsLoading(true);
-    setError(null);
+  // Enhanced logout function with forceful page navigation
+  const logout = () => {
+    // First clear React state
+    setUser(null);
     
-    try {
-      const result = await authService.register(data);
+    // Then call the authService logout method
+    authService.logout().then(() => {
+      console.log("User logged out completely via AuthContext");
       
-      if (result.success && result.data) {
-        setUser(result.data);
-      } else {
-        setError(result.error || 'Registration failed');
-      }
+      // Force a complete page refresh to reset all state
+      // Using replace instead of href for more thorough clearing
+      window.location.replace('/login');
+    }).catch(error => {
+      console.error("Error during logout:", error);
       
-      setIsLoading(false);
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      setIsLoading(false);
-      return { success: false, data: null, error: errorMessage };
-    }
+      // Try direct approach if service call fails
+      localStorage.removeItem('userData');
+      localStorage.removeItem('isLoggedIn');
+      sessionStorage.clear();
+      
+      // Force hard navigation
+      window.location.replace('/login');
+    });
   };
-
-  const adminLogin = async (credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const result = await authService.adminLogin(credentials);
-      
-      if (result.success && result.data) {
-        setUser(result.data);
-      } else {
-        setError(result.error || 'Admin login failed');
-      }
-      
-      setIsLoading(false);
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      setIsLoading(false);
-      return { success: false, data: null, error: errorMessage };
-    }
-  };
-
-  // Enhanced logout functionality
-  const logout = async (): Promise<void> => {
-    setIsLoading(true);
-    
-    try {
-      console.log("AuthContext: Starting logout process");
-      await authService.logout();
-      
-      // Clear contexts
-      setUser(null);
-      setError(null);
-      
-      console.log("AuthContext: Logout complete");
-    } catch (err) {
-      console.error("AuthContext: Error during logout", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      isLoading,
-      error,
-      login,
-      register,
-      adminLogin,
-      logout,
-      clearError
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        isAuthenticated: !!user
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
-
-export default AuthContext;
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

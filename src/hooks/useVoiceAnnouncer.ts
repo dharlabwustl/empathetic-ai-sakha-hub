@@ -1,88 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
-import { MoodType } from '@/types/user/base';
-import { fixPronunciation, getStudyRecommendationForMood } from '@/components/dashboard/student/mood-tracking/moodUtils';
-
-// Default voice settings
-export const DEFAULT_VOICE_SETTINGS = {
-  enabled: true,
-  volume: 0.8,
-  rate: 1,
-  pitch: 1,
-  language: 'en-US',
-  voice: null,
-  muted: false
-};
-
-// Language options
-export const LANGUAGE_OPTIONS = [
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'en-GB', label: 'English (UK)' },
-  { value: 'en-IN', label: 'English (India)' },
-  { value: 'hi-IN', label: 'Hindi' },
-];
-
-// Type for supported languages
-export type SupportedLanguage = 'en-US' | 'en-GB' | 'en-IN' | 'hi-IN';
-
-// Function to find best matching voice for language
-export const findBestVoice = (language: string) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
-  
-  const voices = window.speechSynthesis.getVoices();
-  
-  // Try to find an exact match first
-  let voice = voices.find(voice => voice.lang === language);
-  
-  // If no exact match, try to find a voice that starts with the language code
-  if (!voice) {
-    const langPrefix = language.split('-')[0];
-    voice = voices.find(voice => voice.lang.startsWith(langPrefix));
-  }
-  
-  // If still no match, return null or a default voice
-  return voice || null;
-};
-
-// Main voice function to speak a message
-export const speakMessageFunc = (message: string, settings: VoiceSettings) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return;
-  
-  // Stop any current speech
-  window.speechSynthesis.cancel();
-  
-  // Create utterance
-  const utterance = new SpeechSynthesisUtterance();
-  
-  // Fix pronunciation - ensure PREPZR is pronounced correctly
-  utterance.text = fixPronunciation(message);
-  utterance.volume = settings.volume;
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.lang = settings.language;
-  
-  // Find appropriate voice
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    const voice = settings.voice || findBestVoice(settings.language);
-    if (voice) utterance.voice = voice;
-  }
-  
-  // Add event listeners
-  utterance.onstart = () => {
-    document.body.classList.add('voice-speaking');
-    document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
-  };
-  
-  utterance.onend = () => {
-    document.body.classList.remove('voice-speaking');
-    document.dispatchEvent(new Event('voice-speaking-ended'));
-  };
-  
-  // Speak
-  window.speechSynthesis.speak(utterance);
-};
+import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
@@ -135,6 +54,19 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setAvailableVoices(voices);
         setVoiceInitialized(true);
         console.log("Voice system initialized with available voices:", voices.length);
+        
+        // Log available voices and languages
+        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
+        const availableLanguages = new Set(voices.map(v => v.lang));
+        console.log("Available languages:", Array.from(availableLanguages));
+        
+        // Check if we have Hindi voices
+        const hindiVoices = voices.filter(v => v.lang.includes('hi-IN'));
+        console.log("Hindi voices available:", hindiVoices.length > 0, hindiVoices.map(v => v.name));
+        
+        // Check for Indian English voices
+        const indianVoices = voices.filter(v => v.lang.includes('en-IN'));
+        console.log("Indian English voices available:", indianVoices.length > 0, indianVoices.map(v => v.name));
       };
       
       // Ensure voices are loaded before initializing
@@ -191,44 +123,13 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       console.log("Speech ended");
     };
     
-    // Custom event for voice assistant to speak mood-based messages
-    const handleVoiceAssistantSpeak = (event: any) => {
-      if (event.detail && event.detail.message) {
-        speakMessage(event.detail.message, true);
-      }
-    };
-    
-    // Handle mood change events to provide voice feedback
-    const handleMoodChanged = (event: any) => {
-      if (event.detail && event.detail.mood) {
-        const mood = event.detail.mood;
-        const acknowledgment = getMoodAcknowledgment(mood);
-        const recommendation = getStudyRecommendationForMood(mood);
-        
-        // Combine acknowledgment with recommendation
-        const message = `${acknowledgment} ${recommendation}`;
-        
-        // Speak the message
-        setTimeout(() => {
-          speakMessage(message, true);
-        }, 500);
-      }
-    };
-    
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
     document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
-    document.addEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
-    document.addEventListener('mood-changed', handleMoodChanged as EventListener);
     
     return () => {
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
-      document.removeEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
-      document.removeEventListener('mood-changed', handleMoodChanged as EventListener);
-      
-      if (styleElement.parentNode) {
-        document.head.removeChild(styleElement);
-      }
+      document.head.removeChild(styleElement);
     };
   }, []);
   
@@ -260,7 +161,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const toggleMute = useCallback((force?: boolean) => {
     setVoiceSettings(prev => {
       // If turning on sound after being muted, cancel any ongoing speech
-      if (prev.muted && force === false && window.speechSynthesis) {
+      if (prev.muted && !force && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
       
@@ -271,26 +172,27 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   // Function to speak a message
   const speakMessage = useCallback((message: string, forceSpeech: boolean = false) => {
     // Only speak if enabled or force speech is true
-    if ((voiceSettings.enabled || forceSpeech) && (!voiceSettings.muted || forceSpeech)) {
-      // Fix pronunciation before speaking (ensure PREPZR is pronounced correctly)
-      const fixedMessage = fixPronunciation(message);
-      speakMessageFunc(fixedMessage, voiceSettings);
+    if (voiceSettings.enabled || forceSpeech) {
+      if (!voiceSettings.muted || forceSpeech) {
+        // Fix pronunciation before speaking
+        speakVoiceMessage(message, voiceSettings);
+      }
     }
   }, [voiceSettings]);
   
   // Test voice function with language support
   const testVoice = useCallback(() => {
     // Use language-specific test messages
-    let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
+    let testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़र वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
@@ -298,8 +200,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   
   // Initialize speech recognition with language support
   const initializeSpeechRecognition = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
       console.error('Speech recognition not supported by this browser');
       return;
@@ -375,32 +275,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     );
   }, [availableVoices]);
   
-  // Get personalized mood acknowledgment
-  const getMoodAcknowledgment = useCallback((mood: MoodType): string => {
-    switch(mood) {
-      case MoodType.Happy:
-        return "Great to hear you're feeling happy today!";
-      case MoodType.Motivated:
-        return "Excellent! You're feeling motivated today!";
-      case MoodType.Focused:
-        return "Noted you're feeling focused today. Let's keep up the pace!";
-      case MoodType.Tired:
-        return "I understand you're feeling tired today.";
-      case MoodType.Stressed:
-        return "I notice you're feeling stressed.";
-      case MoodType.Anxious:
-        return "I understand you're feeling anxious.";
-      case MoodType.Confused:
-        return "It's okay to feel confused sometimes.";
-      case MoodType.Neutral:
-        return "You're feeling neutral today. That's completely fine.";
-      case MoodType.Sad:
-        return "I'm sorry to hear you're feeling sad today.";
-      default:
-        return `I've recorded that you're feeling ${mood.toLowerCase()}.`;
-    }
-  }, []);
-
   return {
     voiceSettings,
     updateVoiceSettings,
@@ -416,8 +290,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     voiceInitialized,
     transcript,
     availableVoices,
-    supportedLanguages: getSupportedLanguages(),
-    getMoodAcknowledgment
+    supportedLanguages: getSupportedLanguages()
   };
 };
 

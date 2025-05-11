@@ -11,7 +11,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 // Import pages and components
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
-import NotFoundPage from '@/pages/NotFound';
+import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -24,7 +24,7 @@ import ConceptCardDetail from './components/dashboard/student/concept-cards/Conc
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
-import Login from '@/pages/Login';
+import Login from './pages/Login';
 import ProfilePage from '@/pages/student/ProfilePage';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
@@ -61,12 +61,6 @@ import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
-import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
-import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
-import DocumentationHubPage from '@/pages/documentation/DocumentationHubPage';
-import MainLayout from '@/components/layouts/MainLayout';
-// Import new Database Mapping Page
-import DatabaseMappingPage from '@/pages/documentation/DatabaseMappingPage';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -79,7 +73,7 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
   );
 };
 
-const App = () => {
+function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
       <BrowserRouter>
@@ -96,33 +90,9 @@ const App = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Documentation Download Routes */}
-              <Route path="/downloads" element={<DocumentationHubPage />} />
-              <Route path="/docs" element={<DocumentationHubPage />} />
-              <Route path="/documentation" element={<DocumentationHubPage />} />
-              <Route path="/documentation/downloads" element={<DocumentationHubPage />} />
-              <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
-              <Route path="/documentation/database-mapping" element={<DatabaseMappingPage />} />
-              
-              {/* Handle test.prepzr.com URL formats */}
-              <Route path="/test.prepzr.com/downloads" element={<DocumentationHubPage />} />
-              <Route path="/test.prepzr.com/docs" element={<DocumentationHubPage />} />
-              <Route path="/test.prepzr.com/documentation" element={<DocumentationHubPage />} />
-              <Route path="/test.prepzr.com/documentation/downloads" element={<DocumentationHubPage />} />
-              <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
-              <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
-              <Route path="/test.prepzr.com/documentation/database-mapping" element={<DatabaseMappingPage />} />
-              <Route path="test.prepzr.com/documentation/database-mapping" element={<DatabaseMappingPage />} />
-              
-              {/* Public documentation routes */}
+              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
-              
+
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
                 <AdminRouteGuard>
@@ -203,12 +173,12 @@ const App = () => {
               <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
               <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
-              <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
-              <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
-              <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
+              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
+              <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
+              <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               
               {/* 404 */}
-              <Route path="*" element={<NotFoundPage />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
           </AdminAuthProvider>
@@ -216,6 +186,6 @@ const App = () => {
       </BrowserRouter>
     </ThemeProvider>
   );
-};
+}
 
 export default App;

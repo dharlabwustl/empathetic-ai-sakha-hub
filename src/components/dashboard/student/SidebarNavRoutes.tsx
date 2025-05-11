@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -61,8 +62,7 @@ const tooltipDescriptions: Record<string, string> = {
   "Exam Syllabus": "View your complete exam syllabus",
   "Previous Year Analysis": "Study and analyze previous year papers",
   "Practice Exams": "Take practice tests to prepare for exams",
-  "Concept Cards": "Learn key concepts with interactive cards",
-  "Documentation": "Access technical documentation and implementation guides"
+  "Concept Cards": "Learn key concepts with interactive cards"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -84,8 +84,7 @@ export const SidebarNavRoutes = ({
       { name: "Previous Year Analysis", path: "/dashboard/student/previous-year-analysis", icon: <FileSearch size={20} /> },
       { name: "Feel Good Corner", path: "/dashboard/student/feel-good-corner", icon: <Smile size={20} /> },
       { name: "24/7 AI Tutor", path: "/dashboard/student/tutor", icon: <Headphones size={20} /> },
-      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
-      { name: "Documentation", path: "/documentation", icon: <FileText size={20} /> }
+      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> }
     ],
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
