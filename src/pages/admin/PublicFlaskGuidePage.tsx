@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, FileDown } from "lucide-react";
+import { ChevronLeft, FileDown, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import Markdown from 'react-markdown';
 import flaskGuideContent from '@/documentation/FlaskBackendIntegration';
@@ -118,40 +118,42 @@ const PublicFlaskGuidePage = () => {
             Complete documentation for connecting Flask backend to PREPZR frontend
           </p>
           
+          {/* Download buttons - Made larger and more prominent */}
           <div className="flex flex-wrap gap-3 mb-6">
             <Button 
               onClick={downloadFlaskGuide} 
-              className="flex items-center gap-2"
-              size="sm"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              size="default"
             >
-              <FileDown className="h-4 w-4" />
+              <Download className="h-5 w-5" />
               Download Flask Guide
             </Button>
             
             <Button 
               onClick={downloadSignupMapping}
               variant="secondary" 
-              className="flex items-center gap-2"
-              size="sm"
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+              size="default"
             >
-              <FileDown className="h-4 w-4" />
+              <Download className="h-5 w-5" />
               Download Signup Database Mapping
             </Button>
             
             <Button 
               onClick={downloadPagewiseMapping}
               variant="secondary" 
-              className="flex items-center gap-2"
-              size="sm"
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white"
+              size="default"
             >
-              <FileDown className="h-4 w-4" />
+              <Download className="h-5 w-5" />
               Download Pagewise Database Mapping
             </Button>
           </div>
           
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-4">
-            <p className="text-sm">
-              Use the download buttons above to save any of the documentation files for offline use.
+            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              Please use the download buttons above to get any of the documentation files for offline use.
+              Click each button to start the download immediately.
             </p>
           </div>
         </div>

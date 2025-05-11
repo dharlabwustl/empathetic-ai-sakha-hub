@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ChevronLeft, FileDown } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import signupDatabaseMapping from '@/documentation/SignupDatabaseMapping';
 import pagewiseDatabaseMapping from '@/documentation/PagewiseDatabaseMapping';
 import { useToast } from '@/components/ui/use-toast';
@@ -70,10 +70,11 @@ const DocumentationHubPage: React.FC = () => {
                 Complete documentation for mapping frontend signup steps to database tables
               </p>
               <Button 
-                className="w-full sm:w-auto flex items-center gap-2"
+                className="w-full sm:w-auto flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                 onClick={() => downloadAsDocument(signupDatabaseMapping, 'signup-database-mapping.docx')}
+                size="lg"
               >
-                <FileDown className="h-4 w-4" />
+                <Download className="h-5 w-5" />
                 Download Signup Database Mapping
               </Button>
             </div>
@@ -84,10 +85,11 @@ const DocumentationHubPage: React.FC = () => {
                 Complete documentation for frontend pages, components, data fields, and backend connections
               </p>
               <Button 
-                className="w-full sm:w-auto flex items-center gap-2 mt-4"
+                className="w-full sm:w-auto flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white mt-4"
                 onClick={() => downloadAsDocument(pagewiseDatabaseMapping, 'pagewise-mapping.docx')}
+                size="lg"
               >
-                <FileDown className="h-4 w-4" />
+                <Download className="h-5 w-5" />
                 Download Pagewise Database Mapping
               </Button>
             </div>
@@ -96,6 +98,12 @@ const DocumentationHubPage: React.FC = () => {
         
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-4">
           If you have trouble with these download links, please contact technical support for assistance.
+        </div>
+        
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md p-4 mt-4">
+          <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+            Looking for Flask integration guide? <Link to="/flask-guide" className="underline font-bold">Click here</Link> to view and download the Flask Guide
+          </p>
         </div>
       </div>
     </div>
