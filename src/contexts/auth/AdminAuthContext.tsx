@@ -94,12 +94,22 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     });
   };
 
-  // Admin logout function
+  // Enhanced Admin logout function - completely clears authentication state
   const adminLogout = () => {
+    // Clear all admin authentication data
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
+    
+    // Clear any session storage items related to admin
+    sessionStorage.removeItem('admin_session');
+    sessionStorage.removeItem('admin_token');
+    
+    // Clear user state
     setAdminUser(null);
-    console.log("Admin logged out");
+    console.log("Admin logged out completely - all authentication data cleared");
+    
+    // Force redirect to admin login
+    // window.location.href = '/admin/login';
   };
 
   return (

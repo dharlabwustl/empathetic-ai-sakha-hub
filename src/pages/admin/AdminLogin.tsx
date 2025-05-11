@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,10 @@ import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
+  
   const navigate = useNavigate();
   const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const [email, setEmail] = useState("");
@@ -25,9 +29,9 @@ const AdminLogin = () => {
   // Redirect to admin dashboard if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated) {
-      navigate("/admin/dashboard", { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [isAdminAuthenticated, navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +55,7 @@ const AdminLogin = () => {
         });
         
         // Navigate to admin dashboard
-        navigate("/admin/dashboard", { replace: true });
+        navigate(returnTo, { replace: true });
       } else {
         setLoginError("Invalid admin credentials");
       }

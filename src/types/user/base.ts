@@ -1,18 +1,18 @@
 
 export enum MoodType {
-  Happy = 'happy',
-  Focused = 'focused',
-  Tired = 'tired',
-  Stressed = 'stressed',
-  Curious = 'curious',
-  Okay = 'okay',
-  Overwhelmed = 'overwhelmed',
-  Anxious = 'anxious',
-  Motivated = 'motivated',
-  Confused = 'confused',
-  Neutral = 'neutral',
-  Sad = 'sad',
-  Calm = 'calm',
+  HAPPY = 'happy',
+  FOCUSED = 'focused',
+  TIRED = 'tired',
+  STRESSED = 'stressed',
+  CURIOUS = 'curious',
+  OKAY = 'okay',
+  OVERWHELMED = 'overwhelmed',
+  ANXIOUS = 'anxious',
+  MOTIVATED = 'motivated',
+  CONFUSED = 'confused',
+  NEUTRAL = 'neutral',
+  SAD = 'sad',
+  CALM = 'calm',
 }
 
 export enum SubscriptionType {
@@ -20,11 +20,11 @@ export enum SubscriptionType {
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium',
-  ProMonthly = 'pro_monthly',
-  ProAnnual = 'pro_annual',
-  GroupSmall = 'group_small',
-  GroupLarge = 'group_large',
-  GroupAnnual = 'group_annual'
+  PRO_MONTHLY = 'pro_monthly',
+  PRO_ANNUAL = 'pro_annual',
+  GROUP_SMALL = 'group_small',
+  GROUP_LARGE = 'group_large',
+  GROUP_ANNUAL = 'group_annual'
 }
 
 export enum UserRole {
@@ -41,11 +41,11 @@ export enum Gender {
 }
 
 export enum SignupType {
-  Email = 'email',
-  Google = 'google',
-  Facebook = 'facebook',
-  Apple = 'apple',
-  Mobile = 'mobile' // Added mobile signup type
+  EMAIL = 'email',
+  GOOGLE = 'google',
+  FACEBOOK = 'facebook',
+  APPLE = 'apple',
+  MOBILE = 'mobile' // Added mobile signup type
 }
 
 export enum StudyPace {

@@ -54,7 +54,7 @@ const authService = {
     const userData = {
       name: demoUser.name,
       email: demoUser.email,
-      mood: 'Motivated',
+      mood: 'MOTIVATED',
       isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userData));
@@ -89,7 +89,7 @@ const authService = {
     const userDataObj = {
       name: mockUser.name,
       email: mockUser.email,
-      mood: 'Motivated',
+      mood: 'MOTIVATED',
       isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
@@ -130,30 +130,30 @@ const authService = {
     };
   },
   
-  // Logout user - enhanced for complete logout
+  // Enhanced logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
-    // Clear all auth data from local storage
-    this.clearAuthData();
-    
-    // Remove login state marker
+    // Clear all authentication data from local storage
+    localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
-    
-    // Update user data to reflect logged out status
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        localStorage.setItem('userData', JSON.stringify({
-          ...parsedData,
-          isAuthenticated: false
-        }));
-      } catch (error) {
-        console.error('Error updating user data during logout:', error);
-      }
-    }
-    
-    // Clear other user-related data
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
     localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('prepzr_remembered_email');
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    
+    // Clear any session storage items that might contain auth data
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('authToken');
+    
+    // Reset API client
+    apiClient.setAuthToken(null);
+    
+    console.log("Logout complete - All authentication data cleared");
+    
+    // Redirect to login page
+    // window.location.href = '/login';
     
     return {
       success: true,

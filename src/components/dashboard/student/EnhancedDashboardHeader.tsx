@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 interface UpcomingEvent {
   title: string;
   time: string;
-  type: 'exam' | 'task' | 'meeting';
+  type: 'exam' | 'task' | 'meeting' | 'concept' | 'practice';
   url?: string;
 }
 
@@ -37,6 +36,34 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const examReadiness = userProfile?.examReadiness || { percentage: 72, lastUpdated: new Date() };
   const navigate = useNavigate();
 
+  // Define default upcoming events if none provided
+  const defaultEvents: UpcomingEvent[] = [
+    { 
+      title: "Physics: Kinematics", 
+      time: "Today, 4:00 PM", 
+      type: "concept",
+      url: "/dashboard/student/concepts/card/physics-kinematics"
+    },
+    { 
+      title: "Chemistry Practice Quiz", 
+      time: "Today, 6:00 PM", 
+      type: "practice",
+      url: "/dashboard/student/practice-exam/chemistry"
+    },
+    { 
+      title: "Mathematics: Calculus", 
+      time: "Tomorrow, 10:00 AM", 
+      type: "concept",
+      url: "/dashboard/student/concepts/card/mathematics-calculus"
+    }
+  ];
+
+  // Use provided events or fall back to defaults
+  const displayEvents = upcomingEvents.length > 0 ? upcomingEvents : defaultEvents;
+
+  // Get the first event for the Next Session card
+  const nextSessionEvent = displayEvents.length > 0 ? displayEvents[0] : null;
+
   // Navigate to create new study plan
   const handleCreateNewPlan = () => {
     navigate('/dashboard/student/academic');
@@ -45,6 +72,28 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   // Navigate to switch exam
   const handleSwitchExam = () => {
     navigate('/dashboard/student/academic');
+  };
+  
+  // Function to get the correct URL based on event type
+  const getEventUrl = (event: UpcomingEvent) => {
+    // If event has a specific URL defined, use it
+    if (event.url) {
+      return event.url;
+    }
+    
+    // Otherwise generate URL based on type
+    switch(event.type) {
+      case 'concept':
+        return `/dashboard/student/concepts/card/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      case 'practice':
+        return `/dashboard/student/practice-exam/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      case 'exam':
+        return `/dashboard/student/practice-exam/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      case 'meeting':
+        return `/dashboard/student/tutor`;
+      default:
+        return `/dashboard/student/today`;
+    }
   };
 
   return (
@@ -130,7 +179,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           </CardContent>
         </Card>
 
-        {/* Next Study Session Card - Updated with link to upcoming events */}
+        {/* Next Study Session Card - Updated with direct links to specific tasks */}
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-12 w-12 bg-violet-100 dark:bg-violet-900/30 text-violet-600 flex items-center justify-center rounded-full">
@@ -138,15 +187,15 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             </div>
             <div className="w-full">
               <h3 className="text-sm text-muted-foreground">Next Session</h3>
-              {upcomingEvents && upcomingEvents.length > 0 ? (
+              {nextSessionEvent ? (
                 <div className="flex flex-col">
                   <a 
-                    href={upcomingEvents[0].url || "/dashboard/student/today"} 
+                    href={getEventUrl(nextSessionEvent)} 
                     className="text-lg font-bold hover:text-primary transition-colors"
                   >
-                    {upcomingEvents[0].title}
+                    {nextSessionEvent.title}
                   </a>
-                  <span className="text-xs text-muted-foreground">{upcomingEvents[0].time}</span>
+                  <span className="text-xs text-muted-foreground">{nextSessionEvent.time}</span>
                 </div>
               ) : (
                 <div className="flex flex-col">
@@ -154,9 +203,9 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                     href="/dashboard/student/today" 
                     className="text-lg font-bold hover:text-primary transition-colors"
                   >
-                    Physics
+                    No upcoming sessions
                   </a>
-                  <span className="text-xs text-muted-foreground">Today, 4:00 PM</span>
+                  <span className="text-xs text-muted-foreground">Check your study plan</span>
                 </div>
               )}
             </div>

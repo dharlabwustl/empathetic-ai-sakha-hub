@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
 import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
@@ -7,7 +6,7 @@ import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDe
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { format, differenceInCalendarDays } from 'date-fns';
-import type { StudyPlan, NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
+import type { StudyPlan, NewStudyPlan, StudyPlanSubject, StudyPlanTopic } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorProps {
   userProfile: {
@@ -188,6 +187,33 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     
     return topics;
   };
+
+  const mockTopics: StudyPlanTopic[] = [
+    {
+      id: "topic1",
+      name: "Kinematics",
+      difficulty: "medium",
+      completed: true, 
+      status: "completed",
+      priority: "high"
+    },
+    {
+      id: "topic2",
+      name: "Newton's Laws of Motion",
+      difficulty: "medium",
+      completed: true, 
+      status: "completed",
+      priority: "high"
+    },
+    {
+      id: "topic3",
+      name: "Electromagnetic Theory",
+      difficulty: "hard",
+      completed: true, 
+      status: "completed",
+      priority: "medium"
+    }
+  ];
 
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
     // Create a new plan object

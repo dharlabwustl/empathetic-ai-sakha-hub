@@ -11,7 +11,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const LoginPage = () => {
+interface LoginPageProps {
+  returnTo?: string;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, isAuthenticated } = useAuth();
@@ -27,9 +31,9 @@ const LoginPage = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard/student', { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, returnTo]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,8 +86,8 @@ const LoginPage = () => {
           }
         }
         
-        // Navigate directly to student dashboard
-        navigate("/dashboard/student", { replace: true });
+        // Navigate to the provided returnTo path or student dashboard
+        navigate(returnTo || "/dashboard/student", { replace: true });
       } else {
         setLoginError("Invalid email or password. Please try again.");
       }

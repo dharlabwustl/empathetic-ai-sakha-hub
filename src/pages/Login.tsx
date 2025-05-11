@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,9 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/dashboard/student';
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -39,7 +42,7 @@ const Login = () => {
             
             <TabsContent value="student" className="pt-2">
               <form onSubmit={(e) => e.preventDefault()}>
-                <LoginPage />
+                <LoginPage returnTo={returnTo} />
               </form>
             </TabsContent>
             
@@ -47,7 +50,7 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = "/admin/login"}>
+                    <Button variant="outline" className="w-full" onClick={() => window.location.href = `/admin/login?returnTo=${returnTo}`}>
                       Go to Admin Login
                     </Button>
                   </div>
