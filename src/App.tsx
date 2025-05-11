@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -57,10 +58,9 @@ import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import SyllabusPage from '@/pages/dashboard/student/SyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
-import FormulaLabPage from '@/pages/dashboard/student/formula-lab/FormulaLabPage';
+import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
-import FormulaLabComponent from './components/dashboard/student/formula-lab/FormulaLabComponent';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -153,7 +153,7 @@ function App() {
               <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
-              <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaLabComponent} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
               <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
               <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
@@ -165,14 +165,11 @@ function App() {
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
               <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
               
-              {/* Formula Lab route */}
-              <Route path="/dashboard/student/formula-lab" element={<ProtectedSidebarRoute Component={FormulaLabPage} />} />
-              
               {/* Other routes - all converted to protected */}
               <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamsSection} />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
-              <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaLabPage} />} />
+              <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
               <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
               <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
