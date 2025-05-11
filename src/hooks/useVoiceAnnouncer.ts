@@ -1,7 +1,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { VoiceSettings } from '@/types/voice';
-import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
+import { 
+  DEFAULT_VOICE_SETTINGS, 
+  findBestVoice, 
+  speakMessage as speakVoiceMessage, 
+  fixPronunciation, 
+  LANGUAGE_OPTIONS,
+  VoiceSettings 
+} from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
@@ -54,19 +60,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setAvailableVoices(voices);
         setVoiceInitialized(true);
         console.log("Voice system initialized with available voices:", voices.length);
-        
-        // Log available voices and languages
-        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
-        const availableLanguages = new Set(voices.map(v => v.lang));
-        console.log("Available languages:", Array.from(availableLanguages));
-        
-        // Check if we have Hindi voices
-        const hindiVoices = voices.filter(v => v.lang.includes('hi-IN'));
-        console.log("Hindi voices available:", hindiVoices.length > 0, hindiVoices.map(v => v.name));
-        
-        // Check for Indian English voices
-        const indianVoices = voices.filter(v => v.lang.includes('en-IN'));
-        console.log("Indian English voices available:", indianVoices.length > 0, indianVoices.map(v => v.name));
       };
       
       // Ensure voices are loaded before initializing
@@ -174,8 +167,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Only speak if enabled or force speech is true
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
-        // Fix pronunciation before speaking
-        speakVoiceMessage(message, voiceSettings);
+        // Fix pronunciation and speak
+        const fixedMessage = fixPronunciation(message);
+        speakVoiceMessage(fixedMessage, voiceSettings);
       }
     }
   }, [voiceSettings]);
@@ -189,10 +183,6 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
       testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an Indian accent.`;
-    } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an American accent.`;
-    } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);

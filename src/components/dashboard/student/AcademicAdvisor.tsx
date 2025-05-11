@@ -215,6 +215,33 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     }
   ];
 
+  const completedTopics: StudyPlanTopic[] = [
+    {
+      id: 'completed1',
+      name: 'Vectors and Scalars',
+      difficulty: 'medium',
+      completed: true,
+      status: 'completed',
+      priority: 'medium' // Added priority property
+    },
+    {
+      id: 'completed2',
+      name: 'Circular Motion',
+      difficulty: 'medium',
+      completed: true,
+      status: 'completed',
+      priority: 'medium' // Added priority property
+    },
+    {
+      id: 'completed3',
+      name: 'Gravitational Field',
+      difficulty: 'hard',
+      completed: true,
+      status: 'completed',
+      priority: 'high' // Added priority property
+    },
+  ];
+
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
     // Create a new plan object
     const newPlan: StudyPlan = {
