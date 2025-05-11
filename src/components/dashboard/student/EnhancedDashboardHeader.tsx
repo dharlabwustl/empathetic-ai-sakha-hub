@@ -37,31 +37,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const examReadiness = userProfile?.examReadiness || { percentage: 72, lastUpdated: new Date() };
   const navigate = useNavigate();
 
-  // Sample upcoming events with proper links
-  const defaultUpcomingEvents: UpcomingEvent[] = [
-    { 
-      title: 'Physics: Newton\'s Laws', 
-      time: 'Today, 4:00 PM', 
-      type: 'task',
-      url: '/dashboard/student/concepts/1' // Link to the concept detail page
-    },
-    { 
-      title: 'NEET Practice Test', 
-      time: 'Tomorrow, 9:00 AM', 
-      type: 'exam',
-      url: '/dashboard/student/practice-exam/1/start' // Link to start the practice exam
-    },
-    { 
-      title: 'Biology Revision', 
-      time: 'Thursday, 2:00 PM', 
-      type: 'task',
-      url: '/dashboard/student/concepts/2' // Link to another concept
-    }
-  ];
-
-  // Use provided upcoming events or default if none provided
-  const eventsToDisplay = upcomingEvents.length > 0 ? upcomingEvents : defaultUpcomingEvents;
-
   // Navigate to create new study plan
   const handleCreateNewPlan = () => {
     navigate('/dashboard/student/academic');
@@ -89,6 +64,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             currentMood={currentMood} 
             onMoodChange={onMoodChange}
           />
+          {/* Study plan button removed as requested */}
         </div>
       </div>
 
@@ -162,15 +138,15 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             </div>
             <div className="w-full">
               <h3 className="text-sm text-muted-foreground">Next Session</h3>
-              {eventsToDisplay && eventsToDisplay.length > 0 ? (
+              {upcomingEvents && upcomingEvents.length > 0 ? (
                 <div className="flex flex-col">
                   <a 
-                    href={eventsToDisplay[0].url || "/dashboard/student/today"} 
+                    href={upcomingEvents[0].url || "/dashboard/student/today"} 
                     className="text-lg font-bold hover:text-primary transition-colors"
                   >
-                    {eventsToDisplay[0].title}
+                    {upcomingEvents[0].title}
                   </a>
-                  <span className="text-xs text-muted-foreground">{eventsToDisplay[0].time}</span>
+                  <span className="text-xs text-muted-foreground">{upcomingEvents[0].time}</span>
                 </div>
               ) : (
                 <div className="flex flex-col">
@@ -187,6 +163,8 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           </CardContent>
         </Card>
       </div>
+
+      {/* KPI Statistics removed as requested */}
     </div>
   );
 };

@@ -1,106 +1,85 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { MoodType } from '@/types/user/base';
-import { Smile, Frown, Zap, Loader2 } from 'lucide-react';
+import { getMoodEmoji } from './mood-tracking/moodUtils';
+import { MoodSelectionDialog } from './mood-tracking/MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  showLabel?: boolean;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   currentMood,
   onMoodChange,
-  size = 'default'
+  className = '',
+  size = "sm",
+  showLabel = true,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
-  // Function to get icon based on mood
-  const getMoodIcon = () => {
-    switch(currentMood) {
-      case MoodType.HAPPY:
-        return <Smile className="h-5 w-5 text-green-500" />;
-      case MoodType.TIRED:
-      case MoodType.STRESSED:
-        return <Frown className="h-5 w-5 text-red-500" />;
-      case MoodType.MOTIVATED:
-      case MoodType.FOCUSED:
-        return <Zap className="h-5 w-5 text-amber-500" />;
-      default:
-        return <Smile className="h-5 w-5" />;
-    }
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
   };
-  
-  const handleUpdateMood = (mood: MoodType) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (onMoodChange) {
-        onMoodChange(mood);
-      }
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleMoodChange = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
       
+      // Show toast confirmation
       toast({
-        title: "Mood updated",
-        description: `Your mood has been updated to ${mood.toLowerCase()}.`,
-        duration: 3000
+        title: "Mood Updated",
+        description: `Your mood has been set to ${mood.toLowerCase()}.`,
       });
       
-      setIsLoading(false);
-    }, 500);
+      // Trigger custom event for other components to react to
+      const moodChangeEvent = new CustomEvent('mood-changed', { 
+        detail: { mood, timestamp: new Date().toISOString() } 
+      });
+      document.dispatchEvent(moodChangeEvent);
+    }
+    handleCloseDialog();
+  };
+  
+  const sizeClasses = {
+    sm: "text-sm h-9 px-3",
+    md: "text-base h-10 px-4",
+    lg: "text-lg h-11 px-5"
   };
   
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size={size} 
-          className="flex items-center gap-2 bg-white dark:bg-gray-800 shadow-sm"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            getMoodIcon()
-          )}
+    <>
+      <Button
+        variant="outline"
+        size={size}
+        onClick={handleOpenDialog}
+        className={`flex items-center gap-1.5 ${sizeClasses[size]} ${className}`}
+      >
+        <span className="text-lg">{getMoodEmoji(currentMood)}</span>
+        {showLabel && (
           <span className="hidden sm:inline">
-            {currentMood ? `I'm feeling ${currentMood.toLowerCase()}` : "How are you feeling?"}
+            {currentMood ? `Feeling ${currentMood.toLowerCase()}` : "Log Mood"}
           </span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.HAPPY)}>
-          <Smile className="mr-2 h-4 w-4 text-green-500" />
-          Happy
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.MOTIVATED)}>
-          <Zap className="mr-2 h-4 w-4 text-amber-500" />
-          Motivated
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.FOCUSED)}>
-          <Zap className="mr-2 h-4 w-4 text-blue-500" />
-          Focused
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.TIRED)}>
-          <Frown className="mr-2 h-4 w-4 text-orange-500" />
-          Tired
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleUpdateMood(MoodType.STRESSED)}>
-          <Frown className="mr-2 h-4 w-4 text-red-500" />
-          Stressed
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        )}
+      </Button>
+
+      <MoodSelectionDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        selectedMood={currentMood}
+        onSelectMood={handleMoodChange}
+      />
+    </>
   );
 };
 

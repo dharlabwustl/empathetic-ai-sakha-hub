@@ -1,17 +1,18 @@
 
-export enum UserRole {
-  Student = 'student',
-  Tutor = 'tutor',
-  Parent = 'parent',
-  Admin = 'admin'
-}
-
 export enum MoodType {
-  HAPPY = 'HAPPY',
-  MOTIVATED = 'MOTIVATED',
-  FOCUSED = 'FOCUSED',
-  TIRED = 'TIRED',
-  STRESSED = 'STRESSED'
+  Happy = 'happy',
+  Focused = 'focused',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Curious = 'curious',
+  Okay = 'okay',
+  Overwhelmed = 'overwhelmed',
+  Anxious = 'anxious',
+  Motivated = 'motivated',
+  Confused = 'confused',
+  Neutral = 'neutral',
+  Sad = 'sad',
+  Calm = 'calm',
 }
 
 export enum SubscriptionType {
@@ -19,95 +20,167 @@ export enum SubscriptionType {
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium',
-  ENTERPRISE = 'enterprise'
+  ProMonthly = 'pro_monthly',
+  ProAnnual = 'pro_annual',
+  GroupSmall = 'group_small',
+  GroupLarge = 'group_large',
+  GroupAnnual = 'group_annual'
+}
+
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin'
+}
+
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+  PreferNotToSay = 'prefer-not-to-say'
+}
+
+export enum SignupType {
+  Email = 'email',
+  Google = 'google',
+  Facebook = 'facebook',
+  Apple = 'apple',
+  Mobile = 'mobile' // Added mobile signup type
+}
+
+export enum StudyPace {
+  Slow = 'slow',
+  Moderate = 'moderate',
+  Fast = 'fast'
+}
+
+export enum StudyPreferenceType {
+  Solo = 'solo',
+  Group = 'group',
+  Mixed = 'mixed'
+}
+
+export enum PersonalityType {
+  Analytical = 'analytical',
+  Creative = 'creative',
+  Practical = 'practical',
+  Visual = 'visual',
+  Auditory = 'auditory',
+  Kinesthetic = 'kinesthetic'
+}
+
+// Added interfaces for tracking study streaks and exam readiness
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: Date | string;
+}
+
+export interface ExamReadiness {
+  percentage: number;
+  lastUpdated: Date | string;
 }
 
 export interface UserProfileBase {
   id: string;
-  email: string;
   name: string;
+  email: string;
+  bio?: string;
+  avatar?: string;
   photoURL?: string;
-  role: UserRole;
-  createdAt?: string | Date;
-  lastActive?: string | Date;
-  loginCount?: number;
-  streak?: {
-    current: number;
-    longest: number;
-    lastStudyDate: string | Date;
-  };
-  examReadiness?: {
-    percentage: number;
-    lastUpdated: string | Date;
+  phoneNumber?: string;
+  mobileNumber?: string; // Added mobile number field
+  role: 'student' | 'teacher' | 'admin';
+  subscription?: SubscriptionType | {
+    planType: string;
+    startDate?: Date | string;
+    expiryDate?: Date | string;
+    status?: 'active' | 'expired' | 'cancelled';
+    autoRenew?: boolean;
   };
   goals?: {
     id: string;
     title: string;
-    targetDate?: string | Date;
+    description?: string;
+    targetDate?: Date | string;
     progress?: number;
   }[];
-  subscription?: SubscriptionType | {
-    planType: string;
-    startDate?: string | Date;
-    expiryDate?: string | Date;
-    status?: 'active' | 'expired' | 'cancelled';
-    autoRenew?: boolean;
-  };
-}
-
-export interface UserProfileType extends UserProfileBase {
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  bio?: string;
+  streak?: StudyStreak; // Added study streak field
+  examReadiness?: ExamReadiness; // Added exam readiness field
   preferences?: {
-    notifications: boolean;
-    theme: 'light' | 'dark' | 'system';
-    language: string;
-    accessibility?: {
-      fontSize: string;
-      highContrast: boolean;
-      screenReaderMode: boolean;
-    };
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: boolean;
+    emailAlerts?: boolean;
+    language?: string;
+    studyPace?: StudyPace; // Added study pace preference
+    dailyStudyHours?: number; // Added daily study hours
+    preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night'; // Added preferred study time
+    breakFrequency?: string; // Added break frequency
+    stressManagement?: string; // Added stress management technique
+    studyEnvironment?: string; // Added study environment preference
+    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical'; // Added learning style
   };
-  examPreparation?: string;
-  location?: string;
-  grade?: string;
-}
-
-export interface MoodTheme {
-  backgroundColor: string;
-  textColor: string;
-  borderColor: string;
-  darkBackgroundColor: string;
-  darkTextColor: string;
-  darkBorderColor: string;
-  emoji: string;
-  message: string;
-  studyTip: string;
-  colors?: {
-    primary: string;
-    secondary: string;
-    accent: string;
+  demographics?: { // Added demographics section
+    age?: number;
+    city?: string;
+    educationLevel?: string;
+    examAppearingDate?: Date | string;
   };
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  lastLogin?: Date | string;
+  loginCount?: number;
 }
 
-export interface MoodThemes {
-  [key: string]: MoodTheme;
-  happy: MoodTheme;
-  motivated: MoodTheme;
-  focused: MoodTheme;
-  tired: MoodTheme;
-  stressed: MoodTheme;
-  confused: MoodTheme;
-  calm: MoodTheme;
+export type UserProfileType = UserProfileBase;
+
+// Additional types that might be useful
+export interface SubjectProgress {
+  id?: string;
+  subject: string;
+  progress: number;
+  topicsTotal: number;
+  topicsCompleted: number;
+  quizzesCompleted: number;
+  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+  isWeakSubject?: boolean; // Added to track weak subjects
+  proficiency?: number; // Added for academic advisor view
 }
 
-export interface StudyPlanSubject {
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'upi' | 'bank';
+  isDefault: boolean;
+  lastFour?: string;
+  expiryDate?: string;
+  cardType?: string;
+  upiId?: string;
+}
+
+export interface BillingHistory {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed';
+  invoiceUrl: string;
+  planName: string;
+}
+
+export interface SubscriptionPlan {
   id: string;
   name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  price: number;
+  features: string[];
+  type: SubscriptionType;
+  maxMembers?: number;
+}
+
+// Added for study plan topics
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: string;
   completed: boolean;
-  status: 'not-started' | 'in-progress' | 'completed';
-  priority: number;
+  status: string;
+  priority: string;
 }
