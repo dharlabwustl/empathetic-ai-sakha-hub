@@ -1,12 +1,12 @@
-
 import React from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { UserProfileBase, SubscriptionType } from "@/types/user/base";
+import { UserProfile } from '@/types/user/base';
 
 interface ProfileCardProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   className?: string;
 }
 

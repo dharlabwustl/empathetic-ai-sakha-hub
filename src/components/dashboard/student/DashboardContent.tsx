@@ -1,7 +1,10 @@
-
-import React, { useState } from 'react';
-import { UserProfileBase } from '@/types/user/base';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserProfile } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -17,7 +20,7 @@ interface DashboardTabsProps {
 interface DashboardContentProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;

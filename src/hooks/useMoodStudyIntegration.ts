@@ -3,7 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useVoiceAnnouncer } from './useVoiceAnnouncer';
 import { MoodType } from '@/types/user/base';
 import { useToast } from './use-toast';
-import { getMoodRecommendation, storeMoodInLocalStorage, getCurrentMoodFromLocalStorage, fixPronunciation } from '@/components/dashboard/student/mood-tracking/moodUtils';
+import { 
+  getMoodRecommendation, 
+  storeMoodInLocalStorage, 
+  getCurrentMoodFromLocalStorage, 
+  fixPronunciation 
+} from '@/components/dashboard/student/mood-tracking/moodUtils';
 
 interface StudyRecommendation {
   message: string;

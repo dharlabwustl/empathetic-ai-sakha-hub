@@ -71,6 +71,11 @@ export const getStudyRecommendationForMood = (mood: MoodType): string => {
   }
 };
 
+// Added explicitly for useMoodStudyIntegration.ts
+export const getMoodRecommendation = (mood: MoodType): string => {
+  return getStudyRecommendationForMood(mood);
+};
+
 // Store mood in localStorage
 export const storeMoodInLocalStorage = (mood: MoodType): void => {
   try {
