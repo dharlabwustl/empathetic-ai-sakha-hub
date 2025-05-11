@@ -10,9 +10,9 @@ const FlaskIntegrationGuide: React.FC = () => {
     <Card className="w-full">
       <CardContent className="p-6">
         <ScrollArea className="h-[calc(100vh-12rem)] pr-4">
-          <Markdown className="prose dark:prose-invert max-w-none">
-            {flaskGuideContent}
-          </Markdown>
+          <div className="prose dark:prose-invert max-w-none">
+            <Markdown>{flaskGuideContent}</Markdown>
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>
