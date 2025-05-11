@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
 import authService from '@/services/auth/authService';
+import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -30,6 +31,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -95,14 +97,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Check if this is a returning user
           const existingData = localStorage.getItem('userData');
           let loginCount = 1;
-          let sawWelcomeSlider = false;
           let sawWelcomeTour = false;
           
           if (existingData) {
             try {
               const parsedData = JSON.parse(existingData);
               loginCount = (parsedData.loginCount || 0) + 1;
-              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
               sawWelcomeTour = parsedData.sawWelcomeTour === true;
             } catch (error) {
               console.error('Error parsing existing user data:', error);
@@ -117,7 +117,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: newUser.role,
             lastLogin: new Date().toISOString(),
             loginCount: loginCount,
-            sawWelcomeSlider: sawWelcomeSlider,
             sawWelcomeTour: sawWelcomeTour,
             mood: 'MOTIVATED',
             isAuthenticated: true
@@ -139,29 +138,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Enhanced logout function with forceful page navigation
+  // Enhanced logout function with guaranteed cleanup and navigation
   const logout = () => {
+    console.log("Logout initiated from AuthContext");
+    
+    // Show logout toast
+    toast({
+      title: "Logging out...",
+      description: "Please wait while we log you out",
+    });
+    
     // First clear React state
     setUser(null);
     
-    // Then call the authService logout method
-    authService.logout().then(() => {
-      console.log("User logged out completely via AuthContext");
-      
-      // Force a complete page refresh to reset all state
-      // Using replace instead of href for more thorough clearing
-      window.location.replace('/login');
-    }).catch(error => {
-      console.error("Error during logout:", error);
-      
-      // Try direct approach if service call fails
-      localStorage.removeItem('userData');
-      localStorage.removeItem('isLoggedIn');
-      sessionStorage.clear();
-      
-      // Force hard navigation
-      window.location.replace('/login');
-    });
+    // Call authService logout method
+    authService.logout()
+      .then(() => {
+        console.log("Logout completed successfully");
+        toast({
+          title: "Logged out",
+          description: "You have been logged out successfully",
+        });
+      })
+      .catch(error => {
+        console.error("Error during logout:", error);
+        
+        // Fallback logout method if service call fails
+        try {
+          // Clear all storage
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          // Force page navigation
+          console.log("Forcing navigation after logout error");
+          window.location.href = '/login';
+          
+          toast({
+            title: "Logged out",
+            description: "You have been logged out (fallback method)",
+            variant: "destructive"
+          });
+        } catch (e) {
+          console.error("Critical error during logout fallback:", e);
+          alert("Unable to log out properly. Please close your browser to complete logout.");
+        }
+      });
   };
   
   return (
