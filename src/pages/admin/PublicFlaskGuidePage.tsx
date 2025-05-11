@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import flaskGuideContent from '@/documentation/FlaskBackendIntegration.md';
+import Markdown from 'react-markdown';
+import flaskGuideContent from '@/documentation/FlaskBackendIntegration';
 
 const PublicFlaskGuidePage = () => {
   return (
@@ -31,7 +32,7 @@ const PublicFlaskGuidePage = () => {
           <CardContent className="p-6">
             <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
               <div className="prose dark:prose-invert max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: flaskGuideContent }} />
+                <Markdown>{flaskGuideContent}</Markdown>
               </div>
             </ScrollArea>
           </CardContent>

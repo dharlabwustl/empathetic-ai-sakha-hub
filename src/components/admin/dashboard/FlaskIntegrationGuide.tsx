@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Markdown from 'react-markdown';
-import flaskGuideContent from '@/documentation/FlaskBackendIntegration.md';
+import flaskGuideContent from '@/documentation/FlaskBackendIntegration';
 
 const FlaskIntegrationGuide: React.FC = () => {
   return (
