@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,6 @@ const ConceptsLandingPage = () => {
       difficulty: "medium",
       timeEstimate: "25 mins",
       isBookmarked: true,
-      thumbnailUrl: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
       progress: 0.8,
     },
     {
@@ -35,7 +33,6 @@ const ConceptsLandingPage = () => {
       difficulty: "easy",
       timeEstimate: "20 mins",
       isBookmarked: false,
-      thumbnailUrl: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
       progress: 0.5,
     },
     {
@@ -46,7 +43,6 @@ const ConceptsLandingPage = () => {
       difficulty: "hard",
       timeEstimate: "30 mins",
       isBookmarked: true,
-      thumbnailUrl: "/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png",
       progress: 0.3,
     },
     {
@@ -57,7 +53,6 @@ const ConceptsLandingPage = () => {
       difficulty: "hard",
       timeEstimate: "40 mins",
       isBookmarked: false,
-      thumbnailUrl: "/lovable-uploads/d5f87c4f-6021-49b2-9e4d-ab83c4cb55c9.png",
       progress: 0.2,
     },
     {
@@ -68,7 +63,6 @@ const ConceptsLandingPage = () => {
       difficulty: "hard",
       timeEstimate: "35 mins",
       isBookmarked: false,
-      thumbnailUrl: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
       progress: 0.1,
     },
     {
@@ -79,7 +73,6 @@ const ConceptsLandingPage = () => {
       difficulty: "medium",
       timeEstimate: "25 mins",
       isBookmarked: false,
-      thumbnailUrl: "/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png",
       progress: 0,
     },
   ];
@@ -148,49 +141,54 @@ const ConceptsLandingPage = () => {
           <TabsContent value={activeTab} className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredConcepts.map((concept) => (
-                <Card key={concept.id} className="hover:shadow-md transition-shadow overflow-hidden">
-                  <div className="aspect-video relative">
-                    <img 
-                      src={concept.thumbnailUrl} 
-                      alt={concept.title} 
-                      className="w-full h-full object-cover"
-                    />
+                <Card 
+                  key={concept.id} 
+                  className="hover:shadow-lg transition-shadow overflow-hidden rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
+                >
+                  <div className="relative px-5 pt-5 pb-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge 
+                        className={`${getDifficultyColor(concept.difficulty)} px-3 py-1 rounded-full text-xs font-medium`}
+                      >
+                        {concept.difficulty}
+                      </Badge>
+                      {concept.isBookmarked && (
+                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      )}
+                    </div>
+                    
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-xl font-bold">{concept.title}</CardTitle>
+                      <Badge className="mt-2 bg-blue-100/80 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                        {concept.subject}
+                      </Badge>
+                    </CardHeader>
+                    
+                    <CardContent className="px-0 py-3">
+                      <p className="text-gray-600 dark:text-gray-300 line-clamp-2 text-sm">
+                        {concept.description}
+                      </p>
+                      <div className="flex items-center mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        <Clock className="h-4 w-4 mr-1" />
+                        <span>{concept.timeEstimate}</span>
+                      </div>
+                    </CardContent>
+                    
                     {concept.progress > 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gray-200 h-1">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 rounded-full mt-2 mb-3">
                         <div 
-                          className="bg-blue-600 h-1" 
+                          className="bg-blue-600 dark:bg-blue-500 h-1 rounded-full" 
                           style={{ width: `${concept.progress * 100}%` }} 
                         />
                       </div>
                     )}
-                    <Badge 
-                      className={`absolute top-2 right-2 ${getDifficultyColor(concept.difficulty)}`}
-                    >
-                      {concept.difficulty}
-                    </Badge>
-                    {concept.isBookmarked && (
-                      <div className="absolute top-2 left-2">
-                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                      </div>
-                    )}
-                    <Badge className="absolute bottom-2 left-2 bg-white/80 text-black">
-                      {concept.subject}
-                    </Badge>
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{concept.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{concept.description}</p>
-                    <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>{concept.timeEstimate}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
+                  
+                  <CardFooter className="bg-gray-50 dark:bg-gray-800/50 p-3">
                     <Button 
                       onClick={() => handleViewConcept(concept.id)} 
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                      variant="default"
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
                       Study Now

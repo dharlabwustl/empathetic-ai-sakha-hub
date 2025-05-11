@@ -1,343 +1,178 @@
-
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, X, Play, Pause, Volume2, VolumeX } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mic, Speaker } from "lucide-react";
+import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import MoodSelector from "@/components/dashboard/student/MoodSelector";
+import { useToast } from "@/components/ui/use-toast";
 import { MoodType } from '@/types/user/base';
 
 interface FloatingVoiceAnnouncerProps {
-  isOpen?: boolean;
-  onClose?: () => void;
-  position?: 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left';
+  userName?: string;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
-interface Message {
-  text: string;
-  type: 'system' | 'user' | 'assistant';
-  timestamp: Date;
-}
-
-const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ 
-  isOpen = true, 
-  onClose, 
-  position = 'bottom-right' 
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({
+  userName,
+  onMoodChange
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    { text: 'How can I help you today?', type: 'assistant', timestamp: new Date() }
-  ]);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  // Position styles
-  const positionStyles = {
-    'top-right': 'top-4 right-4',
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'top-left': 'top-4 left-4',
-  };
-
-  // Mock speech recognition
-  useEffect(() => {
-    if (isListening) {
-      const timer = setTimeout(() => {
-        setIsListening(false);
-        
-        // Simulate receiving transcript and processing
-        const mockPromptsAndResponses: Record<string, string> = {
-          "how are you": "I'm doing well! How can I assist you with your studies today?",
-          "what should i study": "Based on your recent performance, I'd recommend focusing on organic chemistry reactions for about 45 minutes.",
-          "i'm feeling tired": "I understand. Maybe take a 15-minute break before continuing with a lighter topic like vocabulary review.",
-          "help me with math": "I'd be happy to help with math! Which specific concept are you working on?",
-        };
-        
-        const lowerTranscript = transcript.toLowerCase();
-        let foundResponse = false;
-        
-        for (const [prompt, response] of Object.entries(mockPromptsAndResponses)) {
-          if (lowerTranscript.includes(prompt)) {
-            setMessages(prev => [
-              ...prev, 
-              { text: transcript, type: 'user', timestamp: new Date() },
-              { text: response, type: 'assistant', timestamp: new Date() }
-            ]);
-            foundResponse = true;
-            break;
-          }
-        }
-        
-        if (!foundResponse) {
-          // Process mood detection
-          const detectedMood = detectMoodFromTranscript(lowerTranscript);
-          if (detectedMood) {
-            setMessages(prev => [
-              ...prev, 
-              { text: transcript, type: 'user', timestamp: new Date() },
-              { text: getMoodResponse(detectedMood), type: 'assistant', timestamp: new Date() }
-            ]);
-          } else {
-            setMessages(prev => [
-              ...prev, 
-              { text: transcript, type: 'user', timestamp: new Date() },
-              { text: "I'm not sure how to help with that. Could you try rephrasing?", type: 'assistant', timestamp: new Date() }
-            ]);
-          }
-        }
-        
-        setTranscript('');
-        
-        // Start speaking the response
-        setIsSpeaking(true);
-        setTimeout(() => setIsSpeaking(false), 3000);
-        
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isListening, transcript]);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [expanded, setExpanded] = useState(false);
+  const { toast } = useToast();
   
-  // Mock speaking animation
-  useEffect(() => {
-    if (isSpeaking && !isPaused) {
-      const timer = setInterval(() => {
-        // Pulse animation logic would go here
-      }, 100);
-      
-      return () => clearInterval(timer);
-    }
-  }, [isSpeaking, isPaused]);
+  const {
+    voiceSettings,
+    updateVoiceSettings,
+    toggleVoiceEnabled,
+    toggleMute,
+    speakMessage,
+    isVoiceSupported,
+    isSpeaking,
+    isListening,
+    startListening,
+    stopListening,
+    voiceInitialized
+  } = useVoiceAnnouncer({ userName });
 
-  const handleStartListening = () => {
-    setIsListening(true);
+  useEffect(() => {
+    if (currentMood) {
+      const speech = getSpeechForMood(currentMood);
+      speakMessage(speech);
+    }
+  }, [currentMood, speakMessage, userName]);
+  
+  // Mock helper function to get mood suggestions
+  const getMoodSuggestions = (currentMood?: MoodType): string[] => {
+    if (currentMood === MoodType.Tired) {
+      return [
+        "Would you like a shorter study session today?",
+        "Let's focus on revision rather than new topics",
+        "Consider taking more breaks today"
+      ];
+    } else if (currentMood === MoodType.Motivated) {
+      return [
+        "Great time to tackle difficult topics!",
+        "Let's aim for a longer study session",
+        "Try some challenge problems today"
+      ];
+    } else if (currentMood === MoodType.Confused) {
+      // Replace CURIOUS with Confused in our type system
+      return [
+        "Let's start with basics today",
+        "Would you like to review prerequisites first?",
+        "Focus on understanding core concepts"
+      ];
+    }
     
-    // Simulate user speaking/typing
-    const mockPhrases = [
-      "I'm feeling really stressed about my exams tomorrow",
-      "Can you help me organize my study schedule?",
-      "I don't understand this chemistry concept",
-      "What should I focus on today?",
-      "I'm feeling tired but need to study"
+    // Default suggestions
+    return [
+      "How can I help with your studies today?",
+      "Would you like to focus on any particular subject?",
+      "Remember to take regular breaks!"
     ];
-    
-    setTranscript(mockPhrases[Math.floor(Math.random() * mockPhrases.length)]);
-  };
-
-  const detectMoodFromTranscript = (text: string): MoodType | null => {
-    const moodPatterns: Record<string, MoodType> = {
-      "stress": MoodType.STRESSED,
-      "worried": MoodType.ANXIOUS,
-      "anxious": MoodType.ANXIOUS,
-      "nervous": MoodType.ANXIOUS,
-      "happy": MoodType.HAPPY,
-      "great": MoodType.HAPPY,
-      "excited": MoodType.HAPPY,
-      "motivated": MoodType.MOTIVATED,
-      "ready": MoodType.MOTIVATED,
-      "focused": MoodType.FOCUSED,
-      "concentrate": MoodType.FOCUSED,
-      "tired": MoodType.TIRED,
-      "exhausted": MoodType.TIRED,
-      "sleepy": MoodType.TIRED,
-      "confused": MoodType.CONFUSED,
-      "don't understand": MoodType.CONFUSED,
-      "lost": MoodType.CONFUSED,
-      "neutral": MoodType.NEUTRAL,
-      "fine": MoodType.NEUTRAL,
-      "okay": MoodType.OKAY,
-      "alright": MoodType.OKAY,
-      "so so": MoodType.OKAY,
-      "overwhelmed": MoodType.OVERWHELMED,
-      "swamped": MoodType.OVERWHELMED,
-      "curious": MoodType.CURIOUS,
-      "interested": MoodType.CURIOUS,
-      "sad": MoodType.SAD,
-      "upset": MoodType.SAD,
-      "down": MoodType.SAD
-    };
-    
-    for (const [pattern, mood] of Object.entries(moodPatterns)) {
-      if (text.includes(pattern)) {
-        return mood;
-      }
-    }
-    
-    return null;
   };
   
-  const getMoodResponse = (mood: MoodType): string => {
-    const responses: Record<MoodType, string[]> = {
-      [MoodType.HAPPY]: [
-        "I'm glad you're feeling happy! It's a great state of mind for productive learning.",
-        "Great to hear you're in a positive mood! Let's make the most of it."
-      ],
-      [MoodType.MOTIVATED]: [
-        "Your motivation is inspiring! Let's channel that energy into your studies.",
-        "That's the spirit! Motivation is key to achieving your academic goals."
-      ],
-      [MoodType.FOCUSED]: [
-        "Being focused is excellent for deep learning. Let's maintain that concentration.",
-        "Your focus will help you grasp complex concepts more easily."
-      ],
-      [MoodType.TIRED]: [
-        "I understand you're feeling tired. Would you like some strategies for effective studying while conserving energy?",
-        "When you're tired, shorter, more focused study sessions with breaks can be more effective."
-      ],
-      [MoodType.CONFUSED]: [
-        "It's okay to feel confused. Let's break down the concepts step by step.",
-        "Confusion is often part of the learning process. Let's tackle this together."
-      ],
-      [MoodType.ANXIOUS]: [
-        "I understand anxiety can be challenging. Deep breathing exercises might help before we start studying.",
-        "It's normal to feel anxious, especially before exams. Let's work on some techniques to manage that."
-      ],
-      [MoodType.STRESSED]: [
-        "Stress can affect your learning. Let's first take a moment to organize your priorities.",
-        "I hear that you're stressed. Let's break your work into smaller, manageable tasks."
-      ],
-      [MoodType.NEUTRAL]: [
-        "A neutral mindset can be good for objective learning. Let's get started.",
-        "Ready to begin? Let's make the most of your study session."
-      ],
-      [MoodType.OKAY]: [
-        "Feeling okay is a good baseline. Let's see if we can bring some enthusiasm to your studies.",
-        "Let's work together to make your study session productive and maybe even enjoyable."
-      ],
-      [MoodType.OVERWHELMED]: [
-        "Feeling overwhelmed is common. Let's prioritize and tackle one thing at a time.",
-        "When everything seems too much, breaking it down into small steps can help."
-      ],
-      [MoodType.CURIOUS]: [
-        "Curiosity is a powerful learning tool! Let's explore the topics you're interested in.",
-        "I love when students are curious! What aspects would you like to dive deeper into?"
-      ],
-      [MoodType.SAD]: [
-        "I'm sorry to hear you're feeling down. Would you like to talk about it or would you prefer a distraction?",
-        "Sometimes studying can actually help lift your mood. Shall we start with something you enjoy?"
-      ],
-      [MoodType.CALM]: [
-        "A calm mind is great for absorbing information. Let's make the most of this state.",
-        "Your calm demeanor will help with comprehension. Ready to begin?"
-      ]
-    };
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    onMoodChange?.(mood);
     
-    const moodResponses = responses[mood] || ["I'm here to help with your studies. What would you like to focus on?"];
-    return moodResponses[Math.floor(Math.random() * moodResponses.length)];
+    toast({
+      title: `Mood Logged: ${mood}`,
+      description: "Your mood has been updated.",
+    });
+  };
+  
+  const handleTrySuggestion = (suggestion: string) => {
+    speakMessage(suggestion);
+    
+    toast({
+      title: "Suggestion:",
+      description: suggestion,
+    });
   };
 
-  // Show tooltip briefly when component mounts
-  useEffect(() => {
-    setShowTooltip(true);
-    const timer = setTimeout(() => {
-      setShowTooltip(false);
-    }, 3000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+  const getSpeechForMood = (mood: MoodType): string => {
+    switch (mood) {
+      case MoodType.Happy:
+        return `I'm glad you're feeling happy, ${userName || 'there'}! This is a great time to tackle challenging topics.`;
+      case MoodType.Tired:
+        return `I notice you're feeling tired, ${userName || 'there'}. Let's focus on lighter review sessions and take more breaks today.`;
+      case MoodType.Stressed:
+        return `I understand you're feeling stressed, ${userName || 'there'}. Let's break your studies into smaller chunks today.`;
+      case MoodType.Confused:
+        return `It's okay to be confused sometimes, ${userName || 'there'}. Let's slow down and focus on fundamentals today.`;
+      case MoodType.Motivated:
+        return `That's great that you're feeling motivated today, ${userName || 'there'}! Let's make the most of it with focused study.`;
+      case MoodType.Focused:
+        return `I see you're in a focused state, ${userName || 'there'}. This is perfect for deep learning sessions!`;
+      case MoodType.Neutral:
+        return `You're feeling neutral today, ${userName || 'there'}. Let's find something interesting to build some momentum.`;
+      default:
+        return `I've registered your mood, ${userName || 'there'}. How can I help with your studies today?`;
+    }
+  };
 
+  if (!isVoiceSupported) {
+    return null;
+  }
+  
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          className={`fixed ${positionStyles[position]} z-50`}
-        >
-          <Card className="w-[320px] shadow-lg border-primary/10">
-            <CardContent className="p-0">
-              {/* Header */}
-              <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 rounded-t-lg">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-blue-500'}`} />
-                  <h3 className="font-medium">Voice Assistant</h3>
-                </div>
-                <div className="flex gap-1">
+    <Card className="w-64 shadow-md hover:shadow-lg transition-all duration-300 border-blue-100 dark:border-blue-900/50">
+      <CardHeader className="p-3 pb-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-t-lg">
+        <CardTitle className="text-sm flex justify-between items-center">
+          <span className="text-blue-700 dark:text-blue-300 font-medium">How are you feeling?</span>
+          {expanded && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded(false)}
+              className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </Button>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-3">
+        {expanded ? (
+          <div className="space-y-3">
+            <MoodSelector 
+              currentMood={currentMood} 
+              onMoodChange={handleMoodChange} 
+            />
+            
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Try saying:</p>
+              <div className="grid grid-cols-1 gap-2">
+                {getMoodSuggestions(currentMood).map((suggestion, index) => (
                   <Button 
+                    key={index} 
                     variant="ghost" 
-                    size="icon" 
-                    className="h-7 w-7" 
-                    onClick={() => setIsMuted(!isMuted)}
+                    size="sm"
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    onClick={() => handleTrySuggestion(suggestion)}
                   >
-                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    "{suggestion}"
                   </Button>
-                  {onClose && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={onClose}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Messages area */}
-              <div className="max-h-[300px] overflow-y-auto p-3 space-y-3">
-                {messages.map((msg, index) => (
-                  <div 
-                    key={index}
-                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div 
-                      className={`rounded-lg px-3 py-2 max-w-[85%] ${
-                        msg.type === 'user' 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-100 dark:bg-gray-800'
-                      }`}
-                    >
-                      <p className="text-sm">{msg.text}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
                 ))}
               </div>
-              
-              {/* Input area */}
-              <div className="border-t p-3 flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  {isListening 
-                    ? 'Listening...' 
-                    : isSpeaking 
-                      ? 'Speaking...' 
-                      : 'Press the mic to speak'
-                  }
-                </div>
-                <div className="relative">
-                  <AnimatePresence>
-                    {showTooltip && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-full mb-2 right-0 bg-black text-white text-xs p-2 rounded whitespace-nowrap"
-                      >
-                        Try asking about your schedule!
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  <Button
-                    className={`rounded-full w-10 h-10 ${isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
-                    onClick={handleStartListening}
-                    disabled={isListening}
-                  >
-                    <Mic className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded(true)}
+              className="w-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              <Mic className="h-4 w-4 mr-2" />
+              Log Mood
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

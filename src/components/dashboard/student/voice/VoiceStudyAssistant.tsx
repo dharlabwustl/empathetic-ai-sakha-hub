@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, Speaker } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
+import { MoodType } from "@/types/user/base";
 
 interface VoiceStudyAssistantProps {
   userName?: string;
@@ -115,13 +116,60 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       { words: ['motivated', 'determined'], mood: 'motivated' },
       { words: ['confused'], mood: 'confused' },
       { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
+      { words: ['focused', 'concentrating'], mood: 'focused' },
+      { words: ['neutral', 'okay', 'fine'], mood: 'neutral' }
     ];
     
     // Check if any mood keywords are in the command
     for (const { words, mood } of moodKeywords) {
       if (words.some(word => command.includes(word))) {
         if (onMoodCommand) {
-          speakMessage(`I'll log that you're feeling ${mood} today.`);
+          // Enhanced acknowledgment with personalized study recommendations based on mood
+          let acknowledgment = "";
+          let recommendation = "";
+          
+          switch(mood) {
+            case 'happy':
+              acknowledgment = `Great to hear you're feeling happy today, ${userName || 'there'}!`;
+              recommendation = "This is a perfect time to tackle challenging concepts or try a practice test.";
+              break;
+            case 'tired':
+              acknowledgment = `I understand you're feeling tired, ${userName || 'there'}.`;
+              recommendation = "Let's focus on light revision or watching video explanations today. Take regular breaks!";
+              break;
+            case 'stressed':
+              acknowledgment = `I notice you're feeling stressed, ${userName || 'there'}.`;
+              recommendation = "Let's work on breathing exercises first, then focus on reviewing familiar concepts to build confidence.";
+              break;
+            case 'motivated':
+              acknowledgment = `Fantastic! You're feeling motivated, ${userName || 'there'}!`;
+              recommendation = "This is the perfect time to tackle your most challenging topics or complete a full practice exam.";
+              break;
+            case 'confused':
+              acknowledgment = `It's okay to feel confused sometimes, ${userName || 'there'}.`;
+              recommendation = "Let's focus on fundamental concepts and take things step by step today.";
+              break;
+            case 'anxious':
+              acknowledgment = `I understand you're feeling anxious, ${userName || 'there'}.`;
+              recommendation = "Let's start with some quick wins - reviewing concepts you already know well, then gradually approach newer material.";
+              break;
+            case 'focused':
+              acknowledgment = `You're in a focused state, ${userName || 'there'}. That's excellent!`;
+              recommendation = "This is the perfect time for deep learning sessions on complex topics.";
+              break;
+            case 'neutral':
+              acknowledgment = `Feeling neutral today, ${userName || 'there'}? That's okay.`;
+              recommendation = "Let's start with something interesting to build some momentum in your study session.";
+              break;
+            default:
+              acknowledgment = `I've logged that you're feeling ${mood} today.`;
+              recommendation = "I'll adjust your study suggestions accordingly.";
+          }
+          
+          // Speak the acknowledgment and recommendation
+          speakMessage(`${acknowledgment} ${recommendation}`);
+          
+          // Update mood in the app
           onMoodCommand(mood);
           return;
         }
@@ -185,16 +233,16 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   }
   
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300`}>
-      <CardHeader className="p-3 pb-0">
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 shadow-md hover:shadow-lg border-blue-100 dark:border-blue-900/50`}>
+      <CardHeader className="p-3 pb-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-t-lg">
         <CardTitle className="text-sm flex justify-between items-center">
-          <span>Voice Assistant</span>
+          <span className="text-blue-700 dark:text-blue-300 font-medium">Voice Assistant</span>
           {expanded && (
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(false)}
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
             >
               ×
             </Button>
@@ -209,7 +257,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
                 variant={isListening ? "default" : "outline"}
                 size="sm" 
                 onClick={isListening ? stopListening : startListening}
-                className={`${isListening ? 'bg-red-500 hover:bg-red-600' : ''}`}
+                className={`${isListening ? 'bg-red-500 hover:bg-red-600' : ''} transition-colors`}
               >
                 {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
                 {isListening ? 'Stop' : 'Start'} Listening
@@ -220,6 +268,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
                 size="sm"
                 onClick={() => toggleMute()}
                 disabled={isSpeaking}
+                className="transition-colors"
               >
                 <Speaker className="h-4 w-4 mr-2" />
                 {voiceSettings.muted ? 'Unmute' : 'Mute'}
@@ -241,7 +290,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
                     key={index} 
                     variant="ghost" 
                     size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left"
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     onClick={() => handleTrySuggestion(suggestion)}
                   >
                     "{suggestion}"
@@ -256,7 +305,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(true)}
-              className="w-full"
+              className="w-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
               <Mic className="h-4 w-4 mr-2" />
               Use Voice Commands

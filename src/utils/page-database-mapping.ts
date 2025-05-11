@@ -1,643 +1,954 @@
 
-/**
- * Page to Database Field Mapping
- * 
- * This utility file provides a comprehensive mapping between frontend pages/components
- * and their corresponding database tables and fields. It's intended as documentation
- * for developers to understand the data flow in the application.
- */
+// This utility provides the database mapping functionality for the documentation page
 
-export interface DatabaseFieldMapping {
-  component: string;
-  databaseTable: string;
-  fields: {
-    frontendField: string;
-    databaseField: string;
-    dataType: string;
+// Define mapping types
+interface DatabaseField {
+  frontendField: string;
+  databaseColumn: string;
+  description: string;
+  type: string;
+  isRequired: boolean;
+}
+
+interface DatabaseTable {
+  name: string;
+  description: string;
+  primaryKey: string;
+  fields: DatabaseField[];
+  relationships?: {
+    table: string;
+    type: "one-to-one" | "one-to-many" | "many-to-many";
+    throughTable?: string;
     description: string;
   }[];
-  apiEndpoint?: string;
 }
 
-export interface PageDatabaseMapping {
-  pageName: string;
+interface ApiEndpoint {
+  path: string;
+  method: string;
   description: string;
-  components: DatabaseFieldMapping[];
+  parameters?: {
+    name: string;
+    type: string;
+    description: string;
+    isRequired: boolean;
+  }[];
 }
 
-/**
- * Complete database mapping for all pages in the application
- */
-export const pageDatabaseMappings: PageDatabaseMapping[] = [
-  // DASHBOARD PAGE
+interface ComponentMapping {
+  name: string;
+  description: string;
+  location: string;
+  databaseTables: DatabaseTable[];
+  apiEndpoints: ApiEndpoint[];
+}
+
+interface PageMapping {
+  name: string;
+  route: string;
+  description: string;
+  components: ComponentMapping[];
+}
+
+// Define the database mappings for each page
+const databaseMapping: PageMapping[] = [
   {
-    pageName: "Dashboard",
-    description: "Main user dashboard showing overview of study progress and activities",
+    name: "Dashboard",
+    route: "/dashboard/student",
+    description: "Main student dashboard showing overview of study progress, recommendations, and key metrics",
     components: [
       {
-        component: "ProfileSummary",
-        databaseTable: "users",
-        apiEndpoint: "/students/:studentId/profile",
-        fields: [
-          { frontendField: "name", databaseField: "name", dataType: "string", description: "User's full name" },
-          { frontendField: "email", databaseField: "email", dataType: "string", description: "User's email address" },
-          { frontendField: "role", databaseField: "role", dataType: "enum", description: "User role (student, teacher, etc.)" },
-          { frontendField: "avatar", databaseField: "avatar_url", dataType: "string", description: "Profile picture URL" },
-          { frontendField: "enrollmentDate", databaseField: "created_at", dataType: "timestamp", description: "Account creation date" }
+        name: "StudyProgressSection",
+        description: "Shows progress across subjects",
+        location: "src/components/dashboard/student/StudyProgress.tsx",
+        databaseTables: [
+          {
+            name: "user_study_progress",
+            description: "Tracks user's progress across subjects",
+            primaryKey: "progress_id",
+            fields: [
+              { frontendField: "subject", databaseColumn: "subject_name", description: "Subject name", type: "string", isRequired: true },
+              { frontendField: "progress", databaseColumn: "completion_percentage", description: "Progress percentage", type: "float", isRequired: true },
+              { frontendField: "lastStudied", databaseColumn: "last_studied_at", description: "Last study timestamp", type: "datetime", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "users",
+                type: "one-to-many",
+                description: "One user has many subject progress records"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/student/progress",
+            method: "GET",
+            description: "Fetches study progress for the current user"
+          }
         ]
       },
       {
-        component: "StudyProgress",
-        databaseTable: "study_sessions",
-        apiEndpoint: "/students/:studentId/statistics",
-        fields: [
-          { frontendField: "completedSessions", databaseField: "COUNT(*)", dataType: "integer", description: "Number of completed study sessions" },
-          { frontendField: "totalStudyTime", databaseField: "SUM(duration_minutes)", dataType: "integer", description: "Total minutes studied" },
-          { frontendField: "streakDays", databaseField: "streak_days", dataType: "integer", description: "Consecutive days of study" },
-          { frontendField: "weeklyProgress", databaseField: "weekly_target_percentage", dataType: "float", description: "Progress toward weekly goal" }
-        ]
-      },
-      {
-        component: "MoodTracker",
-        databaseTable: "user_moods",
-        apiEndpoint: "/students/:studentId/mood-logs",
-        fields: [
-          { frontendField: "currentMood", databaseField: "current_mood", dataType: "enum", description: "Current mood state" },
-          { frontendField: "moodTimestamp", databaseField: "timestamp", dataType: "timestamp", description: "When mood was recorded" },
-          { frontendField: "moodHistory", databaseField: "mood_history", dataType: "array", description: "Previous mood entries" }
-        ]
-      },
-      {
-        component: "TodaysPlan",
-        databaseTable: "daily_plans",
-        apiEndpoint: "/students/:studentId/daily-plan",
-        fields: [
-          { frontendField: "todaysTasks", databaseField: "tasks", dataType: "array", description: "Tasks scheduled for today" },
-          { frontendField: "scheduledBreaks", databaseField: "breaks", dataType: "array", description: "Scheduled breaks" },
-          { frontendField: "priorities", databaseField: "priority_tasks", dataType: "array", description: "High priority tasks" },
-          { frontendField: "completionRate", databaseField: "completion_rate", dataType: "float", description: "Percentage of completed tasks" }
-        ]
-      },
-      {
-        component: "SubjectBreakdown",
-        databaseTable: "user_subjects",
-        apiEndpoint: "/students/:studentId/subjects",
-        fields: [
-          { frontendField: "subjectList", databaseField: "subject_id", dataType: "array", description: "List of student's subjects" },
-          { frontendField: "proficiency", databaseField: "proficiency_level", dataType: "integer", description: "Subject proficiency level (1-10)" },
-          { frontendField: "weakAreas", databaseField: "is_weak_area", dataType: "boolean", description: "Flagged weak areas" },
-          { frontendField: "studyTimeAllocation", databaseField: "time_allocation", dataType: "integer", description: "Minutes allocated per week" }
+        name: "MoodTracker",
+        description: "Tracks and displays student mood",
+        location: "src/components/dashboard/student/MoodSelector.tsx",
+        databaseTables: [
+          {
+            name: "user_moods",
+            description: "Stores user mood history",
+            primaryKey: "mood_entry_id",
+            fields: [
+              { frontendField: "currentMood", databaseColumn: "mood_type", description: "Current mood", type: "enum", isRequired: true },
+              { frontendField: "timestamp", databaseColumn: "created_at", description: "When mood was logged", type: "datetime", isRequired: true },
+              { frontendField: "notes", databaseColumn: "notes", description: "Optional notes about mood", type: "text", isRequired: false },
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/student/mood",
+            method: "POST",
+            description: "Records a new mood entry"
+          },
+          {
+            path: "/api/student/mood/history",
+            method: "GET",
+            description: "Fetches mood history for the current user"
+          }
         ]
       }
     ]
   },
-  
-  // TODAY'S PLAN PAGE
   {
-    pageName: "Today's Plan",
-    description: "Daily study plan showing scheduled tasks and activities",
+    name: "Academic Advisor",
+    route: "/dashboard/student/academic-advisor",
+    description: "AI-powered study advisor that provides personalized guidance",
     components: [
       {
-        component: "DailySchedule",
-        databaseTable: "daily_plans",
-        apiEndpoint: "/students/:studentId/daily-plan",
-        fields: [
-          { frontendField: "timeSlots", databaseField: "time_slots", dataType: "array", description: "Study time slots for the day" },
-          { frontendField: "activities", databaseField: "activities", dataType: "array", description: "Scheduled study activities" },
-          { frontendField: "duration", databaseField: "duration_minutes", dataType: "integer", description: "Duration of each activity" },
-          { frontendField: "date", databaseField: "plan_date", dataType: "date", description: "Date of the plan" }
-        ]
-      },
-      {
-        component: "SubjectTasks",
-        databaseTable: "subject_tasks",
-        apiEndpoint: "/students/:studentId/tasks",
-        fields: [
-          { frontendField: "taskId", databaseField: "id", dataType: "uuid", description: "Unique task identifier" },
-          { frontendField: "subjectId", databaseField: "subject_id", dataType: "uuid", description: "Related subject" },
-          { frontendField: "priority", databaseField: "priority", dataType: "enum", description: "Task priority level" },
-          { frontendField: "isCompleted", databaseField: "is_completed", dataType: "boolean", description: "Completion status" },
-          { frontendField: "description", databaseField: "description", dataType: "string", description: "Task description" }
-        ]
-      },
-      {
-        component: "SmartExtras",
-        databaseTable: "recommended_content",
-        apiEndpoint: "/students/:studentId/recommendations",
-        fields: [
-          { frontendField: "contentType", databaseField: "content_type", dataType: "enum", description: "Type of content (video, article, etc.)" },
-          { frontendField: "contentId", databaseField: "content_id", dataType: "uuid", description: "Content identifier" },
-          { frontendField: "reasonForRecommendation", databaseField: "recommendation_reason", dataType: "string", description: "Why this was recommended" }
-        ]
-      },
-      {
-        component: "StudyHistory",
-        databaseTable: "study_sessions",
-        apiEndpoint: "/students/:studentId/study-sessions",
-        fields: [
-          { frontendField: "date", databaseField: "session_date", dataType: "date", description: "Session date" },
-          { frontendField: "duration", databaseField: "duration_minutes", dataType: "integer", description: "Session duration in minutes" },
-          { frontendField: "subject", databaseField: "subject_id", dataType: "uuid", description: "Subject studied" },
-          { frontendField: "completion", databaseField: "completion_percentage", dataType: "float", description: "Percentage completed" }
+        name: "AcademicAdvisorView",
+        description: "Main academic advisor interface",
+        location: "src/components/dashboard/student/academic/AcademicAdvisorView.tsx",
+        databaseTables: [
+          {
+            name: "study_recommendations",
+            description: "Personalized study recommendations",
+            primaryKey: "recommendation_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "title", description: "Recommendation title", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Detailed explanation", type: "text", isRequired: true },
+              { frontendField: "priority", databaseColumn: "priority_level", description: "Recommendation priority", type: "integer", isRequired: true },
+              { frontendField: "createdAt", databaseColumn: "created_at", description: "Creation timestamp", type: "datetime", isRequired: true },
+            ]
+          },
+          {
+            name: "user_study_patterns",
+            description: "Analysis of user study habits and patterns",
+            primaryKey: "pattern_id",
+            fields: [
+              { frontendField: "patternType", databaseColumn: "pattern_type", description: "Type of study pattern", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Pattern description", type: "text", isRequired: true },
+              { frontendField: "detectedAt", databaseColumn: "detected_at", description: "When pattern was detected", type: "datetime", isRequired: true },
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/advisor/recommendations",
+            method: "GET",
+            description: "Fetches personalized study recommendations"
+          },
+          {
+            path: "/api/advisor/insights",
+            method: "GET",
+            description: "Gets AI insights based on study patterns"
+          }
         ]
       }
     ]
   },
-  
-  // ACADEMIC ADVISOR PAGE
   {
-    pageName: "Academic Advisor",
-    description: "Study planning and academic guidance tools",
+    name: "Today's Plan",
+    route: "/dashboard/student/todays-plan",
+    description: "Personalized daily study schedule",
     components: [
       {
-        component: "StudyPlans",
-        databaseTable: "study_plans",
-        apiEndpoint: "/students/:studentId/study-plans",
-        fields: [
-          { frontendField: "planId", databaseField: "id", dataType: "uuid", description: "Plan identifier" },
-          { frontendField: "name", databaseField: "name", dataType: "string", description: "Plan name" },
-          { frontendField: "duration", databaseField: "duration_days", dataType: "integer", description: "Plan duration" },
-          { frontendField: "startDate", databaseField: "start_date", dataType: "date", description: "Start date" },
-          { frontendField: "endDate", databaseField: "end_date", dataType: "date", description: "End date" }
-        ]
-      },
-      {
-        component: "PlanDetails",
-        databaseTable: "study_plan_details",
-        apiEndpoint: "/students/:studentId/study-plans/:planId",
-        fields: [
-          { frontendField: "dailyHours", databaseField: "daily_hours", dataType: "float", description: "Hours per day" },
-          { frontendField: "focusAreas", databaseField: "focus_areas", dataType: "array", description: "Areas of focus" },
-          { frontendField: "milestones", databaseField: "milestones", dataType: "array", description: "Plan milestones" },
-          { frontendField: "subjects", databaseField: "subjects", dataType: "array", description: "Included subjects" }
-        ]
-      },
-      {
-        component: "WeeklySchedule",
-        databaseTable: "weekly_schedule",
-        apiEndpoint: "/students/:studentId/study-plans/:planId/schedule",
-        fields: [
-          { frontendField: "dayOfWeek", databaseField: "day_of_week", dataType: "enum", description: "Day of week" },
-          { frontendField: "timeSlots", databaseField: "time_slots", dataType: "array", description: "Scheduled time slots" },
-          { frontendField: "subjectAllocation", databaseField: "subject_allocation", dataType: "jsonb", description: "Subject time allocations" }
-        ]
-      },
-      {
-        component: "AIRecommendations",
-        databaseTable: "ai_study_recommendations",
-        apiEndpoint: "/ai/study-recommendations/:studentId",
-        fields: [
-          { frontendField: "recommendationType", databaseField: "recommendation_type", dataType: "enum", description: "Type of recommendation" },
-          { frontendField: "content", databaseField: "content", dataType: "text", description: "Recommendation content" },
-          { frontendField: "confidenceScore", databaseField: "confidence_score", dataType: "float", description: "AI confidence score" }
+        name: "RedesignedTodaysPlan",
+        description: "Shows today's study plan with tasks and schedule",
+        location: "src/components/dashboard/student/todays-plan/RedesignedTodaysPlan.tsx",
+        databaseTables: [
+          {
+            name: "study_sessions",
+            description: "Scheduled study sessions",
+            primaryKey: "session_id",
+            fields: [
+              { frontendField: "subject", databaseColumn: "subject_name", description: "Subject to study", type: "string", isRequired: true },
+              { frontendField: "duration", databaseColumn: "duration_minutes", description: "Session duration", type: "integer", isRequired: true },
+              { frontendField: "startTime", databaseColumn: "start_time", description: "Session start time", type: "datetime", isRequired: true },
+              { frontendField: "completed", databaseColumn: "is_completed", description: "Completion status", type: "boolean", isRequired: true },
+              { frontendField: "priority", databaseColumn: "priority_level", description: "Session priority", type: "integer", isRequired: false },
+            ]
+          },
+          {
+            name: "study_tasks",
+            description: "Specific tasks within study sessions",
+            primaryKey: "task_id",
+            fields: [
+              { frontendField: "description", databaseColumn: "task_description", description: "Task description", type: "string", isRequired: true },
+              { frontendField: "completed", databaseColumn: "is_completed", description: "Task completion status", type: "boolean", isRequired: true },
+              { frontendField: "estimatedTime", databaseColumn: "estimated_minutes", description: "Estimated completion time", type: "integer", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "study_sessions",
+                type: "one-to-many",
+                description: "One session has many tasks"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/student/plan/today",
+            method: "GET",
+            description: "Fetches the current day's study plan"
+          },
+          {
+            path: "/api/student/task/{taskId}",
+            method: "PATCH",
+            description: "Updates a study task (e.g., mark as complete)"
+          }
         ]
       }
     ]
   },
-  
-  // EXAM SYLLABUS PAGE
   {
-    pageName: "Exam Syllabus",
-    description: "Complete curriculum and syllabus information for exams",
+    name: "Concept Cards",
+    route: "/dashboard/student/concepts",
+    description: "Library of concept cards for learning key topics",
     components: [
       {
-        component: "SyllabusTree",
-        databaseTable: "exam_syllabus",
-        apiEndpoint: "/content/exams/:examId/syllabus",
-        fields: [
-          { frontendField: "examId", databaseField: "exam_id", dataType: "uuid", description: "Exam identifier" },
-          { frontendField: "subjects", databaseField: "subjects", dataType: "array", description: "List of subjects" },
-          { frontendField: "topics", databaseField: "topics", dataType: "array", description: "Topics within subjects" },
-          { frontendField: "hierarchy", databaseField: "hierarchy", dataType: "jsonb", description: "Topic hierarchy" }
-        ]
-      },
-      {
-        component: "SyllabusProgressTracker",
-        databaseTable: "student_syllabus_progress",
-        apiEndpoint: "/students/:studentId/syllabus-progress/:examId",
-        fields: [
-          { frontendField: "completionPercentage", databaseField: "completion_percentage", dataType: "float", description: "Overall completion %" },
-          { frontendField: "topicStatus", databaseField: "topic_status", dataType: "jsonb", description: "Status of each topic" },
-          { frontendField: "lastStudied", databaseField: "last_studied", dataType: "timestamp", description: "Last study timestamp" }
-        ]
-      },
-      {
-        component: "ImportantTopics",
-        databaseTable: "syllabus_topic_importance",
-        apiEndpoint: "/content/exams/:examId/important-topics",
-        fields: [
-          { frontendField: "topicId", databaseField: "topic_id", dataType: "uuid", description: "Topic identifier" },
-          { frontendField: "importanceScore", databaseField: "importance_score", dataType: "float", description: "Topic importance (0-10)" },
-          { frontendField: "previousYearFrequency", databaseField: "previous_year_frequency", dataType: "integer", description: "Appearance frequency" }
+        name: "ConceptsLandingPage",
+        description: "Browse and search concept cards",
+        location: "src/components/dashboard/student/concepts/ConceptsLandingPage.tsx",
+        databaseTables: [
+          {
+            name: "concept_cards",
+            description: "Core concept card content",
+            primaryKey: "concept_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "title", description: "Concept title", type: "string", isRequired: true },
+              { frontendField: "subject", databaseColumn: "subject", description: "Subject area", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Brief description", type: "text", isRequired: true },
+              { frontendField: "difficulty", databaseColumn: "difficulty_level", description: "Difficulty rating", type: "enum", isRequired: true },
+              { frontendField: "timeEstimate", databaseColumn: "estimated_minutes", description: "Estimated study time", type: "integer", isRequired: true },
+            ]
+          },
+          {
+            name: "user_concept_progress",
+            description: "Tracks user's progress on each concept",
+            primaryKey: "progress_id",
+            fields: [
+              { frontendField: "progress", databaseColumn: "completion_percentage", description: "Completion percentage", type: "float", isRequired: true },
+              { frontendField: "lastStudied", databaseColumn: "last_studied_at", description: "Last studied timestamp", type: "datetime", isRequired: false },
+              { frontendField: "isBookmarked", databaseColumn: "is_bookmarked", description: "Bookmark status", type: "boolean", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "concept_cards",
+                type: "one-to-one",
+                description: "Each progress entry relates to one concept card"
+              },
+              {
+                table: "users",
+                type: "many-to-one",
+                description: "Many progress entries belong to one user"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/concepts",
+            method: "GET",
+            description: "Fetches all concept cards with optional filtering"
+          },
+          {
+            path: "/api/concepts/{conceptId}/bookmark",
+            method: "POST",
+            description: "Toggles bookmark status for a concept"
+          }
         ]
       }
     ]
   },
-  
-  // PREVIOUS YEAR PAPER PAGE
   {
-    pageName: "Previous Year Papers",
-    description: "Analysis and practice with past exam papers",
+    name: "Exam Syllabus",
+    route: "/dashboard/student/exam-syllabus",
+    description: "Structured exam curriculum and topic coverage",
     components: [
       {
-        component: "PaperList",
-        databaseTable: "previous_year_papers",
-        apiEndpoint: "/content/exams/:examId/previous-papers",
-        fields: [
-          { frontendField: "paperId", databaseField: "id", dataType: "uuid", description: "Paper identifier" },
-          { frontendField: "year", databaseField: "year", dataType: "integer", description: "Exam year" },
-          { frontendField: "examDate", databaseField: "exam_date", dataType: "date", description: "Date of exam" },
-          { frontendField: "difficultyRating", databaseField: "difficulty_rating", dataType: "float", description: "Difficulty (1-10)" },
-          { frontendField: "questionCount", databaseField: "question_count", dataType: "integer", description: "Number of questions" }
-        ]
-      },
-      {
-        component: "TopicwiseAnalysis",
-        databaseTable: "paper_topic_distribution",
-        apiEndpoint: "/content/exams/:examId/papers/:paperId/topic-distribution",
-        fields: [
-          { frontendField: "topicId", databaseField: "topic_id", dataType: "uuid", description: "Topic identifier" },
-          { frontendField: "questionCount", databaseField: "question_count", dataType: "integer", description: "Questions in topic" },
-          { frontendField: "marks", databaseField: "marks", dataType: "integer", description: "Marks allocated" },
-          { frontendField: "recommendedStudyHours", databaseField: "recommended_study_hours", dataType: "float", description: "Study hours needed" }
-        ]
-      },
-      {
-        component: "DifficultyDistribution",
-        databaseTable: "paper_difficulty_distribution",
-        apiEndpoint: "/content/exams/:examId/papers/:paperId/difficulty-distribution",
-        fields: [
-          { frontendField: "easy", databaseField: "easy_percentage", dataType: "float", description: "% of easy questions" },
-          { frontendField: "medium", databaseField: "medium_percentage", dataType: "float", description: "% of medium questions" },
-          { frontendField: "hard", databaseField: "hard_percentage", dataType: "float", description: "% of hard questions" },
-          { frontendField: "veryHard", databaseField: "very_hard_percentage", dataType: "float", description: "% of very hard questions" }
+        name: "ExamSyllabusPage",
+        description: "Complete syllabus breakdown with progress tracking",
+        location: "src/components/dashboard/student/syllabus/ExamSyllabusPage.tsx",
+        databaseTables: [
+          {
+            name: "exam_syllabi",
+            description: "Exam syllabus structure",
+            primaryKey: "syllabus_id",
+            fields: [
+              { frontendField: "examName", databaseColumn: "exam_name", description: "Exam name", type: "string", isRequired: true },
+              { frontendField: "examYear", databaseColumn: "exam_year", description: "Academic year", type: "integer", isRequired: true },
+              { frontendField: "examBoard", databaseColumn: "exam_board", description: "Examining body", type: "string", isRequired: true },
+              { frontendField: "lastUpdated", databaseColumn: "last_updated", description: "Last updated timestamp", type: "datetime", isRequired: true },
+            ]
+          },
+          {
+            name: "syllabus_topics",
+            description: "Individual topics in the syllabus",
+            primaryKey: "topic_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "topic_name", description: "Topic name", type: "string", isRequired: true },
+              { frontendField: "subject", databaseColumn: "subject_name", description: "Subject area", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Topic description", type: "text", isRequired: false },
+              { frontendField: "weightage", databaseColumn: "weightage_percentage", description: "Topic importance/weightage", type: "float", isRequired: true },
+              { frontendField: "parentTopic", databaseColumn: "parent_topic_id", description: "Parent topic reference", type: "integer", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "exam_syllabi",
+                type: "many-to-one",
+                description: "Many topics belong to one syllabus"
+              }
+            ]
+          },
+          {
+            name: "user_topic_progress",
+            description: "User's progress on each syllabus topic",
+            primaryKey: "progress_id",
+            fields: [
+              { frontendField: "isCompleted", databaseColumn: "is_completed", description: "Completion status", type: "boolean", isRequired: true },
+              { frontendField: "confidence", databaseColumn: "confidence_level", description: "User's confidence (1-5)", type: "integer", isRequired: false },
+              { frontendField: "lastStudied", databaseColumn: "last_studied_at", description: "Last studied timestamp", type: "datetime", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "syllabus_topics",
+                type: "one-to-one",
+                description: "Each progress entry relates to one topic"
+              },
+              {
+                table: "users",
+                type: "many-to-one", 
+                description: "Many progress entries belong to one user"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/syllabus/{examId}",
+            method: "GET",
+            description: "Fetches complete syllabus structure for an exam"
+          },
+          {
+            path: "/api/syllabus/topic/{topicId}/progress",
+            method: "PATCH",
+            description: "Updates progress for a specific topic"
+          }
         ]
       }
     ]
   },
-  
-  // CONCEPT CARDS PAGE
   {
-    pageName: "Concept Cards",
-    description: "Learning materials for key academic concepts",
+    name: "Previous Year Papers",
+    route: "/dashboard/student/papers",
+    description: "Archive of previous year exam papers with analysis",
     components: [
       {
-        component: "ConceptsList",
-        databaseTable: "concepts",
-        apiEndpoint: "/content/concepts",
-        fields: [
-          { frontendField: "id", databaseField: "id", dataType: "uuid", description: "Concept identifier" },
-          { frontendField: "title", databaseField: "title", dataType: "string", description: "Concept title" },
-          { frontendField: "description", databaseField: "description", dataType: "text", description: "Short description" },
-          { frontendField: "subjectId", databaseField: "subject_id", dataType: "uuid", description: "Related subject" },
-          { frontendField: "difficulty", databaseField: "difficulty", dataType: "enum", description: "Difficulty level" }
-        ]
-      },
-      {
-        component: "ConceptDetail",
-        databaseTable: "concept_details",
-        apiEndpoint: "/content/concepts/:conceptId",
-        fields: [
-          { frontendField: "fullDescription", databaseField: "full_description", dataType: "text", description: "Detailed explanation" },
-          { frontendField: "examples", databaseField: "examples", dataType: "array", description: "Illustrative examples" },
-          { frontendField: "diagrams", databaseField: "diagrams", dataType: "array", description: "Visual diagrams URLs" },
-          { frontendField: "videos", databaseField: "videos", dataType: "array", description: "Explanatory videos URLs" },
-          { frontendField: "prerequisites", databaseField: "prerequisites", dataType: "array", description: "Prerequisite concepts" }
-        ]
-      },
-      {
-        component: "ConceptFormulas",
-        databaseTable: "concept_formulas",
-        apiEndpoint: "/content/concepts/:conceptId/formulas",
-        fields: [
-          { frontendField: "formulaId", databaseField: "id", dataType: "uuid", description: "Formula identifier" },
-          { frontendField: "latex", databaseField: "latex", dataType: "string", description: "Formula in LaTeX" },
-          { frontendField: "variables", databaseField: "variables", dataType: "jsonb", description: "Variable descriptions" },
-          { frontendField: "applications", databaseField: "applications", dataType: "array", description: "Real-world applications" }
-        ]
-      },
-      {
-        component: "ConceptProgress",
-        databaseTable: "user_concept_progress",
-        apiEndpoint: "/students/:studentId/concepts/:conceptId/progress",
-        fields: [
-          { frontendField: "completionPercentage", databaseField: "completion_percentage", dataType: "float", description: "Study completion %" },
-          { frontendField: "lastAccessed", databaseField: "last_accessed", dataType: "timestamp", description: "Last study timestamp" },
-          { frontendField: "masteryLevel", databaseField: "mastery_level", dataType: "float", description: "Knowledge mastery (0-1)" },
-          { frontendField: "notes", databaseField: "notes", dataType: "text", description: "User's personal notes" }
+        name: "PreviousYearPapersPage",
+        description: "Browse and practice with previous exam papers",
+        location: "src/components/dashboard/student/papers/PreviousYearPapersPage.tsx",
+        databaseTables: [
+          {
+            name: "past_papers",
+            description: "Previous year exam papers",
+            primaryKey: "paper_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "paper_title", description: "Paper title", type: "string", isRequired: true },
+              { frontendField: "examName", databaseColumn: "exam_name", description: "Exam name", type: "string", isRequired: true },
+              { frontendField: "year", databaseColumn: "year", description: "Year of exam", type: "integer", isRequired: true },
+              { frontendField: "difficulty", databaseColumn: "difficulty_rating", description: "Paper difficulty (1-5)", type: "integer", isRequired: true },
+              { frontendField: "totalMarks", databaseColumn: "total_marks", description: "Maximum marks available", type: "integer", isRequired: true },
+              { frontendField: "duration", databaseColumn: "duration_minutes", description: "Paper duration", type: "integer", isRequired: true },
+            ]
+          },
+          {
+            name: "paper_questions",
+            description: "Questions from past papers",
+            primaryKey: "question_id",
+            fields: [
+              { frontendField: "questionText", databaseColumn: "question_text", description: "Question content", type: "text", isRequired: true },
+              { frontendField: "marks", databaseColumn: "marks_value", description: "Question marks", type: "integer", isRequired: true },
+              { frontendField: "topicId", databaseColumn: "topic_id", description: "Related syllabus topic", type: "integer", isRequired: true },
+              { frontendField: "difficulty", databaseColumn: "difficulty_rating", description: "Question difficulty (1-5)", type: "integer", isRequired: true },
+              { frontendField: "answerKey", databaseColumn: "answer_key", description: "Correct answer", type: "text", isRequired: false },
+              { frontendField: "solution", databaseColumn: "solution_text", description: "Detailed solution", type: "text", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "past_papers",
+                type: "many-to-one",
+                description: "Many questions belong to one paper"
+              },
+              {
+                table: "syllabus_topics",
+                type: "many-to-one",
+                description: "Questions are linked to syllabus topics"
+              }
+            ]
+          },
+          {
+            name: "user_paper_attempts",
+            description: "User's attempts at past papers",
+            primaryKey: "attempt_id",
+            fields: [
+              { frontendField: "score", databaseColumn: "score_achieved", description: "User's score", type: "integer", isRequired: true },
+              { frontendField: "attemptDate", databaseColumn: "attempted_at", description: "When paper was attempted", type: "datetime", isRequired: true },
+              { frontendField: "completionTime", databaseColumn: "completion_minutes", description: "Time taken to complete", type: "integer", isRequired: true },
+              { frontendField: "status", databaseColumn: "completion_status", description: "Attempt status", type: "enum", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "past_papers",
+                type: "many-to-one",
+                description: "Many attempts for one paper"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/papers",
+            method: "GET",
+            description: "Fetches available past papers with optional filters"
+          },
+          {
+            path: "/api/papers/{paperId}",
+            method: "GET",
+            description: "Fetches a specific paper with all questions"
+          },
+          {
+            path: "/api/papers/{paperId}/attempt",
+            method: "POST",
+            description: "Records a new attempt at a paper"
+          }
         ]
       }
     ]
   },
-  
-  // FLASHCARDS PAGE
   {
-    pageName: "Flashcards",
-    description: "Spaced repetition flashcard learning system",
+    name: "Flashcards",
+    route: "/dashboard/student/flashcards",
+    description: "Interactive flashcards for quick review",
     components: [
       {
-        component: "FlashcardDecks",
-        databaseTable: "flashcard_decks",
-        apiEndpoint: "/content/flashcards/decks",
-        fields: [
-          { frontendField: "deckId", databaseField: "id", dataType: "uuid", description: "Deck identifier" },
-          { frontendField: "deckName", databaseField: "name", dataType: "string", description: "Deck name" },
-          { frontendField: "cardCount", databaseField: "card_count", dataType: "integer", description: "Number of cards" },
-          { frontendField: "subject", databaseField: "subject_id", dataType: "uuid", description: "Subject area" },
-          { frontendField: "creator", databaseField: "creator_id", dataType: "uuid", description: "Creator user ID" }
-        ]
-      },
-      {
-        component: "FlashcardCards",
-        databaseTable: "flashcards",
-        apiEndpoint: "/content/flashcards/decks/:deckId/cards",
-        fields: [
-          { frontendField: "cardId", databaseField: "id", dataType: "uuid", description: "Card identifier" },
-          { frontendField: "front", databaseField: "front", dataType: "text", description: "Question side" },
-          { frontendField: "back", databaseField: "back", dataType: "text", description: "Answer side" },
-          { frontendField: "hints", databaseField: "hints", dataType: "array", description: "Optional hints" },
-          { frontendField: "media", databaseField: "media_urls", dataType: "array", description: "Images/diagrams" }
-        ]
-      },
-      {
-        component: "UserFlashcardProgress",
-        databaseTable: "user_flashcard_progress",
-        apiEndpoint: "/students/:studentId/flashcards/stats",
-        fields: [
-          { frontendField: "masteredCards", databaseField: "mastered_count", dataType: "integer", description: "Mastered cards count" },
-          { frontendField: "needReview", databaseField: "need_review_count", dataType: "integer", description: "Cards needing review" },
-          { frontendField: "lastPracticed", databaseField: "last_practiced", dataType: "timestamp", description: "Last practice timestamp" }
-        ]
-      },
-      {
-        component: "FlashcardSpacedRepetition",
-        databaseTable: "spaced_repetition_data",
-        apiEndpoint: "/students/:studentId/flashcards/:cardId/progress",
-        fields: [
-          { frontendField: "confidenceLevel", databaseField: "confidence_level", dataType: "float", description: "Recall confidence (0-1)" },
-          { frontendField: "nextReviewDate", databaseField: "next_review", dataType: "timestamp", description: "Next scheduled review" },
-          { frontendField: "repetitionData", databaseField: "repetition_data", dataType: "jsonb", description: "Algorithm parameters" },
-          { frontendField: "interval", databaseField: "interval_days", dataType: "integer", description: "Days until next review" }
+        name: "FlashcardsPage",
+        description: "Create and review flashcards",
+        location: "src/components/dashboard/student/flashcards/FlashcardsPage.tsx",
+        databaseTables: [
+          {
+            name: "flashcard_decks",
+            description: "Sets of related flashcards",
+            primaryKey: "deck_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "deck_title", description: "Deck name", type: "string", isRequired: true },
+              { frontendField: "subject", databaseColumn: "subject", description: "Subject area", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Description", type: "text", isRequired: false },
+              { frontendField: "createdAt", databaseColumn: "created_at", description: "Creation timestamp", type: "datetime", isRequired: true },
+              { frontendField: "lastReviewed", databaseColumn: "last_reviewed_at", description: "Last review timestamp", type: "datetime", isRequired: false },
+            ]
+          },
+          {
+            name: "flashcards",
+            description: "Individual flashcards",
+            primaryKey: "card_id",
+            fields: [
+              { frontendField: "frontText", databaseColumn: "front_content", description: "Front side content", type: "text", isRequired: true },
+              { frontendField: "backText", databaseColumn: "back_content", description: "Back side content", type: "text", isRequired: true },
+              { frontendField: "difficulty", databaseColumn: "difficulty_rating", description: "Difficulty rating (1-5)", type: "integer", isRequired: false },
+              { frontendField: "nextReviewAt", databaseColumn: "next_review_at", description: "When to next review", type: "datetime", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "flashcard_decks",
+                type: "many-to-one",
+                description: "Many cards belong to one deck"
+              }
+            ]
+          },
+          {
+            name: "flashcard_review_history",
+            description: "Record of flashcard reviews",
+            primaryKey: "review_id",
+            fields: [
+              { frontendField: "knownStatus", databaseColumn: "is_known", description: "Whether card was known", type: "boolean", isRequired: true },
+              { frontendField: "reviewedAt", databaseColumn: "reviewed_at", description: "Review timestamp", type: "datetime", isRequired: true },
+              { frontendField: "responseTimeMs", databaseColumn: "response_time_ms", description: "Response time", type: "integer", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "flashcards",
+                type: "many-to-one",
+                description: "Many reviews for one card"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/flashcards/decks",
+            method: "GET",
+            description: "Fetches all flashcard decks"
+          },
+          {
+            path: "/api/flashcards/decks/{deckId}",
+            method: "GET",
+            description: "Fetches cards for a specific deck"
+          },
+          {
+            path: "/api/flashcards/review",
+            method: "POST",
+            description: "Records a flashcard review session"
+          }
         ]
       }
     ]
   },
-  
-  // PRACTICE EXAM PAGE
   {
-    pageName: "Practice Exams",
-    description: "Mock exams and practice tests",
+    name: "Practice Exams",
+    route: "/dashboard/student/practice-exams",
+    description: "Take practice exams to prepare for the real thing",
     components: [
       {
-        component: "ExamList",
-        databaseTable: "practice_exams",
-        apiEndpoint: "/content/exams",
-        fields: [
-          { frontendField: "examId", databaseField: "id", dataType: "uuid", description: "Exam identifier" },
-          { frontendField: "title", databaseField: "title", dataType: "string", description: "Exam title" },
-          { frontendField: "duration", databaseField: "time_limit_minutes", dataType: "integer", description: "Time limit in minutes" },
-          { frontendField: "questionCount", databaseField: "total_questions", dataType: "integer", description: "Number of questions" },
-          { frontendField: "difficulty", databaseField: "difficulty", dataType: "enum", description: "Difficulty level" }
-        ]
-      },
-      {
-        component: "ExamQuestions",
-        databaseTable: "exam_questions",
-        apiEndpoint: "/content/exams/:examId/questions",
-        fields: [
-          { frontendField: "questionId", databaseField: "id", dataType: "uuid", description: "Question identifier" },
-          { frontendField: "content", databaseField: "content", dataType: "text", description: "Question text" },
-          { frontendField: "options", databaseField: "options", dataType: "array", description: "Answer options" },
-          { frontendField: "correctAnswer", databaseField: "correct_answer", dataType: "string", description: "Correct answer" },
-          { frontendField: "explanation", databaseField: "explanation", dataType: "text", description: "Answer explanation" },
-          { frontendField: "marks", databaseField: "marks", dataType: "integer", description: "Points for correct answer" }
-        ]
-      },
-      {
-        component: "ExamResults",
-        databaseTable: "user_exam_results",
-        apiEndpoint: "/students/:studentId/exams/:examId/results",
-        fields: [
-          { frontendField: "score", databaseField: "score", dataType: "float", description: "Score achieved" },
-          { frontendField: "timeTaken", databaseField: "time_taken_minutes", dataType: "integer", description: "Time taken in minutes" },
-          { frontendField: "answeredCorrectly", databaseField: "correctly_answered", dataType: "integer", description: "Number correct" },
-          { frontendField: "weakAreas", databaseField: "weak_areas", dataType: "array", description: "Identified weak areas" },
-          { frontendField: "percentile", databaseField: "percentile", dataType: "float", description: "Performance percentile" }
-        ]
-      },
-      {
-        component: "TimeManagement",
-        databaseTable: "exam_time_tracking",
-        apiEndpoint: "/students/:studentId/exams/:examId/time-tracking",
-        fields: [
-          { frontendField: "timePerQuestion", databaseField: "time_per_question", dataType: "jsonb", description: "Time spent per question" },
-          { frontendField: "overallPace", databaseField: "overall_pace", dataType: "float", description: "Pace relative to ideal" },
-          { frontendField: "optimalTimeUsage", databaseField: "optimal_time_usage", dataType: "jsonb", description: "Time optimization data" }
+        name: "PracticeExamsPage",
+        description: "Select and take practice exams",
+        location: "src/components/dashboard/student/practice-exams/PracticeExamsPage.tsx",
+        databaseTables: [
+          {
+            name: "practice_exams",
+            description: "Available practice exams",
+            primaryKey: "exam_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "exam_title", description: "Exam title", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Description", type: "text", isRequired: false },
+              { frontendField: "difficulty", databaseColumn: "difficulty_level", description: "Difficulty level", type: "enum", isRequired: true },
+              { frontendField: "totalQuestions", databaseColumn: "total_questions", description: "Number of questions", type: "integer", isRequired: true },
+              { frontendField: "timeLimit", databaseColumn: "time_limit_minutes", description: "Time limit", type: "integer", isRequired: true },
+              { frontendField: "totalMarks", databaseColumn: "total_marks", description: "Maximum marks", type: "integer", isRequired: true },
+            ]
+          },
+          {
+            name: "practice_exam_questions",
+            description: "Questions for practice exams",
+            primaryKey: "question_id",
+            fields: [
+              { frontendField: "questionText", databaseColumn: "question_text", description: "Question content", type: "text", isRequired: true },
+              { frontendField: "questionType", databaseColumn: "question_type", description: "Type of question", type: "enum", isRequired: true },
+              { frontendField: "options", databaseColumn: "answer_options", description: "Possible answers (JSON)", type: "json", isRequired: false },
+              { frontendField: "correctAnswer", databaseColumn: "correct_answer", description: "Correct answer", type: "text", isRequired: true },
+              { frontendField: "explanation", databaseColumn: "explanation_text", description: "Answer explanation", type: "text", isRequired: false },
+              { frontendField: "marks", databaseColumn: "marks_value", description: "Question marks", type: "integer", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "practice_exams",
+                type: "many-to-one",
+                description: "Many questions belong to one exam"
+              },
+              {
+                table: "syllabus_topics",
+                type: "many-to-one",
+                description: "Questions are linked to syllabus topics"
+              }
+            ]
+          },
+          {
+            name: "user_exam_attempts",
+            description: "User's attempts at practice exams",
+            primaryKey: "attempt_id",
+            fields: [
+              { frontendField: "score", databaseColumn: "score_achieved", description: "User's score", type: "integer", isRequired: true },
+              { frontendField: "startedAt", databaseColumn: "started_at", description: "Start timestamp", type: "datetime", isRequired: true },
+              { frontendField: "completedAt", databaseColumn: "completed_at", description: "Completion timestamp", type: "datetime", isRequired: false },
+              { frontendField: "status", databaseColumn: "completion_status", description: "Attempt status", type: "enum", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "practice_exams",
+                type: "many-to-one",
+                description: "Many attempts for one exam"
+              }
+            ]
+          },
+          {
+            name: "user_question_responses",
+            description: "User's responses to individual questions",
+            primaryKey: "response_id",
+            fields: [
+              { frontendField: "userAnswer", databaseColumn: "user_answer", description: "User's answer", type: "text", isRequired: true },
+              { frontendField: "isCorrect", databaseColumn: "is_correct", description: "Whether answer was correct", type: "boolean", isRequired: true },
+              { frontendField: "timeSpent", databaseColumn: "time_spent_seconds", description: "Time spent on question", type: "integer", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "practice_exam_questions",
+                type: "many-to-one",
+                description: "Many responses for one question"
+              },
+              {
+                table: "user_exam_attempts",
+                type: "many-to-one",
+                description: "Many responses in one attempt"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/practice-exams",
+            method: "GET",
+            description: "Fetches available practice exams"
+          },
+          {
+            path: "/api/practice-exams/{examId}/start",
+            method: "POST",
+            description: "Starts a new exam attempt"
+          },
+          {
+            path: "/api/practice-exams/{examId}/submit",
+            method: "POST",
+            description: "Submits answers and completes an attempt"
+          }
         ]
       }
     ]
   },
-  
-  // FORMULA PRACTICE PAGE
   {
-    pageName: "Formula Practice",
-    description: "Interactive formula learning and practice",
+    name: "Formula Practice",
+    route: "/dashboard/student/formula-practice",
+    description: "Interactive formula practice and understanding",
     components: [
       {
-        component: "FormulaList",
-        databaseTable: "subject_formulas",
-        apiEndpoint: "/content/formulas",
-        fields: [
-          { frontendField: "formulaId", databaseField: "id", dataType: "uuid", description: "Formula identifier" },
-          { frontendField: "name", databaseField: "name", dataType: "string", description: "Formula name" },
-          { frontendField: "latex", databaseField: "latex", dataType: "string", description: "LaTeX representation" },
-          { frontendField: "subject", databaseField: "subject_id", dataType: "uuid", description: "Related subject" },
-          { frontendField: "difficulty", databaseField: "difficulty", dataType: "enum", description: "Formula complexity" }
-        ]
-      },
-      {
-        component: "FormulaDetails",
-        databaseTable: "formula_details",
-        apiEndpoint: "/content/formulas/:formulaId",
-        fields: [
-          { frontendField: "description", databaseField: "description", dataType: "text", description: "Detailed explanation" },
-          { frontendField: "variables", databaseField: "variables", dataType: "jsonb", description: "Variable descriptions" },
-          { frontendField: "units", databaseField: "units", dataType: "jsonb", description: "Unit information" },
-          { frontendField: "derivation", databaseField: "derivation", dataType: "text", description: "Formula derivation" },
-          { frontendField: "applications", databaseField: "applications", dataType: "array", description: "Real-world applications" }
-        ]
-      },
-      {
-        component: "FormulaPractice",
-        databaseTable: "formula_practice_exercises",
-        apiEndpoint: "/content/formulas/:formulaId/exercises",
-        fields: [
-          { frontendField: "exerciseId", databaseField: "id", dataType: "uuid", description: "Exercise identifier" },
-          { frontendField: "problem", databaseField: "problem", dataType: "text", description: "Problem statement" },
-          { frontendField: "givenValues", databaseField: "given_values", dataType: "jsonb", description: "Given values" },
-          { frontendField: "solutionSteps", databaseField: "solution_steps", dataType: "array", description: "Solving steps" },
-          { frontendField: "answer", databaseField: "answer", dataType: "jsonb", description: "Correct answer with units" }
-        ]
-      },
-      {
-        component: "FormulaMastery",
-        databaseTable: "user_formula_mastery",
-        apiEndpoint: "/students/:studentId/formulas/mastery",
-        fields: [
-          { frontendField: "formulaId", databaseField: "formula_id", dataType: "uuid", description: "Formula reference" },
-          { frontendField: "masteryLevel", databaseField: "mastery_level", dataType: "float", description: "Mastery level (0-1)" },
-          { frontendField: "practiceCount", databaseField: "practice_count", dataType: "integer", description: "Times practiced" },
-          { frontendField: "successRate", databaseField: "success_rate", dataType: "float", description: "Correct answers percentage" },
-          { frontendField: "lastPracticed", databaseField: "last_practiced", dataType: "timestamp", description: "Last practice timestamp" }
+        name: "FormulaPracticePage",
+        description: "Interactive formula practice tools",
+        location: "src/components/dashboard/student/formula/FormulaPracticePage.tsx",
+        databaseTables: [
+          {
+            name: "formulas",
+            description: "Academic formulas",
+            primaryKey: "formula_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "formula_title", description: "Formula name", type: "string", isRequired: true },
+              { frontendField: "subject", databaseColumn: "subject", description: "Subject area", type: "string", isRequired: true },
+              { frontendField: "latex", databaseColumn: "latex_notation", description: "LaTeX representation", type: "string", isRequired: true },
+              { frontendField: "plainText", databaseColumn: "plain_text_notation", description: "Plain text representation", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Formula description", type: "text", isRequired: true },
+            ]
+          },
+          {
+            name: "formula_variables",
+            description: "Variables used in formulas",
+            primaryKey: "variable_id",
+            fields: [
+              { frontendField: "symbol", databaseColumn: "variable_symbol", description: "Variable symbol", type: "string", isRequired: true },
+              { frontendField: "name", databaseColumn: "variable_name", description: "Variable name", type: "string", isRequired: true },
+              { frontendField: "description", databaseColumn: "description", description: "Variable description", type: "text", isRequired: false },
+              { frontendField: "unit", databaseColumn: "unit", description: "Measurement unit", type: "string", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "formulas",
+                type: "many-to-many",
+                throughTable: "formula_variable_mappings",
+                description: "Many variables used in many formulas"
+              }
+            ]
+          },
+          {
+            name: "user_formula_mastery",
+            description: "User's mastery of formulas",
+            primaryKey: "mastery_id",
+            fields: [
+              { frontendField: "masteryLevel", databaseColumn: "mastery_level", description: "Mastery level (1-5)", type: "integer", isRequired: true },
+              { frontendField: "lastPracticed", databaseColumn: "last_practiced_at", description: "Last practice timestamp", type: "datetime", isRequired: false },
+              { frontendField: "totalPractices", databaseColumn: "practice_count", description: "Number of practice attempts", type: "integer", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "formulas",
+                type: "one-to-one",
+                description: "One mastery record per formula per user"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/formulas",
+            method: "GET",
+            description: "Fetches available formulas"
+          },
+          {
+            path: "/api/formulas/{formulaId}/practice",
+            method: "POST",
+            description: "Records a formula practice attempt"
+          },
+          {
+            path: "/api/formulas/recommendations",
+            method: "GET",
+            description: "Gets formula practice recommendations"
+          }
         ]
       }
     ]
   },
-  
-  // PROFILE PAGE
   {
-    pageName: "Profile",
-    description: "User profile and account settings",
+    name: "Profile",
+    route: "/dashboard/student/profile",
+    description: "User profile and settings",
     components: [
       {
-        component: "ProfileInfo",
-        databaseTable: "users",
-        apiEndpoint: "/students/:studentId/profile",
-        fields: [
-          { frontendField: "name", databaseField: "name", dataType: "string", description: "User's name" },
-          { frontendField: "email", databaseField: "email", dataType: "string", description: "Email address" },
-          { frontendField: "phone", databaseField: "phone_number", dataType: "string", description: "Phone number" },
-          { frontendField: "avatarUrl", databaseField: "avatar_url", dataType: "string", description: "Profile picture URL" },
-          { frontendField: "joinDate", databaseField: "created_at", dataType: "timestamp", description: "Account creation date" }
-        ]
-      },
-      {
-        component: "AcademicProfile",
-        databaseTable: "user_demographics",
-        apiEndpoint: "/students/:studentId/demographics",
-        fields: [
-          { frontendField: "grade", databaseField: "grade", dataType: "string", description: "Academic grade/year" },
-          { frontendField: "institution", databaseField: "institution", dataType: "string", description: "School/college name" },
-          { frontendField: "examGoal", databaseField: "exam_goal", dataType: "string", description: "Target examination" },
-          { frontendField: "examDate", databaseField: "exam_date", dataType: "date", description: "Exam target date" }
-        ]
-      },
-      {
-        component: "StudyPreferences",
-        databaseTable: "user_preferences",
-        apiEndpoint: "/students/:studentId/preferences",
-        fields: [
-          { frontendField: "studyTime", databaseField: "preferred_study_time", dataType: "enum", description: "Preferred time of day" },
-          { frontendField: "studyPace", databaseField: "study_pace", dataType: "enum", description: "Study pace preference" },
-          { frontendField: "dailyStudyHours", databaseField: "daily_study_hours", dataType: "float", description: "Target hours per day" },
-          { frontendField: "weeklyStudyDays", databaseField: "weekly_study_days", dataType: "integer", description: "Study days per week" },
-          { frontendField: "notificationPrefs", databaseField: "notification_preferences", dataType: "jsonb", description: "Notification settings" }
-        ]
-      },
-      {
-        component: "SubscriptionDetails",
-        databaseTable: "subscriptions",
-        apiEndpoint: "/students/:studentId/subscription",
-        fields: [
-          { frontendField: "planName", databaseField: "plan_name", dataType: "string", description: "Subscription plan name" },
-          { frontendField: "startDate", databaseField: "start_date", dataType: "date", description: "Subscription start date" },
-          { frontendField: "endDate", databaseField: "end_date", dataType: "date", description: "Subscription end date" },
-          { frontendField: "status", databaseField: "status", dataType: "enum", description: "Active/expired/cancelled" },
-          { frontendField: "autoRenew", databaseField: "auto_renew", dataType: "boolean", description: "Auto-renewal status" }
+        name: "StudentProfile",
+        description: "Student profile information and preferences",
+        location: "src/components/dashboard/student/profile/StudentProfile.tsx",
+        databaseTables: [
+          {
+            name: "users",
+            description: "Core user information",
+            primaryKey: "user_id",
+            fields: [
+              { frontendField: "name", databaseColumn: "full_name", description: "User's full name", type: "string", isRequired: true },
+              { frontendField: "email", databaseColumn: "email", description: "Email address", type: "string", isRequired: true },
+              { frontendField: "phone", databaseColumn: "phone_number", description: "Phone number", type: "string", isRequired: false },
+              { frontendField: "photoURL", databaseColumn: "profile_image_url", description: "Profile picture", type: "string", isRequired: false },
+              { frontendField: "role", databaseColumn: "user_role", description: "User role", type: "enum", isRequired: true },
+              { frontendField: "dateOfBirth", databaseColumn: "date_of_birth", description: "Date of birth", type: "date", isRequired: false },
+            ]
+          },
+          {
+            name: "user_preferences",
+            description: "User preference settings",
+            primaryKey: "preference_id",
+            fields: [
+              { frontendField: "theme", databaseColumn: "theme_preference", description: "UI theme preference", type: "enum", isRequired: true },
+              { frontendField: "notificationsEnabled", databaseColumn: "notifications_enabled", description: "Notifications toggle", type: "boolean", isRequired: true },
+              { frontendField: "studyReminderTime", databaseColumn: "study_reminder_time", description: "Daily reminder time", type: "time", isRequired: false },
+              { frontendField: "language", databaseColumn: "language_preference", description: "Interface language", type: "string", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "users",
+                type: "one-to-one",
+                description: "One preferences record per user"
+              }
+            ]
+          },
+          {
+            name: "user_study_preferences",
+            description: "Study-related preferences",
+            primaryKey: "study_pref_id",
+            fields: [
+              { frontendField: "studyPace", databaseColumn: "preferred_pace", description: "Preferred study pace", type: "enum", isRequired: true },
+              { frontendField: "learningStyle", databaseColumn: "learning_style", description: "Learning style preference", type: "enum", isRequired: true },
+              { frontendField: "dailyStudyGoal", databaseColumn: "daily_goal_minutes", description: "Daily study goal", type: "integer", isRequired: false },
+              { frontendField: "preferredSubjects", databaseColumn: "preferred_subjects", description: "Favorite subjects (JSON)", type: "json", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "users",
+                type: "one-to-one",
+                description: "One study preferences record per user"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/user/profile",
+            method: "GET",
+            description: "Fetches user profile information"
+          },
+          {
+            path: "/api/user/profile",
+            method: "PUT",
+            description: "Updates user profile information"
+          },
+          {
+            path: "/api/user/preferences",
+            method: "GET",
+            description: "Fetches user preferences"
+          },
+          {
+            path: "/api/user/preferences",
+            method: "PUT",
+            description: "Updates user preferences"
+          }
         ]
       }
     ]
   },
-  
-  // NOTIFICATIONS PAGE
   {
-    pageName: "Notifications",
-    description: "User notification center",
+    name: "Notifications",
+    route: "/dashboard/student/notifications",
+    description: "User notifications center",
     components: [
       {
-        component: "NotificationList",
-        databaseTable: "notifications",
-        apiEndpoint: "/students/:studentId/notifications",
-        fields: [
-          { frontendField: "id", databaseField: "id", dataType: "uuid", description: "Notification identifier" },
-          { frontendField: "type", databaseField: "type", dataType: "enum", description: "Notification category" },
-          { frontendField: "title", databaseField: "title", dataType: "string", description: "Notification title" },
-          { frontendField: "message", databaseField: "message", dataType: "text", description: "Notification content" },
-          { frontendField: "isRead", databaseField: "is_read", dataType: "boolean", description: "Read status" },
-          { frontendField: "createdAt", databaseField: "created_at", dataType: "timestamp", description: "Creation timestamp" },
-          { frontendField: "actionUrl", databaseField: "action_url", dataType: "string", description: "Related action link" }
-        ]
-      },
-      {
-        component: "NotificationPreferences",
-        databaseTable: "notification_preferences",
-        apiEndpoint: "/students/:studentId/notification-preferences",
-        fields: [
-          { frontendField: "emailNotifications", databaseField: "email_enabled", dataType: "boolean", description: "Email notifications toggle" },
-          { frontendField: "pushNotifications", databaseField: "push_enabled", dataType: "boolean", description: "Push notifications toggle" },
-          { frontendField: "studyReminders", databaseField: "study_reminders_enabled", dataType: "boolean", description: "Study reminder toggle" },
-          { frontendField: "examAlerts", databaseField: "exam_alerts_enabled", dataType: "boolean", description: "Exam alerts toggle" },
-          { frontendField: "marketingEmails", databaseField: "marketing_enabled", dataType: "boolean", description: "Marketing communications toggle" }
+        name: "NotificationsView",
+        description: "View and manage notifications",
+        location: "src/components/dashboard/student/notifications/NotificationsView.tsx",
+        databaseTables: [
+          {
+            name: "notifications",
+            description: "User notifications",
+            primaryKey: "notification_id",
+            fields: [
+              { frontendField: "title", databaseColumn: "title", description: "Notification title", type: "string", isRequired: true },
+              { frontendField: "message", databaseColumn: "message", description: "Notification message", type: "text", isRequired: true },
+              { frontendField: "type", databaseColumn: "notification_type", description: "Notification type", type: "enum", isRequired: true },
+              { frontendField: "createdAt", databaseColumn: "created_at", description: "Creation timestamp", type: "datetime", isRequired: true },
+              { frontendField: "isRead", databaseColumn: "is_read", description: "Read status", type: "boolean", isRequired: true },
+              { frontendField: "actionUrl", databaseColumn: "action_url", description: "Related action URL", type: "string", isRequired: false },
+            ],
+            relationships: [
+              {
+                table: "users",
+                type: "many-to-one",
+                description: "Many notifications belong to one user"
+              }
+            ]
+          },
+          {
+            name: "notification_preferences",
+            description: "User notification preferences",
+            primaryKey: "preference_id",
+            fields: [
+              { frontendField: "emailEnabled", databaseColumn: "email_enabled", description: "Email notifications toggle", type: "boolean", isRequired: true },
+              { frontendField: "pushEnabled", databaseColumn: "push_enabled", description: "Push notifications toggle", type: "boolean", isRequired: true },
+              { frontendField: "studyReminders", databaseColumn: "study_reminders_enabled", description: "Study reminders toggle", type: "boolean", isRequired: true },
+              { frontendField: "examAlerts", databaseColumn: "exam_alerts_enabled", description: "Exam alerts toggle", type: "boolean", isRequired: true },
+            ],
+            relationships: [
+              {
+                table: "users",
+                type: "one-to-one",
+                description: "One notification preferences record per user"
+              }
+            ]
+          }
+        ],
+        apiEndpoints: [
+          {
+            path: "/api/notifications",
+            method: "GET",
+            description: "Fetches user notifications"
+          },
+          {
+            path: "/api/notifications/{notificationId}/read",
+            method: "PATCH",
+            description: "Marks a notification as read"
+          },
+          {
+            path: "/api/notifications/preferences",
+            method: "GET",
+            description: "Fetches notification preferences"
+          },
+          {
+            path: "/api/notifications/preferences",
+            method: "PUT",
+            description: "Updates notification preferences"
+          }
         ]
       }
     ]
   }
 ];
 
-/**
- * Utility function to get database mapping for a specific page
- */
-export const getPageDatabaseMapping = (pageName: string): PageDatabaseMapping | undefined => {
-  return pageDatabaseMappings.find(mapping => 
-    mapping.pageName.toLowerCase() === pageName.toLowerCase()
-  );
-};
+// Function to get the database mapping data
+export function getDatabaseMappingData(): PageMapping[] {
+  return databaseMapping;
+}
 
-/**
- * Utility function to get all table names used in the application
- */
-export const getAllDatabaseTables = (): string[] => {
-  const tableSet = new Set<string>();
-  
-  pageDatabaseMappings.forEach(page => {
-    page.components.forEach(component => {
-      tableSet.add(component.databaseTable);
-    });
-  });
-  
-  return Array.from(tableSet);
-};
-
-/**
- * Export database mapping for documentation generation
- */
-export const getDatabaseMappingAsMarkdown = (): string => {
+// Function to convert the mapping data to Markdown
+export function getDatabaseMappingAsMarkdown(): string {
   let markdown = "# PREPZR Database Mapping Documentation\n\n";
+  markdown += "This document provides a comprehensive mapping between frontend components and database structures.\n\n";
   
-  pageDatabaseMappings.forEach(page => {
-    markdown += `## ${page.pageName}\n\n`;
-    markdown += `${page.description}\n\n`;
+  const mappings = getDatabaseMappingData();
+  
+  mappings.forEach(page => {
+    markdown += `## ${page.name}\n\n`;
+    markdown += `**Route:** \`${page.route}\`\n\n`;
+    markdown += `**Description:** ${page.description}\n\n`;
     
     page.components.forEach(component => {
-      markdown += `### ${component.component}\n\n`;
-      markdown += `**Database Table:** \`${component.databaseTable}\`\n\n`;
+      markdown += `### ${component.name}\n\n`;
+      markdown += `**Location:** \`${component.location}\`\n\n`;
+      markdown += `**Description:** ${component.description}\n\n`;
       
-      if (component.apiEndpoint) {
-        markdown += `**API Endpoint:** \`${component.apiEndpoint}\`\n\n`;
-      }
-      
-      markdown += "| Frontend Field | Database Field | Data Type | Description |\n";
-      markdown += "|---------------|---------------|-----------|-------------|\n";
-      
-      component.fields.forEach(field => {
-        markdown += `| ${field.frontendField} | ${field.databaseField} | ${field.dataType} | ${field.description} |\n`;
+      markdown += "#### Database Tables\n\n";
+      component.databaseTables.forEach(table => {
+        markdown += `##### ${table.name}\n\n`;
+        markdown += `**Description:** ${table.description}\n\n`;
+        markdown += `**Primary Key:** \`${table.primaryKey}\`\n\n`;
+        
+        markdown += "**Fields:**\n\n";
+        markdown += "| Frontend Field | Database Column | Type | Required | Description |\n";
+        markdown += "|---------------|----------------|------|----------|-------------|\n";
+        table.fields.forEach(field => {
+          markdown += `| ${field.frontendField} | ${field.databaseColumn} | ${field.type} | ${field.isRequired ? 'Yes' : 'No'} | ${field.description} |\n`;
+        });
+        markdown += "\n";
+        
+        if (table.relationships && table.relationships.length > 0) {
+          markdown += "**Relationships:**\n\n";
+          table.relationships.forEach(rel => {
+            markdown += `- **${rel.table}**: ${rel.description} (${rel.type})\n`;
+            if (rel.throughTable) {
+              markdown += `  - Through table: \`${rel.throughTable}\`\n`;
+            }
+          });
+          markdown += "\n";
+        }
       });
       
+      markdown += "#### API Endpoints\n\n";
+      component.apiEndpoints.forEach(endpoint => {
+        markdown += `- \`${endpoint.method} ${endpoint.path}\`: ${endpoint.description}\n`;
+        if (endpoint.parameters && endpoint.parameters.length > 0) {
+          markdown += "  - Parameters:\n";
+          endpoint.parameters.forEach(param => {
+            markdown += `    - \`${param.name}\` (${param.type}, ${param.isRequired ? 'required' : 'optional'}): ${param.description}\n`;
+          });
+        }
+      });
       markdown += "\n";
     });
+    
+    markdown += "---\n\n";
   });
   
   return markdown;
-};
+}
 
-export default pageDatabaseMappings;
+// Simple utility to get database tables per page
+export function getTablesPerPage(): { pageName: string; tables: string[] }[] {
+  return databaseMapping.map(page => ({
+    pageName: page.name,
+    tables: page.components.flatMap(comp => comp.databaseTables.map(table => table.name))
+  }));
+}
+
+// Helper function to find a specific page's mapping
+export function getPageMapping(pageName: string): PageMapping | undefined {
+  return databaseMapping.find(page => page.name.toLowerCase() === pageName.toLowerCase());
+}

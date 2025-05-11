@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -209,11 +208,12 @@ const HeroSection = () => {
           <div className="max-w-4xl">
             {/* Hindi text line with enhanced gradient */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
               initial="hidden"
               animate="visible"
               custom={0}
               variants={textVariants}
+              style={{fontFamily: "'Poppins', 'Noto Sans Devanagari', sans-serif"}}
             >
               <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
@@ -222,7 +222,7 @@ const HeroSection = () => {
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white"
+              className="text-3xl md:text-4xl lg:text-5xl font-medium text-gray-800 dark:text-white"
               initial="hidden"
               animate="visible"
               custom={1}
