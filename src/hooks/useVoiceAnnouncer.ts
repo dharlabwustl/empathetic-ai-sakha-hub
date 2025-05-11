@@ -47,6 +47,7 @@ export const findBestVoice = (language: string) => {
 // Function to improve pronunciation of specific terms
 export const fixPronunciation = (text: string): string => {
   // Replace PREPZR with a phonetic spelling that pronounces it correctly
+  // Add a small pause between "Prep" and "zer" using SSML-like approach with hyphens
   return text.replace(/PREPZR/gi, 'Prep-zer');
 };
 
@@ -199,7 +200,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Custom event for voice assistant to speak mood-based messages
     const handleVoiceAssistantSpeak = (event: any) => {
       if (event.detail && event.detail.message) {
-        speakMessage(event.detail.message, true);
+        speakMessage(event.detail.message, voiceSettings);
       }
     };
     
@@ -211,7 +212,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
       document.removeEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
-      document.head.removeChild(styleElement);
+      if (styleElement.parentNode) {
+        document.head.removeChild(styleElement);
+      }
     };
   }, []);
   
@@ -243,7 +246,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const toggleMute = useCallback((force?: boolean) => {
     setVoiceSettings(prev => {
       // If turning on sound after being muted, cancel any ongoing speech
-      if (prev.muted && !force && window.speechSynthesis) {
+      if (prev.muted && force === false && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
       
@@ -267,7 +270,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़र वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
       testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
@@ -281,6 +284,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   
   // Initialize speech recognition with language support
   const initializeSpeechRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
       console.error('Speech recognition not supported by this browser');
       return;
@@ -375,6 +380,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         return "Let's go back to basics and review foundational concepts before moving forward.";
       case MoodType.Neutral:
         return "A balanced approach works well - mix review with new material, and take regular breaks.";
+      case MoodType.Sad:
+        return "Let's focus on building your confidence with topics you enjoy and take it easy today.";
       default:
         return "Let's adjust your study plan based on how you're feeling throughout the day.";
     }

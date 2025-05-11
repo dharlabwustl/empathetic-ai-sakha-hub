@@ -27,6 +27,37 @@ export enum SubscriptionType {
   Enterprise = 'enterprise'
 }
 
+// Define signup types
+export enum SignupType {
+  Email = 'email',
+  Google = 'google',
+  Facebook = 'facebook',
+  Apple = 'apple'
+}
+
+// Define study pace
+export enum StudyPace {
+  Slow = 'slow',
+  Moderate = 'moderate',
+  Fast = 'fast'
+}
+
+// Define study preference type
+export enum StudyPreferenceType {
+  Visual = 'visual',
+  Auditory = 'auditory',
+  Reading = 'reading',
+  Kinesthetic = 'kinesthetic'
+}
+
+// Define gender types
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+  PreferNotToSay = 'prefer_not_to_say'
+}
+
 // Define student stats
 export interface StudentStats {
   totalStudyHours: number;

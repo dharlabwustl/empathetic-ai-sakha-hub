@@ -46,9 +46,12 @@ export const useMoodStudyIntegration = () => {
     switch(mood) {
       case MoodType.Happy:
       case MoodType.Motivated:
+        newRecommendation.activityType = 'practice';
+        newRecommendation.studyDuration = 45;
+        break;
       case MoodType.Focused:
         newRecommendation.activityType = 'concept_quiz';
-        newRecommendation.studyDuration = 45;
+        newRecommendation.studyDuration = 50;
         break;
       case MoodType.Tired:
       case MoodType.Stressed:
@@ -57,11 +60,15 @@ export const useMoodStudyIntegration = () => {
         break;
       case MoodType.Anxious:
         newRecommendation.activityType = 'revision';
-        newRecommendation.studyDuration = 30;
+        newRecommendation.studyDuration = 25;
         break;
       case MoodType.Confused:
         newRecommendation.activityType = 'revision';
         newRecommendation.studyDuration = 35;
+        break;
+      case MoodType.Sad:
+        newRecommendation.activityType = 'mindfulness';
+        newRecommendation.studyDuration = 15;
         break;
       default:
         newRecommendation.activityType = 'practice';
@@ -104,6 +111,9 @@ export const useMoodStudyIntegration = () => {
         break;
       case MoodType.Neutral:
         acknowledgment = "You're feeling neutral today. That's completely fine. ";
+        break;
+      case MoodType.Sad:
+        acknowledgment = "I'm sorry to hear you're feeling sad today. ";
         break;
       default:
         acknowledgment = `I've recorded that you're feeling ${mood.toLowerCase()}. `;

@@ -62,7 +62,10 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       "Go to flashcards",
       "Open formula practice",
       "Show my profile",
-      "Take me to exam syllabus"
+      "Take me to exam syllabus",
+      "Open AI Tutor",
+      "Take me to practice quizzes",
+      "Show me my recent activity"
     ];
     
     const taskCommands = [
@@ -125,9 +128,21 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       return;
     }
     
-    if (lowerCommand.includes('tutor') || lowerCommand.includes('ai tutor')) {
+    if (lowerCommand.includes('tutor') || lowerCommand.includes('ai tutor') || lowerCommand.includes('assistant')) {
       speakMessage("Connecting you to your AI tutor");
       navigate('/dashboard/student/tutor');
+      return;
+    }
+
+    if (lowerCommand.includes('quiz') || lowerCommand.includes('practice quiz') || lowerCommand.includes('test yourself')) {
+      speakMessage("Opening practice quizzes for you");
+      navigate('/dashboard/student/quizzes');
+      return;
+    }
+    
+    if (lowerCommand.includes('statistics') || lowerCommand.includes('progress') || lowerCommand.includes('my performance')) {
+      speakMessage("Here are your study statistics and progress");
+      navigate('/dashboard/student/statistics');
       return;
     }
     
@@ -142,6 +157,8 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       if (onStudyPlanCommand) {
         speakMessage("Opening your study plan now");
         onStudyPlanCommand();
+      } else {
+        speakMessage("Let me help you with your study plan. What subject would you like to focus on today?");
       }
       return;
     }
@@ -150,6 +167,16 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     if (lowerCommand.includes('task') || lowerCommand.includes('complete') || lowerCommand.includes('add')) {
       handleTaskCommand(lowerCommand);
       return;
+    }
+    
+    // Subject-specific commands
+    const subjects = ['physics', 'chemistry', 'biology', 'math', 'history', 'geography', 'english'];
+    
+    for (const subject of subjects) {
+      if (lowerCommand.includes(subject)) {
+        speakMessage(`Let me help you with ${subject}. What specific topic would you like to study?`);
+        return;
+      }
     }
     
     // Help commands
@@ -172,7 +199,8 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       { words: ['confused'], mood: 'confused' },
       { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
       { words: ['focused', 'concentrating'], mood: 'focused' },
-      { words: ['neutral', 'okay', 'fine'], mood: 'neutral' }
+      { words: ['neutral', 'okay', 'fine'], mood: 'neutral' },
+      { words: ['sad', 'down', 'upset'], mood: 'sad' }
     ];
     
     // Check if any mood keywords are in the command
@@ -215,6 +243,10 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
             case 'neutral':
               acknowledgment = `Feeling neutral today, ${userName || 'there'}? That's okay.`;
               recommendation = "Let's start with something interesting to build some momentum in your study session.";
+              break;
+            case 'sad':
+              acknowledgment = `I'm sorry to hear you're feeling sad today, ${userName || 'there'}.`;
+              recommendation = "Let's focus on subjects you enjoy and take a gentler approach today.";
               break;
             default:
               acknowledgment = `I've logged that you're feeling ${mood} today.`;

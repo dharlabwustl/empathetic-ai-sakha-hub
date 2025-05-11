@@ -1,7 +1,47 @@
 
 import { MoodType } from '@/types/user/base';
 
-// Function to get a study recommendation based on the current mood
+// Function to get emoji for mood
+export const getMoodEmoji = (mood: MoodType): string => {
+  switch (mood) {
+    case MoodType.Happy:
+      return '😊';
+    case MoodType.Motivated:
+      return '💪';
+    case MoodType.Focused:
+      return '🎯';
+    case MoodType.Tired:
+      return '😴';
+    case MoodType.Stressed:
+      return '😰';
+    case MoodType.Anxious:
+      return '😟';
+    case MoodType.Confused:
+      return '🤔';
+    case MoodType.Neutral:
+      return '😐';
+    case MoodType.Sad:
+      return '😢';
+    default:
+      return '😐';
+  }
+};
+
+// Get voice commands for moods
+export const getMoodVoiceCommands = (): string[] => {
+  return [
+    "I'm feeling happy today",
+    "I'm feeling tired",
+    "I'm feeling motivated",
+    "I'm feeling stressed",
+    "I'm feeling anxious",
+    "I'm feeling focused",
+    "How should I study when I'm confused?",
+    "Update my mood to neutral"
+  ];
+};
+
+// Get mood recommendation
 export const getMoodRecommendation = (mood: MoodType): string => {
   switch(mood) {
     case MoodType.Happy:
@@ -20,130 +60,45 @@ export const getMoodRecommendation = (mood: MoodType): string => {
       return "Let's go back to basics and review foundational concepts before moving forward.";
     case MoodType.Neutral:
       return "A balanced approach works well - mix review with new material, and take regular breaks.";
+    case MoodType.Sad:
+      return "Let's focus on building your confidence with topics you enjoy and take it easy today.";
     default:
       return "Let's adjust your study plan based on how you're feeling throughout the day.";
   }
 };
 
-// Function to get emoji for a mood
-export const getMoodEmoji = (mood: MoodType): string => {
-  switch(mood) {
-    case MoodType.Happy:
-      return "😊";
-    case MoodType.Motivated:
-      return "🔥";
-    case MoodType.Focused:
-      return "🎯";
-    case MoodType.Tired:
-      return "😴";
-    case MoodType.Stressed:
-      return "😰";
-    case MoodType.Anxious:
-      return "😟";
-    case MoodType.Confused:
-      return "🤔";
-    case MoodType.Neutral:
-      return "😐";
-    default:
-      return "🙂";
-  }
-};
-
-// Function to get display label for a mood
-export const getMoodLabel = (mood: MoodType): string => {
-  return mood.toString();
-};
-
-// Function to store mood in localStorage
+// Store mood in localStorage
 export const storeMoodInLocalStorage = (mood: MoodType): void => {
   try {
-    // Store current mood
-    localStorage.setItem('current_mood', mood);
-    
-    // Store in mood history
-    const now = new Date();
-    const moodEntry = {
-      mood,
-      timestamp: now.toISOString(),
-      date: now.toLocaleDateString()
-    };
-    
-    const moodHistoryString = localStorage.getItem('mood_history');
-    const moodHistory = moodHistoryString ? JSON.parse(moodHistoryString) : [];
-    
-    // Add new entry to the beginning of the array
-    moodHistory.unshift(moodEntry);
-    
-    // Keep only the last 30 entries
-    const trimmedHistory = moodHistory.slice(0, 30);
-    
-    localStorage.setItem('mood_history', JSON.stringify(trimmedHistory));
-    
-    console.log("Mood stored:", mood);
+    localStorage.setItem('currentMood', mood);
+    localStorage.setItem('moodTimestamp', new Date().toISOString());
   } catch (error) {
-    console.error("Error storing mood:", error);
+    console.error('Error storing mood in localStorage:', error);
   }
 };
 
-// Function to get the current mood from localStorage
+// Get current mood from localStorage
 export const getCurrentMoodFromLocalStorage = (): MoodType | null => {
   try {
-    const mood = localStorage.getItem('current_mood') as MoodType;
-    return mood;
+    const mood = localStorage.getItem('currentMood') as MoodType | null;
+    const timestamp = localStorage.getItem('moodTimestamp');
+    
+    // If mood is older than 12 hours, return null
+    if (mood && timestamp) {
+      const moodTime = new Date(timestamp).getTime();
+      const currentTime = new Date().getTime();
+      const hoursDiff = (currentTime - moodTime) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 12) {
+        return null;
+      }
+      
+      return mood;
+    }
+    
+    return null;
   } catch (error) {
-    console.error("Error retrieving mood:", error);
+    console.error('Error retrieving mood from localStorage:', error);
     return null;
   }
-};
-
-// Function to get mood history from localStorage
-export const getMoodHistoryFromLocalStorage = () => {
-  try {
-    const moodHistoryString = localStorage.getItem('mood_history');
-    return moodHistoryString ? JSON.parse(moodHistoryString) : [];
-  } catch (error) {
-    console.error("Error retrieving mood history:", error);
-    return [];
-  }
-};
-
-// Function to analyze mood trends
-export const analyzeMoodTrends = () => {
-  const moodHistory = getMoodHistoryFromLocalStorage();
-  if (moodHistory.length < 3) return null;
-  
-  // Count mood occurrences
-  const moodCounts = moodHistory.reduce((acc, entry) => {
-    acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  // Find the most common mood
-  let mostCommonMood = null;
-  let highestCount = 0;
-  
-  Object.entries(moodCounts).forEach(([mood, count]) => {
-    if (count > highestCount) {
-      mostCommonMood = mood;
-      highestCount = count;
-    }
-  });
-  
-  return {
-    mostCommonMood,
-    moodCounts,
-    totalEntries: moodHistory.length
-  };
-};
-
-// Function to get voice commands for moods
-export const getMoodVoiceCommands = (): string[] => {
-  return [
-    "I'm feeling happy today",
-    "I'm feeling tired",
-    "I'm feeling stressed",
-    "I'm feeling motivated",
-    "I'm feeling confused",
-    "I'm feeling anxious"
-  ];
 };
