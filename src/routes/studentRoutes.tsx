@@ -15,6 +15,8 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
+import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
+import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
 
 const StudentRoutes = () => {
   return (
@@ -71,6 +73,11 @@ const StudentRoutes = () => {
         </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
+      
+      {/* Documentation routes */}
+      <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

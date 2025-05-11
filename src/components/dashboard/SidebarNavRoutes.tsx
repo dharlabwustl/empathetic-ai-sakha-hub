@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -19,7 +20,8 @@ import {
   Bell, 
   Heart, 
   Target, 
-  User 
+  User,
+  FileText 
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -41,7 +43,8 @@ const tooltipDescriptions: Record<string, string> = {
   "Video Library": "Watch educational content and lectures",
   Notifications: "Stay updated with important alerts",
   Wellness: "Track and maintain your study-life balance",
-  Profile: "Manage your account settings and preferences"
+  Profile: "Manage your account settings and preferences",
+  "Documentation": "Access implementation guides and system documentation"
 };
 
 export const SidebarNavRoutes = ({ 
@@ -63,7 +66,8 @@ export const SidebarNavRoutes = ({
       { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
       { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
       { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
-      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
+      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> },
+      { name: "Documentation", path: "/documentation/pagewise-mapping", icon: <FileText size={20} /> }
     ],
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },

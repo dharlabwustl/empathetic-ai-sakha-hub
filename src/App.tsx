@@ -61,6 +61,8 @@ import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
+import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
+import MainLayout from '@/components/layouts/MainLayout';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -96,10 +98,49 @@ function App() {
               <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
               <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
               
-              {/* New signup database mapping documentation */}
-              <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/dashboard/admin/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-              <Route path="/test.prepzr.com/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              {/* Documentation Pages - make them publicly accessible */}
+              <Route path="/signup-database-mapping" element={
+                <MainLayout>
+                  <SignupDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/documentation/signup-database-mapping" element={
+                <MainLayout>
+                  <SignupDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/documentation/pagewise-mapping" element={
+                <MainLayout>
+                  <PagewiseDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/pagewise-mapping" element={
+                <MainLayout>
+                  <PagewiseDatabaseMappingPage />
+                </MainLayout>
+              } />
+              
+              {/* Add routes for test.prepzr.com domain */}
+              <Route path="/test.prepzr.com/signup-database-mapping" element={
+                <MainLayout>
+                  <SignupDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={
+                <MainLayout>
+                  <SignupDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/test.prepzr.com/pagewise-mapping" element={
+                <MainLayout>
+                  <PagewiseDatabaseMappingPage />
+                </MainLayout>
+              } />
+              <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={
+                <MainLayout>
+                  <PagewiseDatabaseMappingPage />
+                </MainLayout>
+              } />
               
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
