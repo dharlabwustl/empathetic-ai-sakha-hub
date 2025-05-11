@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useVoiceAnnouncer } from './useVoiceAnnouncer';
 import { MoodType } from '@/types/user/base';
 import { useToast } from './use-toast';
-import { getMoodRecommendation, storeMoodInLocalStorage, getCurrentMoodFromLocalStorage } from '@/components/dashboard/student/mood-tracking/moodUtils';
+import { getMoodRecommendation, storeMoodInLocalStorage, getCurrentMoodFromLocalStorage, fixPronunciation } from '@/components/dashboard/student/mood-tracking/moodUtils';
 
 interface StudyRecommendation {
   message: string;
@@ -121,7 +121,10 @@ export const useMoodStudyIntegration = () => {
     
     // Combine acknowledgment with recommendation for personalized response
     const moodMessage = `${acknowledgment}${recommendationMessage}`;
-    speakMessage(moodMessage);
+    
+    // Ensure PREPZR is properly pronounced in any messages
+    const fixedMessage = fixPronunciation(moodMessage);
+    speakMessage(fixedMessage);
     
   }, [speakMessage, toast]);
 

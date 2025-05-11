@@ -140,7 +140,8 @@ const authService = {
         // Authentication
         'userData', 'isLoggedIn', AUTH_TOKEN_KEY, AUTH_USER_KEY, 
         'user_profile_image', 'prepzr_remembered_email',
-        'admin_logged_in', 'admin_user',
+        'admin_logged_in', 'admin_user', 'auth_token', 'user_id',
+        'refresh_token', 'token_expiry', 'login_timestamp',
         
         // UI state
         'sawWelcomeTour', 'hasSeenTour', 'hasSeenSplash', 
@@ -159,7 +160,18 @@ const authService = {
         'sidebar_state', 'recent_searches'
       ];
       
-      keysToRemove.forEach(key => {
+      // Get ALL localStorage keys to ensure complete cleanup
+      const allKeys = [];
+      for(let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) allKeys.push(key);
+      }
+      
+      // Combine both specific keys and all detected keys
+      const allKeysToRemove = [...new Set([...keysToRemove, ...allKeys])];
+      
+      // Remove all keys
+      allKeysToRemove.forEach(key => {
         try {
           localStorage.removeItem(key);
           console.log(`Removed from localStorage: ${key}`);
@@ -174,7 +186,12 @@ const authService = {
         const cookie = cookies[i];
         const eqPos = cookie.indexOf("=");
         const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+        
+        // Clear cookie with multiple domain approaches to ensure deletion
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`;
+        
         console.log(`Removed cookie: ${name}`);
       }
       
@@ -195,6 +212,17 @@ const authService = {
       if (navigator.credentials && 'preventSilentAccess' in navigator.credentials) {
         await navigator.credentials.preventSilentAccess();
         console.log("Prevented silent access to credentials");
+      }
+      
+      // Clear IndexedDB storage if available (especially important for PWAs)
+      try {
+        const databases = await window.indexedDB.databases();
+        databases.forEach(db => {
+          if (db.name) window.indexedDB.deleteDatabase(db.name);
+        });
+        console.log("IndexedDB storage cleared");
+      } catch (error) {
+        console.warn("Could not clear IndexedDB storage:", error);
       }
       
       console.log("Logout complete - All authentication data cleared");

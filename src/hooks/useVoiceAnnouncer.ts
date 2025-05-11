@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { MoodType } from '@/types/user/base';
+import { fixPronunciation, getStudyRecommendationForMood } from '@/components/dashboard/student/mood-tracking/moodUtils';
 
 // Default voice settings
 export const DEFAULT_VOICE_SETTINGS = {
@@ -44,15 +45,8 @@ export const findBestVoice = (language: string) => {
   return voice || null;
 };
 
-// Function to improve pronunciation of specific terms
-export const fixPronunciation = (text: string): string => {
-  // Replace PREPZR with a phonetic spelling that pronounces it correctly
-  // Add a small pause between "Prep" and "zer" using SSML-like approach with hyphens
-  return text.replace(/PREPZR/gi, 'Prep-zer');
-};
-
 // Main voice function to speak a message
-export const speakMessage = (message: string, settings: VoiceSettings) => {
+export const speakMessageFunc = (message: string, settings: VoiceSettings) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   
   // Stop any current speech
@@ -61,7 +55,7 @@ export const speakMessage = (message: string, settings: VoiceSettings) => {
   // Create utterance
   const utterance = new SpeechSynthesisUtterance();
   
-  // Fix pronunciation
+  // Fix pronunciation - ensure PREPZR is pronounced correctly
   utterance.text = fixPronunciation(message);
   utterance.volume = settings.volume;
   utterance.rate = settings.rate;
@@ -200,18 +194,38 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Custom event for voice assistant to speak mood-based messages
     const handleVoiceAssistantSpeak = (event: any) => {
       if (event.detail && event.detail.message) {
-        speakMessage(event.detail.message, voiceSettings);
+        speakMessage(event.detail.message, true);
+      }
+    };
+    
+    // Handle mood change events to provide voice feedback
+    const handleMoodChanged = (event: any) => {
+      if (event.detail && event.detail.mood) {
+        const mood = event.detail.mood;
+        const acknowledgment = getMoodAcknowledgment(mood);
+        const recommendation = getStudyRecommendationForMood(mood);
+        
+        // Combine acknowledgment with recommendation
+        const message = `${acknowledgment} ${recommendation}`;
+        
+        // Speak the message
+        setTimeout(() => {
+          speakMessage(message, true);
+        }, 500);
       }
     };
     
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
     document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
     document.addEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
+    document.addEventListener('mood-changed', handleMoodChanged as EventListener);
     
     return () => {
       document.removeEventListener('voice-speaking-started', handleSpeakingStarted);
       document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
       document.removeEventListener('voice-assistant-speak', handleVoiceAssistantSpeak as EventListener);
+      document.removeEventListener('mood-changed', handleMoodChanged as EventListener);
+      
       if (styleElement.parentNode) {
         document.head.removeChild(styleElement);
       }
@@ -258,9 +272,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const speakMessage = useCallback((message: string, forceSpeech: boolean = false) => {
     // Only speak if enabled or force speech is true
     if ((voiceSettings.enabled || forceSpeech) && (!voiceSettings.muted || forceSpeech)) {
-      // Fix pronunciation before speaking
+      // Fix pronunciation before speaking (ensure PREPZR is pronounced correctly)
       const fixedMessage = fixPronunciation(message);
-      speakMessage(fixedMessage, voiceSettings);
+      speakMessageFunc(fixedMessage, voiceSettings);
     }
   }, [voiceSettings]);
   
@@ -361,32 +375,32 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     );
   }, [availableVoices]);
   
-  // Get study recommendation for a mood
-  const getMoodRecommendation = useCallback((mood: MoodType): string => {
+  // Get personalized mood acknowledgment
+  const getMoodAcknowledgment = useCallback((mood: MoodType): string => {
     switch(mood) {
       case MoodType.Happy:
-        return "This is a great time to tackle challenging topics or try some practice tests.";
+        return "Great to hear you're feeling happy today!";
       case MoodType.Motivated:
-        return "Channel that motivation into focused study sessions on high-priority subjects.";
+        return "Excellent! You're feeling motivated today!";
       case MoodType.Focused:
-        return "Perfect time for in-depth concept exploration and difficult problem sets.";
+        return "Noted you're feeling focused today. Let's keep up the pace!";
       case MoodType.Tired:
-        return "Consider lighter review sessions with breaks, or focusing on easier topics today.";
+        return "I understand you're feeling tired today.";
       case MoodType.Stressed:
-        return "Try shorter study sessions with mindfulness breaks, and review familiar material.";
+        return "I notice you're feeling stressed.";
       case MoodType.Anxious:
-        return "Start with topics you're confident in, then gradually approach challenging areas.";
+        return "I understand you're feeling anxious.";
       case MoodType.Confused:
-        return "Let's go back to basics and review foundational concepts before moving forward.";
+        return "It's okay to feel confused sometimes.";
       case MoodType.Neutral:
-        return "A balanced approach works well - mix review with new material, and take regular breaks.";
+        return "You're feeling neutral today. That's completely fine.";
       case MoodType.Sad:
-        return "Let's focus on building your confidence with topics you enjoy and take it easy today.";
+        return "I'm sorry to hear you're feeling sad today.";
       default:
-        return "Let's adjust your study plan based on how you're feeling throughout the day.";
+        return `I've recorded that you're feeling ${mood.toLowerCase()}.`;
     }
   }, []);
-  
+
   return {
     voiceSettings,
     updateVoiceSettings,
@@ -403,7 +417,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     transcript,
     availableVoices,
     supportedLanguages: getSupportedLanguages(),
-    getMoodRecommendation
+    getMoodAcknowledgment
   };
 };
 

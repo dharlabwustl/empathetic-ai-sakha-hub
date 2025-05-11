@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -94,10 +95,11 @@ const HeroSection = () => {
   const [showNeetModal, setShowNeetModal] = useState(false);
   
   const taglines = [
-    "Ace your exams.",
-    "Save time.",
-    "Stress less.",
-    "Study smarter."
+    "Ace your exams",
+    "Save time",
+    "Stress free",
+    "Study smarter",
+    "Crack your exams"
   ];
 
   useEffect(() => {
@@ -206,66 +208,77 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
           <div className="max-w-4xl">
-            {/* Hindi text line with enhanced gradient */}
+            {/* Hindi text line with enhanced gradient and modern font styling */}
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6"
-              style={{ fontFamily: "'Noto Sans Devanagari', 'Poppins', sans-serif", fontWeight: 800 }}
+              style={{ 
+                fontFamily: "'Noto Sans Devanagari', 'Poppins', sans-serif", 
+                fontWeight: 800,
+                letterSpacing: '-0.02em'
+              }}
             >
               अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
             </motion.h1>
             
-            {/* English text line with different animation timing */}
+            {/* English text line with clean, supportive font styling */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-medium text-gray-800 dark:text-white"
+              className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-800 dark:text-white"
+              style={{ 
+                fontFamily: "'Inter', 'Roboto', sans-serif", 
+                letterSpacing: '-0.01em'
+              }}
             >
               We Understand Your Mindset, Not Just the Exam.
             </motion.h2>
           </div>
           
           {/* Animated taglines with improved gradient animations */}
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-12 flex items-center justify-center mt-6">
-            <motion.span
-              key={currentTagline}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block"
-            >
-              {taglines[currentTagline]}
-            </motion.span>
-            {currentTagline === taglines.length - 1 && (
-              <motion.span
-                className="ml-2 inline-block font-bold"
-                initial={{ backgroundSize: '0% 100%' }}
-                animate={{ 
-                  backgroundSize: '100% 100%',
-                  color: ["#8b5cf6", "#3b82f6", "#8b5cf6"],
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{ 
-                  backgroundSize: { duration: 1.2 },
-                  color: { duration: 3, repeat: Infinity, repeatType: "reverse" },
-                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" }
-                }}
-                style={{
-                  backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6)',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent'
-                }}
-              >
-                Crack your exams!
-              </motion.span>
-            )}
+          <div className="relative h-16 sm:h-20 flex items-center justify-center mt-8">
+            <div className="absolute w-full flex justify-center items-center">
+              {taglines.map((phrase, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ 
+                    opacity: currentTagline === index ? 1 : 0,
+                    y: currentTagline === index ? 0 : 40
+                  }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute text-2xl sm:text-3xl md:text-4xl font-bold"
+                  style={{ 
+                    background: "linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundSize: "200% auto",
+                    animation: "gradient 2s linear infinite"
+                  }}
+                >
+                  {phrase}
+                </motion.span>
+              ))}
+            </div>
           </div>
+          
+          <style jsx>{`
+            @keyframes gradient {
+              0% {
+                background-position: 0% 50%;
+              }
+              50% {
+                background-position: 100% 50%;
+              }
+              100% {
+                background-position: 0% 50%;
+              }
+            }
+          `}</style>
           
           {/* Call to action buttons with enhanced animations */}
           <motion.div 
