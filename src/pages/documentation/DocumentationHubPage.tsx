@@ -7,21 +7,38 @@ import { ChevronLeft, FileDown, FileText, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import signupDatabaseMapping from '@/documentation/SignupDatabaseMapping';
 import pagewiseDatabaseMapping from '@/documentation/PagewiseDatabaseMapping';
+import { useToast } from '@/components/ui/use-toast';
 
 const DocumentationHubPage: React.FC = () => {
+  const { toast } = useToast();
+
   // Function to convert documentation content to a downloadable Word document
   const downloadAsDocument = (content: string, filename: string) => {
-    // Create a Blob with the content
-    const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    // Create a download link
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    try {
+      // Create a Blob with the content
+      const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      // Create a download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Started",
+        description: `${filename} is being downloaded.`,
+      });
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast({
+        title: "Download Failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -41,6 +58,28 @@ const DocumentationHubPage: React.FC = () => {
           <p className="text-gray-500 dark:text-gray-400 mt-2">
             Access all technical documentation for the PREPZR platform
           </p>
+          
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+            <h2 className="text-xl font-medium mb-2">Direct Download Links</h2>
+            <div className="flex gap-4 flex-wrap">
+              <Button 
+                variant="default" 
+                className="flex items-center gap-2"
+                onClick={() => downloadAsDocument(signupDatabaseMapping, 'signup-database-mapping.docx')}
+              >
+                <FileDown className="h-4 w-4" />
+                Download Signup Database Mapping
+              </Button>
+              <Button 
+                variant="default" 
+                className="flex items-center gap-2"
+                onClick={() => downloadAsDocument(pagewiseDatabaseMapping, 'pagewise-mapping.docx')}
+              >
+                <FileDown className="h-4 w-4" />
+                Download Pagewise Database Mapping
+              </Button>
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
