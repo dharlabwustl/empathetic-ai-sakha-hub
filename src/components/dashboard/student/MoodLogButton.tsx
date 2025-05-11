@@ -10,7 +10,7 @@ interface MoodLogButtonProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
   className?: string;
-  size?: "default" | "sm" | "lg" | "icon";
+  size?: "sm" | "md" | "lg";
   showLabel?: boolean;
 }
 
@@ -64,10 +64,9 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   };
   
   const sizeClasses = {
-    default: "text-base h-10 px-4",
     sm: "text-sm h-9 px-3",
-    lg: "text-lg h-11 px-5",
-    icon: "h-10 w-10 p-0"
+    md: "text-base h-10 px-4",
+    lg: "text-lg h-11 px-5"
   };
   
   return (

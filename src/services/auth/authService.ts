@@ -164,8 +164,10 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Force reload the page to ensure all state is cleared
-    window.location.href = '/login';
+    // Redirect to login page after a small delay
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 100);
     
     return {
       success: true,
