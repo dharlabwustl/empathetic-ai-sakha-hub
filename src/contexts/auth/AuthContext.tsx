@@ -52,12 +52,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               role: parsedData.role || UserRole.Student
             });
             console.log("User authenticated from localStorage:", parsedData.email);
+          } else {
+            // Invalid authentication state
+            setUser(null);
+            // Clear potentially corrupted data
+            localStorage.removeItem('userData');
+            localStorage.removeItem('isLoggedIn');
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
           // Clear invalid data
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
+          setUser(null);
         }
       } else {
         // No valid authentication data, ensure user is null
@@ -137,8 +144,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authService.logout().then(() => {
       setUser(null);
       console.log("User logged out completely via AuthContext");
+      
+      // Force a page refresh to ensure all components reset their state
+      window.location.href = '/login';
     }).catch(error => {
       console.error("Error during logout:", error);
+      // Try direct approach if service call fails
+      localStorage.removeItem('userData');
+      localStorage.removeItem('isLoggedIn');
+      setUser(null);
+      window.location.href = '/login';
     });
   };
   

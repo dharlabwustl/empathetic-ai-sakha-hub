@@ -10,7 +10,7 @@ interface MoodLogButtonProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "default" | "lg" | "icon";
   showLabel?: boolean;
 }
 
@@ -51,19 +51,13 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     handleCloseDialog();
   };
   
-  const sizeClasses = {
-    sm: "text-sm h-9 px-3",
-    md: "text-base h-10 px-4",
-    lg: "text-lg h-11 px-5"
-  };
-  
   return (
     <>
       <Button
         variant="outline"
         size={size}
         onClick={handleOpenDialog}
-        className={`flex items-center gap-1.5 ${sizeClasses[size]} ${className}`}
+        className={`flex items-center gap-1.5 ${className}`}
       >
         <span className="text-lg">{getMoodEmoji(currentMood)}</span>
         {showLabel && (

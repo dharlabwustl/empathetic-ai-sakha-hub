@@ -149,6 +149,7 @@ const authService = {
     localStorage.removeItem('study_time_allocations');
     localStorage.removeItem('current_mood');
     localStorage.removeItem('mood_history');
+    localStorage.removeItem('dashboard_tour_completed'); // Added this line to ensure tour state is cleared too
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
@@ -158,10 +159,8 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Redirect to login page after logout
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 100);
+    // Redirect to login page after logout - using hard navigation to ensure clean state
+    window.location.href = '/login';
     
     return {
       success: true,
@@ -199,7 +198,7 @@ const authService = {
   
   // Get auth token
   getToken(): string | null {
-    return localStorage.setItem('sawWelcomeTour', 'false') || localStorage.getItem(AUTH_TOKEN_KEY);
+    return localStorage.getItem(AUTH_TOKEN_KEY);
   },
   
   // Check if user is authenticated

@@ -85,7 +85,7 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* KPI Stats moved here as requested - right after hero section */}
+        {/* Our Impact section with KPI Stats */}
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Our Impact</h2>
           <KpiStats />
@@ -127,7 +127,7 @@ const Index = () => {
         onClose={handleCloseVoiceAssistant} 
       />
       
-      {/* Add HomepageVoiceAnnouncer for visitors - adjusting delay to be less irritating */}
+      {/* Add HomepageVoiceAnnouncer for visitors */}
       {<HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={5000} />}
     </div>
   );
