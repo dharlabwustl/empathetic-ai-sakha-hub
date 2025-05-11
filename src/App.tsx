@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -61,6 +60,7 @@ import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
+import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -90,13 +90,17 @@ function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
+              {/* Public documentation routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
               <Route path="/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
-              {/* Add a public route that matches the test URL */}
               <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
               <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
-
+              
+              {/* New signup database mapping documentation */}
+              <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/dashboard/admin/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/test.prepzr.com/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
                 <AdminRouteGuard>
