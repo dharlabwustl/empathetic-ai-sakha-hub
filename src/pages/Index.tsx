@@ -85,7 +85,13 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* KPI Stats moved here as requested - now only shown in impact section */}
+        {/* KPI Stats moved here as requested - right after hero section */}
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Our Impact</h2>
+          <KpiStats />
+        </div>
+        
+        {/* Add the AchievementsSection right after KPI Stats */}
         <AchievementsSection />
         
         <WhatIsSection />

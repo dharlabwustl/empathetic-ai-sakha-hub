@@ -4,7 +4,7 @@ import React from 'react';
 const SurroundingInfluencesMeter = () => {
   return (
     <div className="bg-white p-4 rounded-lg border shadow-sm">
-      <h3 className="text-lg font-medium mb-4">Prepzr Surrounding Influences</h3>
+      <h3 className="text-lg font-medium mb-4">Surrounding Influences</h3>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="bg-blue-50 p-3 rounded-lg">
@@ -51,7 +51,7 @@ const SurroundingInfluencesMeter = () => {
       </div>
       
       <div className="mt-4 text-sm text-gray-500">
-        These factors can significantly impact your study performance. Prepzr helps you monitor them to optimize your learning environment.
+        These factors can significantly impact your study performance. Monitoring them helps you optimize your learning environment.
       </div>
     </div>
   );

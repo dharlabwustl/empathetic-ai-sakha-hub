@@ -17,7 +17,6 @@ import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/Flashcard
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
-import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -30,12 +29,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:id" element={<ConceptDetailPage />} />
-      
-      {/* Updated routes for consistent concept flow */}
-      <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
       <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
-      
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
       <Route path="/notifications" element={<NotificationsView />} />
