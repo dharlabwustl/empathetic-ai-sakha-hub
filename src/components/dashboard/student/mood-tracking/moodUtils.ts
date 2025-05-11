@@ -1,363 +1,257 @@
-import { MoodType } from "@/types/user/base";
+import { MoodType } from '@/types/user/base';
 
-// Function to get the appropriate emoji for each mood
-export const getMoodEmoji = (mood: MoodType): string => {
+// Get emoji for each mood type
+export const getMoodEmoji = (mood?: MoodType): string => {
   switch (mood) {
-    case MoodType.HAPPY:
-      return "😊";
-    case MoodType.FOCUSED:
-      return "🧠";
-    case MoodType.MOTIVATED:
-      return "💪";
-    case MoodType.TIRED:
-      return "😴";
-    case MoodType.STRESSED:
-      return "😰";
-    case MoodType.CONFUSED:
-      return "🤔";
-    case MoodType.ANXIOUS:
-      return "😨";
-    case MoodType.NEUTRAL:
-      return "😐";
-    case MoodType.OKAY:
-      return "👍";
-    case MoodType.OVERWHELMED:
-      return "🥴";
-    case MoodType.CURIOUS:
-      return "🧐";
-    case MoodType.SAD:
-      return "😢";
-    case MoodType.CALM:
-      return "😌";
+    case MoodType.Happy:
+      return '😊';
+    case MoodType.Focused:
+      return '🧐';
+    case MoodType.Motivated:
+      return '💪';
+    case MoodType.Tired:
+      return '😴';
+    case MoodType.Stressed:
+      return '😰';
+    case MoodType.Confused:
+      return '😕';
+    case MoodType.Anxious:
+      return '😟';
+    case MoodType.Neutral:
+      return '😐';
+    case MoodType.Sad:
+      return '😢';
     default:
-      return "❓";
+      return '😐';
   }
 };
 
-// Function to get a mood description based on the mood type
-export const getMoodDescription = (mood: MoodType): string => {
-  switch (mood) {
-    case MoodType.HAPPY:
-      return "You're in a positive state of mind";
-    case MoodType.FOCUSED:
-      return "You're concentrating well on your tasks";
-    case MoodType.MOTIVATED:
-      return "You're feeling driven to achieve your goals";
-    case MoodType.TIRED:
-      return "You might need some rest";
-    case MoodType.STRESSED:
-      return "You're feeling pressure from your workload";
-    case MoodType.CONFUSED:
-      return "You're struggling to understand something";
-    case MoodType.ANXIOUS:
-      return "You're feeling worried or nervous";
-    case MoodType.NEUTRAL:
-      return "You're feeling balanced";
-    case MoodType.OKAY:
-      return "You're doing alright";
-    case MoodType.OVERWHELMED:
-      return "You might be taking on too much";
-    case MoodType.CURIOUS:
-      return "You're interested in learning more";
-    case MoodType.SAD:
-      return "You're feeling down";
-    case MoodType.CALM:
-      return "You're feeling peaceful and relaxed";
-    default:
-      return "Unknown mood";
-  }
+// Get label for each mood type
+export const getMoodLabel = (mood?: MoodType): string => {
+  if (!mood) return 'Neutral';
+  return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
 };
 
-// Function to get mood color
-export const getMoodColor = (mood: MoodType): string => {
-  switch (mood) {
-    case MoodType.HAPPY:
-      return "bg-green-100 text-green-800 border-green-200";
-    case MoodType.FOCUSED:
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    case MoodType.MOTIVATED:
-      return "bg-purple-100 text-purple-800 border-purple-200";
-    case MoodType.TIRED:
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    case MoodType.STRESSED:
-      return "bg-red-100 text-red-800 border-red-200";
-    case MoodType.CONFUSED:
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case MoodType.ANXIOUS:
-      return "bg-orange-100 text-orange-800 border-orange-200";
-    case MoodType.NEUTRAL:
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    case MoodType.OKAY:
-      return "bg-teal-100 text-teal-800 border-teal-200";
-    case MoodType.OVERWHELMED:
-      return "bg-pink-100 text-pink-800 border-pink-200";
-    case MoodType.CURIOUS:
-      return "bg-indigo-100 text-indigo-800 border-indigo-200";
-    case MoodType.SAD:
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    case MoodType.CALM:
-      return "bg-sky-100 text-sky-800 border-sky-200";
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
-  }
-};
-
-// Function to get recommendations based on mood
-export const getMoodRecommendation = (mood: MoodType): string => {
-  switch (mood) {
-    case MoodType.HAPPY:
-      return "Great! Use this positive energy to tackle challenging topics.";
-    case MoodType.FOCUSED:
-      return "Perfect time to work on complex concepts that require deep thinking.";
-    case MoodType.MOTIVATED:
-      return "Try setting some ambitious study goals while your motivation is high!";
-    case MoodType.TIRED:
-      return "Consider taking a short break or switching to a lighter subject.";
-    case MoodType.STRESSED:
-      return "Take a few deep breaths and break your tasks into smaller steps.";
-    case MoodType.CONFUSED:
-      return "Try reviewing the fundamentals or reaching out to a tutor for help.";
-    case MoodType.ANXIOUS:
-      return "Practice some quick relaxation techniques before continuing your studies.";
-    case MoodType.NEUTRAL:
-      return "Good time to organize your study plan or review key concepts.";
-    case MoodType.OKAY:
-      return "You're in a balanced state - good for steady, consistent progress.";
-    case MoodType.OVERWHELMED:
-      return "Take a step back and prioritize your most important tasks first.";
-    case MoodType.CURIOUS:
-      return "Great time to explore new topics or dive deeper into interesting concepts.";
-    case MoodType.SAD:
-      return "Consider a short break with something you enjoy before returning to studies.";
-    case MoodType.CALM:
-      return "Take advantage of this peaceful state for focused, mindful studying.";
-    default:
-      return "Set specific goals for your study session today.";
-  }
-};
-
-// Save current mood to localStorage
+// Store mood in localStorage
 export const storeMoodInLocalStorage = (mood: MoodType): void => {
-  // Store the current mood
-  localStorage.setItem("current_mood", mood);
-  
-  // Also save to mood history
   try {
-    const timestamp = new Date().toISOString();
-    const newMoodEntry = { mood, timestamp };
+    // Store current mood
+    localStorage.setItem('current_mood', mood);
     
-    // Get existing history or create new one
-    const existingHistory = localStorage.getItem("mood_history");
-    const moodHistory = existingHistory ? JSON.parse(existingHistory) : [];
+    // Store in history
+    const now = new Date();
+    const moodEntry = {
+      mood,
+      timestamp: now.toISOString(),
+      date: now.toLocaleDateString()
+    };
     
-    // Add new entry at the beginning
-    moodHistory.unshift(newMoodEntry);
+    const moodHistoryString = localStorage.getItem('mood_history') || '[]';
+    const moodHistory = JSON.parse(moodHistoryString);
     
-    // Keep only the last 50 entries to prevent localStorage from getting too large
-    const trimmedHistory = moodHistory.slice(0, 50);
+    // Add new entry and limit to last 30 entries
+    moodHistory.push(moodEntry);
+    if (moodHistory.length > 30) {
+      moodHistory.shift();
+    }
     
-    localStorage.setItem("mood_history", JSON.stringify(trimmedHistory));
+    localStorage.setItem('mood_history', JSON.stringify(moodHistory));
+    
+    // Update study time allocations based on mood
+    updateStudyTimeAllocationsByMood(mood);
+    
+    // Dispatch event for other components
+    document.dispatchEvent(new CustomEvent('mood-updated', { 
+      detail: { mood, timestamp: now.toISOString() } 
+    }));
   } catch (error) {
-    console.error("Error storing mood history:", error);
+    console.error('Error storing mood in localStorage:', error);
   }
 };
 
 // Get current mood from localStorage
 export const getCurrentMoodFromLocalStorage = (): MoodType | undefined => {
-  const savedMood = localStorage.getItem("current_mood");
-  return savedMood ? (savedMood as MoodType) : undefined;
+  try {
+    const mood = localStorage.getItem('current_mood') as MoodType | null;
+    return mood || undefined;
+  } catch (error) {
+    console.error('Error getting mood from localStorage:', error);
+    return undefined;
+  }
 };
 
 // Get mood history from localStorage
-export const getMoodHistoryFromLocalStorage = (): Array<{mood: MoodType, timestamp: string}> => {
+export const getMoodHistoryFromLocalStorage = () => {
   try {
-    const history = localStorage.getItem("mood_history");
-    return history ? JSON.parse(history) : [];
+    const moodHistoryString = localStorage.getItem('mood_history') || '[]';
+    return JSON.parse(moodHistoryString);
   } catch (error) {
-    console.error("Error retrieving mood history:", error);
+    console.error('Error getting mood history from localStorage:', error);
     return [];
   }
 };
 
-// Calculate mood trends from history
-export const calculateMoodTrends = () => {
-  const history = getMoodHistoryFromLocalStorage();
-  
-  // Not enough data for trends
-  if (history.length < 5) {
-    return {
-      dominantMood: undefined,
-      weeklyVariation: "stable",
-      recentTrend: "neutral"
-    };
-  }
-  
-  // Count occurrences of each mood
-  const moodCounts: Record<string, number> = {};
-  history.forEach(entry => {
-    moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
-  });
-  
-  // Find dominant mood
-  let dominantMood: MoodType | undefined;
-  let maxCount = 0;
-  
-  Object.entries(moodCounts).forEach(([mood, count]) => {
-    if (count > maxCount) {
-      maxCount = count;
-      dominantMood = mood as MoodType;
-    }
-  });
-  
-  // Calculate weekly variation
-  const recentFiveMoods = history.slice(0, 5).map(entry => entry.mood);
-  const uniqueRecentMoods = new Set(recentFiveMoods).size;
-  
-  let weeklyVariation = "stable";
-  if (uniqueRecentMoods >= 4) {
-    weeklyVariation = "highly variable";
-  } else if (uniqueRecentMoods === 3) {
-    weeklyVariation = "moderately variable";
-  }
-  
-  // Calculate recent trend
-  const positiveEnergyMoods = [MoodType.HAPPY, MoodType.MOTIVATED, MoodType.FOCUSED, MoodType.CALM];
-  const negativeEnergyMoods = [MoodType.TIRED, MoodType.STRESSED, MoodType.ANXIOUS, MoodType.OVERWHELMED, MoodType.SAD];
-  
-  let positiveCount = 0;
-  let negativeCount = 0;
-  
-  recentFiveMoods.forEach(mood => {
-    if (positiveEnergyMoods.includes(mood as MoodType)) positiveCount++;
-    if (negativeEnergyMoods.includes(mood as MoodType)) negativeCount++;
-  });
-  
-  let recentTrend = "neutral";
-  if (positiveCount >= 3) {
-    recentTrend = "positive";
-  } else if (negativeCount >= 3) {
-    recentTrend = "negative";
-  }
-  
-  return {
-    dominantMood,
-    weeklyVariation,
-    recentTrend,
-  };
-};
-
-// Group moods into categories for analysis
-export const getMoodCategories = () => {
-  return {
-    positive: [MoodType.HAPPY, MoodType.MOTIVATED, MoodType.FOCUSED, MoodType.CALM],
-    neutral: [MoodType.NEUTRAL, MoodType.OKAY, MoodType.CURIOUS],
-    negative: [MoodType.TIRED, MoodType.STRESSED, MoodType.ANXIOUS, MoodType.OVERWHELMED, MoodType.SAD, MoodType.CONFUSED]
-  };
-};
-
-// Get a list of all available moods with their details
-export const getAllMoodsWithDetails = () => {
-  const allMoods = Object.values(MoodType);
-  return allMoods.map(mood => ({
-    type: mood,
-    emoji: getMoodEmoji(mood as MoodType),
-    description: getMoodDescription(mood as MoodType),
-    color: getMoodColor(mood as MoodType),
-    recommendation: getMoodRecommendation(mood as MoodType)
-  }));
-};
-
-// Function to get study recommendations based on mood
+// Get study recommendation based on mood
 export const getStudyRecommendationForMood = (mood: MoodType): string => {
   switch (mood) {
-    case MoodType.HAPPY:
-      return "Your positive mood is perfect for tackling challenging topics or starting new concepts.";
-    case MoodType.FOCUSED:
-      return "Take advantage of your focus by working on complex problems or detailed review.";
-    case MoodType.MOTIVATED:
-      return "Channel your motivation into making progress on your most important goals.";
-    case MoodType.TIRED:
-      return "Consider lighter review tasks or take a short power nap before studying.";
-    case MoodType.STRESSED:
-      return "Try breaking down your work into smaller tasks and take regular short breaks.";
-    case MoodType.CONFUSED:
-      return "Focus on clarifying basic concepts before moving to more complex topics.";
-    case MoodType.ANXIOUS:
-      return "Start with something familiar to build confidence before tackling challenging material.";
-    case MoodType.NEUTRAL:
-      return "This balanced state is good for methodical progress through your study plan.";
-    case MoodType.OKAY:
-      return "Maintain steady progress with regular breaks to sustain your energy.";
-    case MoodType.OVERWHELMED:
-      return "Prioritize one small task at a time and celebrate small wins.";
-    case MoodType.CURIOUS:
-      return "Explore new topics or dive deeper into areas that spark your interest.";
-    case MoodType.SAD:
-      return "Start with subjects you enjoy to boost your mood before tackling harder topics.";
-    case MoodType.CALM:
-      return "Your calm state is ideal for deep learning and reflection on complex concepts.";
+    case MoodType.Happy:
+      return "Great mood! This is an excellent time to tackle challenging topics or try some interactive practice questions.";
+    case MoodType.Focused:
+      return "You're in the zone! Focus on deep learning, complex problems, and concept connections now.";
+    case MoodType.Motivated:
+      return "Channel your motivation into tackling difficult subjects or reviewing material you've been struggling with.";
+    case MoodType.Tired:
+      return "Consider shorter study sessions with more frequent breaks. Focus on review rather than new material.";
+    case MoodType.Stressed:
+      return "Take a few minutes for a breathing exercise, then try some easier review material to build confidence.";
+    case MoodType.Confused:
+      return "Let's focus on foundational concepts. Try using the AI tutor to explain difficult topics step by step.";
+    case MoodType.Anxious:
+      return "Practice some test questions under untimed conditions to build confidence, and remember to take breaks.";
+    case MoodType.Neutral:
+      return "This is a good time for balanced study - mix review with new material and theoretical with practical.";
+    case MoodType.Sad:
+      return "Consider visiting the Feel Good Corner before studying, or choose topics you enjoy to help lift your mood.";
     default:
-      return "Focus on your most important tasks for today.";
+      return "Focus on your regular study plan and adjust as needed based on how you feel.";
   }
 };
 
-// Analyze mood trends to provide insights
+// Analyze mood trends from history
 export const analyzeMoodTrends = () => {
-  const history = getMoodHistoryFromLocalStorage();
-  
-  // Not enough data for analysis
-  if (history.length < 3) {
+  try {
+    const moodHistory = getMoodHistoryFromLocalStorage();
+    
+    if (moodHistory.length < 3) {
+      return { stressSignals: false, improved: false };
+    }
+    
+    // Get the last 5 entries or all if fewer
+    const recentMoods = moodHistory.slice(-5);
+    
+    // Check for stress signals (multiple stressed, anxious entries)
+    const stressfulMoods = recentMoods.filter(entry => 
+      entry.mood === MoodType.Stressed || 
+      entry.mood === MoodType.Anxious
+    );
+    
+    // Check for improvement (stressed/anxious to motivated/happy)
+    const oldestTwo = recentMoods.slice(0, 2);
+    const newestTwo = recentMoods.slice(-2);
+    
+    const oldestWereNegative = oldestTwo.some(entry => 
+      entry.mood === MoodType.Stressed || 
+      entry.mood === MoodType.Anxious ||
+      entry.mood === MoodType.Tired ||
+      entry.mood === MoodType.Sad
+    );
+    
+    const newestArePositive = newestTwo.some(entry => 
+      entry.mood === MoodType.Happy || 
+      entry.mood === MoodType.Motivated ||
+      entry.mood === MoodType.Focused
+    );
+    
     return {
-      stressSignals: false,
-      improved: false,
-      consistent: true,
-      recommendation: "Keep logging your mood to get personalized insights."
+      stressSignals: stressfulMoods.length >= 2,
+      improved: oldestWereNegative && newestArePositive
     };
+  } catch (error) {
+    console.error('Error analyzing mood trends:', error);
+    return { stressSignals: false, improved: false };
   }
-  
-  const recentMoods = history.slice(0, 5);
-  const categories = getMoodCategories();
-  
-  // Check for stress signals
-  const stressCount = recentMoods.filter(entry => 
-    categories.negative.includes(entry.mood)
-  ).length;
-  
-  const stressSignals = stressCount >= 3;
-  
-  // Check for improvement
-  const oldestTwo = recentMoods.slice(3, 5);
-  const newestTwo = recentMoods.slice(0, 2);
-  
-  const oldestNegative = oldestTwo.filter(entry => 
-    categories.negative.includes(entry.mood)
-  ).length;
-  
-  const newestPositive = newestTwo.filter(entry => 
-    categories.positive.includes(entry.mood)
-  ).length;
-  
-  const improved = oldestNegative > 0 && newestPositive === newestTwo.length;
-  
-  // Check for consistency
-  const moodTypes = new Set(recentMoods.map(entry => entry.mood));
-  const consistent = moodTypes.size <= 2;
-  
-  return {
-    stressSignals,
-    improved,
-    consistent,
-    recommendation: stressSignals 
-      ? "Consider taking a break or using stress-reduction techniques."
-      : improved
-      ? "Great progress! Your mood is improving."
-      : consistent
-      ? "Your mood has been consistent lately."
-      : "Your mood has been variable. Try to identify what affects it."
-  };
 };
 
-// Get label for mood
-export const getMoodLabel = (mood: MoodType): string => {
-  return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
+// Get voice commands for moods
+export const getMoodVoiceCommands = (): string[] => {
+  return [
+    "I'm feeling happy today",
+    "I'm tired right now",
+    "I feel motivated",
+    "I'm stressed about the exam",
+    "I'm feeling anxious",
+    "I'm focused and ready to study"
+  ];
+};
+
+// Update study time allocations based on mood
+export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
+  try {
+    // Get current allocations or set defaults
+    const allocationsString = localStorage.getItem('study_time_allocations') || JSON.stringify({
+      newConcepts: 30,
+      review: 30,
+      practice: 40
+    });
+    
+    let allocations = JSON.parse(allocationsString);
+    
+    // Adjust based on mood
+    switch (mood) {
+      case MoodType.Tired:
+        // Less new content, more review when tired
+        allocations = {
+          newConcepts: 15,
+          review: 50,
+          practice: 35
+        };
+        break;
+      case MoodType.Motivated:
+      case MoodType.Focused:
+        // More new content and practice when motivated or focused
+        allocations = {
+          newConcepts: 35,
+          review: 20,
+          practice: 45
+        };
+        break;
+      case MoodType.Stressed:
+      case MoodType.Anxious:
+        // More review, less new content when stressed
+        allocations = {
+          newConcepts: 10,
+          review: 50,
+          practice: 40
+        };
+        break;
+      case MoodType.Confused:
+        // Much more review, focused on fundamentals
+        allocations = {
+          newConcepts: 5,
+          review: 65,
+          practice: 30
+        };
+        break;
+      case MoodType.Happy:
+        // Balanced approach when happy
+        allocations = {
+          newConcepts: 30,
+          review: 30,
+          practice: 40
+        };
+        break;
+      default:
+        // Keep existing allocations for other moods
+        break;
+    }
+    
+    // Store updated allocations
+    localStorage.setItem('study_time_allocations', JSON.stringify(allocations));
+  } catch (error) {
+    console.error('Error updating study time allocations:', error);
+  }
+};
+
+// Add manifest.json to enable mobile app-like installation
+export const setupWebAppManifest = () => {
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = '/manifest.json';
+  document.head.appendChild(manifestLink);
+  
+  // Also add apple-specific meta tags
+  const appleMetaTag = document.createElement('meta');
+  appleMetaTag.name = 'apple-mobile-web-app-capable';
+  appleMetaTag.content = 'yes';
+  document.head.appendChild(appleMetaTag);
 };

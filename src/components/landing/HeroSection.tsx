@@ -159,15 +159,19 @@ const HeroSection = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block">
+              {/* Hindi text with proper styling */}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block font-hindi">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
               </span>
-              <span className="text-gray-800 dark:text-white block mt-2">
-                We understand Your Mindset, Not Just the Exam.
+              
+              {/* Second line with clean styling */}
+              <span className="text-gray-800 dark:text-white block mt-2 font-sans">
+                We Understand Your Mindset, Not Just the Exam.
               </span>
             </motion.h1>
           </motion.div>
           
+          {/* Dynamic taglines with animated transition */}
           <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-12 flex items-center justify-center">
             <motion.span
               key={currentTagline}
@@ -206,6 +210,7 @@ const HeroSection = () => {
             )}
           </div>
           
+          {/* Call to action buttons */}
           <motion.div 
             className="flex flex-col sm:flex-row gap-4 mb-12"
             initial={{ opacity: 0, y: 20 }}
@@ -258,7 +263,7 @@ const HeroSection = () => {
             )}
           </motion.div>
           
-          {/* Exam Names Badge - Kept but removed the Stats Section */}
+          {/* Exam Names Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

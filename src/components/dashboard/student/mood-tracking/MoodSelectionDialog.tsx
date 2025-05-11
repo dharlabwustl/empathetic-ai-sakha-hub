@@ -12,6 +12,7 @@ interface MoodSelectionDialogProps {
   onSelectMood: (mood: MoodType) => void;
 }
 
+// Export the component directly without using default export
 export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   isOpen,
   onClose,
@@ -59,3 +60,6 @@ export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
     </Dialog>
   );
 };
+
+// Also export as default for backward compatibility
+export default MoodSelectionDialog;

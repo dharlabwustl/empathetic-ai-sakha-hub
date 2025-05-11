@@ -1,265 +1,216 @@
 
-@import './styles/theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-    max-height: 1000000px; /* Fix for font boosting */
-  }
-  
-  html {
-    font-size: 16px !important; /* Standard font size */
-    -webkit-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    zoom: 1;
-  }
-  
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-size: 16px !important; /* Standard font size */
-    line-height: 1.5;
-    overflow-x: hidden;
-    width: 100%;
-  }
-  
-  /* Reset headings to appropriate sizes */
-  h1 {
-    font-size: 2rem;
-  }
-  h2 {
-    font-size: 1.5rem;
-  }
-  h3 {
-    font-size: 1.25rem;
-  }
-  h4 {
-    font-size: 1.125rem;
-  }
-  h5, h6 {
-    font-size: 1rem;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
   }
 
-  /* Ensure form elements have correct font size */
-  input, textarea, select, button {
-    font-size: 16px !important;
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
   }
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-white/80 dark:bg-black/50 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-lg;
+@layer base {
+  * {
+    @apply border-border;
   }
-  
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  .avatar-pulse {
-    @apply absolute w-full h-full rounded-full animate-pulse bg-purple-300/50;
-  }
-  
-  .chat-container {
-    @apply h-[calc(100vh-12rem)] overflow-y-auto;
-  }
-  
-  .chat-message {
-    @apply p-4 mb-4 rounded-2xl max-w-[80%];
-  }
-  
-  .user-message {
-    @apply chat-message bg-purple-600 text-white ml-auto;
-  }
-  
-  .bot-message {
-    @apply chat-message bg-card border border-border mr-auto;
-  }
-  
-  .floating-avatar {
-    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg cursor-pointer z-50 animate-float;
-  }
+}
 
-  /* New UI components */
-  .input-field {
-    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all;
-  }
-  
-  .card-hover {
-    @apply transition-all hover:shadow-lg hover:-translate-y-1 duration-300;
-  }
-  
-  .btn-primary {
-    @apply bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
-  }
+/* Hindi Font */
+.font-hindi {
+  font-family: 'Hind', sans-serif;
+}
 
-  /* Avatar with eye movement */
-  .avatar-eyes {
-    @apply relative overflow-hidden;
+/* Animated Gradients */
+.bg-animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 5s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Mobile App Specific Styles */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
   
-  .eye {
-    @apply absolute w-2 h-2 bg-white rounded-full;
-    transition: all 0.3s ease;
+  .fixed-nav-bottom {
+    bottom: env(safe-area-inset-bottom);
   }
   
-  /* Tab scrollbar */
-  .tab-scrollbar {
-    @apply overflow-x-auto pb-2;
-    scrollbar-width: thin;
-    -ms-overflow-style: none;
+  .fixed-nav-top {
+    top: env(safe-area-inset-top);
   }
-  
-  .tab-scrollbar::-webkit-scrollbar {
+}
+
+/* Improved tab styling for Our Impact section */
+.impact-tab {
+  @apply px-4 py-3 rounded-lg transition-all duration-300 font-medium;
+}
+
+.impact-tab[data-state="active"] {
+  @apply bg-primary/10 text-primary border-b-2 border-primary;
+  animation: tab-active 0.3s ease-out forwards;
+}
+
+@keyframes tab-active {
+  0% { transform: translateY(4px); opacity: 0.5; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Enhanced concept cards */
+.concept-card {
+  @apply rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-all duration-300;
+}
+
+/* Mood-specific UI adaptations */
+.mood-focused .focus-boost {
+  @apply border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20;
+}
+
+.mood-tired .energy-saver {
+  @apply border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20;
+}
+
+.mood-anxious .calming-element, 
+.mood-stressed .calming-element {
+  @apply border-emerald-400 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20;
+}
+
+/* Responsive mobile adaptations */
+.mobile-nav-tab {
+  @apply flex-1 flex flex-col items-center justify-center py-3 px-1 rounded-lg text-gray-600 dark:text-gray-400;
+}
+
+.mobile-nav-tab.active {
+  @apply bg-primary/10 text-primary dark:text-primary-foreground;
+}
+
+.mobile-nav-tab-icon {
+  @apply h-5 w-5 mb-1;
+}
+
+.mobile-nav-tab-label {
+  @apply text-xs font-medium;
+}
+
+/* Custom scrollbar for better mobile UX */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
     height: 4px;
   }
   
-  .tab-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-purple-300 rounded-full;
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
   
-  .tab-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
   }
 }
 
-/* Animation keyframes */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Concept card detail page enhancements */
+.concept-detail-page {
+  @apply max-w-5xl mx-auto p-4 sm:p-6;
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+.concept-detail-header {
+  @apply mb-6 pb-4 border-b dark:border-gray-800;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+.concept-detail-content {
+  @apply mt-6 space-y-6;
 }
 
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+.concept-detail-section {
+  @apply p-5 rounded-lg bg-white dark:bg-gray-900 shadow-sm;
 }
 
-@keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+.concept-detail-tabs {
+  @apply flex space-x-1 rounded-lg bg-muted p-1 mt-6;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease forwards;
+.concept-detail-tab {
+  @apply flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-all;
 }
 
-.animate-slide-in {
-  animation: slideIn 0.5s ease forwards;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-.animate-bounce-subtle {
-  animation: bounce-subtle 2s ease-in-out infinite;
-}
-
-@layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-  }
-
-  .text-size-reset {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
-  }
-
-  .no-zoom {
-    touch-action: manipulation;
-  }
-  
-  .reduce-text {
-    font-size: 0.9rem !important; /* Add new utility class for smaller text */
-  }
-}
-
-/* Fix for the resolution and font size */
-html {
-  font-size: 16px !important; /* Standard font size with important */
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-}
-
-/* Ensure proper viewport settings */
-@viewport {
-  width: device-width;
-  zoom: 1.0;
-  min-zoom: 1.0;
-  max-zoom: 1.0;
-  user-zoom: fixed;
-}
-
-/* Additional fixes for better text display */
-@media screen and (min-width: 320px) {
-  html, body {
-    font-size: 16px !important;
-  }
-}
-
-/* Fix for form elements to prevent auto-zoom on mobile */
-@media screen and (max-width: 768px) {
-  input, textarea, select {
-    font-size: 16px !important;
-  }
-}
-
-/* Scale fixes for large screens */
-@media screen and (min-width: 1440px) {
-  html, body {
-    font-size: 16px !important;
-    zoom: 1;
-  }
-}
-
-/* Fix for SVG rendering */
-svg {
-  shape-rendering: geometricPrecision;
-  text-rendering: optimizeLegibility;
-}
-
-/* Additional font control for all text elements */
-p, div, span, a, li, td, th {
-  font-size: 16px;
-}
-
-/* Standard card padding */
-.card {
-  padding: 1.5rem;
-}
-
-/* Standard container padding */
-.container {
-  padding: 1rem;
-}
-
-/* Dashboard specific styles */
-.dashboard-card {
-  @apply p-4;
-}
-
-/* Standard table sizes */
-table {
-  font-size: 1rem;
-}
-
-/* Standard button sizes */
-button {
-  padding: 0.5rem 1rem;
+.concept-detail-tab[data-state="active"] {
+  @apply bg-white dark:bg-gray-800 text-primary shadow-sm;
 }
