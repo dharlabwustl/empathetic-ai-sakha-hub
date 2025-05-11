@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,27 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CheckCircle, ChevronRight, Clock, Edit, HeartPulse } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
-import { MoodType } from '@/types/user/base';
-
-interface UserStatus {
-  online: boolean;
-  lastActive?: string;
-}
-
-interface UserProfile {
-  name: string;
-  role: string;
-  avatar?: string;
-  stats?: {
-    streak: number;
-    totalHours: number;
-    completedTasks: number;
-  };
-  status?: UserStatus;
-  mood?: MoodType;
-  examGoal?: string;
-  studyPace?: string;
-}
+import { MoodType, UserProfile } from '@/types/user/base';
 
 interface EnhancedProfileCardProps {
   userProfile: UserProfile;

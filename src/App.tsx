@@ -10,7 +10,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 // Import pages and components
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
-import NotFound from '@/pages/NotFound';
+import NotFoundPage from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -92,23 +92,25 @@ const App = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Public documentation routes */}
-              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
-              <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
-              
-              {/* Documentation Pages - make them publicly accessible directly from the root */}
+              {/* Public documentation routes - FULLY ACCESSIBLE */}
               <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               
-              {/* Make test.prepzr.com paths accessible */}
+              {/* Handle test.prepzr.com URL formats */}
               <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               <Route path="/test.prepzr.com/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/test.prepzr.com/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              
+              {/* Public documentation routes */}
+              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
+              <Route path="/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
+              <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
+              <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
               
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
@@ -195,7 +197,7 @@ const App = () => {
               <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
             <Toaster />
           </AdminAuthProvider>

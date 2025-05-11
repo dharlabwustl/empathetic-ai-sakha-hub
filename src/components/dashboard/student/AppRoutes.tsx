@@ -46,6 +46,14 @@ const AppRoutes: React.FC = () => {
       {/* Documentation routes */}
       <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      
+      {/* Make test.prepzr.com paths accessible */}
+      <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
     </Routes>
   );
 };

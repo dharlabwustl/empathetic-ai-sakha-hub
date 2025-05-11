@@ -76,10 +76,18 @@ const StudentRoutes = () => {
       <Route path="/loading" element={<DashboardLoading />} />
       
       {/* Documentation routes - make them publicly accessible */}
-      <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
-      <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      <Route path="/documentation/signup-database-mapping" element={
+        <MainLayout>
+          <SignupDatabaseMappingPage />
+        </MainLayout>
+      } />
+      <Route path="/documentation/pagewise-mapping" element={
+        <MainLayout>
+          <PagewiseDatabaseMappingPage />
+        </MainLayout>
+      } />
       
-      {/* Add routes for test.prepzr.com domain */}
+      {/* Make test.prepzr.com paths accessible */}
       <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       
