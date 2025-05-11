@@ -17,6 +17,7 @@ import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappingPage';
 import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
+import MainLayout from '@/components/layouts/MainLayout';
 
 const StudentRoutes = () => {
   return (
@@ -74,9 +75,13 @@ const StudentRoutes = () => {
       } />
       <Route path="/loading" element={<DashboardLoading />} />
       
-      {/* Documentation routes */}
+      {/* Documentation routes - make them publicly accessible */}
       <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
       <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+      
+      {/* Add routes for test.prepzr.com domain */}
+      <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+      <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
       
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

@@ -23,7 +23,7 @@ import ConceptCardDetail from './components/dashboard/student/concept-cards/Conc
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
-import Login from './pages/Login';
+import Login from '@/pages/Login';
 import ProfilePage from '@/pages/student/ProfilePage';
 import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
@@ -75,7 +75,7 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
   );
 };
 
-function App() {
+const App = () => {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
       <BrowserRouter>
@@ -98,49 +98,17 @@ function App() {
               <Route path="/test.prepzr.com/dashboard/admin/flask-guide" element={<PublicFlaskGuidePage />} />
               <Route path="/test.prepzr.com/flask-guide" element={<PublicFlaskGuidePage />} />
               
-              {/* Documentation Pages - make them publicly accessible */}
-              <Route path="/signup-database-mapping" element={
-                <MainLayout>
-                  <SignupDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/documentation/signup-database-mapping" element={
-                <MainLayout>
-                  <SignupDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/documentation/pagewise-mapping" element={
-                <MainLayout>
-                  <PagewiseDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/pagewise-mapping" element={
-                <MainLayout>
-                  <PagewiseDatabaseMappingPage />
-                </MainLayout>
-              } />
+              {/* Documentation Pages - make them publicly accessible directly from the root */}
+              <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              <Route path="/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               
-              {/* Add routes for test.prepzr.com domain */}
-              <Route path="/test.prepzr.com/signup-database-mapping" element={
-                <MainLayout>
-                  <SignupDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={
-                <MainLayout>
-                  <SignupDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/test.prepzr.com/pagewise-mapping" element={
-                <MainLayout>
-                  <PagewiseDatabaseMappingPage />
-                </MainLayout>
-              } />
-              <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={
-                <MainLayout>
-                  <PagewiseDatabaseMappingPage />
-                </MainLayout>
-              } />
+              {/* Make test.prepzr.com paths accessible */}
+              <Route path="/test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              <Route path="/test.prepzr.com/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
+              <Route path="/test.prepzr.com/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               
               {/* Admin routes */}
               <Route path="/admin/dashboard" element={
@@ -222,9 +190,9 @@ function App() {
               <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
               <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
-              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
-              <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
-              <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
+              <Route path="/dashboard/student/syllabus" element={<ExamSyllabusPage />} />
+              <Route path="/dashboard/student/previous-year-analysis" element={<PreviousYearAnalysisPage />} />
+              <Route path="/dashboard/student/previous-year" element={<PreviousYearAnalysisPage />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
@@ -235,6 +203,6 @@ function App() {
       </BrowserRouter>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

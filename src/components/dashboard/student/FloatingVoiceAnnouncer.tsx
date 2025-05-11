@@ -1,448 +1,343 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Mic, MicOff, Volume2, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, X, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { getMoodEmoji } from './mood-tracking/moodUtils';
 
 interface FloatingVoiceAnnouncerProps {
-  userName: string;
-  onMoodChange?: (mood: MoodType) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  position?: 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left';
 }
 
-const FloatingVoiceAnnouncer = ({ userName, onMoodChange }: FloatingVoiceAnnouncerProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [listeningForMood, setListeningForMood] = useState(false);
-  const [processingVoice, setProcessingVoice] = useState(false);
-  const [latestCommand, setLatestCommand] = useState("");
-  const dragRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+interface Message {
+  text: string;
+  type: 'system' | 'user' | 'assistant';
+  timestamp: Date;
+}
+
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ 
+  isOpen = true, 
+  onClose, 
+  position = 'bottom-right' 
+}) => {
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    { text: 'How can I help you today?', type: 'assistant', timestamp: new Date() }
+  ]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  // Position styles
+  const positionStyles = {
+    'top-right': 'top-4 right-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
+    'top-left': 'top-4 left-4',
+  };
+
+  // Mock speech recognition
+  useEffect(() => {
+    if (isListening) {
+      const timer = setTimeout(() => {
+        setIsListening(false);
+        
+        // Simulate receiving transcript and processing
+        const mockPromptsAndResponses: Record<string, string> = {
+          "how are you": "I'm doing well! How can I assist you with your studies today?",
+          "what should i study": "Based on your recent performance, I'd recommend focusing on organic chemistry reactions for about 45 minutes.",
+          "i'm feeling tired": "I understand. Maybe take a 15-minute break before continuing with a lighter topic like vocabulary review.",
+          "help me with math": "I'd be happy to help with math! Which specific concept are you working on?",
+        };
+        
+        const lowerTranscript = transcript.toLowerCase();
+        let foundResponse = false;
+        
+        for (const [prompt, response] of Object.entries(mockPromptsAndResponses)) {
+          if (lowerTranscript.includes(prompt)) {
+            setMessages(prev => [
+              ...prev, 
+              { text: transcript, type: 'user', timestamp: new Date() },
+              { text: response, type: 'assistant', timestamp: new Date() }
+            ]);
+            foundResponse = true;
+            break;
+          }
+        }
+        
+        if (!foundResponse) {
+          // Process mood detection
+          const detectedMood = detectMoodFromTranscript(lowerTranscript);
+          if (detectedMood) {
+            setMessages(prev => [
+              ...prev, 
+              { text: transcript, type: 'user', timestamp: new Date() },
+              { text: getMoodResponse(detectedMood), type: 'assistant', timestamp: new Date() }
+            ]);
+          } else {
+            setMessages(prev => [
+              ...prev, 
+              { text: transcript, type: 'user', timestamp: new Date() },
+              { text: "I'm not sure how to help with that. Could you try rephrasing?", type: 'assistant', timestamp: new Date() }
+            ]);
+          }
+        }
+        
+        setTranscript('');
+        
+        // Start speaking the response
+        setIsSpeaking(true);
+        setTimeout(() => setIsSpeaking(false), 3000);
+        
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isListening, transcript]);
   
-  const {
-    voiceSettings,
-    toggleVoiceEnabled,
-    toggleMute,
-    speakMessage,
-    testVoice,
-    isVoiceSupported,
-    isSpeaking,
-    isListening,
-    startListening,
-    stopListening,
-    transcript,
-    voiceInitialized
-  } = useVoiceAnnouncer({
-    userName,
-    isFirstTimeUser: false
-  });
-
+  // Mock speaking animation
   useEffect(() => {
-    // When transcript changes and we're listening for commands or mood
-    if (transcript && (isListening || listeningForMood) && !isSpeaking) {
-      if (listeningForMood) {
-        handleMoodDetection(transcript);
-      } else {
-        handleVoiceCommand(transcript);
-      }
-      setLatestCommand(transcript);
-    }
-  }, [transcript, isListening, listeningForMood]);
-
-  // Ensure the floating button stays on screen when window resizes
-  useEffect(() => {
-    const handleResize = () => {
-      setPosition(prevPos => ({
-        x: Math.min(prevPos.x, window.innerWidth - 80),
-        y: Math.min(prevPos.y, window.innerHeight - 80)
-      }));
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Handle mouse events for dragging
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (dragRef.current) {
-      setIsDragging(true);
-      const rect = dragRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+    if (isSpeaking && !isPaused) {
+      const timer = setInterval(() => {
+        // Pulse animation logic would go here
+      }, 100);
       
-      // Keep the button within the window bounds
-      const constrainedX = Math.max(0, Math.min(newX, window.innerWidth - 80));
-      const constrainedY = Math.max(0, Math.min(newY, window.innerHeight - 80));
-      
-      setPosition({ x: constrainedX, y: constrainedY });
+      return () => clearInterval(timer);
     }
-  };
+  }, [isSpeaking, isPaused]);
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Toggle the expanded state of the voice assistant
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      speakMessage(`Hello ${userName}, how can I help you today?`);
-    }
-  };
-
-  // Start listening for voice commands
   const handleStartListening = () => {
-    setListeningForMood(false);
-    speakMessage("I'm listening...");
-    setTimeout(() => {
-      startListening();
-    }, 1000);
-  };
-
-  // Start listening specifically for mood updates
-  const handleMoodListening = () => {
-    setListeningForMood(true);
-    speakMessage("How are you feeling today?");
-    setTimeout(() => {
-      startListening();
-    }, 1000);
-  };
-
-  // Process the mood from voice transcript
-  const handleMoodDetection = (text: string) => {
-    const cleanText = text.toLowerCase().trim();
-    setProcessingVoice(true);
+    setIsListening(true);
     
-    // Map common mood expressions to MoodType values
-    const moodMap = {
+    // Simulate user speaking/typing
+    const mockPhrases = [
+      "I'm feeling really stressed about my exams tomorrow",
+      "Can you help me organize my study schedule?",
+      "I don't understand this chemistry concept",
+      "What should I focus on today?",
+      "I'm feeling tired but need to study"
+    ];
+    
+    setTranscript(mockPhrases[Math.floor(Math.random() * mockPhrases.length)]);
+  };
+
+  const detectMoodFromTranscript = (text: string): MoodType | null => {
+    const moodPatterns: Record<string, MoodType> = {
+      "stress": MoodType.STRESSED,
+      "worried": MoodType.ANXIOUS,
+      "anxious": MoodType.ANXIOUS,
+      "nervous": MoodType.ANXIOUS,
       "happy": MoodType.HAPPY,
-      "good": MoodType.HAPPY,
       "great": MoodType.HAPPY,
-      "excellent": MoodType.HAPPY,
-      "amazing": MoodType.HAPPY,
-      "focused": MoodType.FOCUSED,
-      "concentrating": MoodType.FOCUSED,
-      "in the zone": MoodType.FOCUSED,
+      "excited": MoodType.HAPPY,
       "motivated": MoodType.MOTIVATED,
-      "driven": MoodType.MOTIVATED,
-      "inspired": MoodType.MOTIVATED,
-      "determined": MoodType.MOTIVATED,
+      "ready": MoodType.MOTIVATED,
+      "focused": MoodType.FOCUSED,
+      "concentrate": MoodType.FOCUSED,
       "tired": MoodType.TIRED,
       "exhausted": MoodType.TIRED,
       "sleepy": MoodType.TIRED,
-      "fatigued": MoodType.TIRED,
-      "stressed": MoodType.STRESSED,
-      "pressured": MoodType.STRESSED,
-      "overwhelmed": MoodType.STRESSED,
       "confused": MoodType.CONFUSED,
-      "unsure": MoodType.CONFUSED,
+      "don't understand": MoodType.CONFUSED,
       "lost": MoodType.CONFUSED,
-      "perplexed": MoodType.CONFUSED,
-      "anxious": MoodType.ANXIOUS,
-      "nervous": MoodType.ANXIOUS,
-      "worried": MoodType.ANXIOUS,
-      "uneasy": MoodType.ANXIOUS,
       "neutral": MoodType.NEUTRAL,
+      "fine": MoodType.NEUTRAL,
       "okay": MoodType.OKAY,
-      "fine": MoodType.OKAY,
       "alright": MoodType.OKAY,
       "so so": MoodType.OKAY,
       "overwhelmed": MoodType.OVERWHELMED,
       "swamped": MoodType.OVERWHELMED,
       "curious": MoodType.CURIOUS,
       "interested": MoodType.CURIOUS,
-      "inquisitive": MoodType.CURIOUS,
       "sad": MoodType.SAD,
-      "down": MoodType.SAD,
-      "unhappy": MoodType.SAD,
-      "blue": MoodType.SAD
+      "upset": MoodType.SAD,
+      "down": MoodType.SAD
     };
     
-    // Find the matching mood
-    let detectedMood: MoodType | null = null;
-    Object.entries(moodMap).forEach(([keyword, mood]) => {
-      if (cleanText.includes(keyword)) {
-        detectedMood = mood;
+    for (const [pattern, mood] of Object.entries(moodPatterns)) {
+      if (text.includes(pattern)) {
+        return mood;
       }
-    });
-    
-    if (detectedMood && onMoodChange) {
-      onMoodChange(detectedMood);
-      const emoji = getMoodEmoji(detectedMood);
-      speakMessage(`I'll set your mood to ${detectedMood.toLowerCase()}. ${emoji}`);
-      toast({
-        title: "Mood Updated",
-        description: `Your mood has been set to ${detectedMood.toLowerCase()} ${emoji}`,
-      });
-    } else {
-      speakMessage("I'm sorry, I didn't recognize that mood. Please try again or use the mood selector buttons.");
     }
     
-    setProcessingVoice(false);
-    setListeningForMood(false);
-  };
-
-  // Process voice commands
-  const handleVoiceCommand = (text: string) => {
-    const command = text.toLowerCase().trim();
-    setProcessingVoice(true);
-    
-    console.log("Processing voice command:", command);
-    
-    // Navigation commands
-    if (command.includes("go to dashboard") || command.includes("show dashboard")) {
-      navigate("/dashboard/student");
-      speakMessage("Navigating to dashboard");
-    } 
-    else if (command.includes("go to study plan") || command.includes("show study plan")) {
-      navigate("/dashboard/student/study-plan");
-      speakMessage("Opening study plan");
-    } 
-    else if (command.includes("show concepts") || command.includes("go to concepts")) {
-      navigate("/dashboard/student/concepts");
-      speakMessage("Opening concept cards");
-    } 
-    else if (command.includes("show flashcards") || command.includes("go to flashcards")) {
-      navigate("/dashboard/student/flashcards");
-      speakMessage("Opening flashcards");
-    } 
-    else if (command.includes("practice exam") || command.includes("go to practice exam")) {
-      navigate("/dashboard/student/practice-exam");
-      speakMessage("Opening practice exams");
-    } 
-    else if (command.includes("tutor") || command.includes("go to tutor")) {
-      navigate("/dashboard/student/tutor");
-      speakMessage("Opening AI tutor");
-    }
-    else if (command.includes("update mood") || command.includes("change mood")) {
-      handleMoodListening();
-      return; // Early return to keep listening
-    }
-    else if (command.includes("what can you do") || command.includes("help")) {
-      speakMessage("I can help you navigate the app, update your mood, explain features, and assist with your studies. Try commands like 'go to dashboard', 'update my mood', 'explain concepts', or 'tell me about my study plan'.");
-    }
-    // Feature explanation commands
-    else if (command.includes("explain") || command.includes("tell me about")) {
-      if (command.includes("concept")) {
-        speakMessage("Concept cards help you master key concepts through interactive learning. Each concept has learning materials, practice questions, formula labs, and assessments.");
-      }
-      else if (command.includes("study plan") || command.includes("time allocation")) {
-        speakMessage("The study plan helps you organize your learning schedule. You can allocate time to different subjects based on your priorities and track your progress.");
-      }
-      else if (command.includes("mood tracking")) {
-        speakMessage("Mood tracking helps us understand how you're feeling and adapt your learning experience accordingly. You can update your mood anytime using voice commands or the mood selector.");
-      }
-      else if (command.includes("surrounding influence")) {
-        speakMessage("The surrounding influence meter tracks factors that affect your learning, like peer influence, environmental distractions, and your study confidence. These insights help optimize your learning experience.");
-      }
-      else if (command.includes("flashcard")) {
-        speakMessage("Flashcards help you memorize key information through spaced repetition. You can create your own cards or use our recommended sets.");
-      }
-      else if (command.includes("formula lab")) {
-        speakMessage("Formula labs let you practice and master mathematical and scientific formulas interactively. You can see step-by-step solutions and get hints when needed.");
-      }
-      else {
-        speakMessage("I'm not sure about that feature. Try asking about concepts, study plans, mood tracking, surrounding influences, flashcards, or formula labs.");
-      }
-    }
-    // Logout command
-    else if (command.includes("log out") || command.includes("logout") || command.includes("sign out")) {
-      speakMessage("Logging you out");
-      setTimeout(() => {
-        window.location.href = "/logout";
-      }, 1500);
-    }
-    else {
-      speakMessage("I didn't understand that command. Try asking for help to see what I can do.");
-    }
-    
-    setProcessingVoice(false);
-  };
-
-  // Determine content based on current page
-  const getContextualHelp = () => {
-    const path = location.pathname;
-    
-    if (path.includes('/dashboard/student/concepts')) {
-      return {
-        title: "Concept Cards",
-        tips: [
-          "Say 'explain this concept' for details",
-          "Ask 'show formula lab' to practice formulas",
-          "Try 'next concept' to browse concepts"
-        ]
-      };
-    } 
-    else if (path.includes('/dashboard/student/study-plan')) {
-      return {
-        title: "Study Plan",
-        tips: [
-          "Say 'adjust time for physics' to modify allocation",
-          "Ask 'what are my goals' to review your targets",
-          "Try 'show my weekly schedule' to see your plan"
-        ]
-      };
-    }
-    else if (path.includes('/dashboard/student/flashcards')) {
-      return {
-        title: "Flashcards",
-        tips: [
-          "Say 'flip card' to see the answer",
-          "Say 'next card' to move forward",
-          "Say 'mark as known' to track your progress"
-        ]
-      };
-    }
-    else if (path.includes('/dashboard/student/formula-practice')) {
-      return {
-        title: "Formula Practice",
-        tips: [
-          "Say 'show hint' for help with the problem",
-          "Ask 'explain steps' for a detailed solution",
-          "Say 'next formula' to practice something else"
-        ]
-      };
-    }
-    else if (path.includes('/dashboard/student/practice-exam')) {
-      return {
-        title: "Practice Exams",
-        tips: [
-          "Say 'read question' to have the question read aloud",
-          "Ask 'how much time left' for time updates",
-          "Say 'submit answer' when you're ready"
-        ]
-      };
-    }
-    else {
-      return {
-        title: "Voice Assistant",
-        tips: [
-          "Say 'go to concepts' to navigate",
-          "Try 'update my mood' to track how you feel",
-          "Ask 'what can you do' for more commands"
-        ]
-      };
-    }
+    return null;
   };
   
-  const contextualHelp = getContextualHelp();
-  
+  const getMoodResponse = (mood: MoodType): string => {
+    const responses: Record<MoodType, string[]> = {
+      [MoodType.HAPPY]: [
+        "I'm glad you're feeling happy! It's a great state of mind for productive learning.",
+        "Great to hear you're in a positive mood! Let's make the most of it."
+      ],
+      [MoodType.MOTIVATED]: [
+        "Your motivation is inspiring! Let's channel that energy into your studies.",
+        "That's the spirit! Motivation is key to achieving your academic goals."
+      ],
+      [MoodType.FOCUSED]: [
+        "Being focused is excellent for deep learning. Let's maintain that concentration.",
+        "Your focus will help you grasp complex concepts more easily."
+      ],
+      [MoodType.TIRED]: [
+        "I understand you're feeling tired. Would you like some strategies for effective studying while conserving energy?",
+        "When you're tired, shorter, more focused study sessions with breaks can be more effective."
+      ],
+      [MoodType.CONFUSED]: [
+        "It's okay to feel confused. Let's break down the concepts step by step.",
+        "Confusion is often part of the learning process. Let's tackle this together."
+      ],
+      [MoodType.ANXIOUS]: [
+        "I understand anxiety can be challenging. Deep breathing exercises might help before we start studying.",
+        "It's normal to feel anxious, especially before exams. Let's work on some techniques to manage that."
+      ],
+      [MoodType.STRESSED]: [
+        "Stress can affect your learning. Let's first take a moment to organize your priorities.",
+        "I hear that you're stressed. Let's break your work into smaller, manageable tasks."
+      ],
+      [MoodType.NEUTRAL]: [
+        "A neutral mindset can be good for objective learning. Let's get started.",
+        "Ready to begin? Let's make the most of your study session."
+      ],
+      [MoodType.OKAY]: [
+        "Feeling okay is a good baseline. Let's see if we can bring some enthusiasm to your studies.",
+        "Let's work together to make your study session productive and maybe even enjoyable."
+      ],
+      [MoodType.OVERWHELMED]: [
+        "Feeling overwhelmed is common. Let's prioritize and tackle one thing at a time.",
+        "When everything seems too much, breaking it down into small steps can help."
+      ],
+      [MoodType.CURIOUS]: [
+        "Curiosity is a powerful learning tool! Let's explore the topics you're interested in.",
+        "I love when students are curious! What aspects would you like to dive deeper into?"
+      ],
+      [MoodType.SAD]: [
+        "I'm sorry to hear you're feeling down. Would you like to talk about it or would you prefer a distraction?",
+        "Sometimes studying can actually help lift your mood. Shall we start with something you enjoy?"
+      ],
+      [MoodType.CALM]: [
+        "A calm mind is great for absorbing information. Let's make the most of this state.",
+        "Your calm demeanor will help with comprehension. Ready to begin?"
+      ]
+    };
+    
+    const moodResponses = responses[mood] || ["I'm here to help with your studies. What would you like to focus on?"];
+    return moodResponses[Math.floor(Math.random() * moodResponses.length)];
+  };
+
+  // Show tooltip briefly when component mounts
+  useEffect(() => {
+    setShowTooltip(true);
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div
-      ref={dragRef}
-      className={`fixed z-50 transition-all ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      {isExpanded ? (
-        <Card className="w-72 shadow-lg">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-semibold">Voice Assistant</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={toggleExpanded}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-muted p-3 rounded-md">
-                <h4 className="text-sm font-medium mb-1">{contextualHelp.title} Commands</h4>
-                <ul className="text-xs space-y-1 text-muted-foreground">
-                  {contextualHelp.tips.map((tip, index) => (
-                    <li key={index}>{tip}</li>
-                  ))}
-                </ul>
-              </div>
-              
-              {latestCommand && (
-                <div className="bg-secondary/50 p-2 rounded-md text-xs">
-                  <p className="font-medium">Last heard:</p>
-                  <p className="italic">"{latestCommand}"</p>
-                </div>
-              )}
-              
-              <div className="flex gap-2 justify-between">
-                <Button 
-                  variant="outline" 
-                  className={`flex-1 ${isListening ? 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : ''}`}
-                  onClick={isListening ? stopListening : handleStartListening}
-                  disabled={!voiceSettings.enabled || isSpeaking || processingVoice}
-                >
-                  {isListening ? <MicOff className="mr-1 h-4 w-4" /> : <Mic className="mr-1 h-4 w-4" />}
-                  {isListening ? "Stop" : "Listen"}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={handleMoodListening}
-                  disabled={!voiceSettings.enabled || isListening || isSpeaking || processingVoice}
-                >
-                  Update Mood
-                </Button>
-              </div>
-              
-              <div className="flex gap-2 justify-between">
-                <Button 
-                  variant={voiceSettings.enabled ? "default" : "secondary"}
-                  size="sm"
-                  className="flex-1"
-                  onClick={toggleVoiceEnabled}
-                >
-                  {voiceSettings.enabled ? "Voice On" : "Voice Off"}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => toggleMute()}
-                >
-                  {voiceSettings.muted ? "Unmute" : "Mute"}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Button
-          variant="outline"
-          size="icon"
-          className={`rounded-full h-12 w-12 shadow-md bg-white dark:bg-gray-800 ${isSpeaking ? 'ring-2 ring-blue-400 ring-opacity-75 animate-pulse' : ''} ${isListening ? 'ring-2 ring-red-400 ring-opacity-75 animate-pulse' : ''}`}
-          onClick={toggleExpanded}
-          title="Voice Assistant"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className={`fixed ${positionStyles[position]} z-50`}
         >
-          <Volume2 className={`${isSpeaking ? 'text-blue-500' : isListening ? 'text-red-500' : ''}`} />
-        </Button>
+          <Card className="w-[320px] shadow-lg border-primary/10">
+            <CardContent className="p-0">
+              {/* Header */}
+              <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 rounded-t-lg">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-blue-500'}`} />
+                  <h3 className="font-medium">Voice Assistant</h3>
+                </div>
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7" 
+                    onClick={() => setIsMuted(!isMuted)}
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </Button>
+                  {onClose && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-7 w-7" 
+                      onClick={onClose}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Messages area */}
+              <div className="max-h-[300px] overflow-y-auto p-3 space-y-3">
+                {messages.map((msg, index) => (
+                  <div 
+                    key={index}
+                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div 
+                      className={`rounded-lg px-3 py-2 max-w-[85%] ${
+                        msg.type === 'user' 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-800'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.text}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Input area */}
+              <div className="border-t p-3 flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  {isListening 
+                    ? 'Listening...' 
+                    : isSpeaking 
+                      ? 'Speaking...' 
+                      : 'Press the mic to speak'
+                  }
+                </div>
+                <div className="relative">
+                  <AnimatePresence>
+                    {showTooltip && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bottom-full mb-2 right-0 bg-black text-white text-xs p-2 rounded whitespace-nowrap"
+                      >
+                        Try asking about your schedule!
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  <Button
+                    className={`rounded-full w-10 h-10 ${isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+                    onClick={handleStartListening}
+                    disabled={isListening}
+                  >
+                    <Mic className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
-    </div>
+    </AnimatePresence>
   );
 };
 
