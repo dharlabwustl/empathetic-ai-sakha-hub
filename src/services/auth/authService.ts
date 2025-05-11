@@ -154,6 +154,9 @@ const authService = {
     
     // Clear other user-related data
     localStorage.removeItem('user_profile_image');
+    localStorage.removeItem('dashboard_tour_completed');
+    localStorage.removeItem('sawWelcomeTour');
+    localStorage.removeItem('prepzr_remembered_email');
     
     return {
       success: true,

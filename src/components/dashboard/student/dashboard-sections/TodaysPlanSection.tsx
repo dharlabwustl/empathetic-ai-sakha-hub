@@ -32,6 +32,28 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
     }
   };
 
+  // Define upcoming events with proper links
+  const upcomingEvents = [
+    {
+      title: 'Physics Practice Test',
+      time: 'Today, 4:00 PM',
+      type: 'exam',
+      link: '/dashboard/student/practice-exam'
+    },
+    {
+      title: 'Biology Revision',
+      time: 'Tomorrow, 9:00 AM',
+      type: 'concept',
+      link: '/dashboard/student/concepts'
+    },
+    {
+      title: 'Chemistry Flashcards',
+      time: 'Today, 2:30 PM',
+      type: 'flashcard',
+      link: '/dashboard/student/flashcards'
+    }
+  ];
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -54,20 +76,24 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
           </p>
           
           <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-800/50">
-            <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Quick Summary</h4>
-            <ul className="space-y-1 text-sm">
-              <li className="flex justify-between">
-                <span>Tasks for today:</span>
-                <span className="font-medium">5</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Estimated time:</span>
-                <span className="font-medium">2h 15m</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Priority subject:</span>
-                <span className="font-medium">Physics</span>
-              </li>
+            <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Next Sessions</h4>
+            <ul className="space-y-2 text-sm">
+              {upcomingEvents.map((event, index) => (
+                <li key={index} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="font-medium">{event.title}</span>
+                    <span className="text-xs text-gray-500 ml-2">({event.time})</span>
+                  </div>
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="p-0 h-auto text-violet-600"
+                    onClick={() => navigate(event.link)}
+                  >
+                    Go to task
+                  </Button>
+                </li>
+              ))}
             </ul>
           </div>
           
