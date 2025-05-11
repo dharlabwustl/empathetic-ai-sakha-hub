@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -165,6 +164,37 @@ const FormulaPracticePage: React.FC = () => {
         variant: isAnswerCorrect ? "default" : "destructive",
       });
     }, 2000);
+  };
+
+  // Modified to make the hint feature functional
+  const showHint = () => {
+    if (!currentQuestion) return;
+    
+    toast({
+      title: `Hint for Step ${currentStep + 1}`,
+      description: currentQuestion.steps[currentStep],
+      variant: "default",
+    });
+  };
+
+  // Modified to make calculator feature functional
+  const openCalculator = () => {
+    // In a real app this would open a calculator modal
+    // For now we'll simulate it with a toast notification
+    toast({
+      title: "Calculator Opened",
+      description: "This would open a scientific calculator for your calculations.",
+      variant: "default",
+    });
+    
+    // Open system calculator if available (this works in some browsers)
+    try {
+      window.open('calculator:///', '_blank');
+    } catch (e) {
+      console.log('Native calculator app could not be opened');
+      // Fallback to a web calculator
+      window.open('https://www.desmos.com/scientific', '_blank');
+    }
   };
 
   return (
@@ -336,12 +366,14 @@ const FormulaPracticePage: React.FC = () => {
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
+                      {/* Updated Hint button to use the showHint function */}
+                      <Button variant="outline" className="ml-auto" onClick={showHint}>
                         <Lightbulb className="h-4 w-4 mr-1" />
                         Hint
                       </Button>
                       
-                      <Button variant="outline">
+                      {/* Updated Calculator button to use the openCalculator function */}
+                      <Button variant="outline" onClick={openCalculator}>
                         <Calculator className="h-4 w-4 mr-1" />
                         Calculator
                       </Button>
@@ -379,7 +411,8 @@ const FormulaPracticePage: React.FC = () => {
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
+                      {/* Updated Calculator button to use the openCalculator function */}
+                      <Button variant="outline" className="ml-auto" onClick={openCalculator}>
                         <Calculator className="h-4 w-4 mr-1" />
                         Calculator
                       </Button>
@@ -447,7 +480,8 @@ const FormulaPracticePage: React.FC = () => {
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
+                      {/* Updated Calculator button to use the openCalculator function */}
+                      <Button variant="outline" className="ml-auto" onClick={openCalculator}>
                         <Calculator className="h-4 w-4 mr-1" />
                         Calculator
                       </Button>
