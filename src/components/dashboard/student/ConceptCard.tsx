@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, ArrowRight } from "lucide-react";
-import { MouseClickEvent } from '@/types/user';
 
 interface ConceptCardProps {
   id: string;
@@ -40,12 +39,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate directly to concept card detail page
-    if (onView) {
-      onView();
-    } else {
-      navigate(`/dashboard/student/concepts/${id}`);
-    }
+    // Navigate to concept card detail page
+    navigate(`/dashboard/student/concepts/card/${id}`);
   };
 
   return (
@@ -107,6 +102,10 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         <Button 
           variant="default" 
           className="w-full flex justify-between items-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/dashboard/student/concepts/card/${id}`);
+          }}
         >
           <span>Study Now</span>
           <ArrowRight className="h-4 w-4" />

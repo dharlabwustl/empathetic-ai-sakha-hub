@@ -141,19 +141,23 @@ const authService = {
     localStorage.removeItem('prepzr_remembered_email');
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
+    localStorage.removeItem('sawWelcomeTour');
+    localStorage.removeItem('hasSeenTour');
+    localStorage.removeItem('hasSeenSplash');
+    localStorage.removeItem('voiceSettings');
+    localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('study_time_allocations');
     
     // Clear any session storage items that might contain auth data
-    sessionStorage.removeItem('userData');
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('authToken');
+    sessionStorage.clear();
     
     // Reset API client
     apiClient.setAuthToken(null);
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Redirect to login page
-    // window.location.href = '/login';
+    // Force redirect to home/login after logout
+    window.location.href = '/login';
     
     return {
       success: true,
@@ -175,6 +179,8 @@ const authService = {
   clearAuthData(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
     apiClient.setAuthToken(null);
   },
   
@@ -191,7 +197,9 @@ const authService = {
   
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    return !!token || isLoggedIn;
   },
   
   // Verify if token is still valid

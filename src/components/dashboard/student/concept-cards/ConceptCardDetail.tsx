@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft, Calculator } from 'lucide-react';
+import { 
+  ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft, 
+  Calculator, Video, Eye, FileText, Brain, AlertTriangle, Star, PieChart
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock concept card data for testing/development
@@ -47,7 +51,7 @@ const ConceptCardDetail = () => {
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [userNote, setUserNote] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('summary');
 
   // Function to navigate to the concept study page
   const handleStudyClick = () => {
@@ -64,6 +68,14 @@ const ConceptCardDetail = () => {
     toast({
       title: "Loading Formula Lab",
       description: "Preparing practice exercises for this concept",
+    });
+  };
+
+  // Function to show hint for formula or concept
+  const handleShowHint = () => {
+    toast({
+      title: "Concept Hint",
+      description: "Hint: Think about how force, mass, and acceleration are related in Newton's Second Law.",
     });
   };
 
@@ -166,11 +178,11 @@ const ConceptCardDetail = () => {
           
           <Button 
             variant="outline"
-            className="w-full md:w-auto border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-            onClick={handleFormulaLabClick}
+            className={`w-full md:w-auto ${isBookmarked ? "bg-amber-100 text-amber-800 border-amber-200" : "border-indigo-200 text-indigo-700 hover:bg-indigo-50"}`}
+            onClick={toggleBookmark}
           >
-            <Calculator className="mr-2 h-4 w-4" />
-            Formula Lab
+            <Bookmark className={`mr-2 h-4 w-4 ${isBookmarked ? "fill-amber-500" : ""}`} />
+            {isBookmarked ? "Bookmarked" : "Bookmark"}
           </Button>
         </div>
       </div>
@@ -195,16 +207,24 @@ const ConceptCardDetail = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
-        <TabsList className="grid grid-cols-3 md:grid-cols-5 md:w-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
+      <Tabs defaultValue="summary" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 md:w-auto">
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="explanation">Explanation</TabsTrigger>
+          <TabsTrigger value="visual">Visual</TabsTrigger>
+          <TabsTrigger value="formula-lab">Formula Lab</TabsTrigger>
+          <TabsTrigger value="video">Video</TabsTrigger>
           <TabsTrigger value="examples">Examples</TabsTrigger>
-          <TabsTrigger value="quiz">Quiz</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="exam-mistakes">Exam Mistakes</TabsTrigger>
+          <TabsTrigger value="previous-years">Previous Years</TabsTrigger>
+          <TabsTrigger value="recall">Recall</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
+          <TabsTrigger value="notes">My Notes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
+        {/* Summary Tab */}
+        <TabsContent value="summary" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>About this Concept</CardTitle>
@@ -239,84 +259,344 @@ const ConceptCardDetail = () => {
                   </CardContent>
                 </Card>
               </div>
-              
-              {/* Formula Lab Button in Overview Tab */}
-              <div className="mt-6">
-                <Button 
-                  onClick={handleFormulaLabClick}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
-                >
-                  <Calculator className="h-5 w-5" />
-                  Practice in Formula Lab
-                  <ArrowRight className="h-4 w-4 ml-1" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Explanation Tab */}
+        <TabsContent value="explanation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Explanation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's First Law</h3>
+                  <p className="mt-2">An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force. This property of objects is called inertia.</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's Second Law</h3>
+                  <p className="mt-2">The acceleration of an object depends directly on the net force acting upon it and inversely on its mass. This relationship is expressed mathematically as:</p>
+                  <div className="p-3 bg-blue-50 mt-2 rounded-md font-mono text-center text-lg">F = ma</div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's Third Law</h3>
+                  <p className="mt-2">For every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body simultaneously exerts a force equal in magnitude and opposite in direction on the first body.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Visual Tab */}
+        <TabsContent value="visual" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Visual Representation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center space-y-6">
+                <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg w-full max-w-md">
+                  <div className="text-center text-sm text-gray-500">Visual representation placeholder</div>
+                </div>
+                <Button onClick={handleShowHint}>
+                  Show Hint
                 </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="content" className="space-y-4">
+        {/* Formula Lab Tab */}
+        <TabsContent value="formula-lab" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Content</CardTitle>
+              <CardTitle>Formula Lab</CardTitle>
+              <CardDescription>Practice solving numeric problems with interactive formulas</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Newton's laws of motion are three fundamental laws that describe the relationship between the motion of an object and the forces acting on it.</p>
-              <div className="mt-4">
-                <h3 className="font-semibold text-lg">Newton's First Law</h3>
-                <p className="mt-2">An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.</p>
+              <p className="text-muted-foreground mb-4">
+                Strengthen your understanding of {conceptCard.title} by practicing with formula-based problems.
+              </p>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-6 rounded-lg border border-blue-100 dark:border-blue-900/50 mb-6">
+                <h3 className="font-medium text-lg mb-3 text-blue-800 dark:text-blue-300">Key Formulas for {conceptCard.title}</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">F = m×a</span>
+                    </div>
+                    <span>Force equals mass times acceleration (Newton's Second Law)</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">a = F/m</span>
+                    </div>
+                    <span>Acceleration equals force divided by mass</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">F₁ = -F₂</span>
+                    </div>
+                    <span>For every action, there is an equal and opposite reaction (Newton's Third Law)</span>
+                  </div>
+                </div>
               </div>
-              <div className="mt-4">
-                <h3 className="font-semibold text-lg">Newton's Second Law</h3>
-                <p className="mt-2">The acceleration of an object depends directly on the net force acting upon it and inversely on its mass.</p>
-                <div className="p-3 bg-blue-50 mt-2 rounded-md font-mono text-center text-lg">F = ma</div>
-              </div>
-              <div className="mt-4">
-                <h3 className="font-semibold text-lg">Newton's Third Law</h3>
-                <p className="mt-2">For every action, there is an equal and opposite reaction.</p>
+              
+              <div className="flex justify-center gap-4">
+                <Button onClick={handleShowHint}>Show Hint</Button>
+                <Button onClick={handleFormulaLabClick} className="flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  Open Interactive Formula Lab
+                </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
         
+        {/* Video Tab */}
+        <TabsContent value="video" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Video Explanation</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="w-full bg-gray-100 dark:bg-gray-800 aspect-video rounded-lg flex items-center justify-center">
+                <Video className="h-12 w-12 text-gray-400" />
+              </div>
+              <p className="text-center mt-4 text-sm text-gray-500">Video explanation coming soon!</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Examples Tab */}
         <TabsContent value="examples" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Applied Examples</CardTitle>
+              <CardTitle>Example Problems</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold">First Law Example</h3>
-                  <p className="mt-1">A book on a table remains at rest because the force of gravity pulling it down is balanced by the normal force from the table pushing up.</p>
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 1: First Law</h3>
+                  <p className="mt-2">A book is at rest on a table. Explain why it remains stationary even though Earth's gravity is pulling on it.</p>
+                  <Button className="mt-4">View Solution</Button>
                 </div>
                 
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h3 className="font-semibold">Second Law Example</h3>
-                  <p className="mt-1">When you push a shopping cart, the acceleration depends on how hard you push (force) and how heavily loaded the cart is (mass).</p>
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 2: Second Law</h3>
+                  <p className="mt-2">A force of 10N acts on a 2kg mass. What is its acceleration?</p>
+                  <Button className="mt-4">View Solution</Button>
                 </div>
                 
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <h3 className="font-semibold">Third Law Example</h3>
-                  <p className="mt-1">When a swimmer pushes water backward, the water pushes the swimmer forward with equal force. This is how swimming propels you forward.</p>
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 3: Third Law</h3>
+                  <p className="mt-2">When a person stands on the ground, explain the forces acting between the person and Earth.</p>
+                  <Button className="mt-4">View Solution</Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="quiz" className="space-y-4">
+        {/* Exam Mistakes Tab */}
+        <TabsContent value="exam-mistakes" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Test Your Knowledge</CardTitle>
+              <CardTitle>Common Exam Mistakes</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4">Check your understanding of Newton's Laws with these questions.</p>
-              <Button className="w-full">Start Quiz</Button>
+              <div className="space-y-4">
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Confusing Mass and Weight</h4>
+                    <p className="text-sm mt-1">Students often confuse mass (measured in kg) with weight (a force measured in N). Remember that F = ma uses mass, not weight.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Incorrect Force Diagrams</h4>
+                    <p className="text-sm mt-1">When drawing force diagrams, ensure all forces acting on a body are included, and only those forces.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Ignoring Friction</h4>
+                    <p className="text-sm mt-1">In real-world problems, friction often plays a significant role. Don't forget to account for it when it's relevant.</p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
         
+        {/* Previous Years Questions Tab */}
+        <TabsContent value="previous-years" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Previous Years Questions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="border p-4 rounded-lg">
+                  <div className="text-sm text-gray-500">JEE Main 2021</div>
+                  <h4 className="font-medium mt-1">Question 1:</h4>
+                  <p className="mt-2">A block of mass m is placed on a smooth inclined plane of angle θ with the horizontal. The force exerted by the inclined plane on the block is:</p>
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button variant="outline">A. mg sin θ</Button>
+                    <Button variant="outline">B. mg cos θ</Button>
+                    <Button variant="outline">C. mg</Button>
+                    <Button variant="outline">D. mg cos θ perpendicular to the plane</Button>
+                  </div>
+                </div>
+                
+                <div className="border p-4 rounded-lg">
+                  <div className="text-sm text-gray-500">NEET 2020</div>
+                  <h4 className="font-medium mt-1">Question 2:</h4>
+                  <p className="mt-2">When a car takes a sharp turn on a horizontal road, the passengers feel a force pushing them away from the center of the curve. This apparent force is an example of:</p>
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button variant="outline">A. Centripetal force</Button>
+                    <Button variant="outline">B. Centrifugal force</Button>
+                    <Button variant="outline">C. Gravitational force</Button>
+                    <Button variant="outline">D. Frictional force</Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Recall Accuracy Tab */}
+        <TabsContent value="recall" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recall Accuracy</CardTitle>
+              <CardDescription>Test your memory of this concept</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6">
+                <h3 className="font-medium mb-2">Your Recall Performance</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Accuracy</span>
+                      <span>75%</span>
+                    </div>
+                    <Progress value={75} className="h-2 mt-1" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Retention</span>
+                      <span>60%</span>
+                    </div>
+                    <Progress value={60} className="h-2 mt-1" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Application</span>
+                      <span>80%</span>
+                    </div>
+                    <Progress value={80} className="h-2 mt-1" />
+                  </div>
+                </div>
+              </div>
+              
+              <Button className="w-full">Start Recall Test</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* AI Insights Tab */}
+        <TabsContent value="ai-insights" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Insights</CardTitle>
+              <CardDescription>Personalized insights based on your learning patterns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Brain className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-medium">Learning Style Match</h3>
+                  </div>
+                  <p className="text-sm">Your visual learning style matches well with the diagrams in this concept. Spend extra time on the visual representations to reinforce your understanding.</p>
+                </div>
+                
+                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="h-5 w-5 text-purple-600" />
+                    <h3 className="font-medium">Strength Area</h3>
+                  </div>
+                  <p className="text-sm">You've demonstrated strong understanding of vector problems. Apply this strength to the force problems in Newton's Laws.</p>
+                </div>
+                
+                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <PieChart className="h-5 w-5 text-amber-600" />
+                    <h3 className="font-medium">Knowledge Gap</h3>
+                  </div>
+                  <p className="text-sm">You may need additional practice with problems involving multiple forces and resultant acceleration. Focus on the examples that involve force resolution.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Suggestions Tab */}
+        <TabsContent value="suggestions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Study Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded-full h-fit">
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Related Concepts</h4>
+                    <p className="text-sm mt-1">After mastering Newton's Laws, we recommend studying:</p>
+                    <ul className="list-disc pl-5 mt-1 text-sm space-y-1">
+                      <li>Work, Energy, and Power</li>
+                      <li>Circular Motion</li>
+                      <li>Gravitation</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded-full h-fit">
+                    <BookOpen className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Study Method</h4>
+                    <p className="text-sm mt-1">Try the Feynman Technique: Explain Newton's Laws in your own simple words as if teaching someone else. This will highlight any areas you don't fully understand.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-purple-100 dark:bg-purple-900/20 p-2 rounded-full h-fit">
+                    <Calculator className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Practice Strategy</h4>
+                    <p className="text-sm mt-1">Solve at least 5 problems for each law, gradually increasing in difficulty. Focus especially on problems that combine multiple laws.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* My Notes Tab */}
         <TabsContent value="notes" className="space-y-4">
           <Card>
             <CardHeader>
@@ -330,7 +610,9 @@ const ConceptCardDetail = () => {
                 placeholder="Add your notes about this concept here..."
               />
               <div className="mt-4 flex justify-end">
-                <Button>Save Notes</Button>
+                <Button onClick={() => toast({ title: "Notes saved", description: "Your notes have been saved successfully" })}>
+                  Save Notes
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -1,18 +1,26 @@
+
 import React, { useState, useEffect } from 'react';
-import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe, Loader2 } from 'lucide-react';
+import { X, Volume2, Mic, MicOff, Settings, VolumeOff, Globe, Loader2, Calendar, Heart, BookOpen, Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { MoodType } from '@/types/user/base';
 
 interface FloatingVoiceAnnouncerProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogMood?: (mood: MoodType) => void;
 }
 
-const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen, onClose }) => {
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen, onClose, onLogMood }) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const {
     isListening,
     isSpeaking,
@@ -75,8 +83,10 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     setInput('');
     setProcessingInput(true);
     
+    const lowerText = text.toLowerCase();
+    
     // Special commands
-    if (text.toLowerCase().includes('mute') || text.toLowerCase().includes('be quiet')) {
+    if (lowerText.includes('mute') || lowerText.includes('be quiet')) {
       toggleMute(true);
       setMessages(prev => [...prev, { 
         type: 'bot' as const, 
@@ -86,7 +96,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       return;
     }
     
-    if (text.toLowerCase().includes('unmute') || text.toLowerCase().includes('speak again')) {
+    if (lowerText.includes('unmute') || lowerText.includes('speak again')) {
       toggleMute(false);
       setMessages(prev => [...prev, { 
         type: 'bot' as const, 
@@ -97,7 +107,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       return;
     }
     
-    if (text.toLowerCase().includes('hindi') || text.toLowerCase().includes('हिंदी')) {
+    if (lowerText.includes('hindi') || lowerText.includes('हिंदी')) {
       updateVoiceSettings({ language: 'hi-IN' });
       const response = "अब मैं हिंदी में बात करूंगा।";
       setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
@@ -106,7 +116,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       return;
     }
     
-    if (text.toLowerCase().includes('english') || text.toLowerCase().includes('अंग्रेज़ी')) {
+    if (lowerText.includes('english') || lowerText.includes('अंग्रेज़ी')) {
       updateVoiceSettings({ language: 'en-US' });
       const response = "I'll speak English now.";
       setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
@@ -115,7 +125,94 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       return;
     }
     
-    // Process the query (in a real app, this would use AI)
+    // Study plan related commands
+    if (lowerText.includes('study plan') || lowerText.includes('my plan')) {
+      const response = "Opening your study plan. This will show your weekly schedule and subject allocations.";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      setTimeout(() => {
+        navigate('/dashboard/student/study-plan');
+        onClose();
+      }, 2000);
+      setProcessingInput(false);
+      return;
+    }
+    
+    // Mood logging related commands
+    if (lowerText.includes('log mood') || lowerText.includes('how i feel') || lowerText.includes('feeling')) {
+      const response = "Let's record your current mood. How are you feeling right now?";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      
+      if (lowerText.includes('happy') || lowerText.includes('good')) {
+        if (onLogMood) onLogMood(MoodType.Happy);
+        
+        setTimeout(() => {
+          const moodResponse = "I've logged that you're feeling happy today. That's great!";
+          setMessages(prev => [...prev, { type: 'bot' as const, content: moodResponse }]);
+          speakMessage(moodResponse);
+          
+          toast({
+            title: "Mood logged",
+            description: "You're feeling happy today. Great mood for studying!",
+          });
+        }, 1000);
+      } else if (lowerText.includes('tired') || lowerText.includes('exhausted')) {
+        if (onLogMood) onLogMood(MoodType.Tired);
+        
+        setTimeout(() => {
+          const moodResponse = "I've logged that you're feeling tired today. Remember to take breaks between study sessions.";
+          setMessages(prev => [...prev, { type: 'bot' as const, content: moodResponse }]);
+          speakMessage(moodResponse);
+          
+          toast({
+            title: "Mood logged",
+            description: "You're feeling tired. Consider a short break to recharge.",
+          });
+        }, 1000);
+      }
+      
+      setProcessingInput(false);
+      return;
+    }
+    
+    // Today's tasks related commands
+    if (lowerText.includes('today') || lowerText.includes('tasks') || lowerText.includes('schedule')) {
+      const response = "Let me show you today's study plan and tasks. One moment please.";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      setTimeout(() => {
+        navigate('/dashboard/student/today');
+        onClose();
+      }, 2000);
+      setProcessingInput(false);
+      return;
+    }
+    
+    // Reminder related commands
+    if (lowerText.includes('reminder') || lowerText.includes('remind me')) {
+      const response = "I'll set a reminder for you. What would you like to be reminded about?";
+      setMessages(prev => [...prev, { type: 'bot' as const, content: response }]);
+      speakMessage(response);
+      
+      if (lowerText.includes('study') && (lowerText.includes('hour') || lowerText.includes('pm') || lowerText.includes('am'))) {
+        setTimeout(() => {
+          const reminderResponse = "Reminder set! I'll notify you at the specified time.";
+          setMessages(prev => [...prev, { type: 'bot' as const, content: reminderResponse }]);
+          speakMessage(reminderResponse);
+          
+          toast({
+            title: "Reminder created",
+            description: "Your study reminder has been set.",
+          });
+        }, 1000);
+      }
+      
+      setProcessingInput(false);
+      return;
+    }
+    
+    // Process other queries
     const botResponses = [
       "I can help you prepare for your exams. What subject would you like to focus on?",
       "Would you like to create a study schedule for your upcoming exam?",
@@ -176,6 +273,26 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     } else {
       startListening();
     }
+  };
+  
+  const navigateToSection = (section: string) => {
+    switch (section) {
+      case 'study-plan':
+        navigate('/dashboard/student/study-plan');
+        break;
+      case 'mood-tracking':
+        navigate('/dashboard/student/mood-tracking');
+        break;
+      case 'today':
+        navigate('/dashboard/student/today');
+        break;
+      case 'reminders':
+        navigate('/dashboard/student/reminders');
+        break;
+      default:
+        break;
+    }
+    onClose();
   };
   
   if (!isOpen) return null;
@@ -387,6 +504,42 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
         )}
       </div>
       
+      {/* Quick access buttons for key features */}
+      <div className="grid grid-cols-4 border-t border-gray-200 bg-gray-50">
+        <Button 
+          variant="ghost" 
+          className="flex flex-col items-center py-2 h-auto rounded-none gap-1"
+          onClick={() => navigateToSection('study-plan')}
+        >
+          <BookOpen className="h-4 w-4" />
+          <span className="text-xs">Plan</span>
+        </Button>
+        <Button 
+          variant="ghost" 
+          className="flex flex-col items-center py-2 h-auto rounded-none gap-1"
+          onClick={() => navigateToSection('today')}
+        >
+          <Calendar className="h-4 w-4" />
+          <span className="text-xs">Today</span>
+        </Button>
+        <Button 
+          variant="ghost" 
+          className="flex flex-col items-center py-2 h-auto rounded-none gap-1"
+          onClick={() => navigateToSection('mood-tracking')}
+        >
+          <Heart className="h-4 w-4" />
+          <span className="text-xs">Mood</span>
+        </Button>
+        <Button 
+          variant="ghost" 
+          className="flex flex-col items-center py-2 h-auto rounded-none gap-1"
+          onClick={() => navigateToSection('reminders')}
+        >
+          <Bell className="h-4 w-4" />
+          <span className="text-xs">Remind</span>
+        </Button>
+      </div>
+      
       {/* Voice Assistant Input */}
       <div className="p-3 border-t border-gray-200">
         <div className="flex items-center gap-2">
@@ -456,29 +609,26 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
             variant="outline" 
             size="sm" 
             className="text-xs"
-            onClick={() => setInput("Help me with my study plan")}
+            onClick={() => setInput("Show me today's study plan")}
           >
-            Help me with my study plan
+            Today's study plan
           </Button>
-          {voiceSettings.language === 'hi-IN' ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
-              onClick={() => setInput("अंग्रेज़ी में बोलो")}
-            >
-              Switch to English
-            </Button>
-          ) : (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
-              onClick={() => setInput("Switch to Hindi")}
-            >
-              Switch to Hindi
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setInput("Log my mood")}
+          >
+            Log my mood
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setInput("Set a reminder")}
+          >
+            Set reminder
+          </Button>
         </div>
       </div>
     </div>
