@@ -55,7 +55,7 @@ const KpiStats = () => {
   return (
     <div className="w-full">
       <div className="flex flex-col space-y-6">
-        {/* Circular KPI selector */}
+        {/* Enhanced animated circular KPI selector with integrated info display */}
         <div className="flex flex-wrap justify-center gap-4 md:gap-6">
           {kpiData.map((kpi) => (
             <motion.div
@@ -63,20 +63,62 @@ const KpiStats = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveKpi(kpi.id)}
-              className="cursor-pointer flex flex-col items-center"
+              className="cursor-pointer flex flex-col items-center group"
             >
-              <div 
-                className={`rounded-full ${kpi.color} ${activeKpi === kpi.id ? 'ring-4 ring-offset-2' : ''} 
-                p-4 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shadow-lg transition-all duration-300`}
+              <motion.div 
+                className={`relative rounded-full ${kpi.color} ${activeKpi === kpi.id ? 'ring-4 ring-offset-2' : ''} 
+                p-4 flex items-center justify-center w-16 h-16 md:w-24 md:h-24 shadow-lg transition-all duration-300`}
+                animate={{
+                  boxShadow: activeKpi === kpi.id 
+                    ? '0 0 0 4px rgba(255,255,255,0.4)'
+                    : '0 0 0 0px rgba(255,255,255,0)'
+                }}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: '0 0 15px rgba(0,0,0,0.2)'
+                }}
+                transition={{ duration: 0.3 }}
               >
                 {kpi.icon}
-              </div>
+                
+                {/* Show data on hover directly on the circle */}
+                <motion.div 
+                  className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="text-lg md:text-xl font-bold text-white">{kpi.value}</span>
+                  <span className="text-[10px] md:text-xs text-white/90 px-1 text-center">{kpi.label}</span>
+                </motion.div>
+                
+                {/* Animated pulse effect for active KPI */}
+                {activeKpi === kpi.id && (
+                  <motion.div 
+                    className="absolute inset-0 rounded-full"
+                    initial={{ scale: 1, opacity: 0.3 }}
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      opacity: [0.3, 0, 0.3]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "loop"
+                    }}
+                    style={{ 
+                      background: `${kpi.color}`,
+                      filter: 'blur(5px)'
+                    }}
+                  />
+                )}
+              </motion.div>
               <span className="mt-2 text-xs md:text-sm font-medium text-center">{kpi.label}</span>
             </motion.div>
           ))}
         </div>
 
-        {/* Selected KPI display - more compact with just key info */}
+        {/* Selected KPI display - more visually engaging */}
         <motion.div
           key={activeKpi}
           initial={{ opacity: 0, y: 10 }}
@@ -84,21 +126,38 @@ const KpiStats = () => {
           transition={{ duration: 0.3 }}
           className="mx-auto max-w-3xl"
         >
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden border-0 shadow-lg">
             <CardContent className="p-4">
               {kpiData.map((kpi) => (
                 kpi.id === activeKpi && (
-                  <div key={kpi.id} className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div key={kpi.id} className="flex flex-col md:flex-row items-center justify-between gap-4 p-2">
                     <div className="flex items-center">
-                      <div className={`mr-4 p-3 rounded-full ${kpi.color}`}>
+                      <motion.div 
+                        className={`mr-4 p-3 rounded-full ${kpi.color}`}
+                        animate={{ 
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }}
+                      >
                         {kpi.icon}
-                      </div>
+                      </motion.div>
                       <div>
                         <h3 className="text-lg font-semibold">{kpi.label}</h3>
                         <p className="text-gray-500 text-sm">{kpi.description}</p>
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-blue-600">{kpi.value}</div>
+                    <motion.div 
+                      className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {kpi.value}
+                    </motion.div>
                   </div>
                 )
               ))}

@@ -133,46 +133,107 @@ const HeroSection = () => {
     navigate("/welcome-flow?completedOnboarding=false&new=true&exam=NEET");
   };
 
+  // Animation variants for staggered text lines
+  const textVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (custom) => ({ 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.7, 
+        delay: 0.2 + custom * 0.1,
+        ease: "easeOut" 
+      } 
+    })
+  };
+
   return (
     <section className="relative bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/80 dark:via-gray-900 dark:to-violet-900/80 py-16 md:py-24 lg:py-32 overflow-hidden">
-      {/* Abstract background elements */}
+      {/* Abstract background elements with enhanced animations */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"></div>
+        <motion.div 
+          className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.4, 0.3],
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        <motion.div 
+          className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ 
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 1
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"
+          animate={{ 
+            scale: [1, 1.15, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{ 
+            duration: 9,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 2
+          }}
+        />
       </div>
       
-      {/* Grid pattern background */}
-      <div className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      {/* Enhanced grid pattern background with subtle animation */}
+      <motion.div 
+        className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"
+        animate={{ 
+          backgroundPosition: ["0% 0%", "1% 1%", "0% 0%"],
+        }}
+        transition={{ 
+          duration: 20,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <motion.div
-            className="max-w-4xl"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div className="max-w-4xl">
+            {/* Hindi text line with enhanced gradient */}
             <motion.h1 
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial="hidden"
+              animate="visible"
+              custom={0}
+              variants={textVariants}
             >
-              {/* Hindi text with proper styling */}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 block font-hindi">
+              <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
               </span>
-              
-              {/* Second line with clean styling */}
-              <span className="text-gray-800 dark:text-white block mt-2 font-sans">
-                We Understand Your Mindset, Not Just the Exam.
-              </span>
             </motion.h1>
-          </motion.div>
+            
+            {/* English text line with different animation timing */}
+            <motion.h2
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white"
+              initial="hidden"
+              animate="visible"
+              custom={1}
+              variants={textVariants}
+            >
+              We understand Your Mindset, Not Just the Exam.
+            </motion.h2>
+          </div>
           
-          {/* Dynamic taglines with animated transition */}
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 h-12 flex items-center justify-center">
+          {/* Animated taglines */}
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-12 flex items-center justify-center mt-6">
             <motion.span
               key={currentTagline}
               initial={{ opacity: 0, y: 10 }}
@@ -210,16 +271,16 @@ const HeroSection = () => {
             )}
           </div>
           
-          {/* Call to action buttons */}
+          {/* Call to action buttons with enhanced animations */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4 mb-12"
+            className="flex flex-col sm:flex-row gap-4 my-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.7, delay: 0.8 }}
           >
             {user ? (
               <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
-                <Link to="/dashboard/student" className="flex items-center">
+                <Link to="/dashboard/student" className="flex items-center px-6 py-6">
                   <SparklesIcon size={18} className="mr-2" />
                   <span>Go to Dashboard</span>
                   <motion.div
@@ -263,11 +324,84 @@ const HeroSection = () => {
             )}
           </motion.div>
           
-          {/* Exam Names Badge */}
+          {/* Dashboard preview with enhanced animations */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="mt-8 sm:mt-16 relative max-w-5xl mx-auto"
+          >
+            <motion.div 
+              className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800"
+              whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <div className="bg-gray-100 dark:bg-gray-800 h-12 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full" />
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full" />
+                  <div className="w-3 h-3 bg-green-500 rounded-full" />
+                </div>
+                <div className="mx-auto text-sm text-gray-500 dark:text-gray-400">
+                  Prepzr Dashboard
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-900 aspect-[16/9] sm:aspect-[16/8]">
+                <img 
+                  src="/img/dashboard-preview.png" 
+                  alt="Prepzr Dashboard Preview" 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </motion.div>
+            
+            {/* Enhanced decorative background elements with animations */}
+            <motion.div 
+              className="absolute -top-40 -left-40 h-80 w-80 bg-purple-300 dark:bg-purple-900/30 rounded-full filter blur-3xl opacity-30 mix-blend-multiply dark:mix-blend-soft-light"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.4, 0.3],
+              }}
+              transition={{
+                duration: 12,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            />
+            <motion.div 
+              className="absolute -bottom-40 -right-40 h-80 w-80 bg-indigo-300 dark:bg-indigo-900/30 rounded-full filter blur-3xl opacity-30 mix-blend-multiply dark:mix-blend-soft-light"
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{
+                duration: 15,
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: 2
+              }}
+            />
+            <motion.div 
+              className="absolute top-1/4 left-1/3 h-80 w-80 bg-pink-300 dark:bg-pink-900/30 rounded-full filter blur-3xl opacity-20 mix-blend-multiply dark:mix-blend-soft-light"
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.2, 0.3, 0.2],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: 1
+              }}
+            />
+          </motion.div>
+          
+          {/* Exam Names Badge - kept as is */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
             className="mt-12 mb-6 w-full"
           >
             <ExamNamesBadge />

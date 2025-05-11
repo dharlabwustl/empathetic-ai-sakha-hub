@@ -20,7 +20,10 @@ export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: Mood
     { type: MoodType.CONFUSED, label: 'Confused' },
     { type: MoodType.ANXIOUS, label: 'Anxious' },
     { type: MoodType.NEUTRAL, label: 'Neutral' },
-    { type: MoodType.SAD, label: 'Sad' }
+    { type: MoodType.OKAY, label: 'Okay' },
+    { type: MoodType.OVERWHELMED, label: 'Overwhelmed' },
+    { type: MoodType.CURIOUS, label: 'Curious' },
+    { type: MoodType.SAD, label: 'Sad' },
   ];
 
   return (

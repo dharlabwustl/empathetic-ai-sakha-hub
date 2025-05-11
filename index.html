@@ -3,205 +3,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PREPZR</title>
-    
-    <!-- Web App Manifest for mobile app installation -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="PREPZR">
-    <meta name="theme-color" content="#8B5CF6">
-    
-    <!-- iOS icons -->
-    <link rel="apple-touch-icon" href="/img/app-icon-192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/img/ios/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/img/ios/icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="/img/ios/icon-167x167.png">
-    
-    <!-- iOS splash screens -->
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-1668x2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/img/ios/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
+    <link rel="icon" type="image/png" href="/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="PREPZR is an AI-driven exam preparation platform designed for NEET, IIT-JEE, and UPSC aspirants. Access hyper-personalized smart study plans, flashcards, concept cards, mock tests, and 24x7 AI tutoring—all in one seamless platform." />
+    <title>PREPZR – AI-Powered Exam Prep for NEET, JEE, and UPSC</title>
     <style>
-      /* Add custom font for Hindi text */
-      .font-hindi {
-        font-family: 'Hind', sans-serif;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-      }
-      
-      /* Add animation for mood-changing effects */
-      @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-      
-      .animate-gradient {
-        background-size: 200% 200%;
-        animation: gradient 5s ease infinite;
-      }
-      
-      /* Add custom mobile app styles */
-      @media (display-mode: standalone) {
-        body {
-          overscroll-behavior-y: none;
-        }
-        
-        /* Add app-like safe area padding for notches */
-        .app-safe-area {
-          padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-        }
-      }
-      
-      /* PWA styles */
       html {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
+        font-size: 14px !important; /* Reduced base font size from 16px to 14px */
+        -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
       }
       
-      /* Highlight animations */
-      .highlight-animated {
-        animation: pulse 2s infinite;
+      body {
+        font-size: 14px !important; /* Reduced from 16px to 14px */
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       
-      @keyframes pulse {
-        0% { opacity: 0.8; transform: scale(0.98); }
-        50% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0.8; transform: scale(0.98); }
+      input, button, textarea, select {
+        font-size: 14px !important; /* Reduced from 16px to 14px */
       }
       
-      /* Install prompt animation */
-      .install-prompt {
-        animation: bounce 1s ease infinite;
-      }
-      
-      @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-      }
-      
-      /* Add to home screen button pulse */
-      .add-to-home {
-        position: relative;
-      }
-      
-      .add-to-home::after {
-        content: '';
-        position: absolute;
-        inset: -4px;
-        border-radius: 9999px;
-        background: rgba(139, 92, 246, 0.5);
-        z-index: -1;
-        opacity: 0;
-        animation: pulse-ring 2s infinite;
-      }
-      
-      @keyframes pulse-ring {
-        0% { opacity: 0.7; transform: scale(0.9); }
-        70% { opacity: 0; transform: scale(1.1); }
-        100% { opacity: 0; }
+      * {
+        max-height: 1000000px; /* Fix for font boosting */
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Service worker registration with enhanced PWA support -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-              console.log('Service Worker registered with scope:', registration.scope);
-              
-              // Handle updates
-              registration.onupdatefound = () => {
-                const installingWorker = registration.installing;
-                installingWorker.onstatechange = () => {
-                  if (installingWorker.state === 'installed') {
-                    if (navigator.serviceWorker.controller) {
-                      console.log('New content is available; please refresh.');
-                      // Show update notification to user
-                      const updateNotification = document.createElement('div');
-                      updateNotification.className = 'fixed bottom-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg z-50';
-                      updateNotification.innerHTML = `
-                        <div class="flex items-center justify-between gap-4">
-                          <span>New version available!</span>
-                          <button class="px-3 py-1 bg-white text-indigo-600 rounded-md">Update</button>
-                        </div>
-                      `;
-                      document.body.appendChild(updateNotification);
-                      
-                      // Handle update click
-                      updateNotification.querySelector('button').addEventListener('click', () => {
-                        window.location.reload();
-                      });
-                    } else {
-                      console.log('Content is cached for offline use.');
-                    }
-                  }
-                };
-              };
-            })
-            .catch(error => {
-              console.error('Service Worker registration failed:', error);
-            });
-            
-          // Handle PWA installation events
-          let deferredPrompt;
-          const addToHomeBtn = document.createElement('button');
-          addToHomeBtn.style.display = 'none';
-          addToHomeBtn.className = 'add-to-home fixed bottom-4 left-4 z-50 bg-indigo-600 text-white py-3 px-4 rounded-full shadow-lg';
-          addToHomeBtn.textContent = 'Install PREPZR App';
-          document.body.appendChild(addToHomeBtn);
-          
-          window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67+ from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            // Update UI to notify the user they can add to home screen
-            addToHomeBtn.style.display = 'block';
-            
-            addToHomeBtn.addEventListener('click', (e) => {
-              // Hide our user interface that shows our install button
-              addToHomeBtn.style.display = 'none';
-              // Show the install prompt
-              deferredPrompt.prompt();
-              // Wait for the user to respond to the prompt
-              deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                  console.log('User accepted the install prompt');
-                } else {
-                  console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-              });
-            });
-          });
-          
-          // Handle app installed event
-          window.addEventListener('appinstalled', (evt) => {
-            console.log('PREPZR app was installed.', evt);
-          });
-        });
-      }
-    </script>
   </body>
 </html>

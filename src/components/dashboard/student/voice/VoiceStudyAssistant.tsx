@@ -6,7 +6,6 @@ import { Mic, MicOff, Speaker } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
 import { toast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 interface VoiceStudyAssistantProps {
   userName?: string;
@@ -23,7 +22,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const navigate = useNavigate();
   
   const {
     voiceSettings,
@@ -39,18 +37,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     transcript,
     testVoice,
     voiceInitialized
-  } = useVoiceAnnouncer({ 
-    userName,
-    // Properly set pronunciation for PREPZR
-    initialSettings: {
-      pronounceDictionary: {
-        "PREPZR": "Prep-zer",
-        "PrepZR": "Prep-zer",
-        "Prepzr": "Prep-zer",
-        "prepzr": "Prep-zer"
-      }
-    }
-  });
+  } = useVoiceAnnouncer({ userName });
   
   // Initialize suggestions
   useEffect(() => {
@@ -62,9 +49,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       "What should I study today?",
       "How much time do I have for physics?",
       "Create new flashcard",
-      "Take me to concepts page",
-      "Open the tutor",
-      "Show my notifications",
     ];
     
     const taskCommands = [
@@ -72,22 +56,10 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       "Add new task",
       "What are my pending tasks?",
       "Remind me to review chemistry at 5pm",
-      "Go to feel good corner",
-    ];
-    
-    // Navigation commands
-    const navigationCommands = [
-      "Go to dashboard",
-      "Go to study plan",
-      "Show my flashcards",
-      "Open formula lab",
-      "Go to profile",
-      "Show practice exams",
-      "Go to academic advisor",
     ];
     
     // Randomize and limit suggestions
-    const allCommands = [...moodCommands, ...studyCommands, ...taskCommands, ...navigationCommands];
+    const allCommands = [...moodCommands, ...studyCommands, ...taskCommands];
     const shuffled = allCommands.sort(() => 0.5 - Math.random());
     setSuggestions(shuffled.slice(0, 6));
   }, []);
@@ -102,26 +74,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    // Helpful function to provide verbal and visual feedback
-    const provideFeedback = (message: string, action?: () => void) => {
-      speakMessage(message);
-      
-      toast({
-        title: "Voice Assistant",
-        description: message,
-        duration: 3000,
-      });
-      
-      if (action) {
-        setTimeout(action, 1000);
-      }
-    };
-    
-    // Navigation commands
-    if (handleNavigationCommand(lowerCommand, provideFeedback)) {
-      return;
-    }
-    
     // Mood related commands
     if (lowerCommand.includes('feeling') || lowerCommand.includes('mood')) {
       handleMoodCommand(lowerCommand);
@@ -131,9 +83,8 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     // Study plan related commands
     if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
       if (onStudyPlanCommand) {
-        provideFeedback("Opening your study plan now", () => {
-          onStudyPlanCommand();
-        });
+        speakMessage("Opening your study plan now");
+        onStudyPlanCommand();
       }
       return;
     }
@@ -144,83 +95,15 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       return;
     }
     
-    // Help command
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      provideFeedback("I can help you navigate the platform, manage your moods, access your study plan, manage tasks, and more. Try asking me to go to a specific page, log your mood, or show your study plan.");
-      return;
-    }
-    
     // Formula lab related commands
     if (lowerCommand.includes('formula lab')) {
-      provideFeedback("Opening the formula lab. You can practice with interactive formulas here.", () => {
-        navigate("/dashboard/student/formula-practice-lab");
-      });
+      speakMessage("Opening the formula lab. You can practice with interactive formulas here.");
+      // Navigate to formula lab (this would need to be implemented)
       return;
     }
     
-    // If no command recognized, provide helpful feedback instead of "I don't understand"
-    provideFeedback("I'm not sure what you'd like to do. You can try asking me to navigate to a page, log your mood, or show your study plan. Say 'help' for more options.");
-  };
-  
-  // Handle navigation commands
-  const handleNavigationCommand = (command: string, feedbackFn: (message: string, action?: () => void) => void): boolean => {
-    const navigationMappings = [
-      { keywords: ['dashboard', 'home', 'main page'], path: '/dashboard/student', message: "Taking you to the dashboard" },
-      { keywords: ['concept', 'concepts'], path: '/dashboard/student/concepts', message: "Opening concepts page" },
-      { keywords: ['flashcard', 'flashcards', 'cards'], path: '/dashboard/student/flashcards', message: "Going to flashcards" },
-      { keywords: ['tutor', 'assistant', 'ai tutor'], path: '/dashboard/student/tutor', message: "Opening your AI tutor" },
-      { keywords: ['formula', 'lab', 'formula lab'], path: '/dashboard/student/formula-practice-lab', message: "Opening the formula lab" },
-      { keywords: ['profile', 'account', 'my profile'], path: '/dashboard/student/profile', message: "Opening your profile" },
-      { keywords: ['exam', 'practice exam', 'test'], path: '/dashboard/student/practice-exam', message: "Going to practice exams" },
-      { keywords: ['feel good', 'relax', 'corner'], path: '/dashboard/student/feel-good-corner', message: "Taking you to the Feel Good Corner" },
-      { keywords: ['notification', 'alerts', 'notices'], path: '/dashboard/student/notifications', message: "Checking your notifications" },
-      { keywords: ['study plan', 'schedule', 'planner'], path: '/dashboard/student/study-plan', message: "Opening your study plan" },
-      { keywords: ['academic', 'advisor'], path: '/dashboard/student/academic', message: "Opening your academic advisor" },
-      { keywords: ['syllabus'], path: '/dashboard/student/syllabus', message: "Opening the syllabus page" },
-    ];
-    
-    for (const mapping of navigationMappings) {
-      if (mapping.keywords.some(keyword => command.includes(keyword))) {
-        feedbackFn(mapping.message, () => {
-          navigate(mapping.path);
-        });
-        return true;
-      }
-    }
-    
-    // Handle general navigation commands
-    if (command.includes('go to') || command.includes('navigate to') || command.includes('open') || command.includes('show')) {
-      // Extract the destination
-      let destination = '';
-      
-      if (command.includes('go to')) {
-        destination = command.split('go to')[1].trim();
-      } else if (command.includes('navigate to')) {
-        destination = command.split('navigate to')[1].trim();
-      } else if (command.includes('open')) {
-        destination = command.split('open')[1].trim();
-      } else if (command.includes('show')) {
-        destination = command.split('show')[1].trim();
-      }
-      
-      if (destination) {
-        // Try to interpret the destination
-        for (const mapping of navigationMappings) {
-          if (mapping.keywords.some(keyword => destination.includes(keyword))) {
-            feedbackFn(`Taking you to ${destination}`, () => {
-              navigate(mapping.path);
-            });
-            return true;
-          }
-        }
-        
-        // If we couldn't match a specific destination
-        feedbackFn(`I'm not sure how to navigate to ${destination}. Try saying a specific page name like "Go to dashboard" or "Open flashcards".`);
-        return true;
-      }
-    }
-    
-    return false;
+    // If no command recognized
+    speakMessage("I'm not sure how to help with that. Try asking about your mood, study plan, or tasks.");
   };
   
   const handleMoodCommand = (command: string) => {
@@ -232,45 +115,13 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       { words: ['motivated', 'determined'], mood: 'motivated' },
       { words: ['confused'], mood: 'confused' },
       { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
-      { words: ['focused', 'concentrating'], mood: 'focused' },
-      { words: ['neutral', 'okay', 'fine'], mood: 'neutral' },
-      { words: ['sad', 'unhappy', 'down'], mood: 'sad' },
     ];
     
     // Check if any mood keywords are in the command
     for (const { words, mood } of moodKeywords) {
       if (words.some(word => command.includes(word))) {
         if (onMoodCommand) {
-          // Provide personalized responses based on mood
-          let response = `I'll log that you're feeling ${mood} today.`;
-          
-          // Add mood-specific recommendations
-          switch (mood) {
-            case 'tired':
-              response += " Since you're tired, I recommend focusing on revision today rather than learning new concepts.";
-              break;
-            case 'motivated':
-              response += " Great to hear you're motivated! This is a perfect time to tackle challenging topics.";
-              break;
-            case 'stressed':
-              response += " I understand you're feeling stressed. Let's focus on manageable tasks and include some breaks in your study plan.";
-              break;
-            case 'focused':
-              response += " Excellent! When you're focused, it's a great time for deep learning and problem-solving.";
-              break;
-            case 'anxious':
-              response += " I'll adjust your study plan to include shorter sessions with more frequent breaks to help manage anxiety.";
-              break;
-          }
-          
-          speakMessage(response);
-          
-          toast({
-            title: `Mood set to ${mood}`,
-            description: "Your study recommendations have been updated.",
-            duration: 5000,
-          });
-          
+          speakMessage(`I'll log that you're feeling ${mood} today.`);
           onMoodCommand(mood);
           return;
         }
@@ -329,10 +180,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     });
   };
   
-  const testPronunciation = () => {
-    speakMessage("Hi, I'm your Prep-zer voice assistant. I can help you navigate through your studies.", true);
-  };
-  
   if (!isVoiceSupported) {
     return null;
   }
@@ -385,12 +232,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
                 <p>{transcript}</p>
               </div>
             )}
-            
-            <div className="flex justify-center my-1">
-              <Button variant="ghost" size="sm" onClick={testPronunciation} className="text-xs">
-                Test PREPZR Pronunciation
-              </Button>
-            </div>
             
             <div>
               <p className="text-xs text-muted-foreground mb-2">Try saying:</p>
