@@ -65,6 +65,8 @@ import SignupDatabaseMappingPage from '@/pages/documentation/SignupDatabaseMappi
 import PagewiseDatabaseMappingPage from '@/pages/documentation/PagewiseDatabaseMappingPage';
 import DocumentationHubPage from '@/pages/documentation/DocumentationHubPage';
 import MainLayout from '@/components/layouts/MainLayout';
+// Import new Database Mapping Page
+import DatabaseMappingPage from '@/pages/documentation/DatabaseMappingPage';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -94,13 +96,14 @@ const App = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Documentation Download Routes - These should work regardless of URL structure */}
+              {/* Documentation Download Routes */}
               <Route path="/downloads" element={<DocumentationHubPage />} />
               <Route path="/docs" element={<DocumentationHubPage />} />
               <Route path="/documentation" element={<DocumentationHubPage />} />
               <Route path="/documentation/downloads" element={<DocumentationHubPage />} />
               <Route path="/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              <Route path="/documentation/database-mapping" element={<DatabaseMappingPage />} />
               
               {/* Handle test.prepzr.com URL formats */}
               <Route path="/test.prepzr.com/downloads" element={<DocumentationHubPage />} />
@@ -111,6 +114,8 @@ const App = () => {
               <Route path="/test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
               <Route path="test.prepzr.com/documentation/signup-database-mapping" element={<SignupDatabaseMappingPage />} />
               <Route path="test.prepzr.com/documentation/pagewise-mapping" element={<PagewiseDatabaseMappingPage />} />
+              <Route path="/test.prepzr.com/documentation/database-mapping" element={<DatabaseMappingPage />} />
+              <Route path="test.prepzr.com/documentation/database-mapping" element={<DatabaseMappingPage />} />
               
               {/* Public documentation routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
