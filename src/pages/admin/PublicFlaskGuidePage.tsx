@@ -114,46 +114,73 @@ const PublicFlaskGuidePage = () => {
       <div className="flex flex-col gap-6">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Flask Backend Integration Guide</h1>
-          <p className="text-xl text-gray-500 dark:text-gray-400">
+          <p className="text-xl text-gray-500 dark:text-gray-400 mb-6">
             Complete documentation for connecting Flask backend to PREPZR frontend
           </p>
-        </div>
-
-        {/* SUPER PROMINENT DOWNLOAD SECTION WITH LARGE BUTTONS */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-8 rounded-xl border border-blue-100 dark:border-blue-800 mb-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-center mb-6">Download Documentation Files</h2>
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
+          
+          {/* DIRECT DOWNLOAD BUTTONS - EXTRA LARGE AND VISIBLE */}
+          <div className="flex flex-col w-full items-center justify-center gap-4 mb-8">
             <Button 
               onClick={downloadFlaskGuide} 
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-6 px-8 text-lg"
+              className="w-full max-w-md flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-8 px-8 text-xl rounded-lg shadow-lg"
               size="lg"
             >
-              <Download className="h-6 w-6" />
+              <Download className="h-8 w-8" />
               Download Flask Guide
             </Button>
             
             <Button 
               onClick={downloadSignupMapping}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 px-8 text-lg"
+              className="w-full max-w-md flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-8 px-8 text-xl rounded-lg shadow-lg"
               size="lg"
             >
-              <Download className="h-6 w-6" />
+              <Download className="h-8 w-8" />
               Download Signup Database Mapping
             </Button>
             
             <Button 
               onClick={downloadPagewiseMapping}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-6 px-8 text-lg" 
+              className="w-full max-w-md flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-8 px-8 text-xl rounded-lg shadow-lg" 
               size="lg"
             >
-              <Download className="h-6 w-6" />
+              <Download className="h-8 w-8" />
               Download Pagewise Database Mapping
             </Button>
           </div>
         </div>
+
+        {/* DIRECT DOWNLOAD LINKS AS TEXT FOR FALLBACK */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-6 mb-8">
+          <h3 className="text-lg font-bold text-center mb-4">Direct Download Links</h3>
+          <div className="flex flex-col gap-4">
+            <button 
+              onClick={downloadFlaskGuide}
+              className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 font-semibold text-lg flex items-center justify-center gap-2"
+            >
+              <Download className="h-6 w-6" />
+              Click here to download Flask Guide
+            </button>
+            
+            <button 
+              onClick={downloadSignupMapping}
+              className="text-green-600 hover:text-green-800 hover:underline dark:text-green-400 font-semibold text-lg flex items-center justify-center gap-2"
+            >
+              <Download className="h-6 w-6" />
+              Click here to download Signup Database Mapping
+            </button>
+            
+            <button 
+              onClick={downloadPagewiseMapping}
+              className="text-purple-600 hover:text-purple-800 hover:underline dark:text-purple-400 font-semibold text-lg flex items-center justify-center gap-2"
+            >
+              <Download className="h-6 w-6" />
+              Click here to download Pagewise Database Mapping
+            </button>
+          </div>
+        </div>
         
         {/* Original download buttons as fallback */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6 justify-center">
           <Button 
             onClick={downloadFlaskGuide} 
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
@@ -186,7 +213,7 @@ const PublicFlaskGuidePage = () => {
           
         <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-4">
           <p className="text-center font-medium text-yellow-800 dark:text-yellow-200">
-            Having trouble? Click directly on the large download buttons above to get all documentation files.
+            Having trouble? Click directly on any of the download buttons above to get the documentation files.
           </p>
         </div>
         
