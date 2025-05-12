@@ -195,11 +195,10 @@ const HeroSection = () => {
           <div className="max-w-4xl">
             {/* Hindi text line with enhanced gradient */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
                 अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
@@ -218,33 +217,51 @@ const HeroSection = () => {
           </div>
           
           {/* Enhanced Animated taglines */}
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-16 flex items-center justify-center mt-6">
-            <motion.span
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-20 flex items-center justify-center mt-6">
+            <motion.div
               key={currentTagline}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5 }}
-              className="inline-block"
+              className="inline-block relative"
             >
-              {taglines[currentTagline]}
-            </motion.span>
+              <motion.span
+                className="absolute inset-0 rounded-lg blur-sm"
+                style={{
+                  background: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #ec4899, #f97316)',
+                  opacity: 0.3,
+                }}
+                animate={{
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                }}
+                transition={{ duration: 5, repeat: Infinity }}
+              />
+              <span className="relative px-3 py-1 bg-white/40 dark:bg-gray-900/40 rounded-lg backdrop-blur-sm font-medium">
+                {taglines[currentTagline]}
+              </span>
+            </motion.div>
+
             {currentTagline === taglines.length - 1 && (
               <motion.span
-                className="ml-2 inline-block font-bold"
-                initial={{ backgroundSize: '0% 100%' }}
+                className="ml-2 inline-block font-bold px-3 py-1 rounded-lg"
+                initial={{ x: -20, opacity: 0 }}
                 animate={{ 
-                  backgroundSize: '100% 100%',
+                  x: 0,
+                  opacity: 1,
                   color: ["#8b5cf6", "#3b82f6", "#ec4899", "#f97316", "#8b5cf6"],
                   scale: [1, 1.1, 1],
+                  textShadow: ["0 0 5px rgba(139, 92, 246, 0.5)", "0 0 10px rgba(236, 72, 153, 0.5)", "0 0 5px rgba(59, 130, 246, 0.5)"]
                 }}
                 transition={{ 
-                  backgroundSize: { duration: 1.2 },
+                  x: { duration: 0.5 },
                   color: { duration: 4, repeat: Infinity, repeatType: "reverse" },
-                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" },
+                  textShadow: { duration: 4, repeat: Infinity, repeatType: "reverse" }
                 }}
                 style={{
                   backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6, #ec4899, #f97316)',
+                  backgroundSize: '200% auto',
                   backgroundRepeat: 'no-repeat',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',

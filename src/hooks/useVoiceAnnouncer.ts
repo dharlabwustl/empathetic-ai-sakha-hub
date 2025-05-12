@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
@@ -321,44 +320,44 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     
     // Handle mood-related commands
     if (lowerCommand.includes('i feel tired') || lowerCommand.includes('i am tired')) {
-      respond('I understand you feel tired. I recommend a short 15-minute break, followed by reviewing easier topics. Would you like me to suggest some light review topics?');
+      respond("I understand you feel tired. I recommend a short 15-minute break, followed by reviewing easier topics. Would you like me to suggest some light review topics?");
       return;
     }
     
     if (lowerCommand.includes('i feel stressed') || lowerCommand.includes('i am stressed')) {
-      respond('I can see you're feeling stressed. Let's take a deep breath together. Remember, it's okay to take breaks. Would you like me to guide you through a quick breathing exercise?');
+      respond("I can see you're feeling stressed. Let's take a deep breath together. Remember, it's okay to take breaks. Would you like me to guide you through a quick breathing exercise?");
       return;
     }
     
     if (lowerCommand.includes('i feel motivated') || lowerCommand.includes('i am motivated')) {
-      respond('That's great! Your motivation is your superpower. This is the perfect time to tackle challenging topics. Would you like me to suggest some advanced concepts to study?');
+      respond("That's great! Your motivation is your superpower. This is the perfect time to tackle challenging topics. Would you like me to suggest some advanced concepts to study?");
       return;
     }
     
     // Handle study-related commands
     if (lowerCommand.includes('what should i study') || lowerCommand.includes('suggest topics')) {
-      respond('Based on your progress, I recommend focusing on Physics concepts, particularly Newton's Laws and Kinematics. Would you like me to open these topics for you?');
+      respond("Based on your progress, I recommend focusing on Physics concepts, particularly Newton's Laws and Kinematics. Would you like me to open these topics for you?");
       return;
     }
     
     if (lowerCommand.includes('take a practice test') || lowerCommand.includes('start practice test')) {
-      respond('I'll help you start a practice test. Would you prefer a full-length test or a quick 15-minute quiz on recent topics?');
+      respond("I'll help you start a practice test. Would you prefer a full-length test or a quick 15-minute quiz on recent topics?");
       return;
     }
     
     if (lowerCommand.includes('explain') && (lowerCommand.includes('concept') || lowerCommand.includes('topic'))) {
-      respond('I'd be happy to explain this concept. Let me break it down for you step by step. First, let's understand the basic principles...');
+      respond("I'd be happy to explain this concept. Let me break it down for you step by step. First, let's understand the basic principles...");
       return;
     }
     
     // Handle help and information commands
     if (lowerCommand.includes('what can you do') || lowerCommand.includes('help me')) {
-      respond('I can help you navigate the platform, suggest study topics, explain concepts, start practice tests, track your mood, and provide personalized learning recommendations. Just ask me what you need help with.');
+      respond("I can help you navigate the platform, suggest study topics, explain concepts, start practice tests, track your mood, and provide personalized learning recommendations. Just ask me what you need help with.");
       return;
     }
     
     // Handle command not understood
-    respond('I'm processing your request to ' + command + '. How else can I assist you with your studies today?');
+    respond("I'm processing your request to " + command + ". How else can I assist you with your studies today?");
     
   }, [speakMessage]);
   

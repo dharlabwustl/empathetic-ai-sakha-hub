@@ -18,6 +18,7 @@ import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
+import { motion } from 'framer-motion';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -85,11 +86,16 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* Our Impact section with KPI Stats */}
-        <div className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Our Impact</h2>
+        {/* Redesigned Impact Section with animation and title */}
+        <motion.section 
+          className="container mx-auto px-4 py-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+        >
           <KpiStats />
-        </div>
+        </motion.section>
         
         {/* Add the AchievementsSection right after KPI Stats */}
         <AchievementsSection />
