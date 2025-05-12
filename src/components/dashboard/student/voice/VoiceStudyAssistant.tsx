@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, Speaker } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
-import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
+import { getMoodVoiceCommands, getMoodStudyRecommendation } from '@/components/dashboard/student/mood-tracking/moodUtils';
 import { toast } from '@/hooks/use-toast';
+import { MoodType } from '@/types/user/base';
 
 interface VoiceStudyAssistantProps {
   userName?: string;
@@ -37,7 +38,19 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     transcript,
     testVoice,
     voiceInitialized
-  } = useVoiceAnnouncer({ userName });
+  } = useVoiceAnnouncer({ 
+    userName,
+    initialSettings: {
+      // Default settings with correct PREPZR pronunciation
+      enabled: true,
+      muted: false,
+      volume: 1,
+      rate: 1,
+      pitch: 1,
+      voice: '',
+      language: 'en-US'
+    }
+  });
   
   // Initialize suggestions
   useEffect(() => {
@@ -49,6 +62,10 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
       "What should I study today?",
       "How much time do I have for physics?",
       "Create new flashcard",
+      "Navigate to concepts section",
+      "Go to dashboard",
+      "Take me to practice exams",
+      "Open flashcards"
     ];
     
     const taskCommands = [
@@ -74,14 +91,20 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
+    // Navigation commands
+    if (lowerCommand.includes('go to') || lowerCommand.includes('navigate') || lowerCommand.includes('open')) {
+      handleNavigationCommand(lowerCommand);
+      return;
+    }
+    
     // Mood related commands
-    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood')) {
+    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood') || lowerCommand.includes('set mood') || lowerCommand.includes('log mood')) {
       handleMoodCommand(lowerCommand);
       return;
     }
     
     // Study plan related commands
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule') || lowerCommand.includes('timetable')) {
       if (onStudyPlanCommand) {
         speakMessage("Opening your study plan now");
         onStudyPlanCommand();
@@ -96,32 +119,109 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     }
     
     // Formula lab related commands
-    if (lowerCommand.includes('formula lab')) {
+    if (lowerCommand.includes('formula') || lowerCommand.includes('lab')) {
       speakMessage("Opening the formula lab. You can practice with interactive formulas here.");
-      // Navigate to formula lab (this would need to be implemented)
+      navigateTo('/dashboard/student/formula-practice-lab');
       return;
     }
     
-    // If no command recognized
-    speakMessage("I'm not sure how to help with that. Try asking about your mood, study plan, or tasks.");
+    // Exam practice commands
+    if (lowerCommand.includes('practice exam') || lowerCommand.includes('take exam') || lowerCommand.includes('test')) {
+      speakMessage("Opening practice exams section. You can select mock tests here.");
+      navigateTo('/dashboard/student/practice-exam');
+      return;
+    }
+    
+    // Concept related commands
+    if (lowerCommand.includes('concept') || lowerCommand.includes('learn')) {
+      speakMessage("Opening concepts section. You can explore study materials here.");
+      navigateTo('/dashboard/student/concepts');
+      return;
+    }
+    
+    // Flashcard related commands
+    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card') || lowerCommand.includes('cards')) {
+      speakMessage("Opening flashcards section. You can practice with interactive flashcards.");
+      navigateTo('/dashboard/student/flashcards');
+      return;
+    }
+    
+    // Help command
+    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+      speakMessage("I'm your PREPZR voice assistant. I can help you navigate the platform, log your mood, open different sections like concepts, flashcards, formula lab, and practice exams. You can also ask me about your study plan or tasks.");
+      return;
+    }
+    
+    // If no command recognized, provide a helpful response instead of "I don't understand"
+    speakMessage("I can help you navigate PREPZR. Try saying 'open concepts', 'show my study plan', or 'log my mood'. What would you like to do?");
+  };
+  
+  const handleNavigationCommand = (command: string) => {
+    // Extract the destination
+    let destination = '';
+    
+    if (command.includes('dashboard')) {
+      destination = '/dashboard/student';
+      speakMessage("Taking you to the dashboard");
+    } else if (command.includes('concept')) {
+      destination = '/dashboard/student/concepts';
+      speakMessage("Opening concepts section");
+    } else if (command.includes('flashcard')) {
+      destination = '/dashboard/student/flashcards';
+      speakMessage("Opening flashcards section");
+    } else if (command.includes('formula') || command.includes('lab')) {
+      destination = '/dashboard/student/formula-practice-lab';
+      speakMessage("Opening formula lab");
+    } else if (command.includes('exam') || command.includes('practice') || command.includes('test')) {
+      destination = '/dashboard/student/practice-exam';
+      speakMessage("Opening practice exams");
+    } else if (command.includes('profile')) {
+      destination = '/dashboard/student/profile';
+      speakMessage("Opening your profile");
+    } else if (command.includes('study plan')) {
+      if (onStudyPlanCommand) {
+        onStudyPlanCommand();
+        speakMessage("Opening your study plan");
+        return;
+      }
+    } else {
+      // If destination not recognized, provide guidance
+      speakMessage("I can help you navigate to different sections like dashboard, concepts, flashcards, formula lab, or practice exams. Where would you like to go?");
+      return;
+    }
+    
+    if (destination) {
+      navigateTo(destination);
+    }
+  };
+  
+  const navigateTo = (path: string) => {
+    window.location.href = path;
   };
   
   const handleMoodCommand = (command: string) => {
     // Extract mood from command if present
     const moodKeywords = [
-      { words: ['happy', 'glad', 'great'], mood: 'happy' },
-      { words: ['tired', 'exhausted', 'sleepy'], mood: 'tired' },
-      { words: ['stressed', 'overwhelmed'], mood: 'stressed' },
-      { words: ['motivated', 'determined'], mood: 'motivated' },
-      { words: ['confused'], mood: 'confused' },
-      { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
+      { words: ['happy', 'glad', 'great', 'joyful', 'cheerful'], mood: MoodType.HAPPY },
+      { words: ['tired', 'exhausted', 'sleepy', 'fatigued'], mood: MoodType.TIRED },
+      { words: ['stressed', 'overwhelmed', 'pressured'], mood: MoodType.STRESSED },
+      { words: ['motivated', 'determined', 'inspired', 'driven'], mood: MoodType.MOTIVATED },
+      { words: ['confused', 'unsure', 'uncertain', 'perplexed'], mood: MoodType.CONFUSED },
+      { words: ['anxious', 'nervous', 'worried', 'uneasy'], mood: MoodType.ANXIOUS },
+      { words: ['focused', 'concentrated', 'attentive'], mood: MoodType.FOCUSED },
+      { words: ['neutral', 'normal', 'regular'], mood: MoodType.NEUTRAL },
+      { words: ['okay', 'ok', 'alright', 'fine'], mood: MoodType.OKAY },
+      { words: ['overwhelmed', 'swamped', 'overloaded'], mood: MoodType.OVERWHELMED },
+      { words: ['curious', 'interested', 'inquisitive'], mood: MoodType.CURIOUS },
+      { words: ['sad', 'unhappy', 'down', 'depressed', 'blue'], mood: MoodType.SAD },
     ];
     
     // Check if any mood keywords are in the command
     for (const { words, mood } of moodKeywords) {
       if (words.some(word => command.includes(word))) {
         if (onMoodCommand) {
-          speakMessage(`I'll log that you're feeling ${mood} today.`);
+          const recommendation = getMoodStudyRecommendation(mood);
+          speakMessage(`I'll log that you're feeling ${mood.toLowerCase()}. ${recommendation}`);
           onMoodCommand(mood);
           return;
         }

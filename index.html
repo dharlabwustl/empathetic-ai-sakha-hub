@@ -7,6 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="description" content="PREPZR is an AI-driven exam preparation platform designed for NEET, IIT-JEE, and UPSC aspirants. Access hyper-personalized smart study plans, flashcards, concept cards, mock tests, and 24x7 AI tutoring—all in one seamless platform." />
     <title>PREPZR – AI-Powered Exam Prep for NEET, JEE, and UPSC</title>
+    <!-- Add support for Hindi fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       html {
         font-size: 14px !important; /* Reduced base font size from 16px to 14px */
@@ -31,10 +35,19 @@
       * {
         max-height: 1000000px; /* Fix for font boosting */
       }
+      
+      /* Add PWA (Progressive Web App) support */
+      @media (display-mode: standalone) {
+        body {
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   </body>
 </html>
