@@ -1,182 +1,184 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { BookOpen, Lock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Clock, BookOpen, Star, ArrowRight, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
-interface ConceptCardProps {
-  id: string;
+export interface ConceptCardProps {
+  id: string | number;
   title: string;
   subject?: string;
+  chapter?: string;
   description?: string;
-  progress?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
-  isLocked?: boolean;
-  lastStudied?: string;
-  href?: string;
-  variant?: 'default' | 'compact';
-  onClick?: () => void;
+  timeEstimate?: number;
+  progress?: number;
+  isRecommended?: boolean;
+  isNew?: boolean;
+  tags?: string[];
+  className?: string;
 }
 
-const ConceptCard = ({
+const ConceptCard: React.FC<ConceptCardProps> = ({
   id,
   title,
   subject,
+  chapter,
   description,
-  progress = 0,
   difficulty = 'medium',
-  isLocked = false,
-  lastStudied,
-  href,
-  variant = 'default',
-  onClick,
-}: ConceptCardProps) => {
-  // Calculate how many days ago it was last studied
-  const getDaysAgo = () => {
-    if (!lastStudied) return null;
-    
-    const lastDate = new Date(lastStudied);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - lastDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    return `${diffDays} days ago`;
+  timeEstimate = 30,
+  progress = 0,
+  isRecommended = false,
+  isNew = false,
+  tags = [],
+  className = "",
+}) => {
+  const navigate = useNavigate();
+  const [isFlipped, setIsFlipped] = useState(false);
+  
+  const handleStudyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Direct user to concept detail page
+    navigate(`/dashboard/student/concepts/${id}`);
   };
   
-  // Format the card content
-  const cardContent = (
-    <CardContent className={cn(
-      "p-4 flex flex-col h-full transition-all duration-200",
-      isLocked ? "opacity-75 grayscale" : "hover:shadow-md",
-      "group"
-    )}>
-      <div className="flex items-start justify-between mb-3">
-        {/* Subject Tag */}
-        {subject && (
-          <Badge 
-            variant="outline" 
-            className={cn(
-              "px-2 py-0.5 text-xs capitalize font-normal",
-              difficulty === 'easy' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400' :
-              difficulty === 'medium' ? 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-400' :
-              'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400'
-            )}
-          >
-            {subject}
-          </Badge>
-        )}
-        
-        {/* Difficulty Badge */}
-        <Badge 
-          variant="outline" 
-          className={cn(
-            "ml-auto px-2 py-0.5 text-xs capitalize font-normal",
-            difficulty === 'easy' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400' :
-            difficulty === 'medium' ? 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-400' :
-            'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400'
-          )}
-        >
-          {difficulty}
-        </Badge>
-      </div>
-      
-      {/* Icon with Title */}
-      <div className="flex items-center gap-2 mb-1.5">
-        <div className={cn(
-          "p-1.5 rounded-md flex items-center justify-center",
-          difficulty === 'easy' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
-          difficulty === 'medium' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' :
-          'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-        )}>
-          <BookOpen className="h-4 w-4" />
-        </div>
-        <h3 className={cn(
-          "font-medium text-base flex-1",
-          isLocked && "text-muted-foreground"
-        )}>
-          {title}
-        </h3>
-      </div>
-      
-      {/* Description */}
-      {description && variant !== 'compact' && (
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-          {description}
-        </p>
-      )}
-      
-      {/* Progress Bar */}
-      <div className="mt-auto">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-muted-foreground">
-            {isLocked ? (
-              <span className="flex items-center">
-                <Lock className="h-3 w-3 mr-1" />
-                <span>Locked</span>
-              </span>
-            ) : (
-              <span>Progress</span>
-            )}
-          </span>
-          {!isLocked && (
-            <span className="text-xs font-medium">{progress}%</span>
-          )}
-        </div>
-        <Progress 
-          value={isLocked ? 0 : progress} 
-          className={cn(
-            "h-1.5 bg-gray-100 dark:bg-gray-800",
-            isLocked && "opacity-50"
-          )}
-        />
-      </div>
-      
-      {/* Last Studied */}
-      {lastStudied && !isLocked && (
-        <div className="text-xs text-muted-foreground mt-2">
-          Last studied {getDaysAgo()}
-        </div>
-      )}
-      
-      {/* Lock Overlay for locked content */}
-      {isLocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/5 dark:bg-black/5 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-          <div className="flex flex-col items-center bg-white/90 dark:bg-gray-800/90 p-3 rounded-lg shadow">
-            <Lock className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm font-medium mt-1">Premium Content</span>
-          </div>
-        </div>
-      )}
-    </CardContent>
-  );
+  // Generate difficulty color
+  const difficultyColor = 
+    difficulty === 'easy' ? 'bg-green-100 text-green-800 border-green-200' :
+    difficulty === 'hard' ? 'bg-red-100 text-red-800 border-red-200' :
+    'bg-yellow-100 text-yellow-800 border-yellow-200';
   
-  // Add styled hover state
-  const cardStyles = {
-    position: "relative",
-    overflow: "hidden",
-    height: "100%", 
-    transition: "all 0.3s ease",
-    borderRadius: "1rem",
-    background: "transparent",
-  } as React.CSSProperties;
-
+  // Format difficulty text with first letter capitalized
+  const formattedDifficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  
   return (
-    <Card className="overflow-hidden group border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-850 h-full">
-      {href ? (
-        <Link to={href} className="h-full block" onClick={onClick}>
-          {cardContent}
-        </Link>
-      ) : (
-        <div onClick={onClick} className={cn("h-full cursor-pointer", !onClick && "cursor-default")}>
-          {cardContent}
-        </div>
-      )}
-    </Card>
+    <div className="perspective-1000 h-full cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+      <motion.div 
+        className="w-full h-full relative duration-500 preserve-3d"
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Front of card */}
+        <Card className={`absolute w-full h-full backface-hidden border-2 hover:border-primary/50 transition-colors duration-200 ${className}`}>
+          <div className="flex flex-col h-full p-4">
+            {/* Card Header */}
+            <div className="mb-3">
+              <div className="flex justify-between items-start">
+                <h3 className="text-base font-semibold line-clamp-2">{title}</h3>
+                {isRecommended && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 ml-2 flex items-center">
+                    <Star className="h-3 w-3 mr-1 fill-current" />
+                    <span>Recommended</span>
+                  </Badge>
+                )}
+              </div>
+              {(subject || chapter) && (
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                  {subject}{subject && chapter && ' • '}{chapter}
+                </p>
+              )}
+            </div>
+            
+            {/* Card Badges */}
+            <div className="mt-auto">
+              <div className="flex flex-wrap gap-1 mb-3">
+                <Badge variant="outline" className={difficultyColor}>
+                  {formattedDifficulty}
+                </Badge>
+                
+                <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200 flex items-center">
+                  <Clock className="h-3 w-3 mr-1" />
+                  <span>{timeEstimate} min</span>
+                </Badge>
+                
+                {isNew && (
+                  <Badge className="bg-green-500">New</Badge>
+                )}
+              </div>
+              
+              {/* Progress bar */}
+              <div className="mb-3">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>Progress</span>
+                  <span>{progress}%</span>
+                </div>
+                <Progress value={progress} className="h-1.5" />
+              </div>
+              
+              {/* Flip hint text */}
+              <div className="text-xs text-center text-muted-foreground flex items-center justify-center">
+                <span>Tap for details</span>
+                <ChevronRight className="h-3 w-3 ml-1" />
+              </div>
+            </div>
+          </div>
+        </Card>
+        
+        {/* Back of card */}
+        <Card className={`absolute w-full h-full backface-hidden rotate-y-180 border-2 hover:border-primary/50 transition-colors duration-200 ${className}`}>
+          <div className="flex flex-col h-full p-4">
+            <div className="mb-3">
+              <h3 className="text-base font-semibold mb-2">{title}</h3>
+              
+              {/* Description (only on back) */}
+              {description && (
+                <p className="text-sm text-muted-foreground mb-3">{description}</p>
+              )}
+              
+              {/* Tags section (if any) */}
+              {tags && tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="bg-gray-100 text-gray-700">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Study Now button */}
+            <div className="mt-auto pt-2">
+              <Button 
+                size="sm" 
+                className="w-full gap-1" 
+                onClick={handleStudyNow}
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Study Now</span>
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+              
+              {/* Flip back hint */}
+              <div className="text-xs text-center text-muted-foreground mt-3 flex items-center justify-center">
+                <ChevronRight className="h-3 w-3 mr-1 rotate-180" />
+                <span>Tap to flip back</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+      
+      {/* Add the necessary CSS */}
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
+    </div>
   );
 };
 

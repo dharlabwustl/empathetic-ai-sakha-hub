@@ -1,19 +1,23 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Calendar, Lightbulb, UserIcon, InfoIcon } from 'lucide-react';
-import MoodLogButton from '@/components/dashboard/student/MoodLogButton';
-import { MoodType } from '@/types/user/base';
+import { Button } from "@/components/ui/button";
+import { HelpCircle, Bell, Calendar } from "lucide-react";
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
-  formattedDate?: string;
-  formattedTime?: string;
+  formattedDate: string;
+  formattedTime: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: MoodType;
+  mood?: string;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -24,144 +28,118 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   formattedDate,
   formattedTime,
   onOpenTour,
-  userName = "Student",
+  userName,
   mood,
-  isFirstTimeUser = false,
+  isFirstTimeUser,
   onViewStudyPlan
 }) => {
-  const getUserGreeting = () => {
-    const hour = new Date().getHours();
-    
-    if (hour < 12) {
-      return "Good Morning";
-    } else if (hour < 17) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
-    }
-  };
-  
-  // Determine if we should show first-time user messages
-  const shouldShowFirstTimeMessage = isFirstTimeUser || !localStorage.getItem("hasSeenWelcome");
-  
   return (
-    <div className="flex justify-between items-center mb-6">
-      <div className="flex items-center gap-2">
-        {!hideSidebar && (
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="mr-1 md:hidden"
-            onClick={onToggleSidebar}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        )}
-        
-        <div className="hidden md:block">
-          <h1 className="text-lg md:text-2xl font-semibold">
-            {getUserGreeting()}, {userName}
-          </h1>
-          {shouldShowFirstTimeMessage && (
-            <p className="text-sm text-muted-foreground">
-              Welcome to your personal dashboard!
-            </p>
-          )}
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        <div className="hidden md:flex items-center mr-4">
-          <div className="text-right mr-4">
-            <div className="text-sm font-medium">{formattedDate}</div>
-            <div className="text-xs text-muted-foreground">{formattedTime}</div>
+    <TooltipProvider delayDuration={0}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={onToggleSidebar}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Toggle navigation menu</p>
+            </TooltipContent>
+          </Tooltip>
+          <div>
+            <h2 className="text-lg font-semibold">{formattedTime}</h2>
+            <p className="text-muted-foreground text-sm">{formattedDate}</p>
           </div>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
         </div>
         
-        {/* Mood Button */}
-        <MoodLogButton 
-          currentMood={mood} 
-          className="hidden sm:flex"
-        />
-        
-        {/* Quick Actions on Mobile */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="md:hidden">
-              <Lightbulb className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] sm:w-[380px]">
-            <div className="px-1 py-6">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-4 flex flex-col items-center justify-center"
-                  onClick={onViewStudyPlan}
-                >
-                  <Calendar className="h-10 w-10 mb-2 text-primary" />
-                  <span>View Study Plan</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-4 flex flex-col items-center justify-center"
-                  onClick={onOpenTour}
-                >
-                  <InfoIcon className="h-10 w-10 mb-2 text-primary" />
-                  <span>Take Tour</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-4 flex flex-col items-center justify-center"
-                >
-                  <UserIcon className="h-10 w-10 mb-2 text-primary" />
-                  <span>My Profile</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-4 flex flex-col items-center justify-center"
-                >
-                  <Lightbulb className="h-10 w-10 mb-2 text-primary" />
-                  <span>Study Tips</span>
-                </Button>
-              </div>
-              
-              <div className="mt-4">
-                <MoodLogButton showLabel={true} size="default" className="w-full" />
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        
-        {/* Take Tour Button */}
-        {onOpenTour && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onOpenTour}
-            className="hidden md:flex"
-          >
-            <InfoIcon className="h-4 w-4 mr-2" />
-            Take Tour
-          </Button>
-        )}
-        
-        {/* Study Plan Button */}
-        {onViewStudyPlan && (
-          <Button 
-            variant="default" 
-            size="sm"
-            onClick={onViewStudyPlan}
-            className="hidden md:flex"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Study Plan
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Voice Announcer Integration */}
+          <VoiceAnnouncer 
+            userName={userName}
+            mood={mood}
+            isFirstTimeUser={isFirstTimeUser}
+          />
+          
+          {/* Calendar Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your study calendar based on your exam goals</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Notification Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Tour Guide Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
