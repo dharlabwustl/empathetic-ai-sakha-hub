@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
 import authService from '@/services/auth/authService';
@@ -141,23 +140,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Enhanced logout function with forceful page navigation
   const logout = () => {
-    // First clear React state
+    console.log("AuthContext: Starting logout process...");
+    
+    // First clear React state to immediately reflect logout in UI
     setUser(null);
     
     // Then call the authService logout method
     authService.logout().then(() => {
-      console.log("User logged out completely via AuthContext");
+      console.log("AuthContext: User logged out completely");
       
-      // Force a complete page refresh to reset all state
-      // Using replace instead of href for more thorough clearing
+      // Force a complete page refresh and navigation to login
       window.location.replace('/login');
     }).catch(error => {
-      console.error("Error during logout:", error);
+      console.error("AuthContext: Error during logout:", error);
       
       // Try direct approach if service call fails
-      localStorage.removeItem('userData');
-      localStorage.removeItem('isLoggedIn');
-      sessionStorage.clear();
+      console.log("AuthContext: Fallback logout approach");
+      authService.clearAuthData();
       
       // Force hard navigation
       window.location.replace('/login');

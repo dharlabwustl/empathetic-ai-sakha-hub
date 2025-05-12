@@ -40,7 +40,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // If authenticated, render the children
   if (userIsAuthenticated) {
-    return children;
+    return <>{children}</>;
   }
   
   // Otherwise, redirect to login page with return path
