@@ -2,15 +2,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
+import { MoodType } from '@/types/user/base';
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
   initialSettings?: Partial<VoiceSettings>;
   isFirstTimeUser?: boolean;
+  mood?: MoodType;
 }
 
 export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
-  const { userName, initialSettings, isFirstTimeUser = false } = props || {};
+  const { userName, initialSettings, isFirstTimeUser = false, mood } = props || {};
   
   // Merge default settings with any initialSettings
   const mergedSettings = { ...DEFAULT_VOICE_SETTINGS, ...initialSettings };
@@ -22,6 +24,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const [voiceInitialized, setVoiceInitialized] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>('');
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [lastMoodSuggestion, setLastMoodSuggestion] = useState<MoodType | null>(null);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   
@@ -140,6 +143,43 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     }
   }, [voiceSettings]);
   
+  // Track mood changes and offer suggestions
+  useEffect(() => {
+    if (mood && mood !== lastMoodSuggestion && voiceSettings.enabled && !voiceSettings.muted) {
+      const getMoodSuggestion = () => {
+        switch (mood) {
+          case MoodType.HAPPY:
+            return `Since you're feeling happy, it's a great time to tackle more challenging topics or try a practice test to maintain your positive momentum.`;
+          case MoodType.FOCUSED:
+            return `I notice you're feeling focused. This is the perfect time for deep learning sessions on complex topics.`;
+          case MoodType.TIRED:
+            return `You seem tired today. How about focusing on lighter review sessions or watching some educational videos instead of intense study?`;
+          case MoodType.STRESSED:
+            return `I can see you're feeling stressed. Let's take a short break with some breathing exercises, then try some confidence-building review of topics you already know well.`;
+          case MoodType.CURIOUS:
+            return `Your curious mood is perfect for exploring new concepts. Why not check out some of the advanced topics in your study plan?`;
+          case MoodType.OVERWHELMED:
+            return `Feeling overwhelmed is normal during exam preparation. Let's break down your study plan into smaller, manageable chunks today.`;
+          case MoodType.ANXIOUS:
+            return `When feeling anxious, it helps to start with a quick win. Try reviewing a topic you're already comfortable with to build confidence.`;
+          case MoodType.MOTIVATED:
+            return `Your motivation is high today! This is the perfect time to tackle those challenging topics you've been putting off.`;
+          case MoodType.CONFUSED:
+            return `I see you're feeling confused. Let's focus on clarifying fundamental concepts before moving to more complex topics.`;
+          default:
+            return `How about we adjust today's study plan based on your current mood?`;
+        }
+      };
+
+      // Delay the suggestion to not overwhelm the user right away
+      setTimeout(() => {
+        const suggestion = `Hey ${userName || 'there'}! ${getMoodSuggestion()}`;
+        speakMessage(suggestion);
+        setLastMoodSuggestion(mood);
+      }, 10000); // 10 seconds delay
+    }
+  }, [mood, lastMoodSuggestion, userName, voiceSettings.enabled, voiceSettings.muted]);
+  
   // Function to update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setVoiceSettings(prev => {
@@ -169,30 +209,32 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     });
   }, []);
   
-  // Function to speak a message
+  // Function to speak a message with proper PREPZR pronunciation
   const speakMessage = useCallback((message: string, forceSpeech: boolean = false) => {
     // Only speak if enabled or force speech is true
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
-        // Fix pronunciation before speaking
-        speakVoiceMessage(message, voiceSettings);
+        // Fix pronunciation for PREPZR - "Prep-zer", spoken as "Prepzer" - /prep-zər/
+        const correctedMessage = message.replace(/PREPZR/g, 'Prep-zer').replace(/prepzr/gi, 'Prep-zer');
+        
+        speakVoiceMessage(correctedMessage, voiceSettings);
       }
     }
   }, [voiceSettings]);
   
   // Test voice function with language support
   const testVoice = useCallback(() => {
-    // Use language-specific test messages
-    let testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant.`;
+    // Use language-specific test messages with correct PREPZR pronunciation
+    let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़ेड-आर वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़र वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your PREPZR voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
@@ -219,6 +261,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         const result = event.results[0][0].transcript;
         console.log('Speech recognized:', result);
         setTranscript(result);
+        
+        // Process the voice command
+        processVoiceCommand(result);
       };
       
       recognitionRef.current.onend = () => {
@@ -233,6 +278,89 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       console.error("Error initializing speech recognition:", error);
     }
   }, [voiceSettings.language]);
+  
+  // Process voice commands with intelligence and navigation understanding
+  const processVoiceCommand = useCallback((command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    // Helper function to speak responses
+    const respond = (message: string) => {
+      speakMessage(message, true);
+    };
+    
+    // Handle navigation commands
+    if (lowerCommand.includes('go to dashboard') || lowerCommand.includes('open dashboard')) {
+      respond('Opening the dashboard for you.');
+      window.location.href = '/dashboard/student';
+      return;
+    }
+    
+    if (lowerCommand.includes('go to study plan') || lowerCommand.includes('open study plan')) {
+      respond('Opening your study plan.');
+      window.location.href = '/dashboard/student/study-plan';
+      return;
+    }
+    
+    if (lowerCommand.includes('go to practice') || lowerCommand.includes('open practice tests')) {
+      respond('Opening practice tests for you.');
+      window.location.href = '/dashboard/student/practice';
+      return;
+    }
+    
+    if (lowerCommand.includes('go to concepts') || lowerCommand.includes('open concepts')) {
+      respond('Opening the concepts section.');
+      window.location.href = '/dashboard/student/concepts';
+      return;
+    }
+    
+    if (lowerCommand.includes('go to analytics') || lowerCommand.includes('show analytics')) {
+      respond('Opening your analytics dashboard.');
+      window.location.href = '/dashboard/student/analytics';
+      return;
+    }
+    
+    // Handle mood-related commands
+    if (lowerCommand.includes('i feel tired') || lowerCommand.includes('i am tired')) {
+      respond('I understand you feel tired. I recommend a short 15-minute break, followed by reviewing easier topics. Would you like me to suggest some light review topics?');
+      return;
+    }
+    
+    if (lowerCommand.includes('i feel stressed') || lowerCommand.includes('i am stressed')) {
+      respond('I can see you're feeling stressed. Let's take a deep breath together. Remember, it's okay to take breaks. Would you like me to guide you through a quick breathing exercise?');
+      return;
+    }
+    
+    if (lowerCommand.includes('i feel motivated') || lowerCommand.includes('i am motivated')) {
+      respond('That's great! Your motivation is your superpower. This is the perfect time to tackle challenging topics. Would you like me to suggest some advanced concepts to study?');
+      return;
+    }
+    
+    // Handle study-related commands
+    if (lowerCommand.includes('what should i study') || lowerCommand.includes('suggest topics')) {
+      respond('Based on your progress, I recommend focusing on Physics concepts, particularly Newton's Laws and Kinematics. Would you like me to open these topics for you?');
+      return;
+    }
+    
+    if (lowerCommand.includes('take a practice test') || lowerCommand.includes('start practice test')) {
+      respond('I'll help you start a practice test. Would you prefer a full-length test or a quick 15-minute quiz on recent topics?');
+      return;
+    }
+    
+    if (lowerCommand.includes('explain') && (lowerCommand.includes('concept') || lowerCommand.includes('topic'))) {
+      respond('I'd be happy to explain this concept. Let me break it down for you step by step. First, let's understand the basic principles...');
+      return;
+    }
+    
+    // Handle help and information commands
+    if (lowerCommand.includes('what can you do') || lowerCommand.includes('help me')) {
+      respond('I can help you navigate the platform, suggest study topics, explain concepts, start practice tests, track your mood, and provide personalized learning recommendations. Just ask me what you need help with.');
+      return;
+    }
+    
+    // Handle command not understood
+    respond('I'm processing your request to ' + command + '. How else can I assist you with your studies today?');
+    
+  }, [speakMessage]);
   
   // Start listening with current language
   const startListening = useCallback(() => {
@@ -290,7 +418,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     voiceInitialized,
     transcript,
     availableVoices,
-    supportedLanguages: getSupportedLanguages()
+    supportedLanguages: getSupportedLanguages(),
+    processVoiceCommand
   };
 };
 

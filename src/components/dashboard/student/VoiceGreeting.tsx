@@ -29,10 +29,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           setTimeout(() => {
             setAudioPlaying(true);
             
-            // Create text for speech
+            // Create text for speech with corrected pronunciation for PREPZR
             let welcomeText = '';
             if (language === 'en') {
-              welcomeText = `Welcome to PREPZR, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
+              // Use phonetic spelling to achieve the correct pronunciation
+              // "Prep" (pause) "zer" - /prep-zər/
+              welcomeText = `Welcome to Prep-zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
             } else if (language === 'hi') {
               welcomeText = `प्रेप्ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
             }
