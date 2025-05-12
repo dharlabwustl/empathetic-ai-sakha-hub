@@ -1,307 +1,135 @@
 import { VoiceSettings } from '@/types/voice';
-import { MoodType } from '@/types/user/base';
 
 // Default voice settings
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
+  volume: 1.0,
+  rate: 1.0,
+  pitch: 1.0,
+  language: 'en-IN',
   enabled: true,
   muted: false,
-  volume: 1,
-  rate: 1,
-  pitch: 1,
-  voice: '',
-  language: 'en-US'
+  voice: null,
+  autoGreet: true
 };
 
 // Language options for the voice assistant
 export const LANGUAGE_OPTIONS = [
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'en-GB', label: 'English (UK)' },
-  { value: 'en-IN', label: 'English (India)' },
+  { value: 'en-IN', label: 'English (Indian)' },
   { value: 'hi-IN', label: 'Hindi' },
-  { value: 'es-ES', label: 'Spanish' },
-  { value: 'fr-FR', label: 'French' },
-  { value: 'de-DE', label: 'German' },
-  { value: 'ja-JP', label: 'Japanese' },
-  { value: 'zh-CN', label: 'Chinese (Simplified)' },
-  { value: 'ru-RU', label: 'Russian' },
+  { value: 'en-US', label: 'English (US)' },
+  { value: 'en-GB', label: 'English (UK)' }
 ];
 
-// Find the best voice for the current language
-export const findBestVoice = (
-  language: string,
-  voices: SpeechSynthesisVoice[]
-): SpeechSynthesisVoice | null => {
-  // Try to find an exact match
-  const exactMatch = voices.find((voice) => voice.lang === language);
-  if (exactMatch) return exactMatch;
+// Find the best matching voice based on language
+export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
+  if (!voices || voices.length === 0) {
+    console.log('No voices available');
+    return null;
+  }
 
-  // Try to find a voice that starts with the language code
-  const languageCode = language.split('-')[0];
-  const languageMatch = voices.find((voice) => voice.lang.startsWith(languageCode));
-  if (languageMatch) return languageMatch;
-
-  // If no match, return null or a default voice
-  return voices.length > 0 ? voices[0] : null;
+  // First, try to find an exact match for the language
+  let matchingVoice = voices.find(v => v.lang === language);
+  
+  // If no exact match, try to find a voice that starts with the language code
+  if (!matchingVoice) {
+    const langPrefix = language.split('-')[0];
+    matchingVoice = voices.find(v => v.lang.startsWith(`${langPrefix}-`));
+  }
+  
+  // If still no match, use any voice
+  if (!matchingVoice) {
+    console.log(`No matching voice found for ${language}, using default voice`);
+    return voices[0]; // Default to first available voice
+  }
+  
+  return matchingVoice;
 };
 
-// Fix pronunciation of specific words, especially the product name
-export const fixPronunciation = (text: string): string => {
-  // Handle PREPZR pronunciation specifically
-  let fixedText = text.replace(/PREPZR/g, '<break time="0.2s"/> Prep <break time="0.15s"/> zer <break time="0.2s"/>');
-  fixedText = fixedText.replace(/prepzr/gi, '<break time="0.2s"/> Prep <break time="0.15s"/> zer <break time="0.2s"/>');
+// Function to fix pronunciation of certain words for better speech quality
+export const fixPronunciation = (text: string, language: string): string => {
+  let fixedText = text;
   
-  // Handle other difficult pronunciations
-  fixedText = fixedText.replace(/(\b[A-Z]{3,}\b)/g, (match) => {
-    return match.split('').join(' ');
-  });
-
+  if (language.startsWith('en')) {
+    // Fix English pronunciations
+    fixedText = fixedText
+      .replace(/PREPZR/gi, 'prep zee are')
+      .replace(/NEET/gi, 'neet')
+      .replace(/JEE/gi, 'J E E')
+      .replace(/AI/g, 'A I');
+  } else if (language === 'hi-IN') {
+    // Fix Hindi pronunciations if needed
+    fixedText = fixedText
+      .replace(/PREPZR/gi, 'प्रेप ज़ेड आर')
+      .replace(/NEET/gi, 'नीट')
+      .replace(/JEE/gi, 'जे ई ई');
+  }
+  
   return fixedText;
 };
 
-// Speak message using speech synthesis
-export const speakMessage = (
-  message: string,
-  settings: VoiceSettings
-): void => {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+// Function to speak a message with proper event dispatching
+export const speakMessage = (message: string, settingsOrForceFlag: VoiceSettings | boolean = DEFAULT_VOICE_SETTINGS): void => {
+  if (!message || message.trim() === '') return;
+  
+  // Handle case when second parameter is just a boolean (force flag)
+  let settings: VoiceSettings = DEFAULT_VOICE_SETTINGS;
+  let forceSpeak = false;
+  
+  if (typeof settingsOrForceFlag === 'boolean') {
+    forceSpeak = settingsOrForceFlag;
+  } else {
+    settings = settingsOrForceFlag;
+  }
+  
+  // Check if speech synthesis is available
+  if (!window.speechSynthesis) {
     console.error('Speech synthesis not supported');
     return;
   }
-
+  
+  // Don't speak if voice is disabled and not forced
+  if (!settings.enabled && !forceSpeak) return;
+  if (settings.muted && !forceSpeak) return;
+  
+  // Create utterance
+  const utterance = new SpeechSynthesisUtterance();
+  
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
-
-  // Create an event to track when speaking starts
-  const speakingStartedEvent = new CustomEvent('voice-speaking-started', {
-    detail: { message }
-  });
-  document.dispatchEvent(speakingStartedEvent);
-
-  // Add class to body for visual indicator
-  document.body.classList.add('voice-speaking');
-
-  // Fix pronunciations in the message
-  const processedMessage = fixPronunciation(message);
-
-  // Create utterance
-  const utterance = new SpeechSynthesisUtterance(processedMessage);
   
-  // Apply settings
+  // Fix pronunciation based on language
+  const fixedMessage = fixPronunciation(message, settings.language);
+  
+  // Set utterance properties
+  utterance.text = fixedMessage;
   utterance.volume = settings.volume;
   utterance.rate = settings.rate;
   utterance.pitch = settings.pitch;
   utterance.lang = settings.language;
-
-  // Get available voices
+  
+  // Get available voices and set the best matching one
   const voices = window.speechSynthesis.getVoices();
-  
-  // Find appropriate voice
-  let selectedVoice;
-  if (settings.voice) {
-    selectedVoice = voices.find(v => v.name === settings.voice);
-  }
-  
-  if (!selectedVoice) {
-    selectedVoice = findBestVoice(settings.language, voices);
-  }
+  const selectedVoice = settings.voice || findBestVoice(settings.language, voices);
   
   if (selectedVoice) {
     utterance.voice = selectedVoice;
   }
-
-  // Handle speech ending
+  
+  // Dispatch an event when speech starts
+  const startEvent = new CustomEvent('voice-speaking-started', { 
+    detail: { message: fixedMessage }
+  });
+  
+  document.dispatchEvent(startEvent);
+  document.body.classList.add('voice-speaking');
+  
+  // Speak the utterance
   utterance.onend = () => {
-    document.body.classList.remove('voice-speaking');
     document.dispatchEvent(new Event('voice-speaking-ended'));
-  };
-
-  // Handle speech error
-  utterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
     document.body.classList.remove('voice-speaking');
-    document.dispatchEvent(new Event('voice-speaking-ended'));
   };
-
-  // Start speaking
+  
   window.speechSynthesis.speak(utterance);
-};
-
-// Get mood-based study recommendations
-export const getMoodStudyRecommendation = (mood: MoodType): string => {
-  switch (mood) {
-    case MoodType.HAPPY:
-      return "Your positive mood is perfect for tackling challenging topics. Let's make the most of your energy!";
-    case MoodType.MOTIVATED:
-      return "You're motivated! This is an excellent time for focused study sessions or trying difficult problems.";
-    case MoodType.FOCUSED:
-      return "With your focused state of mind, I recommend deep-diving into complex concepts or formula practice.";
-    case MoodType.TIRED:
-      return "You seem tired. Consider a short review session with flashcards or watching video explanations instead of intense problem-solving.";
-    case MoodType.STRESSED:
-      return "I notice you're stressed. Let's try some lighter review sessions or organizing your study materials rather than tackling new topics.";
-    case MoodType.CONFUSED:
-      return "When feeling confused, it's best to revisit fundamentals or use the AI tutor to clarify concepts you're struggling with.";
-    case MoodType.ANXIOUS:
-      return "With anxiety, short study sessions with frequent breaks might help. Focus on reviewing familiar material to build confidence.";
-    case MoodType.NEUTRAL:
-      return "A balanced mood is good for steady progress. This is a good time for regular study activities in your plan.";
-    case MoodType.OKAY:
-      return "You're feeling okay, which is a good state for consistent study. Follow your regular study plan today.";
-    case MoodType.OVERWHELMED:
-      return "When overwhelmed, break down your study into smaller chunks. Focus on one topic at a time and celebrate small victories.";
-    case MoodType.CURIOUS:
-      return "Your curiosity is a powerful learning tool! Explore new topics or dive deeper into interesting concepts while maintaining this mood.";
-    case MoodType.SAD:
-      return "On days when you're feeling down, gentle review of familiar topics or organizing your notes might be better than tackling challenging new material.";
-    default:
-      return "I can help you optimize your studying based on how you're feeling. Consider logging your mood to get personalized recommendations.";
-  }
-};
-
-// Voice commands for mood setting
-export const getMoodVoiceCommands = (): string[] => [
-  "I'm feeling happy today",
-  "Log my mood as tired",
-  "I'm stressed about my exam",
-  "Set my mood to motivated",
-  "I'm feeling anxious about studying",
-  "Change my mood to focused",
-];
-
-// Store mood in localStorage
-export const storeMoodInLocalStorage = (mood: MoodType): void => {
-  try {
-    // Save current mood
-    localStorage.setItem('current_mood', mood);
-    
-    // Add to mood history
-    const now = new Date();
-    const moodEntry = {
-      mood,
-      timestamp: now.toISOString(),
-      date: now.toLocaleDateString()
-    };
-    
-    const moodHistory = JSON.parse(localStorage.getItem('mood_history') || '[]');
-    moodHistory.unshift(moodEntry); // Add to beginning
-    
-    // Keep last 30 entries only
-    if (moodHistory.length > 30) {
-      moodHistory.pop();
-    }
-    
-    localStorage.setItem('mood_history', JSON.stringify(moodHistory));
-  } catch (error) {
-    console.error('Error storing mood in localStorage:', error);
-  }
-};
-
-// Get current mood from localStorage
-export const getCurrentMoodFromLocalStorage = (): MoodType | undefined => {
-  try {
-    const mood = localStorage.getItem('current_mood');
-    return mood as MoodType | undefined;
-  } catch (error) {
-    console.error('Error retrieving mood from localStorage:', error);
-    return undefined;
-  }
-};
-
-// Analyze mood trends from history
-export const analyzeMoodTrends = () => {
-  try {
-    const moodHistory = JSON.parse(localStorage.getItem('mood_history') || '[]');
-    
-    if (moodHistory.length < 3) {
-      return { stressSignals: false, improved: false };
-    }
-    
-    // Check for stress patterns
-    const stressfulMoods = [MoodType.STRESSED, MoodType.ANXIOUS, MoodType.OVERWHELMED, MoodType.SAD];
-    const recentMoods = moodHistory.slice(0, 3);
-    const stressCount = recentMoods.filter(entry => stressfulMoods.includes(entry.mood)).length;
-    
-    // Check for mood improvement
-    const positiveMoods = [MoodType.HAPPY, MoodType.MOTIVATED, MoodType.FOCUSED, MoodType.CURIOUS];
-    const latestMood = moodHistory[0].mood;
-    const previousMoods = moodHistory.slice(1, 4).map(entry => entry.mood);
-    
-    const wasNegative = previousMoods.some(mood => stressfulMoods.includes(mood));
-    const nowPositive = positiveMoods.includes(latestMood);
-    
-    return {
-      stressSignals: stressCount >= 2,
-      improved: wasNegative && nowPositive
-    };
-  } catch (error) {
-    console.error('Error analyzing mood trends:', error);
-    return { stressSignals: false, improved: false };
-  }
-};
-
-// Update study time allocations based on mood
-export const updateStudyTimeAllocationsByMood = (mood: MoodType) => {
-  try {
-    // Default allocations (in percentages)
-    let allocations = {
-      newConcepts: 30,
-      practice: 30,
-      revision: 25,
-      breaks: 15
-    };
-    
-    // Adjust based on mood
-    switch (mood) {
-      case MoodType.HAPPY:
-      case MoodType.MOTIVATED:
-      case MoodType.FOCUSED:
-        // Productive moods - more new concepts and practice
-        allocations = {
-          newConcepts: 40,
-          practice: 35,
-          revision: 15,
-          breaks: 10
-        };
-        break;
-        
-      case MoodType.TIRED:
-      case MoodType.STRESSED:
-      case MoodType.ANXIOUS:
-      case MoodType.OVERWHELMED:
-      case MoodType.SAD:
-        // Challenging moods - more revision and breaks
-        allocations = {
-          newConcepts: 10,
-          practice: 20,
-          revision: 40,
-          breaks: 30
-        };
-        break;
-        
-      case MoodType.NEUTRAL:
-      case MoodType.OKAY:
-      case MoodType.CURIOUS:
-        // Balanced moods - standard allocation
-        allocations = {
-          newConcepts: 30,
-          practice: 30,
-          revision: 25,
-          breaks: 15
-        };
-        break;
-    }
-    
-    localStorage.setItem('study_time_allocations', JSON.stringify(allocations));
-    return allocations;
-  } catch (error) {
-    console.error('Error updating study time allocations:', error);
-    return null;
-  }
-};
-
-// Get study recommendation based on mood
-export const getStudyRecommendationForMood = (mood: MoodType): string => {
-  return getMoodStudyRecommendation(mood);
 };
 
 // Get appropriate greeting based on time of day, user's name, and mood
@@ -531,7 +359,7 @@ export const processUserQuery = (
     }
     
     // Handle language switch commands
-    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्ल���श में') || lowerQuery.includes('अंग्रेजी में')) {
+    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
       return "I'll speak English now. How can I help you with your studies?";
     }
     

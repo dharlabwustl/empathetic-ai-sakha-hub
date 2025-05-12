@@ -1,419 +1,674 @@
-<lov-code>
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { CalendarDays, CheckCircle2, Flame, Hotel, Lamp, Moon, Music2, Pizza, Smile, Speaker, Sun, Utensils } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { cn as className } from "@/lib/utils";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { isDate } from 'date-fns';
 
-interface SurroundingInfluencesSectionProps {
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CustomProgress } from "@/components/ui/custom-progress";
+import { Users, Sliders, Eye, AlertTriangle, ExternalLink, Brain, Activity, Calendar, Moon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PieChart, PieChartData } from '@/components/charts/PieChart';
+
+interface SurroundingInfluenceProps {
   influenceMeterCollapsed: boolean;
   setInfluenceMeterCollapsed: (collapsed: boolean) => void;
 }
 
-const SurroundingInfluencesSection: React.FC<SurroundingInfluencesSectionProps> = ({
-  influenceMeterCollapsed,
+const SurroundingInfluencesSection = ({
+  influenceMeterCollapsed = true,
   setInfluenceMeterCollapsed
-}) => {
-  const [activeData, setActiveData] = useState({
-    sleepRoutine: [{ value: 70, label: "Good" }],
-    studyEnvironment: [{ value: 80, label: "Excellent" }],
-    nutrition: [{ value: 60, label: "Okay" }],
-    stressLevels: [{ value: 40, label: "Low" }],
-    socialInteractions: [{ value: 90, label: "High" }],
-    screenTime: [{ value: 50, label: "Moderate" }],
-    physicalActivity: [{ value: 75, label: "Active" }],
-    musicExposure: [{ value: 65, label: "Average" }],
-    noisePollution: [{ value: 35, label: "Low" }],
-    hydrationLevels: [{ value: 85, label: "Optimal" }],
-    lightExposure: [{ value: 55, label: "Balanced" }],
-    ergonomics: [{ value: 45, label: "Poor" }],
-    digitalDistractions: [{ value: 95, label: "Minimal" }],
-    mindfulnessPractices: [{ value: 25, label: "Rare" }],
-    studyBreaks: [{ value: 60, label: "Regular" }],
-    learningResources: [{ value: 70, label: "Good" }],
-    timeManagement: [{ value: 80, label: "Efficient" }],
-    goalSetting: [{ value: 90, label: "Clear" }],
-    feedbackMechanisms: [{ value: 50, label: "Average" }],
-    positiveAffirmations: [{ value: 30, label: "Occasional" }],
-    peerInteractions: [{ value: 75, label: "Supportive" }],
-    familySupport: [{ value: 85, label: "Strong" }],
-    mentorGuidance: [{ value: 65, label: "Available" }],
-    culturalInfluences: [{ value: 40, label: "Moderate" }],
-    financialStability: [{ value: 95, label: "Secure" }],
-    accessToTechnology: [{ value: 25, label: "Limited" }],
-    communityInvolvement: [{ value: 60, label: "Active" }],
-    environmentalFactors: [{ value: 70, label: "Favorable" }],
-    personalInterests: [{ value: 80, label: "Engaging" }],
-    emotionalWellbeing: [{ value: 90, label: "Positive" }],
-  });
+}: SurroundingInfluenceProps) => {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedWeek, setSelectedWeek] = useState('current');
+  
+  // Weekly data for charts
+  const weeklyData = {
+    current: {
+      peerInfluence: [
+        { name: "Positive", value: 68, color: "#3b82f6" },
+        { name: "Neutral", value: 22, color: "#94a3b8" },
+        { name: "Negative", value: 10, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 75, color: "#22c55e" },
+        { name: "Medium", value: 15, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 62, color: "#8b5cf6" },
+        { name: "Medium", value: 28, color: "#94a3b8" },
+        { name: "Low", value: 10, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 42, color: "#22c55e" },
+        { name: "Medium", value: 38, color: "#eab308" },
+        { name: "High", value: 20, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 82, color: "#3b82f6" },
+        { name: "Partial", value: 15, color: "#94a3b8" },
+        { name: "Misaligned", value: 3, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 65, color: "#22c55e" },
+        { name: "Variable", value: 25, color: "#eab308" },
+        { name: "Unstable", value: 10, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 58, color: "#22c55e" },
+        { name: "Inconsistent", value: 32, color: "#eab308" },
+        { name: "Poor", value: 10, color: "#ef4444" }
+      ]
+    },
+    previous: {
+      peerInfluence: [
+        { name: "Positive", value: 60, color: "#3b82f6" },
+        { name: "Neutral", value: 25, color: "#94a3b8" },
+        { name: "Negative", value: 15, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 70, color: "#22c55e" },
+        { name: "Medium", value: 20, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 55, color: "#8b5cf6" },
+        { name: "Medium", value: 35, color: "#94a3b8" },
+        { name: "Low", value: 10, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 35, color: "#22c55e" },
+        { name: "Medium", value: 45, color: "#eab308" },
+        { name: "High", value: 20, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 75, color: "#3b82f6" },
+        { name: "Partial", value: 20, color: "#94a3b8" },
+        { name: "Misaligned", value: 5, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 60, color: "#22c55e" },
+        { name: "Variable", value: 30, color: "#eab308" },
+        { name: "Unstable", value: 10, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 50, color: "#22c55e" },
+        { name: "Inconsistent", value: 40, color: "#eab308" },
+        { name: "Poor", value: 10, color: "#ef4444" }
+      ]
+    },
+    twoWeeksAgo: {
+      peerInfluence: [
+        { name: "Positive", value: 55, color: "#3b82f6" },
+        { name: "Neutral", value: 25, color: "#94a3b8" },
+        { name: "Negative", value: 20, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 65, color: "#22c55e" },
+        { name: "Medium", value: 25, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 45, color: "#8b5cf6" },
+        { name: "Medium", value: 40, color: "#94a3b8" },
+        { name: "Low", value: 15, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 30, color: "#22c55e" },
+        { name: "Medium", value: 45, color: "#eab308" },
+        { name: "High", value: 25, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 70, color: "#3b82f6" },
+        { name: "Partial", value: 20, color: "#94a3b8" },
+        { name: "Misaligned", value: 10, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 55, color: "#22c55e" },
+        { name: "Variable", value: 30, color: "#eab308" },
+        { name: "Unstable", value: 15, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 45, color: "#22c55e" },
+        { name: "Inconsistent", value: 40, color: "#eab308" },
+        { name: "Poor", value: 15, color: "#ef4444" }
+      ]
+    }
+  };
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<number>(50);
-  const [editLabel, setEditLabel] = useState<string>("");
-  const [isAddNoteModalOpen, setIsAddNoteModalOpen] = useState(false);
-  const [noteText, setNoteText] = useState("");
-  const [notes, setNotes] = useState<{ category: string; text: string }[]>([]);
-  const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
-  const [goalTitle, setGoalTitle] = useState("");
-  const [goalDescription, setGoalDescription] = useState("");
-  const [goalDeadline, setGoalDeadline] = useState<Date | null>(null);
-  const [goals, setGoals] = useState<{ title: string; description: string; deadline: Date | null }[]>([]);
-  const [isAddReflectionModalOpen, setIsAddReflectionModalOpen] = useState(false);
-  const [reflectionText, setReflectionText] = useState("");
-  const [reflections, setReflections] = useState<{ category: string; text: string }[]>([]);
-  const [isAddHabitModalOpen, setIsAddHabitModalOpen] = useState(false);
-  const [habitTitle, setHabitTitle] = useState("");
-  const [habitFrequency, setHabitFrequency] = useState<string>("daily");
-  const [habits, setHabits] = useState<{ title: string; frequency: string }[]>([]);
-  const [isAddGratitudeModalOpen, setIsAddGratitudeModalOpen] = useState(false);
-  const [gratitudeText, setGratitudeText] = useState("");
-  const [gratitudes, setGratitudes] = useState<string[]>([]);
-  const [isAddAffirmationModalOpen, setIsAddAffirmationModalOpen] = useState(false);
-  const [affirmationText, setAffirmationText] = useState("");
-  const [affirmations, setAffirmations] = useState<string[]>([]);
-  const [isAddChallengeModalOpen, setIsAddChallengeModalOpen] = useState(false);
-  const [challengeTitle, setChallengeTitle] = useState("");
-  const [challengeDescription, setChallengeDescription] = useState("");
-  const [challenges, setChallenges] = useState<{ title: string; description: string }[]>([]);
-  const [isAddRewardModalOpen, setIsAddRewardModalOpen] = useState(false);
-  const [rewardTitle, setRewardTitle] = useState("");
-  const [rewardDescription, setRewardDescription] = useState("");
-  const [rewards, setRewards] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResourceModalOpen, setIsAddResourceModalOpen] = useState(false);
-  const [resourceTitle, setResourceTitle] = useState("");
-  const [resourceLink, setResourceLink] = useState("");
-  const [resources, setResources] = useState<{ title: string; link: string }[]>([]);
-  const [isAddSupportModalOpen, setIsAddSupportModalOpen] = useState(false);
-  const [supportTitle, setSupportTitle] = useState("");
-  const [supportContact, setSupportContact] = useState("");
-  const [supportResources, setSupportResources] = useState<{ title: string; contact: string }[]>([]);
-  const [isAddStrategyModalOpen, setIsAddStrategyModalOpen] = useState(false);
-  const [strategyTitle, setStrategyTitle] = useState("");
-  const [strategyDescription, setStrategyDescription] = useState("");
-  const [strategies, setStrategies] = useState<{ title: string; description: string }[]>([]);
-  const [isAddInsightModalOpen, setIsAddInsightModalOpen] = useState(false);
-  const [insightTitle, setInsightTitle] = useState("");
-  const [insightDescription, setInsightDescription] = useState("");
-  const [insights, setInsights] = useState<{ title: string; description: string }[]>([]);
-  const [isAddExperimentModalOpen, setIsAddExperimentModalOpen] = useState(false);
-  const [experimentTitle, setExperimentTitle] = useState("");
-  const [experimentDescription, setExperimentDescription] = useState("");
-  const [experiments, setExperiments] = useState<{ title: string; description: string }[]>([]);
-  const [isAddObservationModalOpen, setIsAddObservationModalOpen] = useState(false);
-  const [observationTitle, setObservationTitle] = useState("");
-  const [observationDescription, setObservationDescription] = useState("");
-  const [observations, setObservations] = useState<{ title: string; description: string }[]>([]);
-  const [isAddActionModalOpen, setIsAddActionModalOpen] = useState(false);
-  const [actionTitle, setActionTitle] = useState("");
-  const [actionDescription, setActionDescription] = useState("");
-  const [actions, setActions] = useState<{ title: string; description: string }[]>([]);
-  const [isAddReflectionPointModalOpen, setIsAddReflectionPointModalOpen] = useState(false);
-  const [reflectionPointTitle, setReflectionPointTitle] = useState("");
-  const [reflectionPointDescription, setReflectionPointDescription] = useState("");
-  const [reflectionPoints, setReflectionPoints] = useState<{ title: string; description: string }[]>([]);
-  const [isAddLearningModalOpen, setIsAddLearningModalOpen] = useState(false);
-  const [learningTitle, setLearningTitle] = useState("");
-  const [learningDescription, setLearningDescription] = useState("");
-  const [learnings, setLearnings] = useState<{ title: string; description: string }[]>([]);
-  const [isAddProgressModalOpen, setIsAddProgressModalOpen] = useState(false);
-  const [progressTitle, setProgressTitle] = useState("");
-  const [progressDescription, setProgressDescription] = useState("");
-  const [progressUpdates, setProgressUpdates] = useState<{ title: string; description: string }[]>([]);
-  const [isAddInsightfulQuestionModalOpen, setIsAddInsightfulQuestionModalOpen] = useState(false);
-  const [insightfulQuestionTitle, setInsightfulQuestionTitle] = useState("");
-  const [insightfulQuestionDescription, setInsightfulQuestionDescription] = useState("");
-  const [insightfulQuestions, setInsightfulQuestions] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSuccessModalOpen, setIsAddSuccessModalOpen] = useState(false);
-  const [successTitle, setSuccessTitle] = useState("");
-  const [successDescription, setSuccessDescription] = useState("");
-  const [successStories, setSuccessStories] = useState<{ title: string; description: string }[]>([]);
-  const [isAddChallengeFacedModalOpen, setIsAddChallengeFacedModalOpen] = useState(false);
-  const [challengeFacedTitle, setChallengeFacedTitle] = useState("");
-  const [challengeFacedDescription, setChallengeFacedDescription] = useState("");
-  const [challengesFaced, setChallengesFaced] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSolutionModalOpen, setIsAddSolutionModalOpen] = useState(false);
-  const [solutionTitle, setSolutionTitle] = useState("");
-  const [solutionDescription, setSolutionDescription] = useState("");
-  const [solutions, setSolutions] = useState<{ title: string; description: string }[]>([]);
-  const [isAddLessonLearnedModalOpen, setIsAddLessonLearnedModalOpen] = useState(false);
-  const [lessonLearnedTitle, setLessonLearnedTitle] = useState("");
-  const [lessonLearnedDescription, setLessonLearnedDescription] = useState("");
-  const [lessonsLearned, setLessonsLearned] = useState<{ title: string; description: string }[]>([]);
-  const [isAddOpportunityModalOpen, setIsAddOpportunityModalOpen] = useState(false);
-  const [opportunityTitle, setOpportunityTitle] = useState("");
-  const [opportunityDescription, setOpportunityDescription] = useState("");
-  const [opportunities, setOpportunities] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResourceUsedModalOpen, setIsAddResourceUsedModalOpen] = useState(false);
-  const [resourceUsedTitle, setResourceUsedTitle] = useState("");
-  const [resourceUsedDescription, setResourceUsedDescription] = useState("");
-  const [resourcesUsed, setResourcesUsed] = useState<{ title: string; description: string }[]>([]);
-  const [isAddStrategyUsedModalOpen, setIsAddStrategyUsedModalOpen] = useState(false);
-  const [strategyUsedTitle, setStrategyUsedTitle] = useState("");
-  const [strategyUsedDescription, setStrategyUsedDescription] = useState("");
-  const [strategiesUsed, setStrategiesUsed] = useState<{ title: string; description: string }[]>([]);
-  const [isAddToolUsedModalOpen, setIsAddToolUsedModalOpen] = useState(false);
-  const [toolUsedTitle, setToolUsedTitle] = useState("");
-  const [toolUsedDescription, setToolUsedDescription] = useState("");
-  const [toolsUsed, setToolsUsed] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillDevelopedModalOpen, setIsAddSkillDevelopedModalOpen] = useState(false);
-  const [skillDevelopedTitle, setSkillDevelopedTitle] = useState("");
-  const [skillDevelopedDescription, setSkillDevelopedDescription] = useState("");
-  const [skillsDeveloped, setSkillsDeveloped] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaImprovedModalOpen, setIsAddAreaImprovedModalOpen] = useState(false);
-  const [areaImprovedTitle, setAreaImprovedTitle] = useState("");
-  const [areaImprovedDescription, setAreaImprovedDescription] = useState("");
-  const [areasImproved, setAreasImproved] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaToImproveModalOpen, setIsAddAreaToImproveModalOpen] = useState(false);
-  const [areaToImproveTitle, setAreaToImproveTitle] = useState("");
-  const [areaToImproveDescription, setAreaToImproveDescription] = useState("");
-  const [areasToImprove, setAreasToImprove] = useState<{ title: string; description: string }[]>([]);
-  const [isAddActionTakenModalOpen, setIsAddActionTakenModalOpen] = useState(false);
-  const [actionTakenTitle, setActionTakenTitle] = useState("");
-  const [actionTakenDescription, setActionTakenDescription] = useState("");
-  const [actionsTaken, setActionsTaken] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResultAchievedModalOpen, setIsAddResultAchievedModalOpen] = useState(false);
-  const [resultAchievedTitle, setResultAchievedTitle] = useState("");
-  const [resultAchievedDescription, setResultAchievedDescription] = useState("");
-  const [resultsAchieved, setResultsAchieved] = useState<{ title: string; description: string }[]>([]);
-  const [isAddNextStepModalOpen, setIsAddNextStepModalOpen] = useState(false);
-  const [nextStepTitle, setNextStepTitle] = useState("");
-  const [nextStepDescription, setNextStepDescription] = useState("");
-  const [nextSteps, setNextSteps] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResourceNeededModalOpen, setIsAddResourceNeededModalOpen] = useState(false);
-  const [resourceNeededTitle, setResourceNeededTitle] = useState("");
-  const [resourceNeededDescription, setResourceNeededDescription] = useState("");
-  const [resourcesNeeded, setResourcesNeeded] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSupportNeededModalOpen, setIsAddSupportNeededModalOpen] = useState(false);
-  const [supportNeededTitle, setSupportNeededTitle] = useState("");
-  const [supportNeededDescription, setSupportNeededDescription] = useState("");
-  const [supportsNeeded, setSupportsNeeded] = useState<{ title: string; description: string }[]>([]);
-  const [isAddStrategyToUseModalOpen, setIsAddStrategyToUseModalOpen] = useState(false);
-  const [strategyToUseTitle, setStrategyToUseTitle] = useState("");
-  const [strategyToUseDescription, setStrategyToUseDescription] = useState("");
-  const [strategiesToUse, setStrategiesToUse] = useState<{ title: string; description: string }[]>([]);
-  const [isAddToolToUseModalOpen, setIsAddToolToUseModalOpen] = useState(false);
-  const [toolToUseTitle, setToolToUseTitle] = useState("");
-  const [toolToUseDescription, setToolToUseDescription] = useState("");
-  const [toolsToUse, setToolsToUse] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillToDevelopModalOpen, setIsAddSkillToDevelopModalOpen] = useState(false);
-  const [skillToDevelopTitle, setSkillToDevelopTitle] = useState("");
-  const [skillToDevelopDescription, setSkillToDevelopDescription] = useState("");
-  const [skillsToDevelop, setSkillsToDevelop] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaToFocusOnModalOpen, setIsAddAreaToFocusOnModalOpen] = useState(false);
-  const [areaToFocusOnTitle, setAreaToFocusOnTitle] = useState("");
-  const [areaToFocusOnDescription, setAreaToFocusOnDescription] = useState("");
-  const [areasToFocusOn, setAreasToFocusOn] = useState<{ title: string; description: string }[]>([]);
-  const [isAddChallengeToOvercomeModalOpen, setIsAddChallengeToOvercomeModalOpen] = useState(false);
-  const [challengeToOvercomeTitle, setChallengeToOvercomeTitle] = useState("");
-  const [challengeToOvercomeDescription, setChallengeToOvercomeDescription] = useState("");
-  const [challengesToOvercome, setChallengesToOvercome] = useState<{ title: string; description: string }[]>([]);
-  const [isAddOpportunityToPursueModalOpen, setIsAddOpportunityToPursueModalOpen] = useState(false);
-  const [opportunityToPursueTitle, setOpportunityToPursueTitle] = useState("");
-  const [opportunityToPursueDescription, setOpportunityToPursueDescription] = useState("");
-  const [opportunitiesToPursue, setOpportunitiesToPursue] = useState<{ title: string; description: string }[]>([]);
-  const [isAddGoalToAchieveModalOpen, setIsAddGoalToAchieveModalOpen] = useState(false);
-  const [goalToAchieveTitle, setGoalToAchieveTitle] = useState("");
-  const [goalToAchieveDescription, setGoalToAchieveDescription] = useState("");
-  const [goalsToAchieve, setGoalsToAchieve] = useState<{ title: string; description: string }[]>([]);
-  const [isAddHabitToDevelopModalOpen, setIsAddHabitToDevelopModalOpen] = useState(false);
-  const [habitToDevelopTitle, setHabitToDevelopTitle] = useState("");
-  const [habitToDevelopDescription, setHabitToDevelopDescription] = useState("");
-  const [habitsToDevelop, setHabitsToDevelop] = useState<{ title: string; description: string }[]>([]);
-  const [isAddMindsetToCultivateModalOpen, setIsAddMindsetToCultivateModalOpen] = useState(false);
-  const [mindsetToCultivateTitle, setMindsetToCultivateTitle] = useState("");
-  const [mindsetToCultivateDescription, setMindsetToCultivateDescription] = useState("");
-  const [mindsetsToCultivate, setMindsetsToCultivate] = useState<{ title: string; description: string }[]>([]);
-  const [isAddBeliefToAdoptModalOpen, setIsAddBeliefToAdoptModalOpen] = useState(false);
-  const [beliefToAdoptTitle, setBeliefToAdoptTitle] = useState("");
-  const [beliefToAdoptDescription, setBeliefToAdoptDescription] = useState("");
-  const [beliefsToAdopt, setBeliefsToAdopt] = useState<{ title: string; description: string }[]>([]);
-  const [isAddValueToEmbraceModalOpen, setIsAddValueToEmbraceModalOpen] = useState(false);
-  const [valueToEmbraceTitle, setValueToEmbraceTitle] = useState("");
-  const [valueToEmbraceDescription, setValueToEmbraceDescription] = useState("");
-  const [valuesToEmbrace, setValuesToEmbrace] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAttitudeToDevelopModalOpen, setIsAddAttitudeToDevelopModalOpen] = useState(false);
-  const [attitudeToDevelopTitle, setAttitudeToDevelopTitle] = useState("");
-  const [attitudeToDevelopDescription, setAttitudeToDevelopDescription] = useState("");
-  const [attitudesToDevelop, setAttitudesToDevelop] = useState<{ title: string; description: string }[]>([]);
-  const [isAddPerspectiveToConsiderModalOpen, setIsAddPerspectiveToConsiderModalOpen] = useState(false);
-  const [perspectiveToConsiderTitle, setPerspectiveToConsiderTitle] = useState("");
-  const [perspectiveToConsiderDescription, setPerspectiveToConsiderDescription] = useState("");
-  const [perspectivesToConsider, setPerspectivesToConsider] = useState<{ title: string; description: string }[]>([]);
-  const [isAddRelationshipToNurtureModalOpen, setIsAddRelationshipToNurtureModalOpen] = useState(false);
-  const [relationshipToNurtureTitle, setRelationshipToNurtureTitle] = useState("");
-  const [relationshipToNurtureDescription, setRelationshipToNurtureDescription] = useState("");
-  const [relationshipsToNurture, setRelationshipsToNurture] = useState<{ title: string; description: string }[]>([]);
-  const [isAddEnvironmentToCreateModalOpen, setIsAddEnvironmentToCreateModalOpen] = useState(false);
-  const [environmentToCreateTitle, setEnvironmentToCreateTitle] = useState("");
-  const [environmentToCreateDescription, setEnvironmentToCreateDescription] = useState("");
-  const [environmentsToCreate, setEnvironmentsToCreate] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSystemToImplementModalOpen, setIsAddSystemToImplementModalOpen] = useState(false);
-  const [systemToImplementTitle, setSystemToImplementTitle] = useState("");
-  const [systemToImplementDescription, setSystemToImplementDescription] = useState("");
-  const [systemsToImplement, setSystemsToImplement] = useState<{ title: string; description: string }[]>([]);
-  const [isAddRoutineToEstablishModalOpen, setIsAddRoutineToEstablishModalOpen] = useState(false);
-  const [routineToEstablishTitle, setRoutineToEstablishTitle] = useState("");
-  const [routineToEstablishDescription, setRoutineToEstablishDescription] = useState("");
-  const [routinesToEstablish, setRoutinesToEstablish] = useState<{ title: string; description: string }[]>([]);
-  const [isAddPracticeToIncorporateModalOpen, setIsAddPracticeToIncorporateModalOpen] = useState(false);
-  const [practiceToIncorporateTitle, setPracticeToIncorporateTitle] = useState("");
-  const [practiceToIncorporateDescription, setPracticeToIncorporateDescription] = useState("");
-  const [practicesToIncorporate, setPracticesToIncorporate] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillToMasterModalOpen, setIsAddSkillToMasterModalOpen] = useState(false);
-  const [skillToMasterTitle, setSkillToMasterTitle] = useState("");
-  const [skillToMasterDescription, setSkillToMasterDescription] = useState("");
-  const [skillsToMaster, setSkillsToMaster] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaToExploreModalOpen, setIsAddAreaToExploreModalOpen] = useState(false);
-  const [areaToExploreTitle, setAreaToExploreTitle] = useState("");
-  const [areaToExploreDescription, setAreaToExploreDescription] = useState("");
-  const [areasToExplore, setAreasToExplore] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResourceToUtilizeModalOpen, setIsAddResourceToUtilizeModalOpen] = useState(false);
-  const [resourceToUtilizeTitle, setResourceToUtilizeTitle] = useState("");
-  const [resourceToUtilizeDescription, setResourceToUtilizeDescription] = useState("");
-  const [resourcesToUtilize, setResourcesToUtilize] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSupportToSeekModalOpen, setIsAddSupportToSeekModalOpen] = useState(false);
-  const [supportToSeekTitle, setSupportToSeekTitle] = useState("");
-  const [supportToSeekDescription, setSupportToSeekDescription] = useState("");
-  const [supportsToSeek, setSupportsToSeek] = useState<{ title: string; description: string }[]>([]);
-  const [isAddStrategyToApplyModalOpen, setIsAddStrategyToApplyModalOpen] = useState(false);
-  const [strategyToApplyTitle, setStrategyToApplyTitle] = useState("");
-  const [strategyToApplyDescription, setStrategyToApplyDescription] = useState("");
-  const [strategiesToApply, setStrategiesToApply] = useState<{ title: string; description: string }[]>([]);
-  const [isAddToolToEmployModalOpen, setIsAddToolToEmployModalOpen] = useState(false);
-  const [toolToEmployTitle, setToolToEmployTitle] = useState("");
-  const [toolToEmployDescription, setToolToEmployDescription] = useState("");
-  const [toolsToEmploy, setToolsToEmploy] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillToHoneModalOpen, setIsAddSkillToHoneModalOpen] = useState(false);
-  const [skillToHoneTitle, setSkillToHoneTitle] = useState("");
-  const [skillToHoneDescription, setSkillToHoneDescription] = useState("");
-  const [skillsToHone, setSkillsToHone] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaToRefineModalOpen, setIsAddAreaToRefineModalOpen] = useState(false);
-  const [areaToRefineTitle, setAreaToRefineTitle] = useState("");
-  const [areaToRefineDescription, setAreaToRefineDescription] = useState("");
-  const [areasToRefine, setAreasToRefine] = useState<{ title: string; description: string }[]>([]);
-  const [isAddChallengeToAddressModalOpen, setIsAddChallengeToAddressModalOpen] = useState(false);
-  const [challengeToAddressTitle, setChallengeToAddressTitle] = useState("");
-  const [challengeToAddressDescription, setChallengeToAddressDescription] = useState("");
-  const [challengesToAddress, setChallengesToAddress] = useState<{ title: string; description: string }[]>([]);
-  const [isAddOpportunityToSeizeModalOpen, setIsAddOpportunityToSeizeModalOpen] = useState(false);
-  const [opportunityToSeizeTitle, setOpportunityToSeizeTitle] = useState("");
-  const [opportunityToSeizeDescription, setOpportunityToSeizeDescription] = useState("");
-  const [opportunitiesToSeize, setOpportunitiesToSeize] = useState<{ title: string; description: string }[]>([]);
-  const [isAddGoalToPursueModalOpen, setIsAddGoalToPursueModalOpen] = useState(false);
-  const [goalToPursueTitle, setGoalToPursueTitle] = useState("");
-  const [goalToPursueDescription, setGoalToPursueDescription] = useState("");
-  const [goalsToPursue, setGoalsToPursue] = useState<{ title: string; description: string }[]>([]);
-  const [isAddHabitToEstablishModalOpen, setIsAddHabitToEstablishModalOpen] = useState(false);
-  const [habitToEstablishTitle, setHabitToEstablishTitle] = useState("");
-  const [habitToEstablishDescription, setHabitToEstablishDescription] = useState("");
-  const [habitsToEstablish, setHabitsToEstablish] = useState<{ title: string; description: string }[]>([]);
-  const [isAddMindsetToDevelopModalOpen, setIsAddMindsetToDevelopModalOpen] = useState(false);
-  const [mindsetToDevelopTitle, setMindsetToDevelopTitle] = useState("");
-  const [mindsetToDevelopDescription, setMindsetToDevelopDescription] = useState("");
-  const [mindsetsToDevelop, setMindsetsToDevelop] = useState<{ title: string; description: string }[]>([]);
-  const [isAddBeliefToCultivateModalOpen, setIsAddBeliefToCultivateModalOpen] = useState(false);
-  const [beliefToCultivateTitle, setBeliefToCultivateTitle] = useState("");
-  const [beliefToCultivateDescription, setBeliefToCultivateDescription] = useState("");
-  const [beliefsToCultivate, setBeliefsToCultivate] = useState<{ title: string; description: string }[]>([]);
-  const [isAddValueToUpholdModalOpen, setIsAddValueToUpholdModalOpen] = useState(false);
-  const [valueToUpholdTitle, setValueToUpholdTitle] = useState("");
-  const [valueToUpholdDescription, setValueToUpholdDescription] = useState("");
-  const [valuesToUphold, setValuesToUphold] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAttitudeToEmbraceModalOpen, setIsAddAttitudeToEmbraceModalOpen] = useState(false);
-  const [attitudeToEmbraceTitle, setAttitudeToEmbraceTitle] = useState("");
-  const [attitudeToEmbraceDescription, setAttitudeToEmbraceDescription] = useState("");
-  const [attitudesToEmbrace, setAttitudesToEmbrace] = useState<{ title: string; description: string }[]>([]);
-  const [isAddPerspectiveToAdoptModalOpen, setIsAddPerspectiveToAdoptModalOpen] = useState(false);
-  const [perspectiveToAdoptTitle, setPerspectiveToAdoptTitle] = useState("");
-  const [perspectiveToAdoptDescription, setPerspectiveToAdoptDescription] = useState("");
-  const [perspectivesToAdopt, setPerspectivesToAdopt] = useState<{ title: string; description: string }[]>([]);
-  const [isAddRelationshipToStrengthenModalOpen, setIsAddRelationshipToStrengthenModalOpen] = useState(false);
-  const [relationshipToStrengthenTitle, setRelationshipToStrengthenTitle] = useState("");
-  const [relationshipToStrengthenDescription, setRelationshipToStrengthenDescription] = useState("");
-  const [relationshipsToStrengthen, setRelationshipsToStrengthen] = useState<{ title: string; description: string }[]>([]);
-  const [isAddEnvironmentToFosterModalOpen, setIsAddEnvironmentToFosterModalOpen] = useState(false);
-  const [environmentToFosterTitle, setEnvironmentToFosterTitle] = useState("");
-  const [environmentToFosterDescription, setEnvironmentToFosterDescription] = useState("");
-  const [environmentsToFoster, setEnvironmentsToFoster] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSystemToOptimizeModalOpen, setIsAddSystemToOptimizeModalOpen] = useState(false);
-  const [systemToOptimizeTitle, setSystemToOptimizeTitle] = useState("");
-  const [systemToOptimizeDescription, setSystemToOptimizeDescription] = useState("");
-  const [systemsToOptimize, setSystemsToOptimize] = useState<{ title: string; description: string }[]>([]);
-  const [isAddRoutineToEnhanceModalOpen, setIsAddRoutineToEnhanceModalOpen] = useState(false);
-  const [routineToEnhanceTitle, setRoutineToEnhanceTitle] = useState("");
-  const [routineToEnhanceDescription, setRoutineToEnhanceDescription] = useState("");
-  const [routinesToEnhance, setRoutinesToEnhance] = useState<{ title: string; description: string }[]>([]);
-  const [isAddPracticeToRefineModalOpen, setIsAddPracticeToRefineModalOpen] = useState(false);
-  const [practiceToRefineTitle, setPracticeToRefineTitle] = useState("");
-  const [practiceToRefineDescription, setPracticeToRefineDescription] = useState("");
-  const [practicesToRefine, setPracticesToRefine] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillToPerfectModalOpen, setIsAddSkillToPerfectModalOpen] = useState(false);
-  const [skillToPerfectTitle, setSkillToPerfectTitle] = useState("");
-  const [skillToPerfectDescription, setSkillToPerfectDescription] = useState("");
-  const [skillsToPerfect, setSkillsToPerfect] = useState<{ title: string; description: string }[]>([]);
-  const [isAddAreaToMasterModalOpen, setIsAddAreaToMasterModalOpen] = useState(false);
-  const [areaToMasterTitle, setAreaToMasterTitle] = useState("");
-  const [areaToMasterDescription, setAreaToMasterDescription] = useState("");
-  const [areasToMaster, setAreasToMaster] = useState<{ title: string; description: string }[]>([]);
-  const [isAddResourceToMaximizeModalOpen, setIsAddResourceToMaximizeModalOpen] = useState(false);
-  const [resourceToMaximizeTitle, setResourceToMaximizeTitle] = useState("");
-  const [resourceToMaximizeDescription, setResourceToMaximizeDescription] = useState("");
-  const [resourcesToMaximize, setResourcesToMaximize] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSupportToLeverageModalOpen, setIsAddSupportToLeverageModalOpen] = useState(false);
-  const [supportToLeverageTitle, setSupportToLeverageTitle] = useState("");
-  const [supportToLeverageDescription, setSupportToLeverageDescription] = useState("");
-  const [supportsToLeverage, setSupportsToLeverage] = useState<{ title: string; description: string }[]>([]);
-  const [isAddStrategyToOptimizeModalOpen, setIsAddStrategyToOptimizeModalOpen] = useState(false);
-  const [strategyToOptimizeTitle, setStrategyToOptimizeTitle] = useState("");
-  const [strategyToOptimizeDescription, setStrategyToOptimizeDescription] = useState("");
-  const [strategiesToOptimize, setStrategiesToOptimize] = useState<{ title: string; description: string }[]>([]);
-  const [isAddToolToMasterModalOpen, setIsAddToolToMasterModalOpen] = useState(false);
-  const [toolToMasterTitle, setToolToMasterTitle] = useState("");
-  const [toolToMasterDescription, setToolToMasterDescription] = useState("");
-  const [toolsToMaster, setToolsToMaster] = useState<{ title: string; description: string }[]>([]);
-  const [isAddSkillToExcelModalOpen, setIsAddSkillToExcelModalOpen] = useState(false);
-  const [skillToExcelTitle, setSkillToExcelTitle] = useState("");
-  const [skillToExcelDescription, setSkillToExcelDescription] = useState("");
-  const [skillsToExcel, setSkillsToExcel] =
+  const getActiveData = () => {
+    return weeklyData[selectedWeek as keyof typeof weeklyData];
+  };
+  
+  const handleConfigure = () => {
+    toast({
+      title: "Configure Surrounding Influences",
+      description: "Opening configuration interface for influence tracking",
+      variant: "default"
+    });
+  };
+  
+  const handleViewDashboard = () => {
+    toast({
+      title: "Visual Dashboard",
+      description: "Opening visual analytics for surrounding influences",
+      variant: "default"
+    });
+  };
+
+  if (influenceMeterCollapsed) {
+    return (
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full flex items-center justify-between"
+          onClick={() => setInfluenceMeterCollapsed(false)}
+        >
+          <div className="flex items-center">
+            <Users className="h-4 w-4 mr-2 text-blue-500" />
+            <span>Surrounding Influences Meter</span>
+          </div>
+          <Badge variant="outline" className="text-sm">View</Badge>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Card className="mb-6">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="text-blue-400" size={20} />
+            <span>Surrounding Influence Meter</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleConfigure}>Configure</Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setInfluenceMeterCollapsed(true)}
+              className="h-8 w-8 p-0"
+            >
+              ×
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium">Weekly Analysis</h3>
+            <div className="flex gap-2">
+              <Button 
+                variant={selectedWeek === 'twoWeeksAgo' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('twoWeeksAgo')}
+              >
+                2 Weeks Ago
+              </Button>
+              <Button 
+                variant={selectedWeek === 'previous' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('previous')}
+              >
+                Last Week
+              </Button>
+              <Button 
+                variant={selectedWeek === 'current' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('current')}
+              >
+                This Week
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-7 mb-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="peerInfluence">
+              <div className="flex items-center gap-1">
+                <Users size={14} />
+                <span className="hidden sm:inline">Peer</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="confidence">
+              <div className="flex items-center gap-1">
+                <Brain size={14} />
+                <span className="hidden sm:inline">Confidence</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="proactiveness">
+              <div className="flex items-center gap-1">
+                <Activity size={14} />
+                <span className="hidden sm:inline">Proactiveness</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="environment">
+              <div className="flex items-center gap-1">
+                <Eye size={14} />
+                <span className="hidden sm:inline">Environment</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="goals">
+              <div className="flex items-center gap-1">
+                <Sliders size={14} />
+                <span className="hidden sm:inline">Goals</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="sleep">
+              <div className="flex items-center gap-1">
+                <Moon size={14} />
+                <span className="hidden sm:inline">Sleep</span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Peer Influence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().peerInfluence} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().peerInfluence[0].value}%</span> positive influence
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Study Confidence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().studyConfidence} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().studyConfidence[0].value}%</span> high confidence
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Proactiveness</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().proactiveness} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().proactiveness[0].value}%</span> high proactiveness
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Environmental Distractions</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().environmentalDistraction} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().environmentalDistraction[0].value}%</span> low distractions
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium">Key Insights</h3>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    {selectedWeek === 'current' ? 'This week' : selectedWeek === 'previous' ? 'Last week' : '2 weeks ago'}
+                  </Badge>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span>Positive study environment improved by {selectedWeek === 'current' ? '12%' : selectedWeek === 'previous' ? '8%' : '5%'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <span>Peer distractions are moderate during evenings</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span>Noise levels affecting focus during peak hours</span>
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleViewDashboard} 
+                className="w-full flex items-center justify-center gap-1"
+                variant="outline"
+              >
+                <Eye size={16} />
+                View Full Dashboard
+              </Button>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="peerInfluence">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Peer Influence Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().peerInfluence} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Peer comparison stress</span>
+                      <span className="font-medium">{100 - getActiveData().peerInfluence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={100 - getActiveData().peerInfluence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Positive peer interactions</span>
+                      <span className="font-medium">{getActiveData().peerInfluence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().peerInfluence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Peer Influence Factors</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Social media comparison</span>
+                    <Badge variant={getActiveData().peerInfluence[0].value > 65 ? "outline" : "secondary"} className="text-xs">
+                      {getActiveData().peerInfluence[0].value > 65 ? "Low impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Competitive study groups</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">Positive impact</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Comparison with top performers</span>
+                    <Badge variant={getActiveData().peerInfluence[2].value > 15 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().peerInfluence[2].value > 15 ? "High impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="confidence">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Study Confidence Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().studyConfidence} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Self-assessed confidence per subject</span>
+                      <span className="font-medium">{getActiveData().studyConfidence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().studyConfidence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Accuracy in self-prediction</span>
+                      <span className="font-medium">{getActiveData().studyConfidence[0].value - 5}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().studyConfidence[0].value - 5} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Subject-wise Confidence</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Physics</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">High confidence</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Chemistry</span>
+                    <Badge variant="outline" className="text-amber-600 bg-amber-50 dark:bg-amber-900/30 text-xs">Medium confidence</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Biology</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">High confidence</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="proactiveness">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Proactiveness Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().proactiveness} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Task initiation before reminders</span>
+                      <span className="font-medium">{getActiveData().proactiveness[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().proactiveness[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Spontaneous review behavior</span>
+                      <span className="font-medium">{getActiveData().proactiveness[0].value - 10}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().proactiveness[0].value - 10} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Proactive Study Habits</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Non-peak hour study time</span>
+                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 60 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().proactiveness[0].value > 60 ? "Excellent" : "Good"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Self-initiated revision</span>
+                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 55 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().proactiveness[0].value > 55 ? "Excellent" : "Good"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="environment">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Environmental Distractions</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().environmentalDistraction} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Task drop-offs mid-session</span>
+                      <span className="font-medium">{getActiveData().environmentalDistraction[2].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().environmentalDistraction[2].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Focus duration</span>
+                      <span className="font-medium">{getActiveData().environmentalDistraction[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().environmentalDistraction[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Environmental Factors</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Noise levels</span>
+                    <Badge variant={getActiveData().environmentalDistraction[2].value > 25 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().environmentalDistraction[2].value > 25 ? "Significant impact" : "Moderate impact"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Digital distractions</span>
+                    <Badge variant={getActiveData().environmentalDistraction[2].value > 20 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().environmentalDistraction[2].value > 20 ? "High impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="goals">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Goal Alignment</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().goalAlignment} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Clarity in goal-setting</span>
+                      <span className="font-medium">{getActiveData().goalAlignment[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().goalAlignment[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progress tracking vs. goals</span>
+                      <span className="font-medium">{getActiveData().goalAlignment[0].value - 5}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().goalAlignment[0].value - 5} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Weekly Motivation Check</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Goal consistency</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">Excellent</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Goal achievement rate</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">
+                      {getActiveData().goalAlignment[0].value}%
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="sleep">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Sleep & Routine Health</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().sleepRoutine} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Consistency in study hours</span>
+                      <span className="font-medium">{getActiveData().sleepRoutine[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().sleepRoutine[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Late-night study frequency</span>
+                      <span className="font-medium">{getActiveData().sleepRoutine[2].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().sleepRoutine[2].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Sleep Pattern Impact</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Morning productivity</span>
+                    <Badge variant="outline" className={getActiveData().sleepRoutine[0].value > 55 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().sleepRoutine[0].value > 55 ? "High" : "Medium"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Study routine consistency</span>
+                    <Badge variant="outline" className={getActiveData().sleepRoutine[0].value > 50 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().sleepRoutine[0].value > 50 ? "Good" : "Fair"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default SurroundingInfluencesSection;

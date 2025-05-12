@@ -132,11 +132,6 @@ const authService = {
   
   // Enhanced logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
-    console.log("Performing complete logout with session purge");
-    
-    // First, cancel any ongoing network requests
-    apiClient.cancelRequests();
-    
     // Clear all authentication data from local storage
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
@@ -168,25 +163,18 @@ const authService = {
     localStorage.removeItem('selected_subjects');
     localStorage.removeItem('saved_notes');
     localStorage.removeItem('practice_results');
-    localStorage.removeItem('auth_persist');
-    localStorage.removeItem('login_timestamp');
-    localStorage.removeItem('sakha_session');
     
     // Clear any session storage items that might contain auth data
     sessionStorage.clear();
-    
-    // Clear cookies that might be used for authentication
-    document.cookie.split(";").forEach(function(c) {
-      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
     
     // Reset API client
     apiClient.setAuthToken(null);
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Force navigation to login page
-    window.location.href = '/login';
+    // Using window.location.replace instead of href to ensure complete page refresh
+    // This prevents any cached state from persisting
+    window.location.replace('/login');
     
     return {
       success: true,
@@ -216,7 +204,7 @@ const authService = {
     document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
     // Force redirect to login screen with replace to ensure complete refresh
-    window.location.href = '/login';
+    window.location.replace('/login');
   },
   
   // Get current authenticated user
@@ -227,7 +215,7 @@ const authService = {
   
   // Get auth token
   getToken(): string | null {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return localStorage.setItem(AUTH_TOKEN_KEY, localStorage.getItem(AUTH_TOKEN_KEY) || null);
   },
   
   // Check if user is authenticated
