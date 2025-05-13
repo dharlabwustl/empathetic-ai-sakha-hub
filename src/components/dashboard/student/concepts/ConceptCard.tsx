@@ -63,7 +63,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         transition={{ duration: 0.5 }}
       >
         {/* Front of card */}
-        <Card className={`absolute w-full h-full backface-hidden border-2 hover:border-primary/50 transition-colors duration-200 ${className}`}>
+        <Card className={`absolute w-full h-full backface-hidden border-2 hover:border-primary/50 transition-colors duration-200 ${className} shadow-lg`}>
           <div className="flex flex-col h-full p-4">
             {/* Card Header */}
             <div className="mb-3">
@@ -119,7 +119,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         </Card>
         
         {/* Back of card */}
-        <Card className={`absolute w-full h-full backface-hidden rotate-y-180 border-2 hover:border-primary/50 transition-colors duration-200 ${className}`}>
+        <Card className={`absolute w-full h-full backface-hidden rotate-y-180 border-2 hover:border-primary/50 transition-colors duration-200 ${className} shadow-lg`}>
           <div className="flex flex-col h-full p-4">
             <div className="mb-3">
               <h3 className="text-base font-semibold mb-2">{title}</h3>

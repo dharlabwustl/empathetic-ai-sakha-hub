@@ -18,9 +18,12 @@ import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
+import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -48,6 +51,10 @@ const Index = () => {
   
   const handleCloseVoiceAssistant = () => {
     setShowVoiceAssistant(false);
+  };
+  
+  const handleNavigationCommand = (route: string) => {
+    navigate(route);
   };
 
   // Check login status
@@ -94,11 +101,24 @@ const Index = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
         >
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              Smart Data. Real Impact. Humanizing exam prep.
+            </h2>
+          </div>
           <KpiStats />
         </motion.section>
         
-        {/* Add the AchievementsSection right after KPI Stats */}
-        <AchievementsSection />
+        {/* Add proper spacing between sections */}
+        <div className="mt-16 pt-8"></div>
+        
+        {/* Add the AchievementsSection with improved spacing */}
+        <div className="relative z-10">
+          <AchievementsSection />
+        </div>
+        
+        {/* Add more spacing for the next section */}
+        <div className="mt-12"></div>
         
         <WhatIsSection />
         
@@ -126,6 +146,9 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Add improved floating voice assistant */}
+      <FloatingVoiceAssistant onNavigationCommand={handleNavigationCommand} />
       
       {/* Floating Voice Assistant */}
       <FloatingVoiceAnnouncer 

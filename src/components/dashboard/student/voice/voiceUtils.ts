@@ -49,17 +49,20 @@ export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]):
 export const fixPronunciation = (text: string, language: string): string => {
   let fixedText = text;
   
+  // Special handling for "PREPZR" pronunciation - spoken as "Prep-zer" /prep-zər/
+  // Add a slight pause between "Prep" and "zer" for clearer pronunciation
+  fixedText = fixedText.replace(/PREPZR/gi, 'Prep, zer');
+  
   if (language.startsWith('en')) {
     // Fix English pronunciations
     fixedText = fixedText
-      .replace(/PREPZR/gi, 'prep zee are')
       .replace(/NEET/gi, 'neet')
       .replace(/JEE/gi, 'J E E')
       .replace(/AI/g, 'A I');
   } else if (language === 'hi-IN') {
     // Fix Hindi pronunciations if needed
     fixedText = fixedText
-      .replace(/PREPZR/gi, 'प्रेप ज़ेड आर')
+      .replace(/PREPZR/gi, 'प्रेप ज़र')
       .replace(/NEET/gi, 'नीट')
       .replace(/JEE/gi, 'जे ई ई');
   }
@@ -153,7 +156,7 @@ export const getGreeting = (userName?: string, mood?: string, isFirstTime?: bool
     // General greeting in Hindi
     return `${timeGreeting}${name}! मैं आज आपकी पढ़ाई में कैसे मदद कर सकता हूँ?`;
   } else {
-    // English greeting (keep existing code)
+    // English greeting
     let timeGreeting = "Hello";
     
     if (hour < 12) timeGreeting = "Good morning";
@@ -202,7 +205,7 @@ export const getReminderAnnouncement = (pendingTasks: Array<{title: string, due?
     
     return announcement;
   } else {
-    // English version (keep existing code)
+    // English version
     if (pendingTasks.length === 0) {
       return "You have no pending tasks for today. Great job staying on top of your work!";
     }
@@ -267,7 +270,7 @@ export const getMotivationalMessage = (examGoal?: string): string => {
     // Return a random message
     return possibleMessages[Math.floor(Math.random() * possibleMessages.length)];
   } else {
-    // English version (keep existing code)
+    // English version
     const messages = [
       "Remember, consistent study leads to success. You're doing great!",
       "Small daily improvements lead to outstanding results over time.",
@@ -359,7 +362,7 @@ export const processUserQuery = (
     }
     
     // Handle language switch commands
-    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
+    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्��िश में') || lowerQuery.includes('अंग्रेजी में')) {
       return "I'll speak English now. How can I help you with your studies?";
     }
     
@@ -386,7 +389,7 @@ export const processUserQuery = (
     // Default response in Hindi
     return "मैंने ठीक से नहीं समझा। आप मुझसे विभिन्न खंडों पर नेविगेट करने, अभ्यास परीक्षा शुरू करने या अध्ययन योजना में मदद करने के लिए कह सकते हैं।";
   } else {
-    // English commands (keep existing code)
+    // English commands
     // Handle navigation commands
     if (lowerQuery.includes('dashboard') || lowerQuery.includes('home')) {
       if (navigate) navigate('/dashboard/student');

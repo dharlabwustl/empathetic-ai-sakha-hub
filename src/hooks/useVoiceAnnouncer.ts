@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
@@ -25,7 +26,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [lastMoodSuggestion, setLastMoodSuggestion] = useState<MoodType | null>(null);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   
   // Check if speech synthesis is supported
   useEffect(() => {
@@ -213,8 +214,8 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Only speak if enabled or force speech is true
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
-        // Fix pronunciation for PREPZR - "Prep-zer", spoken as "Prepzer" - /prep-zər/
-        const correctedMessage = message.replace(/PREPZR/g, 'Prep-zer').replace(/prepzr/gi, 'Prep-zer');
+        // Improved pronunciation for PREPZR - spoken as "Prep-zer" with proper pause
+        const correctedMessage = message.replace(/PREPZR/gi, 'Prep, zer').replace(/prepzr/gi, 'Prep, zer');
         
         speakVoiceMessage(correctedMessage, voiceSettings);
       }
@@ -246,6 +247,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       return;
     }
     
+    // @ts-ignore - webkitSpeechRecognition may not be in types
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     try {
@@ -256,7 +258,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       // Set language based on current voice settings
       recognitionRef.current.lang = voiceSettings.language;
       
-      recognitionRef.current.onresult = (event) => {
+      recognitionRef.current.onresult = (event: any) => {
         const result = event.results[0][0].transcript;
         console.log('Speech recognized:', result);
         setTranscript(result);
@@ -269,7 +271,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setIsListening(false);
       };
       
-      recognitionRef.current.onerror = (event) => {
+      recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };

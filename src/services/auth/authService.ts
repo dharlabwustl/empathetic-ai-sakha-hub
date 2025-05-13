@@ -172,7 +172,10 @@ const authService = {
       'selected_subjects',
       'saved_notes',
       'practice_results',
-      'adminToken'
+      'adminToken',
+      'sakha_auth_token',
+      'sakha_auth_user',
+      'voice-tested'
     ];
     
     // Clear each item individually and log it for debugging
@@ -191,6 +194,9 @@ const authService = {
     apiClient.setAuthToken(null);
     
     console.log("Logout complete - All authentication data cleared");
+    
+    // Force redirection to login page
+    window.location.href = '/login';
     
     // Return success - we'll handle navigation separately in the component
     return {
@@ -227,6 +233,9 @@ const authService = {
     // Clear any potential persistent login data from cookies
     document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+    // Force redirection to login page
+    window.location.href = '/login';
   },
   
   // Get current authenticated user

@@ -148,18 +148,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Then call the authService logout method
     authService.logout().then(() => {
       console.log("AuthContext: User logged out completely");
-      
-      // Force a complete page refresh and navigation to login
-      window.location.replace('/login');
     }).catch(error => {
       console.error("AuthContext: Error during logout:", error);
       
       // Try direct approach if service call fails
       console.log("AuthContext: Fallback logout approach");
       authService.clearAuthData();
-      
-      // Force hard navigation
-      window.location.replace('/login');
     });
   };
   
