@@ -101,6 +101,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         currentMood={userProfile?.mood}
         onMoodCommand={handleMoodCommand}
         onNavigationCommand={handleNavigationCommand}
+        pronouncePrepzr={true}
       />
       
       {/* Chat assistant */}

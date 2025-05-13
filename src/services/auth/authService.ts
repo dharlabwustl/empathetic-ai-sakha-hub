@@ -1,3 +1,4 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -246,7 +247,7 @@ const authService = {
   
   // Get auth token
   getToken(): string | null {
-    return localStorage.setItem(AUTH_TOKEN_KEY, localStorage.getItem(AUTH_TOKEN_KEY) || null);
+    return localStorage.getItem(AUTH_TOKEN_KEY);
   },
   
   // Check if user is authenticated

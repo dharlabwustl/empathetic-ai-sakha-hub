@@ -7,7 +7,7 @@ interface PrepzrLogoProps {
   className?: string;
 }
 
-const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 120, height = 40, className = '' }) => {
+const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 180, height = 60, className = '' }) => {
   return (
     <div style={{ width, height }} className={`flex items-center justify-center ${className}`}>
       <img 

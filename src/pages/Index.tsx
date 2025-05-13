@@ -95,7 +95,7 @@ const Index = () => {
         
         {/* Redesigned Impact Section with animation and title */}
         <motion.section 
-          className="container mx-auto px-4 py-16"
+          className="container mx-auto px-4 py-16 mb-20"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -110,15 +110,15 @@ const Index = () => {
         </motion.section>
         
         {/* Add proper spacing between sections */}
-        <div className="mt-16 pt-8"></div>
+        <div className="pt-12"></div>
         
         {/* Add the AchievementsSection with improved spacing */}
-        <div className="relative z-10">
+        <div className="relative z-10 mt-16">
           <AchievementsSection />
         </div>
         
         {/* Add more spacing for the next section */}
-        <div className="mt-12"></div>
+        <div className="mt-24"></div>
         
         <WhatIsSection />
         

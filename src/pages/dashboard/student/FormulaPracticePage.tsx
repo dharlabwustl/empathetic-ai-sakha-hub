@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Calculator, CheckCircle2, ChevronRight, FileUp, ExternalLink, Lightbulb, AlignJustify, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 // Mock data - In a real app, these would come from an API
 const subjects = [
@@ -73,7 +74,9 @@ const FormulaPracticePage: React.FC = () => {
   const [showSolution, setShowSolution] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('practice');
-  
+  const [showHint, setShowHint] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
+
   // Load topics when subject changes
   useEffect(() => {
     if (selectedSubject && topics[selectedSubject as keyof typeof topics].length > 0) {
@@ -101,7 +104,12 @@ const FormulaPracticePage: React.FC = () => {
         "Calculate h = (20 m/s)²/(2 × 9.8 m/s²)"
       ],
       answers: ["h = v²/(2g)", "h = (20)²/(2 × 9.8)", "h = 400/(19.6) = 20.41 m"],
-      finalAnswer: "20.41 m"
+      finalAnswer: "20.41 m",
+      hints: [
+        "Remember that at the maximum height, the final velocity becomes zero",
+        "Use the kinematic equation v² = u² + 2as where v = 0, u = initial velocity, a = -g, s = h (height)",
+        "Rearranging the equation gives h = u²/(2g)"
+      ]
     };
     
     setCurrentQuestion(question);
@@ -167,6 +175,26 @@ const FormulaPracticePage: React.FC = () => {
     }, 2000);
   };
 
+  const handleShowHint = () => {
+    if (!currentQuestion) return;
+    
+    setShowHint(true);
+    
+    toast({
+      title: "Hint displayed",
+      description: "Use this hint to guide your solution.",
+    });
+  };
+
+  const handleOpenCalculator = () => {
+    setShowCalculator(true);
+    
+    toast({
+      title: "Calculator opened",
+      description: "Use the calculator to help with your calculations.",
+    });
+  };
+
   return (
     <SharedPageLayout
       title="Formula Practice"
@@ -176,13 +204,17 @@ const FormulaPracticePage: React.FC = () => {
     >
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6">
-          <TabsTrigger value="practice">Practice Problems</TabsTrigger>
-          <TabsTrigger value="formulas">Formula Library</TabsTrigger>
+          <TabsTrigger value="practice" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            Practice Problems
+          </TabsTrigger>
+          <TabsTrigger value="formulas" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            Formula Library
+          </TabsTrigger>
         </TabsList>
         
         {/* Practice Tab */}
         <TabsContent value="practice" className="space-y-6">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Generate Practice Problems</CardTitle>
               <CardDescription>
@@ -282,14 +314,14 @@ const FormulaPracticePage: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={generateQuestion}>
+              <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={generateQuestion}>
                 Generate Practice Question
               </Button>
             </CardFooter>
           </Card>
           
           {currentQuestion && (
-            <Card>
+            <Card className="shadow-md">
               <CardHeader className="space-y-1">
                 <div className="flex items-center justify-between">
                   <CardTitle>Practice Problem</CardTitle>
@@ -328,30 +360,58 @@ const FormulaPracticePage: React.FC = () => {
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      <Button onClick={checkStepAnswer} disabled={!userAnswers[currentStep]}>
+                      <Button 
+                        onClick={checkStepAnswer} 
+                        disabled={!userAnswers[currentStep]} 
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                      >
                         Check Answer
                       </Button>
                       
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowSolution(!showSolution)}
+                        className="border-indigo-200 hover:border-indigo-300"
+                      >
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
-                        <Lightbulb className="h-4 w-4 mr-1" />
+                      <Button 
+                        variant="outline" 
+                        className="ml-auto border-amber-200 hover:border-amber-300"
+                        onClick={handleShowHint}
+                      >
+                        <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
                         Hint
                       </Button>
                       
-                      <Button variant="outline">
-                        <Calculator className="h-4 w-4 mr-1" />
+                      <Button 
+                        variant="outline"
+                        className="border-teal-200 hover:border-teal-300"
+                        onClick={handleOpenCalculator}
+                      >
+                        <Calculator className="h-4 w-4 mr-1 text-teal-500" />
                         Calculator
                       </Button>
                     </div>
                     
                     {showSolution && (
-                      <Alert>
-                        <AlertTitle>Solution for Step {currentStep + 1}</AlertTitle>
-                        <AlertDescription className="font-mono">
+                      <Alert className="bg-indigo-50 border-indigo-200">
+                        <AlertTitle className="text-indigo-800">Solution for Step {currentStep + 1}</AlertTitle>
+                        <AlertDescription className="font-mono text-indigo-700">
                           {currentQuestion.answers[currentStep]}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {showHint && (
+                      <Alert className="bg-amber-50 border-amber-200">
+                        <AlertTitle className="text-amber-800 flex items-center">
+                          <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                          Hint for Step {currentStep + 1}
+                        </AlertTitle>
+                        <AlertDescription className="text-amber-700">
+                          {currentQuestion.hints[currentStep] || "Think about the relationships between variables in the problem."}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -371,32 +431,65 @@ const FormulaPracticePage: React.FC = () => {
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      <Button onClick={() => setIsCorrect(userAnswers[0] === currentQuestion.finalAnswer)} disabled={!userAnswers[0]}>
+                      <Button 
+                        onClick={() => setIsCorrect(userAnswers[0] === currentQuestion.finalAnswer)} 
+                        disabled={!userAnswers[0]}
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                      >
                         Check Answer
                       </Button>
                       
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowSolution(!showSolution)}
+                        className="border-indigo-200 hover:border-indigo-300"
+                      >
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
-                        <Calculator className="h-4 w-4 mr-1" />
+                      <Button 
+                        variant="outline" 
+                        className="ml-auto border-amber-200 hover:border-amber-300"
+                        onClick={handleShowHint}
+                      >
+                        <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                        Hint
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        className="border-teal-200 hover:border-teal-300"
+                        onClick={handleOpenCalculator}
+                      >
+                        <Calculator className="h-4 w-4 mr-1 text-teal-500" />
                         Calculator
                       </Button>
                     </div>
                     
                     {showSolution && (
-                      <Alert>
-                        <AlertTitle>Complete Solution</AlertTitle>
-                        <AlertDescription className="space-y-2">
+                      <Alert className="bg-indigo-50 border-indigo-200">
+                        <AlertTitle className="text-indigo-800">Complete Solution</AlertTitle>
+                        <AlertDescription className="space-y-2 text-indigo-700">
                           {currentQuestion.steps.map((step: string, index: number) => (
                             <div key={index} className="space-y-1">
                               <div className="text-sm font-medium">Step {index + 1}:</div>
                               <div className="pl-4 font-mono">{step}</div>
-                              <div className="pl-4 font-mono text-primary">{currentQuestion.answers[index]}</div>
+                              <div className="pl-4 font-mono text-indigo-600">{currentQuestion.answers[index]}</div>
                             </div>
                           ))}
                           <div className="mt-2 font-bold">Final Answer: {currentQuestion.finalAnswer}</div>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {showHint && (
+                      <Alert className="bg-amber-50 border-amber-200">
+                        <AlertTitle className="text-amber-800 flex items-center">
+                          <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                          Hint
+                        </AlertTitle>
+                        <AlertDescription className="text-amber-700">
+                          {currentQuestion.hints[0] || "Think about what formula applies to this problem."}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -443,12 +536,29 @@ const FormulaPracticePage: React.FC = () => {
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" onClick={() => setShowSolution(!showSolution)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowSolution(!showSolution)}
+                        className="border-indigo-200 hover:border-indigo-300"
+                      >
                         {showSolution ? 'Hide Solution' : 'Show Solution'}
                       </Button>
                       
-                      <Button variant="outline" className="ml-auto">
-                        <Calculator className="h-4 w-4 mr-1" />
+                      <Button 
+                        variant="outline" 
+                        className="ml-auto border-amber-200 hover:border-amber-300"
+                        onClick={handleShowHint}
+                      >
+                        <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                        Hint
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        className="border-teal-200 hover:border-teal-300"
+                        onClick={handleOpenCalculator}
+                      >
+                        <Calculator className="h-4 w-4 mr-1 text-teal-500" />
                         Calculator
                       </Button>
                     </div>
@@ -468,17 +578,29 @@ const FormulaPracticePage: React.FC = () => {
                     )}
                     
                     {showSolution && (
-                      <Alert>
-                        <AlertTitle>Complete Solution</AlertTitle>
-                        <AlertDescription className="space-y-2">
+                      <Alert className="bg-indigo-50 border-indigo-200">
+                        <AlertTitle className="text-indigo-800">Complete Solution</AlertTitle>
+                        <AlertDescription className="space-y-2 text-indigo-700">
                           {currentQuestion.steps.map((step: string, index: number) => (
                             <div key={index} className="space-y-1">
                               <div className="text-sm font-medium">Step {index + 1}:</div>
                               <div className="pl-4 font-mono">{step}</div>
-                              <div className="pl-4 font-mono text-primary">{currentQuestion.answers[index]}</div>
+                              <div className="pl-4 font-mono text-indigo-600">{currentQuestion.answers[index]}</div>
                             </div>
                           ))}
                           <div className="mt-2 font-bold">Final Answer: {currentQuestion.finalAnswer}</div>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {showHint && (
+                      <Alert className="bg-amber-50 border-amber-200">
+                        <AlertTitle className="text-amber-800 flex items-center">
+                          <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+                          Hint
+                        </AlertTitle>
+                        <AlertDescription className="text-amber-700">
+                          {currentQuestion.hints[0] || "Think about what formula applies to this problem."}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -489,7 +611,10 @@ const FormulaPracticePage: React.FC = () => {
                 <Button variant="outline" onClick={() => setCurrentQuestion(null)}>
                   Back to Settings
                 </Button>
-                <Button onClick={generateQuestion}>
+                <Button 
+                  onClick={generateQuestion}
+                  className="bg-indigo-600 hover:bg-indigo-700"
+                >
                   New Question
                 </Button>
               </CardFooter>
@@ -542,6 +667,35 @@ const FormulaPracticePage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Calculator Modal */}
+      <Dialog open={showCalculator} onOpenChange={setShowCalculator}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Scientific Calculator</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-4 gap-2 p-4 bg-gray-50 rounded-md">
+            <div className="col-span-4 bg-white border p-2 h-16 rounded-md flex items-end justify-end text-lg font-mono mb-2">
+              0
+            </div>
+            
+            {/* Calculator buttons */}
+            {['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '-', '0', '.', '=', '+'].map((key) => (
+              <Button 
+                key={key} 
+                variant={['÷', '×', '-', '+', '='].includes(key) ? "default" : "outline"}
+                size="sm"
+                className={key === '=' ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+              >
+                {key}
+              </Button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCalculator(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SharedPageLayout>
   );
 };
