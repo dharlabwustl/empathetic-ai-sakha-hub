@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center mb-6 group">
-              <PrepzrLogo width={220} height={80} />
+              <PrepzrLogo width={280} height={80} />
             </Link>
             <p className="text-blue-100 leading-relaxed">
               The AI that listens, learns, and evolves with you across your learning journey, helping you ace your exams with personalized support.

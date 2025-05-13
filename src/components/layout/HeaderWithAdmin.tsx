@@ -1,18 +1,49 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { toast } from '@/hooks/use-toast';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      // Display toast
+      toast({
+        title: "Logging out...",
+        description: "Please wait while we log you out securely",
+      });
+      
+      await logout();
+      
+      // The following code might not execute due to page redirect
+      setIsLoggingOut(false);
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setIsLoggingOut(false);
+      
+      // Show error toast
+      toast({
+        title: "Logout Failed",
+        description: "There was an error logging you out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
@@ -21,7 +52,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center -ml-2">
             <Link to="/" className="flex items-center">
-              <PrepzrLogo width={280} height={90} />
+              <PrepzrLogo width={320} height={90} />
             </Link>
           </div>
           
@@ -33,8 +64,13 @@ const Header = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/dashboard/student">Dashboard</Link>
                 </Button>
-                <Button variant="ghost" onClick={() => logout()}>
-                  Logout
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout} 
+                  disabled={isLoggingOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {isLoggingOut ? "Logging out..." : "Logout"}
                 </Button>
               </div>
             ) : (
@@ -67,8 +103,14 @@ const Header = () => {
                   <Button variant="ghost" asChild className="justify-start">
                     <Link to="/dashboard/student">Dashboard</Link>
                   </Button>
-                  <Button variant="ghost" onClick={() => logout()} className="justify-start">
-                    Logout
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleLogout} 
+                    disabled={isLoggingOut}
+                    className="justify-start"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {isLoggingOut ? "Logging out..." : "Logout"}
                   </Button>
                 </>
               ) : (
