@@ -1,12 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { motion } from 'framer-motion';
-import ExamNamesBadge from '../home/hero/ExamNamesBadge';
-import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import HeroButtons from "@/components/home/hero/HeroButtons";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { ArrowRight, BookOpen, Rocket, SparklesIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import ExamNamesBadge from '@/components/home/hero/ExamNamesBadge';
 
 // Direct NEET signup modal component
 const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
@@ -87,7 +90,17 @@ const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
   );
 };
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  scrollToFeatures?: () => void;
+  scrollToForWhom?: () => void;
+  openExamAnalyzer?: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  scrollToFeatures,
+  scrollToForWhom,
+  openExamAnalyzer
+}) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -132,10 +145,17 @@ const HeroSection = () => {
     setShowNeetModal(false);
     navigate("/welcome-flow?completedOnboarding=false&new=true&exam=NEET");
   };
+  
+  const handleAnalyzeClick = () => {
+    if (openExamAnalyzer) {
+      openExamAnalyzer();
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
-    <section className="relative bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/80 dark:via-gray-900 dark:to-violet-900/80 py-16 md:py-24 lg:py-32 overflow-hidden">
-      {/* Abstract background elements with enhanced animations */}
+    <section className="relative overflow-hidden bg-white dark:bg-gray-950 pt-16 md:pt-20">
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
           className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"
@@ -195,7 +215,7 @@ const HeroSection = () => {
           <div className="max-w-4xl">
             {/* Hindi text line with enhanced gradient */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-hindi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}

@@ -19,6 +19,7 @@ import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import { motion } from 'framer-motion';
+import ImpactSection from '@/components/home/ImpactSection';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -86,7 +87,7 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* Redesigned Impact Section with animation and title */}
+        {/* Smart Data. Real Impact. Section with new title */}
         <motion.section 
           className="container mx-auto px-4 py-16"
           initial={{ opacity: 0 }}
@@ -94,10 +95,31 @@ const Index = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
         >
-          <KpiStats />
+          <div className="text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 mb-2"
+            >
+              Smart Data. Real Impact.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-xl text-gray-600 dark:text-gray-300"
+            >
+              Humanizing exam prep.
+            </motion.p>
+          </div>
+          
+          <ImpactSection />
         </motion.section>
         
-        {/* Add the AchievementsSection right after KPI Stats */}
+        {/* Add the AchievementsSection right after Impact section */}
         <AchievementsSection />
         
         <WhatIsSection />
@@ -130,7 +152,8 @@ const Index = () => {
       {/* Floating Voice Assistant */}
       <FloatingVoiceAnnouncer 
         isOpen={showVoiceAssistant} 
-        onClose={handleCloseVoiceAssistant} 
+        onClose={handleCloseVoiceAssistant}
+        userName="Student" 
       />
       
       {/* Add HomepageVoiceAnnouncer for visitors */}
