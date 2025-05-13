@@ -9,11 +9,11 @@ interface PrepzrLogoProps {
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 120, height = 40, className = '' }) => {
   return (
-    <div className={`flex items-center ${className}`} style={{ width: `${width}px`, height: `${height}px` }}>
+    <div style={{ width, height }} className={`flex items-center justify-center ${className}`}>
       <img 
-        src="/lovable-uploads/3a221f0e-7b76-4533-b1a8-2ed78e178b72.png" 
+        src="/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png" 
         alt="PREPZR Logo" 
-        className="max-w-full max-h-full"
+        className="h-full object-contain"
       />
     </div>
   );

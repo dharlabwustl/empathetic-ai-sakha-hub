@@ -1,7 +1,6 @@
-
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
+import authService from '@/services/auth/authService';
 
 interface User {
   id: string;
@@ -13,50 +12,63 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  login: () => Promise.reject('AuthContext not initialized'),
-  logout: () => {},
-  isAuthenticated: false
-});
+// Create the context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => useContext(AuthContext);
+// Auth provider props
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+// Auth provider component
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
+  // Check for existing user in localStorage on component mount
   useEffect(() => {
-    // Check for existing authentication
     const checkAuth = () => {
       setLoading(true);
       
-      // Check localStorage for authentication state
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      const storedUserData = localStorage.getItem('userData');
+      // Check if user data exists in localStorage and if user is authenticated
+      const userData = localStorage.getItem('userData');
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
       
-      if (isLoggedIn && storedUserData) {
+      if (userData && isLoggedIn === 'true') {
         try {
-          const userData = JSON.parse(storedUserData);
-          setUser({
-            id: userData.id || '1',
-            name: userData.name || 'User',
-            email: userData.email || 'user@example.com',
-            role: userData.role || UserRole.Student
-          });
+          const parsedData = JSON.parse(userData);
+          if (parsedData.email && parsedData.isAuthenticated === true) {
+            // User is already logged in
+            setUser({
+              id: parsedData.id || '1',
+              name: parsedData.name || 'User',
+              email: parsedData.email,
+              role: parsedData.role || UserRole.Student
+            });
+            console.log("User authenticated from localStorage:", parsedData.email);
+          } else {
+            // Invalid authentication state
+            setUser(null);
+            // Clear potentially corrupted data
+            localStorage.removeItem('userData');
+            localStorage.removeItem('isLoggedIn');
+            console.log("Invalid auth state detected - clearing localStorage");
+          }
         } catch (error) {
-          // If parsing fails, clear invalid data
+          console.error('Error parsing user data:', error);
+          // Clear invalid data
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
-          console.error('Error parsing stored user data:', error);
+          setUser(null);
         }
+      } else {
+        // No valid authentication data, ensure user is null
+        setUser(null);
       }
       
       setLoading(false);
@@ -65,74 +77,112 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  // Login function
+  const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     
-    return new Promise<User>((resolve, reject) => {
+    return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        // For demo, any email/password will work
-        if (email && password) {
-          const newUser = {
+        if (email && password && password.length >= 2) {
+          const newUser: User = {
             id: '1',
-            name: email.split('@')[0] || 'User',
-            email,
+            name: email.split('@')[0] || 'Student',
+            email: email,
             role: UserRole.Student
           };
           
-          // Save authenticated state to localStorage
+          // Check if this is a returning user
+          const existingData = localStorage.getItem('userData');
+          let loginCount = 1;
+          let sawWelcomeSlider = false;
+          let sawWelcomeTour = false;
+          
+          if (existingData) {
+            try {
+              const parsedData = JSON.parse(existingData);
+              loginCount = (parsedData.loginCount || 0) + 1;
+              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
+              sawWelcomeTour = parsedData.sawWelcomeTour === true;
+            } catch (error) {
+              console.error('Error parsing existing user data:', error);
+            }
+          }
+          
+          // Save user data to localStorage
+          localStorage.setItem('userData', JSON.stringify({
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+            lastLogin: new Date().toISOString(),
+            loginCount: loginCount,
+            sawWelcomeSlider: sawWelcomeSlider,
+            sawWelcomeTour: sawWelcomeTour,
+            mood: 'MOTIVATED',
+            isAuthenticated: true
+          }));
+          
+          // Also mark as logged in for other parts of the app
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userData', JSON.stringify(newUser));
-          localStorage.setItem('user_profile_image', 'https://ui-avatars.com/api/?name=' + encodeURIComponent(newUser.name));
           
           setUser(newUser);
           setLoading(false);
-          resolve(newUser);
+          console.log("Login successful for:", email);
+          resolve(true);
         } else {
           setLoading(false);
-          reject(new Error('Email and password are required'));
+          console.log("Login failed for:", email);
+          resolve(false);
         }
       }, 800);
     });
   };
-  
-  // Enhanced logout function to ensure all auth data is cleared
+
+  // Enhanced logout function with forceful page navigation
   const logout = () => {
-    // Clear all auth-related data
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user_profile_image');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenExpiry');
+    console.log("AuthContext: Starting logout process...");
     
-    // Clear any session items that might contain user data
-    sessionStorage.removeItem('lastRoute');
-    sessionStorage.removeItem('userSettings');
-    
-    // Clear cookies (if any are used)
-    document.cookie.split(';').forEach(cookie => {
-      const [name] = cookie.split('=');
-      document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-    });
-    
-    // Update state
+    // First clear React state to immediately reflect logout in UI
     setUser(null);
     
-    // Navigate to login page
-    navigate('/login');
+    // Then call the authService logout method
+    authService.logout().then(() => {
+      console.log("AuthContext: User logged out completely");
+      
+      // Force a complete page refresh and navigation to login
+      window.location.replace('/login');
+    }).catch(error => {
+      console.error("AuthContext: Error during logout:", error);
+      
+      // Try direct approach if service call fails
+      console.log("AuthContext: Fallback logout approach");
+      authService.clearAuthData();
+      
+      // Force hard navigation
+      window.location.replace('/login');
+    });
   };
-
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
-    isAuthenticated: !!user
-  };
-
+  
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        isAuthenticated: !!user
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
