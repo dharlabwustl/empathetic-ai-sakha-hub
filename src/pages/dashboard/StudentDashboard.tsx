@@ -11,7 +11,7 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
-import FloatingVoiceAnnouncer from "@/components/dashboard/student/FloatingVoiceAnnouncer";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -99,7 +99,7 @@ const StudentDashboard = () => {
     }
     
     if (!currentMood) {
-      const defaultMood = MoodType.Motivated;
+      const defaultMood = MoodType.MOTIVATED;
       setCurrentMood(defaultMood);
       storeMoodInLocalStorage(defaultMood);
     }
@@ -221,9 +221,10 @@ const StudentDashboard = () => {
         language="en"
       />
       
-      {/* Floating Voice Assistant */}
-      <FloatingVoiceAnnouncer 
+      {/* Dashboard Voice Assistant with mood integration */}
+      <DashboardVoiceAssistant 
         userName={userProfile.name || userProfile.firstName || 'Student'} 
+        currentMood={currentMood}
         onMoodChange={handleMoodChange}
       />
     </>

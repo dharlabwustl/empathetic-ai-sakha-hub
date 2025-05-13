@@ -130,11 +130,11 @@ const authService = {
     };
   },
   
-  // Enhanced logout function - completely clears all authentication data
+  // Enhanced comprehensive logout function - completely clears all authentication data
   async logout(): Promise<ApiResponse<void>> {
     console.log("Starting enhanced logout process to clear all auth data...");
     
-    // Document cookies handling 
+    // Document cookies handling - clear all cookies
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i];
@@ -143,7 +143,7 @@ const authService = {
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
     }
     
-    // Clear all authentication data from local storage
+    // Clear all authentication data from local storage - comprehensive list
     const itemsToRemove = [
       'userData',
       'isLoggedIn',
@@ -176,27 +176,43 @@ const authService = {
       'adminToken',
       'sakha_auth_token',
       'sakha_auth_user',
-      'voice-tested'
+      'voice-tested',
+      'auth_session',
+      'auth_token',
+      'token',
+      'session_token',
+      'refresh_token',
+      'user_id',
+      'user_session',
+      'user_data'
     ];
     
     // Clear each item individually and log it for debugging
     itemsToRemove.forEach(item => {
-      if (localStorage.getItem(item)) {
-        console.log(`Clearing localStorage item: ${item}`);
-        localStorage.removeItem(item);
+      try {
+        if (localStorage.getItem(item)) {
+          console.log(`Clearing localStorage item: ${item}`);
+          localStorage.removeItem(item);
+        }
+      } catch (e) {
+        console.error(`Error clearing ${item}:`, e);
       }
     });
     
     // Additionally clear any session storage items
     console.log("Clearing all session storage data");
-    sessionStorage.clear();
+    try {
+      sessionStorage.clear();
+    } catch (e) {
+      console.error("Error clearing sessionStorage:", e);
+    }
     
     // Reset API client
     apiClient.setAuthToken(null);
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Force redirection to login page
+    // Force redirection to login page to prevent any auto-login issues
     window.location.href = '/login';
     
     // Return success - we'll handle navigation separately in the component

@@ -21,6 +21,7 @@ import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -93,7 +94,7 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* Redesigned Impact Section with animation and title */}
+        {/* Impact Section with animation and KPI stats */}
         <motion.section 
           className="container mx-auto px-4 py-16 mb-20"
           initial={{ opacity: 0 }}
@@ -112,13 +113,10 @@ const Index = () => {
         {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
         
-        {/* Add the AchievementsSection with improved spacing */}
-        <div className="relative z-10 mt-16">
+        {/* Add the AchievementsSection with improved spacing and z-index */}
+        <div className="relative z-10 mt-16 mb-24">
           <AchievementsSection />
         </div>
-        
-        {/* Add more spacing for the next section */}
-        <div className="mt-24"></div>
         
         <WhatIsSection />
         
@@ -147,17 +145,14 @@ const Index = () => {
       
       <Footer />
       
-      {/* Add improved floating voice assistant */}
-      <FloatingVoiceAssistant onNavigationCommand={handleNavigationCommand} />
+      {/* Enhanced homepage voice assistant with improved guidance */}
+      <HomePageVoiceAssistant />
       
       {/* Floating Voice Assistant */}
       <FloatingVoiceAnnouncer 
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant} 
       />
-      
-      {/* Add HomepageVoiceAnnouncer for visitors */}
-      {<HomepageVoiceAnnouncer autoPlay={!isLoggedIn} delayStart={5000} />}
     </div>
   );
 };
