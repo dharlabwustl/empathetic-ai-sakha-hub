@@ -110,8 +110,8 @@ const Index = () => {
           <KpiStats />
         </motion.section>
         
-        {/* Add proper spacing between sections - increased margin to fix overlap */}
-        <div className="pt-16 mb-16"></div>
+        {/* Add proper spacing between sections */}
+        <div className="pt-12"></div>
         
         {/* Add the AchievementsSection with improved spacing and z-index */}
         <div className="relative z-10 mt-16 mb-24">
@@ -145,15 +145,13 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced homepage voice assistant with improved language options */}
+      {/* Enhanced homepage voice assistant with improved guidance */}
       <HomePageVoiceAssistant />
       
-      {/* Floating Voice Assistant with enhanced settings */}
-      <FloatingVoiceAssistant 
+      {/* Floating Voice Assistant */}
+      <FloatingVoiceAnnouncer 
         isOpen={showVoiceAssistant} 
-        onClose={handleCloseVoiceAssistant}
-        pronouncePrepzr={true}
-        defaultLanguage="hi-IN"
+        onClose={handleCloseVoiceAssistant} 
       />
     </div>
   );
