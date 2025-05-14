@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MoodType } from '@/types/user/base';
@@ -33,14 +34,26 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     volume: 1,
     rate: 1,
     pitch: 1,
-    language: 'en-US',
+    language: 'hi-IN', // Default to Hindi
     enabled: true,
     muted: false,
-    autoGreet: true
+    autoGreet: true,
+    gender: 'female'
   });
 
   // Initialize speech recognition
   useEffect(() => {
+    // Load saved voice settings from localStorage
+    const savedSettings = localStorage.getItem('voiceSettings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setVoiceSettings(prevSettings => ({...prevSettings, ...parsedSettings}));
+      } catch (e) {
+        console.error('Error parsing voice settings:', e);
+      }
+    }
+
     // Check if browser supports speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -55,7 +68,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
-    recognitionInstance.lang = 'en-US';
+    recognitionInstance.lang = voiceSettings.language;
 
     recognitionInstance.onstart = () => {
       setIsListening(true);
@@ -84,17 +97,6 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
 
     setRecognition(recognitionInstance);
 
-    // Load saved voice settings from localStorage
-    const savedSettings = localStorage.getItem('voiceSettings');
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setVoiceSettings(prevSettings => ({...prevSettings, ...parsedSettings}));
-      } catch (e) {
-        console.error('Error parsing voice settings:', e);
-      }
-    }
-    
     return () => {
       try {
         recognitionInstance.abort();
@@ -102,7 +104,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         console.error("Error stopping recognition:", e);
       }
     };
-  }, [toast]);
+  }, [voiceSettings.language, toast]);
 
   // Process voice commands with integration to dashboard features
   const processVoiceCommand = useCallback((command: string) => {
@@ -119,13 +121,33 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       utterance.volume = voiceSettings.volume;
       utterance.rate = voiceSettings.rate;
       utterance.pitch = voiceSettings.pitch;
+      utterance.lang = voiceSettings.language;
       
       // Try to use a preferred voice
       const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
-      );
+      let preferredVoice;
       
+      // Get voice based on language and gender preference
+      if (voiceSettings.language === 'hi-IN') {
+        preferredVoice = voices.find(voice => 
+          voice.lang.includes('hi') && 
+          ((voiceSettings.gender === 'female' && voice.name.includes('Female')) || 
+           (voiceSettings.gender === 'male' && voice.name.includes('Male')))
+        );
+      } else {
+        preferredVoice = voices.find(voice => 
+          voice.lang.includes(voiceSettings.language) && 
+          ((voiceSettings.gender === 'female' && (voice.name.includes('Female') || voice.name.includes('Samantha'))) || 
+           (voiceSettings.gender === 'male' && voice.name.includes('Male')))
+        );
+      }
+      
+      // If no specific gender/language match found, try general language match
+      if (!preferredVoice) {
+        preferredVoice = voices.find(voice => voice.lang.includes(voiceSettings.language.split('-')[0]));
+      }
+      
+      // If still no match, use default
       if (preferredVoice) {
         utterance.voice = preferredVoice;
       }
@@ -168,6 +190,48 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     if (lowerCommand.includes('practice exam') || lowerCommand.includes('practice test')) {
       respond('Opening practice exams');
       navigate('/dashboard/student/practice-exam');
+      return;
+    }
+    
+    if (lowerCommand.includes('formula lab') || lowerCommand.includes('formulas')) {
+      respond('Opening formula lab');
+      navigate('/dashboard/student/formula-practice-lab');
+      return;
+    }
+    
+    if (lowerCommand.includes('profile') || lowerCommand.includes('my profile')) {
+      respond('Opening your profile');
+      navigate('/dashboard/student/profile');
+      return;
+    }
+    
+    if (lowerCommand.includes('notifications') || lowerCommand.includes('alerts')) {
+      respond('Checking your notifications');
+      navigate('/dashboard/student/notifications');
+      return;
+    }
+    
+    if (lowerCommand.includes('academic advisor') || lowerCommand.includes('advisor')) {
+      respond('Opening the academic advisor');
+      navigate('/dashboard/student/academic');
+      return;
+    }
+    
+    if (lowerCommand.includes('today plan') || lowerCommand.includes('today\'s plan')) {
+      respond('Opening today\'s study plan');
+      navigate('/dashboard/student/today');
+      return;
+    }
+    
+    if (lowerCommand.includes('syllabus') || lowerCommand.includes('exam syllabus')) {
+      respond('Opening the exam syllabus');
+      navigate('/dashboard/student/syllabus');
+      return;
+    }
+    
+    if (lowerCommand.includes('previous year') || lowerCommand.includes('past papers')) {
+      respond('Opening previous year papers');
+      navigate('/dashboard/student/previous-year-analysis');
       return;
     }
     
@@ -262,6 +326,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     if (!recognition) return;
     
     try {
+      recognition.lang = voiceSettings.language;
       recognition.start();
       setShowTranscript(true);
       toast({
@@ -297,6 +362,19 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       localStorage.setItem('voiceSettings', JSON.stringify(updated));
       return updated;
     });
+  };
+
+  // Test voice with current settings
+  const testVoice = () => {
+    const testMessages = {
+      'en-US': `Hello ${userName}! I'm your Prep-zer assistant with American accent.`,
+      'en-GB': `Hello ${userName}! I'm your Prep-zer assistant with British accent.`,
+      'en-IN': `Hello ${userName}! I'm your Prep-zer assistant with Indian English accent.`,
+      'hi-IN': `नमस्ते ${userName}! मैं आपका प्रेप-ज़र सहायक हूँ।`
+    };
+    
+    const message = testMessages[voiceSettings.language as keyof typeof testMessages] || testMessages['en-US'];
+    processVoiceCommand(message);
   };
 
   const getMoodEmoji = (mood?: MoodType) => {
@@ -374,6 +452,40 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
               </div>
               
               <div className="space-y-2">
+                <Label htmlFor="voice-language">Language</Label>
+                <Select 
+                  value={voiceSettings.language}
+                  onValueChange={(value) => handleSettingsChange('language', value)}
+                >
+                  <SelectTrigger id="voice-language">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hi-IN">Hindi (हिंदी)</SelectItem>
+                    <SelectItem value="en-IN">English (Indian)</SelectItem>
+                    <SelectItem value="en-US">English (US)</SelectItem>
+                    <SelectItem value="en-GB">English (UK)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="voice-gender">Voice Gender</Label>
+                <Select 
+                  value={voiceSettings.gender}
+                  onValueChange={(value) => handleSettingsChange('gender', value)}
+                >
+                  <SelectTrigger id="voice-gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
                 <Label htmlFor="voice-volume">Volume</Label>
                 <Slider
                   id="voice-volume"
@@ -396,6 +508,27 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
                   onValueChange={([value]) => handleSettingsChange('rate', value)}
                 />
               </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="voice-pitch">Pitch</Label>
+                <Slider
+                  id="voice-pitch"
+                  min={0.5}
+                  max={2}
+                  step={0.1}
+                  value={[voiceSettings.pitch]}
+                  onValueChange={([value]) => handleSettingsChange('pitch', value)}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                onClick={testVoice}
+                className="w-full"
+              >
+                <Volume2 className="h-4 w-4 mr-2" />
+                Test Voice
+              </Button>
               
               <div className="pt-2">
                 <Alert>
