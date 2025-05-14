@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -101,22 +102,6 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
     }
   };
 
-  const moodEmojis: Record<MoodType, string> = {
-    [MoodType.HAPPY]: "😊",
-    [MoodType.MOTIVATED]: "💪",
-    [MoodType.FOCUSED]: "🧠",
-    [MoodType.CALM]: "😌",
-    [MoodType.TIRED]: "😴",
-    [MoodType.CONFUSED]: "😕",
-    [MoodType.ANXIOUS]: "😰",
-    [MoodType.STRESSED]: "😓",
-    [MoodType.OVERWHELMED]: "🥴",
-    [MoodType.NEUTRAL]: "😐",
-    [MoodType.OKAY]: "👍",
-    [MoodType.SAD]: "😔",
-    [MoodType.CURIOUS]: "🤔",
-  };
-
   return (
     <Card>
       <CardContent className="pt-6 px-6">
@@ -211,18 +196,18 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
               <h4 className="text-sm font-medium mb-2">Current Mood</h4>
               <div className={cn(
                 "py-1 px-3 rounded-full text-sm text-center",
-                currentMood === MoodType.HAPPY && "bg-yellow-100 text-yellow-800",
-                currentMood === MoodType.MOTIVATED && "bg-green-100 text-green-800",
-                currentMood === MoodType.FOCUSED && "bg-blue-100 text-blue-800",
-                currentMood === MoodType.CALM && "bg-teal-100 text-teal-800",
-                currentMood === MoodType.TIRED && "bg-orange-100 text-orange-800",
-                currentMood === MoodType.CONFUSED && "bg-amber-100 text-amber-800",
-                currentMood === MoodType.ANXIOUS && "bg-purple-100 text-purple-800",
-                currentMood === MoodType.STRESSED && "bg-red-100 text-red-800",
-                currentMood === MoodType.OVERWHELMED && "bg-pink-100 text-pink-800",
-                currentMood === MoodType.NEUTRAL && "bg-gray-100 text-gray-800",
-                currentMood === MoodType.OKAY && "bg-indigo-100 text-indigo-800",
-                currentMood === MoodType.SAD && "bg-blue-100 text-blue-800",
+                currentMood === MoodType.Happy && "bg-yellow-100 text-yellow-800",
+                currentMood === MoodType.Motivated && "bg-green-100 text-green-800",
+                currentMood === MoodType.Focused && "bg-blue-100 text-blue-800",
+                currentMood === MoodType.Calm && "bg-teal-100 text-teal-800",
+                currentMood === MoodType.Tired && "bg-orange-100 text-orange-800",
+                currentMood === MoodType.Confused && "bg-amber-100 text-amber-800",
+                currentMood === MoodType.Anxious && "bg-purple-100 text-purple-800",
+                currentMood === MoodType.Stressed && "bg-red-100 text-red-800",
+                currentMood === MoodType.Overwhelmed && "bg-pink-100 text-pink-800",
+                currentMood === MoodType.Neutral && "bg-gray-100 text-gray-800",
+                currentMood === MoodType.Okay && "bg-indigo-100 text-indigo-800",
+                currentMood === MoodType.Sad && "bg-blue-100 text-blue-800",
               )}>
                 {typeof currentMood === 'string' ? 
                   currentMood.charAt(0).toUpperCase() + currentMood.slice(1) : 

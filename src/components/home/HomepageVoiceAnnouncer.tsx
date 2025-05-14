@@ -1,16 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle, Settings as SettingsIcon, Sliders } from 'lucide-react';
+import { Volume2, VolumeX, Info, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { findBestVoice } from '@/components/dashboard/student/voice/voiceUtils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface HomepageVoiceAnnouncerProps {
   autoPlay?: boolean;
@@ -32,27 +27,12 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isHovered, setIsHovered] = useState(false);
-  
-  // Voice settings
-  const [voiceLanguage, setVoiceLanguage] = useState('hi-IN'); // Default to Hindi
-  const [voiceGender, setVoiceGender] = useState('female');
-  const [voiceRate, setVoiceRate] = useState(0.92);
-  const [voicePitch, setVoicePitch] = useState(1.1);
-  const [voiceVolume, setVoiceVolume] = useState(1);
 
   // Ref for speech synthesis utterance
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<number | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesHistoryRef = useRef<string[]>([]);
-  
-  // Available language options
-  const languageOptions = [
-    { value: 'hi-IN', label: 'Hindi' },
-    { value: 'en-IN', label: 'Indian English' },
-    { value: 'en-US', label: 'US English' },
-    { value: 'en-GB', label: 'British English' }
-  ];
   
   // Welcome messages sequence - including NEET examination focus
   const welcomeMessages = [
@@ -98,8 +78,57 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       // Create utterance object only once
       utteranceRef.current = new SpeechSynthesisUtterance();
       
-      // Set voice characteristics based on settings
-      updateVoiceSettings();
+      // Set voice characteristics for pleasant Indian female voice
+      utteranceRef.current.rate = 0.92; // Slightly slower for better clarity and calmer delivery
+      utteranceRef.current.pitch = 1.1; // Higher pitch for female voice
+      utteranceRef.current.volume = 1.0;
+      utteranceRef.current.lang = 'en-IN'; // Set to Indian English
+      
+      // Find and set the Indian female voice - prioritizing female voices
+      window.speechSynthesis.onvoiceschanged = () => {
+        if (utteranceRef.current) {
+          // Get all available voices
+          const voices = window.speechSynthesis.getVoices();
+          
+          // First, look specifically for Indian female voices
+          let indianFemaleVoice = voices.find(voice => 
+            voice.lang.includes('en-IN') && 
+            voice.name.toLowerCase().includes('female')
+          );
+          
+          // If no specific Indian female voice found, fall back to any Indian voice
+          if (!indianFemaleVoice) {
+            indianFemaleVoice = findBestVoice('en-IN');
+          }
+          
+          // If Indian voice found, use it
+          if (indianFemaleVoice) {
+            utteranceRef.current.voice = indianFemaleVoice;
+            console.log('Using Indian female voice for homepage:', indianFemaleVoice.name);
+          }
+        }
+      };
+      
+      // Try to load voices immediately in case they're already available
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0 && utteranceRef.current) {
+        // First, look specifically for Indian female voices
+        let indianFemaleVoice = voices.find(voice => 
+          voice.lang.includes('en-IN') && 
+          voice.name.toLowerCase().includes('female')
+        );
+        
+        // If no specific Indian female voice found, fall back to any Indian voice
+        if (!indianFemaleVoice) {
+          indianFemaleVoice = findBestVoice('en-IN');
+        }
+        
+        // If Indian voice found, use it
+        if (indianFemaleVoice) {
+          utteranceRef.current.voice = indianFemaleVoice;
+          console.log('Immediately loaded Indian female voice for homepage:', indianFemaleVoice.name);
+        }
+      }
       
       // Auto-play after delay if enabled - ensuring it starts automatically
       if (autoPlay && isVisible) {
@@ -121,50 +150,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     };
   }, [autoPlay, delayStart, isVisible]);
   
-  // Update voice settings whenever they change
-  useEffect(() => {
-    if (utteranceRef.current) {
-      updateVoiceSettings();
-    }
-  }, [voiceLanguage, voiceGender, voiceRate, voicePitch, voiceVolume]);
-  
-  // Update the voice settings
-  const updateVoiceSettings = () => {
-    if (!utteranceRef.current) return;
-    
-    utteranceRef.current.rate = voiceRate;
-    utteranceRef.current.pitch = voicePitch;
-    utteranceRef.current.volume = voiceVolume;
-    utteranceRef.current.lang = voiceLanguage;
-    
-    // Try to find the best matching voice
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      // First look for language + gender match
-      let selectedVoice = voices.find(voice => 
-        voice.lang.includes(voiceLanguage) && 
-        ((voiceGender === 'female' && (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman'))) ||
-        (voiceGender === 'male' && (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('man'))))
-      );
-      
-      // If not found, fall back to just language match
-      if (!selectedVoice) {
-        selectedVoice = voices.find(voice => voice.lang.includes(voiceLanguage));
-      }
-      
-      // If still not found, use any Indian voice for Hindi as fallback
-      if (!selectedVoice && voiceLanguage === 'hi-IN') {
-        selectedVoice = voices.find(voice => voice.lang.includes('en-IN'));
-      }
-      
-      // If any voice found, use it
-      if (selectedVoice) {
-        utteranceRef.current.voice = selectedVoice;
-        console.log('Using voice:', selectedVoice.name);
-      }
-    }
-  };
-  
   // Initialize speech recognition
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -172,7 +157,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = voiceLanguage; // Use same language as voice
+      recognitionRef.current.lang = 'en-IN'; // Set to Indian English
       
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
@@ -195,7 +180,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
         recognitionRef.current.abort();
       }
     };
-  }, [voiceLanguage]);
+  }, []);
   
   // Check if user is already logged in
   useEffect(() => {
@@ -209,73 +194,6 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     }
   }, []);
   
-  // Start announcement sequence
-  const startAnnouncement = () => {
-    if (isPlaying || !utteranceRef.current) return;
-    
-    setHasStarted(true);
-    setIsPlaying(true);
-    setCurrentMessageIndex(0);
-    
-    speakNextMessage();
-  };
-  
-  // Speak the next message in sequence
-  const speakNextMessage = () => {
-    if (!utteranceRef.current || isMuted) {
-      setIsPlaying(false);
-      return;
-    }
-    
-    if (currentMessageIndex < welcomeMessages.length) {
-      const message = welcomeMessages[currentMessageIndex];
-      utteranceRef.current.text = fixPrepzrPronunciation(message);
-      
-      // Set up events for current utterance
-      utteranceRef.current.onstart = () => {
-        // Dispatch event to signal speaking started
-        document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
-        setProgress(0);
-      };
-      
-      utteranceRef.current.onend = () => {
-        // Dispatch event to signal speaking ended
-        document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-        
-        // Move to next message after a short pause
-        setCurrentMessageIndex(prev => prev + 1);
-        
-        // Schedule next message with pause
-        timerRef.current = window.setTimeout(() => {
-          speakNextMessage();
-        }, 1500);
-      };
-      
-      // Update progress during speech
-      utteranceRef.current.onboundary = (event) => {
-        if (event.name === 'word' && utteranceRef.current) {
-          const totalLength = utteranceRef.current.text.length;
-          const progress = event.charIndex / totalLength * 100;
-          setProgress(Math.min(progress, 100));
-        }
-      };
-      
-      // Start speaking
-      window.speechSynthesis.cancel(); // Cancel any ongoing speech
-      window.speechSynthesis.speak(utteranceRef.current);
-    } else {
-      // All messages spoken
-      setIsPlaying(false);
-      setProgress(100);
-    }
-  };
-  
-  // Fix PREPZR pronunciation
-  const fixPrepzrPronunciation = (text: string) => {
-    return text.replace(/PREPZR/gi, 'Prep, zer');
-  };
-  
-  // Handle voice input from user
   const handleVoiceInput = (input: string) => {
     const lowerInput = input.toLowerCase();
     let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREPZR?";
@@ -284,39 +202,36 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
       response = "Hello! Welcome to PREPZR. How can I assist you with your NEET preparation today?";
     } else if (lowerInput.includes("about") || lowerInput.includes("what is") || lowerInput.includes("tell me about")) {
-      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey.";
-    } else if (lowerInput.includes("sign up") || lowerInput.includes("register")) {
-      response = "To sign up for PREPZR, click the sign up button at the top right of this page. We offer a free 7-day trial with full access to all features!";
-    } else if (lowerInput.includes("free trial")) {
-      response = "Yes, PREPZR offers a comprehensive 7-day free trial! You'll get access to all our premium features including concept cards, practice exams, and personalized study plans.";
-    } else if (lowerInput.includes("exam readiness") || lowerInput.includes("check readiness")) {
-      response = "Our Exam Readiness Test evaluates your current preparation level across all NEET subjects. It takes about 15 minutes and gives you a personalized roadmap for improvement. Would you like to take it now?";
-    } else if (lowerInput.includes("advantage") || lowerInput.includes("better") || lowerInput.includes("why prepzr")) {
-      response = "PREPZR stands out because we combine AI with emotional intelligence to adjust to your learning style. Our platform reduces stress by 40%, improves scores by up to 30%, and saves 60% of preparation time compared to traditional methods.";
-    } else if (lowerInput.includes("price") || lowerInput.includes("cost") || lowerInput.includes("subscription")) {
-      response = "PREPZR offers flexible pricing plans starting at just ₹999 per month. Our most popular plan is the 6-month package at ₹4,999, which covers your full NEET preparation cycle.";
-    } else if (lowerInput.includes("success") || lowerInput.includes("results")) {
-      response = "Last year, 87% of PREPZR students scored above 550 in NEET. 35% of our students received admissions to top medical colleges. Our personalized approach makes all the difference!";
+      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
+    } else if (lowerInput.includes("features") || lowerInput.includes("what can you do")) {
+      // Select a random feature to highlight
+      response = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
+    } else if (lowerInput.includes("exam") || lowerInput.includes("test") || lowerInput.includes("neet")) {
+      response = "Our Exam Readiness Test will help you understand your current NEET preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
+    } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
+      response = "You can try PREPZR with our 7-day free trial. Sign up now to access all features and see how we can help you succeed in NEET.";
+    } else if (lowerInput.includes("premium") || lowerInput.includes("paid") || lowerInput.includes("plan")) {
+      response = "Our premium plans offer advanced features including unlimited NEET practice tests, personalized feedback, doubt resolution, and specialized tutoring for NEET subjects.";
+    } else if (lowerInput.includes("login") || lowerInput.includes("sign in")) {
+      response = "You can sign in using the button at the top right of the screen.";
+    } else if (lowerInput.includes("register") || lowerInput.includes("sign up")) {
+      response = "Click the 'Get Started' button to create your PREPZR account and begin your NEET preparation journey.";
+    } else if (lowerInput.includes("help me") || lowerInput.includes("struggling")) {
+      response = "Many NEET aspirants struggle with time management and keeping up with vast syllabus. PREPZR helps you by breaking down the curriculum into manageable chunks and creating a personalized study schedule based on your strengths and weaknesses.";
+    } else if (lowerInput.includes("success") || lowerInput.includes("topper") || lowerInput.includes("champion")) {
+      response = "Our champion methodology is based on studying how top NEET performers prepare. We've found that consistent practice, emotional well-being, and adaptive learning are key factors. PREPZR incorporates all these elements to help you become a champion too!";
     }
     
-    // Speak the response
-    if (utteranceRef.current) {
-      utteranceRef.current.text = fixPrepzrPronunciation(response);
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utteranceRef.current);
+    // Avoid repeating the same message
+    if (!messagesHistoryRef.current.includes(response)) {
+      speakMessage(response);
       messagesHistoryRef.current.push(response);
+      if (messagesHistoryRef.current.length > 5) {
+        messagesHistoryRef.current.shift();
+      }
     }
   };
   
-  // Toggle mute
-  const toggleMute = () => {
-    if (isPlaying && !isMuted) {
-      window.speechSynthesis.cancel();
-    }
-    setIsMuted(!isMuted);
-  };
-  
-  // Toggle listening
   const toggleListening = () => {
     if (isListening) {
       if (recognitionRef.current) {
@@ -326,321 +241,292 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     } else {
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.lang = voiceLanguage;
           recognitionRef.current.start();
           setIsListening(true);
-        } catch (e) {
-          console.error("Error starting speech recognition:", e);
+        } catch (error) {
+          console.error("Error starting speech recognition", error);
         }
       }
     }
   };
   
-  // Toggle minimize
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
-  };
-  
-  // Toggle subtitles
-  const toggleSubtitles = () => {
-    setShowSubtitles(!showSubtitles);
-  };
-  
-  // Close assistant
-  const closeAssistant = () => {
-    if (isPlaying) {
-      window.speechSynthesis.cancel();
-    }
-    setIsVisible(false);
-  };
-  
-  // Get current message
-  const getCurrentMessage = () => {
-    if (currentMessageIndex < welcomeMessages.length) {
-      return welcomeMessages[currentMessageIndex];
-    }
-    return "";
-  };
-  
-  // Apply settings
-  const applySettings = () => {
-    // Save settings to localStorage
-    localStorage.setItem('voiceAssistantLanguage', voiceLanguage);
-    localStorage.setItem('voiceAssistantGender', voiceGender);
-    localStorage.setItem('voiceAssistantRate', voiceRate.toString());
-    localStorage.setItem('voiceAssistantPitch', voicePitch.toString());
-    localStorage.setItem('voiceAssistantVolume', voiceVolume.toString());
-    
-    // Update voice settings
-    updateVoiceSettings();
-    
-    // Test the new voice settings
-    if (utteranceRef.current) {
-      const testMessage = "Hello, this is your PREPZR voice assistant with new settings.";
-      utteranceRef.current.text = fixPrepzrPronunciation(testMessage);
-      window.speechSynthesis.cancel();
+  const speakMessage = (message: string) => {
+    if (utteranceRef.current && !isMuted) {
+      window.speechSynthesis.cancel(); // Cancel any ongoing speech
+      
+      // Fix pronunciation for speech only - not for display
+      const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
+      
+      utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
     }
+    
+    // Progress timing - increase duration for calmer speech
+    const messageDuration = message.length * 90; // Slightly longer for better enunciation
+    let startTime = Date.now();
+    
+    // Update progress
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progressValue = Math.min(100, (elapsed / messageDuration) * 100);
+      setProgress(progressValue);
+      
+      if (progressValue < 100 && isPlaying) {
+        timerRef.current = window.setTimeout(updateProgress, 50);
+      } else {
+        // Move to next message
+        if (currentMessageIndex < welcomeMessages.length - 1 && isPlaying) {
+          timerRef.current = window.setTimeout(() => {
+            setCurrentMessageIndex(prevIndex => prevIndex + 1);
+            setProgress(0);
+            speakMessage(welcomeMessages[currentMessageIndex + 1]);
+          }, 1200); // Slightly longer pause between messages for a calmer pace
+        } else if (currentMessageIndex >= welcomeMessages.length - 1) {
+          setIsPlaying(false);
+        }
+      }
+    };
+    
+    updateProgress();
   };
   
-  if (!isVisible) return null;
+  const startAnnouncement = () => {
+    setIsPlaying(true);
+    setHasStarted(true);
+    setCurrentMessageIndex(0);
+    setProgress(0);
+    speakMessage(welcomeMessages[0]);
+  };
   
+  const stopAnnouncement = () => {
+    setIsPlaying(false);
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+  };
+  
+  const toggleMute = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    
+    if (newMutedState) {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    } else if (isPlaying) {
+      // Resume speaking the current message
+      speakMessage(welcomeMessages[currentMessageIndex]);
+    }
+  };
+  
+  const dismissComponent = () => {
+    stopAnnouncement();
+    // Instead of hiding the component completely, minimize it to icon mode
+    setIsMinimized(true);
+  };
+
+  // Speak a random PREPZR feature when minimized component is clicked
+  const handleMinimizedClick = () => {
+    const randomFeature = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
+    speakMessage(randomFeature);
+    setIsMinimized(false);
+    setHasStarted(true);
+  };
+  
+  if (!isVisible) {
+    return null;
+  }
+  
+  // Render minimized floating icon version when dismissed
+  if (isMinimized) {
+    return (
+      <TooltipProvider>
+        <motion.div 
+          className="fixed bottom-4 right-4 z-50"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.1 }}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div 
+                className="relative group"
+                onClick={handleMinimizedClick}
+              >
+                <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-30 animate-pulse"></div>
+                <Button 
+                  className="rounded-full h-12 w-12 bg-white shadow-lg border border-indigo-100 hover:bg-indigo-50 relative z-10"
+                >
+                  <Volume2 className="h-6 w-6 text-indigo-600" />
+                </Button>
+                
+                {/* Expandable info on hover */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.div 
+                      initial={{ opacity: 0, width: 0, x: -20 }}
+                      animate={{ opacity: 1, width: 'auto', x: -10 }}
+                      exit={{ opacity: 0, width: 0, x: -20 }}
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64"
+                    >
+                      <p className="text-sm font-medium mb-1">PREPZR Voice Assistant</p>
+                      <p className="text-xs text-gray-500">Click to explore how PREPZR can help you crack your exams!</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Ask PREPZR about exam preparation
+            </TooltipContent>
+          </Tooltip>
+        </motion.div>
+      </TooltipProvider>
+    );
+  }
+
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ duration: 0.3 }}
-        className={`fixed bottom-24 right-6 z-50 flex flex-col ${isMinimized ? 'w-16' : 'w-80 sm:w-96'} 
-          backdrop-blur-lg bg-gradient-to-br from-purple-500/90 to-purple-600/90 
-          rounded-2xl shadow-xl border border-white/20`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-white/20">
-          {!isMinimized && (
-            <div className="flex items-center space-x-2">
-              <Volume2 className="h-5 w-5 text-white" />
-              <span className="font-medium text-white text-sm">PREPZR Assistant</span>
-            </div>
-          )}
-          <div className="flex items-center space-x-2 ml-auto">
-            {!isMinimized && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 bg-white/20 hover:bg-white/30">
-                    <SettingsIcon className="h-4 w-4 text-white" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[300px]">
-                  <SheetHeader>
-                    <SheetTitle>Voice Assistant Settings</SheetTitle>
-                  </SheetHeader>
-                  <div className="py-6 space-y-6">
-                    <div className="space-y-2">
-                      <Label>Language</Label>
-                      <Select 
-                        value={voiceLanguage} 
-                        onValueChange={setVoiceLanguage}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {languageOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Voice Gender</Label>
-                      <RadioGroup value={voiceGender} onValueChange={setVoiceGender} className="flex space-x-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id="female" />
-                          <Label htmlFor="female">Female</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id="male" />
-                          <Label htmlFor="male">Male</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label>Speech Rate: {voiceRate.toFixed(2)}</Label>
-                      </div>
-                      <Slider 
-                        value={[voiceRate]} 
-                        onValueChange={(value) => setVoiceRate(value[0])} 
-                        min={0.5} 
-                        max={1.5} 
-                        step={0.05}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label>Pitch: {voicePitch.toFixed(2)}</Label>
-                      </div>
-                      <Slider 
-                        value={[voicePitch]} 
-                        onValueChange={(value) => setVoicePitch(value[0])} 
-                        min={0.8} 
-                        max={1.5} 
-                        step={0.05}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label>Volume: {Math.round(voiceVolume * 100)}%</Label>
-                      </div>
-                      <Slider 
-                        value={[voiceVolume]} 
-                        onValueChange={(value) => setVoiceVolume(value[0])} 
-                        min={0.1} 
-                        max={1} 
-                        step={0.1}
-                      />
-                    </div>
-                    
-                    <Button onClick={applySettings} className="w-full">Apply Settings</Button>
+    <TooltipProvider>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3 }}
+          className={`fixed bottom-4 right-4 z-50 ${isPlaying ? "w-80" : "w-auto"}`}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border overflow-hidden">
+            {hasStarted && isPlaying ? (
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="mr-2"
+                    >
+                      <Volume2 className={`h-4 w-4 ${isMuted ? 'text-gray-400' : 'text-blue-500'}`} />
+                    </motion.div>
+                    <h3 className="font-medium text-sm">PREPZR Assistant</h3>
                   </div>
-                </SheetContent>
-              </Sheet>
+                  <div className="flex space-x-1">
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={toggleMute}
+                        >
+                          {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isMuted ? "Unmute" : "Mute"}
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={toggleListening}
+                        >
+                          {isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isListening ? "Stop speaking" : "Ask PREPZR"}
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={dismissComponent}>
+                      <span className="sr-only">Minimize</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="mb-3 mt-2">
+                  <p className="text-sm">{welcomeMessages[currentMessageIndex]}</p>
+                </div>
+                
+                <Progress value={progress} className="h-1 bg-gray-200" />
+                
+                <div className="flex justify-between mt-3">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={stopAnnouncement} 
+                    className="text-xs h-7"
+                  >
+                    Skip
+                  </Button>
+                  
+                  <div className="space-x-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7"
+                      onClick={() => {
+                        // Find the exam test event dispatcher in the DOM and open it
+                        const event = new CustomEvent('open-exam-analyzer');
+                        window.dispatchEvent(event);
+                      }}
+                    >
+                      Try Exam Test
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="text-xs h-7 bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => {
+                        window.location.href = '/signup';
+                      }}
+                    >
+                      7-Day Trial
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3">
+                <Button 
+                  variant="default"
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-xs h-7"
+                  onClick={startAnnouncement}
+                >
+                  <Volume2 className="h-3 w-3 mr-1" />
+                  PREPZR Voice Assistant
+                </Button>
+              </div>
             )}
-            <Button variant="ghost" size="icon" onClick={toggleMute} 
-              className="rounded-full h-7 w-7 bg-white/20 hover:bg-white/30">
-              {isMuted ? 
-                <VolumeX className="h-4 w-4 text-white" /> : 
-                <Volume2 className="h-4 w-4 text-white" />}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={toggleMinimize} 
-              className="rounded-full h-7 w-7 bg-white/20 hover:bg-white/30">
-              {isMinimized ? 
-                <Info className="h-4 w-4 text-white" /> : 
-                <Info className="h-4 w-4 text-white" />}
-            </Button>
-            {!isMinimized && (
-              <Button variant="ghost" size="icon" onClick={closeAssistant} 
-                className="rounded-full h-7 w-7 bg-white/20 hover:bg-white/30">
-                <HelpCircle className="h-4 w-4 text-white" />
-              </Button>
+            
+            {/* Voice input feedback */}
+            {isListening && (
+              <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border z-50 text-sm max-w-md">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+                  <span className="font-medium">Listening...</span>
+                </div>
+                {userInput && <p className="text-sm italic">"{userInput}"</p>}
+              </div>
             )}
           </div>
-        </div>
-        
-        {/* Content */}
-        {!isMinimized && (
-          <>
-            <div className="flex-1 p-4 space-y-4 overflow-y-auto max-h-64">
-              {/* Current message */}
-              {showSubtitles && isPlaying && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  key={currentMessageIndex}
-                  className="p-3 rounded-lg bg-white/20 text-white text-sm"
-                >
-                  {getCurrentMessage()}
-                </motion.div>
-              )}
-              
-              {/* Progress */}
-              {isPlaying && (
-                <Progress value={progress} className="h-1" />
-              )}
-              
-              {/* User input */}
-              {isListening && (
-                <div className="p-3 rounded-lg bg-white/10 text-white text-sm italic">
-                  Listening... {userInput && `"${userInput}"`}
-                </div>
-              )}
-              
-              {/* Suggestions */}
-              {!isPlaying && !isListening && (
-                <div className="space-y-2">
-                  <p className="text-sm text-white/80">Ask me about:</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleVoiceInput("Tell me about PREPZR")}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      About PREPZR
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleVoiceInput("How to sign up")}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      Sign Up
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleVoiceInput("Tell me about the free trial")}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      Free Trial
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleVoiceInput("Why is PREPZR better")}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      Why PREPZR?
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Footer */}
-            <div className="p-3 border-t border-white/20 flex justify-between items-center">
-              {!hasStarted ? (
-                <Button 
-                  onClick={startAnnouncement} 
-                  className="w-full bg-white/20 text-white hover:bg-white/30"
-                >
-                  Start Guide
-                </Button>
-              ) : (
-                <>
-                  {isPlaying ? (
-                    <Button 
-                      onClick={() => {
-                        window.speechSynthesis.cancel();
-                        setIsPlaying(false);
-                      }} 
-                      className="flex-1 bg-white/20 text-white hover:bg-white/30"
-                    >
-                      Stop
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={startAnnouncement} 
-                      className="flex-1 bg-white/20 text-white hover:bg-white/30"
-                    >
-                      Restart
-                    </Button>
-                  )}
-                  <div className="w-4"></div>
-                  <Button 
-                    onClick={toggleListening} 
-                    className={`flex-1 ${
-                      isListening 
-                        ? 'bg-red-500/80 text-white hover:bg-red-600/80' 
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
-                  >
-                    {isListening ? <MicOff className="mr-2 h-4 w-4" /> : <Mic className="mr-2 h-4 w-4" />}
-                    {isListening ? 'Stop' : 'Ask'}
-                  </Button>
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </motion.div>
-    </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
+    </TooltipProvider>
   );
-};
-
-// Fix PREPZR pronunciation for consistency across components
-const fixPrepzrPronunciation = (text: string) => {
-  return text.replace(/PREPZR/gi, 'Prep, zer');
 };
 
 export default HomepageVoiceAnnouncer;

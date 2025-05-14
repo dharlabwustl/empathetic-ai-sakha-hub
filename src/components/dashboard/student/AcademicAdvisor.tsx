@@ -215,33 +215,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     }
   ];
 
-  const completedTopics: StudyPlanTopic[] = [
-    {
-      id: "topic-1",
-      name: "Thermodynamics Basics",
-      difficulty: "medium", 
-      completed: true,
-      status: "completed",
-      priority: "medium", // Add priority property
-    },
-    {
-      id: "topic-2",
-      name: "Cell Biology",
-      difficulty: "medium",
-      completed: true,
-      status: "completed",
-      priority: "high", // Add priority property
-    },
-    {
-      id: "topic-3",
-      name: "Advanced Calculus",
-      difficulty: "hard",
-      completed: true,
-      status: "completed",
-      priority: "high", // Add priority property
-    },
-  ];
-
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
     // Create a new plan object
     const newPlan: StudyPlan = {
