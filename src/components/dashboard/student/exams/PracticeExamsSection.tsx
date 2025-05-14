@@ -1,5 +1,5 @@
-import React from 'react';
-import { useState } from 'react';
+
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { SharedPageLayout } from "../SharedPageLayout";
 import CreateExamCardDialog, { ExamCardFormData } from "./CreateExamCardDialog";
 import PurchaseCreditsDialog from "./PurchaseCreditsDialog";
-import { SubscriptionType } from "@/types/subscription";
+import { SubscriptionType } from "@/types/user/base";
 
 // Mock exam data
 const mockExams = [
@@ -282,209 +282,201 @@ const PracticeExamsSection = () => {
   const filteredExams = filterExams(activeTab);
   
   return (
-    <div>
-      <SharedPageLayout
-        title="Practice Exams"
-        subtitle="Test your knowledge and track your progress"
-      >
-        <div className="space-y-6">
-          <div className="flex flex-wrap justify-between items-center">
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-auto">
-              <TabsList>
-                <TabsTrigger value="all">All Exams</TabsTrigger>
-                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-            </Tabs>
+    <SharedPageLayout
+      title="Practice Exams"
+      subtitle="Test your knowledge and track your progress"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-wrap justify-between items-center">
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="all">All Exams</TabsTrigger>
+              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+            <Button variant="outline" size="sm">
+              <Flag className="h-4 w-4 mr-1" />
+              Prioritize
+            </Button>
+            <Button variant="outline" size="sm">
+              <BarChart className="h-4 w-4 mr-1" />
+              Analytics
+            </Button>
             
-            <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-              <Button variant="outline" size="sm">
-                <Flag className="h-4 w-4 mr-1" />
-                Prioritize
-              </Button>
-              <Button variant="outline" size="sm">
-                <BarChart className="h-4 w-4 mr-1" />
-                Analytics
-              </Button>
-              
-              <CreateExamCardDialog 
-                userSubscription={userSubscription} 
-                userCredits={userCredits}
-                onCreateCards={handleCreateCards}
-                onPurchaseCredits={() => setShowPurchaseCreditsDialog(true)}
-              />
-              
-              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Create Exam
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create New Practice Exam</DialogTitle>
-                    <DialogDescription>
-                      Generate a new practice exam for your study plan.
-                      <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-2">
+            <CreateExamCardDialog 
+              userSubscription={userSubscription} 
+              userCredits={userCredits}
+              onCreateCards={handleCreateCards}
+              onPurchaseCredits={() => setShowPurchaseCreditsDialog(true)}
+            />
+            
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Create Exam
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Practice Exam</DialogTitle>
+                  <DialogDescription>
+                    Generate a new practice exam for your study plan.
+                    <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Exam Title</Label>
+                    <Input 
+                      id="title" 
+                      placeholder="e.g., Physics Final Preparation" 
+                      value={examForm.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Select 
+                      value={examForm.subject}
+                      onValueChange={(value) => handleSelectChange("subject", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="physics">Physics</SelectItem>
+                        <SelectItem value="chemistry">Chemistry</SelectItem>
+                        <SelectItem value="mathematics">Mathematics</SelectItem>
+                        <SelectItem value="biology">Biology</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="topic">Topic</Label>
+                    <Input 
+                      id="topic" 
+                      placeholder="e.g., Mechanics, Organic Chemistry" 
+                      value={examForm.topic}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Describe what this exam will cover"
+                      value={examForm.description}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Exam Title</Label>
-                      <Input 
-                        id="title" 
-                        placeholder="e.g., Physics Final Preparation" 
-                        value={examForm.title}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
+                      <Label htmlFor="difficulty">Difficulty</Label>
                       <Select 
-                        value={examForm.subject}
-                        onValueChange={(value) => handleSelectChange("subject", value)}
+                        value={examForm.difficulty}
+                        onValueChange={(value) => handleSelectChange("difficulty", value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select subject" />
+                          <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="physics">Physics</SelectItem>
-                          <SelectItem value="chemistry">Chemistry</SelectItem>
-                          <SelectItem value="mathematics">Mathematics</SelectItem>
-                          <SelectItem value="biology">Biology</SelectItem>
+                          <SelectItem value="easy">Easy</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="hard">Hard</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="topic">Topic</Label>
-                      <Input 
-                        id="topic" 
-                        placeholder="e.g., Mechanics, Organic Chemistry" 
-                        value={examForm.topic}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea 
-                        id="description" 
-                        placeholder="Describe what this exam will cover"
-                        value={examForm.description}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="difficulty">Difficulty</Label>
-                        <Select 
-                          value={examForm.difficulty}
-                          onValueChange={(value) => handleSelectChange("difficulty", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select difficulty" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="easy">Easy</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="hard">Hard</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="questions">Number of Questions</Label>
-                        <Select 
-                          value={examForm.questions}
-                          onValueChange={(value) => handleSelectChange("questions", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select number" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="10">10 Questions</SelectItem>
-                            <SelectItem value="20">20 Questions</SelectItem>
-                            <SelectItem value="30">30 Questions</SelectItem>
-                            <SelectItem value="40">40 Questions</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
+                      <Label htmlFor="questions">Number of Questions</Label>
                       <Select 
-                        value={examForm.timeLimit}
-                        onValueChange={(value) => handleSelectChange("timeLimit", value)}
+                        value={examForm.questions}
+                        onValueChange={(value) => handleSelectChange("questions", value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select time" />
+                          <SelectValue placeholder="Select number" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="15">15 minutes</SelectItem>
-                          <SelectItem value="30">30 minutes</SelectItem>
-                          <SelectItem value="45">45 minutes</SelectItem>
-                          <SelectItem value="60">60 minutes</SelectItem>
-                          <SelectItem value="90">90 minutes</SelectItem>
+                          <SelectItem value="10">10 Questions</SelectItem>
+                          <SelectItem value="20">20 Questions</SelectItem>
+                          <SelectItem value="30">30 Questions</SelectItem>
+                          <SelectItem value="40">40 Questions</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="tags">Tags (comma separated)</Label>
-                      <Input 
-                        id="tags" 
-                        placeholder="e.g., important, revision, final prep"
-                        value={examForm.tags}
-                        onChange={handleInputChange}
-                      />
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
-                    <Button onClick={handleCreateExam}>Create Exam</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
+                    <Select 
+                      value={examForm.timeLimit}
+                      onValueChange={(value) => handleSelectChange("timeLimit", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="45">45 minutes</SelectItem>
+                        <SelectItem value="60">60 minutes</SelectItem>
+                        <SelectItem value="90">90 minutes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (comma separated)</Label>
+                    <Input 
+                      id="tags" 
+                      placeholder="e.g., important, revision, final prep"
+                      value={examForm.tags}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                  <Button onClick={handleCreateExam}>Create Exam</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-          
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.05 }}
-          >
-            {filteredExams.length > 0 ? (
-              filteredExams.map((exam) => (
-                <motion.div
-                  key={exam.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ExamCard exam={exam} />
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">
-                <p className="text-muted-foreground">No exams found for this category.</p>
-              </div>
-            )}
-          </motion.div>
         </div>
         
-        {/* Purchase Credits Dialog */}
-        <PurchaseCreditsDialog 
-          open={showPurchaseCreditsDialog}
-          onOpenChange={setShowPurchaseCreditsDialog}
-          onPurchaseComplete={handlePurchaseComplete}
-        />
-      </SharedPageLayout>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.05 }}
+        >
+          {filteredExams.length > 0 ? (
+            filteredExams.map((exam) => (
+              <motion.div
+                key={exam.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ExamCard exam={exam} />
+              </motion.div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">No exams found for this category.</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
       
-      {/* Fix the SubscriptionType.Pro reference */}
-      {userSubscription !== SubscriptionType.PRO && (
-        // Non-pro user content
-        <div></div>
-      )}
-    </div>
+      {/* Purchase Credits Dialog */}
+      <PurchaseCreditsDialog 
+        open={showPurchaseCreditsDialog}
+        onOpenChange={setShowPurchaseCreditsDialog}
+        onPurchaseComplete={handlePurchaseComplete}
+      />
+    </SharedPageLayout>
   );
 };
 

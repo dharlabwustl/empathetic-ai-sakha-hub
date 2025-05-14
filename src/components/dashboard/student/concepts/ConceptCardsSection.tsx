@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -147,7 +148,7 @@ const getDifficultyInfo = (difficulty: string) => {
 const getSubjectIcon = (subject: string) => {
   switch (subject.toLowerCase()) {
     case "physics":
-      return Zap;
+      return Lightning;
     case "chemistry":
       return Layers;
     case "mathematics":

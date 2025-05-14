@@ -1,744 +1,671 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Flame, Droplets, Leaf, Users, ShieldCheck, XCircle, CheckCircle, AlertTriangle, AlertOctagon, Info, HelpCircle, MessageSquare, Mail, Phone, MapPin, Edit, BookOpen, Book, GraduationCap, Brain, Heart, Clock, Shield, Trophy, User, Calendar, LineChart, ArrowRight, ArrowUpRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, MoreVertical, Plus, Minus, X, Menu, Search, Settings, Volume2, VolumeX, Volume, Mic, MicOff, Globe, Loader2, CalendarDays, CalendarCheck, ListChecks, ListOrdered, ListUnordered, ListTree, ListEnd, ListMinus, ListPlus, ListX, List, ListOrderedOl, ListUnorderedUl, ListTreeUl, ListEndUl, ListMinusUl, ListPlusUl, ListXUl, ListUl, ListOrderedLi, ListUnorderedLi, ListTreeLi, ListEndLi, ListMinusLi, ListPlusLi, ListXLi, ListLi, ListOrderedOlLi, ListUnorderedUlLi, ListTreeUlLi, ListEndUlLi, ListMinusUlLi, ListPlusUlLi, ListXUlLi, ListUlLi, ListOrderedOlLiLi, ListUnorderedUlLiLi, ListTreeUlLiLi, ListEndUlLiLi, ListMinusUlLiLi, ListPlusUlLiLi, ListXUlLiLi, ListUlLiLi, ListOrderedOlLiLiLi, ListUnorderedUlLiLiLi, ListTreeUlLiLiLi, ListEndUlLiLiLi, ListMinusUlLiLiLi, ListPlusUlLiLiLi, ListXUlLiLiLi, ListUlLiLiLi, ListOrderedOlLiLiLiLi, ListUnorderedUlLiLiLiLi, ListTreeUlLiLiLiLi, ListEndUlLiLiLiLi, ListMinusUlLiLiLiLi, ListPlusUlLiLiLiLi, ListXUlLiLiLiLi, ListUlLiLiLiLi, ListOrderedOlLiLiLiLiLi, ListUnorderedUlLiLiLiLiLi, ListTreeUlLiLiLiLiLi, ListEndUlLiLiLiLiLi, ListMinusUlLiLiLiLiLi, ListPlusUlLiLiLiLiLi, ListXUlLiLiLiLiLi, ListUlLiLiLiLiLi, ListOrderedOlLiLiLiLiLiLi, ListUnorderedUlLiLiLiLiLiLi, ListTreeUlLiLiLiLiLiLi, ListEndUlLiLiLiLiLiLi, ListMinusUlLiLiLiLiLiLi, ListPlusUlLiLiLiLiLiLi, ListXUlLiLiLiLiLiLi, ListUlLiLiLiLiLiLi, ListOrderedOlLiLiLiLiLiLiLi, ListUnorderedUlLiLiLiLiLiLiLi, ListTreeUlLiLiLiLiLiLiLi, ListEndUlLiLiLiLiLiLiLi, ListMinusUlLiLiLiLiLiLiLi, ListPlusUlLiLiLiLiLiLiLi, ListXUlLiLiLiLiLiLiLi, ListUlLiLiLiLiLiLiLi, ListOrderedOlLiLiLiLiLiLiLiLi, ListUnorderedUlLiLiLiLiLiLiLiLi, ListTreeUlLiLiLiLiLiLiLiLi, ListEndUlLiLiLiLiLiLiLiLi, ListMinusUlLiLiLiLiLiLiLiLi, ListPlusUlLiLiLiLiLiLiLiLi, ListXUlLiLiLiLiLiLiLiLi, ListUlLiLiLiLiLiLiLiLi } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
 
-interface SurroundingInfluencesSectionProps {
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CustomProgress } from "@/components/ui/custom-progress";
+import { Users, Sliders, Eye, AlertTriangle, ExternalLink, Brain, Activity, Calendar, Moon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PieChart, PieChartData } from '@/components/charts/PieChart';
+
+interface SurroundingInfluenceProps {
   influenceMeterCollapsed: boolean;
   setInfluenceMeterCollapsed: (collapsed: boolean) => void;
 }
 
 const SurroundingInfluencesSection = ({
-  influenceMeterCollapsed,
-  setInfluenceMeterCollapsed,
-}: SurroundingInfluencesSectionProps) => {
+  influenceMeterCollapsed = true,
+  setInfluenceMeterCollapsed
+}: SurroundingInfluenceProps) => {
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-
-  const [environmentalFactors, setEnvironmentalFactors] = React.useState({
-    noiseLevel: 0.3,
-    lighting: 0.7,
-    temperature: 0.5,
-    airQuality: 0.6,
-  });
-
-  const [socialFactors, setSocialFactors] = React.useState({
-    familySupport: 0.8,
-    peerInfluence: 0.4,
-    teacherSupport: 0.7,
-    studyGroupEffectiveness: 0.6,
-  });
-
-  const [personalFactors, setPersonalFactors] = React.useState({
-    stressLevel: 0.4,
-    motivationLevel: 0.9,
-    sleepQuality: 0.6,
-    focusLevel: 0.7,
-  });
-
-  const [techInfluences, setTechInfluences] = React.useState({
-    socialMediaDistraction: 0.5,
-    onlineLearningResources: 0.8,
-    digitalEyeStrain: 0.3,
-    techSupportAvailability: 0.7,
-  });
-
-  const [noiseLevelDescription, setNoiseLevelDescription] = React.useState("Moderate");
-  const [lightingDescription, setLightingDescription] = React.useState("Optimal");
-  const [temperatureDescription, setTemperatureDescription] = React.useState("Comfortable");
-  const [airQualityDescription, setAirQualityDescription] = React.useState("Good");
-  const [familySupportDescription, setFamilySupportDescription] = React.useState("High");
-  const [peerInfluenceDescription, setPeerInfluenceDescription] = React.useState("Neutral");
-  const [teacherSupportDescription, setTeacherSupportDescription] = React.useState("High");
-  const [studyGroupEffectivenessDescription, setStudyGroupEffectivenessDescription] = React.useState("Effective");
-  const [stressLevelDescription, setStressLevelDescription] = React.useState("Manageable");
-  const [motivationLevelDescription, setMotivationLevelDescription] = React.useState("Very High");
-  const [sleepQualityDescription, setSleepQualityDescription] = React.useState("Adequate");
-  const [focusLevelDescription, setFocusLevelDescription] = React.useState("Good");
-  const [socialMediaDistractionDescription, setSocialMediaDistractionDescription] = React.useState("Moderate");
-  const [onlineLearningResourcesDescription, setOnlineLearningResourcesDescription] = React.useState("Excellent");
-  const [digitalEyeStrainDescription, setDigitalEyeStrainDescription] = React.useState("Low");
-  const [techSupportAvailabilityDescription, setTechSupportAvailabilityDescription] = React.useState("High");
-
-  const handleEnvironmentalFactorChange = (factor: string, value: number) => {
-    setEnvironmentalFactors({ ...environmentalFactors, [factor]: value });
-    switch (factor) {
-      case "noiseLevel":
-        if (value <= 0.25) setNoiseLevelDescription("Very Quiet");
-        else if (value <= 0.5) setNoiseLevelDescription("Moderate");
-        else if (value <= 0.75) setNoiseLevelDescription("Noisy");
-        else setNoiseLevelDescription("Very Noisy");
-        break;
-      case "lighting":
-        if (value <= 0.25) setLightingDescription("Dim");
-        else if (value <= 0.5) setLightingDescription("Average");
-        else if (value <= 0.75) setLightingDescription("Bright");
-        else setLightingDescription("Optimal");
-        break;
-      case "temperature":
-        if (value <= 0.25) setTemperatureDescription("Cold");
-        else if (value <= 0.5) setTemperatureDescription("Comfortable");
-        else if (value <= 0.75) setTemperatureDescription("Warm");
-        else setTemperatureDescription("Hot");
-        break;
-      case "airQuality":
-        if (value <= 0.25) setAirQualityDescription("Poor");
-        else if (value <= 0.5) setAirQualityDescription("Average");
-        else if (value <= 0.75) setAirQualityDescription("Good");
-        else setAirQualityDescription("Excellent");
-        break;
-      default:
-        break;
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedWeek, setSelectedWeek] = useState('current');
+  
+  // Weekly data for charts
+  const weeklyData = {
+    current: {
+      peerInfluence: [
+        { name: "Positive", value: 68, color: "#3b82f6" },
+        { name: "Neutral", value: 22, color: "#94a3b8" },
+        { name: "Negative", value: 10, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 75, color: "#22c55e" },
+        { name: "Medium", value: 15, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 62, color: "#8b5cf6" },
+        { name: "Medium", value: 28, color: "#94a3b8" },
+        { name: "Low", value: 10, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 42, color: "#22c55e" },
+        { name: "Medium", value: 38, color: "#eab308" },
+        { name: "High", value: 20, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 82, color: "#3b82f6" },
+        { name: "Partial", value: 15, color: "#94a3b8" },
+        { name: "Misaligned", value: 3, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 65, color: "#22c55e" },
+        { name: "Variable", value: 25, color: "#eab308" },
+        { name: "Unstable", value: 10, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 58, color: "#22c55e" },
+        { name: "Inconsistent", value: 32, color: "#eab308" },
+        { name: "Poor", value: 10, color: "#ef4444" }
+      ]
+    },
+    previous: {
+      peerInfluence: [
+        { name: "Positive", value: 60, color: "#3b82f6" },
+        { name: "Neutral", value: 25, color: "#94a3b8" },
+        { name: "Negative", value: 15, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 70, color: "#22c55e" },
+        { name: "Medium", value: 20, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 55, color: "#8b5cf6" },
+        { name: "Medium", value: 35, color: "#94a3b8" },
+        { name: "Low", value: 10, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 35, color: "#22c55e" },
+        { name: "Medium", value: 45, color: "#eab308" },
+        { name: "High", value: 20, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 75, color: "#3b82f6" },
+        { name: "Partial", value: 20, color: "#94a3b8" },
+        { name: "Misaligned", value: 5, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 60, color: "#22c55e" },
+        { name: "Variable", value: 30, color: "#eab308" },
+        { name: "Unstable", value: 10, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 50, color: "#22c55e" },
+        { name: "Inconsistent", value: 40, color: "#eab308" },
+        { name: "Poor", value: 10, color: "#ef4444" }
+      ]
+    },
+    twoWeeksAgo: {
+      peerInfluence: [
+        { name: "Positive", value: 55, color: "#3b82f6" },
+        { name: "Neutral", value: 25, color: "#94a3b8" },
+        { name: "Negative", value: 20, color: "#ef4444" }
+      ],
+      studyConfidence: [
+        { name: "High", value: 65, color: "#22c55e" },
+        { name: "Medium", value: 25, color: "#eab308" },
+        { name: "Low", value: 10, color: "#ef4444" }
+      ],
+      proactiveness: [
+        { name: "High", value: 45, color: "#8b5cf6" },
+        { name: "Medium", value: 40, color: "#94a3b8" },
+        { name: "Low", value: 15, color: "#f97316" }
+      ],
+      environmentalDistraction: [
+        { name: "Low", value: 30, color: "#22c55e" },
+        { name: "Medium", value: 45, color: "#eab308" },
+        { name: "High", value: 25, color: "#ef4444" }
+      ],
+      goalAlignment: [
+        { name: "Aligned", value: 70, color: "#3b82f6" },
+        { name: "Partial", value: 20, color: "#94a3b8" },
+        { name: "Misaligned", value: 10, color: "#ef4444" }
+      ],
+      emotionalStability: [
+        { name: "Stable", value: 55, color: "#22c55e" },
+        { name: "Variable", value: 30, color: "#eab308" },
+        { name: "Unstable", value: 15, color: "#ef4444" }
+      ],
+      sleepRoutine: [
+        { name: "Healthy", value: 45, color: "#22c55e" },
+        { name: "Inconsistent", value: 40, color: "#eab308" },
+        { name: "Poor", value: 15, color: "#ef4444" }
+      ]
     }
   };
 
-  const handleSocialFactorChange = (factor: string, value: number) => {
-    setSocialFactors({ ...socialFactors, [factor]: value });
-    switch (factor) {
-      case "familySupport":
-        if (value <= 0.25) setFamilySupportDescription("Low");
-        else if (value <= 0.5) setFamilySupportDescription("Moderate");
-        else if (value <= 0.75) setFamilySupportDescription("High");
-        else setFamilySupportDescription("Very High");
-        break;
-      case "peerInfluence":
-        if (value <= 0.25) setPeerInfluenceDescription("Negative");
-        else if (value <= 0.5) setPeerInfluenceDescription("Neutral");
-        else if (value <= 0.75) setPeerInfluenceDescription("Positive");
-        else setPeerInfluenceDescription("Very Positive");
-        break;
-      case "teacherSupport":
-        if (value <= 0.25) setTeacherSupportDescription("Low");
-        else if (value <= 0.5) setTeacherSupportDescription("Moderate");
-        else if (value <= 0.75) setTeacherSupportDescription("High");
-        else setTeacherSupportDescription("Very High");
-        break;
-      case "studyGroupEffectiveness":
-        if (value <= 0.25) setStudyGroupEffectivenessDescription("Ineffective");
-        else if (value <= 0.5) setStudyGroupEffectivenessDescription("Average");
-        else if (value <= 0.75) setStudyGroupEffectivenessDescription("Effective");
-        else setStudyGroupEffectivenessDescription("Very Effective");
-        break;
-      default:
-        break;
-    }
+  const getActiveData = () => {
+    return weeklyData[selectedWeek as keyof typeof weeklyData];
   };
-
-  const handlePersonalFactorChange = (factor: string, value: number) => {
-    setPersonalFactors({ ...personalFactors, [factor]: value });
-    switch (factor) {
-      case "stressLevel":
-        if (value <= 0.25) setStressLevelDescription("Low");
-        else if (value <= 0.5) setStressLevelDescription("Manageable");
-        else if (value <= 0.75) setStressLevelDescription("High");
-        else setStressLevelDescription("Very High");
-        break;
-      case "motivationLevel":
-        if (value <= 0.25) setMotivationLevelDescription("Low");
-        else if (value <= 0.5) setMotivationLevelDescription("Average");
-        else if (value <= 0.75) setMotivationLevelDescription("High");
-        else setMotivationLevelDescription("Very High");
-        break;
-      case "sleepQuality":
-        if (value <= 0.25) setSleepQualityDescription("Poor");
-        else if (value <= 0.5) setSleepQualityDescription("Adequate");
-        else if (value <= 0.75) setSleepQualityDescription("Good");
-        else setSleepQualityDescription("Excellent");
-        break;
-      case "focusLevel":
-        if (value <= 0.25) setFocusLevelDescription("Low");
-        else if (value <= 0.5) setFocusLevelDescription("Average");
-        else if (value <= 0.75) setFocusLevelDescription("Good");
-        else setFocusLevelDescription("Excellent");
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleTechInfluenceChange = (factor: string, value: number) => {
-    setTechInfluences({ ...techInfluences, [factor]: value });
-    switch (factor) {
-      case "socialMediaDistraction":
-        if (value <= 0.25) setSocialMediaDistractionDescription("Low");
-        else if (value <= 0.5) setSocialMediaDistractionDescription("Moderate");
-        else if (value <= 0.75) setSocialMediaDistractionDescription("High");
-        else setSocialMediaDistractionDescription("Very High");
-        break;
-      case "onlineLearningResources":
-        if (value <= 0.25) setOnlineLearningResourcesDescription("Limited");
-        else if (value <= 0.5) setOnlineLearningResourcesDescription("Average");
-        else if (value <= 0.75) setOnlineLearningResourcesDescription("Excellent");
-        else setOnlineLearningResourcesDescription("Comprehensive");
-        break;
-      case "digitalEyeStrain":
-        if (value <= 0.25) setDigitalEyeStrainDescription("Low");
-        else if (value <= 0.5) setDigitalEyeStrainDescription("Moderate");
-        else if (value <= 0.75) setDigitalEyeStrainDescription("High");
-        else setDigitalEyeStrainDescription("Severe");
-        break;
-      case "techSupportAvailability":
-        if (value <= 0.25) setTechSupportAvailabilityDescription("Limited");
-        else if (value <= 0.5) setTechSupportAvailabilityDescription("Average");
-        else if (value <= 0.75) setTechSupportAvailabilityDescription("Good");
-        else setTechSupportAvailabilityDescription("Excellent");
-        break;
-      default:
-        break;
-    }
-  };
-
-  const calculateOverallInfluence = () => {
-    const environmentalScore =
-      (environmentalFactors.noiseLevel +
-        environmentalFactors.lighting +
-        environmentalFactors.temperature +
-        environmentalFactors.airQuality) /
-      4;
-    const socialScore =
-      (socialFactors.familySupport +
-        socialFactors.peerInfluence +
-        socialFactors.teacherSupport +
-        socialFactors.studyGroupEffectiveness) /
-      4;
-    const personalScore =
-      (personalFactors.stressLevel +
-        personalFactors.motivationLevel +
-        personalFactors.sleepQuality +
-        personalFactors.focusLevel) /
-      4;
-    const techScore =
-      (techInfluences.socialMediaDistraction +
-        techInfluences.onlineLearningResources +
-        techInfluences.digitalEyeStrain +
-        techInfluences.techSupportAvailability) /
-      4;
-
-    return (
-      (environmentalScore + socialScore + personalScore + techScore) / 4
-    );
-  };
-
-  const overallInfluence = calculateOverallInfluence();
-  const overallInfluencePercentage = Math.round(overallInfluence * 100);
-
-  const getInfluenceDescription = () => {
-    if (overallInfluencePercentage >= 75) {
-      return "Your surrounding influences are highly conducive to effective learning and well-being.";
-    } else if (overallInfluencePercentage >= 50) {
-      return "Your surrounding influences are moderately supportive, but there's room for improvement.";
-    } else if (overallInfluencePercentage >= 25) {
-      return "Your surrounding influences present challenges that may hinder your learning and well-being.";
-    } else {
-      return "Your surrounding influences pose significant obstacles to effective learning and well-being.";
-    }
-  };
-
-  const influenceDescription = getInfluenceDescription();
-
-  const handleResetSettings = () => {
-    setEnvironmentalFactors({
-      noiseLevel: 0.3,
-      lighting: 0.7,
-      temperature: 0.5,
-      airQuality: 0.6,
-    });
-    setSocialFactors({
-      familySupport: 0.8,
-      peerInfluence: 0.4,
-      teacherSupport: 0.7,
-      studyGroupEffectiveness: 0.6,
-    });
-    setPersonalFactors({
-      stressLevel: 0.4,
-      motivationLevel: 0.9,
-      sleepQuality: 0.6,
-      focusLevel: 0.7,
-    });
-    setTechInfluences({
-      socialMediaDistraction: 0.5,
-      onlineLearningResources: 0.8,
-      digitalEyeStrain: 0.3,
-      techSupportAvailability: 0.7,
-    });
-    setNoiseLevelDescription("Moderate");
-    setLightingDescription("Optimal");
-    setTemperatureDescription("Comfortable");
-    setAirQualityDescription("Good");
-    setFamilySupportDescription("High");
-    setPeerInfluenceDescription("Neutral");
-    setTeacherSupportDescription("High");
-    setStudyGroupEffectivenessDescription("Effective");
-    setStressLevelDescription("Manageable");
-    setMotivationLevelDescription("Very High");
-    setSleepQualityDescription("Adequate");
-    setFocusLevelDescription("Good");
-    setSocialMediaDistractionDescription("Moderate");
-    setOnlineLearningResourcesDescription("Excellent");
-    setDigitalEyeStrainDescription("Low");
-    setTechSupportAvailabilityDescription("High");
-
+  
+  const handleConfigure = () => {
     toast({
-      title: "Settings Reset",
-      description: "All settings have been reset to default values.",
+      title: "Configure Surrounding Influences",
+      description: "Opening configuration interface for influence tracking",
+      variant: "default"
     });
   };
+  
+  const handleViewDashboard = () => {
+    toast({
+      title: "Visual Dashboard",
+      description: "Opening visual analytics for surrounding influences",
+      variant: "default"
+    });
+  };
+
+  if (influenceMeterCollapsed) {
+    return (
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full flex items-center justify-between"
+          onClick={() => setInfluenceMeterCollapsed(false)}
+        >
+          <div className="flex items-center">
+            <Users className="h-4 w-4 mr-2 text-blue-500" />
+            <span>Surrounding Influences Meter</span>
+          </div>
+          <Badge variant="outline" className="text-sm">View</Badge>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <Card className="border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-amber-500" />
-          Surrounding Influences
-        </CardTitle>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
-        >
-          {influenceMeterCollapsed ? (
-            <ChevronDown className="h-5 w-5" />
-          ) : (
-            <ChevronUp className="h-5 w-5" />
-          )}
-          <span className="sr-only">
-            {influenceMeterCollapsed ? "Expand" : "Collapse"}
-          </span>
-        </Button>
-      </CardHeader>
-      <CardContent className="pt-2">
-        {influenceMeterCollapsed ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-medium">
-                    Overall Influence:
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {influenceDescription}
-                </p>
-              </div>
-              <div className="text-4xl font-bold">
-                {overallInfluencePercentage}%
-              </div>
-            </div>
-            <Progress value={overallInfluencePercentage} className="h-2" />
+    <Card className="mb-6">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="text-blue-400" size={20} />
+            <span>Surrounding Influence Meter</span>
           </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium">
-                      Overall Influence:
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {influenceDescription}
-                  </p>
-                </div>
-                <div className="text-4xl font-bold">
-                  {overallInfluencePercentage}%
-                </div>
-              </div>
-              <Progress value={overallInfluencePercentage} className="h-2" />
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium">Environmental Factors</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Flame className="h-4 w-4 text-orange-500" />
-                      <span className="text-sm">Noise Level</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {noiseLevelDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[environmentalFactors.noiseLevel]}
-                      onValueChange={(value) =>
-                        handleEnvironmentalFactorChange("noiseLevel", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Lightbulb className="h-4 w-4 text-yellow-500" />
-                      <span className="text-sm">Lighting</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {lightingDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[environmentalFactors.lighting]}
-                      onValueChange={(value) =>
-                        handleEnvironmentalFactorChange("lighting", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Droplets className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm">Temperature</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {temperatureDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[environmentalFactors.temperature]}
-                      onValueChange={(value) =>
-                        handleEnvironmentalFactorChange("temperature", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Leaf className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Air Quality</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {airQualityDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[environmentalFactors.airQuality]}
-                      onValueChange={(value) =>
-                        handleEnvironmentalFactorChange("airQuality", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium">Social Factors</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Family Support</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {familySupportDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[socialFactors.familySupport]}
-                      onValueChange={(value) =>
-                        handleSocialFactorChange("familySupport", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Peer Influence</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {peerInfluenceDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[socialFactors.peerInfluence]}
-                      onValueChange={(value) =>
-                        handleSocialFactorChange("peerInfluence", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <GraduationCap className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Teacher Support</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {teacherSupportDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[socialFactors.teacherSupport]}
-                      onValueChange={(value) =>
-                        handleSocialFactorChange("teacherSupport", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Study Group Effectiveness</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {studyGroupEffectivenessDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[socialFactors.studyGroupEffectiveness]}
-                      onValueChange={(value) =>
-                        handleSocialFactorChange("studyGroupEffectiveness", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium">Personal Factors</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <AlertOctagon className="h-4 w-4 text-red-500" />
-                      <span className="text-sm">Stress Level</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {stressLevelDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[personalFactors.stressLevel]}
-                      onValueChange={(value) =>
-                        handlePersonalFactorChange("stressLevel", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-4 w-4 text-rose-500" />
-                      <span className="text-sm">Motivation Level</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {motivationLevelDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[personalFactors.motivationLevel]}
-                      onValueChange={(value) =>
-                        handlePersonalFactorChange("motivationLevel", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm">Sleep Quality</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {sleepQualityDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[personalFactors.sleepQuality]}
-                      onValueChange={(value) =>
-                        handlePersonalFactorChange("sleepQuality", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Brain className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Focus Level</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {focusLevelDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[personalFactors.focusLevel]}
-                      onValueChange={(value) =>
-                        handlePersonalFactorChange("focusLevel", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium">Tech Influences</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <XCircle className="h-4 w-4 text-red-500" />
-                      <span className="text-sm">Social Media Distraction</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {socialMediaDistractionDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[techInfluences.socialMediaDistraction]}
-                      onValueChange={(value) =>
-                        handleTechInfluenceChange("socialMediaDistraction", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Online Learning Resources</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {onlineLearningResourcesDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[techInfluences.onlineLearningResources]}
-                      onValueChange={(value) =>
-                        handleTechInfluenceChange("onlineLearningResources", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      <span className="text-sm">Digital Eye Strain</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {digitalEyeStrainDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[techInfluences.digitalEyeStrain]}
-                      onValueChange={(value) =>
-                        handleTechInfluenceChange("digitalEyeStrain", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <ShieldCheck className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm">Tech Support Availability</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {techSupportAvailabilityDescription}
-                    </p>
-                  </div>
-                  <div className="w-3/5">
-                    <Slider
-                      min={0}
-                      max={1}
-                      step={0.05}
-                      defaultValue={[techInfluences.techSupportAvailability]}
-                      onValueChange={(value) =>
-                        handleTechInfluenceChange("techSupportAvailability", value[0])
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleResetSettings}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleConfigure}>Configure</Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setInfluenceMeterCollapsed(true)}
+              className="h-8 w-8 p-0"
             >
-              Reset Settings
+              ×
             </Button>
           </div>
-        )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium">Weekly Analysis</h3>
+            <div className="flex gap-2">
+              <Button 
+                variant={selectedWeek === 'twoWeeksAgo' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('twoWeeksAgo')}
+              >
+                2 Weeks Ago
+              </Button>
+              <Button 
+                variant={selectedWeek === 'previous' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('previous')}
+              >
+                Last Week
+              </Button>
+              <Button 
+                variant={selectedWeek === 'current' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setSelectedWeek('current')}
+              >
+                This Week
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-7 mb-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="peerInfluence">
+              <div className="flex items-center gap-1">
+                <Users size={14} />
+                <span className="hidden sm:inline">Peer</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="confidence">
+              <div className="flex items-center gap-1">
+                <Brain size={14} />
+                <span className="hidden sm:inline">Confidence</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="proactiveness">
+              <div className="flex items-center gap-1">
+                <Activity size={14} />
+                <span className="hidden sm:inline">Proactiveness</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="environment">
+              <div className="flex items-center gap-1">
+                <Eye size={14} />
+                <span className="hidden sm:inline">Environment</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="goals">
+              <div className="flex items-center gap-1">
+                <Sliders size={14} />
+                <span className="hidden sm:inline">Goals</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="sleep">
+              <div className="flex items-center gap-1">
+                <Moon size={14} />
+                <span className="hidden sm:inline">Sleep</span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Peer Influence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().peerInfluence} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().peerInfluence[0].value}%</span> positive influence
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Study Confidence</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().studyConfidence} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().studyConfidence[0].value}%</span> high confidence
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Proactiveness</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().proactiveness} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().proactiveness[0].value}%</span> high proactiveness
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-medium mb-3 text-center">Environmental Distractions</h3>
+                  <div className="h-32 flex items-center justify-center">
+                    <PieChart data={getActiveData().environmentalDistraction} />
+                  </div>
+                  <div className="mt-2 text-sm text-center">
+                    <span className="font-medium">{getActiveData().environmentalDistraction[0].value}%</span> low distractions
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium">Key Insights</h3>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    {selectedWeek === 'current' ? 'This week' : selectedWeek === 'previous' ? 'Last week' : '2 weeks ago'}
+                  </Badge>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span>Positive study environment improved by {selectedWeek === 'current' ? '12%' : selectedWeek === 'previous' ? '8%' : '5%'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <span>Peer distractions are moderate during evenings</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span>Noise levels affecting focus during peak hours</span>
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleViewDashboard} 
+                className="w-full flex items-center justify-center gap-1"
+                variant="outline"
+              >
+                <Eye size={16} />
+                View Full Dashboard
+              </Button>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="peerInfluence">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Peer Influence Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().peerInfluence} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Peer comparison stress</span>
+                      <span className="font-medium">{100 - getActiveData().peerInfluence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={100 - getActiveData().peerInfluence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Positive peer interactions</span>
+                      <span className="font-medium">{getActiveData().peerInfluence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().peerInfluence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Peer Influence Factors</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Social media comparison</span>
+                    <Badge variant={getActiveData().peerInfluence[0].value > 65 ? "outline" : "secondary"} className="text-xs">
+                      {getActiveData().peerInfluence[0].value > 65 ? "Low impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Competitive study groups</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">Positive impact</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Comparison with top performers</span>
+                    <Badge variant={getActiveData().peerInfluence[2].value > 15 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().peerInfluence[2].value > 15 ? "High impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="confidence">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Study Confidence Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().studyConfidence} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Self-assessed confidence per subject</span>
+                      <span className="font-medium">{getActiveData().studyConfidence[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().studyConfidence[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Accuracy in self-prediction</span>
+                      <span className="font-medium">{getActiveData().studyConfidence[0].value - 5}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().studyConfidence[0].value - 5} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Subject-wise Confidence</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Physics</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">High confidence</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Chemistry</span>
+                    <Badge variant="outline" className="text-amber-600 bg-amber-50 dark:bg-amber-900/30 text-xs">Medium confidence</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Biology</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">High confidence</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="proactiveness">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Proactiveness Analysis</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().proactiveness} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Task initiation before reminders</span>
+                      <span className="font-medium">{getActiveData().proactiveness[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().proactiveness[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Spontaneous review behavior</span>
+                      <span className="font-medium">{getActiveData().proactiveness[0].value - 10}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().proactiveness[0].value - 10} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Proactive Study Habits</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Non-peak hour study time</span>
+                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 60 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().proactiveness[0].value > 60 ? "Excellent" : "Good"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Self-initiated revision</span>
+                    <Badge variant="outline" className={getActiveData().proactiveness[0].value > 55 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().proactiveness[0].value > 55 ? "Excellent" : "Good"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="environment">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Environmental Distractions</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().environmentalDistraction} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Task drop-offs mid-session</span>
+                      <span className="font-medium">{getActiveData().environmentalDistraction[2].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().environmentalDistraction[2].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Focus duration</span>
+                      <span className="font-medium">{getActiveData().environmentalDistraction[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().environmentalDistraction[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Environmental Factors</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Noise levels</span>
+                    <Badge variant={getActiveData().environmentalDistraction[2].value > 25 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().environmentalDistraction[2].value > 25 ? "Significant impact" : "Moderate impact"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Digital distractions</span>
+                    <Badge variant={getActiveData().environmentalDistraction[2].value > 20 ? "secondary" : "outline"} className="text-xs">
+                      {getActiveData().environmentalDistraction[2].value > 20 ? "High impact" : "Medium impact"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="goals">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Goal Alignment</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().goalAlignment} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Clarity in goal-setting</span>
+                      <span className="font-medium">{getActiveData().goalAlignment[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().goalAlignment[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progress tracking vs. goals</span>
+                      <span className="font-medium">{getActiveData().goalAlignment[0].value - 5}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().goalAlignment[0].value - 5} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Weekly Motivation Check</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Goal consistency</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">Excellent</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Goal achievement rate</span>
+                    <Badge variant="outline" className="text-green-600 bg-green-50 dark:bg-green-900/30 text-xs">
+                      {getActiveData().goalAlignment[0].value}%
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="sleep">
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-center">Sleep & Routine Health</h3>
+                <div className="h-60 flex items-center justify-center">
+                  <PieChart data={getActiveData().sleepRoutine} showLabel={true} />
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Consistency in study hours</span>
+                      <span className="font-medium">{getActiveData().sleepRoutine[0].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().sleepRoutine[0].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-green-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Late-night study frequency</span>
+                      <span className="font-medium">{getActiveData().sleepRoutine[2].value}%</span>
+                    </div>
+                    <CustomProgress 
+                      value={getActiveData().sleepRoutine[2].value} 
+                      className="h-2" 
+                      indicatorClassName="bg-red-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Sleep Pattern Impact</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Morning productivity</span>
+                    <Badge variant="outline" className={getActiveData().sleepRoutine[0].value > 55 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().sleepRoutine[0].value > 55 ? "High" : "Medium"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
+                    <span className="text-sm">Study routine consistency</span>
+                    <Badge variant="outline" className={getActiveData().sleepRoutine[0].value > 50 ? "text-green-600 bg-green-50 dark:bg-green-900/30" : "text-amber-600 bg-amber-50 dark:bg-amber-900/30"} className="text-xs">
+                      {getActiveData().sleepRoutine[0].value > 50 ? "Good" : "Fair"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

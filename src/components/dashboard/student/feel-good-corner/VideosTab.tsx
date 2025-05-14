@@ -1,193 +1,83 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Play, ThumbsUp, Clock, List } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Video } from './types';
+import { Badge } from "@/components/ui/badge";
+import { Play } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Video } from "./types";
 
-const VideosTab = () => {
-  const videos: Video[] = [
-    {
-      id: '1',
-      title: 'Morning Motivation',
-      description: 'Start your day with this inspiring video to boost your energy and focus.',
-      thumbnail: 'https://placehold.co/600x400/7dd3fc/FFFFFF.png?text=Morning+Motivation',
-      duration: '8:30',
-      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      views: 2345,
-      likes: 123,
-      category: 'motivation',
-      tags: ['motivation', 'morning', 'focus']
-    },
-    {
-      id: '2',
-      title: 'Relaxing Nature Sounds',
-      description: 'Unwind with calming nature sounds to reduce stress and improve concentration.',
-      thumbnail: 'https://placehold.co/600x400/a78bfa/FFFFFF.png?text=Nature+Sounds',
-      duration: '15:00',
-      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      views: 4567,
-      likes: 345,
-      category: 'relaxation',
-      tags: ['relaxation', 'nature', 'calm']
-    },
-    {
-      id: '3',
-      title: 'Study Tips & Tricks',
-      description: 'Learn effective study techniques to maximize your learning potential.',
-      thumbnail: 'https://placehold.co/600x400/f472b6/FFFFFF.png?text=Study+Tips',
-      duration: '10:45',
-      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      views: 1234,
-      likes: 98,
-      category: 'tips',
-      tags: ['study', 'tips', 'tricks']
-    },
-    {
-      id: '4',
-      title: 'Success Story: From Average to Achiever',
-      description: 'An inspiring story of a student who overcame challenges to achieve academic success.',
-      thumbnail: 'https://placehold.co/600x400/fb7185/FFFFFF.png?text=Success+Story',
-      duration: '12:15',
-      url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      views: 5678,
-      likes: 456,
-      category: 'success-stories',
-      tags: ['success', 'story', 'achiever']
-    },
-  ];
+// Mock data
+const mockVideos = [
+  { id: 1, title: "When Physics Goes Wrong", thumbnail: "https://source.unsplash.com/random/300x200?comedy", duration: "0:30" },
+  { id: 2, title: "Funny Animal Bloopers", thumbnail: "https://source.unsplash.com/random/300x200?animals", duration: "0:27" },
+  { id: 3, title: "Study Break Comedy", thumbnail: "https://source.unsplash.com/random/300x200?laugh", duration: "0:30" },
+];
+
+interface VideosTabProps {
+  initialVideos?: Video[];
+}
+
+const VideosTab: React.FC<VideosTabProps> = ({ initialVideos = mockVideos }) => {
+  const { toast } = useToast();
+
+  const handlePlayVideo = (id: number) => {
+    toast({
+      title: "Video playing",
+      description: "Enjoy your 30-second laugh break!",
+    });
+  };
   
   return (
-    <div className="space-y-4">
-      <div className="mb-4">
-        <h3 className="text-lg font-medium mb-2">Inspirational Videos</h3>
-        <p className="text-sm text-muted-foreground">
-          Watch these videos to stay motivated and relaxed during your study sessions.
+    <motion.div 
+      key="videos"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="space-y-4">
+        <h3 className="font-medium">30-Second Laugh Break</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {mockVideos.map((video) => (
+            <motion.div 
+              key={video.id} 
+              className="rounded-lg overflow-hidden border bg-white shadow-sm"
+              whileHover={{ y: -2, scale: 1.01 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: video.id * 0.15 }}
+            >
+              <div className="relative">
+                <img 
+                  src={video.thumbnail} 
+                  alt={video.title} 
+                  className="w-full h-32 object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-white w-10 h-10"
+                    onClick={() => handlePlayVideo(video.id)}
+                  >
+                    <Play className="h-5 w-5 text-violet-700" />
+                  </Button>
+                </div>
+                <Badge className="absolute top-2 right-2 bg-black/50">
+                  {video.duration}
+                </Badge>
+              </div>
+              <div className="p-2">
+                <h4 className="text-sm font-medium">{video.title}</h4>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 text-center mt-2">
+          Videos are curated based on your preferences and age group.
         </p>
       </div>
-      
-      <Tabs defaultValue="motivation" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="motivation">Motivation</TabsTrigger>
-          <TabsTrigger value="relaxation">Relaxation</TabsTrigger>
-          <TabsTrigger value="tips">Study Tips</TabsTrigger>
-          <TabsTrigger value="success">Success Stories</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="motivation" className="pt-4 space-y-4">
-          {videos.filter(video => video.category === 'motivation').map((video) => (
-            <div key={video.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={() => window.open(video.url, '_blank')}
-                >
-                  <Play className="h-4 w-4" />
-                </Button>
-                <div>
-                  <p className="text-sm font-medium">{video.title}</p>
-                  <p className="text-xs text-muted-foreground">{video.description}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{video.duration}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <ThumbsUp className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="relaxation" className="pt-4 space-y-4">
-          {videos.filter(video => video.category === 'relaxation').map((video) => (
-            <div key={video.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={() => window.open(video.url, '_blank')}
-                >
-                  <Play className="h-4 w-4" />
-                </Button>
-                <div>
-                  <p className="text-sm font-medium">{video.title}</p>
-                  <p className="text-xs text-muted-foreground">{video.description}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{video.duration}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <ThumbsUp className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="tips" className="pt-4 space-y-4">
-          {videos.filter(video => video.category === 'tips').map((video) => (
-            <div key={video.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={() => window.open(video.url, '_blank')}
-                >
-                  <Play className="h-4 w-4" />
-                </Button>
-                <div>
-                  <p className="text-sm font-medium">{video.title}</p>
-                  <p className="text-xs text-muted-foreground">{video.description}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{video.duration}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <ThumbsUp className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="success" className="pt-4 space-y-4">
-          {videos.filter(video => video.category === 'success-stories').map((video) => (
-            <div key={video.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={() => window.open(video.url, '_blank')}
-                >
-                  <Play className="h-4 w-4" />
-                </Button>
-                <div>
-                  <p className="text-sm font-medium">{video.title}</p>
-                  <p className="text-xs text-muted-foreground">{video.description}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{video.duration}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <ThumbsUp className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-      </Tabs>
-      
-      <div className="text-center pt-2">
-        <Button variant="outline">
-          Explore More Videos
-        </Button>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

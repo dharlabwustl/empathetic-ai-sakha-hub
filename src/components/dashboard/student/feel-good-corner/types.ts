@@ -1,13 +1,12 @@
 
-export interface Video {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  url: string;
-  views: number;
+export interface ChatMessage {
+  text: string;
+  isUser: boolean;
+}
+
+export interface Joke {
+  id: number;
+  content: string;
   likes: number;
-  category: 'motivation' | 'relaxation' | 'tips' | 'success-stories';
-  tags?: string[];
+  author: string;
 }

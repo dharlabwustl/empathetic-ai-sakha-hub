@@ -1,11 +1,12 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Calculator, Lightbulb, Check, RefreshCw, Eye, Share2 } from 'lucide-react';
+import { ArrowLeft, Calculator, Lightbulb, Check, Refresh, Eye, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -594,7 +595,7 @@ const FormulaLabPage: React.FC = () => {
                         Check Answer
                       </Button>
                       <Button variant="outline" onClick={() => generateNewPracticeValues(activeFormula)}>
-                        <RefreshCw className="h-4 w-4 mr-1" />
+                        <Refresh className="h-4 w-4 mr-1" />
                         New Values
                       </Button>
                       <Button 

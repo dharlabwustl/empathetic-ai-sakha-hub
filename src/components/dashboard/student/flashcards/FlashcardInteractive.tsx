@@ -1,5 +1,5 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -436,558 +436,562 @@ const FlashcardInteractive = () => {
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
   return (
-    <div>
-      <SharedPageLayout
-        title="Interactive Flashcards"
-        subtitle={`${currentCard.subject}: ${currentCard.topic}`}
-      >
-        <div className="mb-6">
+    <SharedPageLayout
+      title="Interactive Flashcards"
+      subtitle={`${currentCard.subject}: ${currentCard.topic}`}
+    >
+      <div className="mb-6">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/dashboard/student/flashcards')}
+          className="flex items-center gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Flashcards
+        </Button>
+      </div>
+      
+      {/* Study mode selector */}
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-2">
           <Button 
-            variant="outline" 
-            onClick={() => navigate('/dashboard/student/flashcards')}
+            variant={studyMode === 'standard' ? "default" : "outline"}
+            size="sm"
+            onClick={() => changeStudyMode('standard')}
             className="flex items-center gap-1"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Flashcards
+            <BookOpen className="h-4 w-4" />
+            Standard Mode
+          </Button>
+          <Button 
+            variant={studyMode === 'exam' ? "default" : "outline"}
+            size="sm"
+            onClick={() => changeStudyMode('exam')}
+            className="flex items-center gap-1"
+          >
+            <FileText className="h-4 w-4" />
+            Exam Mode
+          </Button>
+          <Button 
+            variant={studyMode === 'challenge' ? "default" : "outline"}
+            size="sm"
+            onClick={() => changeStudyMode('challenge')}
+            className="flex items-center gap-1"
+          >
+            <Star className="h-4 w-4" />
+            Challenge Mode
           </Button>
         </div>
-        
-        {/* Study mode selector */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant={studyMode === 'standard' ? "default" : "outline"}
-              size="sm"
-              onClick={() => changeStudyMode('standard')}
-              className="flex items-center gap-1"
-            >
-              <BookOpen className="h-4 w-4" />
-              Standard Mode
-            </Button>
-            <Button 
-              variant={studyMode === 'exam' ? "default" : "outline"}
-              size="sm"
-              onClick={() => changeStudyMode('exam')}
-              className="flex items-center gap-1"
-            >
-              <FileText className="h-4 w-4" />
-              Exam Mode
-            </Button>
-            <Button 
-              variant={studyMode === 'challenge' ? "default" : "outline"}
-              size="sm"
-              onClick={() => changeStudyMode('challenge')}
-              className="flex items-center gap-1"
-            >
-              <Star className="h-4 w-4" />
-              Challenge Mode
-            </Button>
+      </div>
+      
+      {/* Progress indicator with enhanced design */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">
+              Card {currentIndex + 1} of {cards.length}
+            </span>
+            <Badge variant={
+              currentCard.difficulty === 'easy' ? "outline" : 
+              currentCard.difficulty === 'medium' ? "secondary" : "destructive"
+            } className="ml-2">
+              {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 mr-1" />
+              {formatTime(studyTime)}
+            </div>
+            <span className="text-sm font-medium">{Math.round(progress)}% Complete</span>
           </div>
         </div>
-        
-        {/* Progress indicator with enhanced design */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                Card {currentIndex + 1} of {cards.length}
-              </span>
-              <Badge variant={
-                currentCard.difficulty === 'easy' ? "outline" : 
-                currentCard.difficulty === 'medium' ? "secondary" : "destructive"
-              } className="ml-2">
-                {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Clock className="h-4 w-4 mr-1" />
-                {formatTime(studyTime)}
-              </div>
-              <span className="text-sm font-medium">{Math.round(progress)}% Complete</span>
-            </div>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-        
-        {/* Main content area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            {/* Enhanced Flashcard with animations */}
-            <div className="perspective-1000">
-              <div 
-                className={`relative transition-all duration-500 transform-style-3d cursor-pointer min-h-[400px] ${isFlipped ? 'rotate-y-180' : ''}`}
-                onClick={handleFlip}
-              >
-                {/* Front of card - Question */}
-                <Card className={`absolute inset-0 backface-hidden p-6 ${isFlipped ? 'hidden' : ''} ${studyMode === 'challenge' ? 'border-amber-500' : ''}`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg">Question</CardTitle>
-                      <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
-                        {currentCard.topic}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex flex-col items-center justify-center h-full pt-0">
-                    <div className="text-2xl font-semibold text-center mb-8">
-                      {currentCard.question}
-                    </div>
-                    
-                    {showHint && currentCard.hint && (
-                      <div className="w-full bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800 mb-6">
-                        <p className="text-blue-700 dark:text-blue-300 text-sm">
-                          <span className="font-semibold">Hint:</span> {currentCard.hint}
-                        </p>
-                      </div>
-                    )}
-                    
-                    <div className="flex gap-2 mt-auto">
-                      {currentCard.hint && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleHint();
-                          }}
-                          className="text-xs"
-                        >
-                          {showHint ? "Hide Hint" : "Show Hint"}
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mt-4 animate-pulse">
-                      Tap to flip
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                {/* Back of card - Answer */}
-                <Card className={`absolute inset-0 backface-hidden p-6 rotate-y-180 ${!isFlipped ? 'hidden' : ''} ${studyMode === 'challenge' ? 'border-amber-500' : ''}`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg">Answer</CardTitle>
-                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
-                        Solution
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex flex-col h-full pt-0">
-                    <div className="text-xl text-center my-6 bg-green-50 dark:bg-green-900/20 p-4 rounded-md border border-green-100 dark:border-green-800">
-                      {currentCard.answer}
-                    </div>
-                    
-                    {showExplanation && currentCard.explanation && (
-                      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md border border-amber-100 dark:border-amber-800 mb-6">
-                        <p className="text-amber-800 dark:text-amber-300 text-sm">
-                          <span className="font-semibold">Explanation:</span> {currentCard.explanation}
-                        </p>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-center mt-auto">
-                      {currentCard.explanation && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExplanation();
-                          }}
-                          className="text-xs"
-                        >
-                          {showExplanation ? "Hide Explanation" : "Show Explanation"}
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mt-4 text-center animate-pulse">
-                      Tap to flip back
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-            
-            {/* Feedback message display */}
-            {feedbackMessage && (
-              <div className={`mt-4 p-3 rounded-md ${
-                accuracyScore && accuracyScore > 70 ? "bg-green-50 border border-green-200 text-green-700 dark:bg-green-900/20 dark:text-green-300" : 
-                accuracyScore && accuracyScore > 50 ? "bg-amber-50 border border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300" : 
-                "bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:text-red-300"
-              }`}>
-                <p>{feedbackMessage}</p>
-              </div>
-            )}
-            
-            {/* Answer input area */}
-            <div className="mt-6">
-              <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                <TabsList className="w-full justify-start mb-4">
-                  <TabsTrigger value="type">Type Answer</TabsTrigger>
-                  <TabsTrigger value="speak">Speak Answer</TabsTrigger>
-                  <TabsTrigger value="math">Math Tools</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="type" className="mt-0">
-                  <Textarea
-                    placeholder="Type your answer here..."
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    disabled={isSubmitted}
-                    className="min-h-[120px]"
-                  />
-                </TabsContent>
-                
-                <TabsContent value="speak" className="mt-0">
-                  <div className="bg-muted/30 rounded-lg p-6 text-center">
-                    <Button
-                      variant={speechToTextActive ? "destructive" : "default"}
-                      className="mx-auto mb-3"
-                      onClick={toggleSpeechToText}
-                    >
-                      <Mic className="mr-2 h-4 w-4" />
-                      {speechToTextActive ? "Stop Recording" : "Start Speaking"}
-                    </Button>
-                    <p className="text-sm text-muted-foreground">
-                      {speechToTextActive
-                        ? "Listening... Speak your answer clearly."
-                        : "Click the button and start speaking to convert your speech to text."}
-                    </p>
+        <Progress value={progress} className="h-2" />
+      </div>
+      
+      {/* Main content area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {/* Enhanced Flashcard with animations */}
+          <div className="perspective-1000">
+            <div 
+              className={`relative transition-all duration-500 transform-style-3d cursor-pointer min-h-[400px] ${isFlipped ? 'rotate-y-180' : ''}`}
+              onClick={handleFlip}
+            >
+              {/* Front of card - Question */}
+              <Card className={`absolute inset-0 backface-hidden p-6 ${isFlipped ? 'hidden' : ''} ${studyMode === 'challenge' ? 'border-amber-500' : ''}`}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg">Question</CardTitle>
+                    <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0">
+                      {currentCard.topic}
+                    </Badge>
                   </div>
-                </TabsContent>
-                
-                <TabsContent value="math" className="mt-0">
-                  <div className="bg-muted/30 rounded-lg p-6 text-center">
-                    <Button variant="outline" className="mx-auto mb-3" onClick={toggleCalculator}>
-                      <Calculator className="mr-2 h-4 w-4" />
-                      Open Calculator
-                    </Button>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-                      {["x²", "√", "π", "÷", "∫", "Σ", "∞", "θ"].map((symbol) => (
-                        <Button
-                          key={symbol}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => insertMathSymbol(symbol)}
-                        >
-                          {symbol}
-                        </Button>
-                      ))}
-                    </div>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center h-full pt-0">
+                  <div className="text-2xl font-semibold text-center mb-8">
+                    {currentCard.question}
                   </div>
-                </TabsContent>
-              </Tabs>
+                  
+                  {showHint && currentCard.hint && (
+                    <div className="w-full bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800 mb-6">
+                      <p className="text-blue-700 dark:text-blue-300 text-sm">
+                        <span className="font-semibold">Hint:</span> {currentCard.hint}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2 mt-auto">
+                    {currentCard.hint && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleHint();
+                        }}
+                        className="text-xs"
+                      >
+                        {showHint ? "Hide Hint" : "Show Hint"}
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground mt-4 animate-pulse">
+                    Tap to flip
+                  </p>
+                </CardContent>
+              </Card>
               
-              <div className="mt-4 flex flex-wrap gap-3">
-                {!isSubmitted ? (
-                  <>
-                    <Button onClick={submitAnswer} disabled={userAnswer.trim() === ""}>
-                      Submit Answer
-                    </Button>
-                    <Button variant="outline" onClick={handleFlip}>
-                      <RotateCw className="mr-2 h-4 w-4" />
-                      Flip Card
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button variant="outline" onClick={retryCard}>
-                      <RotateCw className="mr-2 h-4 w-4" />
-                      Try Again
-                    </Button>
-                    <Button onClick={moveToNextCard} disabled={currentIndex === cards.length - 1}>
-                      Next Card
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {/* Navigation controls with enhanced design */}
-            <div className="flex justify-between items-center mt-6">
-              <Button 
-                variant="outline" 
-                onClick={moveToPreviousCard}
-                disabled={currentIndex === 0}
-                size="sm"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Previous
-              </Button>
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={goToRandomCard}
-                >
-                  <Dices className="h-4 w-4 mr-1" />
-                  Random Card
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex items-center"
-                  onClick={toggleBookmark}
-                >
-                  {isBookmarked ? 
-                    <Bookmark className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" /> : 
-                    <BookmarkPlus className="h-4 w-4 mr-1" />
-                  }
-                  {isBookmarked ? "Bookmarked" : "Bookmark"}
-                </Button>
-              </div>
-              
-              <Button 
-                onClick={moveToNextCard}
-                disabled={currentIndex === cards.length - 1}
-                size="sm"
-              >
-                Next
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+              {/* Back of card - Answer */}
+              <Card className={`absolute inset-0 backface-hidden p-6 rotate-y-180 ${!isFlipped ? 'hidden' : ''} ${studyMode === 'challenge' ? 'border-amber-500' : ''}`}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg">Answer</CardTitle>
+                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
+                      Solution
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex flex-col h-full pt-0">
+                  <div className="text-xl text-center my-6 bg-green-50 dark:bg-green-900/20 p-4 rounded-md border border-green-100 dark:border-green-800">
+                    {currentCard.answer}
+                  </div>
+                  
+                  {showExplanation && currentCard.explanation && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md border border-amber-100 dark:border-amber-800 mb-6">
+                      <p className="text-amber-800 dark:text-amber-300 text-sm">
+                        <span className="font-semibold">Explanation:</span> {currentCard.explanation}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-center mt-auto">
+                    {currentCard.explanation && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExplanation();
+                        }}
+                        className="text-xs"
+                      >
+                        {showExplanation ? "Hide Explanation" : "Show Explanation"}
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground mt-4 text-center animate-pulse">
+                    Tap to flip back
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
           
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Enhanced mastery tracker with visual improvements */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                  Mastery Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="flex flex-col items-center">
-                  <div className="relative h-32 w-32">
-                    <svg className="h-full w-full" viewBox="0 0 100 100">
-                      <circle
-                        className="text-muted-foreground/20 stroke-current"
-                        strokeWidth="10"
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                      />
-                      <circle
-                        className={`stroke-current ${
-                          masteryScore > 80 ? "text-green-500" : 
-                          masteryScore > 60 ? "text-blue-500" : 
-                          masteryScore > 40 ? "text-amber-500" : "text-red-500"
-                        }`}
-                        strokeWidth="10"
-                        strokeLinecap="round"
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                        strokeDasharray={`${masteryScore * 2.51} 251`}
-                        strokeDashoffset="0"
-                        transform="rotate(-90 50 50)"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold">{masteryScore}%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center mt-4">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <div className="flex">
-                        {[1, 2, 3].map(i => (
-                          <div 
-                            key={i} 
-                            className={`h-5 w-5 flex items-center justify-center ${
-                              streak >= i ? "text-yellow-500" : "text-gray-300"
-                            }`}
-                          >
-                            <Star className="h-4 w-4" fill={streak >= i ? "currentColor" : "none"} />
-                          </div>
-                        ))}
-                      </div>
-                      <span className="text-sm ml-1">Streak: {streak} days</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {masteryScore > 80 ? 'Almost mastered!' : masteryScore > 50 ? 'Good progress!' : 'Keep practicing!'}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleResponse(true)}
-                    className="flex items-center text-green-600"
+          {/* Feedback message display */}
+          {feedbackMessage && (
+            <div className={`mt-4 p-3 rounded-md ${
+              accuracyScore && accuracyScore > 70 ? "bg-green-50 border border-green-200 text-green-700 dark:bg-green-900/20 dark:text-green-300" : 
+              accuracyScore && accuracyScore > 50 ? "bg-amber-50 border border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300" : 
+              "bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+            }`}>
+              <p>{feedbackMessage}</p>
+            </div>
+          )}
+          
+          {/* Answer input area */}
+          <div className="mt-6">
+            <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+              <TabsList className="w-full justify-start mb-4">
+                <TabsTrigger value="type">Type Answer</TabsTrigger>
+                <TabsTrigger value="speak">Speak Answer</TabsTrigger>
+                <TabsTrigger value="math">Math Tools</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="type" className="mt-0">
+                <Textarea
+                  placeholder="Type your answer here..."
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  disabled={isSubmitted}
+                  className="min-h-[120px]"
+                />
+              </TabsContent>
+              
+              <TabsContent value="speak" className="mt-0">
+                <div className="bg-muted/30 rounded-lg p-6 text-center">
+                  <Button
+                    variant={speechToTextActive ? "destructive" : "default"}
+                    className="mx-auto mb-3"
+                    onClick={toggleSpeechToText}
                   >
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    I Know This
+                    <Mic className="mr-2 h-4 w-4" />
+                    {speechToTextActive ? "Stop Recording" : "Start Speaking"}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleResponse(false)}
-                    className="flex items-center text-amber-600"
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Still Learning
+                  <p className="text-sm text-muted-foreground">
+                    {speechToTextActive
+                      ? "Listening... Speak your answer clearly."
+                      : "Click the button and start speaking to convert your speech to text."}
+                  </p>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="math" className="mt-0">
+                <div className="bg-muted/30 rounded-lg p-6 text-center">
+                  <Button variant="outline" className="mx-auto mb-3" onClick={toggleCalculator}>
+                    <Calculator className="mr-2 h-4 w-4" />
+                    Open Calculator
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Accuracy score (shows after submission) */}
-            {isSubmitted && accuracyScore !== null && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Answer Accuracy</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span>Score</span>
-                    <span>{accuracyScore}%</span>
-                  </div>
-                  <Progress 
-                    value={accuracyScore} 
-                    className={`h-2 mb-4 ${
-                      accuracyScore > 70 ? "bg-green-500" : 
-                      accuracyScore > 40 ? "bg-amber-500" : "bg-red-500"
-                    }`}
-                  />
-                  
-                  <div className="flex justify-center space-x-4 mt-4">
-                    <Button variant="outline" size="sm" className="flex items-center">
-                      <ThumbsUp className="mr-2 h-4 w-4" />
-                      Good Recall
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex items-center">
-                      <ThumbsDown className="mr-2 h-4 w-4" />
-                      Need Practice
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Tags */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Tags</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="flex flex-wrap gap-2">
-                  {currentCard.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary">{tag}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Study stats */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Study Statistics</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Recall Accuracy</span>
-                      <span>78%</span>
-                    </div>
-                    <Progress value={78} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Cards Practiced</span>
-                      <span>{currentIndex + 1}/{cards.length}</span>
-                    </div>
-                    <Progress value={(currentIndex + 1) / cards.length * 100} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Study Streak</span>
-                      <span>{streak} days</span>
-                    </div>
-                    <Progress value={streak * 10} className="h-2" />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+                    {["x²", "√", "π", "÷", "∫", "Σ", "∞", "θ"].map((symbol) => (
+                      <Button
+                        key={symbol}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => insertMathSymbol(symbol)}
+                      >
+                        {symbol}
+                      </Button>
+                    ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </TabsContent>
+            </Tabs>
             
-            {/* Related resources */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Related Resources</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <div className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start text-left"
-                    onClick={() => navigate(`/dashboard/student/concepts/card/1`)}
-                  >
-                    <Brain className="mr-2 h-4 w-4" />
-                    {currentCard.topic} Concept Cards
+            <div className="mt-4 flex flex-wrap gap-3">
+              {!isSubmitted ? (
+                <>
+                  <Button onClick={submitAnswer} disabled={userAnswer.trim() === ""}>
+                    Submit Answer
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start text-left"
-                    onClick={() => navigate(`/dashboard/student/practice-exam/1/start`)}
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Practice Quiz: {currentCard.subject}
+                  <Button variant="outline" onClick={handleFlip}>
+                    <RotateCw className="mr-2 h-4 w-4" />
+                    Flip Card
                   </Button>
-                </div>
-                <Button variant="outline" className="w-full mt-4">
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Study Session
-                </Button>
-              </CardContent>
-            </Card>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={retryCard}>
+                    <RotateCw className="mr-2 h-4 w-4" />
+                    Try Again
+                  </Button>
+                  <Button onClick={moveToNextCard} disabled={currentIndex === cards.length - 1}>
+                    Next Card
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Navigation controls with enhanced design */}
+          <div className="flex justify-between items-center mt-6">
+            <Button 
+              variant="outline" 
+              onClick={moveToPreviousCard}
+              disabled={currentIndex === 0}
+              size="sm"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={goToRandomCard}
+              >
+                <Dices className="h-4 w-4 mr-1" />
+                Random Card
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center"
+                onClick={toggleBookmark}
+              >
+                {isBookmarked ? 
+                  <Bookmark className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" /> : 
+                  <BookmarkPlus className="h-4 w-4 mr-1" />
+                }
+                {isBookmarked ? "Bookmarked" : "Bookmark"}
+              </Button>
+            </div>
+            
+            <Button 
+              onClick={moveToNextCard}
+              disabled={currentIndex === cards.length - 1}
+              size="sm"
+            >
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
         </div>
         
-        {/* Daily Challenge Card */}
-        <div className="mt-8 mb-4">
-          <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-indigo-100 dark:border-indigo-800">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Star className="h-5 w-5 text-yellow-500 mr-2" fill="currentColor" />
-                Today's Challenge Card
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Enhanced mastery tracker with visual improvements */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                Mastery Progress
               </CardTitle>
             </CardHeader>
-            <CardContent className="pb-2">
-              <p className="mb-2">Solve this challenging question to earn bonus points!</p>
-              <div className="p-4 bg-white/80 dark:bg-gray-800/80 rounded-md">
-                <p className="font-medium">Explain the differences between Newton's three laws of motion and provide a real-world example of each.</p>
+            <CardContent className="pt-2">
+              <div className="flex flex-col items-center">
+                <div className="relative h-32 w-32">
+                  <svg className="h-full w-full" viewBox="0 0 100 100">
+                    <circle
+                      className="text-muted-foreground/20 stroke-current"
+                      strokeWidth="10"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                    />
+                    <circle
+                      className={`stroke-current ${
+                        masteryScore > 80 ? "text-green-500" : 
+                        masteryScore > 60 ? "text-blue-500" : 
+                        masteryScore > 40 ? "text-amber-500" : "text-red-500"
+                      }`}
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                      strokeDasharray={`${masteryScore * 2.51} 251`}
+                      strokeDashoffset="0"
+                      transform="rotate(-90 50 50)"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold">{masteryScore}%</span>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-4">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <div className="flex">
+                      {[1, 2, 3].map(i => (
+                        <div 
+                          key={i} 
+                          className={`h-5 w-5 flex items-center justify-center ${
+                            streak >= i ? "text-yellow-500" : "text-gray-300"
+                          }`}
+                        >
+                          <Star className="h-4 w-4" fill={streak >= i ? "currentColor" : "none"} />
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-sm ml-1">Streak: {streak} days</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {masteryScore > 80 ? 'Almost mastered!' : masteryScore > 50 ? 'Good progress!' : 'Keep practicing!'}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleResponse(true)}
+                  className="flex items-center text-green-600"
+                >
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  I Know This
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleResponse(false)}
+                  className="flex items-center text-amber-600"
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Still Learning
+                </Button>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
-                Accept Challenge
+          </Card>
+          
+          {/* Accuracy score (shows after submission) */}
+          {isSubmitted && accuracyScore !== null && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Answer Accuracy</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <div className="flex justify-between mb-1 text-sm">
+                  <span>Score</span>
+                  <span>{accuracyScore}%</span>
+                </div>
+                <Progress 
+                  value={accuracyScore} 
+                  className={`h-2 mb-4 ${
+                    accuracyScore > 70 ? "bg-green-500" : 
+                    accuracyScore > 40 ? "bg-amber-500" : "bg-red-500"
+                  }`}
+                />
+                
+                <div className="flex justify-center space-x-4 mt-4">
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                    Good Recall
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    <ThumbsDown className="mr-2 h-4 w-4" />
+                    Need Practice
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Tags */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Tags</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <div className="flex flex-wrap gap-2">
+                {currentCard.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary">{tag}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Study stats */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Study Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Recall Accuracy</span>
+                    <span>78%</span>
+                  </div>
+                  <Progress value={78} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Cards Practiced</span>
+                    <span>{currentIndex + 1}/{cards.length}</span>
+                  </div>
+                  <Progress value={(currentIndex + 1) / cards.length * 100} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Study Streak</span>
+                    <span>{streak} days</span>
+                  </div>
+                  <Progress value={streak * 10} className="h-2" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Related resources */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Related Resources</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left"
+                  onClick={() => navigate(`/dashboard/student/concepts/card/1`)}
+                >
+                  <Brain className="mr-2 h-4 w-4" />
+                  {currentCard.topic} Concept Cards
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left"
+                  onClick={() => navigate(`/dashboard/student/practice-exam/1/start`)}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Practice Quiz: {currentCard.subject}
+                </Button>
+              </div>
+              <Button variant="outline" className="w-full mt-4">
+                <Save className="mr-2 h-4 w-4" />
+                Save Study Session
               </Button>
-            </CardFooter>
+            </CardContent>
           </Card>
         </div>
-        
-        <style>
-          {`
-          /* CSS for the flashcard component */
-          .flashcard {
-            /* Your styles here */
-          }
-          `}
-        </style>
-      </SharedPageLayout>
-    </div>
+      </div>
+      
+      {/* Daily Challenge Card */}
+      <div className="mt-8 mb-4">
+        <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-indigo-100 dark:border-indigo-800">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Star className="h-5 w-5 text-yellow-500 mr-2" fill="currentColor" />
+              Today's Challenge Card
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-2">
+            <p className="mb-2">Solve this challenging question to earn bonus points!</p>
+            <div className="p-4 bg-white/80 dark:bg-gray-800/80 rounded-md">
+              <p className="font-medium">Explain the differences between Newton's three laws of motion and provide a real-world example of each.</p>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
+              Accept Challenge
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
+    </SharedPageLayout>
   );
 };
 

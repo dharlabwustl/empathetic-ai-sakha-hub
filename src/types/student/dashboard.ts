@@ -1,3 +1,4 @@
+
 import { UserRole } from "../user/base";
 
 // Basic interfaces for user progress tracking
@@ -72,18 +73,6 @@ export interface RevisionStats {
   pendingReviewConcepts: number;
   lowRetentionFlashcards: number;
   flaggedItems: number;
-}
-
-export interface RevisionItem {
-  id: string;
-  title: string;
-  description?: string;
-  subject: string;
-  dueDate: string;
-  status: 'pending' | 'completed' | 'missed';
-  priority: 'low' | 'medium' | 'high';
-  conceptId?: string;
-  topicId?: string;
 }
 
 export interface Milestone {
