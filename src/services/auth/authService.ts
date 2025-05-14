@@ -1,7 +1,6 @@
 
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
-import { validateCredentials } from './accountData';
 
 // Auth service types
 export interface LoginCredentials {
@@ -55,7 +54,8 @@ const authService = {
       name: demoUser.name,
       email: demoUser.email,
       mood: 'MOTIVATED',
-      isAuthenticated: true
+      isAuthenticated: true,
+      completedOnboarding: credentials.email.includes('demo') // For demo accounts
     };
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
@@ -90,10 +90,13 @@ const authService = {
       name: mockUser.name,
       email: mockUser.email,
       mood: 'MOTIVATED',
-      isAuthenticated: true
+      isAuthenticated: true,
+      completedOnboarding: false, // New users need onboarding
+      newUser: true
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('new_user_signup', 'true');
     
     // Return success response
     return {
@@ -184,7 +187,8 @@ const authService = {
       'refresh_token',
       'user_id',
       'user_session',
-      'user_data'
+      'user_data',
+      'returnTo'
     ];
     
     // Clear each item individually and log it for debugging

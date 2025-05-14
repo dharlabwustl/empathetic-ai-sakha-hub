@@ -1,21 +1,20 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { LineChart, Calendar, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { MoodType } from '@/types/user/base';
 
-interface MoodTimelineProps {
+interface MoodInsightsProps {
   moodHistory?: Array<{
     date: string;
     mood: MoodType;
     notes?: string;
   }>;
-  onViewFullHistory?: () => void;
 }
 
-const MoodTimeline: React.FC<MoodTimelineProps> = ({
-  moodHistory = [],
-  onViewFullHistory
+const MoodInsights: React.FC<MoodInsightsProps> = ({
+  moodHistory = []
 }) => {
   // If no mood history is provided, use sample data
   const sampleMoodData = [
@@ -41,18 +40,8 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({
       case MoodType.ANXIOUS: return '😰';
       case MoodType.STRESSED: return '😣';
       case MoodType.SAD: return '😢';
-      case MoodType.OVERWHELMED: return '😩';
-      case MoodType.OKAY: return '🙂';
-      case MoodType.CONFUSED: return '😕';
       default: return '😐';
     }
-  };
-  
-  const moodColors = {
-    primary: 'blue',
-    secondary: 'green',
-    text: 'black',
-    background: 'white'
   };
   
   return (
@@ -61,9 +50,9 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg flex items-center gap-2">
             <LineChart className="h-5 w-5 text-indigo-500" />
-            Mood Timeline
+            Mood Insights
           </CardTitle>
-          <Button variant="outline" size="sm" className="h-8" onClick={onViewFullHistory}>
+          <Button variant="outline" size="sm" className="h-8">
             <Calendar className="h-4 w-4 mr-1" />
             View All
           </Button>
@@ -90,7 +79,7 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({
           </div>
           
           <div className="pt-2">
-            <Button variant="link" className="w-full flex items-center justify-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 p-0" onClick={onViewFullHistory}>
+            <Button variant="link" className="w-full flex items-center justify-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 p-0">
               See detailed analysis <ArrowUpRight className="ml-1 h-3 w-3" />
             </Button>
           </div>
@@ -100,4 +89,4 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({
   );
 };
 
-export default MoodTimeline;
+export default MoodInsights;

@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -18,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Plus, Info, CreditCard, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SubscriptionType } from '@/types/user/base';
+import { SubscriptionType } from '@/types/subscription';
 
 interface CreateExamCardDialogProps {
   userSubscription?: SubscriptionType;
@@ -68,7 +67,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
   });
   
   // Check if user has access to create cards
-  const hasAccess = userSubscription !== SubscriptionType.Free;
+  const isFreeUser = userSubscription === SubscriptionType.FREE;
   
   // Check if user has enough credits
   const hasEnoughCredits = userCredits.exam >= formData.cardCount;
@@ -104,7 +103,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
     }
     
     // Check subscription status
-    if (!hasAccess) {
+    if (!isFreeUser) {
       toast({
         title: "Premium feature",
         description: "You need a Pro or Group subscription to create exam cards.",
@@ -163,7 +162,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
           <DialogTitle>Create Custom Exam Cards</DialogTitle>
           <DialogDescription>
             Generate AI-powered exam cards for your study plan
-            {!hasAccess && (
+            {!isFreeUser && (
               <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
                 Pro Feature
               </Badge>
@@ -301,7 +300,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
           )}
           <Button 
             onClick={handleSubmit} 
-            disabled={!hasAccess || !hasEnoughCredits}
+            disabled={!isFreeUser || !hasEnoughCredits}
             className="w-full sm:w-auto"
           >
             Create {formData.cardCount} Cards

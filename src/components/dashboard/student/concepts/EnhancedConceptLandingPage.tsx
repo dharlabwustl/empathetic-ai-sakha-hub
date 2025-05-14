@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -92,7 +91,7 @@ const mockConcept = {
   }
 };
 
-const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({ conceptId }) => {
+const EnhancedConceptLandingPage = () => {
   const [activeTab, setActiveTab] = useState("summary");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -216,7 +215,11 @@ const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({
                 
                 {/* Enhanced Formula Tab with FormulaTabContent component */}
                 <TabsContent value="formula">
-                  <FormulaTabContent conceptId={conceptId} />
+                  <FormulaTabContent 
+                    conceptId="some-concept-id" 
+                    conceptTitle="Concept Title"
+                    handleOpenFormulaLab={() => {/* Implementation */}}
+                  />
                   <div className="px-6 pb-6 flex justify-center">
                     <Button 
                       variant="default" 

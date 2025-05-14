@@ -44,9 +44,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       const isValid = await checkAuth();
       setIsLoading(false);
-      if (!isValid && window.location.pathname.includes('/dashboard')) {
-        // If not authenticated and trying to access protected route, redirect to login
-        navigate('/login');
+      
+      // Store authentication status for easier access
+      if (isValid) {
+        localStorage.setItem('isLoggedIn', 'true');
+      } else {
+        if (window.location.pathname.includes('/dashboard')) {
+          // If not authenticated and trying to access protected route, redirect to login
+          navigate('/login');
+        }
       }
     };
 
@@ -62,6 +68,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success && response.data) {
         setUser(response.data);
         setIsAuthenticated(true);
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        // Set the return path to be used after onboarding if needed
+        const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+        if (returnTo) {
+          localStorage.setItem('returnTo', returnTo);
+        }
+        
         setIsLoading(false);
         return true;
       } else {
@@ -94,10 +108,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success && response.data) {
         setUser(response.data);
         setIsAuthenticated(true);
-        setIsLoading(false);
+        localStorage.setItem('isLoggedIn', 'true');
         
         // Set as new user for onboarding flow
         localStorage.setItem('new_user_signup', 'true');
+        setIsLoading(false);
         return true;
       } else {
         toast({
@@ -131,6 +146,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setIsAuthenticated(false);
       
+      // Clear explicit login state
+      localStorage.removeItem('isLoggedIn');
+      
       // Additional UI feedback
       toast({
         title: "Logged out successfully",
@@ -149,6 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Force logout even if there's an error
       setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem('isLoggedIn');
       navigate('/login');
     } finally {
       setIsLoading(false);
@@ -168,12 +187,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
         setIsAuthenticated(false);
+        localStorage.removeItem('isLoggedIn');
         return false;
       }
     } catch (error) {
       console.error('Auth check error:', error);
       setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem('isLoggedIn');
       return false;
     }
   };

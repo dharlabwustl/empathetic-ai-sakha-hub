@@ -1,134 +1,159 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, ChevronRight, Clock, BarChart, Zap } from "lucide-react";
+import { NavigateFunction } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
-interface ConceptCardProps {
+export interface ConceptCardProps {
   id: string;
   title: string;
-  description: string;
   subject: string;
+  progress: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  completed?: boolean;
-  progress?: number;
-  relatedConcepts?: string[];
-  onView?: () => void;
+  estimatedTime: number;
+  isNew?: boolean;
+  isRecommended?: boolean;
+  isRevision?: boolean;
+  lastAccessed?: string;
+  navigate?: NavigateFunction;
+  onClick?: (id: string) => void;
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({
   id,
   title,
-  description,
   subject,
+  progress,
   difficulty,
-  completed = false,
-  progress = 0,
-  relatedConcepts = [],
-  onView
+  estimatedTime,
+  isNew = false,
+  isRecommended = false,
+  isRevision = false,
+  lastAccessed,
+  navigate,
+  onClick
 }) => {
-  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+  const { toast } = useToast();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick(id);
+    } else if (navigate) {
+      navigate(`/dashboard/student/concept/${id}`);
+    } else {
+      toast({
+        title: "Navigation not available",
+        description: "This is a preview of the concept card component.",
+      });
+    }
+  };
+
+  const difficultyColor = {
+    easy: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    medium: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    hard: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+  };
   
-  const difficultyColors = {
-    'easy': 'bg-green-100 text-green-800 border-green-200 shadow-sm shadow-green-100',
-    'medium': 'bg-yellow-100 text-yellow-800 border-yellow-200 shadow-sm shadow-yellow-100',
-    'hard': 'bg-red-100 text-red-800 border-red-200 shadow-sm shadow-red-100'
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page
-    navigate(`/dashboard/student/concepts/card/${id}`);
-  };
-
-  const handleStudyNowClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/dashboard/student/concepts/card/${id}`);
+  // Custom progress bar with indicator class
+  const renderCustomProgress = () => {
+    const indicatorClass = progress === 100 
+      ? "bg-green-500" 
+      : progress > 66 
+        ? "bg-blue-500" 
+        : progress > 33 
+          ? "bg-amber-500" 
+          : "bg-rose-500";
+    
+    return (
+      <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
+        <div 
+          className={`${indicatorClass} h-2 rounded-full transition-all duration-300`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    );
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    <motion.div 
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
     >
       <Card 
-        className="h-full flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
-                  border border-gray-200/60 dark:border-gray-800/60 rounded-xl cursor-pointer 
-                  bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-950/80"
-        onClick={handleCardClick}
+        className="border-2 border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-700 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
       >
-        <CardHeader className="pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
+        <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
-            <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
-              {difficulty}
-            </Badge>
-            {completed && (
-              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-3 py-1 text-xs font-semibold shadow-sm shadow-blue-100">
-                Completed
-              </Badge>
+            <div className="space-y-1">
+              <CardTitle className="text-lg font-semibold leading-tight">{title}</CardTitle>
+              <CardDescription>{subject}</CardDescription>
+            </div>
+            {progress === 100 && (
+              <CheckCircle className="text-green-500 h-5 w-5" />
             )}
           </div>
-          <CardTitle 
-            className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
-          >
-            {title}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            <Badge variant="secondary" className="font-normal rounded-md mr-2">
-              {subject}
-            </Badge>
-          </p>
         </CardHeader>
-        
-        <CardContent className="flex-grow pt-4 px-6 pb-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-            {description}
-          </p>
-          
-          {progress > 0 && (
-            <div className="mt-4">
-              <div className="flex justify-between text-xs font-medium mb-1">
+        <CardContent className="pb-2">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                 <span>Progress</span>
-                <span className="text-indigo-600 dark:text-indigo-400">{progress}%</span>
+                <span>{progress}%</span>
               </div>
-              <Progress 
-                value={progress} 
-                className="h-2 bg-gray-100 dark:bg-gray-800" 
-                indicatorClassName={
-                  progress >= 80 ? "bg-gradient-to-r from-green-400 to-green-500 shadow-sm shadow-green-200 dark:shadow-green-900/20" :
-                  progress >= 40 ? "bg-gradient-to-r from-yellow-400 to-yellow-500 shadow-sm shadow-yellow-200 dark:shadow-yellow-900/20" :
-                  "bg-gradient-to-r from-red-400 to-red-500 shadow-sm shadow-red-200 dark:shadow-red-900/20"
-                }
-              />
+              {renderCustomProgress()}
             </div>
-          )}
-          
-          {relatedConcepts && relatedConcepts.length > 0 && (
-            <div className="mt-4 space-y-1">
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Related Concepts:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {relatedConcepts.map((concept, i) => (
-                  <Badge key={i} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5">
-                    {concept}
-                  </Badge>
-                ))}
-              </div>
+
+            <div className="flex flex-wrap gap-2 py-1">
+              <Badge variant="outline" className={`${difficultyColor[difficulty]} capitalize font-normal`}>
+                {difficulty}
+              </Badge>
+              
+              <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 font-normal flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                <span>{estimatedTime} min</span>
+              </Badge>
+              
+              {isNew && (
+                <Badge className="bg-blue-500 hover:bg-blue-600">New</Badge>
+              )}
+              
+              {isRecommended && (
+                <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 font-normal flex items-center gap-1">
+                  <BarChart className="h-3 w-3" />
+                  <span>Recommended</span>
+                </Badge>
+              )}
+              
+              {isRevision && (
+                <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 font-normal flex items-center gap-1">
+                  <Zap className="h-3 w-3" />
+                  <span>Revision</span>
+                </Badge>
+              )}
             </div>
-          )}
+          </div>
         </CardContent>
-        
-        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 px-4 pb-4">
+        <CardFooter className="pt-0 flex justify-between items-center">
+          {lastAccessed && (
+            <span className="text-xs text-gray-500">
+              Last accessed: {lastAccessed}
+            </span>
+          )}
           <Button 
-            variant="default" 
-            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg"
-            onClick={handleStudyNowClick}
+            variant="ghost" 
+            size="sm" 
+            className={`px-2 py-1 h-8 transition-all ${isHovered ? 'translate-x-1' : ''}`}
           >
-            <BookOpen className="h-4 w-4" />
-            <span className="font-medium">Study Now</span>
-            <ArrowRight className="h-4 w-4" />
+            Continue <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </CardFooter>
       </Card>
