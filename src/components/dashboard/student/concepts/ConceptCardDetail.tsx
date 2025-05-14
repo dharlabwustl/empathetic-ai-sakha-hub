@@ -1,226 +1,135 @@
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { ArrowLeft, Video, BookOpen, MessageCircle, FileText, Download, Star, PlayCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, BookOpen, Video, HelpCircle, FileText, Star } from "lucide-react";
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import VideoContentTab from './tabs/VideoContentTab';
 import NotesTab from './tabs/NotesTab';
 import DoubtsTab from './tabs/DoubtsTab';
 import ResourcesTab from './tabs/ResourcesTab';
-import ContributorsTab from './tabs/ContributorsTab';
+import ReviewTab from './tabs/ReviewTab';
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
-const ConceptCardDetail = () => {
-  const { id } = useParams<{ id: string }>();
+interface ConceptCardDetailProps {
+  id?: string;
+}
+
+const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ id }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('video');
-  const [completionStatus, setCompletionStatus] = useState(45); // Example progress
+  const params = useParams();
+  const conceptId = id || params.id || "1";
+  const [activeTab, setActiveTab] = useState("video");
   
-  // Mock data for concept card
-  const cardData = {
-    id: id || '1',
-    title: 'Newton\'s Laws of Motion',
-    subject: 'Physics',
-    chapter: 'Classical Mechanics',
-    difficulty: 'medium',
-    description: 'Comprehensive coverage of Newton\'s three laws of motion, including practical applications, problem-solving techniques, and conceptual understanding.',
-    progress: 45,
-    estimatedTime: '45 min',
-    tags: ['Newton\'s Laws', 'Mechanics', 'Forces', 'Motion', 'NEET', 'JEE'],
-    isPremium: true,
-    totalVideos: 4,
-    videoLength: '32 min',
-    notesCount: 3,
-    resourcesCount: 5,
-    questionsCount: 27,
-    doubtsCount: 8
-  };
-
-  const handleBackClick = () => {
-    navigate(-1);
+  // Mock concept data
+  const concept = {
+    id: conceptId,
+    title: "Newton's Laws of Motion",
+    description: "Understanding the fundamental principles that govern the motion of objects.",
+    subject: "Physics",
+    difficulty: "Medium",
+    progress: 65,
+    importance: "High",
+    lastAccessed: "2 days ago"
   };
   
-  const markComplete = () => {
-    setCompletionStatus(100);
-    // In a real app, you would save this to the user's progress
-  };
+  // Check if ReviewTab is a missing component
+  const ReviewTabComponent = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Review & Rating</h3>
+      <p>This is the review tab content.</p>
+    </div>
+  );
   
   return (
-    <div className="container py-6 max-w-6xl mx-auto">
-      {/* Back button and title */}
+    <div className="container mx-auto py-8 px-4">
       <div className="mb-6">
         <Button 
           variant="ghost" 
-          className="flex items-center mb-2 hover:bg-transparent p-0" 
-          onClick={handleBackClick}
+          onClick={() => navigate('/dashboard/student/concepts')}
+          className="mb-4"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          <span>Back to Concept Cards</span>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Concepts
         </Button>
-        <div className="flex items-start justify-between">
+        
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{cardData.title}</h1>
-              {cardData.isPremium && (
-                <Badge className="bg-gradient-to-r from-amber-400 to-amber-600 text-white">
-                  <Star className="h-3 w-3 mr-1" /> Premium
-                </Badge>
+              <h1 className="text-2xl font-bold">{concept.title}</h1>
+              <Badge variant="outline">{concept.difficulty}</Badge>
+              {concept.importance === "High" && (
+                <Badge className="bg-amber-500 text-white">High Priority</Badge>
               )}
             </div>
-            <div className="flex items-center mt-1 text-sm text-muted-foreground">
-              <Badge variant="outline" className="mr-2 bg-blue-50 dark:bg-blue-900/20">
-                {cardData.subject}
-              </Badge>
-              <span className="mr-2">•</span>
-              <span>{cardData.chapter}</span>
-              <span className="mx-2">•</span>
-              <span className="capitalize">{cardData.difficulty} difficulty</span>
-            </div>
+            <p className="text-muted-foreground mt-1">{concept.description}</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" /> Save Offline
-            </Button>
-            <Button size="sm">
-              <PlayCircle className="h-4 w-4 mr-2" /> Continue Learning
-            </Button>
+          
+          <div className="flex flex-col items-end space-y-1">
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-medium">Progress:</p>
+              <p className="text-sm">{concept.progress}%</p>
+            </div>
+            <Progress value={concept.progress} className="w-32 h-2" />
+            <p className="text-xs text-muted-foreground">Last accessed: {concept.lastAccessed}</p>
           </div>
         </div>
       </div>
       
-      {/* Progress card */}
-      <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-100 dark:border-purple-800/30">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium">Your Progress</h3>
-              <p className="text-sm text-muted-foreground">Continue where you left off</p>
-            </div>
-            <div className="flex items-center">
-              <div className="mr-4 text-right">
-                <span className="text-lg font-bold">{completionStatus}%</span>
-                <p className="text-xs text-muted-foreground">Completed</p>
-              </div>
-              <Button 
-                size="sm" 
-                variant={completionStatus === 100 ? "outline" : "default"}
-                onClick={markComplete}
-                disabled={completionStatus === 100}
-              >
-                {completionStatus === 100 ? (
-                  <><CheckCircle className="h-4 w-4 mr-2" /> Completed</>
-                ) : (
-                  <>Mark Complete</>
-                )}
-              </Button>
-            </div>
-          </div>
-          <Progress value={completionStatus} className="mt-2 h-2" />
-        </CardContent>
-      </Card>
-      
-      {/* Description card */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <p>{cardData.description}</p>
-          <div className="flex flex-wrap gap-1 mt-3">
-            {cardData.tags.map((tag) => (
-              <Badge key={tag} variant="outline" className="font-normal">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Content tabs */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden mb-6">
+      <Card className="mt-4 border shadow-md rounded-lg overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="border-b border-gray-200 dark:border-gray-800">
-            <TabsList className="bg-transparent h-auto p-0">
-              <TabsTrigger 
-                value="video" 
-                className={`flex items-center gap-2 px-6 py-3 h-auto rounded-none border-b-2 data-[state=active]:border-purple-500 data-[state=active]:shadow-none data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 ${
-                  activeTab === 'video' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent'
-                }`}
-              >
-                <Video className="h-4 w-4" />
-                <span>Video</span>
-                <Badge variant="outline" className="ml-1">{cardData.totalVideos}</Badge>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="notes" 
-                className={`flex items-center gap-2 px-6 py-3 h-auto rounded-none border-b-2 data-[state=active]:border-purple-500 data-[state=active]:shadow-none data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 ${
-                  activeTab === 'notes' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent'
-                }`}
-              >
-                <BookOpen className="h-4 w-4" />
-                <span>Notes</span>
-                <Badge variant="outline" className="ml-1">{cardData.notesCount}</Badge>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="doubts" 
-                className={`flex items-center gap-2 px-6 py-3 h-auto rounded-none border-b-2 data-[state=active]:border-purple-500 data-[state=active]:shadow-none data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 ${
-                  activeTab === 'doubts' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent'
-                }`}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>Doubts</span>
-                <Badge variant="outline" className="ml-1">{cardData.doubtsCount}</Badge>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="resources" 
-                className={`flex items-center gap-2 px-6 py-3 h-auto rounded-none border-b-2 data-[state=active]:border-purple-500 data-[state=active]:shadow-none data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 ${
-                  activeTab === 'resources' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent'
-                }`}
-              >
-                <FileText className="h-4 w-4" />
-                <span>Resources</span>
-                <Badge variant="outline" className="ml-1">{cardData.resourcesCount}</Badge>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="contributors" 
-                className={`flex items-center gap-2 px-6 py-3 h-auto rounded-none border-b-2 data-[state=active]:border-purple-500 data-[state=active]:shadow-none data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 ${
-                  activeTab === 'contributors' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent'
-                }`}
-              >
-                <Star className="h-4 w-4" />
-                <span>Contributors</span>
-              </TabsTrigger>
-            </TabsList>
+          <div className="bg-muted/40 border-b border-border">
+            <div className="container px-4 py-2">
+              <TabsList className="grid grid-cols-5 w-full bg-transparent">
+                <TabsTrigger value="video" className="data-[state=active]:shadow-md data-[state=active]:bg-background">
+                  <Video className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Video</span>
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="data-[state=active]:shadow-md data-[state=active]:bg-background">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Notes</span>
+                </TabsTrigger>
+                <TabsTrigger value="doubts" className="data-[state=active]:shadow-md data-[state=active]:bg-background">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Doubts</span>
+                </TabsTrigger>
+                <TabsTrigger value="resources" className="data-[state=active]:shadow-md data-[state=active]:bg-background">
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Resources</span>
+                </TabsTrigger>
+                <TabsTrigger value="review" className="data-[state=active]:shadow-md data-[state=active]:bg-background">
+                  <Star className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Review</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
           
-          <div className="p-6">
-            <TabsContent value="video" className="m-0">
-              <VideoContentTab conceptId={id} />
+          <CardContent className="p-6">
+            <TabsContent value="video" className="mt-0">
+              <VideoContentTab />
             </TabsContent>
             
-            <TabsContent value="notes" className="m-0">
-              <NotesTab conceptId={id} />
+            <TabsContent value="notes" className="mt-0">
+              <NotesTab />
             </TabsContent>
             
-            <TabsContent value="doubts" className="m-0">
-              <DoubtsTab conceptId={id} />
+            <TabsContent value="doubts" className="mt-0">
+              <DoubtsTab />
             </TabsContent>
             
-            <TabsContent value="resources" className="m-0">
-              <ResourcesTab conceptId={id} />
+            <TabsContent value="resources" className="mt-0">
+              <ResourcesTab />
             </TabsContent>
             
-            <TabsContent value="contributors" className="m-0">
-              <ContributorsTab conceptId={id} />
+            <TabsContent value="review" className="mt-0">
+              <ReviewTabComponent />
             </TabsContent>
-          </div>
+          </CardContent>
         </Tabs>
-      </div>
+      </Card>
     </div>
   );
 };
