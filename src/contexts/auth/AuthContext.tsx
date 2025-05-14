@@ -1,173 +1,301 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { UserRole } from '@/types/user/base';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import authService from '@/services/auth/authService';
+import { UserRole } from '@/types/user/base';
+import { toast } from '@/components/ui/use-toast';
 
-interface User {
+// Types
+export interface User {
   id: string;
-  name: string;
+  name?: string;
+  firstName?: string;
   email: string;
   role: UserRole;
+  photoURL?: string;
+  loginCount?: number;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  error: string | null;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signUp: (email: string, password: string, name: string, phone: string) => Promise<User>;
+  loginWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateUserProfile: (data: Partial<User>) => void;
 }
 
-// Create the context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create context
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  error: null,
+  isAuthenticated: false,
+  login: async () => {},
+  logout: async () => {},
+  signUp: async () => ({ id: '', email: '', role: UserRole.Student }),
+  loginWithGoogle: async () => {},
+  resetPassword: async () => {},
+  updateUserProfile: () => {}
+});
 
-// Auth provider props
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-// Auth provider component
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+// Auth Provider component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // Check for existing user in localStorage on component mount
+  // Initialize auth state
   useEffect(() => {
-    const checkAuth = () => {
+    const initAuth = async () => {
       setLoading(true);
-      
-      // Check if user data exists in localStorage and if user is authenticated
-      const userData = localStorage.getItem('userData');
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      
-      if (userData && isLoggedIn === 'true') {
-        try {
-          const parsedData = JSON.parse(userData);
-          if (parsedData.email && parsedData.isAuthenticated === true) {
-            // User is already logged in
+      try {
+        if (authService.isAuthenticated()) {
+          const currentUser = authService.getCurrentUser();
+          if (currentUser) {
+            // Transform to match our User interface
             setUser({
-              id: parsedData.id || '1',
-              name: parsedData.name || 'User',
-              email: parsedData.email,
-              role: parsedData.role || UserRole.Student
+              id: currentUser.id,
+              name: currentUser.name,
+              email: currentUser.email,
+              role: currentUser.role as UserRole,
+              // Default values that might be overridden by stored user data
+              loginCount: 1
             });
-            console.log("User authenticated from localStorage:", parsedData.email);
-          } else {
-            // Invalid authentication state
-            setUser(null);
-            // Clear potentially corrupted data
-            localStorage.removeItem('userData');
-            localStorage.removeItem('isLoggedIn');
-            console.log("Invalid auth state detected - clearing localStorage");
           }
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          // Clear invalid data
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isLoggedIn');
-          setUser(null);
         }
-      } else {
-        // No valid authentication data, ensure user is null
-        setUser(null);
+      } catch (err) {
+        console.error("Auth initialization error:", err);
+        setError("Failed to initialize authentication");
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
     
-    checkAuth();
+    initAuth();
   }, []);
 
   // Login function
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string) => {
     setLoading(true);
+    setError(null);
     
-    return new Promise<boolean>((resolve) => {
-      setTimeout(() => {
-        if (email && password && password.length >= 2) {
-          const newUser: User = {
-            id: '1',
-            name: email.split('@')[0] || 'Student',
-            email: email,
-            role: UserRole.Student
-          };
-          
-          // Check if this is a returning user
-          const existingData = localStorage.getItem('userData');
-          let loginCount = 1;
-          let sawWelcomeSlider = false;
-          let sawWelcomeTour = false;
-          
-          if (existingData) {
-            try {
-              const parsedData = JSON.parse(existingData);
-              loginCount = (parsedData.loginCount || 0) + 1;
-              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
-              sawWelcomeTour = parsedData.sawWelcomeTour === true;
-            } catch (error) {
-              console.error('Error parsing existing user data:', error);
-            }
-          }
-          
-          // Save user data to localStorage
-          localStorage.setItem('userData', JSON.stringify({
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            role: newUser.role,
-            lastLogin: new Date().toISOString(),
-            loginCount: loginCount,
-            sawWelcomeSlider: sawWelcomeSlider,
-            sawWelcomeTour: sawWelcomeTour,
-            mood: 'MOTIVATED',
-            isAuthenticated: true
-          }));
-          
-          // Also mark as logged in for other parts of the app
-          localStorage.setItem('isLoggedIn', 'true');
-          
-          setUser(newUser);
-          setLoading(false);
-          console.log("Login successful for:", email);
-          resolve(true);
+    try {
+      const response = await authService.login({ email, password });
+      
+      if (response.success && response.data) {
+        setUser({
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role as UserRole,
+          loginCount: 1
+        });
+        
+        // Redirect based on role
+        if (response.data.role === 'admin') {
+          navigate('/admin/dashboard');
         } else {
-          setLoading(false);
-          console.log("Login failed for:", email);
-          resolve(false);
+          navigate('/dashboard/student');
         }
-      }, 800);
-    });
+      } else {
+        setError(response.error || 'Login failed');
+        toast({
+          title: 'Login Failed',
+          description: response.error || 'Invalid credentials',
+          variant: 'destructive'
+        });
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Login failed. Please try again.');
+      toast({
+        title: 'Login Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Enhanced logout function with forceful page navigation
-  const logout = () => {
-    console.log("AuthContext: Starting logout process...");
+  // Logout function
+  const logout = async () => {
+    setLoading(true);
     
-    // First clear React state to immediately reflect logout in UI
-    setUser(null);
-    
-    // Then call the authService logout method
-    authService.logout().then(() => {
-      console.log("AuthContext: User logged out completely");
-    }).catch(error => {
-      console.error("AuthContext: Error during logout:", error);
+    try {
+      await authService.logout();
+      setUser(null);
       
-      // Try direct approach if service call fails
-      console.log("AuthContext: Fallback logout approach");
-      authService.clearAuthData();
-    });
+      // Redirect to login page is now handled inside authService.logout()
+    } catch (err) {
+      console.error('Logout error:', err);
+      toast({
+        title: 'Logout Error',
+        description: 'Failed to log out. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  // Sign up function
+  const signUp = async (email: string, password: string, name: string, phone: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await authService.register({
+        email,
+        password,
+        name,
+        phoneNumber: phone
+      });
+      
+      if (response.success && response.data) {
+        const newUser = {
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role as UserRole,
+          loginCount: 1
+        };
+        
+        setUser(newUser);
+        
+        // Set flag for new user
+        localStorage.setItem('new_user_signup', 'true');
+        
+        return newUser;
+      } else {
+        setError(response.error || 'Sign up failed');
+        toast({
+          title: 'Registration Failed',
+          description: response.error || 'Could not create account',
+          variant: 'destructive'
+        });
+        throw new Error(response.error || 'Sign up failed');
+      }
+    } catch (err) {
+      console.error('Sign up error:', err);
+      setError('Sign up failed. Please try again.');
+      toast({
+        title: 'Registration Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive'
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Google login function - mock implementation
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock Google authentication
+      const mockGoogleUser = {
+        id: `google_${Date.now()}`,
+        name: 'Google User',
+        email: `user_${Date.now()}@gmail.com`,
+        role: UserRole.Student,
+        loginCount: 1
+      };
+      
+      setUser(mockGoogleUser);
+      
+      // Set auth data in localStorage
+      authService.setAuthData({
+        id: mockGoogleUser.id,
+        name: mockGoogleUser.name,
+        email: mockGoogleUser.email,
+        role: mockGoogleUser.role,
+        token: `google_token_${Date.now()}`
+      });
+      
+      // Set flag for new Google user
+      localStorage.setItem('new_user_signup', 'true');
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      // Redirect to welcome flow for new users
+      navigate('/welcome-flow');
+      
+    } catch (err) {
+      console.error('Google login error:', err);
+      setError('Google login failed. Please try again.');
+      toast({
+        title: 'Google Login Error',
+        description: 'Failed to login with Google. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset password function - mock implementation
+  const resetPassword = async (email: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock password reset
+      setTimeout(() => {
+        toast({
+          title: 'Password Reset Email Sent',
+          description: `If an account exists for ${email}, you will receive a password reset link.`,
+          duration: 5000
+        });
+      }, 1000);
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setError('Password reset failed. Please try again.');
+      toast({
+        title: 'Password Reset Error',
+        description: 'Failed to send reset email. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update user profile
+  const updateUserProfile = (data: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      
+      // In a real app, you would call an API to update the user profile
+      // and then update the local state
+    }
+  };
+
+  // Context value
+  const value = {
+    user,
+    loading,
+    error,
+    isAuthenticated: !!user,
+    login,
+    logout,
+    signUp,
+    loginWithGoogle,
+    resetPassword,
+    updateUserProfile
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        logout,
-        isAuthenticated: !!user
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -176,7 +304,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 // Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

@@ -5,15 +5,47 @@ interface PrepzrLogoProps {
   width?: number;
   height?: number;
   className?: string;
+  variant?: 'default' | 'large' | 'small';
 }
 
-const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 180, height = 60, className = '' }) => {
+const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
+  width, 
+  height, 
+  className = '',
+  variant = 'default'
+}) => {
+  // Determine size based on variant
+  let logoWidth = width;
+  let logoHeight = height;
+  
+  if (!width && !height) {
+    switch (variant) {
+      case 'large':
+        logoWidth = 240;
+        logoHeight = 80;
+        break;
+      case 'small':
+        logoWidth = 120;
+        logoHeight = 40;
+        break;
+      default:
+        logoWidth = 180;
+        logoHeight = 60;
+    }
+  }
+  
   return (
-    <div style={{ width, height }} className={`flex items-center justify-center ${className}`}>
+    <div 
+      style={{ 
+        width: logoWidth, 
+        height: logoHeight 
+      }} 
+      className={`flex items-center justify-center ${className}`}
+    >
       <img 
-        src="/lovable-uploads/034e236e-70d0-4fb6-bde4-7e91df8b0a7f.png" 
+        src="/lovable-uploads/262b26ae-8270-42d2-9cd0-4576b6941758.png" 
         alt="PREPZR Logo" 
-        className="h-full object-contain"
+        className="h-full w-full object-contain"
       />
     </div>
   );

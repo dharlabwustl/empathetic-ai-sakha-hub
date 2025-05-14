@@ -1,15 +1,16 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Volume2, VolumeX, Mic, MicOff, Settings, X, Sliders } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Volume2, Settings } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { MoodType } from '@/types/user/base';
-import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
@@ -22,412 +23,428 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   currentMood,
   onMoodChange
 }) => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const [voiceSettings, setVoiceSettings] = useState({
-    volume: 1,
-    rate: 1,
-    pitch: 1,
-    language: 'en-US',
-    enabled: true,
-    muted: false,
-    autoGreet: true
+  // State
+  const [isOpen, setIsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
+  
+  // Voice settings
+  const [voiceLanguage, setVoiceLanguage] = useState('hi-IN'); // Default to Hindi
+  const [voiceGender, setVoiceGender] = useState('female');
+  const [voiceRate, setVoiceRate] = useState(0.92);
+  const [voicePitch, setVoicePitch] = useState(1.1);
+  const [voiceVolume, setVoiceVolume] = useState(1);
+  
+  // Initialize voice announcer
+  const {
+    voiceSettings,
+    updateVoiceSettings,
+    toggleVoiceEnabled,
+    toggleMute,
+    speakMessage,
+    testVoice,
+    isVoiceSupported,
+    isSpeaking,
+    isListening,
+    startListening,
+    stopListening,
+    transcript,
+    processVoiceCommand,
+    supportedLanguages
+  } = useVoiceAnnouncer({
+    userName,
+    initialSettings: {
+      language: voiceLanguage,
+      enabled: true,
+      muted: false,
+      volume: voiceVolume,
+      rate: voiceRate,
+      pitch: voicePitch
+    },
+    mood: currentMood
   });
+  
+  // Language options for the settings
+  const languageOptions = [
+    { value: 'hi-IN', label: 'Hindi' },
+    { value: 'en-IN', label: 'Indian English' },
+    { value: 'en-US', label: 'American English' },
+    { value: 'en-GB', label: 'British English' }
+  ];
 
-  // Initialize speech recognition
+  // Track mood changes for greetings
+  const [lastMood, setLastMood] = useState<MoodType | undefined>(currentMood);
+  
+  // Check if this is the first visit
   useEffect(() => {
-    // Check if browser supports speech recognition
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition. Try using Chrome.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const recognitionInstance = new SpeechRecognition();
-    recognitionInstance.continuous = true;
-    recognitionInstance.interimResults = false;
-    recognitionInstance.lang = 'en-US';
-
-    recognitionInstance.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognitionInstance.onresult = (event: any) => {
-      const currentTranscript = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
-        .join(' ');
-      
-      setTranscript(currentTranscript);
-      setShowTranscript(true);
-      
-      // Process the command
-      processVoiceCommand(currentTranscript);
-    };
-
-    recognitionInstance.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-    };
-
-    recognitionInstance.onend = () => {
-      setIsListening(false);
-    };
-
-    setRecognition(recognitionInstance);
-
-    // Load saved voice settings from localStorage
-    const savedSettings = localStorage.getItem('voiceSettings');
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setVoiceSettings(prevSettings => ({...prevSettings, ...parsedSettings}));
-      } catch (e) {
-        console.error('Error parsing voice settings:', e);
-      }
-    }
+    const isNew = localStorage.getItem('new_user_signup') === 'true';
+    setIsFirstVisit(isNew);
     
-    return () => {
-      try {
-        recognitionInstance.abort();
-      } catch (e) {
-        console.error("Error stopping recognition:", e);
-      }
-    };
-  }, [toast]);
-
-  // Process voice commands with integration to dashboard features
-  const processVoiceCommand = useCallback((command: string) => {
-    const lowerCommand = command.toLowerCase().trim();
+    // Load saved voice settings
+    const savedLanguage = localStorage.getItem('voiceAssistantLanguage');
+    if (savedLanguage) setVoiceLanguage(savedLanguage);
     
-    // Helper function to speak responses
-    const respond = (message: string) => {
-      if (!voiceSettings.enabled || voiceSettings.muted) return;
-      
-      // Improve PREPZR pronunciation
-      const processedText = message.replace(/PREPZR/gi, 'Prep-zer');
-      
-      const utterance = new SpeechSynthesisUtterance(processedText);
-      utterance.volume = voiceSettings.volume;
-      utterance.rate = voiceSettings.rate;
-      utterance.pitch = voiceSettings.pitch;
-      
-      // Try to use a preferred voice
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
-      );
-      
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      window.speechSynthesis.speak(utterance);
-      
-      // Also display as toast
-      toast({
-        title: "PREPZR Assistant",
-        description: processedText,
-        duration: 5000,
-      });
-    };
-
-    // Navigation commands
-    if (lowerCommand.includes('go to dashboard') || lowerCommand.includes('open dashboard')) {
-      respond('Opening the dashboard');
-      navigate('/dashboard/student');
-      return;
-    }
+    const savedGender = localStorage.getItem('voiceAssistantGender');
+    if (savedGender) setVoiceGender(savedGender);
     
-    if (lowerCommand.includes('go to concepts') || lowerCommand.includes('show concepts')) {
-      respond('Opening concept cards');
-      navigate('/dashboard/student/concepts');
-      return;
-    }
+    const savedRate = localStorage.getItem('voiceAssistantRate');
+    if (savedRate) setVoiceRate(parseFloat(savedRate));
     
-    if (lowerCommand.includes('go to flashcards') || lowerCommand.includes('show flashcards')) {
-      respond('Opening flashcards');
-      navigate('/dashboard/student/flashcards');
-      return;
-    }
+    const savedPitch = localStorage.getItem('voiceAssistantPitch');
+    if (savedPitch) setVoicePitch(parseFloat(savedPitch));
     
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('my plan')) {
-      respond('Opening your study plan');
-      navigate('/dashboard/student/study-plan');
-      return;
-    }
+    const savedVolume = localStorage.getItem('voiceAssistantVolume');
+    if (savedVolume) setVoiceVolume(parseFloat(savedVolume));
     
-    if (lowerCommand.includes('practice exam') || lowerCommand.includes('practice test')) {
-      respond('Opening practice exams');
-      navigate('/dashboard/student/practice-exam');
-      return;
-    }
-    
-    // Study assistance commands
-    if (lowerCommand.includes('help me study') || lowerCommand.includes('study tips')) {
-      respond(`Here are some study tips: 1. Break down complex topics into smaller chunks. 2. Use active recall by testing yourself. 3. Take regular breaks using the Pomodoro technique. 4. Review material before bedtime for better retention. Would you like more specific tips for your current subject?`);
-      return;
-    }
-    
-    // Mood tracking commands
-    if (lowerCommand.includes('feeling happy') || lowerCommand.includes('i am happy') || lowerCommand.includes('i feel happy')) {
-      respond(`Great to hear you're feeling happy! I'll update your mood tracking.`);
-      onMoodChange && onMoodChange(MoodType.HAPPY);
-      return;
-    }
-    
-    if (lowerCommand.includes('feeling tired') || lowerCommand.includes('i am tired') || lowerCommand.includes('i feel tired')) {
-      respond(`I understand you're feeling tired. Let me suggest some lighter study activities for you. I'll update your mood tracker.`);
-      onMoodChange && onMoodChange(MoodType.TIRED);
-      return;
-    }
-    
-    if (lowerCommand.includes('feeling stressed') || lowerCommand.includes('i am stressed') || lowerCommand.includes('i feel stressed')) {
-      respond(`I'm sorry to hear you're feeling stressed. Consider taking a short break with some deep breathing exercises. I'll update your mood tracker and adapt your study suggestions.`);
-      onMoodChange && onMoodChange(MoodType.STRESSED);
-      return;
-    }
-    
-    if (lowerCommand.includes('feeling motivated') || lowerCommand.includes('i am motivated') || lowerCommand.includes('i feel motivated')) {
-      respond(`That's excellent! When you're feeling motivated, it's a great time to tackle more challenging topics. I'll update your mood tracker.`);
-      onMoodChange && onMoodChange(MoodType.MOTIVATED);
-      return;
-    }
-    
-    if (lowerCommand.includes('feeling anxious') || lowerCommand.includes('i am anxious') || lowerCommand.includes('i feel anxious')) {
-      respond(`I understand anxiety can be challenging, especially during exam preparation. Let's focus on building your confidence with some review of topics you know well. I'll update your mood tracker.`);
-      onMoodChange && onMoodChange(MoodType.ANXIOUS);
-      return;
-    }
-    
-    if (lowerCommand.includes('feeling confused') || lowerCommand.includes('i am confused') || lowerCommand.includes('i feel confused')) {
-      respond(`It's normal to feel confused when learning complex topics. Let's break down what you're studying into smaller parts. I'll update your mood and suggest some concept cards that might help clarify things.`);
-      onMoodChange && onMoodChange(MoodType.CONFUSED);
-      return;
-    }
-    
-    // Help command
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      respond(`I'm your Prep-zer assistant. I can help you navigate the dashboard, update your mood, provide study tips, and explain features. Try saying "go to concepts", "I'm feeling tired", "help me study", or "explain flashcards".`);
-      return;
-    }
-    
-    // Explaining features
-    if (lowerCommand.includes('explain concept cards') || lowerCommand.includes('what are concept cards')) {
-      respond(`Concept cards in Prep-zer help you master key academic concepts with visual explanations, examples, and application scenarios. They break down complex topics into digestible chunks for better understanding and retention.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('explain flashcards') || lowerCommand.includes('what are flashcards')) {
-      respond(`Flashcards are bite-sized learning tools that help you memorize and recall information quickly. In Prep-zer, you can create your own flashcards or use our pre-made ones for effective active recall practice.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('explain formula lab') || lowerCommand.includes('what is formula lab')) {
-      respond(`The Formula Lab is where you can practice and master mathematical and scientific formulas. It provides interactive exercises with step-by-step solutions to help you apply formulas in different contexts.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('explain practice exam') || lowerCommand.includes('what are practice exams')) {
-      respond(`Practice exams simulate real test conditions to prepare you for your actual exams. They help identify knowledge gaps, reduce test anxiety, and improve time management. Prep-zer offers customizable practice tests with detailed performance analytics.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('pronounce prepzr') || lowerCommand.includes('say prepzr')) {
-      respond(`The name is pronounced as Prep-zer.`);
-      return;
-    }
-    
-    // Default response
-    respond(`Hello ${userName}! How can I help with your studies today? You can ask me to navigate the dashboard, update your mood, provide study tips, or explain features.`);
-  }, [voiceSettings, navigate, toast, userName, onMoodChange]);
-
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
-  const startListening = () => {
-    if (!recognition) return;
-    
-    try {
-      recognition.start();
-      setShowTranscript(true);
-      toast({
-        title: "Voice Assistant Activated",
-        description: "I'm listening. What can I help you with?",
-      });
-    } catch (error) {
-      console.error("Error starting recognition:", error);
-    }
-  };
-
-  const stopListening = () => {
-    if (!recognition) return;
-    
-    try {
-      recognition.stop();
-      
-      // Delay hiding the transcript
+    // Welcome first-time users
+    if (isNew) {
       setTimeout(() => {
-        if (!transcript) {
-          setShowTranscript(false);
-        }
+        speakMessage(`Welcome to your dashboard, ${userName}. I'm your PREPZR voice assistant. You can ask me for help navigating the platform or studying for your exams.`);
       }, 3000);
-    } catch (error) {
-      console.error("Error stopping recognition:", error);
     }
-  };
-
-  // Handle voice settings changes
-  const handleSettingsChange = (setting: string, value: any) => {
-    setVoiceSettings(prev => {
-      const updated = { ...prev, [setting]: value };
-      localStorage.setItem('voiceSettings', JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const getMoodEmoji = (mood?: MoodType) => {
+  }, []);
+  
+  // Track mood changes to provide appropriate responses
+  useEffect(() => {
+    if (currentMood && currentMood !== lastMood && voiceSettings.enabled && !voiceSettings.muted) {
+      const moodMessage = getMoodResponse(currentMood, userName);
+      setTimeout(() => {
+        speakMessage(moodMessage);
+      }, 1000);
+      setLastMood(currentMood);
+    }
+  }, [currentMood, lastMood, userName, voiceSettings.enabled, voiceSettings.muted]);
+  
+  // Generate appropriate responses for different moods
+  const getMoodResponse = (mood: MoodType, name: string): string => {
     switch (mood) {
-      case MoodType.HAPPY: return '😊';
-      case MoodType.MOTIVATED: return '💪';
-      case MoodType.FOCUSED: return '🧠';
-      case MoodType.TIRED: return '😴';
-      case MoodType.STRESSED: return '😰';
-      case MoodType.ANXIOUS: return '😟';
-      case MoodType.OVERWHELMED: return '🥵';
-      case MoodType.CONFUSED: return '🤔';
-      default: return '😐';
+      case MoodType.HAPPY:
+        return `I see you're happy today, ${name}! That's great energy for studying. Would you like to tackle some challenging topics?`;
+      case MoodType.FOCUSED:
+        return `You're in a focused state, ${name}. This is perfect for deep learning. Let me help you maintain this concentration.`;
+      case MoodType.TIRED:
+        return `I notice you're feeling tired, ${name}. How about we focus on lighter review or take short breaks between study sessions?`;
+      case MoodType.STRESSED:
+        return `I understand you're feeling stressed, ${name}. Let's take a few deep breaths together and break down your tasks into smaller parts.`;
+      case MoodType.CURIOUS:
+        return `Your curious mood is perfect for exploring new concepts, ${name}. Is there a particular topic you're interested in learning about?`;
+      case MoodType.OVERWHELMED:
+        return `Feeling overwhelmed is normal during exam prep, ${name}. Let's reorganize your study plan into smaller, manageable chunks.`;
+      case MoodType.ANXIOUS:
+        return `I see you're feeling anxious, ${name}. Let's start with a topic you're confident in to build momentum before tackling harder concepts.`;
+      case MoodType.MOTIVATED:
+        return `Great to see you motivated, ${name}! This is the perfect time to tackle those challenging topics or practice tests.`;
+      case MoodType.CONFUSED:
+        return `I notice you're feeling confused, ${name}. Let's take a step back and clarify the core concepts before moving forward.`;
+      default:
+        return `Hello ${name}, how can I assist with your studies today?`;
     }
   };
-
+  
+  // Handle voice command for navigation
+  const handleVoiceCommand = (command: string) => {
+    // Process the command through the useVoiceAnnouncer hook
+    processVoiceCommand(command);
+  };
+  
+  // Apply voice settings
+  const applySettings = () => {
+    // Save settings to localStorage
+    localStorage.setItem('voiceAssistantLanguage', voiceLanguage);
+    localStorage.setItem('voiceAssistantGender', voiceGender);
+    localStorage.setItem('voiceAssistantRate', voiceRate.toString());
+    localStorage.setItem('voiceAssistantPitch', voicePitch.toString());
+    localStorage.setItem('voiceAssistantVolume', voiceVolume.toString());
+    
+    // Update voice settings in hook
+    updateVoiceSettings({
+      language: voiceLanguage,
+      rate: voiceRate,
+      pitch: voicePitch,
+      volume: voiceVolume
+    });
+    
+    // Test new settings
+    testVoice();
+    
+    // Close settings dialog
+    setSettingsOpen(false);
+  };
+  
+  // Quick help topics
+  const helpTopics = [
+    { title: "Navigate Dashboard", command: "How do I navigate the dashboard?" },
+    { title: "Create Study Plan", command: "How do I create a study plan?" },
+    { title: "Practice Tests", command: "Tell me about practice tests" },
+    { title: "Concept Cards", command: "How do I use concept cards?" },
+    { title: "Change Mood", command: "I want to update my mood" }
+  ];
+  
   return (
-    <div className="fixed bottom-24 right-6 md:bottom-6 md:right-6 z-40 flex flex-col items-end gap-3">
-      {/* Transcript display */}
-      {showTranscript && (
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg max-w-xs md:max-w-md transition-all duration-300 mb-2 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              {isListening ? "Listening..." : "I heard:"}
-            </span>
-            {isListening && (
-              <span className="flex items-center">
-                <span className="animate-pulse mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-                <span className="animate-pulse delay-75 mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-                <span className="animate-pulse delay-150 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
-            {transcript || "Waiting for your command..."}
-          </p>
-        </div>
-      )}
-      
-      {/* Voice assistant buttons */}
-      <div className="flex items-center space-x-2">
-        {/* Settings popover */}
-        <Popover open={showSettings} onOpenChange={setShowSettings}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="rounded-full shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <h4 className="font-medium text-sm">Voice Assistant Settings</h4>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="voice-enabled" className="flex-1">Enable Voice Assistant</Label>
-                  <Switch 
-                    id="voice-enabled"
-                    checked={voiceSettings.enabled}
-                    onCheckedChange={(checked) => handleSettingsChange('enabled', checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="voice-muted" className="flex-1">Mute Voice Responses</Label>
-                  <Switch 
-                    id="voice-muted"
-                    checked={voiceSettings.muted}
-                    onCheckedChange={(checked) => handleSettingsChange('muted', checked)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="voice-volume">Volume</Label>
-                <Slider
-                  id="voice-volume"
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={[voiceSettings.volume]}
-                  onValueChange={([value]) => handleSettingsChange('volume', value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="voice-rate">Speech Rate</Label>
-                <Slider
-                  id="voice-rate"
-                  min={0.5}
-                  max={2}
-                  step={0.1}
-                  value={[voiceSettings.rate]}
-                  onValueChange={([value]) => handleSettingsChange('rate', value)}
-                />
-              </div>
-              
-              <div className="pt-2">
-                <Alert>
-                  <AlertTitle>Current Mood: {getMoodEmoji(currentMood)} {currentMood || 'Not set'}</AlertTitle>
-                  <AlertDescription className="text-xs">
-                    Update your mood by saying "I'm feeling tired" or "I feel motivated"
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Main voice button */}
-        <Button
-          variant="default"
-          size="icon"
-          className={`h-12 w-12 rounded-full shadow-xl flex items-center justify-center ${
-            isListening 
-              ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-              : 'bg-indigo-600 hover:bg-indigo-700'
-          }`}
-          onClick={toggleListening}
+    <>
+      {/* Floating voice assistant button */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-2">
+        {/* Voice assistant button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className={`${
+            isOpen ? 'bg-purple-600 text-white' : 'bg-purple-500/90 text-white'
+          } rounded-full p-3 shadow-lg flex items-center justify-center transition-all duration-200
+          hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-50`}
+          onClick={() => setIsOpen(!isOpen)}
         >
           {isListening ? (
-            <MicOff className="h-6 w-6 text-white" />
+            <Mic className="h-6 w-6" />
+          ) : isSpeaking ? (
+            <Volume2 className="h-6 w-6 animate-pulse" />
           ) : (
-            <Mic className="h-6 w-6 text-white" />
+            <Volume2 className="h-6 w-6" />
           )}
-        </Button>
+        </motion.button>
+        
+        {/* Settings button - show when assistant is open */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+              className="bg-purple-500/80 text-white rounded-full p-3 shadow-lg hover:bg-purple-600"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="h-5 w-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        
+        {/* Help button - show when assistant is open */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+            >
+              <Popover open={showHelpPopup} onOpenChange={setShowHelpPopup}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    className="rounded-full p-3 h-auto w-auto bg-purple-500/80 hover:bg-purple-600"
+                    variant="ghost"
+                  >
+                    <Sliders className="h-5 w-5 text-white" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4" side="top">
+                  <div className="space-y-4">
+                    <h3 className="font-medium">What can I help with?</h3>
+                    <div className="grid grid-cols-1 gap-2">
+                      {helpTopics.map((topic) => (
+                        <Button 
+                          key={topic.title}
+                          variant="outline" 
+                          size="sm"
+                          className="justify-start text-left"
+                          onClick={() => {
+                            handleVoiceCommand(topic.command);
+                            setShowHelpPopup(false);
+                          }}
+                        >
+                          {topic.title}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+      
+      {/* Voice assistant dialog - appears when isOpen is true */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-purple-200 dark:border-purple-800 z-50 overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <Volume2 className="h-5 w-5 text-white" />
+                <h3 className="text-white font-medium">PREPZR Assistant</h3>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-4 max-h-80 overflow-y-auto space-y-4">
+              {/* Current transcript */}
+              {transcript && (
+                <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg">
+                  <p className="text-sm font-medium">You said:</p>
+                  <p className="text-sm italic">{transcript}</p>
+                </div>
+              )}
+              
+              {/* Suggestion chips */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Try asking:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleVoiceCommand("Help me navigate the dashboard")}>
+                    Dashboard navigation
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleVoiceCommand("How do I create a study plan")}>
+                    Create study plan
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleVoiceCommand("Show me my progress")}>
+                    My progress
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg">
+                <p className="text-sm">
+                  Your voice assistant can help with navigation, explain features, provide study tips, and more. Try saying "Help me with..."
+                </p>
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+              <Button 
+                variant={voiceSettings.muted ? "outline" : "default"}
+                size="sm"
+                onClick={() => toggleMute()}
+                className={voiceSettings.muted ? "bg-gray-100 dark:bg-gray-800" : ""}
+              >
+                {voiceSettings.muted ? (
+                  <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
+                ) : (
+                  <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
+                )}
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  if (isListening) {
+                    stopListening();
+                  } else {
+                    startListening();
+                  }
+                }}
+                variant={isListening ? "destructive" : "default"}
+                size="sm"
+              >
+                {isListening ? (
+                  <><MicOff className="mr-2 h-4 w-4" /> Stop</>
+                ) : (
+                  <><Mic className="mr-2 h-4 w-4" /> Ask</>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Voice Assistant Settings</DialogTitle>
+            <DialogDescription>
+              Customize your voice assistant's language and speech characteristics.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-6">
+            <div className="space-y-2">
+              <Label>Language</Label>
+              <Select 
+                value={voiceLanguage} 
+                onValueChange={setVoiceLanguage}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Voice Gender</Label>
+              <RadioGroup value={voiceGender} onValueChange={setVoiceGender} className="flex space-x-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="female" id="female-settings" />
+                  <Label htmlFor="female-settings">Female</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="male" id="male-settings" />
+                  <Label htmlFor="male-settings">Male</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label>Speech Rate: {voiceRate.toFixed(2)}</Label>
+              </div>
+              <Slider 
+                value={[voiceRate]} 
+                onValueChange={(value) => setVoiceRate(value[0])} 
+                min={0.5} 
+                max={1.5} 
+                step={0.05}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label>Pitch: {voicePitch.toFixed(2)}</Label>
+              </div>
+              <Slider 
+                value={[voicePitch]} 
+                onValueChange={(value) => setVoicePitch(value[0])} 
+                min={0.8} 
+                max={1.5} 
+                step={0.05}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label>Volume: {Math.round(voiceVolume * 100)}%</Label>
+              </div>
+              <Slider 
+                value={[voiceVolume]} 
+                onValueChange={(value) => setVoiceVolume(value[0])} 
+                min={0.1} 
+                max={1} 
+                step={0.1}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSettingsOpen(false)}>Cancel</Button>
+            <Button onClick={applySettings}>Apply Settings</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

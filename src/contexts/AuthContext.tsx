@@ -1,3 +1,3 @@
 
 // Re-export everything from the new location
-export { AuthProvider, useAuth } from './auth/AuthContext';
+export { AuthProvider, useAuth, AuthContext } from './auth/AuthContext';

@@ -31,6 +31,50 @@ export interface AuthUser {
 const AUTH_TOKEN_KEY = 'sakha_auth_token';
 const AUTH_USER_KEY = 'sakha_auth_user';
 
+// Complete list of auth-related localStorage keys to clear on logout
+const AUTH_RELATED_KEYS = [
+  'userData',
+  'isLoggedIn',
+  AUTH_TOKEN_KEY,
+  AUTH_USER_KEY,
+  'user_profile_image',
+  'prepzr_remembered_email',
+  'admin_logged_in',
+  'admin_user',
+  'sawWelcomeTour',
+  'hasSeenTour',
+  'hasSeenSplash',
+  'voiceSettings',
+  'new_user_signup',
+  'study_time_allocations',
+  'current_mood',
+  'mood_history',
+  'dashboard_tour_completed',
+  'study_plan',
+  'user_preferences',
+  'session_data',
+  'concept_progress',
+  'exam_history',
+  'flash_cards',
+  'last_login',
+  'temp_auth',
+  'selected_subjects',
+  'saved_notes',
+  'practice_results',
+  'adminToken',
+  'sakha_auth_token',
+  'sakha_auth_user',
+  'voice-tested',
+  'auth_session',
+  'auth_token',
+  'token',
+  'session_token',
+  'refresh_token',
+  'user_id',
+  'user_session',
+  'user_data'
+];
+
 // Authentication service
 const authService = {
   // Login user
@@ -134,93 +178,64 @@ const authService = {
   async logout(): Promise<ApiResponse<void>> {
     console.log("Starting enhanced logout process to clear all auth data...");
     
-    // Document cookies handling - clear all cookies
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
-    }
-    
-    // Clear all authentication data from local storage - comprehensive list
-    const itemsToRemove = [
-      'userData',
-      'isLoggedIn',
-      AUTH_TOKEN_KEY,
-      AUTH_USER_KEY,
-      'user_profile_image',
-      'prepzr_remembered_email',
-      'admin_logged_in',
-      'admin_user',
-      'sawWelcomeTour',
-      'hasSeenTour',
-      'hasSeenSplash',
-      'voiceSettings',
-      'new_user_signup',
-      'study_time_allocations',
-      'current_mood',
-      'mood_history',
-      'dashboard_tour_completed',
-      'study_plan',
-      'user_preferences',
-      'session_data',
-      'concept_progress',
-      'exam_history',
-      'flash_cards',
-      'last_login',
-      'temp_auth',
-      'selected_subjects',
-      'saved_notes',
-      'practice_results',
-      'adminToken',
-      'sakha_auth_token',
-      'sakha_auth_user',
-      'voice-tested',
-      'auth_session',
-      'auth_token',
-      'token',
-      'session_token',
-      'refresh_token',
-      'user_id',
-      'user_session',
-      'user_data'
-    ];
-    
-    // Clear each item individually and log it for debugging
-    itemsToRemove.forEach(item => {
-      try {
-        if (localStorage.getItem(item)) {
-          console.log(`Clearing localStorage item: ${item}`);
-          localStorage.removeItem(item);
-        }
-      } catch (e) {
-        console.error(`Error clearing ${item}:`, e);
-      }
-    });
-    
-    // Additionally clear any session storage items
-    console.log("Clearing all session storage data");
     try {
-      sessionStorage.clear();
-    } catch (e) {
-      console.error("Error clearing sessionStorage:", e);
+      // Clear all cookies - best practice to set expired date
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+        console.log(`Cookie cleared: ${name}`);
+      }
+      
+      // Clear all authentication data from local storage
+      AUTH_RELATED_KEYS.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+          console.log(`LocalStorage key cleared: ${key}`);
+        } catch (e) {
+          console.error(`Failed to clear ${key}:`, e);
+        }
+      });
+      
+      // Reset API client
+      apiClient.setAuthToken(null);
+      console.log("API client token reset");
+      
+      // Clear session storage
+      try {
+        sessionStorage.clear();
+        console.log("Session storage cleared");
+      } catch (e) {
+        console.error("Error clearing sessionStorage:", e);
+      }
+      
+      // Additional security - kill any ongoing requests
+      console.log("Logout complete - All authentication data cleared");
+      
+      // Navigate to login page after a small delay to ensure all data is cleared
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
+      
+      return {
+        success: true,
+        data: null,
+        error: null
+      };
+    } catch (error) {
+      console.error("Logout error:", error);
+      
+      // Even if there's an error, try to redirect to login
+      window.location.href = '/login';
+      
+      return {
+        success: false,
+        data: null,
+        error: "Error during logout process"
+      };
     }
-    
-    // Reset API client
-    apiClient.setAuthToken(null);
-    
-    console.log("Logout complete - All authentication data cleared");
-    
-    // Force redirection to login page to prevent any auto-login issues
-    window.location.href = '/login';
-    
-    // Return success - we'll handle navigation separately in the component
-    return {
-      success: true,
-      data: null,
-      error: null
-    };
   },
   
   // Set auth data in local storage and configure API client
@@ -236,23 +251,8 @@ const authService = {
   clearAuthData(): void {
     console.log("Clearing auth data and redirecting to login...");
     
-    // Clear authentication from localStorage
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    
-    // Reset API client
-    apiClient.setAuthToken(null);
-    
-    // Clear any potential persistent login data from cookies
-    document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
-    // Force redirection to login page
-    window.location.href = '/login';
+    // Call the comprehensive logout function
+    this.logout();
   },
   
   // Get current authenticated user
