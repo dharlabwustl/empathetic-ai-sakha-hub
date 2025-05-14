@@ -15,10 +15,8 @@ import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
-import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
-import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
-import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
+import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
@@ -96,14 +94,14 @@ const Index = () => {
         
         {/* Impact Section with animation and KPI stats */}
         <motion.section 
-          className="container mx-auto px-4 py-16 mb-20"
+          className="container mx-auto px-4 py-16 mb-16"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
         >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
               Smart Data. Real Impact. Humanizing exam prep.
             </h2>
           </div>
@@ -111,7 +109,7 @@ const Index = () => {
         </motion.section>
         
         {/* Add proper spacing between sections */}
-        <div className="pt-12"></div>
+        <div className="pt-8"></div>
         
         {/* Add the AchievementsSection with improved spacing and z-index */}
         <div className="relative z-10 mt-16 mb-24">
@@ -149,7 +147,7 @@ const Index = () => {
       <HomePageVoiceAssistant />
       
       {/* Floating Voice Assistant */}
-      <FloatingVoiceAnnouncer 
+      <FloatingVoiceAssistant 
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant} 
       />
