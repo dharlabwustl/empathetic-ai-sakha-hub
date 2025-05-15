@@ -9,14 +9,12 @@ import SignupProgressBar from "./SignupProgressBar";
 import StepRenderer from "./StepRenderer";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
-import { useAuth } from "@/hooks/useAuth";
 
 const SignupContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
 
   const handleRoleSelect = (role: UserRole) => {
     // Only allow student role
@@ -73,7 +71,7 @@ const SignupContent = () => {
     goToNextStep();
   };
 
-  const handleSignupSubmit = async (formValues: { name: string; email: string; mobile: string; password: string; agreeTerms: boolean }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
     setIsLoading(true);
 
     try {
@@ -81,36 +79,31 @@ const SignupContent = () => {
       const finalData = {
         ...onboardingData,
         name: formValues.name,
-        email: formValues.email,
         mobile: formValues.mobile,
       };
 
       setOnboardingData(finalData);
 
-      // Attempt registration with our auth system
-      const success = await register(formValues.name, formValues.email, formValues.mobile, formValues.password);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (success) {
-        // Store data in localStorage
-        localStorage.setItem("userData", JSON.stringify({
-          ...finalData,
-          loginCount: 1,
-          createdAt: new Date().toISOString(),
-          isAuthenticated: true,
-          completedOnboarding: false
-        }));
+      // Store data in localStorage
+      localStorage.setItem("userData", JSON.stringify({
+        ...finalData,
+        loginCount: 1,
+        createdAt: new Date().toISOString(),
+      }));
 
-        // Show success message
-        toast({
-          title: "Account created successfully!",
-          description: "Redirecting to your personalized dashboard.",
-        });
+      // Show success message
+      toast({
+        title: "Account created successfully!",
+        description: "Redirecting to your personalized dashboard.",
+      });
 
-        // Go to dashboard with query params for onboarding flow
-        navigate("/dashboard/student?new=true&completedOnboarding=false");
-      } else {
-        throw new Error("Registration failed");
-      }
+      // Go to welcome flow
+      setTimeout(() => {
+        navigate("/welcome-flow?completedOnboarding=true&new=true");
+      }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
       toast({
@@ -118,7 +111,6 @@ const SignupContent = () => {
         description: "Please try again later.",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -146,7 +138,7 @@ const SignupContent = () => {
   const handleGoogleSignup = () => {
     toast({
       title: "Google Sign Up",
-      description: "Creating account with Google...",
+      description: "Google authentication would be implemented here.",
     });
 
     // Mock successful signup for demonstration
@@ -155,27 +147,13 @@ const SignupContent = () => {
       localStorage.setItem("userData", JSON.stringify({
         name: "Google User",
         email: "googleuser@example.com",
-        role: UserRole.Student,
+        role: "student",
         loginCount: 1,
         createdAt: new Date().toISOString(),
         onboardingCompleted: false,
-        isAuthenticated: true
-      }));
-      
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("new_user_signup", "true");
-      
-      // Create a mock auth token
-      localStorage.setItem("sakha_auth_token", `google_token_${Date.now()}`);
-      localStorage.setItem("sakha_auth_user", JSON.stringify({
-        id: `user_${Date.now()}`,
-        name: "Google User",
-        email: "googleuser@example.com",
-        role: "student",
-        token: `google_token_${Date.now()}`
       }));
 
-      navigate("/dashboard/student?new=true&completedOnboarding=false");
+      navigate("/welcome");
     }, 2000);
   };
 

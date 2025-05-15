@@ -1,62 +1,79 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
+import { Eye, EyeOff, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
+import { motion } from "framer-motion";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
+  
+  const navigate = useNavigate();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Redirect to admin dashboard if already authenticated
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigate(returnTo, { replace: true });
+    }
+  }, [isAdminAuthenticated, navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter your email and password",
-        variant: "destructive",
-      });
+      setLoginError("Please enter your email and password");
       return;
     }
     
     setIsLoading(true);
+    setLoginError(null);
     
-    // Simulate API login call with a delay
-    setTimeout(() => {
-      // For demo purposes, accept any admin login with admin email
-      if (email.includes("admin")) {
-        // Store admin login state in localStorage
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        localStorage.setItem("admin_user", JSON.stringify({
-          email,
-          name: "Admin User",
-          role: "admin"
-        }));
-        
+    try {
+      // Call the adminLogin function from the context
+      const success = await adminLogin(email, password);
+      
+      if (success) {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard - explicitly to admin not student
-        navigate("/dashboard/admin", { replace: true });
+        // Navigate to admin dashboard
+        navigate(returnTo, { replace: true });
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid admin credentials",
-          variant: "destructive",
-        });
+        setLoginError("Invalid admin credentials");
       }
-      
+    } catch (error) {
+      console.error("Admin login error:", error);
+      setLoginError("An unexpected error occurred");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleDemoAdminLogin = () => {
+    setEmail("admin@prepzr.com");
+    setPassword("admin123");
   };
 
   return (
@@ -97,6 +114,12 @@ const AdminLogin = () => {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4 pt-6">
+              {loginError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{loginError}</AlertDescription>
+                </Alert>
+              )}
+            
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -114,9 +137,10 @@ const AdminLogin = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
+                      if (loginError) setLoginError(null);
                     }}
                     placeholder="admin@prepzr.com"
-                    className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800"
+                    className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !email ? "border-red-500" : ""}`}
                     required
                   />
                 </div>
@@ -150,14 +174,22 @@ const AdminLogin = () => {
                   </div>
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
+                      if (loginError) setLoginError(null);
                     }}
-                    className="pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800"
+                    className={`pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !password ? "border-red-500" : ""}`}
                     required
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </motion.div>
 
@@ -171,10 +203,7 @@ const AdminLogin = () => {
                   type="button"
                   variant="outline"
                   className="w-full mb-4 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                  onClick={() => {
-                    setEmail("admin@prepzr.com");
-                    setPassword("admin123");
-                  }}
+                  onClick={handleDemoAdminLogin}
                 >
                   Use Demo Admin Account
                 </Button>

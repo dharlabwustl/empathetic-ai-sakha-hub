@@ -1,195 +1,168 @@
 
 import { MoodType } from '@/types/user/base';
 
-// Define the theme interface
 export interface MoodTheme {
-  background: string;
-  text: string;
-  accent: string;
-  moodColor: string;
-  gradientStart: string;
-  gradientEnd: string;
+  backgroundColor: string;
+  textColor: string;
+  borderColor: string;
+  darkBackgroundColor: string;
+  darkTextColor: string;
+  darkBorderColor: string;
   emoji: string;
-  description: string;
-  colors: {
-    primary: string;
-    secondary: string;
-  };
+  message: string;
+  studyTip: string;
 }
 
-// Define themes for each mood
-export const moodThemes: Record<MoodType, MoodTheme> = {
-  [MoodType.HAPPY]: {
-    background: 'bg-yellow-50',
-    text: 'text-yellow-900',
-    accent: 'border-yellow-300',
-    moodColor: 'text-yellow-500',
-    gradientStart: 'from-yellow-100',
-    gradientEnd: 'to-yellow-50',
+export interface MoodThemesType {
+  [MoodType.Happy]: MoodTheme;
+  [MoodType.Focused]: MoodTheme;
+  [MoodType.Tired]: MoodTheme;
+  [MoodType.Stressed]: MoodTheme;
+  [MoodType.Curious]: MoodTheme;
+  [MoodType.Okay]: MoodTheme;
+  [MoodType.Overwhelmed]: MoodTheme;
+  [MoodType.Anxious]: MoodTheme;
+  [MoodType.Motivated]: MoodTheme;
+  [MoodType.Confused]: MoodTheme;
+  [MoodType.Neutral]: MoodTheme;
+  [MoodType.Sad]: MoodTheme;
+}
+
+export const MoodThemes: MoodThemesType = {
+  [MoodType.Happy]: {
+    backgroundColor: 'bg-amber-50',
+    textColor: 'text-amber-800',
+    borderColor: 'border-amber-200',
+    darkBackgroundColor: 'dark:bg-amber-900/20',
+    darkTextColor: 'dark:text-amber-300',
+    darkBorderColor: 'dark:border-amber-800/30',
     emoji: '😊',
-    description: 'You feel happy and optimistic.',
-    colors: {
-      primary: '#facc15',
-      secondary: '#fef3c7'
-    }
+    message: "You're in a great mood! Perfect time for challenging material.",
+    studyTip: "Take advantage of your positive energy by tackling difficult concepts."
   },
-  [MoodType.FOCUSED]: {
-    background: 'bg-blue-50',
-    text: 'text-blue-900',
-    accent: 'border-blue-300',
-    moodColor: 'text-blue-500',
-    gradientStart: 'from-blue-100',
-    gradientEnd: 'to-blue-50',
-    emoji: '🧠',
-    description: 'You are focused and clear-headed.',
-    colors: {
-      primary: '#3b82f6',
-      secondary: '#dbeafe'
-    }
+  [MoodType.Focused]: {
+    backgroundColor: 'bg-blue-50',
+    textColor: 'text-blue-800',
+    borderColor: 'border-blue-200',
+    darkBackgroundColor: 'dark:bg-blue-900/20',
+    darkTextColor: 'dark:text-blue-300',
+    darkBorderColor: 'dark:border-blue-800/30',
+    emoji: '🧐',
+    message: "You're highly focused today - perfect for deep work.",
+    studyTip: "Use this focus for complex problem-solving or detailed note-taking."
   },
-  [MoodType.TIRED]: {
-    background: 'bg-gray-50',
-    text: 'text-gray-900',
-    accent: 'border-gray-300',
-    moodColor: 'text-gray-500',
-    gradientStart: 'from-gray-100',
-    gradientEnd: 'to-gray-50',
+  [MoodType.Tired]: {
+    backgroundColor: 'bg-gray-50',
+    textColor: 'text-gray-800',
+    borderColor: 'border-gray-200',
+    darkBackgroundColor: 'dark:bg-gray-900/20',
+    darkTextColor: 'dark:text-gray-300',
+    darkBorderColor: 'dark:border-gray-800/30',
     emoji: '😴',
-    description: 'You feel tired and need rest.',
-    colors: {
-      primary: '#9ca3af',
-      secondary: '#f3f4f6'
-    }
+    message: "You're feeling tired - take it easy today.",
+    studyTip: "Focus on review rather than new material, and take more frequent breaks."
   },
-  [MoodType.STRESSED]: {
-    background: 'bg-amber-50',
-    text: 'text-amber-900',
-    accent: 'border-amber-300',
-    moodColor: 'text-amber-500',
-    gradientStart: 'from-amber-100',
-    gradientEnd: 'to-amber-50',
+  [MoodType.Stressed]: {
+    backgroundColor: 'bg-red-50',
+    textColor: 'text-red-800',
+    borderColor: 'border-red-200',
+    darkBackgroundColor: 'dark:bg-red-900/20',
+    darkTextColor: 'dark:text-red-300',
+    darkBorderColor: 'dark:border-red-800/30',
+    emoji: '😓',
+    message: "You're feeling stressed - let's adjust your plan.",
+    studyTip: "Try shorter study sessions with relaxation breaks in between."
+  },
+  [MoodType.Curious]: {
+    backgroundColor: 'bg-indigo-50',
+    textColor: 'text-indigo-800',
+    borderColor: 'border-indigo-200',
+    darkBackgroundColor: 'dark:bg-indigo-900/20',
+    darkTextColor: 'dark:text-indigo-300',
+    darkBorderColor: 'dark:border-indigo-800/30',
+    emoji: '🤓',
+    message: "Your curiosity is piqued - follow your interests!",
+    studyTip: "Great time to explore new concepts or dive deeper into topics you enjoy."
+  },
+  [MoodType.Okay]: {
+    backgroundColor: 'bg-green-50',
+    textColor: 'text-green-800',
+    borderColor: 'border-green-200',
+    darkBackgroundColor: 'dark:bg-green-900/20',
+    darkTextColor: 'dark:text-green-300',
+    darkBorderColor: 'dark:border-green-800/30',
+    emoji: '👍',
+    message: "You're feeling balanced - steady progress ahead.",
+    studyTip: "Good day for a mix of review and new material."
+  },
+  [MoodType.Overwhelmed]: {
+    backgroundColor: 'bg-purple-50',
+    textColor: 'text-purple-800',
+    borderColor: 'border-purple-200',
+    darkBackgroundColor: 'dark:bg-purple-900/20',
+    darkTextColor: 'dark:text-purple-300',
+    darkBorderColor: 'dark:border-purple-800/30',
+    emoji: '😩',
+    message: "Feeling overwhelmed? Let's break things down.",
+    studyTip: "Focus on one small task at a time. Celebrate small wins."
+  },
+  [MoodType.Anxious]: {
+    backgroundColor: 'bg-orange-50',
+    textColor: 'text-orange-800',
+    borderColor: 'border-orange-200',
+    darkBackgroundColor: 'dark:bg-orange-900/20',
+    darkTextColor: 'dark:text-orange-300',
+    darkBorderColor: 'dark:border-orange-800/30',
     emoji: '😰',
-    description: 'You feel stressed and under pressure.',
-    colors: {
-      primary: '#f59e0b',
-      secondary: '#fef3c7'
-    }
+    message: "You're feeling anxious - let's find some calm.",
+    studyTip: "Start with easy review to build confidence before tackling new material."
   },
-  [MoodType.CURIOUS]: {
-    background: 'bg-purple-50',
-    text: 'text-purple-900',
-    accent: 'border-purple-300',
-    moodColor: 'text-purple-500',
-    gradientStart: 'from-purple-100',
-    gradientEnd: 'to-purple-50',
-    emoji: '🤔',
-    description: 'You feel curious and inquisitive.',
-    colors: {
-      primary: '#8b5cf6',
-      secondary: '#ede9fe'
-    }
-  },
-  [MoodType.OKAY]: {
-    background: 'bg-green-50',
-    text: 'text-green-900',
-    accent: 'border-green-300',
-    moodColor: 'text-green-500',
-    gradientStart: 'from-green-100',
-    gradientEnd: 'to-green-50',
-    emoji: '😐',
-    description: 'You feel okay, neither good nor bad.',
-    colors: {
-      primary: '#10b981',
-      secondary: '#d1fae5'
-    }
-  },
-  [MoodType.OVERWHELMED]: {
-    background: 'bg-red-50',
-    text: 'text-red-900',
-    accent: 'border-red-300',
-    moodColor: 'text-red-500',
-    gradientStart: 'from-red-100',
-    gradientEnd: 'to-red-50',
-    emoji: '🥵',
-    description: 'You feel overwhelmed by tasks or information.',
-    colors: {
-      primary: '#ef4444',
-      secondary: '#fee2e2'
-    }
-  },
-  [MoodType.ANXIOUS]: {
-    background: 'bg-orange-50',
-    text: 'text-orange-900',
-    accent: 'border-orange-300',
-    moodColor: 'text-orange-500',
-    gradientStart: 'from-orange-100',
-    gradientEnd: 'to-orange-50',
-    emoji: '😟',
-    description: 'You feel anxious or worried.',
-    colors: {
-      primary: '#f97316',
-      secondary: '#ffedd5'
-    }
-  },
-  [MoodType.MOTIVATED]: {
-    background: 'bg-emerald-50',
-    text: 'text-emerald-900',
-    accent: 'border-emerald-300',
-    moodColor: 'text-emerald-500',
-    gradientStart: 'from-emerald-100',
-    gradientEnd: 'to-emerald-50',
+  [MoodType.Motivated]: {
+    backgroundColor: 'bg-emerald-50',
+    textColor: 'text-emerald-800',
+    borderColor: 'border-emerald-200',
+    darkBackgroundColor: 'dark:bg-emerald-900/20',
+    darkTextColor: 'dark:text-emerald-300',
+    darkBorderColor: 'dark:border-emerald-800/30',
     emoji: '💪',
-    description: 'You feel motivated and ready to achieve.',
-    colors: {
-      primary: '#10b981',
-      secondary: '#d1fae5'
-    }
+    message: "You're highly motivated - let's make the most of it!",
+    studyTip: "Great time to tackle your most challenging subjects or assignments."
   },
-  [MoodType.CONFUSED]: {
-    background: 'bg-indigo-50',
-    text: 'text-indigo-900',
-    accent: 'border-indigo-300',
-    moodColor: 'text-indigo-500',
-    gradientStart: 'from-indigo-100',
-    gradientEnd: 'to-indigo-50',
+  [MoodType.Confused]: {
+    backgroundColor: 'bg-cyan-50',
+    textColor: 'text-cyan-800',
+    borderColor: 'border-cyan-200',
+    darkBackgroundColor: 'dark:bg-cyan-900/20',
+    darkTextColor: 'dark:text-cyan-300',
+    darkBorderColor: 'dark:border-cyan-800/30',
     emoji: '🤔',
-    description: 'You feel confused or uncertain.',
-    colors: {
-      primary: '#6366f1',
-      secondary: '#e0e7ff'
-    }
+    message: "Feeling confused? Let's build clarity.",
+    studyTip: "Go back to basics and focus on understanding fundamentals first."
   },
-  [MoodType.NEUTRAL]: {
-    background: 'bg-slate-50',
-    text: 'text-slate-900',
-    accent: 'border-slate-300',
-    moodColor: 'text-slate-500',
-    gradientStart: 'from-slate-100',
-    gradientEnd: 'to-slate-50',
+  [MoodType.Neutral]: {
+    backgroundColor: 'bg-slate-50',
+    textColor: 'text-slate-800',
+    borderColor: 'border-slate-200',
+    darkBackgroundColor: 'dark:bg-slate-900/20',
+    darkTextColor: 'dark:text-slate-300',
+    darkBorderColor: 'dark:border-slate-800/30',
     emoji: '😐',
-    description: 'You feel neutral, balanced.',
-    colors: {
-      primary: '#64748b',
-      secondary: '#f1f5f9'
-    }
+    message: "You're in a neutral mood - steady and balanced.",
+    studyTip: "Follow your regular study plan - good day for consistent work."
   },
-  [MoodType.SAD]: {
-    background: 'bg-cyan-50',
-    text: 'text-cyan-900',
-    accent: 'border-cyan-300',
-    moodColor: 'text-cyan-500',
-    gradientStart: 'from-cyan-100',
-    gradientEnd: 'to-cyan-50',
-    emoji: '😢',
-    description: 'You feel sad or down.',
-    colors: {
-      primary: '#0e7490',
-      secondary: '#cffafe'
-    }
+  [MoodType.Sad]: {
+    backgroundColor: 'bg-sky-50',
+    textColor: 'text-sky-800',
+    borderColor: 'border-sky-200',
+    darkBackgroundColor: 'dark:bg-sky-900/20',
+    darkTextColor: 'dark:text-sky-300',
+    darkBorderColor: 'dark:border-sky-800/30',
+    emoji: '😔',
+    message: "You're feeling down today - be gentle with yourself.",
+    studyTip: "Light review of favorite subjects might be better than tackling challenging new material."
   }
 };
 
-// Helper function to get theme based on mood
 export const getMoodTheme = (mood: MoodType): MoodTheme => {
-  return moodThemes[mood] || moodThemes[MoodType.NEUTRAL];
+  return MoodThemes[mood] || MoodThemes[MoodType.Neutral];
 };

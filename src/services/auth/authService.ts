@@ -37,11 +37,6 @@ const authService = {
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service logging in with:", credentials);
     
-    // For demo purposes, handle admin login separately
-    if (credentials.email.includes('admin')) {
-      return this.adminLogin(credentials);
-    }
-    
     // For demo purposes, allow any email/password combination
     // In a real app, this would validate against a backend
     const demoUser: AuthUser = {
@@ -112,7 +107,7 @@ const authService = {
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Admin login with:", credentials);
     
-    // For demo purposes, allow any admin email
+    // For demo purposes, allow any email
     // In a real app, this would validate against admin accounts only
     const adminUser: AuthUser = {
       id: `admin_${Date.now()}`,
@@ -126,7 +121,6 @@ const authService = {
     // Set the auth data
     this.setAuthData(adminUser);
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('admin_logged_in', 'true');
     
     // Return success response
     return {
@@ -218,6 +212,9 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
+    // Force redirection to login page to prevent any auto-login issues
+    window.location.href = '/login';
+    
     // Return success - we'll handle navigation separately in the component
     return {
       success: true,
@@ -237,7 +234,7 @@ const authService = {
   
   // Clear auth data from local storage and force redirect
   clearAuthData(): void {
-    console.log("Clearing auth data...");
+    console.log("Clearing auth data and redirecting to login...");
     
     // Clear authentication from localStorage
     localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -246,7 +243,6 @@ const authService = {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
-    localStorage.removeItem('admin_logged_in');
     
     // Reset API client
     apiClient.setAuthToken(null);
@@ -254,22 +250,15 @@ const authService = {
     // Clear any potential persistent login data from cookies
     document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+    // Force redirection to login page
+    window.location.href = '/login';
   },
   
   // Get current authenticated user
   getCurrentUser(): AuthUser | null {
-    try {
-      const userJson = localStorage.getItem(AUTH_USER_KEY);
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      
-      if (userJson && isLoggedIn) {
-        return JSON.parse(userJson);
-      }
-      return null;
-    } catch (error) {
-      console.error('Error getting current user:', error);
-      return null;
-    }
+    const userJson = localStorage.getItem(AUTH_USER_KEY);
+    return userJson ? JSON.parse(userJson) : null;
   },
   
   // Get auth token
@@ -281,15 +270,14 @@ const authService = {
   isAuthenticated(): boolean {
     const token = this.getToken();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    return !!token && isLoggedIn; 
+    return !!token && isLoggedIn; // Both must be true for authenticated state
   },
   
   // Verify if token is still valid
   async verifyToken(): Promise<boolean> {
     const token = this.getToken();
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
-    if (!token || !isLoggedIn) {
+    if (!token) {
       return false;
     }
     
@@ -300,8 +288,7 @@ const authService = {
   // Check if user has admin access
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    return (user?.role === 'admin' && isAdminLoggedIn);
+    return user?.role === 'admin';
   },
   
   // Check if user has specific permissions
