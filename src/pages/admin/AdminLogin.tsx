@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,9 +28,9 @@ const AdminLogin = () => {
   // Redirect to admin dashboard if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated) {
-      navigate(returnTo, { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, navigate, returnTo]);
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,14 +53,14 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard
-        navigate(returnTo, { replace: true });
+        // Make sure to go to admin dashboard, not student dashboard
+        navigate('/admin/dashboard', { replace: true });
       } else {
-        setLoginError("Invalid admin credentials");
+        setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
     } catch (error) {
+      setLoginError("An unexpected error occurred. Please try again.");
       console.error("Admin login error:", error);
-      setLoginError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -77,200 +76,119 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 dark:from-gray-900 dark:to-blue-900">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md px-4"
-      >
-        <div className="text-center mb-6">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <PrepzrLogo width={120} height="auto" className="mx-auto" />
-          </motion.div>
-          <motion.h1
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mt-4 text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400"
-          >
-            Admin Access
-          </motion.h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2">
+            <PrepzrLogo width={120} height={120} />
+          </Link>
+          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
+          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
         </div>
-      
-        <Card className="w-full shadow-xl border-blue-100 dark:border-blue-900">
-          <CardHeader className="space-y-1 bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-t-lg">
-            <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
-              <ShieldCheck className="h-6 w-6" />
-              Admin Login
-            </CardTitle>
-            <CardDescription className="text-center text-blue-100">
+        
+        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
+            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
+            <CardDescription className="text-purple-100">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
+          
+          {loginError && (
+            <Alert variant="destructive" className="m-6 mb-0">
+              <AlertDescription>{loginError}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-6">
-              {loginError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{loginError}</AlertDescription>
-                </Alert>
-              )}
-            
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="space-y-2"
-              >
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                    <Mail size={16} />
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      <Mail size={16} />
+                    </div>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@prepzr.com"
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
+                    />
                   </div>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (loginError) setLoginError(null);
-                    }}
-                    placeholder="admin@prepzr.com"
-                    className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !email ? "border-red-500" : ""}`}
-                    required
-                  />
                 </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Button 
-                    variant="link" 
-                    className="px-0 font-normal text-xs h-auto"
-                    type="button"
-                    onClick={() => {
-                      toast({
-                        title: "Password Recovery",
-                        description: "Admin password recovery feature coming soon."
-                      });
-                    }}
-                  >
-                    Forgot password?
-                  </Button>
-                </div>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                    <Lock size={16} />
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Button 
+                      variant="link" 
+                      className="px-0 font-normal text-xs h-auto"
+                      type="button"
+                    >
+                      Forgot password?
+                    </Button>
                   </div>
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (loginError) setLoginError(null);
-                    }}
-                    className={`pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !password ? "border-red-500" : ""}`}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      <Lock size={16} />
+                    </div>
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
+                    />
+                    <Button 
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </Button>
+                  </div>
                 </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="pt-2"
-              >
+                
                 <Button 
-                  type="button"
-                  variant="outline"
-                  className="w-full mb-4 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                  onClick={handleDemoAdminLogin}
+                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
+                  type="submit"
+                  disabled={isLoading}
                 >
-                  Use Demo Admin Account
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Signing in...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <ShieldCheck className="h-4 w-4 mr-1" />
+                      <span>Sign In</span>
+                    </div>
+                  )}
                 </Button>
-              </motion.div>
+              </div>
             </CardContent>
-            
-            <CardFooter>
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="w-full"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300" 
-                    disabled={isLoading} 
-                    type="submit"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Authenticating...
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        Login to Admin
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
-                  className="mt-4 text-center"
-                >
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    For admin access support, please contact the system administrator
-                  </p>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
-                  className="mt-4 text-center"
-                >
-                  <Button
-                    variant="link"
-                    className="text-sm"
-                    onClick={() => navigate("/")}
-                    type="button"
-                  >
-                    Return to main site
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </CardFooter>
           </form>
+          
+          <CardFooter className="flex justify-center pb-6 border-t pt-6">
+            <p className="text-sm text-gray-600">
+              Not an admin?{" "}
+              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
+                Go to Student Login
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
-      </motion.div>
+        
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
+        </div>
+      </div>
     </div>
   );
 };

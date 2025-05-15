@@ -34,7 +34,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       
       // Check if admin data exists in localStorage
       const adminData = localStorage.getItem('admin_user');
-      if (adminData) {
+      const isLoggedIn = localStorage.getItem('admin_logged_in');
+      
+      if (adminData && isLoggedIn === 'true') {
         try {
           const parsedData = JSON.parse(adminData);
           if (parsedData.email) {
@@ -47,12 +49,19 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
               role: parsedData.role || 'admin',
               permissions: parsedData.permissions || ['all']
             });
+          } else {
+            setAdminUser(null);
+            localStorage.removeItem('admin_user');
+            localStorage.removeItem('admin_logged_in');
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
           localStorage.removeItem('admin_user');
           localStorage.removeItem('admin_logged_in');
+          setAdminUser(null);
         }
+      } else {
+        setAdminUser(null);
       }
       
       setAdminLoading(false);
@@ -81,6 +90,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           localStorage.setItem('admin_logged_in', 'true');
           localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
           
+          // Make sure regular user authentication is cleared
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isLoggedIn');
+          
           setAdminUser(newAdminUser);
           console.log("Admin login successful for:", email);
           setAdminLoading(false);
@@ -99,6 +112,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Clear all admin authentication data
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     
     // Clear any session storage items related to admin
     sessionStorage.removeItem('admin_session');
@@ -109,7 +124,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     console.log("Admin logged out completely - all authentication data cleared");
     
     // Force redirect to admin login
-    // window.location.href = '/admin/login';
+    window.location.href = '/admin/login';
   };
 
   return (

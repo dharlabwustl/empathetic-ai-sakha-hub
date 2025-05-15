@@ -85,11 +85,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
         if (email && password && password.length >= 2) {
+          // Determine user role from email
+          const role = email.includes('admin') ? UserRole.Admin : UserRole.Student;
+          
           const newUser: User = {
             id: '1',
-            name: email.split('@')[0] || 'Student',
+            name: email.split('@')[0] || (role === UserRole.Admin ? 'Admin' : 'Student'),
             email: email,
-            role: UserRole.Student
+            role: role
           };
           
           // Check if this is a returning user
@@ -128,7 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           setUser(newUser);
           setLoading(false);
-          console.log("Login successful for:", email);
+          console.log("Login successful for:", email, "with role:", role);
           resolve(true);
         } else {
           setLoading(false);
@@ -146,16 +149,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // First clear React state to immediately reflect logout in UI
     setUser(null);
     
-    // Then call the authService logout method
-    authService.logout().then(() => {
-      console.log("AuthContext: User logged out completely");
-    }).catch(error => {
-      console.error("AuthContext: Error during logout:", error);
-      
-      // Try direct approach if service call fails
-      console.log("AuthContext: Fallback logout approach");
-      authService.clearAuthData();
-    });
+    // Clear all auth data from localStorage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    
+    // Force navigation to login page
+    window.location.href = '/login';
+    
+    console.log("AuthContext: User logged out completely");
   };
   
   return (

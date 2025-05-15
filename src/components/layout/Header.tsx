@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, Volume2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import {
   Tooltip,
@@ -15,7 +16,8 @@ import {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { adminUser, adminLogout, isAdminAuthenticated } = useAdminAuth();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -24,6 +26,14 @@ const Header = () => {
   const handleVoiceAssistant = () => {
     // Dispatch an event for the floating voice announcer to handle
     document.dispatchEvent(new CustomEvent('open-voice-assistant'));
+  };
+
+  const handleLogout = () => {
+    if (isAdminAuthenticated) {
+      adminLogout();
+    } else {
+      logout();
+    }
   };
   
   return (
@@ -58,12 +68,14 @@ const Header = () => {
             </TooltipProvider>
             
             <ThemeToggle />
-            {user ? (
+            {(isAuthenticated || isAdminAuthenticated) ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to="/dashboard/student">Dashboard</Link>
+                  <Link to={isAdminAuthenticated ? "/admin/dashboard" : "/dashboard/student"}>
+                    {isAdminAuthenticated ? "Admin Dashboard" : "Dashboard"}
+                  </Link>
                 </Button>
-                <Button variant="ghost" onClick={() => logout()}>
+                <Button variant="ghost" onClick={handleLogout}>
                   Logout
                 </Button>
               </div>
@@ -111,12 +123,14 @@ const Header = () => {
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-2">
               <ThemeToggle />
-              {user ? (
+              {(isAuthenticated || isAdminAuthenticated) ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/dashboard/student">Dashboard</Link>
+                    <Link to={isAdminAuthenticated ? "/admin/dashboard" : "/dashboard/student"}>
+                      {isAdminAuthenticated ? "Admin Dashboard" : "Dashboard"}
+                    </Link>
                   </Button>
-                  <Button variant="ghost" onClick={() => logout()} className="justify-start">
+                  <Button variant="ghost" onClick={handleLogout} className="justify-start">
                     Logout
                   </Button>
                 </>

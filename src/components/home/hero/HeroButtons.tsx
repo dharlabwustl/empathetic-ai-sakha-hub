@@ -1,47 +1,88 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { ArrowRight, SparklesIcon } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 
-export interface HeroButtonsProps {
+interface HeroButtonsProps {
   scrollToFeatures?: () => void;
-  scrollToForWhom?: () => void;
-  onAnalyzeClick: () => void;
+  onAnalyzeClick?: () => void;
 }
 
 const HeroButtons: React.FC<HeroButtonsProps> = ({
   scrollToFeatures,
-  scrollToForWhom,
-  onAnalyzeClick
+  onAnalyzeClick,
 }) => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const { isAdminAuthenticated } = useAdminAuth();
+  
+  const handleExploreFeatures = () => {
+    if (scrollToFeatures) {
+      scrollToFeatures();
+    }
+  };
+
+  const handleAnalyze = () => {
+    if (onAnalyzeClick) {
+      onAnalyzeClick();
+    } else {
+      // Default fallback for when onAnalyzeClick is not provided
+      navigate("/login");
+    }
+  };
+
+  const handleDashboard = () => {
+    if (isAdminAuthenticated) {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/dashboard/student");
+    }
+  };
+
+  // Show different buttons based on authentication state
+  if (isAuthenticated || isAdminAuthenticated) {
+    return (
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Button 
+          size="lg" 
+          className="font-semibold rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8"
+          onClick={handleDashboard}
+        >
+          Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+        </Button>
+        <Button 
+          size="lg" 
+          variant="outline" 
+          className="font-semibold border-2 rounded-full shadow px-8" 
+          onClick={handleExploreFeatures}
+        >
+          Explore Features
+        </Button>
+      </div>
+    );
+  }
+
+  // Show these buttons when logged out
   return (
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+    <div className="flex flex-col sm:flex-row gap-4">
       <Button 
-        onClick={onAnalyzeClick}
         size="lg" 
-        className="relative overflow-hidden group"
+        className="font-semibold rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8"
+        onClick={handleAnalyze}
       >
-        <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:scale-105"></span>
-        <span className="relative flex items-center justify-center gap-2">
-          <SparklesIcon size={18} className="text-white" />
-          <span>Test Your Exam Readiness</span>
-        </span>
+        <Sparkles className="mr-2 h-5 w-5" />
+        Exam Readiness Analyzer
       </Button>
-      
       <Button 
-        onClick={scrollToFeatures}
         size="lg" 
         variant="outline" 
-        className="border-indigo-300 text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors duration-300"
+        className="font-semibold border-2 rounded-full shadow px-8" 
+        onClick={() => navigate('/signup')}
       >
-        Explore Features
-        <motion.div
-          animate={{ x: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          <ArrowRight size={18} />
-        </motion.div>
+        Start 7-Day Free Trial
       </Button>
     </div>
   );

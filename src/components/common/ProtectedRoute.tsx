@@ -13,7 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   redirectTo = '/login' 
 }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
 
   // Show loading spinner while checking auth
   if (loading) {
@@ -24,14 +24,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // For development, temporarily allow access without authentication
-  if (process.env.NODE_ENV === 'development') {
-    return children ? <>{children}</> : <Outlet />;
-  }
-
   // If not authenticated, redirect to login
-  if (!user) {
-    return <Navigate to={redirectTo} replace />;
+  if (!isAuthenticated) {
+    // Capture current path to return after login
+    const currentPath = window.location.pathname;
+    const returnTo = encodeURIComponent(currentPath);
+    return <Navigate to={`${redirectTo}?returnTo=${returnTo}`} replace />;
   }
 
   // If authenticated, render children or outlet

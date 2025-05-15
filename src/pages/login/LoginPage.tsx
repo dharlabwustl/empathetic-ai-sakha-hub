@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { UserRole } from "@/types/user/base";
 
 interface LoginPageProps {
   returnTo?: string;
@@ -28,12 +28,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  // Redirect if already logged in
+  // Check for saved email on component mount
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(returnTo, { replace: true });
+    const savedEmail = localStorage.getItem("prepzr_remembered_email");
+    if (savedEmail) {
+      setFormData(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
     }
-  }, [isAuthenticated, navigate, returnTo]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -68,26 +70,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Save login info to localStorage
+        // Get the user role from localStorage to determine where to navigate
         const userData = localStorage.getItem("userData");
+        let targetDashboard = "/dashboard/student"; // Default
+        
         if (userData) {
           try {
             const parsedData = JSON.parse(userData);
-            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
             
-            localStorage.setItem("userData", JSON.stringify({
-              ...parsedData,
-              loginCount,
-              lastLogin: new Date().toISOString(),
-              isAuthenticated: true
-            }));
+            // Navigate based on user role
+            if (parsedData.role === UserRole.Admin) {
+              targetDashboard = "/admin/dashboard";
+            } else {
+              targetDashboard = "/dashboard/student";
+            }
+            
           } catch (error) {
             console.error("Error parsing user data:", error);
           }
         }
         
-        // Navigate to the provided returnTo path or student dashboard
-        navigate(returnTo || "/dashboard/student", { replace: true });
+        // Navigate to the appropriate dashboard
+        navigate(targetDashboard, { replace: true });
       } else {
         setLoginError("Invalid email or password. Please try again.");
       }
@@ -109,15 +113,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
       password: "demo123"
     });
   };
-
-  // Check for saved email on component mount
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("prepzr_remembered_email");
-    if (savedEmail) {
-      setFormData(prev => ({ ...prev, email: savedEmail }));
-      setRememberMe(true);
-    }
-  }, []);
 
   return (
     <div className="p-6 space-y-6">
