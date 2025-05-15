@@ -64,6 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(true);
         localStorage.setItem('isLoggedIn', 'true');
         
+        // Store user role to use for routing
+        localStorage.setItem('userRole', response.data.role || 'student');
+        
         toast({
           title: "Login Successful",
           description: "Welcome back to Prepzr!"
@@ -105,6 +108,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Set as new user for onboarding flow
         localStorage.setItem('new_user_signup', 'true');
+        localStorage.setItem('userRole', 'student');
+        
+        // Store complete user data for profile
+        const userData = {
+          name,
+          email,
+          phoneNumber,
+          isNewUser: true,
+          completedOnboarding: false,
+          role: 'student'
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
         
         toast({
           title: "Registration Successful",
@@ -145,6 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setIsAuthenticated(false);
       localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userRole');
       
       // Additional UI feedback
       toast({
@@ -166,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setIsAuthenticated(false);
       localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userRole');
       navigate('/login');
     } finally {
       setIsLoading(false);

@@ -51,7 +51,9 @@ function App() {
               {/* Student Dashboard routes with sidebar layout */}
               <Route path="/dashboard/student" element={
                 <ProtectedRoute>
-                  <SidebarLayout userRole="student" />
+                  <SidebarLayout>
+                    <AppRoutes />
+                  </SidebarLayout>
                 </ProtectedRoute>
               }>
                 <Route path="feel-good-corner" element={<FeelGoodCornerView />} />

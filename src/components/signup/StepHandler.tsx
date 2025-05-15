@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -79,16 +78,19 @@ const StepHandler = ({
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userRole', 'student');
+        localStorage.setItem('new_user_signup', 'true');
         
         toast({
-          title: "Welcome to Sakha AI!",
+          title: "Welcome to Prepzr!",
           description: "Let's create your personalized study plan.",
         });
         
         // Go directly to the dashboard with parameters to show onboarding
         navigate("/dashboard/student?completedOnboarding=false&new=true");
       } else {
-        throw new Error("Registration failed");
+        throw new Error(response.error || "Registration failed");
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -106,6 +108,15 @@ const StepHandler = ({
     isLoading,
     handlers: {
       handleRoleSelect,
+      handleGoalSelect: (goal: UserGoal) => {
+        setOnboardingData({ ...onboardingData, goal });
+        setMessages([
+          ...messages, 
+          { content: goal, isBot: false },
+          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
+        ]);
+        setStep("demographics");
+      },
       handleDemographicsSubmit: (data: Record<string, string>) => {
         // Create a readable message for chat
         let userMessage = "";
@@ -129,15 +140,6 @@ const StepHandler = ({
         ]);
         setStep("personality");
       },
-      handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goal });
-        setMessages([
-          ...messages, 
-          { content: goal, isBot: false },
-          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
-        ]);
-        setStep("demographics");
-      },
       handlePersonalitySelect: (personality: string) => {
         setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
@@ -151,7 +153,7 @@ const StepHandler = ({
         setOnboardingData({ ...onboardingData, mood });
         setMessages([
           ...messages,
-          { content: mood, isBot: false },
+          { content: mood.toString(), isBot: false },
           { content: "Let's understand your study preferences for a personalized experience.", isBot: true }
         ]);
         setStep("habits");
@@ -199,7 +201,7 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: interests, isBot: false },
-          { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
+          { content: "Your personalized Prepzr dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
       },

@@ -60,7 +60,8 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       description: "A verification code has been sent to your mobile.",
     });
     
-    setFormValues({ ...formValues, otp: "1234" }); // Auto-fill OTP for demo
+    // Auto-fill OTP for demo
+    setFormValues({ ...formValues, otp: "1234" });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,7 +77,16 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     }
     
     if (formValues.name && formValues.mobile && formValues.otp) {
-      onSubmit(formValues);
+      try {
+        onSubmit(formValues);
+      } catch (error) {
+        console.error("Error during signup submission:", error);
+        toast({
+          title: "Signup Error",
+          description: "There was an error processing your request. Please try again.",
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Please fill in all fields",
@@ -94,12 +104,21 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     
     // In a real app this would trigger OAuth flow
     // For now we just pass some dummy data
-    onSubmit({
-      name: "Google User",
-      mobile: "9999999999",
-      otp: "verified", 
-      agreeTerms: true
-    });
+    try {
+      onSubmit({
+        name: "Google User",
+        mobile: "9999999999",
+        otp: "verified", 
+        agreeTerms: true
+      });
+    } catch (error) {
+      console.error("Error during Google signup:", error);
+      toast({
+        title: "Signup Error",
+        description: "There was an error processing your request. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
