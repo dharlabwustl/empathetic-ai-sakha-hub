@@ -4,22 +4,31 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import HeroButtons from "@/components/home/hero/HeroButtons";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
-const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  scrollToFeatures: () => void;
+  scrollToForWhom: () => void;
+  openExamAnalyzer: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ scrollToFeatures, scrollToForWhom, openExamAnalyzer }) => {
   const navigate = useNavigate();
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)");
   const [exploreFeatures, setExploreFeatures] = useState(false);
   
   const handleExploreFeatures = () => {
     setExploreFeatures(true);
-    const featuresElement = document.getElementById('features');
-    if (featuresElement) {
-      featuresElement.scrollIntoView({ behavior: 'smooth' });
-    }
+    scrollToFeatures();
   };
   
   const handleAnalyzeClick = () => {
-    navigate('/login');
+    openExamAnalyzer();
+  };
+
+  const handleFreeTrialClick = () => {
+    navigate('/signup');
   };
 
   return (
@@ -30,7 +39,7 @@ const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6"
+            className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6 inline-block"
           >
             Master Your Exam Preparation
           </motion.h1>
@@ -43,6 +52,32 @@ const HeroSection: React.FC = () => {
           >
             Your AI-powered study companion that adapts to your learning style and helps you achieve your academic goals.
           </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
+          >
+            <Button 
+              onClick={handleAnalyzeClick}
+              size="lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg px-8 py-6 text-lg font-medium rounded-xl"
+            >
+              Exam Readiness Analyzer
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+
+            <Button
+              onClick={handleFreeTrialClick}
+              size="lg"
+              variant="outline" 
+              className="border-2 border-purple-400 text-purple-700 hover:bg-purple-50 dark:text-purple-300 dark:hover:bg-purple-900/20 px-8 py-6 text-lg font-medium rounded-xl"
+            >
+              7 Days Free Trial
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </motion.div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}

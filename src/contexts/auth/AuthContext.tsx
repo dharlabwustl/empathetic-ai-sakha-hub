@@ -62,6 +62,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success && response.data) {
         setUser(response.data);
         setIsAuthenticated(true);
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        toast({
+          title: "Login Successful",
+          description: "Welcome back to Prepzr!"
+        });
+        
         setIsLoading(false);
         return true;
       } else {
@@ -94,10 +101,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success && response.data) {
         setUser(response.data);
         setIsAuthenticated(true);
-        setIsLoading(false);
+        localStorage.setItem('isLoggedIn', 'true');
         
         // Set as new user for onboarding flow
         localStorage.setItem('new_user_signup', 'true');
+        
+        toast({
+          title: "Registration Successful",
+          description: "Welcome to Prepzr!"
+        });
+        
+        setIsLoading(false);
         return true;
       } else {
         toast({
@@ -130,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clean up local state
       setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem('isLoggedIn');
       
       // Additional UI feedback
       toast({
@@ -137,7 +152,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "You have been securely logged out of your account"
       });
       
-      // Navigation handled by authService.logout()
+      // Navigate to login page
+      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
       toast({
@@ -149,6 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Force logout even if there's an error
       setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem('isLoggedIn');
       navigate('/login');
     } finally {
       setIsLoading(false);

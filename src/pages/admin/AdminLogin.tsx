@@ -6,19 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Eye, EyeOff, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import authService from "@/services/auth/authService";
 
 const AdminLogin = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
+  const returnTo = searchParams.get('returnTo') || '/dashboard/admin';
   
   const navigate = useNavigate();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,12 +25,13 @@ const AdminLogin = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Redirect to admin dashboard if already authenticated
+  // Check if already logged in as admin
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdmin) {
       navigate(returnTo, { replace: true });
     }
-  }, [isAdminAuthenticated, navigate, returnTo]);
+  }, [navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +45,16 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Call the adminLogin function from the context
-      const success = await adminLogin(email, password);
+      // Call the adminLogin function from the service
+      const response = await authService.adminLogin({ email, password });
       
-      if (success) {
+      if (response.success) {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
+        
+        localStorage.setItem('admin_logged_in', 'true');
         
         // Navigate to admin dashboard
         navigate(returnTo, { replace: true });

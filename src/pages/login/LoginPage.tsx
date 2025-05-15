@@ -31,6 +31,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("User is already authenticated, redirecting to:", returnTo);
       navigate(returnTo, { replace: true });
     }
   }, [isAuthenticated, navigate, returnTo]);
@@ -53,6 +54,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
     setLoginError(null);
     
     try {
+      console.log("Attempting to login with:", formData.email);
+      
       const success = await login(formData.email, formData.password);
       
       if (success) {
@@ -86,8 +89,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           }
         }
         
-        // Navigate to the provided returnTo path or student dashboard
-        navigate(returnTo || "/dashboard/student", { replace: true });
+        // Check if admin login
+        if (formData.email.includes("admin")) {
+          navigate("/dashboard/admin", { replace: true });
+        } else {
+          // Navigate to the provided returnTo path or student dashboard
+          navigate(returnTo || "/dashboard/student", { replace: true });
+        }
       } else {
         setLoginError("Invalid email or password. Please try again.");
       }
@@ -226,7 +234,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           >
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 shadow-md hover:shadow-lg transition-all duration-300"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-300"
               disabled={isLoading}
             >
               {isLoading ? (
