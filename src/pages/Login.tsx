@@ -1,17 +1,32 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const searchParams = new URLSearchParams(location.search);
   const returnTo = searchParams.get('returnTo') || '/dashboard/student';
+  
+  // If user is already authenticated, redirect based on role
+  useEffect(() => {
+    if (isAuthenticated) {
+      const userRole = localStorage.getItem('userRole');
+      if (userRole === 'admin') {
+        navigate('/dashboard/admin', { replace: true });
+      } else {
+        navigate('/dashboard/student', { replace: true });
+      }
+    }
+  }, [isAuthenticated, navigate]);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -50,7 +65,7 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = `/admin/login?returnTo=${returnTo}`}>
+                    <Button variant="outline" className="w-full" onClick={() => navigate('/admin/login')}>
                       Go to Admin Login
                     </Button>
                   </div>

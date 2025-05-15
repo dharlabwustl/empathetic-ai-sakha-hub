@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,13 +15,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { adminService } from "@/services/adminService";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -48,23 +47,38 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      // Using the mock admin service for now, will be replaced with Flask backend later
-      const adminUser = await adminService.login(formData.email, formData.password);
-      
-      // Call the login function from AdminAuthContext
-      login(adminUser);
-      
-      console.log("Login successful, redirecting to /admin/dashboard");
-      
-      // Use a small delay to ensure state is updated before redirect
-      setTimeout(() => {
-        navigate("/admin/dashboard", { replace: true });
-      }, 100);
-      
+      // For demo purposes since we don't have an actual admin service
+      if (formData.email.includes('admin')) {
+        // Save admin info to localStorage
+        localStorage.setItem('adminToken', `admin_${Date.now()}`);
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('adminUser', JSON.stringify({
+          id: `admin_${Date.now()}`,
+          name: 'Admin User',
+          email: formData.email,
+          role: 'admin'
+        }));
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        toast({
+          title: "Admin Login Successful",
+          description: "Welcome to the admin dashboard"
+        });
+        
+        // Navigate to admin dashboard
+        navigate("/dashboard/admin", { replace: true });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid admin credentials. Email must contain 'admin'.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
         title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        description: "An error occurred during login",
         variant: "destructive"
       });
       console.error("Login error:", error);
@@ -78,7 +92,7 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height={120} /> {/* Updated logo */}
+            <PrepzrLogo width={120} height={120} />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
           <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>

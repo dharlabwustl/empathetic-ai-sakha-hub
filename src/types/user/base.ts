@@ -1,9 +1,8 @@
 
 export enum UserRole {
   Student = "student",
-  Parent = "parent",
-  Teacher = "teacher",
-  Admin = "admin"
+  Admin = "admin",
+  Tutor = "tutor"
 }
 
 export enum MoodType {
@@ -21,63 +20,24 @@ export enum MoodType {
   SAD = "SAD"
 }
 
-export enum SubscriptionType {
-  FREE = "FREE",
-  PRO = "PRO",
-  PREMIUM = "PREMIUM"
-}
-
 export interface UserProfileType {
-  id?: string;
-  name: string;
-  email?: string;
-  phoneNumber?: string;
-  avatar?: string;
-  role?: UserRole;
-  goals?: UserGoalType[];
-  interests?: string[];
-  subscription?: SubscriptionType | UserSubscription;
-  preferences?: UserPreferencesType;
-  stats?: UserStatsType;
-  loginCount?: number;
-}
-
-export interface UserGoalType {
   id: string;
-  title: string;
-  targetDate?: string;
-  progress?: number;
-}
-
-export interface UserSubscription {
-  planType: SubscriptionType;
-  expiryDate?: string;
-  features?: string[];
-}
-
-export interface UserPreferencesType {
-  theme?: 'light' | 'dark' | 'system';
-  language?: string;
-  notifications?: NotificationPreferences;
-  accessibility?: AccessibilityPreferences;
-}
-
-export interface NotificationPreferences {
-  email: boolean;
-  push: boolean;
-  sms: boolean;
-}
-
-export interface AccessibilityPreferences {
-  fontSize?: 'small' | 'medium' | 'large';
-  highContrast?: boolean;
-  reducedMotion?: boolean;
-}
-
-export interface UserStatsType {
-  totalStudyHours?: number;
-  averageScore?: number;
-  streakDays?: number;
-  completedTopics?: number;
-  testsTaken?: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  photoURL?: string;
+  phoneNumber?: string;
+  goals?: { id: string; title: string }[];
+  subjects?: { id: string; title: string }[];
+  examPreferences?: { name: string; date: string }[];
+  subscription?: string | { planType: string; expiryDate: string };
+  preferences?: Record<string, any>;
+  loginCount?: number;
+  lastLogin?: string;
+  lastActivity?: { type: string; description: string; timestamp: string };
+  streak?: number;
+  examReadiness?: number;
 }

@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from './components/theme-provider';
@@ -15,7 +15,7 @@ import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminLogin from '@/pages/AdminLogin';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import LoadingScreen from '@/components/common/LoadingScreen';
@@ -44,7 +44,9 @@ function App() {
               {/* Student Dashboard */}
               <Route path="/dashboard/student" element={
                 <ProtectedRoute>
-                  <StudentDashboard />
+                  <SidebarLayout>
+                    <StudentDashboard />
+                  </SidebarLayout>
                 </ProtectedRoute>
               } />
               
@@ -52,16 +54,20 @@ function App() {
               <Route path="/dashboard/student" element={
                 <ProtectedRoute>
                   <SidebarLayout>
-                    <AppRoutes />
+                    <Suspense fallback={<LoadingScreen />}>
+                      <Routes>
+                        <Route path="/" element={<StudentDashboard />} />
+                        <Route path="feel-good-corner" element={<FeelGoodCornerView />} />
+                        <Route path="today" element={<TodaysPlanView />} />
+                        <Route path="profile" element={<StudentProfile />} />
+                        <Route path="study-plan" element={<StudyPlanView />} />
+                        <Route path="tutor" element={<TutorView />} />
+                        <Route path="*" element={<AppRoutes />} />
+                      </Routes>
+                    </Suspense>
                   </SidebarLayout>
                 </ProtectedRoute>
-              }>
-                <Route path="feel-good-corner" element={<FeelGoodCornerView />} />
-                <Route path="today" element={<TodaysPlanView />} />
-                <Route path="profile" element={<StudentProfile />} />
-                <Route path="study-plan" element={<StudyPlanView />} />
-                <Route path="tutor" element={<TutorView />} />
-              </Route>
+              } />
               
               {/* Admin Dashboard */}
               <Route path="/dashboard/admin" element={

@@ -1,19 +1,20 @@
 
 import React from 'react';
-import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { UserProfileType } from '@/types/user/base';
 
 interface SidebarLayoutProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
+  userProfile?: UserProfileType;
 }
 
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 overflow-auto">
-        {children || <Outlet />}
-      </div>
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
     </div>
   );
 };
