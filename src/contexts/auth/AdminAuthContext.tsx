@@ -141,9 +141,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
-    
-    // Force hard reload to reset state
-    window.location.href = '/';
   };
 
   return (

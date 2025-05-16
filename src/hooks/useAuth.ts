@@ -19,22 +19,33 @@ export function useAuth() {
     const checkAuth = () => {
       setLoading(true);
       
-      // For development, create a mock user
-      setTimeout(() => {
-        // Mock a logged-in user for development
-        const mockUser: User = {
-          id: '1',
-          name: 'Test User',
-          email: 'test@example.com',
-          role: UserRole.Student
-        };
-        
-        setUser(mockUser);
-        setLoading(false);
-      }, 500);
+      // Check if user is logged in from localStorage
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const userData = localStorage.getItem('userData');
+      
+      if (isLoggedIn && userData) {
+        try {
+          // Parse user data
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      
+      setLoading(false);
     };
     
     checkAuth();
+    
+    // Listen for auth changes
+    window.addEventListener('auth-state-changed', checkAuth);
+    return () => {
+      window.removeEventListener('auth-state-changed', checkAuth);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -44,6 +55,7 @@ export function useAuth() {
     return new Promise<User>((resolve, reject) => {
       setTimeout(() => {
         if (email && password) {
+          // Create mock user
           const newUser: User = {
             id: '1',
             name: 'Test User',
@@ -51,20 +63,34 @@ export function useAuth() {
             role: UserRole.Student
           };
           
+          // Store in localStorage
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userData', JSON.stringify(newUser));
+          
+          // Update state
           setUser(newUser);
           setLoading(false);
+          
+          // Dispatch auth state changed event
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
           resolve(newUser);
         } else {
           setLoading(false);
           reject(new Error('Invalid credentials'));
         }
-      }, 1000);
+      }, 800);
     });
   };
   
   const logout = () => {
     // Mock logout
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userData');
     setUser(null);
+    
+    // Dispatch auth state changed event
+    window.dispatchEvent(new Event('auth-state-changed'));
   };
   
   return {
