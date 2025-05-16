@@ -15,6 +15,7 @@ export interface RegisterData {
   phoneNumber: string;
   password: string;
   role?: string;
+  schoolName?: string; // Added field for school/institute name
 }
 
 export interface AuthUser {
@@ -25,6 +26,7 @@ export interface AuthUser {
   role: string;
   token: string;
   permissions?: string[];
+  schoolName?: string; // Added field for school/institute name
 }
 
 // Local storage keys
@@ -52,11 +54,15 @@ const authService = {
     
     // Save user data in localStorage for mood tracking
     const userData = {
+      id: demoUser.id,
       name: demoUser.name,
       email: demoUser.email,
+      role: demoUser.role,
       mood: 'MOTIVATED',
-      isAuthenticated: true
+      isAuthenticated: true,
+      lastLogin: new Date().toISOString()
     };
+    
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
     
@@ -79,21 +85,30 @@ const authService = {
       email: userData.email,
       phoneNumber: userData.phoneNumber,
       role: userData.role || 'student',
-      token: `token_${Date.now()}`
+      token: `token_${Date.now()}`,
+      schoolName: userData.schoolName // Include school/institute name
     };
     
     // Set the auth data
     this.setAuthData(mockUser);
     
-    // Save user data in localStorage for mood tracking
+    // Save user data in localStorage for mood tracking with school name included
     const userDataObj = {
+      id: mockUser.id,
       name: mockUser.name,
       email: mockUser.email,
+      phoneNumber: mockUser.phoneNumber,
+      role: mockUser.role,
+      schoolName: mockUser.schoolName,
       mood: 'MOTIVATED',
-      isAuthenticated: true
+      isAuthenticated: true,
+      lastLogin: new Date().toISOString(),
+      isFirstTimeUser: true
     };
+    
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('new_user_signup', 'true');
     
     // Return success response
     return {
@@ -118,9 +133,20 @@ const authService = {
       permissions: ['all']
     };
     
-    // Set the auth data
+    // Set the auth data and clear any existing student login
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('new_user_signup');
+    
+    // Set admin auth data
     this.setAuthData(adminUser);
-    localStorage.setItem('isLoggedIn', 'true');
+    
+    // Store admin-specific data
+    localStorage.setItem('admin_user', JSON.stringify(adminUser));
+    localStorage.setItem('admin_logged_in', 'true');
+    
+    // Trigger auth state change event
+    window.dispatchEvent(new Event('auth-state-changed'));
     
     // Return success response
     return {
@@ -243,6 +269,7 @@ const authService = {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
+    localStorage.removeItem('admin_logged_in');
     
     // Reset API client
     apiClient.setAuthToken(null);
@@ -258,7 +285,15 @@ const authService = {
   // Get current authenticated user
   getCurrentUser(): AuthUser | null {
     const userJson = localStorage.getItem(AUTH_USER_KEY);
-    return userJson ? JSON.parse(userJson) : null;
+    if (userJson) {
+      try {
+        return JSON.parse(userJson);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        return null;
+      }
+    }
+    return null;
   },
   
   // Get auth token
@@ -270,7 +305,9 @@ const authService = {
   isAuthenticated(): boolean {
     const token = this.getToken();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    return !!token && isLoggedIn; // Both must be true for authenticated state
+    const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    
+    return (!!token && (isLoggedIn || adminLoggedIn)); 
   },
   
   // Verify if token is still valid
@@ -288,7 +325,7 @@ const authService = {
   // Check if user has admin access
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'admin';
+    return user?.role === 'admin' || localStorage.getItem('admin_logged_in') === 'true';
   },
   
   // Check if user has specific permissions

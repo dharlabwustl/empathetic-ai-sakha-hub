@@ -1,268 +1,75 @@
+
 import React, { useState, useEffect } from 'react';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Volume2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { Mic, Volume2 } from 'lucide-react';
 
-const HomePageVoiceAssistant: React.FC = () => {
-  const [expanded, setExpanded] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [showTranscript, setShowTranscript] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+interface HomePageVoiceAssistantProps {
+  language?: string;
+}
+
+const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
+  language = 'en-IN' // Default to Indian English
+}) => {
+  const [showIntro, setShowIntro] = useState(false);
+  const [hasGreeted, setHasGreeted] = useState(false);
   
-  // Speech recognition setup
-  const [recognition, setRecognition] = useState<any>(null);
+  const { 
+    speakMessage, 
+    isVoiceSupported, 
+    toggleMute, 
+    voiceSettings,
+    updateVoiceSettings
+  } = useVoiceAnnouncer({
+    initialSettings: { 
+      language,
+      enabled: true,
+      muted: false
+    }
+  });
   
-  // Initialize voice features
+  // Set Indian English as the default language
   useEffect(() => {
-    // Check if browser supports speech recognition
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.error("Speech Recognition not supported in this browser");
-      return;
-    }
-
-    const recognitionInstance = new SpeechRecognition();
-    recognitionInstance.continuous = true;
-    recognitionInstance.interimResults = false;
-    recognitionInstance.lang = 'en-IN'; // Set to Indian English
-
-    recognitionInstance.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognitionInstance.onresult = (event: any) => {
-      const currentTranscript = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
-        .join(' ');
-      
-      setTranscript(currentTranscript);
-      setShowTranscript(true);
-      
-      // Process the command
-      processCommand(currentTranscript);
-    };
-
-    recognitionInstance.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-    };
-
-    recognitionInstance.onend = () => {
-      setIsListening(false);
-    };
-
-    setRecognition(recognitionInstance);
-    
-    // Welcome message on first visit
-    const hasGreeted = sessionStorage.getItem('voice_assistant_greeted');
-    if (!hasGreeted) {
-      setTimeout(() => {
-        speakResponse("Namaste! Welcome to Prep-zer, your AI-powered exam preparation companion. Ask me about our features, how to sign up, or check your exam readiness. I'm here to help you ace your NEET exams!");
-        sessionStorage.setItem('voice_assistant_greeted', 'true');
-      }, 2000);
-    }
-    
-    return () => {
-      try {
-        recognitionInstance.abort();
-      } catch (e) {
-        console.error("Error stopping recognition:", e);
-      }
-    };
-  }, []);
-
-  // Process visitor voice commands
-  const processCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase().trim();
-    
-    // Sign up commands
-    if (lowerCommand.includes('sign up') || lowerCommand.includes('register') || lowerCommand.includes('create account')) {
-      speakResponse("I'll help you sign up for PREPZR. Let me take you to the registration page.");
-      navigate('/signup');
-      return;
-    }
-    
-    // Login commands
-    if (lowerCommand.includes('log in') || lowerCommand.includes('login') || lowerCommand.includes('sign in')) {
-      speakResponse("Taking you to the login page.");
-      navigate('/login');
-      return;
-    }
-    
-    // Free trial commands
-    if (lowerCommand.includes('free trial') || lowerCommand.includes('try for free')) {
-      speakResponse("PREPZR offers a 7-day free trial so you can experience our platform. Let me take you to sign up for a free account.");
-      navigate('/signup');
-      return;
-    }
-    
-    // Exam readiness commands
-    if (lowerCommand.includes('exam readiness') || lowerCommand.includes('ready for exam') || lowerCommand.includes('check my readiness')) {
-      speakResponse("Let me help you check your exam readiness with our analyzer tool.");
-      const event = new Event('open-exam-analyzer');
-      window.dispatchEvent(event);
-      return;
-    }
-    
-    // What is PREPZR commands
-    if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('explain prepzr') || lowerCommand.includes('about prepzr')) {
-      speakResponse("Prep-zer is an AI-powered study companion designed specifically for NEET exam preparation. It offers personalized study plans, concept cards, flashcards, practice exams, mood-based learning, and a 24/7 AI tutor to help you achieve your academic goals. Our platform is backed by leading technology partners including NVIDIA, Microsoft, AWS, NASSCOM, and IndiaAI.");
-      return;
-    }
-    
-    // NEET specific information
-    if (lowerCommand.includes('neet') || lowerCommand.includes('medical entrance') || lowerCommand.includes('medical exam')) {
-      speakResponse("Our platform specializes in NEET exam preparation with comprehensive coverage of Physics, Chemistry, Biology, Botany and Zoology. We offer targeted concept cards, subject-specific flashcards, and adaptive practice exams to help you master all NEET subjects efficiently.");
-      return;
-    }
-    
-    // Why PREPZR is best commands
-    if (lowerCommand.includes('why prepzr') || lowerCommand.includes('best for exam') || lowerCommand.includes('advantages') || lowerCommand.includes('benefits')) {
-      speakResponse("Prep-zer offers unique advantages for NEET preparation: personalized AI-driven study plans, adaptive learning that responds to your mood and performance, comprehensive revision tools with flashcards and concept maps, realistic practice exams, and 24/7 AI tutoring support. Our platform is designed to optimize your study time and boost your exam performance.");
-      return;
-    }
-    
-    // Features commands
-    if (lowerCommand.includes('features') || lowerCommand.includes('what can i do')) {
-      speakResponse("Prep-zer offers comprehensive exam preparation features including personalized study plans, flashcards, concept cards for Physics, Chemistry, Biology, Botany and Zoology, formula lab, practice exams, performance analytics, and a 24/7 AI tutor. Would you like to learn more about any specific feature?");
-      return;
-    }
-    
-    // Help or unknown commands
-    speakResponse("Namaste! I'm your Prep-zer assistant. I can help you learn about our platform designed specifically for NEET preparation, sign up for a 7-day free trial, check your exam readiness, or explore our features. What would you like to know about mastering your NEET exam preparation?");
-  };
-
-  // Toggle listening state
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
-  // Start listening
-  const startListening = () => {
-    if (!recognition) return;
-    
-    try {
-      recognition.start();
-      toast({
-        title: "Voice Assistant Activated",
-        description: "I'm listening. How can I help you with PREPZR?",
+    if (isVoiceSupported) {
+      updateVoiceSettings({ 
+        language: 'en-IN',
+        enabled: true
       });
-      setShowTranscript(true);
-    } catch (error) {
-      console.error("Error starting recognition:", error);
     }
-  };
+  }, [isVoiceSupported, updateVoiceSettings]);
 
-  // Stop listening
-  const stopListening = () => {
-    if (!recognition) return;
-    
-    try {
-      recognition.stop();
+  // Welcome message after page load
+  useEffect(() => {
+    if (isVoiceSupported && !hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
+      const timer = setTimeout(() => {
+        const welcomeMessage = "Welcome to PREPZR. I'm your AI voice assistant with an Indian accent. I can help you explore our NEET preparation platform. Click on 'Test Your Exam Readiness' to check your preparation level, or start a free trial to access all our features.";
+        speakMessage(welcomeMessage);
+        setHasGreeted(true);
+      }, 2000);
       
-      // Delay hiding the transcript
-      setTimeout(() => {
-        if (!transcript) {
-          setShowTranscript(false);
-        }
-      }, 3000);
-    } catch (error) {
-      console.error("Error stopping recognition:", error);
+      return () => clearTimeout(timer);
     }
+  }, [isVoiceSupported, hasGreeted, speakMessage, voiceSettings]);
+
+  // Show intro message when button is clicked
+  const handleShowIntro = () => {
+    setShowIntro(true);
+    
+    const introMessage = "PREPZR is an AI-powered NEET exam preparation platform. We use advanced artificial intelligence to personalize your study plan, help you master concepts, and track your progress. Our approach combines technology with proven study methodologies to maximize your exam performance.";
+    
+    speakMessage(introMessage);
   };
 
-  // Speak response with Indian English voice preference
-  const speakResponse = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
+  // Guide user through different sections
+  const explainFeatures = () => {
+    const featuresMessage = "Our platform includes personalized study plans, interactive concept cards, practice exams with detailed analysis, AI-powered progress tracking, and 24/7 tutoring support. Every feature is designed specifically for NEET preparation, focusing on Physics, Chemistry, and Biology.";
     
-    // Improve PREPZR pronunciation
-    const processedText = text.replace(/PREPZR/gi, 'Prep-zer');
-    utterance.text = processedText;
-    
-    // Set language to Indian English
-    utterance.lang = 'en-IN';
-    
-    // Try to use a good voice if available
-    const voices = window.speechSynthesis.getVoices();
-    
-    // Look for an Indian English voice first
-    const indianVoice = voices.find(voice => 
-      voice.lang === 'en-IN' || voice.lang === 'hi-IN'
-    );
-    
-    // Otherwise try to find any good voice
-    const preferredVoice = indianVoice || voices.find(voice => 
-      voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
-    );
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-    
-    // Set sensible defaults for voice
-    utterance.rate = 0.9;  // Slightly slower for clarity
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    
-    window.speechSynthesis.speak(utterance);
-    
-    // Also display as toast for accessibility
-    toast({
-      title: "PREPZR Assistant",
-      description: processedText,
-      duration: 5000,
-    });
+    speakMessage(featuresMessage);
   };
 
-  return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
-      {/* Transcript display */}
-      {showTranscript && transcript && (
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg max-w-xs md:max-w-md transition-all duration-300 mb-2 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              {isListening ? "Listening..." : "I heard:"}
-            </span>
-            {isListening && (
-              <span className="flex items-center">
-                <span className="animate-pulse mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-                <span className="animate-pulse delay-75 mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-                <span className="animate-pulse delay-150 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
-            {transcript}
-          </p>
-        </div>
-      )}
-      
-      {/* Voice assistant button */}
-      <Button
-        variant="default"
-        size="icon"
-        className={`h-12 w-12 rounded-full shadow-xl flex items-center justify-center ${
-          isListening 
-            ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-            : 'bg-indigo-600 hover:bg-indigo-700'
-        }`}
-        onClick={toggleListening}
-      >
-        {isListening ? (
-          <MicOff className="h-6 w-6 text-white" />
-        ) : (
-          <Mic className="h-6 w-6 text-white" />
-        )}
-      </Button>
-    </div>
-  );
+  // This component doesn't render anything visible by default
+  // It only provides voice functionality for the homepage
+  return null;
 };
 
 export default HomePageVoiceAssistant;

@@ -16,7 +16,7 @@ const KpiStats = () => {
     {
       icon: <BookOpen className="h-8 w-8 text-purple-500" />,
       value: '1,200+',
-      label: 'Concept Cards',
+      label: 'Concepts Mastered',
       description: 'Per student on average'
     },
     {
@@ -67,7 +67,7 @@ const KpiStats = () => {
               value: dashboardStats.averageConcepts ? 
                 dashboardStats.averageConcepts.toLocaleString() + '+' : 
                 '1,200+',
-              label: 'Concept Cards',
+              label: 'Concepts Mastered',
               description: 'Per student on average'
             },
             {

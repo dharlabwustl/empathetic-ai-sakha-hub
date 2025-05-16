@@ -78,7 +78,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function with fixed functionality
+  // Admin login function with improved functionality
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     

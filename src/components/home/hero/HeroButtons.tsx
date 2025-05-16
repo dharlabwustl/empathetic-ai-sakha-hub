@@ -34,7 +34,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
         onClick={handleExamReadiness}
       >
         <Sparkles className="mr-2 h-5 w-5" />
-        Exam Readiness Analyzer
+        Test Your Exam Readiness
       </Button>
       <Button 
         size="lg" 
