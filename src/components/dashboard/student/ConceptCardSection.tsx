@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Book } from 'lucide-react';
+import { Book, BookOpen } from 'lucide-react';
 import BackButton from '@/components/dashboard/student/BackButton';
 
 interface ConceptCardSectionProps {
@@ -13,6 +13,7 @@ interface ConceptCardSectionProps {
   showViewAll?: boolean;
   className?: string;
   backTo?: string;
+  icon?: React.ReactNode;
 }
 
 const ConceptCardSection: React.FC<ConceptCardSectionProps> = ({
@@ -22,10 +23,11 @@ const ConceptCardSection: React.FC<ConceptCardSectionProps> = ({
   onViewAll,
   showViewAll = true,
   className = '',
-  backTo
+  backTo,
+  icon = <BookOpen className="h-5 w-5 text-primary" />
 }) => {
   return (
-    <Card className={`border-0 shadow-sm ${className}`}>
+    <Card className={`border-0 shadow-md bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 ${className}`}>
       {backTo && (
         <div className="px-6 pt-4">
           <BackButton to={backTo} />
@@ -34,8 +36,8 @@ const ConceptCardSection: React.FC<ConceptCardSectionProps> = ({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Book className="h-5 w-5 text-primary" />
-            <CardTitle>{title}</CardTitle>
+            {icon}
+            <CardTitle className="text-xl font-semibold">{title}</CardTitle>
           </div>
           {showViewAll && onViewAll && (
             <Button variant="link" onClick={onViewAll} className="text-primary">
