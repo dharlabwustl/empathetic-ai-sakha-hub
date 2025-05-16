@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,9 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         } else {
           navigate("/dashboard/student", { replace: true });
         }
+        
+        // Dispatch custom event for auth state change
+        window.dispatchEvent(new Event('auth-state-changed'));
       } else {
         setLoginError("Invalid email/phone or password");
       }

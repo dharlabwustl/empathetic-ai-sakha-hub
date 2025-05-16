@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -20,6 +20,31 @@ const Header = () => {
   const { logout, isAuthenticated } = useAuth();
   const { adminLogout, isAdminAuthenticated } = useAdminAuth();
   
+  // Local state to force re-render when auth state changes
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Check auth status on mount and when it changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const userLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+      
+      setIsLoggedIn(userLoggedIn || adminLoggedIn);
+      setIsAdmin(adminLoggedIn);
+    };
+    
+    // Initial check
+    checkAuthStatus();
+    
+    // Listen for storage changes (logout/login in other tabs)
+    window.addEventListener('storage', checkAuthStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+    };
+  }, [isAuthenticated, isAdminAuthenticated]);
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -30,17 +55,19 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    if (isAdminAuthenticated) {
+    if (isAdmin) {
       adminLogout();
     } else {
       logout();
     }
+    
+    // Force immediate UI update
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    
+    // Dispatch custom event for auth state change
+    window.dispatchEvent(new Event('auth-state-changed'));
   };
-  
-  // Check current auth state directly from localStorage to avoid stale state
-  const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-  const isLoggedIn = isUserLoggedIn || isAdminLoggedIn;
   
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
@@ -77,8 +104,8 @@ const Header = () => {
             {isLoggedIn ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to={isAdminLoggedIn ? "/admin/dashboard" : "/dashboard/student"}>
-                    {isAdminLoggedIn ? "Admin Dashboard" : "Dashboard"}
+                  <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
+                    {isAdmin ? "Admin Dashboard" : "Dashboard"}
                   </Link>
                 </Button>
                 <Button variant="ghost" onClick={handleLogout}>
@@ -132,8 +159,8 @@ const Header = () => {
               {isLoggedIn ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to={isAdminLoggedIn ? "/admin/dashboard" : "/dashboard/student"}>
-                      {isAdminLoggedIn ? "Admin Dashboard" : "Dashboard"}
+                    <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
+                      {isAdmin ? "Admin Dashboard" : "Dashboard"}
                     </Link>
                   </Button>
                   <Button variant="ghost" onClick={handleLogout} className="justify-start">

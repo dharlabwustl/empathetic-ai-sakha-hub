@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
-import authService from '@/services/auth/authService';
 
 interface User {
   id: string;
@@ -90,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Check if input is email or phone number
           const isEmail = emailOrPhone.includes('@');
           
-          // Determine user role from email
+          // Determine user role from email - if it includes 'admin' then create admin user
           const role = emailOrPhone.includes('admin') ? UserRole.Admin : UserRole.Student;
           
           const newUser: User = {
@@ -118,6 +117,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
           
+          // Special case for admin users
+          if (role === UserRole.Admin) {
+            // For admin users, we should use adminLogin from AdminAuthContext instead
+            // Just set state here for immediate UI feedback
+            setLoading(false);
+            resolve(true);
+            return;
+          }
+          
           // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
@@ -137,10 +145,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.setItem('isLoggedIn', 'true');
           
           // Clear admin auth if this is a student login
-          if (role !== UserRole.Admin) {
-            localStorage.removeItem('admin_logged_in');
-            localStorage.removeItem('admin_user');
-          }
+          localStorage.removeItem('admin_logged_in');
+          localStorage.removeItem('admin_user');
           
           setUser(newUser);
           setLoading(false);
@@ -172,11 +178,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Remove remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');
-
-    // Force a hard reload to ensure all React state is completely reset
-    window.location.href = '/';
     
     console.log("AuthContext: User logged out completely");
+    
+    // Force a hard reload to ensure all React state is completely reset
+    window.location.href = '/';
   };
   
   return (

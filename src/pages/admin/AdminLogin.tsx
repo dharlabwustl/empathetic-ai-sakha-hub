@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Eye, EyeOff, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -41,12 +40,6 @@ const AdminLogin = () => {
       return;
     }
     
-    // Validate that email contains 'admin'
-    if (!email.includes('admin')) {
-      setLoginError("This login is for admins only. Email must contain 'admin'");
-      return;
-    }
-    
     setIsLoading(true);
     setLoginError(null);
     
@@ -60,14 +53,10 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Clear any regular user data
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        
-        // Make sure we go to admin dashboard, not student dashboard
+        // Navigate to admin dashboard
         navigate('/admin/dashboard', { replace: true });
       } else {
-        setLoginError("Invalid admin credentials.");
+        setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }
     } catch (error) {
       setLoginError("An unexpected error occurred. Please try again.");
@@ -172,7 +161,7 @@ const AdminLogin = () => {
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="h-5 w-5 animate-spin" />
                       <span>Signing in...</span>
                     </div>
                   ) : (

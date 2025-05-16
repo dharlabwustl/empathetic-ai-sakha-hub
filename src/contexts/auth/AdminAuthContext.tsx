@@ -109,6 +109,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
 
   // Enhanced Admin logout function - completely clears authentication state
   const adminLogout = () => {
+    // First clear React state
+    setAdminUser(null);
+    
     // Clear all admin authentication data
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
@@ -122,11 +125,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Clear remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');
     
-    // Clear user state
-    setAdminUser(null);
     console.log("Admin logged out completely - all authentication data cleared");
     
-    // Force hard reload to home page
+    // Force hard reload to reset state
     window.location.href = '/';
   };
 
