@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -48,7 +47,7 @@ const StepHandler = ({
       // Create a user object with the collected data
       const userData = {
         name: cleanName,
-        email: `${cleanMobile}@sakha.ai`, // Use consistent email format based on mobile
+        email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
         password: formValues.otp, // Simplified password for easier login
         role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
@@ -68,25 +67,29 @@ const StepHandler = ({
       if (response.success && response.data) {
         console.log("Registration successful:", response.data);
         
+        // Ensure user stays logged in by setting isLoggedIn flag
+        localStorage.setItem("isLoggedIn", "true");
+        
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
+          ...response.data,
           ...onboardingData,
           name: cleanName,
           phoneNumber: cleanMobile,
-          completedOnboarding: false, // Mark as not completed to trigger onboarding flow
+          completedOnboarding: true,
           isNewUser: true,
-          sawWelcomeTour: false
+          sawWelcomeTour: true // Mark tour as seen to avoid showing it
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
         
         toast({
-          title: "Welcome to Sakha AI!",
-          description: "Let's create your personalized study plan.",
+          title: "Welcome to Prepzr!",
+          description: "Let's start your learning journey.",
         });
         
-        // Go directly to the dashboard with parameters to show onboarding
-        navigate("/dashboard/student?completedOnboarding=false&new=true");
+        // Go directly to the dashboard
+        navigate("/dashboard/student", { replace: true });
       } else {
         throw new Error("Registration failed");
       }
@@ -199,7 +202,7 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: interests, isBot: false },
-          { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
+          { content: "Your personalized Prepzr dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
       },

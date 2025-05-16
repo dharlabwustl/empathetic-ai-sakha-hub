@@ -40,8 +40,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         try {
           const parsedData = JSON.parse(adminData);
           if (parsedData.email) {
-            // Admin is already logged in
-            console.log("Admin authenticated from localStorage:", parsedData.email);
             setAdminUser({
               id: parsedData.id || 'admin-1',
               name: parsedData.name || 'Admin User',
@@ -78,7 +76,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function with improved functionality
+  // Admin login function
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
@@ -86,7 +84,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       setTimeout(() => {
         // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
         if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
-          // Clear student login data first
+          // Clear student login data first to avoid conflicts
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
           
@@ -103,7 +101,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
           
           setAdminUser(newAdminUser);
-          console.log("Admin login successful for:", email);
           
           // Dispatch event to notify other components about auth change
           window.dispatchEvent(new Event('auth-state-changed'));
@@ -111,7 +108,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           setAdminLoading(false);
           resolve(true);
         } else {
-          console.log("Admin login failed for:", email);
           setAdminLoading(false);
           resolve(false);
         }
@@ -119,7 +115,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     });
   };
 
-  // Enhanced Admin logout function - completely clears authentication state
+  // Enhanced Admin logout function 
   const adminLogout = () => {
     // First clear React state
     setAdminUser(null);
@@ -136,8 +132,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     // Clear remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');
-    
-    console.log("Admin logged out completely - all authentication data cleared");
     
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));

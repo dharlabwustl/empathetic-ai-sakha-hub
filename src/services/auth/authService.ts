@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -58,7 +57,7 @@ const authService = {
       id: demoUser.id,
       name: demoUser.name,
       email: demoUser.email,
-      role: demoUser.role,
+      role: UserRole.Student,
       mood: 'MOTIVATED',
       isAuthenticated: true,
       lastLogin: new Date().toISOString()
@@ -66,6 +65,9 @@ const authService = {
     
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
+    
+    // Trigger auth state change
+    window.dispatchEvent(new Event('auth-state-changed'));
     
     // Return success response
     return {
@@ -75,7 +77,7 @@ const authService = {
     };
   },
   
-  // Register user
+  // Register user with auto-login
   async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service registering user:", userData);
     
@@ -99,7 +101,7 @@ const authService = {
       name: mockUser.name,
       email: mockUser.email,
       phoneNumber: mockUser.phoneNumber,
-      role: mockUser.role,
+      role: UserRole.Student,
       schoolName: mockUser.schoolName,
       mood: 'MOTIVATED',
       isAuthenticated: true,
@@ -111,6 +113,9 @@ const authService = {
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('new_user_signup', 'true');
+    
+    // Trigger auth state change
+    window.dispatchEvent(new Event('auth-state-changed'));
     
     // Return success response
     return {
@@ -158,7 +163,7 @@ const authService = {
     };
   },
   
-  // Enhanced comprehensive logout function - completely clears all authentication data
+  // Enhanced logout function
   async logout(): Promise<ApiResponse<void>> {
     console.log("Starting enhanced logout process to clear all auth data...");
     
@@ -171,64 +176,31 @@ const authService = {
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
     }
     
-    // Clear all authentication data from local storage - comprehensive list
+    // Clear all authentication data from local storage
     const itemsToRemove = [
       'userData',
       'isLoggedIn',
       AUTH_TOKEN_KEY,
       AUTH_USER_KEY,
-      'user_profile_image',
-      'prepzr_remembered_email',
       'admin_logged_in',
       'admin_user',
-      'sawWelcomeTour',
-      'hasSeenTour',
-      'hasSeenSplash',
-      'voiceSettings',
-      'new_user_signup',
-      'study_time_allocations',
-      'current_mood',
-      'mood_history',
-      'dashboard_tour_completed',
-      'study_plan',
-      'user_preferences',
-      'session_data',
-      'concept_progress',
-      'exam_history',
-      'flash_cards',
-      'last_login',
-      'temp_auth',
-      'selected_subjects',
-      'saved_notes',
-      'practice_results',
       'adminToken',
-      'sakha_auth_token',
-      'sakha_auth_user',
-      'voice-tested',
-      'auth_session',
-      'auth_token',
-      'token',
-      'session_token',
-      'refresh_token',
-      'user_id',
-      'user_session',
-      'user_data'
+      'adminUser',
+      'prepzr_remembered_login',
+      'new_user_signup',
+      'current_mood',
     ];
     
-    // Clear each item individually and log it for debugging
+    // Clear each item individually
     itemsToRemove.forEach(item => {
       try {
-        if (localStorage.getItem(item)) {
-          console.log(`Clearing localStorage item: ${item}`);
-          localStorage.removeItem(item);
-        }
+        localStorage.removeItem(item);
       } catch (e) {
         console.error(`Error clearing ${item}:`, e);
       }
     });
     
     // Additionally clear any session storage items
-    console.log("Clearing all session storage data");
     try {
       sessionStorage.clear();
     } catch (e) {
@@ -238,12 +210,12 @@ const authService = {
     // Reset API client
     apiClient.setAuthToken(null);
     
-    console.log("Logout complete - All authentication data cleared");
+    // Trigger auth state change event
+    window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Force redirection to login page to prevent any auto-login issues
+    // Force redirection to login page after logout
     window.location.href = '/login';
     
-    // Return success - we'll handle navigation separately in the component
     return {
       success: true,
       data: null,

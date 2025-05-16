@@ -64,7 +64,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       localStorage.removeItem('admin_user');
       
       // Login as student
-      console.log("Attempting to log in with:", credentials.emailOrPhone);
       await login(credentials.emailOrPhone, credentials.password);
       
       // Handle remember me functionality
@@ -79,9 +78,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         description: "Welcome back to Prepzr"
       });
       
-      // Dispatch custom event for auth state change
-      window.dispatchEvent(new Event('auth-state-changed'));
-      
       // Navigate to student dashboard
       navigate("/dashboard/student", { replace: true });
     } catch (error) {
@@ -92,11 +88,37 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     }
   };
 
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     setCredentials({
       emailOrPhone: "demo@prepzr.com",
       password: "demo123"
     });
+    
+    // Automatically login with demo credentials
+    setIsLoading(true);
+    setLoginError(null);
+    
+    try {
+      // Clear any existing admin session
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      
+      // Login with demo credentials
+      await login("demo@prepzr.com", "demo123");
+      
+      toast({
+        title: "Demo Login successful",
+        description: "Welcome to the demo account"
+      });
+      
+      // Navigate to student dashboard
+      navigate("/dashboard/student", { replace: true });
+    } catch (error) {
+      console.error("Demo login error:", error);
+      setLoginError("Demo login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,22 +1,22 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, Loader2, UserCheck, ChevronRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, UserCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
-import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { UserRole } from "@/types/user/base";
 
 interface LoginPageProps {
   returnTo?: string;
+  onError?: (error: string) => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student', onError }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, isAuthenticated } = useAuth();
@@ -39,7 +39,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
     }
   }, []);
   
-  // Check if already authenticated and redirect accordingly
+  // Check if already authenticated and redirect
   useEffect(() => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -65,7 +65,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
     e.preventDefault();
     
     if (!formData.emailOrPhone || !formData.password) {
-      setLoginError("Please provide both email/phone and password");
+      const errorMessage = "Please provide both email/phone and password";
+      setLoginError(errorMessage);
+      if (onError) onError(errorMessage);
       return;
     }
     
@@ -96,33 +98,33 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           // Navigate to admin dashboard
           navigate("/admin/dashboard", { replace: true });
         } else {
-          setLoginError("Invalid admin credentials.");
+          const errorMessage = "Invalid admin credentials.";
+          setLoginError(errorMessage);
+          if (onError) onError(errorMessage);
         }
       } else {
         // Try regular student login
-        const success = await login(formData.emailOrPhone, formData.password);
+        await login(formData.emailOrPhone, formData.password);
         
-        if (success) {
-          toast({
-            title: "Login successful",
-            description: "Welcome back to PREPZR!",
-          });
-          
-          // Remember email if option is checked
-          if (rememberMe) {
-            localStorage.setItem("prepzr_remembered_login", formData.emailOrPhone);
-          } else {
-            localStorage.removeItem("prepzr_remembered_login");
-          }
-          
-          // Navigate to student dashboard
-          navigate("/dashboard/student", { replace: true });
+        toast({
+          title: "Login successful",
+          description: "Welcome back to PREPZR!",
+        });
+        
+        // Remember email if option is checked
+        if (rememberMe) {
+          localStorage.setItem("prepzr_remembered_login", formData.emailOrPhone);
         } else {
-          setLoginError("Invalid email/phone or password.");
+          localStorage.removeItem("prepzr_remembered_login");
         }
+        
+        // Navigate to student dashboard
+        navigate("/dashboard/student", { replace: true });
       }
     } catch (error) {
-      setLoginError("An unexpected error occurred. Please try again.");
+      const errorMessage = "Invalid email/phone or password.";
+      setLoginError(errorMessage);
+      if (onError) onError(errorMessage);
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -133,11 +135,39 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
     setShowPassword(!showPassword);
   };
   
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     setFormData({
       emailOrPhone: "demo@prepzr.com",
       password: "demo123"
     });
+    
+    // Automatically login with demo credentials
+    setIsLoading(true);
+    setLoginError(null);
+    
+    try {
+      // Clear any existing admin session
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      
+      // Login with demo credentials
+      await login("demo@prepzr.com", "demo123");
+      
+      toast({
+        title: "Demo Login successful",
+        description: "Welcome to the demo account"
+      });
+      
+      // Navigate to student dashboard
+      navigate("/dashboard/student", { replace: true });
+    } catch (error) {
+      const errorMessage = "Demo login failed. Please try again.";
+      setLoginError(errorMessage);
+      if (onError) onError(errorMessage);
+      console.error("Demo login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -149,12 +179,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
       )}
       
       <form onSubmit={handleLogin} className="space-y-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           <Label htmlFor="emailOrPhone" className="text-sm font-medium">Email Address or Phone Number</Label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -167,17 +192,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
               onChange={handleInputChange}
               placeholder="Enter your email or phone number"
               type="text"
-              className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.emailOrPhone ? "border-red-500" : ""}`}
+              className={`pl-9 ${loginError && !formData.emailOrPhone ? "border-red-500" : ""}`}
             />
           </div>
-        </motion.div>
+        </div>
         
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           <Label htmlFor="password" className="text-sm font-medium">Password</Label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -190,7 +210,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
               onChange={handleInputChange}
               placeholder="Enter your password"
               type={showPassword ? "text" : "password"}
-              className={`pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.password ? "border-red-500" : ""}`}
+              className={`pl-9 pr-10 ${loginError && !formData.password ? "border-red-500" : ""}`}
               autoComplete="current-password"
             />
             <button
@@ -201,14 +221,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-        </motion.div>
+        </div>
         
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="flex items-center justify-between"
-        >
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="remember"
@@ -232,55 +247,38 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           >
             Forgot password?
           </button>
-        </motion.div>
+        </div>
         
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="pt-2"
-        >
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 shadow-md hover:shadow-lg transition-all duration-300"
+            disabled={isLoading}
           >
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 shadow-md hover:shadow-lg transition-all duration-300"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing In...
-                </>
-              ) : (
-                <>
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  Sign In <ChevronRight className="ml-1 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </motion.div>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing In...
+              </>
+            ) : (
+              <>
+                <UserCheck className="mr-2 h-4 w-4" />
+                Sign In
+              </>
+            )}
+          </Button>
           
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.4 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="mt-3"
-          >
+          <div className="mt-3">
             <Button
               type="button"
               variant="outline"
-              className="w-full border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+              className="w-full border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
               onClick={handleDemoLogin}
             >
               Use Demo Account
             </Button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </form>
     </div>
   );

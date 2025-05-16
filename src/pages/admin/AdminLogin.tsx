@@ -6,31 +6,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
-import { Eye, EyeOff, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
-  
-  const navigate = useNavigate();
-  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
 
-  // Redirect to admin dashboard if already authenticated
+  // Get the return URL from query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
+
+  // Check if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated && !adminLoading) {
-      navigate('/admin/dashboard', { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [isAdminAuthenticated, adminLoading, navigate]);
+  }, [isAdminAuthenticated, adminLoading, navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +45,12 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Call the adminLogin function from the context
+      // Use the adminLogin function from the context
       const success = await adminLogin(email, password);
       
       if (success) {
         toast({
-          title: "Admin Login successful",
+          title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
@@ -59,7 +60,7 @@ const AdminLogin = () => {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }
     } catch (error) {
-      setLoginError("An unexpected error occurred. Please try again.");
+      setLoginError("An unexpected error occurred");
       console.error("Admin login error:", error);
     } finally {
       setIsLoading(false);
@@ -70,26 +71,45 @@ const AdminLogin = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleDemoAdminLogin = () => {
+  const handleDemoAdminLogin = async () => {
     setEmail("admin@prepzr.com");
     setPassword("admin123");
+    
+    try {
+      setIsLoading(true);
+      setLoginError(null);
+      
+      const success = await adminLogin("admin@prepzr.com", "admin123");
+      
+      if (success) {
+        toast({
+          title: "Admin Demo Login",
+          description: "Logged in successfully as demo admin",
+        });
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        setLoginError("Demo login failed. Please try again.");
+      }
+    } catch (error) {
+      setLoginError("An unexpected error occurred");
+      console.error("Demo login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height={120} />
-          </Link>
-          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-md w-full px-4">
+        <div className="text-center mb-6">
+          <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          <h1 className="mt-4 text-2xl font-bold">Admin Portal</h1>
         </div>
         
-        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-purple-100">
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
+            <CardDescription className="text-center">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
@@ -103,25 +123,21 @@ const AdminLogin = () => {
           )}
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-6">
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                    <Mail size={16} />
-                  </div>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@prepzr.com"
-                    className="pl-9"
-                    required
-                  />
-                </div>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setLoginError(null);
+                  }}
+                  placeholder="admin@prepzr.com"
+                  required
+                />
               </div>
-              
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
@@ -134,15 +150,14 @@ const AdminLogin = () => {
                   </Button>
                 </div>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                    <Lock size={16} />
-                  </div>
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 pr-10"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setLoginError(null);
+                    }}
                     required
                   />
                   <Button
@@ -166,8 +181,7 @@ const AdminLogin = () => {
                 Use Demo Admin Account
               </Button>
             </CardContent>
-            
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter>
               <Button className="w-full" disabled={isLoading} type="submit">
                 {isLoading ? (
                   <>
@@ -181,16 +195,15 @@ const AdminLogin = () => {
                   </>
                 )}
               </Button>
-              
-              <p className="text-sm text-gray-600">
-                Not an admin?{" "}
-                <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
-                  Go to Student Login
-                </Link>
-              </p>
             </CardFooter>
           </form>
         </Card>
+        
+        <div className="mt-4 text-center">
+          <Button variant="link" onClick={() => navigate("/login")}>
+            Back to Student Login
+          </Button>
+        </div>
       </div>
     </div>
   );
