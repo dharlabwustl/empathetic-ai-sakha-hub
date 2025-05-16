@@ -1,308 +1,161 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
-import { useToast } from "@/hooks/use-toast";
-
-interface PendingTask {
-  id: string;
-  title: string;
-  path: string;
-  iconType: "quiz" | "flashcard" | "concept" | "practice" | "other";
-}
+import { useToast } from '@/hooks/use-toast';
+import VoiceGreeting from '@/components/dashboard/student/VoiceGreeting';
 
 const PostLoginWelcome = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  
-  const [userName, setUserName] = useState<string>('Student');
-  const [lastActivity, setLastActivity] = useState<string | null>(null);
-  const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
-  const [lastLoginDate, setLastLoginDate] = useState<string>('recently');
-  const [loading, setLoading] = useState<boolean>(true);
-  
+  const [redirecting, setRedirecting] = useState(false);
+  const [countdown, setCountdown] = useState(2);
+
+  // Parse the returnTo parameter from the URL
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/dashboard/student';
+
+  // Check localStorage for skipLogin flag
+  const skipLogin = localStorage.getItem('skipLogin') === 'true';
+
+  // Redirect after a delay
   useEffect(() => {
-    // Simulate loading data
-    setLoading(true);
-    
-    // Get user data from localStorage
-    const userData = localStorage.getItem('userData');
-    
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        
-        // Set user name
-        if (parsedData.name) {
-          setUserName(parsedData.name);
-        }
-        
-        // Get last activity
-        if (parsedData.lastActivity) {
-          setLastActivity(parsedData.lastActivity.description);
-        }
-        
-        // Format last login date if available
-        if (parsedData.lastLogin) {
-          const lastLogin = new Date(parsedData.lastLogin);
-          const now = new Date();
-          const diffDays = Math.floor((now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24));
-          
-          if (diffDays === 0) {
-            setLastLoginDate('today');
-          } else if (diffDays === 1) {
-            setLastLoginDate('yesterday');
-          } else if (diffDays < 7) {
-            setLastLoginDate(`${diffDays} days ago`);
-          } else {
-            setLastLoginDate(lastLogin.toLocaleDateString());
-          }
-        }
-        
-        // Generate mock pending tasks
-        setPendingTasks([
-          {
-            id: '1',
-            title: 'Complete Physics Quiz on Mechanics',
-            path: '/dashboard/student/practice-exam',
-            iconType: 'quiz'
-          },
-          {
-            id: '2',
-            title: 'Review Biology Flashcards',
-            path: '/dashboard/student/flashcards',
-            iconType: 'flashcard'
-          },
-          {
-            id: '3',
-            title: 'Study Chemistry Concepts',
-            path: '/dashboard/student/concepts',
-            iconType: 'concept'
-          }
-        ]);
-        
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    } else {
-      // If no user data, redirect to login
-      navigate('/login');
+    // If skipLogin flag is set, redirect immediately
+    if (skipLogin) {
+      // Clear the flag to avoid infinite redirects
+      localStorage.removeItem('skipLogin');
+      // Use window.location.href for more reliable navigation
+      window.location.href = returnTo;
       return;
     }
 
-    // Simulate loading delay
-    setTimeout(() => {
-      setLoading(false);
-    }, 800);
+    // Check if the user is authenticated and has completed welcome
+    const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true' || 
+                            localStorage.getItem('authenticate_user') === 'true' ||
+                            localStorage.getItem('admin_logged_in') === 'true';
     
-    // Auto-redirect after 5 seconds if no action taken
-    const timer = setTimeout(() => {
-      navigate('/dashboard/student/today');
-      toast({
-        title: "Welcome back!",
-        description: "You've been automatically redirected to Today's Plan.",
+    const hasCompletedWelcome = localStorage.getItem('hasCompletedWelcome') === 'true';
+
+    if (!isAuthenticated) {
+      // If not authenticated, redirect to login
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    // Start the countdown for redirection
+    setRedirecting(true);
+    const countdownTimer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownTimer);
+          // Set the flag to indicate welcome completed
+          localStorage.setItem('hasCompletedWelcome', 'true');
+          
+          // Use window.location.href for more reliable navigation
+          window.location.href = returnTo;
+          return 0;
+        }
+        return prev - 1;
       });
-    }, 10000); // Increased time to 10 seconds to give users more time to interact
-    
-    return () => clearTimeout(timer);
-  }, [navigate, toast]);
+    }, 1000);
 
-  const getIconForTask = (type: string) => {
-    switch (type) {
-      case 'quiz':
-        return <ClipboardCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />;
-      case 'flashcard':
-        return <BookMarked className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
-      case 'concept':
-        return <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
-      case 'practice':
-        return <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />;
+    // Show welcome toast
+    toast({
+      title: 'Welcome Back!',
+      description: 'Redirecting to your dashboard...',
+      duration: 3000,
+    });
+
+    return () => clearInterval(countdownTimer);
+  }, [navigate, returnTo, toast, skipLogin]);
+
+  // Get the user name from localStorage
+  const getUserName = () => {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        return parsedData.name || 'Student';
+      }
+      
+      const adminData = localStorage.getItem('admin_user');
+      if (adminData) {
+        const parsedData = JSON.parse(adminData);
+        return parsedData.name || 'Admin';
+      }
+      
+      return 'Student';
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return 'Student';
     }
   };
 
-  const goToTodaysPlan = () => {
-    navigate("/dashboard/student/today");
-    toast({
-      title: "Today's Plan",
-      description: "Let's focus on today's learning goals!"
-    });
-  };
-
-  const goToDashboard = () => {
-    navigate("/dashboard/student/overview");
-    toast({
-      title: "Welcome Back",
-      description: "Your dashboard is ready for today's learning activities."
-    });
-  };
-  
-  const navigateToTask = (task: PendingTask) => {
-    navigate(task.path);
-    toast({
-      title: "Continuing Your Work",
-      description: `Now viewing: ${task.title}`
-    });
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
-        when: "beforeChildren", 
-        staggerChildren: 0.2,
-        duration: 0.5
-      } 
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
-        <PrepzrLogo width={100} height="auto" className="animate-pulse" />
-        <p className="mt-4 text-xl font-medium text-gray-700 dark:text-gray-300 animate-pulse">
-          Preparing your dashboard...
-        </p>
-      </div>
-    );
-  }
+  const userName = getUserName();
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-violet-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex flex-col items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="max-w-md w-full"
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center"
       >
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <PrepzrLogo width={120} height="auto" className="mx-auto filter drop-shadow-md" />
-          </motion.div>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-4 text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-violet-600"
-          >
-            Welcome Back, {userName}!
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-2 text-gray-600 dark:text-gray-400"
-          >
-            {lastLoginDate === 'today' 
-              ? "Returning for another study session today?" 
-              : `You last logged in ${lastLoginDate}`}
-          </motion.p>
-        </div>
+        <PrepzrLogo width={150} height="auto" className="mx-auto mb-6" />
+        
+        <motion.h1
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="text-2xl md:text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+        >
+          Welcome back, {userName}!
+        </motion.h1>
+        
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="text-gray-600 dark:text-gray-300 mb-8"
+        >
+          We're preparing your dashboard...
+        </motion.p>
         
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 mb-6"
         >
-          <Card className="shadow-xl border-gray-200 dark:border-gray-800 overflow-hidden relative">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-400"></div>
-            <motion.div variants={itemVariants}>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-blue-500" />
-                  <CardTitle className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">Pick Up Where You Left Off</CardTitle>
-                </div>
-                <CardDescription>
-                  {lastActivity 
-                    ? `You were working on ${lastActivity}`
-                    : "Choose where to continue your learning journey"}
-                </CardDescription>
-              </CardHeader>
-            </motion.div>
-            
-            <CardContent className="space-y-4">
-              <motion.div variants={itemVariants}>
-                <Button 
-                  variant="default" 
-                  className="w-full justify-start gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-                  onClick={goToTodaysPlan}
-                >
-                  <Calendar className="h-5 w-5" />
-                  <span className="flex-1 text-left">Go to Today's Plan</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
-              
-              <motion.div variants={itemVariants}>
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-2 pb-1 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-blue-500" />
-                  Pending Activities:
-                </div>
-              </motion.div>
-              
-              <AnimatePresence>
-                {pendingTasks.map((task, index) => (
-                  <motion.div 
-                    key={task.id}
-                    variants={itemVariants}
-                    custom={index}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start gap-3 border-blue-200 dark:border-blue-900 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all duration-200"
-                      onClick={() => navigateToTask(task)}
-                    >
-                      {getIconForTask(task.iconType)}
-                      <span className="flex-1 text-left truncate">
-                        {task.title}
-                      </span>
-                      <ArrowRight className="h-4 w-4 flex-shrink-0" />
-                    </Button>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              <motion.div variants={itemVariants}>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start gap-3 mt-4 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-950/30 dark:hover:border-green-800 transition-all duration-200"
-                  onClick={goToDashboard}
-                >
-                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  <span className="flex-1 text-left">Go to My Dashboard</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
-            </CardContent>
-            
-            <motion.div variants={itemVariants}>
-              <CardFooter className="flex justify-center pt-2">
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Clock className="h-4 w-4 animate-pulse" />
-                  You'll be redirected to Today's Plan shortly...
-                </p>
-              </CardFooter>
-            </motion.div>
-          </Card>
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 2 }}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full"
+          ></motion.div>
         </motion.div>
+        
+        {redirecting && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
+            className="text-sm text-gray-500 dark:text-gray-400"
+          >
+            Redirecting in {countdown} seconds...
+          </motion.p>
+        )}
       </motion.div>
+
+      {/* Voice greeting for first-time users */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
+        userName={userName}
+        language="en"
+      />
     </div>
   );
 };

@@ -1,11 +1,22 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const returnTo = searchParams.get('returnTo') || '/dashboard/student';
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true' || 
+                            localStorage.getItem('authenticate_user') === 'true';
+    
+    if (isAuthenticated) {
+      // Direct to dashboard using window.location for more reliable navigation
+      window.location.href = returnTo;
+    }
+  }, [returnTo]);
 
   // In a real application, you would handle login logic here
   // For now, just redirect to the welcome-back page with the returnTo parameter
