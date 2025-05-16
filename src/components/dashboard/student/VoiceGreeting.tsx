@@ -41,9 +41,37 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             
             // Create speech synthesis utterance
             const speech = new SpeechSynthesisUtterance(welcomeText);
-            speech.lang = language === 'en' ? 'en-US' : 'hi-IN';
+            speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
             speech.rate = 0.9; // Slightly slower for clarity
             speech.volume = 0.8;
+            
+            // Find an Indian voice if available
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoiceNames = [
+              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India'
+            ];
+            
+            // Try to find a preferred voice
+            let selectedVoice = null;
+            for (const name of preferredVoiceNames) {
+              const voice = voices.find(v => v.name.includes(name));
+              if (voice) {
+                selectedVoice = voice;
+                break;
+              }
+            }
+            
+            // If no preferred voice, try to find any Indian voice
+            if (!selectedVoice) {
+              selectedVoice = voices.find(v => 
+                v.lang === 'en-IN' || v.lang === 'hi-IN' || v.name.includes('India')
+              );
+            }
+            
+            // Set the selected voice if found
+            if (selectedVoice) {
+              speech.voice = selectedVoice;
+            }
             
             // Add event listeners
             speech.onstart = () => setAudioPlaying(true);

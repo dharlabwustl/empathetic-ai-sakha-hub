@@ -1,13 +1,28 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import HeroButtons from "@/components/home/hero/HeroButtons";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import HeroButtons from '@/components/home/hero/HeroButtons';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)");
+  const [currentTagline, setCurrentTagline] = useState(0);
+  
+  const taglines = [
+    "Ace your exams.",
+    "Save time.",
+    "Stress less.",
+    "Study smarter."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTagline((prev) => (prev + 1) % taglines.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
   
   const handleExamAnalyzer = () => {
     // Dispatch an event to open the exam analyzer
@@ -19,29 +34,33 @@ const HeroSection: React.FC = () => {
     <div className="relative overflow-hidden bg-white dark:bg-gray-950 pt-16 md:pt-20">
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <motion.h1 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mx-auto max-w-[98%] sm:max-w-[85%] bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 mb-6"
+            className="mx-auto max-w-[98%] sm:max-w-[90%] lg:max-w-[95%] overflow-hidden"
           >
-            <span className="text-gray-900 dark:text-gray-100">अब तैयारी करो अपने तरीके से, सिर्फ </span>
-            <motion.span 
-              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600"
-              animate={{ 
-                backgroundColor: ["#8b5cf6", "#6366f1", "#8b5cf6"],
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ 
-                duration: 2.5, 
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-            >
-              PREPZR
-            </motion.span>
-            <span className="text-gray-900 dark:text-gray-100"> के साथ!</span>
-          </motion.h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-normal px-2 mb-6">
+              <span className="text-gray-900 dark:text-gray-100">
+                अब तैयारी करो अपने तरीके से, सिर्फ{" "}
+                <motion.span 
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600"
+                  animate={{ 
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 5, 
+                    repeat: Infinity, 
+                    repeatType: "reverse" 
+                  }}
+                >
+                  PREPZR
+                </motion.span>{" "}
+                के साथ!
+              </span>
+            </h1>
+          </motion.div>
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
