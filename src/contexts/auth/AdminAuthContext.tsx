@@ -83,9 +83,39 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     setAdminLoading(true);
     
     return new Promise<boolean>((resolve) => {
+      // Immediately resolve for demo admin account
+      if (email === 'admin@prepzr.com' && password === 'admin123') {
+        // Clear student login data first
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        const newAdminUser: AdminUser = {
+          id: 'admin-1',
+          name: "Admin User",
+          email: email,
+          role: "admin",
+          permissions: ['all']
+        };
+        
+        // Save admin data to localStorage
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
+        
+        setAdminUser(newAdminUser);
+        console.log("Admin login successful for:", email);
+        
+        // Dispatch event to notify other components about auth change
+        window.dispatchEvent(new Event('auth-state-changed'));
+        
+        setAdminLoading(false);
+        resolve(true);
+        return;
+      }
+      
+      // For any other admin emails, add a slight delay
       setTimeout(() => {
-        // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
-        if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
+        // For demo purposes, accept any email that includes 'admin'
+        if ((email.includes('admin')) && password.length > 0) {
           // Clear student login data first
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
@@ -115,7 +145,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           setAdminLoading(false);
           resolve(false);
         }
-      }, 400); // Reduced timeout for faster login
+      }, 200); // Very short timeout to avoid shivering
     });
   };
 

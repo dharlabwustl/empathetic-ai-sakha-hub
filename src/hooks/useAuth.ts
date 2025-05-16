@@ -52,9 +52,38 @@ export function useAuth() {
     // Mock login functionality
     setLoading(true);
     
+    // Clear any existing admin session
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    
     return new Promise<User>((resolve, reject) => {
+      // For demo login, automatically accept demo credentials
+      if (email === 'demo@prepzr.com' && password === 'demo123') {
+        const demoUser: User = {
+          id: '1',
+          name: 'Demo User',
+          email: 'demo@prepzr.com',
+          role: UserRole.Student
+        };
+        
+        // Store in localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userData', JSON.stringify(demoUser));
+        
+        // Update state
+        setUser(demoUser);
+        setLoading(false);
+        
+        // Dispatch auth state changed event
+        window.dispatchEvent(new Event('auth-state-changed'));
+        
+        resolve(demoUser);
+        return;
+      }
+      
+      // For all other cases, add a small delay
       setTimeout(() => {
-        // For demo login, accept any non-empty credentials
+        // Accept any non-empty credentials
         if (email && password) {
           // Create mock user
           const newUser: User = {
@@ -67,6 +96,7 @@ export function useAuth() {
           // Store in localStorage
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('userData', JSON.stringify(newUser));
+          localStorage.setItem('completedOnboarding', 'true'); // Mark onboarding as completed
           
           // Update state
           setUser(newUser);
@@ -80,7 +110,7 @@ export function useAuth() {
           setLoading(false);
           reject(new Error('Invalid credentials'));
         }
-      }, 800);
+      }, 400);
     });
   };
   
