@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface StudentLoginFormProps {
@@ -22,6 +22,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Check for saved credentials when component mounts
   useEffect(() => {
@@ -125,17 +126,21 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       
       <div className="space-y-2">
         <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
-        <Input
-          id="emailOrPhone"
-          name="emailOrPhone"
-          type="text"
-          placeholder="Email or Phone Number"
-          value={credentials.emailOrPhone}
-          onChange={handleChange}
-          className={loginError && !credentials.emailOrPhone ? "border-red-500" : ""}
-          autoComplete="email tel"
-          required
-        />
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <Mail size={16} />
+          </div>
+          <Input
+            id="emailOrPhone"
+            name="emailOrPhone"
+            type="text"
+            placeholder="Email or Phone Number"
+            value={credentials.emailOrPhone}
+            onChange={handleChange}
+            className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
+            autoComplete="email tel"
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
@@ -155,16 +160,29 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
             Forgot password?
           </Button>
         </div>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          value={credentials.password}
-          onChange={handleChange}
-          className={loginError && !credentials.password ? "border-red-500" : ""}
-          autoComplete="current-password"
-          required
-        />
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <Lock size={16} />
+          </div>
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={credentials.password}
+            onChange={handleChange}
+            className={`pl-9 pr-10 ${loginError && !credentials.password ? "border-red-500" : ""}`}
+            autoComplete="current-password"
+          />
+          <Button
+            type="button" 
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-full"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </Button>
+        </div>
       </div>
       
       <div className="flex items-center space-x-2">

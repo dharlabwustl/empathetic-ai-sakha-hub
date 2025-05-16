@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// Admin user interface
 interface AdminUser {
   id: string;
   name: string;
@@ -9,16 +10,19 @@ interface AdminUser {
   permissions?: string[];
 }
 
+// Admin auth context interface
 interface AdminAuthContextType {
   adminUser: AdminUser | null;
   adminLoading: boolean;
+  isAdminAuthenticated: boolean;
   adminLogin: (email: string, password: string) => Promise<boolean>;
   adminLogout: () => void;
-  isAdminAuthenticated: boolean;
 }
 
+// Create context
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
+// Provider component
 interface AdminAuthProviderProps {
   children: ReactNode;
 }
@@ -27,7 +31,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [adminLoading, setAdminLoading] = useState(true);
 
-  // Check for existing admin user in localStorage on component mount
+  // Check for existing admin user in localStorage on mount
   useEffect(() => {
     const checkAdminAuth = () => {
       setAdminLoading(true);
@@ -76,44 +80,46 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function with specific handling
+  // Admin login function
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
     return new Promise<boolean>((resolve) => {
-      // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
-      if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
-        // Clear student login data first to avoid conflicts
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        
-        const newAdminUser: AdminUser = {
-          id: 'admin-1',
-          name: "Admin User",
-          email: email,
-          role: "admin",
-          permissions: ['all']
-        };
-        
-        // Save admin data to localStorage
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
-        
-        setAdminUser(newAdminUser);
-        
-        // Dispatch event to notify other components about auth change
-        window.dispatchEvent(new Event('auth-state-changed'));
-        
-        setAdminLoading(false);
-        resolve(true);
-      } else {
-        setAdminLoading(false);
-        resolve(false);
-      }
+      setTimeout(() => {
+        // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
+        if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
+          // Clear student login data first to avoid conflicts
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isLoggedIn');
+          
+          const newAdminUser: AdminUser = {
+            id: 'admin-1',
+            name: "Admin User",
+            email: email,
+            role: "admin",
+            permissions: ['all']
+          };
+          
+          // Save admin data to localStorage
+          localStorage.setItem('admin_logged_in', 'true');
+          localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
+          
+          setAdminUser(newAdminUser);
+          
+          // Dispatch event to notify other components about auth change
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
+          setAdminLoading(false);
+          resolve(true);
+        } else {
+          setAdminLoading(false);
+          resolve(false);
+        }
+      }, 400); // Quick response for better UX
     });
   };
 
-  // Enhanced Admin logout function 
+  // Admin logout function
   const adminLogout = () => {
     // First clear React state
     setAdminUser(null);

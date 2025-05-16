@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
@@ -21,10 +21,6 @@ const AdminLogin = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
-
-  // Get the return URL from query parameters or use default
-  const searchParams = new URLSearchParams(location.search);
-  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
 
   // Check if already authenticated
   useEffect(() => {
@@ -49,11 +45,11 @@ const AdminLogin = () => {
       
       if (success) {
         toast({
-          title: "Login successful",
+          title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard (always to admin dashboard, not using returnTo)
+        // Navigate to admin dashboard
         navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
@@ -106,9 +102,9 @@ const AdminLogin = () => {
         </div>
         
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 bg-gradient-to-r from-blue-600 to-violet-700 text-white">
             <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-blue-100">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
@@ -122,20 +118,26 @@ const AdminLogin = () => {
           )}
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setLoginError(null);
-                  }}
-                  placeholder="admin@prepzr.com"
-                  required
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <Mail size={16} />
+                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setLoginError(null);
+                    }}
+                    placeholder="admin@prepzr.com"
+                    className="pl-9"
+                    required
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -149,6 +151,9 @@ const AdminLogin = () => {
                   </Button>
                 </div>
                 <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <Lock size={16} />
+                  </div>
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -157,6 +162,7 @@ const AdminLogin = () => {
                       setPassword(e.target.value);
                       setLoginError(null);
                     }}
+                    className="pl-9 pr-10"
                     required
                   />
                   <Button
@@ -182,7 +188,7 @@ const AdminLogin = () => {
               </Button>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" disabled={isLoading} type="submit">
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600" disabled={isLoading} type="submit">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

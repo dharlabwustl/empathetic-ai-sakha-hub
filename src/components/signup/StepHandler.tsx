@@ -1,9 +1,9 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { MoodType } from "@/types/user/base";
-import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
 interface StepHandlerProps {
@@ -45,58 +45,38 @@ const StepHandler = ({
       
       // Create a user object with the collected data
       const userData = {
+        id: `user_${Date.now()}`,
         name: cleanName,
         email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
-        password: formValues.otp, // Simplified password for easier login
-        role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
+        role: UserRole.Student,
+        ...onboardingData,
+        completedOnboarding: true,
+        isNewUser: true,
+        sawWelcomeTour: false
       };
       
       console.log("Registering user:", userData);
       
-      // Register the user using auth service
-      const response = await authService.register({
-        name: userData.name,
-        email: userData.email,
-        phoneNumber: userData.phoneNumber,
-        password: userData.password,
-        role: userData.role
+      // Clear admin login if exists
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      
+      // Set user as logged in
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.setItem('new_user_signup', 'true');
+      
+      // Dispatch auth state changed event
+      window.dispatchEvent(new Event('auth-state-changed'));
+      
+      toast({
+        title: "Welcome to Prepzr!",
+        description: "Let's start your learning journey.",
       });
       
-      if (response.success && response.data) {
-        console.log("Registration successful:", response.data);
-        
-        // Ensure user stays logged in by setting isLoggedIn flag
-        localStorage.setItem("isLoggedIn", "true");
-        
-        // Clear admin login if exists
-        localStorage.removeItem('admin_logged_in');
-        localStorage.removeItem('admin_user');
-        
-        // Save additional onboarding data to localStorage with consistent format
-        const extendedUserData = {
-          ...response.data,
-          ...onboardingData,
-          name: cleanName,
-          phoneNumber: cleanMobile,
-          completedOnboarding: true,
-          isNewUser: true,
-          sawWelcomeTour: false // Allow tour to be shown
-        };
-        
-        localStorage.setItem("userData", JSON.stringify(extendedUserData));
-        localStorage.setItem("new_user_signup", "true");
-        
-        toast({
-          title: "Welcome to Prepzr!",
-          description: "Let's start your learning journey.",
-        });
-        
-        // Go directly to the dashboard
-        navigate("/dashboard/student", { replace: true });
-      } else {
-        throw new Error("Registration failed");
-      }
+      // Go directly to the dashboard
+      navigate("/dashboard/student", { replace: true });
     } catch (error) {
       console.error("Signup error:", error);
       toast({

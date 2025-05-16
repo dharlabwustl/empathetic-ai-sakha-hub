@@ -13,21 +13,22 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const searchParams = new URLSearchParams(location.search);
-  const returnTo = searchParams.get('returnTo') || '/dashboard/student';
   
   // Check if user is already logged in
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
-    const isAuthenticated = Boolean(authToken);
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
-    if (isAuthenticated) {
-      // If already authenticated, clear it to ensure fresh login
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      console.log("Found existing authentication, clearing for fresh login");
+    if (isAdminLoggedIn) {
+      navigate('/admin/dashboard', { replace: true });
+      return;
     }
-  }, []);
+    
+    if (isUserLoggedIn) {
+      navigate('/dashboard/student', { replace: true });
+      return;
+    }
+  }, [navigate]);
   
   const handleLoginError = (error: string) => {
     toast({
@@ -66,7 +67,7 @@ const Login = () => {
             
             <TabsContent value="student" className="pt-2">
               <form onSubmit={(e) => e.preventDefault()}>
-                <LoginPage returnTo={returnTo} onError={handleLoginError} />
+                <LoginPage onError={handleLoginError} />
               </form>
             </TabsContent>
             
@@ -74,7 +75,7 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => navigate(`/admin/login?returnTo=${returnTo}`)}>
+                    <Button variant="outline" className="w-full" onClick={() => navigate(`/admin/login`)}>
                       Go to Admin Login
                     </Button>
                   </div>
