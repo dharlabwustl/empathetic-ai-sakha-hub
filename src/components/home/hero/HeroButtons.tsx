@@ -25,7 +25,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
     }
   };
 
-  // Always show these two buttons regardless of login state
+  // Only show these two buttons regardless of login state
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <Button 
