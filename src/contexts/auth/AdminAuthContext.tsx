@@ -119,12 +119,15 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     sessionStorage.removeItem('admin_session');
     sessionStorage.removeItem('admin_token');
     
+    // Clear remembered login if exists
+    localStorage.removeItem('prepzr_remembered_login');
+    
     // Clear user state
     setAdminUser(null);
     console.log("Admin logged out completely - all authentication data cleared");
     
-    // Force redirect to admin login
-    window.location.href = '/admin/login';
+    // Force hard reload to home page
+    window.location.href = '/';
   };
 
   return (

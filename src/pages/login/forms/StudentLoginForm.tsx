@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -62,6 +61,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.emailOrPhone);
       
+      // The login function accepts both email and phone number
       const success = await login(credentials.emailOrPhone, credentials.password);
       
       if (success) {
@@ -77,30 +77,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           description: "Welcome back to Prepzr"
         });
         
-        // Update login count and last activity in userData
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          try {
-            const parsedData = JSON.parse(userData);
-            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
-            const lastActivity = {
-              type: "login",
-              description: "last session",
-              timestamp: new Date().toISOString()
-            };
-            
-            localStorage.setItem("userData", JSON.stringify({
-              ...parsedData,
-              loginCount,
-              lastActivity,
-              lastLogin: new Date().toISOString()
-            }));
-          } catch (error) {
-            console.error("Error updating user data:", error);
-          }
-        }
-        
-        // Check if the user is an admin based on the email or stored role
+        // Check if the user is an admin based on the email
         const isAdmin = credentials.emailOrPhone.includes('admin');
         
         // Direct navigation based on user role
@@ -145,7 +122,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           value={credentials.emailOrPhone}
           onChange={handleChange}
           className={loginError && !credentials.emailOrPhone ? "border-red-500" : ""}
-          autoComplete="email"
+          autoComplete="email tel"
           required
         />
       </div>

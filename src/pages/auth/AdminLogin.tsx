@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { adminLogin } = useAdminAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,25 +30,17 @@ const AdminLogin = () => {
     
     setIsLoading(true);
     
-    // Simulate API login call with a delay
-    setTimeout(() => {
-      // For demo purposes, accept any admin login with admin email
-      if (email.includes("admin")) {
-        // Store admin login state in localStorage
-        localStorage.setItem("admin_logged_in", "true");
-        localStorage.setItem("admin_user", JSON.stringify({
-          email,
-          name: "Admin User",
-          role: "admin"
-        }));
-        
+    try {
+      const success = await adminLogin(email, password);
+      
+      if (success) {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
         // Navigate to admin dashboard
-        navigate("/dashboard/admin");
+        navigate("/admin/dashboard");
       } else {
         toast({
           title: "Login failed",
@@ -54,9 +48,16 @@ const AdminLogin = () => {
           variant: "destructive",
         });
       }
-      
+    } catch (error) {
+      toast({
+        title: "Login error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      console.error("Admin login error:", error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

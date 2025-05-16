@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Enhanced logout function with forceful page navigation
+  // Enhanced logout function with proper cleanup
   const logout = () => {
     console.log("AuthContext: Starting logout process...");
     
@@ -170,8 +170,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
     
-    // Force navigation to login page
-    window.location.href = '/login';
+    // Remove remembered login if exists
+    localStorage.removeItem('prepzr_remembered_login');
+
+    // Force a hard reload to ensure all React state is completely reset
+    window.location.href = '/';
     
     console.log("AuthContext: User logged out completely");
   };

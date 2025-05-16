@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
@@ -16,15 +16,8 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
   onAnalyzeClick,
 }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { isAdminAuthenticated } = useAdminAuth();
-  // Force component to re-render on mount to catch auth state changes
-  const [, forceUpdate] = useState({});
-  
-  useEffect(() => {
-    // Force re-render once on component mount to ensure proper button display
-    forceUpdate({});
-  }, []);
   
   const handleExploreFeatures = () => {
     if (scrollToFeatures) {
@@ -49,19 +42,14 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
     }
   };
 
-  // Check current auth state directly from localStorage to avoid stale state
-  const checkActualAuthState = () => {
-    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    return isUserLoggedIn || isAdminLoggedIn;
-  };
-
+  // Check if user is actually authenticated by checking localStorage directly
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
+                    localStorage.getItem('admin_logged_in') === 'true';
+  
   // Show different buttons based on authentication state
-  if (checkActualAuthState()) {
-    // Get user role to determine which dashboard link to show
-    const userData = localStorage.getItem('userData');
-    const adminData = localStorage.getItem('admin_user');
-    const isAdmin = !!adminData && adminData.includes('admin');
+  if (isLoggedIn) {
+    // Determine which dashboard to show (admin or student)
+    const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
     
     return (
       <div className="flex flex-col sm:flex-row gap-4">

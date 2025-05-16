@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -42,16 +41,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   
   // Check if already authenticated and redirect accordingly
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    
+    if (isAdminLoggedIn) {
       navigate('/admin/dashboard', { replace: true });
       return;
     }
     
-    if (isAuthenticated) {
+    if (isUserLoggedIn) {
       navigate('/dashboard/student', { replace: true });
       return;
     }
-  }, [isAuthenticated, isAdminAuthenticated, navigate]);
+  }, [navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
