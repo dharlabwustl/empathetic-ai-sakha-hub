@@ -8,7 +8,7 @@ interface VoiceGreetingProps {
   language?: string;
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName, language = 'en-US' }) => {
+const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName, language = 'en-IN' }) => {
   const { speakMessage, voiceSettings, isVoiceSupported } = useVoiceAnnouncer({
     userName,
     initialSettings: { language }
@@ -21,7 +21,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName
       const timer = setTimeout(() => {
         // Different messages for first time vs returning users
         if (isFirstTimeUser) {
-          const firstTimeGreeting = `Welcome to PREPZR, ${userName}! I'm your AI voice assistant. I'll help you navigate through your study journey. Feel free to explore the dashboard, and don't hesitate to ask if you need any help.`;
+          const firstTimeGreeting = `Namaste ${userName}! Welcome to PREPZR! I'm your AI voice assistant designed to help you excel in your exams. I'll guide you through our platform's features including concept cards, flashcards, and practice tests. Feel free to ask me any questions about your study journey.`;
           speakMessage(firstTimeGreeting);
         } else {
           // For returning users, check time of day for appropriate greeting
@@ -32,7 +32,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName
           else if (hour < 18) timeGreeting = 'Good afternoon';
           else timeGreeting = 'Good evening';
           
-          const returningGreeting = `${timeGreeting}, ${userName}. Welcome back to PREPZR. Your study dashboard is ready.`;
+          const returningGreeting = `${timeGreeting}, ${userName}. Welcome back to PREPZR. Your personalized study dashboard is ready. Would you like to continue where you left off?`;
           speakMessage(returningGreeting);
         }
       }, 1500);

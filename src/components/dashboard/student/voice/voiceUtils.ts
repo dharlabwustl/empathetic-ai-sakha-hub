@@ -1,6 +1,6 @@
 import { VoiceSettings } from '@/types/voice';
 
-// Default voice settings
+// Default voice settings - updated to use Indian English as default
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   volume: 1.0,
   rate: 1.0,
@@ -25,6 +25,21 @@ export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]):
   if (!voices || voices.length === 0) {
     console.log('No voices available');
     return null;
+  }
+
+  // For Indian English, prioritize Indian voices
+  if (language === 'en-IN') {
+    // First try to find an exact match for Indian English
+    let indianVoice = voices.find(v => v.lang === 'en-IN');
+    
+    // If no exact Indian English voice, try voices that mention "Indian" in the name
+    if (!indianVoice) {
+      indianVoice = voices.find(v => v.name.toLowerCase().includes('indian'));
+    }
+    
+    if (indianVoice) {
+      return indianVoice;
+    }
   }
 
   // First, try to find an exact match for the language
@@ -156,17 +171,21 @@ export const getGreeting = (userName?: string, mood?: string, isFirstTime?: bool
     // General greeting in Hindi
     return `${timeGreeting}${name}! मैं आज आपकी पढ़ाई में कैसे मदद कर सकता हूँ?`;
   } else {
-    // English greeting
-    let timeGreeting = "Hello";
+    // English greeting with Namaste for Indian English
+    let timeGreeting = language === 'en-IN' ? "Namaste" : "Hello";
     
-    if (hour < 12) timeGreeting = "Good morning";
-    else if (hour < 17) timeGreeting = "Good afternoon";
-    else timeGreeting = "Good evening";
+    if (hour < 12) {
+      timeGreeting = language === 'en-IN' ? "Namaste, good morning" : "Good morning";
+    } else if (hour < 17) {
+      timeGreeting = language === 'en-IN' ? "Namaste, good afternoon" : "Good afternoon";
+    } else {
+      timeGreeting = language === 'en-IN' ? "Namaste, good evening" : "Good evening";
+    }
     
     const name = userName ? `, ${userName}` : '';
     
     if (isFirstTime) {
-      return `${timeGreeting}${name}! Welcome to PREPZR. I'm your voice assistant. I can help you navigate the platform, answer questions, and provide study recommendations.`;
+      return `${timeGreeting}${name}! Welcome to PREPZR. I'm your voice assistant. I can help you navigate the platform, answer questions about your NEET or JEE preparation, and provide study recommendations.`;
     }
     
     // General greeting
@@ -368,7 +387,7 @@ export const processUserQuery = (
     
     // Handle informational queries in Hindi
     if (lowerQuery.includes('मदद') || lowerQuery.includes('आप क्या कर सकते हो')) {
-      return "मैं आपको डैशबोर्ड में नेविगेट करने, आपकी अध्ययन सामग्री तक पहुंचने, अभ्यास परीक्षा शुरू करने, आपके शेड्यूल की जांच करने और प्रेरणात्मक सहायता प्रदान करने में मदद कर सकता हूं। बस मुझसे पूछें कि आपको क्या चाहिए!";
+      return "मैं आपको डैशबोर्ड में नेविगेट करने, आपकी अध्ययन सामग्री तक पहुंचने, अभ्यास परीक्षा शुरू करने, आपके शेड्यूल की जांच करने और प्रेरणात्मक सहायता प्रदान करने में मदद कर सकता हूँ। बस मुझसे पूछें कि आपको क्या चाहिए!";
     }
     
     if (lowerQuery.includes('प्रेरणा') || lowerQuery.includes('मोटिवेशन')) {
