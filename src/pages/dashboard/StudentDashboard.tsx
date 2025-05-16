@@ -11,7 +11,7 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
-import EnhancedVoiceAssistant from "@/components/voice/EnhancedVoiceAssistant";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -138,10 +138,6 @@ const StudentDashboard = () => {
     navigate('/dashboard/student?new=true');
   };
 
-  const handleNavigate = (route: string) => {
-    navigate(route);
-  };
-
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -219,21 +215,17 @@ const StudentDashboard = () => {
       />
 
       {/* Voice Greeting - will play for first time users */}
-      {isFirstTimeUser && (
-        <VoiceGreeting 
-          isFirstTimeUser={true} 
-          userName={userProfile.name || userProfile.firstName || 'Student'}
-          language="en-IN"
-        />
-      )}
-      
-      {/* Enhanced Voice Assistant with mood integration */}
-      <EnhancedVoiceAssistant 
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
+        language="en"
+      />
+      
+      {/* Dashboard Voice Assistant with mood integration */}
+      <DashboardVoiceAssistant 
+        userName={userProfile.name || userProfile.firstName || 'Student'} 
+        currentMood={currentMood}
         onMoodChange={handleMoodChange}
-        onNavigate={handleNavigate}
-        autoGreet={isFirstTimeUser}
       />
     </>
   );
