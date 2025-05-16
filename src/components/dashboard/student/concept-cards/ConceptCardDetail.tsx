@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -20,15 +19,14 @@ import {
   CheckCircle, 
   BookMarked,
   Beaker, 
-  Calculator, 
-  Formula,
+  Calculator,
   ArrowLeft,
   Brain,
-  Flashcard,
   MessageCircle,
   History,
   BookCheck
 } from 'lucide-react';
+import { Formula, Flashcard } from '@/components/icons/custom-icons';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
