@@ -1,17 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
-interface HomePageVoiceAssistantProps {
-  language?: string;
-}
-
-const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-IN' // Default to Indian English
-}) => {
+const HomePageVoiceAssistant: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -34,7 +27,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
-    recognitionInstance.lang = language; // Set to Indian English by default
+    recognitionInstance.lang = 'en-IN'; // Set to Indian English
 
     recognitionInstance.onstart = () => {
       setIsListening(true);
@@ -79,7 +72,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         console.error("Error stopping recognition:", e);
       }
     };
-  }, [language]);
+  }, []);
 
   // Process visitor voice commands
   const processCommand = (command: string) => {
@@ -194,7 +187,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     utterance.text = processedText;
     
     // Set language to Indian English
-    utterance.lang = language;
+    utterance.lang = 'en-IN';
     
     // Try to use a good voice if available
     const voices = window.speechSynthesis.getVoices();
