@@ -8,91 +8,11 @@ import ExamNamesBadge from '../home/hero/ExamNamesBadge';
 import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Direct NEET signup modal component
-const NeetSignupModal = ({ isOpen, onClose, onContinue }) => {
-  const [examDate, setExamDate] = useState('');
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <motion.div 
-        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl max-w-md w-full"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-      >
-        <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-          Join NEET Preparation
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
-          Enter your details to start your NEET preparation journey with personalized guidance.
-        </p>
-        
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Your Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded-md"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Mobile Number</label>
-            <input
-              type="tel"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              className="w-full p-2 border rounded-md"
-              placeholder="+91 9876543210"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">NEET Exam Date</label>
-            <input
-              type="date"
-              value={examDate}
-              onChange={(e) => setExamDate(e.target.value)}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-          
-          <div className="flex gap-3 mt-6">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button 
-              className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600"
-              onClick={() => onContinue({ name, mobile, examDate })}
-            >
-              Start Preparation
-            </Button>
-          </div>
-        </form>
-      </motion.div>
-    </div>
-  );
-};
-
 const HeroSection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentTagline, setCurrentTagline] = useState(0);
-  const [showNeetModal, setShowNeetModal] = useState(false);
   
   const taglines = [
     "Ace your exams.",
@@ -108,29 +28,11 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStartNeetPrep = (data) => {
-    // Save user selection data to localStorage
-    const userData = {
-      name: data.name,
-      mobile: data.mobile,
-      examGoal: "NEET",
-      targetExamDate: data.examDate,
-      isNewUser: true,
-      completedOnboarding: false,
-      loginCount: 1,
-      createdAt: new Date().toISOString(),
-    };
-    
-    localStorage.setItem("userData", JSON.stringify(userData));
-    
-    toast({
-      title: "Welcome to PREPZR!",
-      description: "Preparing your personalized NEET study plan.",
-    });
-    
-    // Close modal and navigate
-    setShowNeetModal(false);
-    navigate("/welcome-flow?completedOnboarding=false&new=true&exam=NEET");
+  // Handler for exam readiness analyzer
+  const handleExamReadiness = () => {
+    // Dispatch an event to open the exam analyzer
+    const event = new Event('open-exam-analyzer');
+    window.dispatchEvent(event);
   };
 
   return (
@@ -296,13 +198,14 @@ const HeroSection = () => {
               </Button>
             ) : (
               <>
+                {/* Replaced NEET Preparation with Test Your Exam Readiness */}
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-6 py-6"
-                  onClick={() => setShowNeetModal(true)}
+                  onClick={handleExamReadiness}
                 >
-                  <Rocket size={20} />
-                  <span className="font-medium">Start NEET Preparation</span>
+                  <SparklesIcon size={20} />
+                  <span className="font-medium">Test Your Exam Readiness</span>
                 </Button>
                 
                 <Button 
@@ -337,13 +240,6 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-      
-      {/* NEET Signup Modal */}
-      <NeetSignupModal 
-        isOpen={showNeetModal} 
-        onClose={() => setShowNeetModal(false)}
-        onContinue={handleStartNeetPrep}
-      />
     </section>
   );
 };

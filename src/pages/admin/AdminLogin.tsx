@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,16 +18,18 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
 
   // Check if already authenticated
   useEffect(() => {
-    if (isAdminAuthenticated && !adminLoading) {
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    
+    if (isAdminLoggedIn || isAdminAuthenticated) {
+      // Direct navigation without waiting for further checks
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, adminLoading, navigate]);
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +51,10 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard
+        // Set admin login flag
+        localStorage.setItem('admin_logged_in', 'true');
+        
+        // Direct navigation without state dependencies
         navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
@@ -81,6 +86,11 @@ const AdminLogin = () => {
           title: "Admin Demo Login",
           description: "Logged in successfully as demo admin",
         });
+        
+        // Set admin login flag
+        localStorage.setItem('admin_logged_in', 'true');
+        
+        // Direct navigation
         navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Demo login failed. Please try again.");

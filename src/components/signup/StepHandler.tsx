@@ -75,7 +75,7 @@ const StepHandler = ({
         description: "Let's start your learning journey.",
       });
       
-      // Go directly to the dashboard
+      // Go directly to the dashboard, no more login page
       navigate("/dashboard/student", { replace: true });
     } catch (error) {
       console.error("Signup error:", error);

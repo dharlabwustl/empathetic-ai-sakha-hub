@@ -80,7 +80,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function
+  // Admin login function - improved to be more reliable
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
@@ -115,7 +115,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           setAdminLoading(false);
           resolve(false);
         }
-      }, 400); // Quick response for better UX
+      }, 200); // Reduced timeout for faster response
     });
   };
 
