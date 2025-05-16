@@ -75,7 +75,7 @@ const StepHandler = ({
         description: "Let's start your learning journey.",
       });
       
-      // Go directly to the dashboard, using window.location for a full page change to prevent login redirection issues
+      // Use direct location change to force a complete navigation to the dashboard
       window.location.href = "/dashboard/student";
     } catch (error) {
       console.error("Signup error:", error);

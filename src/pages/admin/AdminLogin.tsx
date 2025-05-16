@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,15 +18,16 @@ const AdminLogin = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
 
   // Check if already authenticated
   useEffect(() => {
+    // Check for direct localStorage value for more robust detection
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn || isAdminAuthenticated) {
-      // Direct navigation without waiting for further checks
-      navigate('/admin/dashboard', { replace: true });
+      // Direct navigation - more reliable than React Router in some cases
+      window.location.href = '/admin/dashboard';
     }
   }, [isAdminAuthenticated, navigate]);
 
@@ -51,11 +51,8 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Set admin login flag
-        localStorage.setItem('admin_logged_in', 'true');
-        
-        // Direct navigation without state dependencies
-        navigate('/admin/dashboard', { replace: true });
+        // Direct navigation is more reliable than React Router in some cases
+        window.location.href = '/admin/dashboard';
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }
@@ -87,11 +84,8 @@ const AdminLogin = () => {
           description: "Logged in successfully as demo admin",
         });
         
-        // Set admin login flag
-        localStorage.setItem('admin_logged_in', 'true');
-        
         // Direct navigation
-        navigate('/admin/dashboard', { replace: true });
+        window.location.href = '/admin/dashboard';
       } else {
         setLoginError("Demo login failed. Please try again.");
       }

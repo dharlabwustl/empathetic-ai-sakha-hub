@@ -92,24 +92,39 @@ const HeroSection = () => {
         }}
       />
       
-      <div className="w-full px-4 relative z-10">
+      <div className="w-full max-w-7xl px-4 relative z-10 mx-auto">
         <div className="flex flex-col items-center text-center">
           <div className="w-full max-w-6xl mx-auto">
-            {/* Hindi text line with enhanced gradient */}
+            {/* Hindi text line with enhanced gradient and special PREPZR animation */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
-                अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
+              <span className="py-2">
+                अब तैयारी करो अपने तरीके से, सिर्फ{" "}
+                <motion.span 
+                  className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
+                  animate={{ 
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 5, 
+                    repeat: Infinity, 
+                    repeatType: "reverse" 
+                  }}
+                >
+                  PREPZR
+                </motion.span>{" "}
+                के साथ!
               </span>
             </motion.h1>
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden"
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}

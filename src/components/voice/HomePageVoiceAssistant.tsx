@@ -1,75 +1,123 @@
 
-import React, { useState, useEffect } from 'react';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import { Button } from '@/components/ui/button';
-import { Mic, Volume2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'react-router-dom';
 
 interface HomePageVoiceAssistantProps {
   language?: string;
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-IN' // Default to Indian English
+  language = 'en-IN' 
 }) => {
-  const [showIntro, setShowIntro] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(false);
+  const { toast } = useToast();
+  const location = useLocation();
+  const welcomeMessagePlayed = useRef<boolean>(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   
-  const { 
-    speakMessage, 
-    isVoiceSupported, 
-    toggleMute, 
-    voiceSettings,
-    updateVoiceSettings
-  } = useVoiceAnnouncer({
-    initialSettings: { 
-      language,
-      enabled: true,
-      muted: false
-    }
-  });
-  
-  // Set Indian English as the default language
+  // Load voices when component mounts
   useEffect(() => {
-    if (isVoiceSupported) {
-      updateVoiceSettings({ 
-        language: 'en-IN',
-        enabled: true
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        setAvailableVoices(voices);
+      }
+    };
+    
+    // Load voices right away in case they're already available
+    loadVoices();
+    
+    // Also set up event for when voices are loaded asynchronously
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  // Play welcome message when component mounts
+  useEffect(() => {
+    // Only play welcome message on first visit to home page
+    if (location.pathname === '/' && !welcomeMessagePlayed.current) {
+      const isFirstTime = localStorage.getItem('first_visit') !== 'false';
+      
+      if (isFirstTime) {
+        // Short delay to ensure voices are loaded
+        const timer = setTimeout(() => {
+          speakWelcomeMessage(isFirstTime);
+          welcomeMessagePlayed.current = true;
+          localStorage.setItem('first_visit', 'false');
+        }, 2000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.pathname, availableVoices]);
+
+  const speakWelcomeMessage = (isFirstTime: boolean) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Create message based on whether it's the user's first visit
+      const welcomeText = isFirstTime 
+        ? "Namaste! Welcome to Prepzr. I'm your voice assistant with an Indian accent. I'm here to help you prepare for your exams. Click the voice assistant button in the bottom right to talk with me."
+        : "Welcome back to Prepzr. I'm your voice assistant. How can I help you today?";
+      
+      // Create utterance
+      const utterance = new SpeechSynthesisUtterance(welcomeText);
+      
+      // Find a suitable Indian voice
+      const preferredVoiceNames = [
+        'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India'
+      ];
+      
+      // Look for preferred voices first
+      let selectedVoice = null;
+      for (const name of preferredVoiceNames) {
+        const voice = availableVoices.find(v => v.name.includes(name));
+        if (voice) {
+          selectedVoice = voice;
+          break;
+        }
+      }
+      
+      // If no preferred voice found, try to find any English (India) voice
+      if (!selectedVoice) {
+        selectedVoice = availableVoices.find(v => 
+          v.lang === 'en-IN' || 
+          v.lang === 'hi-IN' || 
+          v.lang.includes('en') || 
+          v.lang.includes('hi')
+        );
+      }
+      
+      // If still no voice found, use default voice
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Set properties for Indian English accent
+      utterance.lang = language;
+      utterance.rate = 0.9;  // Slightly slower for clearer pronunciation
+      utterance.pitch = 1.1; // Slightly higher pitch for female voice
+      utterance.volume = 0.8;
+      
+      // Speak the welcome message
+      window.speechSynthesis.speak(utterance);
+      
+      // Show a toast message
+      toast({
+        title: "Voice Assistant",
+        description: isFirstTime ? 
+          "Welcome! I'll be your guide on Prepzr." : 
+          "Welcome back to Prepzr!",
+        duration: 5000,
       });
     }
-  }, [isVoiceSupported, updateVoiceSettings]);
-
-  // Welcome message after page load
-  useEffect(() => {
-    if (isVoiceSupported && !hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
-      const timer = setTimeout(() => {
-        const welcomeMessage = "Namaste! Welcome to PREPZR. I'm your AI voice assistant with an Indian accent. I can help you explore our NEET preparation platform designed specifically for Indian medical entrance exams. You can test your exam readiness or start a free trial to access all our features including personalized study plans, interactive concept cards, and AI-powered analytics.";
-        speakMessage(welcomeMessage);
-        setHasGreeted(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isVoiceSupported, hasGreeted, speakMessage, voiceSettings]);
-
-  // Show intro message when button is clicked
-  const handleShowIntro = () => {
-    setShowIntro(true);
-    
-    const introMessage = "PREPZR is an advanced AI-powered NEET exam preparation platform. We use cutting-edge artificial intelligence to personalize your study plan based on your learning style and progress. Our platform helps you master difficult concepts through interactive learning, track your progress with detailed analytics, and provide personalized guidance for your NEET journey.";
-    
-    speakMessage(introMessage);
   };
 
-  // Guide user through different sections
-  const explainFeatures = () => {
-    const featuresMessage = "Our platform includes personalized study plans tailored to your learning style, interactive concept cards with visual aids and practice questions, AI-generated performance analytics, practice exams with NEET-style questions, and 24/7 AI tutoring support. Every feature is specifically designed for NEET preparation, covering Physics, Chemistry, and Biology in line with the latest NEET syllabus.";
-    
-    speakMessage(featuresMessage);
-  };
-
-  // This component doesn't render anything visible by default
-  // It only provides voice functionality for the homepage
-  return null;
+  return null; // This is a non-visual component
 };
 
 export default HomePageVoiceAssistant;

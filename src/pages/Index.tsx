@@ -78,11 +78,7 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection 
-          scrollToFeatures={scrollToFeatures}
-          scrollToForWhom={() => {}}
-          openExamAnalyzer={handleOpenExamAnalyzer}
-        />
+        <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -134,7 +130,27 @@ const Index = () => {
       {/* Enhanced homepage voice assistant with improved Indian English guidance */}
       <HomePageVoiceAssistant language="en-IN" />
       
-      {/* Floating Voice Assistant with settings panel */}
+      {/* Floating Voice Assistant button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.button
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          onClick={handleOpenVoiceAssistant}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg>
+          <span className="ml-2 font-medium">Voice Assistant</span>
+        </motion.button>
+      </div>
+      
+      {/* Enhanced Floating Voice Assistant with settings panel */}
       <FloatingVoiceAssistant 
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant}
