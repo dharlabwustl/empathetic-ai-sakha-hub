@@ -22,15 +22,13 @@ import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
+import BackedBySection from '@/components/home/BackedBySection';
 
 const Index = () => {
   const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  
-  // Check if user is logged in to decide whether to show HomepageVoiceAnnouncer
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -57,12 +55,6 @@ const Index = () => {
   const handleNavigationCommand = (route: string) => {
     navigate(route);
   };
-
-  // Check login status
-  useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedIn);
-  }, []);
 
   // Listen for events
   useEffect(() => {
@@ -94,7 +86,7 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
-        {/* Impact Section with animation and KPI stats */}
+        {/* Smart Data section with animation and KPI stats */}
         <motion.section 
           className="container mx-auto px-4 py-16 mb-20"
           initial={{ opacity: 0 }}
@@ -109,6 +101,9 @@ const Index = () => {
           </div>
           <KpiStats />
         </motion.section>
+        
+        {/* Backed By Section with partner logos */}
+        <BackedBySection />
         
         {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
@@ -145,13 +140,14 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced homepage voice assistant with improved guidance */}
-      <HomePageVoiceAssistant />
+      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
+      <HomePageVoiceAssistant language="en-IN" />
       
       {/* Floating Voice Assistant */}
       <FloatingVoiceAnnouncer 
         isOpen={showVoiceAssistant} 
-        onClose={handleCloseVoiceAssistant} 
+        onClose={handleCloseVoiceAssistant}
+        language="en-IN" 
       />
     </div>
   );

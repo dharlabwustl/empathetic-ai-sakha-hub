@@ -95,108 +95,102 @@ const AdminLogin = () => {
           </CardHeader>
           
           {loginError && (
-            <Alert variant="destructive" className="m-6 mb-0">
-              <AlertDescription>{loginError}</AlertDescription>
-            </Alert>
+            <div className="px-6 pt-2">
+              <Alert variant="destructive">
+                <AlertDescription>{loginError}</AlertDescription>
+              </Alert>
+            </div>
           )}
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Mail size={16} />
-                    </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@prepzr.com"
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
-                    />
+            <CardContent className="space-y-4 pt-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <Mail size={16} />
                   </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@prepzr.com"
+                    className="pl-9"
+                    required
+                  />
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                    <Button 
-                      variant="link" 
-                      className="px-0 font-normal text-xs h-auto"
-                      type="button"
-                    >
-                      Forgot password?
-                    </Button>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Lock size={16} />
-                    </div>
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
-                    />
-                    <Button 
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={togglePasswordVisibility}
-                      type="button"
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center gap-2">
-                      <ShieldCheck className="h-4 w-4 mr-1" />
-                      <span>Sign In</span>
-                    </div>
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full mt-2"
-                  onClick={handleDemoAdminLogin}
-                >
-                  Use Demo Admin Account
-                </Button>
               </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Button 
+                    variant="link" 
+                    className="px-0 font-normal text-xs h-auto"
+                    type="button"
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <Lock size={16} />
+                  </div>
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-9 pr-10"
+                    required
+                  />
+                  <Button
+                    type="button" 
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
+              </div>
+              
+              <Button 
+                type="button"
+                variant="outline"
+                className="w-full mt-2"
+                onClick={handleDemoAdminLogin}
+              >
+                Use Demo Admin Account
+              </Button>
             </CardContent>
+            
+            <CardFooter className="flex flex-col gap-4">
+              <Button className="w-full" disabled={isLoading} type="submit">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Login as Admin
+                  </>
+                )}
+              </Button>
+              
+              <p className="text-sm text-gray-600">
+                Not an admin?{" "}
+                <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
+                  Go to Student Login
+                </Link>
+              </p>
+            </CardFooter>
           </form>
-          
-          <CardFooter className="flex justify-center pb-6 border-t pt-6">
-            <p className="text-sm text-gray-600">
-              Not an admin?{" "}
-              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
-                Go to Student Login
-              </Link>
-            </p>
-          </CardFooter>
         </Card>
-        
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
-        </div>
       </div>
     </div>
   );

@@ -29,7 +29,8 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   } = useVoiceAnnouncer({
     userName,
     mood: currentMood,
-    isFirstTimeUser: isFirstLoad
+    isFirstTimeUser: isFirstLoad,
+    initialSettings: { language: 'en-IN' } // Setting Indian English as default
   });
 
   useEffect(() => {
@@ -39,9 +40,24 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       // Delay the welcome message to make sure the page is loaded
       const timer = setTimeout(() => {
         const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
-        const greeting = isFirstTimeUser 
-          ? `Welcome to PREPZR, ${userName || 'there'}! I'm your voice assistant. I can help you navigate the platform and provide study suggestions. Just click the microphone icon when you need me.`
-          : `Welcome back, ${userName || 'there'}! I'm here to help with your studies today. Click the microphone if you need assistance.`;
+        const currentPath = window.location.pathname;
+        
+        let greeting = '';
+        
+        // Context-aware greetings based on current page
+        if (currentPath.includes('/dashboard/student')) {
+          greeting = isFirstTimeUser 
+            ? `Namaste ${userName || 'there'}! Welcome to your PREPZR student dashboard. Here you can track your study progress, access concept cards, and prepare for your NEET exams. I'm your voice assistant and I can help you navigate through different sections. Just click the microphone when you need assistance.`
+            : `Welcome back to your dashboard, ${userName || 'there'}! Would you like to continue with your study plan or explore concept cards today? Just ask me if you need any help.`;
+        } else if (currentPath.includes('/signup')) {
+          greeting = `Welcome to the signup page. Please fill in your details to create your PREPZR account. Don't forget to include your school or institute details for a more personalized experience.`;
+        } else if (currentPath.includes('/login')) {
+          greeting = `Welcome to the login page. Please enter your credentials to access your PREPZR account.`;
+        } else {
+          greeting = isFirstTimeUser 
+            ? `Welcome to PREPZR, ${userName || 'there'}! I'm your voice assistant with an Indian accent. I can help you navigate the platform and provide study suggestions for your NEET preparation. Just click the microphone icon when you need me.`
+            : `Welcome back, ${userName || 'there'}! I'm here to help with your NEET studies today. Click the microphone if you need assistance.`;
+        }
         
         speakMessage(greeting);
         sessionStorage.setItem('hasSeenVoiceGreeting', 'true');
@@ -77,11 +93,42 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         title: "Mood Updated",
         description: `Your mood has been updated to ${moodString}`,
       });
+      
+      // Provide context-aware response based on mood
+      const currentPath = window.location.pathname;
+      
+      if (currentPath.includes('/dashboard/student')) {
+        if (newMood === MoodType.STRESSED || newMood === MoodType.ANXIOUS || newMood === MoodType.OVERWHELMED) {
+          speakMessage("I notice you're feeling stressed. Would you like to try a quick mindfulness exercise or view some relaxation content in the Feel Good Corner?");
+        } else if (newMood === MoodType.MOTIVATED || newMood === MoodType.FOCUSED) {
+          speakMessage("Great to see you're feeling motivated! This is the perfect time to tackle some challenging concepts or practice questions.");
+        } else if (newMood === MoodType.TIRED) {
+          speakMessage("I understand you're feeling tired. Consider taking a short break or exploring easier topics today.");
+        }
+      }
     }
   };
 
   const handleNavigationCommand = (route: string) => {
     if (route) {
+      // Context-aware navigation responses
+      switch (route) {
+        case '/dashboard/student':
+          speakMessage("Taking you to your student dashboard where you can see your study overview.");
+          break;
+        case '/dashboard/student/concepts':
+          speakMessage("Navigating to concept cards where you can study key NEET topics with visual aids and formulas.");
+          break;
+        case '/dashboard/student/flashcards':
+          speakMessage("Opening your flashcards section for quick revision of important facts.");
+          break;
+        case '/dashboard/student/practice':
+          speakMessage("Taking you to practice exams where you can test your knowledge with NEET-style questions.");
+          break;
+        default:
+          speakMessage(`Navigating to ${route}`);
+      }
+      
       navigate(route);
       toast({
         title: "Navigating",
@@ -97,6 +144,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       onMoodCommand={handleMoodCommand}
       onNavigationCommand={handleNavigationCommand}
       pronouncePrepzr={true}
+      language="en-IN" // Set Indian English as default
     />
   );
 };

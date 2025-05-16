@@ -68,16 +68,28 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
     
     checkAdminAuth();
+    
+    // Listen for auth changes
+    const handleAuthChange = () => checkAdminAuth();
+    window.addEventListener('auth-state-changed', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('auth-state-changed', handleAuthChange);
+    };
   }, []);
 
-  // Admin login function
+  // Admin login function with fixed functionality
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
         // For demo purposes, accept any email that includes 'admin'
-        if (email.includes('admin') || email === 'admin@prepzr.com') {
+        if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
+          // Clear student login data first
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isLoggedIn');
+          
           const newAdminUser: AdminUser = {
             id: 'admin-1',
             name: "Admin User",
@@ -89,10 +101,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           // Save admin data to localStorage
           localStorage.setItem('admin_logged_in', 'true');
           localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
-          
-          // Clear student login data
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isLoggedIn');
           
           setAdminUser(newAdminUser);
           console.log("Admin login successful for:", email);
