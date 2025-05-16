@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight, Star, Clock, Book } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface ConceptCardProps {
@@ -13,13 +13,10 @@ interface ConceptCardProps {
   title: string;
   description: string;
   subject: string;
-  chapter?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   completed?: boolean;
   progress?: number;
   relatedConcepts?: string[];
-  estimatedTime?: number;
-  isRecommended?: boolean;
   onView?: () => void;
 }
 
@@ -28,13 +25,10 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   title,
   description,
   subject,
-  chapter,
   difficulty,
   completed = false,
   progress = 0,
   relatedConcepts = [],
-  estimatedTime,
-  isRecommended = false,
   onView
 }) => {
   const navigate = useNavigate();
@@ -76,34 +70,17 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                 Completed
               </Badge>
             )}
-            {isRecommended && (
-              <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200 rounded-full px-3 py-1 text-xs font-semibold shadow-sm shadow-indigo-100 ml-1">
-                <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
-                Recommended
-              </Badge>
-            )}
           </div>
           <CardTitle 
             className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
           >
             {title}
           </CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="font-normal rounded-md mr-1">
+          <p className="text-sm text-muted-foreground">
+            <Badge variant="secondary" className="font-normal rounded-md mr-2">
               {subject}
             </Badge>
-            {chapter && (
-              <Badge variant="outline" className="font-normal rounded-md bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                {chapter}
-              </Badge>
-            )}
-            {estimatedTime && (
-              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                <Clock className="h-3 w-3 mr-1" />
-                <span>{estimatedTime} min</span>
-              </div>
-            )}
-          </div>
+          </p>
         </CardHeader>
         
         <CardContent className="flex-grow pt-4 px-6 pb-3">
@@ -120,6 +97,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
               <Progress 
                 value={progress} 
                 className="h-2 bg-gray-100 dark:bg-gray-800" 
+                indicatorClassName={
+                  progress >= 80 ? "bg-gradient-to-r from-green-400 to-green-500 shadow-sm shadow-green-200 dark:shadow-green-900/20" :
+                  progress >= 40 ? "bg-gradient-to-r from-yellow-400 to-yellow-500 shadow-sm shadow-yellow-200 dark:shadow-yellow-900/20" :
+                  "bg-gradient-to-r from-red-400 to-red-500 shadow-sm shadow-red-200 dark:shadow-red-900/20"
+                }
               />
             </div>
           )}
