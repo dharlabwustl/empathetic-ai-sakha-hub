@@ -14,27 +14,20 @@ import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
+import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
+import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
+import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 
 const Index = () => {
   const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(false);
-  
-  // Initialize voice announcer
-  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
-    initialSettings: { 
-      language: 'en-IN',
-      enabled: true,
-      muted: false
-    }
-  });
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -50,22 +43,17 @@ const Index = () => {
     setShowExamAnalyzer(false);
   };
   
+  const handleOpenVoiceAssistant = () => {
+    setShowVoiceAssistant(true);
+  };
+  
+  const handleCloseVoiceAssistant = () => {
+    setShowVoiceAssistant(false);
+  };
+  
   const handleNavigationCommand = (route: string) => {
     navigate(route);
   };
-
-  // Welcome message after page load
-  useEffect(() => {
-    if (!hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
-      const timer = setTimeout(() => {
-        const welcomeMessage = "Namaste! Welcome to PREPZR. I'm your AI voice assistant with an Indian accent. I can help you explore our NEET preparation platform designed specifically for Indian medical entrance exams. Click the Test Your Exam Readiness button to assess your preparedness, or explore our features to see how we can help you succeed.";
-        speakMessage(welcomeMessage);
-        setHasGreeted(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [hasGreeted, speakMessage, voiceSettings.enabled, voiceSettings.muted]);
 
   // Listen for events
   useEffect(() => {
@@ -73,10 +61,16 @@ const Index = () => {
       setShowExamAnalyzer(true);
     };
     
+    const handleVoiceAssistantEvent = () => {
+      setShowVoiceAssistant(true);
+    };
+    
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+    document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+      document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     };
   }, []);
 
@@ -140,8 +134,15 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced floating voice assistant with Indian English support */}
-      <FloatingVoiceAssistant language="en-IN" />
+      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
+      <HomePageVoiceAssistant language="en-IN" />
+      
+      {/* Floating Voice Assistant */}
+      <FloatingVoiceAnnouncer 
+        isOpen={showVoiceAssistant} 
+        onClose={handleCloseVoiceAssistant}
+        language="en-IN" 
+      />
     </div>
   );
 };
