@@ -90,12 +90,16 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           localStorage.setItem('admin_logged_in', 'true');
           localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
           
-          // Make sure regular user authentication is cleared
+          // Clear student login data
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
           
           setAdminUser(newAdminUser);
           console.log("Admin login successful for:", email);
+          
+          // Dispatch event to notify other components about auth change
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
           setAdminLoading(false);
           resolve(true);
         } else {
@@ -126,6 +130,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     localStorage.removeItem('prepzr_remembered_login');
     
     console.log("Admin logged out completely - all authentication data cleared");
+    
+    // Dispatch event to notify other components about auth change
+    window.dispatchEvent(new Event('auth-state-changed'));
     
     // Force hard reload to reset state
     window.location.href = '/';

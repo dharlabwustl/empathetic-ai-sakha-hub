@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
+import { Loader2, ShieldCheck } from "lucide-react";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +15,14 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin } = useAdminAuth();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
+
+  // Check if already authenticated
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigate('/admin/dashboard');
+    }
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +47,11 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
+        // Dispatch auth change event
+        window.dispatchEvent(new Event('auth-state-changed'));
+        
         // Navigate to admin dashboard
-        navigate("/admin/dashboard");
+        navigate("/admin/dashboard", { replace: true });
       } else {
         toast({
           title: "Login failed",
@@ -58,6 +69,11 @@ const AdminLogin = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDemoAdminLogin = () => {
+    setEmail("admin@prepzr.com");
+    setPassword("admin123");
   };
 
   return (
@@ -101,10 +117,29 @@ const AdminLogin = () => {
                 required
               />
             </div>
+            
+            <Button 
+              type="button"
+              variant="outline"
+              className="w-full mt-2"
+              onClick={handleDemoAdminLogin}
+            >
+              Use Demo Admin Account
+            </Button>
           </CardContent>
           <CardFooter>
             <Button className="w-full" disabled={isLoading} type="submit">
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Login as Admin
+                </>
+              )}
             </Button>
           </CardFooter>
         </form>

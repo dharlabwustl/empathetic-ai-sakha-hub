@@ -78,18 +78,17 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           description: "Welcome back to Prepzr"
         });
         
-        // Check if the user is an admin based on the email
-        const isAdmin = credentials.emailOrPhone.includes('admin');
+        // Dispatch custom event for auth state change
+        window.dispatchEvent(new Event('auth-state-changed'));
         
-        // Direct navigation based on user role
+        // Navigate to appropriate dashboard based on user role
+        const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
+        
         if (isAdmin) {
           navigate("/admin/dashboard", { replace: true });
         } else {
           navigate("/dashboard/student", { replace: true });
         }
-        
-        // Dispatch custom event for auth state change
-        window.dispatchEvent(new Event('auth-state-changed'));
       } else {
         setLoginError("Invalid email/phone or password");
       }

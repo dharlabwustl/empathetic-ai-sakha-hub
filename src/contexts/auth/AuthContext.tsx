@@ -77,6 +77,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
     
     checkAuth();
+    
+    // Listen for auth changes
+    const handleAuthChange = () => checkAuth();
+    window.addEventListener('auth-state-changed', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('auth-state-changed', handleAuthChange);
+    };
   }, []);
 
   // Login function that accepts email or phone number
@@ -92,12 +100,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Determine user role from email - if it includes 'admin' then create admin user
           const role = emailOrPhone.includes('admin') ? UserRole.Admin : UserRole.Student;
           
+          // If this is admin login, handle it specially
+          if (role === UserRole.Admin) {
+            // Save admin data to localStorage
+            localStorage.setItem('admin_logged_in', 'true');
+            localStorage.setItem('admin_user', JSON.stringify({
+              id: 'admin-1',
+              name: isEmail ? emailOrPhone.split('@')[0] : 'Admin',
+              email: isEmail ? emailOrPhone : 'admin@example.com',
+              role: 'admin',
+              permissions: ['all']
+            }));
+            
+            // Clear student login data
+            localStorage.removeItem('userData');
+            localStorage.removeItem('isLoggedIn');
+            
+            // Dispatch event to update UI
+            window.dispatchEvent(new Event('auth-state-changed'));
+            
+            setLoading(false);
+            resolve(true);
+            return;
+          }
+          
+          // Regular student user
           const newUser: User = {
             id: '1',
             name: isEmail ? emailOrPhone.split('@')[0] : `User_${emailOrPhone.substring(emailOrPhone.length - 4)}`,
             email: isEmail ? emailOrPhone : '',
             phoneNumber: isEmail ? '' : emailOrPhone,
-            role: role
+            role: UserRole.Student
           };
           
           // Check if this is a returning user
@@ -116,16 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               console.error('Error parsing existing user data:', error);
             }
           }
-          
-          // Special case for admin users
-          if (role === UserRole.Admin) {
-            // For admin users, we should use adminLogin from AdminAuthContext instead
-            // Just set state here for immediate UI feedback
-            setLoading(false);
-            resolve(true);
-            return;
-          }
-          
+                    
           // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
@@ -141,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             isAuthenticated: true
           }));
           
-          // Also mark as logged in for other parts of the app
+          // Mark as logged in for other parts of the app
           localStorage.setItem('isLoggedIn', 'true');
           
           // Clear admin auth if this is a student login
@@ -149,8 +173,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.removeItem('admin_user');
           
           setUser(newUser);
+          
+          // Dispatch event for UI updates
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
           setLoading(false);
-          console.log("Login successful for:", emailOrPhone, "with role:", role);
+          console.log("Login successful for:", emailOrPhone, "with role:", newUser.role);
           resolve(true);
         } else {
           setLoading(false);
@@ -180,6 +208,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('prepzr_remembered_login');
     
     console.log("AuthContext: User logged out completely");
+    
+    // Dispatch event for UI updates
+    window.dispatchEvent(new Event('auth-state-changed'));
     
     // Force a hard reload to ensure all React state is completely reset
     window.location.href = '/';
