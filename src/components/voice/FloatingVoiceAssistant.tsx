@@ -1,336 +1,444 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+// Create the file
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Mic, MicOff, Volume2, Settings } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { VoiceSettings } from '@/types/voice';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface FloatingVoiceAssistantProps {
-  userName?: string;
-  currentMood?: string;
-  pronouncePrepzr?: boolean;
-  onMoodCommand?: (mood: string) => void;
-  onNavigationCommand?: (route: string) => void;
-  onSubjectCommand?: (subject: string) => void;
-  currentPage?: string;
+    userName?: string;
+    currentMood?: string;
+    onMoodCommand?: (mood: string) => void;
+    onNavigationCommand?: (route: string) => void;
+    pronouncePrepzr?: boolean;
 }
 
 const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
-  userName,
-  currentMood,
-  pronouncePrepzr = false,
-  onMoodCommand,
-  onNavigationCommand,
-  onSubjectCommand,
-  currentPage
+    userName,
+    currentMood,
+    onMoodCommand,
+    onNavigationCommand,
+    pronouncePrepzr = false
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [showTranscript, setShowTranscript] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const { toast } = useToast();
-  
-  // Speech recognition reference
-  const recognitionRef = React.useRef<any>(null);
+    const { toast } = useToast();
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [recognition, setRecognition] = useState<any>(null);
+    const [showPopover, setShowPopover] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
+        volume: 1,
+        rate: 1,
+        pitch: 1,
+        language: 'en-US',
+        enabled: true,
+        muted: false,
+        voice: null,
+        autoGreet: true
+    });
+    const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const [showTranscript, setShowTranscript] = useState(false);
 
-  // Initialize speech recognition
-  useEffect(() => {
-    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
-      console.error('Speech recognition not supported in this browser');
-      return;
-    }
-    
-    // @ts-ignore - webkitSpeechRecognition may not be in types
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-IN'; // Default to Indian English
-      
-      recognition.onresult = (event: any) => {
-        const result = event.results[0][0].transcript;
-        setTranscript(result);
-        setShowTranscript(true);
-        
-        // Process the command
-        processCommand(result);
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-      
-      recognitionRef.current = recognition;
-    } catch (error) {
-      console.error('Error initializing speech recognition:', error);
-    }
-    
-    return () => {
-      try {
-        if (recognitionRef.current) {
-          recognitionRef.current.abort();
+    // Initialize speech recognition
+    useEffect(() => {
+        // Check if browser supports speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            toast({
+                title: "Speech Recognition Not Supported",
+                description: "Your browser doesn't support speech recognition. Try using Chrome.",
+                variant: "destructive"
+            });
+            return;
         }
-      } catch (error) {
-        console.error('Error stopping speech recognition:', error);
-      }
-    };
-  }, []);
 
-  // Process voice commands
-  const processCommand = useCallback((command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    console.log('Processing voice command:', lowerCommand);
-    
-    // Navigation commands
-    if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('navigate to')) {
-      // Extract destination
-      let destination = '';
-      
-      if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) destination = '/dashboard/student';
-      else if (lowerCommand.includes('concepts')) destination = '/dashboard/student/concepts';
-      else if (lowerCommand.includes('flashcards')) destination = '/dashboard/student/flashcards';
-      else if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) destination = '/dashboard/student/practice-exam';
-      else if (lowerCommand.includes('analytics')) destination = '/dashboard/student/analytics';
-      else if (lowerCommand.includes('feel good')) destination = '/dashboard/student/feel-good-corner';
-      else if (lowerCommand.includes('academic') || lowerCommand.includes('advisor')) destination = '/dashboard/student/academic-advisor';
-      else if (lowerCommand.includes('today') || lowerCommand.includes('plan')) destination = '/dashboard/student/today';
-      
-      if (destination && onNavigationCommand) {
-        onNavigationCommand(destination);
-        return;
-      }
-    }
-    
-    // Mood commands
-    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood') || lowerCommand.includes('i am')) {
-      // Extract mood
-      let mood = '';
-      
-      if (lowerCommand.includes('happy')) mood = 'HAPPY';
-      else if (lowerCommand.includes('motivated')) mood = 'MOTIVATED';
-      else if (lowerCommand.includes('focused')) mood = 'FOCUSED';
-      else if (lowerCommand.includes('tired')) mood = 'TIRED';
-      else if (lowerCommand.includes('stressed')) mood = 'STRESSED';
-      else if (lowerCommand.includes('anxious')) mood = 'ANXIOUS';
-      else if (lowerCommand.includes('overwhelmed')) mood = 'OVERWHELMED';
-      else if (lowerCommand.includes('confused')) mood = 'CONFUSED';
-      else if (lowerCommand.includes('curious')) mood = 'CURIOUS';
-      else if (lowerCommand.includes('calm')) mood = 'CALM';
-      else if (lowerCommand.includes('neutral')) mood = 'NEUTRAL';
-      
-      if (mood && onMoodCommand) {
-        onMoodCommand(mood);
-        return;
-      }
-    }
-    
-    // Subject assistance commands
-    if (lowerCommand.includes('help with') || lowerCommand.includes('about') || lowerCommand.includes('explain') || 
-        lowerCommand.includes('physics') || lowerCommand.includes('chemistry') || lowerCommand.includes('biology') || 
-        lowerCommand.includes('zoology') || lowerCommand.includes('botany')) {
-      
-      let subject = '';
-      
-      if (lowerCommand.includes('physics')) subject = 'physics';
-      else if (lowerCommand.includes('chemistry')) subject = 'chemistry';
-      else if (lowerCommand.includes('biology')) subject = 'biology';
-      else if (lowerCommand.includes('zoology')) subject = 'zoology';
-      else if (lowerCommand.includes('botany')) subject = 'botany';
-      
-      if (subject && onSubjectCommand) {
-        onSubjectCommand(subject);
-        return;
-      }
-    }
-    
-    // Mute/Unmute commands
-    if (lowerCommand.includes('mute') || lowerCommand.includes('stop talking') || lowerCommand.includes('be quiet')) {
-      toggleMute(true);
-      return;
-    }
-    
-    if (lowerCommand.includes('unmute') || lowerCommand.includes('start talking') || lowerCommand.includes('speak again')) {
-      toggleMute(false);
-      return;
-    }
-    
-    // Help commands
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      speakResponse("I can help you navigate the platform, check your mood, provide subject guidance, and assist with your studies. Try commands like 'go to flashcards', 'I'm feeling motivated', or 'help with physics'.");
-      return;
-    }
-    
-    // If a page context is available, try to provide contextual help
-    if (currentPage) {
-      speakResponse(`I heard you say "${command}". On this ${currentPage} page, you can ask for help with specific subjects, navigation to other sections, or update your mood.`);
-      return;
-    }
-    
-    // Default response
-    speakResponse(`I heard you say "${command}". You can ask me for help with navigation, subjects like physics or biology, or update your mood.`);
-  }, [onNavigationCommand, onMoodCommand, onSubjectCommand, currentPage]);
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.lang = 'en-US';
 
-  // Start listening function
-  const startListening = () => {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
-      }
-    }
-  };
+        recognitionInstance.onstart = () => {
+            setIsListening(true);
+            setIsTranscribing(true);
+        };
 
-  // Stop listening function
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (error) {
-        console.error('Error stopping speech recognition:', error);
-      }
-    }
-  };
+        recognitionInstance.onresult = (event: any) => {
+            const currentTranscript = Array.from(event.results)
+                .map((result: any) => result[0].transcript)
+                .join('');
+            
+            setTranscript(currentTranscript);
+            processVoiceCommand(currentTranscript);
+        };
 
-  // Toggle listening state
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-      toast({
-        title: "Listening",
-        description: "How can I assist you with your studies?",
-      });
-    }
-  };
+        recognitionInstance.onerror = (event: any) => {
+            console.error('Speech recognition error:', event.error);
+            setIsListening(false);
+            setIsTranscribing(false);
+        };
 
-  // Toggle mute state
-  const toggleMute = (forceMute?: boolean) => {
-    if (forceMute !== undefined) {
-      setIsMuted(forceMute);
-    } else {
-      setIsMuted(!isMuted);
-    }
-    
-    toast({
-      title: forceMute === undefined ? (isMuted ? "Voice Unmuted" : "Voice Muted") : (forceMute ? "Voice Muted" : "Voice Unmuted"),
-      description: forceMute === undefined ? (isMuted ? "Voice assistant will now speak responses" : "Voice assistant will not speak responses") : (forceMute ? "Voice assistant will not speak responses" : "Voice assistant will now speak responses"),
-    });
-  };
+        recognitionInstance.onend = () => {
+            setIsListening(false);
+            setIsTranscribing(false);
+        };
 
-  // Speak response
-  const speakResponse = (text: string) => {
-    if (isMuted) return;
-    
-    const utterance = new SpeechSynthesisUtterance();
-    
-    // Fix "PREPZR" pronunciation if needed
-    let processedText = text;
-    if (pronouncePrepzr) {
-      processedText = text.replace(/PREPZR/gi, 'Prep-zer');
-    }
-    
-    utterance.text = processedText;
-    
-    // Set language to Indian English
-    utterance.lang = 'en-IN';
-    
-    // Try to use an Indian voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const indianVoice = voices.find(voice => 
-      voice.lang === 'en-IN' || voice.name.includes('Indian')
-    );
-    
-    const femaleVoice = voices.find(voice => 
-      (voice.lang === 'en-IN' || voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-      (voice.name.includes('Female') || voice.name.includes('Samantha') || voice.name.includes('Veena'))
-    );
-    
-    if (indianVoice) {
-      utterance.voice = indianVoice;
-    } else if (femaleVoice) {
-      utterance.voice = femaleVoice;
-    }
-    
-    window.speechSynthesis.speak(utterance);
-    
-    // Also display as toast for accessibility
-    toast({
-      title: "PREPZR Assistant",
-      description: processedText,
-      duration: 5000,
-    });
-  };
+        setRecognition(recognitionInstance);
 
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      {/* Transcript display */}
-      {showTranscript && transcript && (
-        <Card className="max-w-xs md:max-w-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-muted-foreground">
-                {isListening ? "Listening..." : "I heard:"}
-              </span>
-              {isListening && (
-                <span className="flex items-center">
-                  <span className="animate-pulse mr-1 h-2 w-2 bg-green-500 rounded-full"></span>
-                  <span className="animate-pulse delay-75 mr-1 h-2 w-2 bg-green-500 rounded-full"></span>
-                  <span className="animate-pulse delay-150 h-2 w-2 bg-green-500 rounded-full"></span>
-                </span>
-              )}
-            </div>
-            <p className="text-sm font-medium">{transcript}</p>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Control buttons */}
-      <div className="flex gap-2">
-        {/* Mute/Unmute button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className={`h-12 w-12 rounded-full shadow-md ${isMuted ? 'bg-gray-300' : 'bg-blue-100'}`}
-          onClick={() => toggleMute()}
-        >
-          {isMuted ? (
-            <VolumeX className="h-6 w-6 text-gray-600" />
-          ) : (
-            <Volume2 className="h-6 w-6 text-blue-600" />
-          )}
-        </Button>
+        // Load available voices
+        const loadVoices = () => {
+            const voices = speechSynthesis.getVoices();
+            setAvailableVoices(voices);
+        };
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
         
-        {/* Voice assistant button */}
-        <Button
-          variant="default"
-          size="icon"
-          className={`h-12 w-12 rounded-full shadow-xl ${
-            isListening 
-              ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-              : 'bg-indigo-600 hover:bg-indigo-700'
-          }`}
-          onClick={toggleListening}
-        >
-          {isListening ? (
-            <MicOff className="h-6 w-6 text-white" />
-          ) : (
-            <Mic className="h-6 w-6 text-white" />
-          )}
-        </Button>
-      </div>
-    </div>
-  );
+        loadVoices();
+
+        // Load saved voice settings from localStorage
+        const savedSettings = localStorage.getItem('voiceSettings');
+        if (savedSettings) {
+            try {
+                const parsedSettings = JSON.parse(savedSettings);
+                // Voice can't be serialized, so we need to find it again
+                const voiceURI = parsedSettings.voice?.voiceURI;
+                const matchedVoice = voiceURI 
+                    ? speechSynthesis.getVoices().find(v => v.voiceURI === voiceURI) 
+                    : null;
+                
+                setVoiceSettings({
+                    ...parsedSettings,
+                    voice: matchedVoice
+                });
+            } catch (e) {
+                console.error('Error parsing voice settings:', e);
+            }
+        }
+        
+        return () => {
+            if (recognitionInstance) {
+                recognitionInstance.stop();
+            }
+        };
+    }, [toast]);
+
+    // Process voice commands
+    const processVoiceCommand = (text: string) => {
+        const command = text.toLowerCase().trim();
+        
+        // Navigation commands
+        if (command.includes('go to dashboard') || command.includes('open dashboard')) {
+            speakResponse("Opening dashboard");
+            onNavigationCommand && onNavigationCommand('/dashboard/student');
+        }
+        else if (command.includes('go to concepts') || command.includes('show concepts')) {
+            speakResponse("Opening concept cards");
+            onNavigationCommand && onNavigationCommand('/dashboard/student/concepts');
+        }
+        else if (command.includes('go to flashcards') || command.includes('show flashcards')) {
+            speakResponse("Opening flashcards");
+            onNavigationCommand && onNavigationCommand('/dashboard/student/flashcards');
+        }
+        else if (command.includes('go to practice') || command.includes('open practice')) {
+            speakResponse("Opening practice exams");
+            onNavigationCommand && onNavigationCommand('/dashboard/student/practice-exam');
+        }
+        // Mood tracking
+        else if (command.includes('i feel good') || command.includes('feeling good')) {
+            speakResponse("Great to hear you're feeling good! I've updated your mood.");
+            onMoodCommand && onMoodCommand('MOTIVATED');
+        }
+        else if (command.includes('i feel tired') || command.includes('feeling tired')) {
+            speakResponse("I understand you're feeling tired. I'll suggest lighter tasks. Your mood has been updated.");
+            onMoodCommand && onMoodCommand('TIRED');
+        }
+        else if (command.includes('i feel anxious') || command.includes('feeling anxious')) {
+            speakResponse("I understand you're feeling anxious. Taking deep breaths might help. Your mood has been updated.");
+            onMoodCommand && onMoodCommand('ANXIOUS');
+        }
+        // Help command
+        else if (command.includes('what can you do') || command.includes('help me')) {
+            speakResponse("I can help you navigate the app, track your mood, and provide study suggestions. Try asking me to go to dashboard, concepts, or update your mood.");
+        }
+        // Pronunciation of PREPZR
+        else if (pronouncePrepzr && command.includes('say prepzr') || command.includes('pronounce prepzr')) {
+            speakWithPause("Prep", "zer", 100);
+        }
+        // Greeting
+        else if (command.includes('hello') || command.includes('hi there')) {
+            const greeting = userName ? `Hello ${userName}! How can I help you today?` : "Hello! How can I help you today?";
+            speakResponse(greeting);
+        }
+        // Stop listening
+        else if (command.includes('stop listening') || command.includes('stop recording')) {
+            stopListening();
+        }
+    };
+
+    const toggleListening = () => {
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
+    };
+
+    const startListening = () => {
+        if (!recognition) return;
+        
+        try {
+            recognition.start();
+            setShowTranscript(true);
+            toast({
+                title: "Voice Assistant Activated",
+                description: "I'm listening. What can I help you with?",
+            });
+        } catch (error) {
+            console.error("Error starting recognition:", error);
+        }
+    };
+
+    const stopListening = () => {
+        if (!recognition) return;
+        
+        try {
+            recognition.stop();
+            setIsListening(false);
+            setIsTranscribing(false);
+            
+            // Delay hiding the transcript
+            setTimeout(() => {
+                setShowTranscript(false);
+            }, 3000);
+        } catch (error) {
+            console.error("Error stopping recognition:", error);
+        }
+    };
+
+    const speakResponse = (text: string) => {
+        if (!voiceSettings.enabled || voiceSettings.muted) return;
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Apply voice settings
+        utterance.volume = voiceSettings.volume;
+        utterance.rate = voiceSettings.rate;
+        utterance.pitch = voiceSettings.pitch;
+        
+        // Use selected voice if available
+        if (voiceSettings.voice) {
+            utterance.voice = voiceSettings.voice;
+        }
+        
+        window.speechSynthesis.speak(utterance);
+    };
+
+    // Special pronunciation for PREPZR with pause
+    const speakWithPause = (firstPart: string, secondPart: string, pauseDuration: number) => {
+        if (!voiceSettings.enabled || voiceSettings.muted) return;
+        
+        const utterance1 = new SpeechSynthesisUtterance(firstPart);
+        const utterance2 = new SpeechSynthesisUtterance(secondPart);
+        
+        // Apply voice settings
+        utterance1.volume = utterance2.volume = voiceSettings.volume;
+        utterance1.rate = utterance2.rate = voiceSettings.rate;
+        utterance1.pitch = utterance2.pitch = voiceSettings.pitch;
+        
+        // Use selected voice if available
+        if (voiceSettings.voice) {
+            utterance1.voice = utterance2.voice = voiceSettings.voice;
+        }
+        
+        utterance1.onend = () => {
+            setTimeout(() => {
+                window.speechSynthesis.speak(utterance2);
+            }, pauseDuration);
+        };
+        
+        window.speechSynthesis.speak(utterance1);
+    };
+
+    // Handle voice settings changes
+    const handleSettingsChange = (setting: keyof VoiceSettings, value: any) => {
+        const newSettings = { ...voiceSettings, [setting]: value };
+        setVoiceSettings(newSettings);
+        
+        // Save to localStorage
+        localStorage.setItem('voiceSettings', JSON.stringify(newSettings));
+    };
+
+    // Handle voice selection
+    const handleVoiceChange = (voiceURI: string) => {
+        const selectedVoice = availableVoices.find(voice => voice.voiceURI === voiceURI) || null;
+        handleSettingsChange('voice', selectedVoice);
+    };
+
+    // Format the transcript for display
+    const formattedTranscript = transcript.trim() || "Listening...";
+
+    return (
+        <>
+            <div className="fixed bottom-24 right-6 md:bottom-16 md:right-6 z-40 flex flex-col items-end gap-3">
+                {/* Transcript display */}
+                {showTranscript && (
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg max-w-xs md:max-w-md transition-all duration-300 mb-2 border border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                {isTranscribing ? "Listening..." : "Heard:"}
+                            </span>
+                            {isTranscribing && (
+                                <span className="flex items-center">
+                                    <span className="animate-pulse mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
+                                    <span className="animate-pulse delay-75 mr-1 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
+                                    <span className="animate-pulse delay-150 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
+                            {formattedTranscript}
+                        </p>
+                    </div>
+                )}
+                
+                {/* Voice assistant button */}
+                <div className="flex items-center space-x-2">
+                    {/* Settings popover */}
+                    <Popover open={showSettings} onOpenChange={setShowSettings}>
+                        <PopoverTrigger asChild>
+                            <Button 
+                                variant="outline" 
+                                size="icon"
+                                className="rounded-full shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                                <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <div className="space-y-4">
+                                <h4 className="font-medium text-sm">Voice Assistant Settings</h4>
+                                
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="voice-enabled" className="flex-1">Enable Voice Assistant</Label>
+                                        <Switch 
+                                            id="voice-enabled"
+                                            checked={voiceSettings.enabled}
+                                            onCheckedChange={(checked) => handleSettingsChange('enabled', checked)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="voice-muted" className="flex-1">Mute Voice Responses</Label>
+                                        <Switch 
+                                            id="voice-muted"
+                                            checked={voiceSettings.muted}
+                                            onCheckedChange={(checked) => handleSettingsChange('muted', checked)}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="voice-volume">Volume</Label>
+                                    <Slider
+                                        id="voice-volume"
+                                        min={0}
+                                        max={1}
+                                        step={0.1}
+                                        value={[voiceSettings.volume]}
+                                        onValueChange={([value]) => handleSettingsChange('volume', value)}
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="voice-rate">Speech Rate</Label>
+                                    <Slider
+                                        id="voice-rate"
+                                        min={0.5}
+                                        max={2}
+                                        step={0.1}
+                                        value={[voiceSettings.rate]}
+                                        onValueChange={([value]) => handleSettingsChange('rate', value)}
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="voice-pitch">Pitch</Label>
+                                    <Slider
+                                        id="voice-pitch"
+                                        min={0.5}
+                                        max={2}
+                                        step={0.1}
+                                        value={[voiceSettings.pitch]}
+                                        onValueChange={([value]) => handleSettingsChange('pitch', value)}
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="voice-selection">Voice</Label>
+                                    <select 
+                                        id="voice-selection"
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                                        value={voiceSettings.voice?.voiceURI}
+                                        onChange={(e) => handleVoiceChange(e.target.value)}
+                                    >
+                                        <option value="">Default</option>
+                                        {availableVoices
+                                            .filter(voice => voice.lang.startsWith('en-'))
+                                            .map(voice => (
+                                                <option key={voice.voiceURI} value={voice.voiceURI}>
+                                                    {voice.name} ({voice.lang})
+                                                </option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                                
+                                <div className="pt-2">
+                                    <Alert>
+                                        <AlertTitle>Voice Commands</AlertTitle>
+                                        <AlertDescription className="text-xs space-y-1">
+                                            <p>- "Go to dashboard" - Navigate to dashboard</p>
+                                            <p>- "Show concepts" - Open concept cards</p>
+                                            <p>- "I feel tired" - Update your mood</p>
+                                            <p>- "What can you do?" - Get help</p>
+                                            {pronouncePrepzr && <p>- "Say PREPZR" - Hear pronunciation</p>}
+                                        </AlertDescription>
+                                    </Alert>
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Main voice button */}
+                    <Button
+                        variant="default"
+                        size="icon"
+                        className={`h-12 w-12 rounded-full shadow-xl flex items-center justify-center ${
+                            isListening 
+                                ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                                : 'bg-indigo-600 hover:bg-indigo-700'
+                        }`}
+                        onClick={toggleListening}
+                    >
+                        {isListening ? (
+                            <MicOff className="h-6 w-6 text-white" />
+                        ) : (
+                            <Mic className="h-6 w-6 text-white" />
+                        )}
+                    </Button>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default FloatingVoiceAssistant;

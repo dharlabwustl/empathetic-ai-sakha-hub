@@ -28,8 +28,8 @@ const HomePageVoiceAssistant: React.FC = () => {
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
-    recognitionInstance.lang = 'en-IN'; // Default to Indian English
-    
+    recognitionInstance.lang = 'en-US';
+
     recognitionInstance.onstart = () => {
       setIsListening(true);
     };
@@ -101,36 +101,24 @@ const HomePageVoiceAssistant: React.FC = () => {
     
     // What is PREPZR commands
     if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('explain prepzr') || lowerCommand.includes('about prepzr')) {
-      speakResponse("Prep-zer is an AI-powered study companion that adapts to your learning style. It offers features like personalized study plans, concept cards, flashcards, practice exams, and a 24/7 AI tutor to help you achieve your academic goals and ace your exams like NEET and JEE.");
-      return;
-    }
-    
-    // Features explanation
-    if (lowerCommand.includes('features') || lowerCommand.includes('what can i do') || lowerCommand.includes('capabilities')) {
-      speakResponse("Prep-zer offers comprehensive exam preparation features including personalized study plans, flashcards, concept cards with detailed explanations, formula lab for practice, adaptive practice exams, performance analytics, and a 24/7 AI tutor. Our platform is designed specifically for Indian students preparing for competitive exams like NEET and JEE.");
-      return;
-    }
-    
-    // NEET specific information
-    if (lowerCommand.includes('neet') || lowerCommand.includes('medical entrance')) {
-      speakResponse("Our platform is specially designed to help you ace the NEET exam. We cover all subjects including Physics, Chemistry, Biology, Botany and Zoology with detailed concept cards, practice questions from previous years, and personalized study plans based on the latest NEET syllabus.");
-      return;
-    }
-    
-    // JEE specific information
-    if (lowerCommand.includes('jee') || lowerCommand.includes('engineering entrance')) {
-      speakResponse("For JEE preparation, our platform offers comprehensive coverage of Physics, Chemistry and Mathematics with interactive concept explanations, formula practice, and thousands of practice questions designed to match JEE difficulty levels.");
+      speakResponse("Prep-zer is an AI-powered study companion that adapts to your learning style. It offers features like personalized study plans, concept cards, flashcards, practice exams, and a 24/7 AI tutor to help you achieve your academic goals and ace your exams.");
       return;
     }
     
     // Why PREPZR is best commands
-    if (lowerCommand.includes('why prepzr') || lowerCommand.includes('advantages') || lowerCommand.includes('benefits')) {
-      speakResponse("Prep-zer stands apart with its AI-driven personalized approach tailored for Indian students. Our platform analyzes your learning style, adapts to your strengths and weaknesses, and creates customized study plans. Unlike other platforms, we factor in your mood and provide targeted revision strategies with advanced analytics to track your progress.");
+    if (lowerCommand.includes('why prepzr') || lowerCommand.includes('best for exam') || lowerCommand.includes('advantages') || lowerCommand.includes('benefits')) {
+      speakResponse("Prep-zer offers unique advantages for exam preparation: personalized AI-driven study plans, adaptive learning that responds to your mood and performance, comprehensive revision tools with flashcards and concept maps, realistic practice exams, and 24/7 AI tutoring support. Our platform is designed to optimize your study time and boost your exam performance.");
+      return;
+    }
+    
+    // Features commands
+    if (lowerCommand.includes('features') || lowerCommand.includes('what can i do')) {
+      speakResponse("Prep-zer offers comprehensive exam preparation features including personalized study plans, flashcards, concept cards, formula lab, practice exams, performance analytics, and a 24/7 AI tutor. Would you like to learn more about any specific feature?");
       return;
     }
     
     // Help or unknown commands
-    speakResponse("Welcome to Prep-zer! I can help you learn about our platform specially designed for Indian students, sign up for a free trial, check your exam readiness, or explore our features for NEET and JEE preparation. What would you like to know?");
+    speakResponse("Welcome to Prep-zer! I can help you learn about our platform, sign up for a free trial, check your exam readiness, or explore our features. What would you like to know?");
   };
 
   // Toggle listening state
@@ -176,32 +164,22 @@ const HomePageVoiceAssistant: React.FC = () => {
     }
   };
 
-  // Speak response with Indian accent preference
+  // Speak response
   const speakResponse = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance();
+    const utterance = new SpeechSynthesisUtterance(text);
     
     // Improve PREPZR pronunciation
     const processedText = text.replace(/PREPZR/gi, 'Prep-zer');
     utterance.text = processedText;
     
-    // Set language to Indian English
-    utterance.lang = 'en-IN';
-    
-    // Try to use an Indian voice if available
+    // Try to use a good voice if available
     const voices = window.speechSynthesis.getVoices();
-    const indianVoice = voices.find(voice => 
-      voice.lang === 'en-IN' || voice.name.includes('Indian')
+    const preferredVoice = voices.find(voice => 
+      voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
     );
     
-    const femaleVoice = voices.find(voice => 
-      (voice.lang === 'en-IN' || voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-      (voice.name.includes('Female') || voice.name.includes('Samantha') || voice.name.includes('Veena'))
-    );
-    
-    if (indianVoice) {
-      utterance.voice = indianVoice;
-    } else if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
     }
     
     // Set sensible defaults for voice
@@ -218,21 +196,6 @@ const HomePageVoiceAssistant: React.FC = () => {
       duration: 5000,
     });
   };
-
-  // Auto-introduce on first page load if not seen before
-  useEffect(() => {
-    const hasSeenIntro = sessionStorage.getItem('homePageVoiceIntroSeen');
-    
-    if (!hasSeenIntro) {
-      // Wait a bit for page to load fully
-      const timer = setTimeout(() => {
-        speakResponse("Namaste! Welcome to PREPZR, your AI study companion for NEET and JEE preparation. I'm your voice assistant and can help guide you through our platform. Just click the microphone icon if you need assistance.");
-        sessionStorage.setItem('homePageVoiceIntroSeen', 'true');
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">

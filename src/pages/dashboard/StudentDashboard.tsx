@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
+import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
@@ -21,7 +21,6 @@ const StudentDashboard = () => {
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState<string>('dashboard');
   
   const {
     loading,
@@ -56,28 +55,6 @@ const StudentDashboard = () => {
       setProfileImage(savedImage);
     }
   }, []);
-
-  // Update currentPage based on location and activeTab
-  useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('/concepts')) {
-      setCurrentPage('concepts');
-    } else if (path.includes('/flashcards')) {
-      setCurrentPage('flashcards');
-    } else if (path.includes('/practice-exam')) {
-      setCurrentPage('practice-exam');
-    } else if (path.includes('/today')) {
-      setCurrentPage('todays-plan');
-    } else if (path.includes('/academic')) {
-      setCurrentPage('academic');
-    } else if (path.includes('/analytics')) {
-      setCurrentPage('analytics');
-    } else if (path.includes('/feel-good-corner')) {
-      setCurrentPage('feel-good-corner');
-    } else {
-      setCurrentPage('dashboard');
-    }
-  }, [location.pathname, activeTab]);
 
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
@@ -241,7 +218,7 @@ const StudentDashboard = () => {
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
+        language="en"
       />
       
       {/* Dashboard Voice Assistant with mood integration */}
@@ -249,7 +226,6 @@ const StudentDashboard = () => {
         userName={userProfile.name || userProfile.firstName || 'Student'} 
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
-        currentPage={currentPage}
       />
     </>
   );

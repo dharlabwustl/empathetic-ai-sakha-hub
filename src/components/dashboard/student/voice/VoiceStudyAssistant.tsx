@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, Speaker } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
-import { useToast } from '@/hooks/use-toast';
-import { MoodType } from '@/types/user/base';
+import { toast } from '@/hooks/use-toast';
 
 interface VoiceStudyAssistantProps {
   userName?: string;
@@ -23,7 +22,6 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const { toast } = useToast();
   
   const {
     voiceSettings,
@@ -39,10 +37,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     transcript,
     testVoice,
     voiceInitialized
-  } = useVoiceAnnouncer({ 
-    userName,
-    initialSettings: { language: 'en-IN' } 
-  });
+  } = useVoiceAnnouncer({ userName });
   
   // Initialize suggestions
   useEffect(() => {
@@ -114,19 +109,19 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   const handleMoodCommand = (command: string) => {
     // Extract mood from command if present
     const moodKeywords = [
-      { words: ['happy', 'glad', 'great'], mood: 'HAPPY' },
-      { words: ['tired', 'exhausted', 'sleepy'], mood: 'TIRED' },
-      { words: ['stressed', 'overwhelmed'], mood: 'STRESSED' },
-      { words: ['motivated', 'determined'], mood: 'MOTIVATED' },
-      { words: ['confused'], mood: 'CONFUSED' },
-      { words: ['anxious', 'nervous', 'worried'], mood: 'ANXIOUS' },
+      { words: ['happy', 'glad', 'great'], mood: 'happy' },
+      { words: ['tired', 'exhausted', 'sleepy'], mood: 'tired' },
+      { words: ['stressed', 'overwhelmed'], mood: 'stressed' },
+      { words: ['motivated', 'determined'], mood: 'motivated' },
+      { words: ['confused'], mood: 'confused' },
+      { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
     ];
     
     // Check if any mood keywords are in the command
     for (const { words, mood } of moodKeywords) {
       if (words.some(word => command.includes(word))) {
         if (onMoodCommand) {
-          speakMessage(`I'll log that you're feeling ${mood.toLowerCase()} today.`);
+          speakMessage(`I'll log that you're feeling ${mood} today.`);
           onMoodCommand(mood);
           return;
         }
