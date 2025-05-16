@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
 import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
@@ -106,7 +105,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         completed: true,
         topics: [
           { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
+          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
         ]
       },
       {
@@ -118,7 +117,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         proficiency: "weak",
         completed: true,
         topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed', priority: 'medium' }
+          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
         ]
       },
       {
@@ -130,7 +129,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         proficiency: "medium",
         completed: true,
         topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
+          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
         ]
       }
     ],

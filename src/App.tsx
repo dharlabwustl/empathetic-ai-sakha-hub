@@ -1,10 +1,10 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from './components/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
-import { VoiceProvider } from '@/contexts/VoiceContext';
 import SidebarLayout from './components/dashboard/SidebarLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -76,117 +76,114 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <VoiceProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/register" element={<SignUp />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
-                
-                {/* Public Flask Guide route - explicitly defined outside of admin routes */}
-                <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
+      <BrowserRouter>
+        <AuthProvider>
+          <AdminAuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/register" element={<SignUp />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
+              
+              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
+              <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
-                {/* Admin routes */}
-                <Route path="/admin/dashboard" element={
-                  <AdminRouteGuard>
-                    <AdminDashboard />
-                  </AdminRouteGuard>
-                } />
-                
-                {/* Add other admin routes */}
-                {adminRoutes.map((route, index) => (
-                  <Route 
-                    key={index} 
-                    path={route.path} 
-                    element={
-                      <AdminRouteGuard>
-                        {route.element}
-                      </AdminRouteGuard>
-                    } 
-                  />
-                ))}
+              {/* Admin routes */}
+              <Route path="/admin/dashboard" element={
+                <AdminRouteGuard>
+                  <AdminDashboard />
+                </AdminRouteGuard>
+              } />
+              
+              {/* Add other admin routes */}
+              {adminRoutes.map((route, index) => (
+                <Route 
+                  key={index} 
+                  path={route.path} 
+                  element={
+                    <AdminRouteGuard>
+                      {route.element}
+                    </AdminRouteGuard>
+                  } 
+                />
+              ))}
 
-                {/* Legacy route for compatibility */}
-                <Route path="/admin/flask-guide" element={
-                  <AdminRouteGuard>
-                    <FlaskGuidePage />
-                  </AdminRouteGuard>
-                } />
-                
-                {/* Post-signup flow - Welcome flow */}
-                <Route path="/welcome" element={<WelcomeToPrepr />} />
-                <Route path="/post-signup" element={<PostSignupWelcome />} />
-                <Route path="/welcome-flow" element={<WelcomeFlow />} />
-                
-                {/* Post-login welcome back screen */}
-                <Route path="/welcome-back" element={<PostLoginWelcome />} />
+              {/* Legacy route for compatibility */}
+              <Route path="/admin/flask-guide" element={
+                <AdminRouteGuard>
+                  <FlaskGuidePage />
+                </AdminRouteGuard>
+              } />
+              
+              {/* Post-signup flow - Welcome flow */}
+              <Route path="/welcome" element={<WelcomeToPrepr />} />
+              <Route path="/post-signup" element={<PostSignupWelcome />} />
+              <Route path="/welcome-flow" element={<WelcomeFlow />} />
+              
+              {/* Post-login welcome back screen */}
+              <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-                {/* Student dashboard - Protected with the combined wrapper */}
-                <Route path="/dashboard/student" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
-                <Route path="/dashboard/student/:tab" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
-                
-                {/* Apply ProtectedSidebarLayout to all student dashboard pages */}
-                <Route path="/dashboard/student/today" element={<ProtectedSidebarRoute Component={TodaysPlanView} />} />
-                <Route path="/dashboard/student/feel-good-corner" element={<ProtectedSidebarRoute Component={FeelGoodCornerView} />} />
-                <Route path="/dashboard/student/study-groups" element={<ProtectedSidebarRoute Component={StudyGroupsPage} />} />
-                <Route path="/dashboard/student/subscription" element={<ProtectedSidebarRoute Component={SubscriptionPage} />} />
-                <Route path="/dashboard/student/batch-management" element={<ProtectedSidebarRoute Component={BatchManagementPage} />} />
-                <Route path="/dashboard/student/formula-practice" element={<ProtectedSidebarRoute Component={FormulaPracticePage} />} />
-                <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
-                
-                {/* Profile routes */}
-                <Route path="/dashboard/student/profile" element={<ProtectedSidebarRoute Component={EnhancedProfilePage} />} />
-                <Route path="/student/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
-                <Route path="/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
-                
-                {/* AI Tutor route */}
-                <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
-                
-                {/* Concept routes - Updated for direct linking */}
-                <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
-                <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
-                <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
-                <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
-                <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
-                <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
-                <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
-                <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
-                
-                {/* Direct Flashcard routes */}
-                <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<ProtectedSidebarRoute Component={FlashcardInteractive} />} />
-                <Route path="/dashboard/student/flashcards/:flashcardId" element={<ProtectedSidebarRoute Component={FlashcardDetailsPage} />} />
-                <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<ProtectedSidebarRoute Component={InteractiveFlashcardBrowser} />} />
-                <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
-                <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
-                
-                {/* Other routes - all converted to protected */}
-                <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamsSection} />} />
-                <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
-                <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
-                <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
-                <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
-                <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
-                <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
-                <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
-                <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
-                <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
-                
-                {/* 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </AdminAuthProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </VoiceProvider>
+              {/* Student dashboard - Protected with the combined wrapper */}
+              <Route path="/dashboard/student" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
+              <Route path="/dashboard/student/:tab" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />
+              
+              {/* Apply ProtectedSidebarLayout to all student dashboard pages */}
+              <Route path="/dashboard/student/today" element={<ProtectedSidebarRoute Component={TodaysPlanView} />} />
+              <Route path="/dashboard/student/feel-good-corner" element={<ProtectedSidebarRoute Component={FeelGoodCornerView} />} />
+              <Route path="/dashboard/student/study-groups" element={<ProtectedSidebarRoute Component={StudyGroupsPage} />} />
+              <Route path="/dashboard/student/subscription" element={<ProtectedSidebarRoute Component={SubscriptionPage} />} />
+              <Route path="/dashboard/student/batch-management" element={<ProtectedSidebarRoute Component={BatchManagementPage} />} />
+              <Route path="/dashboard/student/formula-practice" element={<ProtectedSidebarRoute Component={FormulaPracticePage} />} />
+              
+              {/* Profile routes */}
+              <Route path="/dashboard/student/profile" element={<ProtectedSidebarRoute Component={EnhancedProfilePage} />} />
+              <Route path="/student/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
+              <Route path="/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
+              
+              {/* AI Tutor route */}
+              <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
+              
+              {/* Concept routes - Updated for direct linking */}
+              <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
+              <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
+              <Route path="/dashboard/student/concepts/:conceptId/formula-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
+              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ProtectedSidebarRoute Component={ConceptStudyLandingPage} />} />
+              <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
+              <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
+              
+              {/* Direct Flashcard routes */}
+              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<ProtectedSidebarRoute Component={FlashcardInteractive} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId" element={<ProtectedSidebarRoute Component={FlashcardDetailsPage} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<ProtectedSidebarRoute Component={InteractiveFlashcardBrowser} />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
+              <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
+              
+              {/* Other routes - all converted to protected */}
+              <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamsSection} />} />
+              <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
+              <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
+              <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
+              <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
+              <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
+              <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
+              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
+              <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
+              <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </AdminAuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

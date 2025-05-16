@@ -48,47 +48,24 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Find an Indian voice if available
             const voices = window.speechSynthesis.getVoices();
             const preferredVoiceNames = [
-              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India', 
-              'en-IN', 'hi-IN', 'Veena', 'Raveena'
+              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India'
             ];
             
-            // Try to find a preferred voice - improved selection algorithm
+            // Try to find a preferred voice
             let selectedVoice = null;
-            
-            // First try the most specific match - Indian voices
             for (const name of preferredVoiceNames) {
-              const voice = voices.find(v => 
-                v.name.includes(name) || 
-                v.lang === name || 
-                (v.name.includes('India') || v.lang === 'en-IN' || v.lang === 'hi-IN')
-              );
+              const voice = voices.find(v => v.name.includes(name));
               if (voice) {
                 selectedVoice = voice;
-                console.log("Found Indian voice:", voice.name);
                 break;
               }
             }
             
-            // If no preferred voice, try to find any female voice
+            // If no preferred voice, try to find any Indian voice
             if (!selectedVoice) {
               selectedVoice = voices.find(v => 
-                v.name.includes('Female') || 
-                v.name.includes('Girl') || 
-                v.name.includes('Woman') ||
-                v.name.includes('Samantha') ||
-                v.name.includes('Karen') ||
-                v.name.includes('Veena') ||
-                v.name.includes('Monika')
+                v.lang === 'en-IN' || v.lang === 'hi-IN' || v.name.includes('India')
               );
-              if (selectedVoice) {
-                console.log("Using female voice:", selectedVoice.name);
-              }
-            }
-            
-            // If still no voice, use the default voice
-            if (!selectedVoice && voices.length > 0) {
-              selectedVoice = voices[0];
-              console.log("Using default voice:", selectedVoice.name);
             }
             
             // Set the selected voice if found

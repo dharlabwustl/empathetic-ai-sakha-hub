@@ -94,15 +94,15 @@ const HeroSection = () => {
       
       <div className="w-full max-w-7xl px-4 relative z-10 mx-auto">
         <div className="flex flex-col items-center text-center">
-          <div className="w-full max-w-7xl mx-auto">
-            {/* Hindi text line with enhanced gradient and special PREPZR animation - FIXED WIDTH ISSUE */}
+          <div className="w-full max-w-6xl mx-auto">
+            {/* Hindi text line with enhanced gradient and special PREPZR animation */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi px-2"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="py-2 inline-block w-full">
+              <span className="py-2">
                 अब तैयारी करो अपने तरीके से, सिर्फ{" "}
                 <motion.span 
                   className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
@@ -124,7 +124,7 @@ const HeroSection = () => {
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white px-2"
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -252,65 +252,6 @@ const HeroSection = () => {
             className="mt-8 mb-6 w-full"
           >
             <ExamNamesBadge />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Making Champion Methodology Section */}
-      <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-            Our Making Champion Methodology
-          </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            A comprehensive approach to ensure your exam success
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <motion.div 
-            className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
-            whileHover={{ y: -5 }}
-          >
-            <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600 dark:text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Personalized Learning</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Tailored study plans based on your learning style, strengths and weaknesses.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
-            whileHover={{ y: -5 }}
-          >
-            <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Comprehensive Resources</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Access to high-quality study materials, flashcards, practice questions, and concept cards.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
-            whileHover={{ y: -5 }}
-          >
-            <div className="h-12 w-12 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-pink-600 dark:text-pink-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Smart Progress Tracking</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              AI-powered analytics to monitor your progress and identify areas that need improvement.
-            </p>
           </motion.div>
         </div>
       </div>
