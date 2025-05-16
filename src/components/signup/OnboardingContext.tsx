@@ -1,115 +1,125 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
-export type OnboardingStep = 
-  | "role" 
-  | "goal" 
-  | "demographics" 
-  | "personality" 
-  | "sentiment" 
-  | "studyTime" 
-  | "studyPace" 
-  | "studyHours" 
-  | "habits" 
-  | "interests" 
-  | "signup";
+export interface OnboardingData {
+  // Personal details
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
 
-export type UserGoal = "IIT-JEE" | "NEET" | "UPSC" | "CAT" | "GATE" | "GMAT";
+  // Education details
+  educationLevel: string;
+  targetExam: string;
+  otherExam?: string;
+  grade: string;
+  schoolInstitute?: string; // Added school/institute field
 
-interface OnboardingContextType {
-  onboardingData: Record<string, any>;
-  setOnboardingData: (data: Record<string, any>) => void;
-  currentStep: OnboardingStep;
-  setStep: (step: OnboardingStep) => void;
-  goToNextStep: () => void;
-  goToPreviousStep: () => void;
+  // Subject preferences
+  selectedSubjects: string[];
+  weakSubjects: string[];
+
+  // Study preferences
+  studyTime: string;
+  studyHabit: string;
+  studyGoal: string;
+
+  // AI preferences
+  useVoiceAssistant: boolean;
+  dailyNotifications: boolean;
+  languagePreference: string;
 }
 
-const defaultOnboardingData = {
-  role: UserRole.Student,
-  examGoal: "",
-  demographics: {},
-  personalityType: null,
-  mood: null,
-  studyTime: null,
-  studyPace: null,
-  dailyStudyHours: null,
-  habits: {},
-  interests: []
+export interface OnboardingStepProps {
+  data: OnboardingData;
+  updateData: (update: Partial<OnboardingData>) => void;
+  nextStep: () => void;
+  prevStep?: () => void;
+  onComplete?: () => void;
+  isSubmitting?: boolean;
+}
+
+interface OnboardingContextProps {
+  data: OnboardingData;
+  updateData: (update: Partial<OnboardingData>) => void;
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  totalSteps: number;
+  isSubmitting: boolean;
+  setIsSubmitting: (value: boolean) => void;
+}
+
+const defaultData: OnboardingData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phoneNumber: '',
+  password: '',
+  educationLevel: '',
+  targetExam: '',
+  grade: '',
+  schoolInstitute: '', // Default empty string for school/institute
+  selectedSubjects: [],
+  weakSubjects: [],
+  studyTime: '',
+  studyHabit: '',
+  studyGoal: '',
+  useVoiceAssistant: true,
+  dailyNotifications: true,
+  languagePreference: 'english',
 };
 
-const OnboardingContext = createContext<OnboardingContextType>({
-  onboardingData: defaultOnboardingData,
-  setOnboardingData: () => {},
-  currentStep: "role",
-  setStep: () => {},
-  goToNextStep: () => {},
-  goToPreviousStep: () => {}
-});
-
-export const useOnboarding = () => useContext(OnboardingContext);
-
-// Define the step sequence for the onboarding flow
-const stepSequence: OnboardingStep[] = [
-  "role", 
-  "goal", 
-  "demographics", 
-  "personality", 
-  "sentiment", 
-  "studyTime", 
-  "studyPace", 
-  "studyHours", 
-  "habits", 
-  "interests", 
-  "signup"
-];
+const OnboardingContext = createContext<OnboardingContextProps | undefined>(undefined);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [onboardingData, setOnboardingData] = useState(defaultOnboardingData);
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
-  const navigate = useNavigate();
+  const [data, setData] = useState<OnboardingData>(defaultData);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Get the current step index
-  const currentStepIndex = stepSequence.indexOf(currentStep);
+  const totalSteps = 5;
 
-  // Go to the next step in the sequence
-  const goToNextStep = () => {
-    if (currentStepIndex < stepSequence.length - 1) {
-      setCurrentStep(stepSequence[currentStepIndex + 1]);
+  const updateData = (update: Partial<OnboardingData>) => {
+    setData((prev) => ({ ...prev, ...update }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  // Go to the previous step in the sequence
-  const goToPreviousStep = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStep(stepSequence[currentStepIndex - 1]);
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
-  };
-
-  // Set a specific step
-  const setStep = (step: OnboardingStep) => {
-    setCurrentStep(step);
-  };
-
-  // Update the onboarding data
-  const updateOnboardingData = (data: Record<string, any>) => {
-    setOnboardingData({ ...onboardingData, ...data });
   };
 
   return (
     <OnboardingContext.Provider
       value={{
-        onboardingData,
-        setOnboardingData: updateOnboardingData,
+        data,
+        updateData,
         currentStep,
-        setStep,
-        goToNextStep,
-        goToPreviousStep
+        setCurrentStep,
+        nextStep,
+        prevStep,
+        totalSteps,
+        isSubmitting,
+        setIsSubmitting,
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
+};
+
+export const useOnboarding = () => {
+  const context = useContext(OnboardingContext);
+  if (context === undefined) {
+    throw new Error('useOnboarding must be used within an OnboardingProvider');
+  }
+  return context;
 };

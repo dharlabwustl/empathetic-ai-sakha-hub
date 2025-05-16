@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/landing/HeroSection';
+import HeroSection from '@/components/home/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -14,7 +14,6 @@ import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
@@ -80,11 +79,7 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection 
-          scrollToFeatures={scrollToFeatures}
-          scrollToForWhom={() => {}}
-          openExamAnalyzer={handleOpenExamAnalyzer}
-        />
+        <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -107,11 +102,6 @@ const Index = () => {
         
         {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
-        
-        {/* Add the AchievementsSection with improved spacing and z-index */}
-        <div className="relative z-10 mt-16 mb-24">
-          <AchievementsSection />
-        </div>
         
         <WhatIsSection />
         
