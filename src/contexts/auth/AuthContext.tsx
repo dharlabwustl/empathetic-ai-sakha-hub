@@ -97,32 +97,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Check if input is email or phone number
           const isEmail = emailOrPhone.includes('@');
           
-          // Determine user role from email - if it includes 'admin' then create admin user
-          const role = emailOrPhone.includes('admin') ? UserRole.Admin : UserRole.Student;
-          
-          // If this is admin login, handle it specially
-          if (role === UserRole.Admin) {
-            // Save admin data to localStorage
-            localStorage.setItem('admin_logged_in', 'true');
-            localStorage.setItem('admin_user', JSON.stringify({
-              id: 'admin-1',
-              name: isEmail ? emailOrPhone.split('@')[0] : 'Admin',
-              email: isEmail ? emailOrPhone : 'admin@example.com',
-              role: 'admin',
-              permissions: ['all']
-            }));
-            
-            // Clear student login data
-            localStorage.removeItem('userData');
-            localStorage.removeItem('isLoggedIn');
-            
-            // Dispatch event to update UI
-            window.dispatchEvent(new Event('auth-state-changed'));
-            
-            setLoading(false);
-            resolve(true);
-            return;
-          }
+          // Clear any existing admin login
+          localStorage.removeItem('admin_logged_in');
+          localStorage.removeItem('admin_user');
           
           // Regular student user
           const newUser: User = {
@@ -168,10 +145,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Mark as logged in for other parts of the app
           localStorage.setItem('isLoggedIn', 'true');
           
-          // Clear admin auth if this is a student login
-          localStorage.removeItem('admin_logged_in');
-          localStorage.removeItem('admin_user');
-          
           setUser(newUser);
           
           // Dispatch event for UI updates
@@ -199,10 +172,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear all auth data from localStorage
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
+    
+    // Ensure admin auth is also cleared
     localStorage.removeItem('admin_logged_in');
     localStorage.removeItem('admin_user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     
     // Remove remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');

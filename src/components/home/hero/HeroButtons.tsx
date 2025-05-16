@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 
 interface HeroButtonsProps {
   scrollToFeatures?: () => void;
@@ -16,14 +14,12 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
   onAnalyzeClick,
 }) => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const { isAdminAuthenticated } = useAdminAuth();
   
-  // Use state to force re-render when authentication changes
+  // Use state to track login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  // Check auth status on mount and when localStorage changes
+  // Check auth status on mount and when auth events occur
   useEffect(() => {
     const checkAuthStatus = () => {
       const studentLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -33,21 +29,20 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
       setIsAdmin(adminLoggedIn);
     };
     
-    // Initial check
+    // Check on component mount
     checkAuthStatus();
+    
+    // Add event listener for auth state changes
+    window.addEventListener('auth-state-changed', checkAuthStatus);
     
     // Add event listener for storage changes (for multi-tab support)
     window.addEventListener('storage', checkAuthStatus);
     
-    // Custom event for auth changes
-    const handleAuthChange = () => checkAuthStatus();
-    window.addEventListener('auth-state-changed', handleAuthChange);
-    
     return () => {
+      window.removeEventListener('auth-state-changed', checkAuthStatus);
       window.removeEventListener('storage', checkAuthStatus);
-      window.removeEventListener('auth-state-changed', handleAuthChange);
     };
-  }, [isAuthenticated, isAdminAuthenticated]);
+  }, []);
   
   const handleExploreFeatures = () => {
     if (scrollToFeatures) {
@@ -59,7 +54,6 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
     if (onAnalyzeClick) {
       onAnalyzeClick();
     } else {
-      // Default fallback for when onAnalyzeClick is not provided
       navigate("/login");
     }
   };
@@ -81,7 +75,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
           className="font-semibold rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8"
           onClick={handleDashboard}
         >
-          Go to {isAdmin ? "Admin" : ""} Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+          Go to {isAdmin ? "Admin" : "Student"} Dashboard <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
         <Button 
           size="lg" 

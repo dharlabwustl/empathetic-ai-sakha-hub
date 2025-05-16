@@ -59,10 +59,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     setLoginError(null);
     
     try {
-      // In a real app, this would validate credentials against a backend
-      console.log("Attempting to log in with:", credentials.emailOrPhone);
+      // Clear any existing admin session
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
       
-      // The login function accepts both email and phone number
+      // Login as student
+      console.log("Attempting to log in with:", credentials.emailOrPhone);
       const success = await login(credentials.emailOrPhone, credentials.password);
       
       if (success) {
@@ -81,14 +83,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         // Dispatch custom event for auth state change
         window.dispatchEvent(new Event('auth-state-changed'));
         
-        // Navigate to appropriate dashboard based on user role
-        const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
-        
-        if (isAdmin) {
-          navigate("/admin/dashboard", { replace: true });
-        } else {
-          navigate("/dashboard/student", { replace: true });
-        }
+        // Navigate to student dashboard
+        navigate("/dashboard/student", { replace: true });
       } else {
         setLoginError("Invalid email/phone or password");
       }

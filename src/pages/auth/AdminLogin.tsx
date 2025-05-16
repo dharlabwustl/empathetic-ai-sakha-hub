@@ -7,12 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { adminLogin, isAdminAuthenticated } = useAdminAuth();
@@ -28,15 +31,12 @@ const AdminLogin = () => {
     e.preventDefault();
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter your email and password",
-        variant: "destructive",
-      });
+      setLoginError("Please enter your email and password");
       return;
     }
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
       const success = await adminLogin(email, password);
@@ -47,28 +47,21 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Dispatch auth change event
-        window.dispatchEvent(new Event('auth-state-changed'));
-        
         // Navigate to admin dashboard
-        navigate("/admin/dashboard", { replace: true });
+        navigate("/admin/dashboard");
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid admin credentials",
-          variant: "destructive",
-        });
+        setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }
     } catch (error) {
-      toast({
-        title: "Login error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      setLoginError("An unexpected error occurred");
       console.error("Admin login error:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleDemoAdminLogin = () => {
@@ -85,6 +78,15 @@ const AdminLogin = () => {
             Enter your admin credentials to access the dashboard
           </CardDescription>
         </CardHeader>
+        
+        {loginError && (
+          <div className="px-6 pt-2">
+            <Alert variant="destructive">
+              <AlertDescription>{loginError}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -109,13 +111,24 @@ const AdminLogin = () => {
                   Forgot password?
                 </Button>
               </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Button
+                  type="button" 
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </Button>
+              </div>
             </div>
             
             <Button 
