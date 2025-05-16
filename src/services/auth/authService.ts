@@ -1,6 +1,6 @@
+
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
-import { validateCredentials } from './accountData';
 import { UserRole } from '@/types/user/base';
 
 // Auth service types
@@ -35,9 +35,15 @@ const AUTH_USER_KEY = 'sakha_auth_user';
 
 // Authentication service
 const authService = {
-  // Login user
+  // Login user with proper error handling
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service logging in with:", credentials);
+    
+    // First, clear any existing admin login
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     
     // For demo purposes, allow any email/password combination
     // In a real app, this would validate against a backend
@@ -81,6 +87,12 @@ const authService = {
   async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service registering user:", userData);
     
+    // Clear any existing admin login
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    
     // For demo, create a mock successful response
     const mockUser: AuthUser = {
       id: `user_${Date.now()}`,
@@ -95,7 +107,7 @@ const authService = {
     // Set the auth data
     this.setAuthData(mockUser);
     
-    // Save user data in localStorage for mood tracking with school name included
+    // Save user data in localStorage with school name included
     const userDataObj = {
       id: mockUser.id,
       name: mockUser.name,
@@ -129,8 +141,16 @@ const authService = {
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Admin login with:", credentials);
     
-    // For demo purposes, allow any email
+    // For demo purposes, allow any email with admin in it
     // In a real app, this would validate against admin accounts only
+    if (!credentials.email.includes('admin') && credentials.email !== 'admin@prepzr.com') {
+      return {
+        success: false,
+        data: null,
+        error: 'Invalid admin credentials'
+      };
+    }
+    
     const adminUser: AuthUser = {
       id: `admin_${Date.now()}`,
       name: 'Admin User',
@@ -213,9 +233,6 @@ const authService = {
     // Trigger auth state change event
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Force redirection to login page after logout
-    window.location.href = '/login';
-    
     return {
       success: true,
       data: null,
@@ -252,8 +269,8 @@ const authService = {
     document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
-    // Force redirection to login page
-    window.location.href = '/login';
+    // Trigger auth state change event
+    window.dispatchEvent(new Event('auth-state-changed'));
   },
   
   // Get current authenticated user
@@ -300,27 +317,7 @@ const authService = {
   isAdmin(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'admin' || localStorage.getItem('admin_logged_in') === 'true';
-  },
-  
-  // Check if user has specific permissions
-  hasPermission(permission: string): boolean {
-    const user = this.getCurrentUser();
-    if (!user || user.role !== 'admin') return false;
-    
-    // If user has 'all' permission or the specific requested permission
-    return user.permissions?.includes('all') || user.permissions?.includes(permission) || false;
-  },
-  
-  // Initialize auth state from local storage
-  initializeAuth(): void {
-    const token = this.getToken();
-    if (token) {
-      apiClient.setAuthToken(token);
-    }
   }
 };
-
-// Initialize auth state when the service is imported
-authService.initializeAuth();
 
 export default authService;

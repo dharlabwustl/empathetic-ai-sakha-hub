@@ -2,10 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
-import { getDemographicsQuestion } from "./utils/stepUtils";
+import { MoodType } from "@/types/user/base";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -70,6 +69,10 @@ const StepHandler = ({
         // Ensure user stays logged in by setting isLoggedIn flag
         localStorage.setItem("isLoggedIn", "true");
         
+        // Clear admin login if exists
+        localStorage.removeItem('admin_logged_in');
+        localStorage.removeItem('admin_user');
+        
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...response.data,
@@ -78,10 +81,11 @@ const StepHandler = ({
           phoneNumber: cleanMobile,
           completedOnboarding: true,
           isNewUser: true,
-          sawWelcomeTour: true // Mark tour as seen to avoid showing it
+          sawWelcomeTour: false // Allow tour to be shown
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
+        localStorage.setItem("new_user_signup", "true");
         
         toast({
           title: "Welcome to Prepzr!",

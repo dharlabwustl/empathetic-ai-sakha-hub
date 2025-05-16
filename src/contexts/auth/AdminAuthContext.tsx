@@ -76,42 +76,40 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function
+  // Admin login function with specific handling
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
     return new Promise<boolean>((resolve) => {
-      setTimeout(() => {
-        // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
-        if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
-          // Clear student login data first to avoid conflicts
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isLoggedIn');
-          
-          const newAdminUser: AdminUser = {
-            id: 'admin-1',
-            name: "Admin User",
-            email: email,
-            role: "admin",
-            permissions: ['all']
-          };
-          
-          // Save admin data to localStorage
-          localStorage.setItem('admin_logged_in', 'true');
-          localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
-          
-          setAdminUser(newAdminUser);
-          
-          // Dispatch event to notify other components about auth change
-          window.dispatchEvent(new Event('auth-state-changed'));
-          
-          setAdminLoading(false);
-          resolve(true);
-        } else {
-          setAdminLoading(false);
-          resolve(false);
-        }
-      }, 400); // Reduced timeout for faster login
+      // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
+      if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
+        // Clear student login data first to avoid conflicts
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        const newAdminUser: AdminUser = {
+          id: 'admin-1',
+          name: "Admin User",
+          email: email,
+          role: "admin",
+          permissions: ['all']
+        };
+        
+        // Save admin data to localStorage
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
+        
+        setAdminUser(newAdminUser);
+        
+        // Dispatch event to notify other components about auth change
+        window.dispatchEvent(new Event('auth-state-changed'));
+        
+        setAdminLoading(false);
+        resolve(true);
+      } else {
+        setAdminLoading(false);
+        resolve(false);
+      }
     });
   };
 

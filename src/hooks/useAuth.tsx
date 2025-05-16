@@ -64,6 +64,8 @@ export function useAuth() {
           };
           
           // Store in localStorage
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('admin_logged_in');
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('userData', JSON.stringify(newUser));
           

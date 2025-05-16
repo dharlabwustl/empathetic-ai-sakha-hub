@@ -22,16 +22,16 @@ const AdminLogin = () => {
   const { toast } = useToast();
   const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
 
-  // Get the return URL from query parameters
+  // Get the return URL from query parameters or use default
   const searchParams = new URLSearchParams(location.search);
   const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
 
   // Check if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated && !adminLoading) {
-      navigate(returnTo, { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, adminLoading, navigate, returnTo]);
+  }, [isAdminAuthenticated, adminLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +45,6 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Use the adminLogin function from the context
       const success = await adminLogin(email, password);
       
       if (success) {
@@ -54,7 +53,7 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard
+        // Navigate to admin dashboard (always to admin dashboard, not using returnTo)
         navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
@@ -177,6 +176,7 @@ const AdminLogin = () => {
                 variant="outline"
                 className="w-full mt-2"
                 onClick={handleDemoAdminLogin}
+                disabled={isLoading}
               >
                 Use Demo Admin Account
               </Button>

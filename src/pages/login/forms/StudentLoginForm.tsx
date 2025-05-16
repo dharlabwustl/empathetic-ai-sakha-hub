@@ -89,12 +89,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   };
 
   const handleDemoLogin = async () => {
-    setCredentials({
-      emailOrPhone: "demo@prepzr.com",
-      password: "demo123"
-    });
-    
-    // Automatically login with demo credentials
     setIsLoading(true);
     setLoginError(null);
     
@@ -206,6 +200,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           variant="outline" 
           className="w-full mt-2" 
           onClick={handleDemoLogin}
+          disabled={isLoading}
         >
           Use Demo Account
         </Button>
