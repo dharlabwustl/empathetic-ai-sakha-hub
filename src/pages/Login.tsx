@@ -1,17 +1,41 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const searchParams = new URLSearchParams(location.search);
   const returnTo = searchParams.get('returnTo') || '/dashboard/student';
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    const isAuthenticated = Boolean(authToken);
+    
+    if (isAuthenticated) {
+      // If already authenticated, clear it to ensure fresh login
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      console.log("Found existing authentication, clearing for fresh login");
+    }
+  }, []);
+  
+  const handleLoginError = (error: string) => {
+    toast({
+      title: "Login failed",
+      description: error,
+      variant: "destructive"
+    });
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -42,7 +66,7 @@ const Login = () => {
             
             <TabsContent value="student" className="pt-2">
               <form onSubmit={(e) => e.preventDefault()}>
-                <LoginPage returnTo={returnTo} />
+                <LoginPage returnTo={returnTo} onError={handleLoginError} />
               </form>
             </TabsContent>
             
@@ -50,7 +74,7 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = `/admin/login?returnTo=${returnTo}`}>
+                    <Button variant="outline" className="w-full" onClick={() => navigate(`/admin/login?returnTo=${returnTo}`)}>
                       Go to Admin Login
                     </Button>
                   </div>

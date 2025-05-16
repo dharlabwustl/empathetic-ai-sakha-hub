@@ -42,7 +42,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   useEffect(() => {
     if (isVoiceSupported && !hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
       const timer = setTimeout(() => {
-        const welcomeMessage = "Welcome to PREPZR. I'm your AI voice assistant with an Indian accent. I can help you explore our NEET preparation platform. Click on 'Test Your Exam Readiness' to check your preparation level, or start a free trial to access all our features.";
+        const welcomeMessage = "Namaste! Welcome to PREPZR. I'm your AI voice assistant with an Indian accent. I can help you explore our NEET preparation platform designed specifically for Indian medical entrance exams. You can test your exam readiness or start a free trial to access all our features including personalized study plans, interactive concept cards, and AI-powered analytics.";
         speakMessage(welcomeMessage);
         setHasGreeted(true);
       }, 2000);
@@ -55,14 +55,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const handleShowIntro = () => {
     setShowIntro(true);
     
-    const introMessage = "PREPZR is an AI-powered NEET exam preparation platform. We use advanced artificial intelligence to personalize your study plan, help you master concepts, and track your progress. Our approach combines technology with proven study methodologies to maximize your exam performance.";
+    const introMessage = "PREPZR is an advanced AI-powered NEET exam preparation platform. We use cutting-edge artificial intelligence to personalize your study plan based on your learning style and progress. Our platform helps you master difficult concepts through interactive learning, track your progress with detailed analytics, and provide personalized guidance for your NEET journey.";
     
     speakMessage(introMessage);
   };
 
   // Guide user through different sections
   const explainFeatures = () => {
-    const featuresMessage = "Our platform includes personalized study plans, interactive concept cards, practice exams with detailed analysis, AI-powered progress tracking, and 24/7 tutoring support. Every feature is designed specifically for NEET preparation, focusing on Physics, Chemistry, and Biology.";
+    const featuresMessage = "Our platform includes personalized study plans tailored to your learning style, interactive concept cards with visual aids and practice questions, AI-generated performance analytics, practice exams with NEET-style questions, and 24/7 AI tutoring support. Every feature is specifically designed for NEET preparation, covering Physics, Chemistry, and Biology in line with the latest NEET syllabus.";
     
     speakMessage(featuresMessage);
   };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,10 +28,12 @@ const AdminLogin = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setLoginError(null); // Clear any previous errors when user types
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -46,6 +49,7 @@ const AdminLogin = () => {
     }
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
       // Using the mock admin service for now, will be replaced with Flask backend later
@@ -56,18 +60,25 @@ const AdminLogin = () => {
       
       console.log("Login successful, redirecting to /admin/dashboard");
       
+      toast({
+        title: "Login successful",
+        description: "Welcome to the admin dashboard.",
+      });
+      
       // Use a small delay to ensure state is updated before redirect
       setTimeout(() => {
         navigate("/admin/dashboard", { replace: true });
       }, 100);
       
     } catch (error) {
+      console.error("Login error:", error);
+      setLoginError("Invalid email or password. Please try again.");
+      
       toast({
         title: "Login Failed",
         description: "Invalid email or password. Please try again.",
         variant: "destructive"
       });
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +89,7 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height={120} /> {/* Updated logo */}
+            <PrepzrLogo width={120} height={120} />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
           <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
@@ -95,6 +106,12 @@ const AdminLogin = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="p-6 space-y-6">
               <div className="space-y-4">
+                {loginError && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 text-sm text-red-700 rounded">
+                    {loginError}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                   <div className="relative">
