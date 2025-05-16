@@ -1,244 +1,115 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import React from 'react';
 import { motion } from 'framer-motion';
-import ExamNamesBadge from '../home/hero/ExamNamesBadge';
-import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { ArrowDown, ArrowRight, FileCheck } from 'lucide-react';
 
-const HeroSection = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [currentTagline, setCurrentTagline] = useState(0);
-  
-  const taglines = [
-    "Ace your exams.",
-    "Save time.",
-    "Stress less.",
-    "Study smarter."
-  ];
+interface HeroSectionProps {
+  scrollToFeatures: () => void;
+  scrollToForWhom: () => void;
+  openExamAnalyzer: () => void;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTagline((prev) => (prev + 1) % taglines.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Handler for exam readiness analyzer
-  const handleExamReadiness = () => {
-    // Dispatch an event to open the exam analyzer
-    const event = new Event('open-exam-analyzer');
-    window.dispatchEvent(event);
-  };
-
+const HeroSection: React.FC<HeroSectionProps> = ({ scrollToFeatures, scrollToForWhom, openExamAnalyzer }) => {
   return (
-    <section className="relative bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/80 dark:via-gray-900 dark:to-violet-900/80 py-16 md:py-24 lg:py-32 overflow-hidden">
-      {/* Abstract background elements with enhanced animations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
-          className="absolute top-0 -right-10 w-72 h-72 bg-purple-300/30 dark:bg-purple-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.4, 0.3],
-          }}
-          transition={{ 
-            duration: 8,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <motion.div 
-          className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-300/30 dark:bg-blue-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ 
-            duration: 10,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: 1
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-300/20 dark:bg-pink-700/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.15, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{ 
-            duration: 9,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: 2
-          }}
-        />
-      </div>
+    <section className="relative pt-20 pb-12 overflow-hidden">
+      {/* Background gradient and effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 to-white dark:from-purple-900/10 dark:to-background pointer-events-none"></div>
       
-      {/* Enhanced grid pattern background with subtle animation */}
+      {/* Animated gradient balls */}
       <motion.div 
-        className="absolute inset-0 bg-[url('/img/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"
-        animate={{ 
-          backgroundPosition: ["0% 0%", "1% 1%", "0% 0%"],
+        className="absolute top-20 right-[5%] w-72 h-72 bg-gradient-to-r from-purple-300/20 to-blue-300/20 rounded-full blur-3xl"
+        animate={{
+          x: [0, 30, 0],
+          y: [0, -40, 0],
         }}
-        transition={{ 
-          duration: 20,
+        transition={{
           repeat: Infinity,
-          repeatType: "reverse",
+          duration: 15,
+          ease: "easeInOut"
+        }}
+      />
+      
+      <motion.div 
+        className="absolute bottom-10 left-[10%] w-60 h-60 bg-gradient-to-r from-blue-300/10 to-indigo-300/10 rounded-full blur-3xl"
+        animate={{
+          x: [0, -20, 0],
+          y: [0, 20, 0],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 18,
+          ease: "easeInOut"
         }}
       />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col items-center text-center">
-          <div className="max-w-4xl">
-            {/* Hindi text line with enhanced gradient */}
-            <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
-              <span className="block py-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 animate-gradient-x">
-                अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
-              </span>
-            </motion.h1>
-            
-            {/* English text line with different animation timing */}
-            <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-            >
-              We Understand Your Mindset, Not Just the Exam.
-            </motion.h2>
-          </div>
-          
-          {/* Enhanced Animated taglines */}
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-20 flex items-center justify-center mt-6">
-            <motion.div
-              key={currentTagline}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block relative"
-            >
-              <motion.span
-                className="absolute inset-0 rounded-lg blur-sm"
-                style={{
-                  background: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #ec4899, #f97316)',
-                  opacity: 0.3,
-                }}
-                animate={{
-                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                }}
-                transition={{ duration: 5, repeat: Infinity }}
-              />
-              <span className="relative px-3 py-1 bg-white/40 dark:bg-gray-900/40 rounded-lg backdrop-blur-sm font-medium">
-                {taglines[currentTagline]}
-              </span>
-            </motion.div>
-
-            {currentTagline === taglines.length - 1 && (
-              <motion.span
-                className="ml-2 inline-block font-bold px-3 py-1 rounded-lg"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ 
-                  x: 0,
-                  opacity: 1,
-                  color: ["#8b5cf6", "#3b82f6", "#ec4899", "#f97316", "#8b5cf6"],
-                  scale: [1, 1.1, 1],
-                  textShadow: ["0 0 5px rgba(139, 92, 246, 0.5)", "0 0 10px rgba(236, 72, 153, 0.5)", "0 0 5px rgba(59, 130, 246, 0.5)"]
-                }}
-                transition={{ 
-                  x: { duration: 0.5 },
-                  color: { duration: 4, repeat: Infinity, repeatType: "reverse" },
-                  scale: { duration: 3, repeat: Infinity, repeatType: "reverse" },
-                  textShadow: { duration: 4, repeat: Infinity, repeatType: "reverse" }
-                }}
-                style={{
-                  backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6, #ec4899, #f97316)',
-                  backgroundSize: '200% auto',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent'
-                }}
-              >
-                Crack your exams!
-              </motion.span>
-            )}
-          </div>
-          
-          {/* Call to action buttons with enhanced animations */}
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-4 my-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
-          >
-            {user ? (
-              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
-                <Link to="/dashboard/student" className="flex items-center px-6 py-6">
-                  <SparklesIcon size={18} className="mr-2" />
-                  <span>Go to Dashboard</span>
-                  <motion.div
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="ml-2"
-                  >
-                    <ArrowRight size={18} />
-                  </motion.div>
-                </Link>
-              </Button>
-            ) : (
-              <>
-                {/* Replaced NEET Preparation with Test Your Exam Readiness */}
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-6 py-6"
-                  onClick={handleExamReadiness}
-                >
-                  <SparklesIcon size={20} />
-                  <span className="font-medium">Test Your Exam Readiness</span>
-                </Button>
-                
-                <Button 
-                  asChild 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50 px-6 py-6"
-                >
-                  <Link to="/signup" className="flex items-center gap-2">
-                    <BookOpen size={20} />
-                    <span>7-Day Free Trial</span>
-                    <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                    >
-                      <ArrowRight size={18} />
-                    </motion.div>
-                  </Link>
-                </Button>
-              </>
-            )}
-          </motion.div>
-          
-          {/* Exam Names Badge - animated */}
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="mt-8 mb-6 w-full"
+            transition={{ duration: 0.6 }}
           >
-            <ExamNamesBadge />
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-500 dark:from-purple-400 dark:to-indigo-300 mb-6">
+              Revolutionizing NEET Exam Preparation with AI
+            </h1>
+          </motion.div>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
+          >
+            PREPZR supercharges your NEET preparation with personalized study plans, adaptive learning, 
+            and in-depth analytics—all powered by cutting-edge AI that adapts to your individual learning style.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-col md:flex-row gap-4 justify-center"
+          >
+            <Button 
+              onClick={openExamAnalyzer} 
+              size="lg" 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full px-8"
+            >
+              <FileCheck className="mr-2 h-5 w-5" />
+              Test Your Exam Readiness
+            </Button>
+            
+            <Button 
+              onClick={scrollToFeatures} 
+              variant="outline" 
+              size="lg"
+              className="rounded-full border-purple-300 dark:border-purple-700 px-8"
+            >
+              Explore Features
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </motion.div>
         </div>
+        
+        {/* Scroll down indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 cursor-pointer"
+          onClick={scrollToForWhom}
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-sm text-gray-500 mb-2">Discover More</span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <ArrowDown className="h-6 w-6 text-purple-500" />
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

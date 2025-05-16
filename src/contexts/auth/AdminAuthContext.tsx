@@ -1,5 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 // Admin user interface
 interface AdminUser {
@@ -30,6 +32,7 @@ interface AdminAuthProviderProps {
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [adminLoading, setAdminLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Check for existing admin user in localStorage on mount
   useEffect(() => {
@@ -80,7 +83,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function - improved to be more reliable
+  // Admin login function - improved to be more reliable and redirect properly
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
@@ -91,6 +94,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           // Clear student login data first to avoid conflicts
           localStorage.removeItem('userData');
           localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('new_user_signup');
           
           const newAdminUser: AdminUser = {
             id: 'admin-1',
@@ -109,13 +113,30 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           // Dispatch event to notify other components about auth change
           window.dispatchEvent(new Event('auth-state-changed'));
           
+          // Show success toast
+          toast({
+            title: "Login Successful",
+            description: "Welcome to Prepzr Admin Dashboard",
+          });
+          
+          // Navigate to admin dashboard
+          navigate('/dashboard/admin');
+          
           setAdminLoading(false);
           resolve(true);
         } else {
           setAdminLoading(false);
+          
+          // Show error toast
+          toast({
+            title: "Login Failed",
+            description: "Invalid admin credentials",
+            variant: "destructive"
+          });
+          
           resolve(false);
         }
-      }, 200); // Reduced timeout for faster response
+      }, 800); // Slightly longer timeout for more realistic authentication feel
     });
   };
 
@@ -136,6 +157,15 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     // Clear remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');
+    
+    // Show logout toast
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    
+    // Navigate to home page
+    navigate('/');
     
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
