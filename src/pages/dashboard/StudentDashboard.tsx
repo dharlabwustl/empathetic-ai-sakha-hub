@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
+import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
@@ -218,7 +218,7 @@ const StudentDashboard = () => {
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en"
+        language="en-IN" // Use Indian English by default
       />
       
       {/* Dashboard Voice Assistant with mood integration */}

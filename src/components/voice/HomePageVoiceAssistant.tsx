@@ -28,8 +28,8 @@ const HomePageVoiceAssistant: React.FC = () => {
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = true;
     recognitionInstance.interimResults = false;
-    recognitionInstance.lang = 'en-US';
-
+    recognitionInstance.lang = 'en-IN'; // Set to Indian English by default
+    
     recognitionInstance.onstart = () => {
       setIsListening(true);
     };
@@ -86,7 +86,7 @@ const HomePageVoiceAssistant: React.FC = () => {
     
     // Free trial commands
     if (lowerCommand.includes('free trial') || lowerCommand.includes('try for free')) {
-      speakResponse("PREPZR offers a free trial so you can experience our platform. Let me take you to sign up for a free account.");
+      speakResponse("PREPZR offers a 7-day free trial so you can experience our platform. Let me take you to sign up for a free account.");
       navigate('/signup');
       return;
     }
@@ -101,24 +101,30 @@ const HomePageVoiceAssistant: React.FC = () => {
     
     // What is PREPZR commands
     if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('explain prepzr') || lowerCommand.includes('about prepzr')) {
-      speakResponse("Prep-zer is an AI-powered study companion that adapts to your learning style. It offers features like personalized study plans, concept cards, flashcards, practice exams, and a 24/7 AI tutor to help you achieve your academic goals and ace your exams.");
+      speakResponse("Prep-zer is an AI-powered study companion that adapts to your learning style. It offers features like personalized study plans, concept cards, flashcards, practice exams, and a 24/7 AI tutor to help you achieve your academic goals and ace your NEET exams.");
       return;
     }
     
     // Why PREPZR is best commands
     if (lowerCommand.includes('why prepzr') || lowerCommand.includes('best for exam') || lowerCommand.includes('advantages') || lowerCommand.includes('benefits')) {
-      speakResponse("Prep-zer offers unique advantages for exam preparation: personalized AI-driven study plans, adaptive learning that responds to your mood and performance, comprehensive revision tools with flashcards and concept maps, realistic practice exams, and 24/7 AI tutoring support. Our platform is designed to optimize your study time and boost your exam performance.");
+      speakResponse("Prep-zer offers unique advantages for exam preparation: personalized AI-driven study plans, adaptive learning that responds to your mood and performance, comprehensive revision tools with flashcards and concept maps, realistic practice exams, and 24/7 AI tutoring support. Our platform is designed specifically for NEET exam preparation.");
+      return;
+    }
+    
+    // Specific NEET exam questions
+    if (lowerCommand.includes('neet') || lowerCommand.includes('medical entrance')) {
+      speakResponse("PREPZR is specifically designed to help students prepare for NEET exams with specialized content for Physics, Chemistry, Biology, Botany and Zoology. Our concept cards, practice tests and AI-powered study plans are tailored for medical entrance exam success.");
       return;
     }
     
     // Features commands
     if (lowerCommand.includes('features') || lowerCommand.includes('what can i do')) {
-      speakResponse("Prep-zer offers comprehensive exam preparation features including personalized study plans, flashcards, concept cards, formula lab, practice exams, performance analytics, and a 24/7 AI tutor. Would you like to learn more about any specific feature?");
+      speakResponse("Prep-zer offers comprehensive exam preparation features including personalized study plans, flashcards, concept cards with interactive content, formula lab, practice exams, performance analytics, and a 24/7 AI tutor. Would you like to learn more about any specific feature?");
       return;
     }
     
     // Help or unknown commands
-    speakResponse("Welcome to Prep-zer! I can help you learn about our platform, sign up for a free trial, check your exam readiness, or explore our features. What would you like to know?");
+    speakResponse("Namaste! Welcome to Prep-zer! I can help you learn about our platform, sign up for a free trial, check your exam readiness, or explore our features designed specifically for NEET preparation. What would you like to know?");
   };
 
   // Toggle listening state
@@ -164,7 +170,7 @@ const HomePageVoiceAssistant: React.FC = () => {
     }
   };
 
-  // Speak response
+  // Speak response with Indian accent
   const speakResponse = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
     
@@ -172,18 +178,28 @@ const HomePageVoiceAssistant: React.FC = () => {
     const processedText = text.replace(/PREPZR/gi, 'Prep-zer');
     utterance.text = processedText;
     
+    // Set to Indian English
+    utterance.lang = 'en-IN';
+    
     // Try to use a good voice if available
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
-    );
+    
+    // First try to find an Indian English voice
+    let preferredVoice = voices.find(voice => voice.lang === 'en-IN' || voice.lang === 'hi-IN');
+    
+    // If no Indian voice found, fall back to any female or Google voice
+    if (!preferredVoice) {
+      preferredVoice = voices.find(voice => 
+        voice.name.includes('Google') || voice.name.includes('Female') || voice.name.includes('Samantha')
+      );
+    }
     
     if (preferredVoice) {
       utterance.voice = preferredVoice;
     }
     
     // Set sensible defaults for voice
-    utterance.rate = 1.0;
+    utterance.rate = 0.95; // Slightly slower for clearer Indian accent
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
     
