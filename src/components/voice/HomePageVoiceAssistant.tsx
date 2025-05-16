@@ -14,6 +14,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const location = useLocation();
   const welcomeMessagePlayed = useRef<boolean>(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState<boolean>(false);
+  const [voiceVolume, setVoiceVolume] = useState<number>(0.8);
+  const [voiceRate, setVoiceRate] = useState<number>(0.9);
+  const [voicePitch, setVoicePitch] = useState<number>(1.1);
   
   // Load voices when component mounts
   useEffect(() => {
@@ -21,6 +25,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0) {
         setAvailableVoices(voices);
+        console.log("Available voices loaded:", voices.length);
       }
     };
     
@@ -95,13 +100,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // If still no voice found, use default voice
       if (selectedVoice) {
         utterance.voice = selectedVoice;
+        console.log("Using voice:", selectedVoice.name);
+      } else {
+        console.log("No Indian voice found, using default voice");
       }
       
       // Set properties for Indian English accent
       utterance.lang = language;
-      utterance.rate = 0.9;  // Slightly slower for clearer pronunciation
-      utterance.pitch = 1.1; // Slightly higher pitch for female voice
-      utterance.volume = 0.8;
+      utterance.rate = voiceRate;  // Slightly slower for clearer pronunciation
+      utterance.pitch = voicePitch; // Slightly higher pitch for female voice
+      utterance.volume = voiceVolume;
       
       // Speak the welcome message
       window.speechSynthesis.speak(utterance);

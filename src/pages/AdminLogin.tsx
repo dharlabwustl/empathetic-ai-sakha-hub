@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +14,11 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
-import { adminService } from "@/services/adminService";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,6 +26,14 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Check if already logged in
+  useEffect(() => {
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoggedIn) {
+      window.location.href = "/admin/dashboard";
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,27 +57,39 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Using the mock admin service for now, will be replaced with Flask backend later
-      const adminUser = await adminService.login(formData.email, formData.password);
-      
-      // Call the login function from AdminAuthContext
-      login(adminUser);
-      
-      console.log("Login successful, redirecting to /admin/dashboard");
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome to the admin dashboard.",
-      });
-      
-      // Use a small delay to ensure state is updated before redirect
-      setTimeout(() => {
-        navigate("/admin/dashboard", { replace: true });
-      }, 100);
+      // For demo login - accept any email with admin in it
+      if (formData.email.includes('admin') && formData.password.length > 0) {
+        // Clear student login data first to avoid conflicts
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        // Create admin user data
+        const adminUser = {
+          id: `admin_${Date.now()}`,
+          name: "Admin User",
+          email: formData.email,
+          role: "admin",
+          permissions: ['all']
+        };
+        
+        // Save admin data to localStorage
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', JSON.stringify(adminUser));
+        
+        toast({
+          title: "Login successful",
+          description: "Welcome to the admin dashboard.",
+        });
+        
+        // Use direct location change to force a complete navigation
+        window.location.href = "/admin/dashboard";
+      } else {
+        throw new Error("Invalid admin credentials");
+      }
       
     } catch (error) {
       console.error("Login error:", error);
-      setLoginError("Invalid email or password. Please try again.");
+      setLoginError("Invalid email or password. Admin email must contain 'admin'.");
       
       toast({
         title: "Login Failed",
