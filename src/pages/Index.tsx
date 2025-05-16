@@ -13,7 +13,6 @@ import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
-import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
@@ -109,8 +108,6 @@ const Index = () => {
                 
         <WhatIsSection />
         
-        <ChampionMethodologySection />
-        
         <EcosystemAnimation />
         
         <div ref={featuresRef}>
@@ -137,11 +134,12 @@ const Index = () => {
       {/* Enhanced homepage voice assistant with improved Indian English guidance */}
       <HomePageVoiceAssistant language="en-IN" />
       
-      {/* Floating Voice Assistant */}
-      <FloatingVoiceAnnouncer 
+      {/* Floating Voice Assistant with settings panel */}
+      <FloatingVoiceAssistant 
         isOpen={showVoiceAssistant} 
         onClose={handleCloseVoiceAssistant}
-        language="en-IN" 
+        language="en-IN"
+        onNavigationCommand={handleNavigationCommand}
       />
     </div>
   );

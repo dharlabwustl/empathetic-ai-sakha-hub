@@ -92,12 +92,12 @@ const HeroSection = () => {
         }}
       />
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="w-full px-4 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <div className="max-w-4xl">
+          <div className="w-full max-w-6xl mx-auto">
             {/* Hindi text line with enhanced gradient */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -109,7 +109,7 @@ const HeroSection = () => {
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white"
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -198,7 +198,7 @@ const HeroSection = () => {
               </Button>
             ) : (
               <>
-                {/* Replaced NEET Preparation with Test Your Exam Readiness */}
+                {/* Using Test Your Exam Readiness button as requested */}
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-6 py-6"

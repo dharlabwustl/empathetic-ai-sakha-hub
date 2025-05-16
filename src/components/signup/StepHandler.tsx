@@ -75,8 +75,8 @@ const StepHandler = ({
         description: "Let's start your learning journey.",
       });
       
-      // Go directly to the dashboard, no more login page
-      navigate("/dashboard/student", { replace: true });
+      // Go directly to the dashboard, using window.location for a full page change to prevent login redirection issues
+      window.location.href = "/dashboard/student";
     } catch (error) {
       console.error("Signup error:", error);
       toast({

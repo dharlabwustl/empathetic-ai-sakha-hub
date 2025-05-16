@@ -80,7 +80,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function - improved to be more reliable
+  // Admin login function - improved to be more reliable and redirect properly
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
@@ -110,6 +110,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           window.dispatchEvent(new Event('auth-state-changed'));
           
           setAdminLoading(false);
+          
+          // Direct navigation to admin dashboard to prevent redirection issues
+          window.location.href = '/admin/dashboard';
+          
           resolve(true);
         } else {
           setAdminLoading(false);
