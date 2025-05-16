@@ -1,446 +1,218 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Filter, BookOpen, Clock, CheckCircle, LucideBarChart, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Search, BookOpen, Clock, Star, Sparkles } from "lucide-react";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import EnhancedConceptCard, { ConceptCardProps } from './EnhancedConceptCard';
 
-// Mock data for subjects
-const subjects = [
-  { id: 'all', name: 'All Subjects' },
-  { id: 'physics', name: 'Physics' },
-  { id: 'chemistry', name: 'Chemistry' },
-  { id: 'biology', name: 'Biology' },
-  { id: 'mathematics', name: 'Mathematics' }
-];
-
-// Mock data for difficulty levels
-const difficultyLevels = [
-  { id: 'all', name: 'All Difficulties' },
-  { id: 'easy', name: 'Easy' },
-  { id: 'medium', name: 'Medium' },
-  { id: 'hard', name: 'Hard' },
-  { id: 'advanced', name: 'Advanced' }
-];
-
-// Mock data for progress filters
-const progressFilters = [
-  { id: 'all', name: 'All Progress' },
-  { id: 'not-started', name: 'Not Started (0%)' },
-  { id: 'in-progress', name: 'In Progress (1-99%)' },
-  { id: 'completed', name: 'Completed (100%)' }
-];
-
-// Mock data for importance filters
-const importanceFilters = [
-  { id: 'all', name: 'All Importance' },
-  { id: 'high', name: 'High Importance' },
-  { id: 'medium', name: 'Medium Importance' },
-  { id: 'low', name: 'Low Importance' }
-];
-
-// Mock data for tags
-const tags = [
-  'Electromagnetism', 'Organic Chemistry', 'Thermodynamics', 'Mechanics', 
-  'Calculus', 'Algebra', 'Genetics', 'Cell Biology', 'Human Physiology',
-  'Chemical Bonding', 'Quantum Mechanics', 'Statistics', 'Probability'
-];
-
-// Generate mock concept cards
-const generateMockConcepts = (count: number): ConceptCardProps[] => {
-  const concepts: ConceptCardProps[] = [];
-  
-  const subjectItems = ['Physics', 'Chemistry', 'Biology', 'Mathematics'];
-  const chapters = {
-    'Physics': ['Mechanics', 'Electromagnetism', 'Thermodynamics', 'Optics', 'Modern Physics'],
-    'Chemistry': ['Organic Chemistry', 'Inorganic Chemistry', 'Physical Chemistry', 'Analytical Chemistry'],
-    'Biology': ['Cell Biology', 'Genetics', 'Human Physiology', 'Ecology', 'Molecular Biology'],
-    'Mathematics': ['Calculus', 'Algebra', 'Geometry', 'Statistics', 'Trigonometry']
-  };
-  const difficulties = ['easy', 'medium', 'hard', 'advanced'] as const;
-  const importances = ['high', 'medium', 'low'] as const;
-  
-  for (let i = 1; i <= count; i++) {
-    const subjectIndex = Math.floor(Math.random() * subjectItems.length);
-    const subject = subjectItems[subjectIndex];
-    const chapterIndex = Math.floor(Math.random() * chapters[subject as keyof typeof chapters].length);
-    const chapter = chapters[subject as keyof typeof chapters][chapterIndex];
-    
-    // Generate 2-5 random tags
-    const numTags = Math.floor(Math.random() * 4) + 2;
-    const conceptTags = [];
-    for (let j = 0; j < numTags; j++) {
-      const tagIndex = Math.floor(Math.random() * tags.length);
-      if (!conceptTags.includes(tags[tagIndex])) {
-        conceptTags.push(tags[tagIndex]);
-      }
-    }
-    
-    const progress = Math.floor(Math.random() * 101); // 0-100
-    const lastStudied = progress > 0 ? `${Math.floor(Math.random() * 14) + 1} days ago` : undefined;
-    
-    concepts.push({
-      id: `concept-${i}`,
-      title: `${chapter} Concept ${i}`,
-      subject,
-      chapter,
-      description: `This is a detailed explanation of the ${chapter} concept in ${subject}. It covers fundamental principles and practical applications.`,
-      difficultyLevel: difficulties[Math.floor(Math.random() * difficulties.length)],
-      tags: conceptTags,
-      progress,
-      hasFormula: Math.random() > 0.3,
-      hasVideo: Math.random() > 0.4,
-      has3DModel: Math.random() > 0.6,
-      totalExamples: Math.floor(Math.random() * 10) + 1,
-      examMistakes: Math.floor(Math.random() * 6),
-      lastStudied,
-      importance: importances[Math.floor(Math.random() * importances.length)]
-    });
-  }
-  
-  return concepts;
-};
-
-const mockConcepts = generateMockConcepts(24);
-
-const ConceptsLandingPage: React.FC = () => {
-  const navigate = useNavigate();
+const ConceptsLandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const [selectedProgress, setSelectedProgress] = useState('all');
-  const [selectedImportance, setSelectedImportance] = useState('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState('grid');
-  const [loading, setLoading] = useState(true);
-  const [concepts, setConcepts] = useState<ConceptCardProps[]>([]);
+  const [activeTab, setActiveTab] = useState('all');
+  const navigate = useNavigate();
   
-  useEffect(() => {
-    // Simulate loading concepts from API
-    const loadConcepts = async () => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-        setConcepts(mockConcepts);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Sample concepts data - in a real app, this would come from an API
+  const conceptCards = [
+    {
+      id: "concept-1",
+      title: "Newton's Laws of Motion",
+      subject: "Physics",
+      description: "The three fundamental laws that define the relationship between an object's motion and the forces acting on it.",
+      difficulty: "medium",
+      timeEstimate: "25 mins",
+      isBookmarked: true,
+      thumbnailUrl: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
+      progress: 0.8,
+    },
+    {
+      id: "concept-2",
+      title: "Periodic Table & Elements",
+      subject: "Chemistry",
+      description: "Organization and patterns of elements, their properties, and chemical behaviors.",
+      difficulty: "easy",
+      timeEstimate: "20 mins",
+      isBookmarked: false,
+      thumbnailUrl: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
+      progress: 0.5,
+    },
+    {
+      id: "concept-3",
+      title: "Cell Division & Mitosis",
+      subject: "Biology",
+      description: "The process by which a single cell divides into two identical daughter cells.",
+      difficulty: "hard",
+      timeEstimate: "30 mins",
+      isBookmarked: true,
+      thumbnailUrl: "/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png",
+      progress: 0.3,
+    },
+    {
+      id: "concept-4",
+      title: "Integration Techniques",
+      subject: "Mathematics",
+      description: "Methods for calculating integrals, including substitution, parts, and partial fractions.",
+      difficulty: "hard",
+      timeEstimate: "40 mins",
+      isBookmarked: false,
+      thumbnailUrl: "/lovable-uploads/d5f87c4f-6021-49b2-9e4d-ab83c4cb55c9.png",
+      progress: 0.2,
+    },
+    {
+      id: "concept-5",
+      title: "Electromagnetic Waves",
+      subject: "Physics",
+      description: "Waves of coupled electric and magnetic fields that propagate through space.",
+      difficulty: "hard",
+      timeEstimate: "35 mins",
+      isBookmarked: false,
+      thumbnailUrl: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
+      progress: 0.1,
+    },
+    {
+      id: "concept-6",
+      title: "Organic Compounds",
+      subject: "Chemistry",
+      description: "Carbon-containing compounds, their structures, properties, and reactions.",
+      difficulty: "medium",
+      timeEstimate: "25 mins",
+      isBookmarked: false,
+      thumbnailUrl: "/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png",
+      progress: 0,
+    },
+  ];
+  
+  // Filtered concepts based on search and active tab
+  const filteredConcepts = conceptCards.filter((concept) => {
+    const matchesSearch = concept.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         concept.description.toLowerCase().includes(searchQuery.toLowerCase());
     
-    loadConcepts();
-  }, []);
-  
-  const toggleTag = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter(t => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
+    if (activeTab === 'all') return matchesSearch;
+    if (activeTab === 'bookmarked') return matchesSearch && concept.isBookmarked;
+    if (activeTab === 'inProgress') return matchesSearch && concept.progress > 0 && concept.progress < 1;
+    if (activeTab === 'completed') return matchesSearch && concept.progress === 1;
+    if (activeTab === 'notStarted') return matchesSearch && concept.progress === 0;
+    
+    return matchesSearch && concept.subject.toLowerCase() === activeTab.toLowerCase();
+  });
+
+  // Get difficulty badge color
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800 hover:bg-green-200';
+      case 'medium': return 'bg-amber-100 text-amber-800 hover:bg-amber-200';
+      case 'hard': return 'bg-red-100 text-red-800 hover:bg-red-200';
+      default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
     }
   };
   
-  // Filter concepts based on selected filters
-  const filteredConcepts = concepts.filter(concept => {
-    // Search query filter
-    if (searchQuery && !concept.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !concept.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Subject filter
-    if (selectedSubject !== 'all' && concept.subject.toLowerCase() !== selectedSubject) {
-      return false;
-    }
-    
-    // Difficulty filter
-    if (selectedDifficulty !== 'all' && concept.difficultyLevel !== selectedDifficulty) {
-      return false;
-    }
-    
-    // Progress filter
-    if (selectedProgress !== 'all') {
-      if (selectedProgress === 'not-started' && concept.progress > 0) {
-        return false;
-      } else if (selectedProgress === 'in-progress' && (concept.progress === 0 || concept.progress === 100)) {
-        return false;
-      } else if (selectedProgress === 'completed' && concept.progress !== 100) {
-        return false;
-      }
-    }
-    
-    // Importance filter
-    if (selectedImportance !== 'all' && concept.importance !== selectedImportance) {
-      return false;
-    }
-    
-    // Tags filter
-    if (selectedTags.length > 0 && !selectedTags.some(tag => concept.tags.includes(tag))) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  // Calculate statistics for each tab
-  const completedCount = concepts.filter(c => c.progress === 100).length;
-  const inProgressCount = concepts.filter(c => c.progress > 0 && c.progress < 100).length;
-  const notStartedCount = concepts.filter(c => c.progress === 0).length;
-  const highImportanceCount = concepts.filter(c => c.importance === 'high').length;
-  
+  // Navigate to the concept card detail page
+  const handleViewConcept = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/card/${conceptId}`);
+  };
+
   return (
     <SharedPageLayout
       title="Concept Cards"
-      subtitle="Master key concepts with interactive learning cards"
-      showBackButton={true}
-      backButtonUrl="/dashboard/student"
+      subtitle="Master key concepts and fundamentals"
     >
       <div className="space-y-6">
-        {/* Search and filters */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search concepts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map(subject => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {difficultyLevels.map(level => (
-                    <SelectItem key={level.id} value={level.id}>
-                      {level.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Button variant="outline" className="flex items-center gap-2" onClick={() => {
-                setSelectedSubject('all');
-                setSelectedDifficulty('all');
-                setSelectedProgress('all');
-                setSelectedImportance('all');
-                setSelectedTags([]);
-                setSearchQuery('');
-              }}>
-                <Filter className="h-4 w-4" />
-                Clear Filters
-              </Button>
-            </div>
-          </div>
-          
-          {/* Additional filters */}
-          <div>
-            <div className="flex flex-wrap gap-2 mb-2">
-              <Select value={selectedProgress} onValueChange={setSelectedProgress}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Progress" />
-                </SelectTrigger>
-                <SelectContent>
-                  {progressFilters.map(filter => (
-                    <SelectItem key={filter.id} value={filter.id}>
-                      {filter.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={selectedImportance} onValueChange={setSelectedImportance}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Importance" />
-                </SelectTrigger>
-                <SelectContent>
-                  {importanceFilters.map(filter => (
-                    <SelectItem key={filter.id} value={filter.id}>
-                      {filter.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Tag filters */}
-            <div className="flex flex-wrap gap-2">
-              {tags.slice(0, 10).map(tag => (
-                <Badge 
-                  key={tag}
-                  variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => toggleTag(tag)}
-                >
-                  {tag}
-                </Badge>
-              ))}
-              {tags.length > 10 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  +{tags.length - 10} more
-                </Badge>
-              )}
-            </div>
-          </div>
+        {/* Search bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search concepts..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         
-        {/* Tab navigation */}
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              <span>All Concepts</span>
-              <Badge variant="secondary" className="ml-1">{concepts.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="in-progress" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>In Progress</span>
-              <Badge variant="secondary" className="ml-1">{inProgressCount}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              <span>Completed</span>
-              <Badge variant="secondary" className="ml-1">{completedCount}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="not-started" className="flex items-center gap-2">
-              <LucideBarChart className="h-4 w-4" />
-              <span>Not Started</span>
-              <Badge variant="secondary" className="ml-1">{notStartedCount}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="high-importance" className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              <span>High Importance</span>
-              <Badge variant="secondary" className="ml-1">{highImportanceCount}</Badge>
+        {/* Tabs for filtering */}
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-4">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="physics">Physics</TabsTrigger>
+            <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
+            <TabsTrigger value="biology">Biology</TabsTrigger>
+            <TabsTrigger value="mathematics">Math</TabsTrigger>
+            <TabsTrigger value="bookmarked">
+              <Star className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Saved</span>
             </TabsTrigger>
           </TabsList>
           
-          {/* Tab content */}
-          <TabsContent value="all">
-            <div className="pb-4">
-              <RenderConceptCards 
-                concepts={filteredConcepts} 
-                loading={loading} 
-                viewMode={viewMode}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="in-progress">
-            <div className="pb-4">
-              <RenderConceptCards 
-                concepts={filteredConcepts.filter(c => c.progress > 0 && c.progress < 100)} 
-                loading={loading} 
-                viewMode={viewMode}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="completed">
-            <div className="pb-4">
-              <RenderConceptCards 
-                concepts={filteredConcepts.filter(c => c.progress === 100)} 
-                loading={loading} 
-                viewMode={viewMode}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="not-started">
-            <div className="pb-4">
-              <RenderConceptCards 
-                concepts={filteredConcepts.filter(c => c.progress === 0)} 
-                loading={loading} 
-                viewMode={viewMode}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="high-importance">
-            <div className="pb-4">
-              <RenderConceptCards 
-                concepts={filteredConcepts.filter(c => c.importance === 'high')} 
-                loading={loading} 
-                viewMode={viewMode}
-              />
+          {/* Concept cards grid */}
+          <TabsContent value={activeTab} className="mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredConcepts.map((concept) => (
+                <Card key={concept.id} className="hover:shadow-md transition-shadow overflow-hidden">
+                  <div className="aspect-video relative">
+                    <img 
+                      src={concept.thumbnailUrl} 
+                      alt={concept.title} 
+                      className="w-full h-full object-cover"
+                    />
+                    {concept.progress > 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gray-200 h-1">
+                        <div 
+                          className="bg-blue-600 h-1" 
+                          style={{ width: `${concept.progress * 100}%` }} 
+                        />
+                      </div>
+                    )}
+                    <Badge 
+                      className={`absolute top-2 right-2 ${getDifficultyColor(concept.difficulty)}`}
+                    >
+                      {concept.difficulty}
+                    </Badge>
+                    {concept.isBookmarked && (
+                      <div className="absolute top-2 left-2">
+                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      </div>
+                    )}
+                    <Badge className="absolute bottom-2 left-2 bg-white/80 text-black">
+                      {concept.subject}
+                    </Badge>
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{concept.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{concept.description}</p>
+                    <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{concept.timeEstimate}</span>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button 
+                      onClick={() => handleViewConcept(concept.id)} 
+                      className="w-full"
+                    >
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Study Now
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+              
+              {filteredConcepts.length === 0 && (
+                <div className="col-span-full py-10 text-center">
+                  <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                  <h3 className="text-lg font-medium">No matching concepts found</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Try adjusting your search or filters
+                  </p>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
       </div>
     </SharedPageLayout>
-  );
-};
-
-interface RenderConceptCardsProps {
-  concepts: ConceptCardProps[];
-  loading: boolean;
-  viewMode: string;
-}
-
-const RenderConceptCards: React.FC<RenderConceptCardsProps> = ({ concepts, loading, viewMode }) => {
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4">
-        {[...Array(8)].map((_, index) => (
-          <div key={index} className="flex flex-col space-y-3">
-            <Skeleton className="h-40 w-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  
-  if (concepts.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
-          <Search className="h-12 w-12 text-gray-400" />
-        </div>
-        <h2 className="text-xl font-bold mb-2">No Concepts Found</h2>
-        <p className="text-muted-foreground text-center max-w-md mb-6">
-          We couldn't find any concepts matching your filters. Try adjusting your search criteria.
-        </p>
-        <Button variant="outline">
-          Clear All Filters
-        </Button>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4">
-      {concepts.map(concept => (
-        <EnhancedConceptCard key={concept.id} {...concept} />
-      ))}
-    </div>
   );
 };
 

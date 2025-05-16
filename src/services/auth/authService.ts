@@ -1,6 +1,7 @@
 
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
+import { validateCredentials } from './accountData';
 
 // Auth service types
 export interface LoginCredentials {
@@ -93,7 +94,6 @@ const authService = {
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('new_user_signup', 'true'); // Mark as new user for welcome experience
     
     // Return success response
     return {
@@ -121,7 +121,6 @@ const authService = {
     // Set the auth data
     this.setAuthData(adminUser);
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('admin_logged_in', 'true');
     
     // Return success response
     return {
@@ -213,10 +212,10 @@ const authService = {
     
     console.log("Logout complete - All authentication data cleared");
     
-    // Force hard reload to prevent any state persistence issues
+    // Force redirection to login page to prevent any auto-login issues
     window.location.href = '/login';
     
-    // Return success
+    // Return success - we'll handle navigation separately in the component
     return {
       success: true,
       data: null,
@@ -244,7 +243,6 @@ const authService = {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
-    localStorage.removeItem('admin_logged_in');
     
     // Reset API client
     apiClient.setAuthToken(null);
@@ -253,7 +251,7 @@ const authService = {
     document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
-    // Force redirection to login page with hard reload
+    // Force redirection to login page
     window.location.href = '/login';
   },
   
@@ -290,7 +288,7 @@ const authService = {
   // Check if user has admin access
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'admin' || localStorage.getItem('admin_logged_in') === 'true';
+    return user?.role === 'admin';
   },
   
   // Check if user has specific permissions

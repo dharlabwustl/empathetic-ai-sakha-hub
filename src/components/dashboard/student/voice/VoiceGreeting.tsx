@@ -21,7 +21,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName
       const timer = setTimeout(() => {
         // Different messages for first time vs returning users
         if (isFirstTimeUser) {
-          const firstTimeGreeting = `Welcome to PREPZR, ${userName}! I'm your AI voice assistant with an Indian accent. I'll help you navigate through your study journey. You can see your personalized dashboard with study recommendations tailored to your exam goals. Feel free to explore the different sections - your academic advisor, practice tests, concept cards, and analytics. If you need any assistance, just click the voice assistant icon at the bottom right.`;
+          const firstTimeGreeting = `Welcome to PREPZR, ${userName}! I'm your AI voice assistant with an Indian accent. I'll help you navigate through your study journey. Feel free to explore the dashboard, and don't hesitate to ask if you need any help with NEET preparation.`;
           speakMessage(firstTimeGreeting);
         } else {
           // For returning users, check time of day for appropriate greeting
@@ -32,7 +32,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ isFirstTimeUser, userName
           else if (hour < 18) timeGreeting = 'Good afternoon';
           else timeGreeting = 'Good evening';
           
-          const returningGreeting = `${timeGreeting}, ${userName}. Welcome back to PREPZR. Your study dashboard is ready. I see you've made progress since your last visit. Click on any section to explore or ask me for assistance.`;
+          const returningGreeting = `${timeGreeting}, ${userName}. Welcome back to PREPZR. Your study dashboard is ready. Click on any section to explore or ask me for assistance.`;
           speakMessage(returningGreeting);
         }
       }, 1500);

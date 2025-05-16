@@ -1,135 +1,154 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, GraduationCap, Clock, Gauge, Brain, Sparkles } from 'lucide-react';
-
-// Define the KPI data interface
-interface KpiData {
-  totalStudents: number;
-  conceptsMastered: number;
-  successRate: number;
-  timeSaved: number;
-  stressReduced: number;
-  plansDelivered: number;
-}
-
-// This function would fetch data from your backend in a real implementation
-const fetchKpiData = async (): Promise<KpiData> => {
-  // Simulate API call with a delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        totalStudents: 10000,
-        conceptsMastered: 250,
-        successRate: 92,
-        timeSaved: 40,
-        stressReduced: 65,
-        plansDelivered: 15000
-      });
-    }, 500);
-  });
-};
-
-const KpiItem = ({ icon, value, label, delay }: { icon: React.ReactNode, value: string, label: string, delay: number }) => (
-  <motion.div 
-    className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md"
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay, duration: 0.5 }}
-  >
-    <div className="flex items-start">
-      <div className="mr-4 p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-        {icon}
-      </div>
-      <div>
-        <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      </div>
-    </div>
-  </motion.div>
-);
+import { Users, BookOpen, Award, Clock, Brain, CheckSquare } from 'lucide-react';
+import { adminService } from '@/services/adminService';
 
 const KpiStats = () => {
-  const [kpiData, setKpiData] = useState<KpiData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Using the stats data directly from the adminService
+  const [stats, setStats] = React.useState([
+    {
+      icon: <Users className="h-8 w-8 text-blue-500" />,
+      value: '50,000+',
+      label: 'Students',
+      description: 'Mastering exams with our platform'
+    },
+    {
+      icon: <BookOpen className="h-8 w-8 text-purple-500" />,
+      value: '1,200+',
+      label: 'Concept Cards',
+      description: 'Per student on average'
+    },
+    {
+      icon: <Award className="h-8 w-8 text-green-500" />,
+      value: '92%',
+      label: 'Success Rate',
+      description: 'Higher exam scores using PREPZR'
+    },
+    {
+      icon: <Clock className="h-8 w-8 text-orange-500" />,
+      value: '35%',
+      label: 'Time Saved',
+      description: 'Study more efficiently with AI'
+    },
+    {
+      icon: <Brain className="h-8 w-8 text-red-500" />,
+      value: '72%',
+      label: 'Stress Reduced',
+      description: 'Feel better while studying'
+    },
+    {
+      icon: <CheckSquare className="h-8 w-8 text-indigo-500" />,
+      value: '24+',
+      label: 'Dynamic Plans',
+      description: 'Personalized study plans delivered'
+    }
+  ]);
 
-  useEffect(() => {
-    const loadData = async () => {
+  // Fetch stats from backend when component mounts
+  React.useEffect(() => {
+    const fetchStats = async () => {
       try {
-        setLoading(true);
-        const data = await fetchKpiData();
-        setKpiData(data);
+        const dashboardStats = await adminService.getDashboardStats();
+        
+        if (dashboardStats) {
+          // Update the stats with data from the backend
+          setStats([
+            {
+              icon: <Users className="h-8 w-8 text-blue-500" />,
+              value: dashboardStats.totalStudents ? 
+                dashboardStats.totalStudents.toLocaleString() + '+' : 
+                '50,000+',
+              label: 'Students',
+              description: 'Mastering exams with our platform'
+            },
+            {
+              icon: <BookOpen className="h-8 w-8 text-purple-500" />,
+              value: dashboardStats.averageConcepts ? 
+                dashboardStats.averageConcepts.toLocaleString() + '+' : 
+                '1,200+',
+              label: 'Concept Cards',
+              description: 'Per student on average'
+            },
+            {
+              icon: <Award className="h-8 w-8 text-green-500" />,
+              value: dashboardStats.successRate ? 
+                dashboardStats.successRate + '%' : 
+                '92%',
+              label: 'Success Rate',
+              description: 'Higher exam scores using PREPZR'
+            },
+            {
+              icon: <Clock className="h-8 w-8 text-orange-500" />,
+              value: dashboardStats.averageTimeSavedPerWeek ? 
+                dashboardStats.averageTimeSavedPerWeek * 10 + '%' : 
+                '35%',
+              label: 'Time Saved',
+              description: 'Study more efficiently with AI'
+            },
+            {
+              icon: <Brain className="h-8 w-8 text-red-500" />,
+              value: dashboardStats.verifiedMoodImprovement ? 
+                dashboardStats.verifiedMoodImprovement + '%' : 
+                '72%',
+              label: 'Stress Reduced',
+              description: 'Feel better while studying'
+            },
+            {
+              icon: <CheckSquare className="h-8 w-8 text-indigo-500" />,
+              value: dashboardStats.totalStudyPlans ? 
+                Math.round(dashboardStats.totalStudyPlans / 500) + '+' : 
+                '24+',
+              label: 'Dynamic Plans',
+              description: 'Personalized study plans delivered'
+            }
+          ]);
+        }
       } catch (error) {
-        console.error("Error loading KPI data:", error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching KPI stats:', error);
       }
     };
-
-    loadData();
+    
+    fetchStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-pulse">
-        {[...Array(6)].map((_, index) => (
-          <div key={index} className="bg-gray-200 dark:bg-gray-700 h-24 rounded-lg"></div>
+  return (
+    <motion.div 
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="px-6 py-5 bg-gradient-to-r from-violet-500 to-purple-600 text-white">
+        <h3 className="text-xl md:text-2xl font-bold">
+          Smart Data. Real Impact. Humanizing exam prep.
+        </h3>
+        <p className="text-violet-100">
+          Our AI-driven platform transforms how students prepare for NEET exams
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 p-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="flex flex-col items-center text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+          >
+            <div className="mb-3 p-3 rounded-full bg-gray-100 dark:bg-gray-700 shadow-sm">
+              {stat.icon}
+            </div>
+            <h4 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</h4>
+            <p className="font-semibold text-purple-600 dark:text-purple-400">{stat.label}</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{stat.description}</p>
+          </motion.div>
         ))}
       </div>
-    );
-  }
-
-  if (!kpiData) {
-    return null;
-  }
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(0)}k+`;
-    }
-    return `${num}+`;
-  };
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      <KpiItem 
-        icon={<Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={formatNumber(kpiData.totalStudents)} 
-        label="Total Students" 
-        delay={0.1} 
-      />
-      <KpiItem 
-        icon={<GraduationCap className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={`${kpiData.conceptsMastered}/student`} 
-        label="Concepts Mastered" 
-        delay={0.2} 
-      />
-      <KpiItem 
-        icon={<Gauge className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={`${kpiData.successRate}%`} 
-        label="Success Rate" 
-        delay={0.3} 
-      />
-      <KpiItem 
-        icon={<Clock className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={`${kpiData.timeSaved}%`} 
-        label="Time Saved" 
-        delay={0.4} 
-      />
-      <KpiItem 
-        icon={<Brain className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={`${kpiData.stressReduced}%`} 
-        label="Stress Reduced" 
-        delay={0.5} 
-      />
-      <KpiItem 
-        icon={<Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />} 
-        value={formatNumber(kpiData.plansDelivered)} 
-        label="Dynamic Plans Delivered" 
-        delay={0.6} 
-      />
-    </div>
+    </motion.div>
   );
 };
 

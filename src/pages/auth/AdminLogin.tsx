@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import adminAuthService from "@/services/auth/adminAuthService";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -39,36 +38,36 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Check if email contains 'admin' for demo validation
-      if (email.includes('admin')) {
-        // Set admin auth data directly
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_user', JSON.stringify({
-          name: "Admin User",
-          email: email,
-          role: "admin"
-        }));
-        
-        // Set additional auth flags for consistent experience
-        localStorage.setItem('isLoggedIn', 'true');
-        
-        // Dispatch auth state change event
-        window.dispatchEvent(new Event('auth-state-changed'));
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard",
-        });
-        
-        // Navigate to admin dashboard
-        navigate("/admin/dashboard");
-      } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'");
-      }
+      // For demo purposes, we'll simulate an API call with a timeout
+      setTimeout(() => {
+        // Check if email contains 'admin' for demo validation
+        if (email.includes('admin')) {
+          // Set admin auth data
+          localStorage.setItem('admin_logged_in', 'true');
+          localStorage.setItem('admin_user', JSON.stringify({
+            name: "Admin User",
+            email: email,
+            role: "admin"
+          }));
+          
+          // Dispatch auth state change event
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
+          toast({
+            title: "Login successful",
+            description: "Welcome to the admin dashboard",
+          });
+          
+          // Navigate to admin dashboard
+          navigate("/admin/dashboard");
+        } else {
+          setLoginError("Invalid admin credentials. Email must contain 'admin'");
+          setIsLoading(false);
+        }
+      }, 1000);
     } catch (error) {
       setLoginError("An unexpected error occurred");
       console.error("Admin login error:", error);
-    } finally {
       setIsLoading(false);
     }
   };

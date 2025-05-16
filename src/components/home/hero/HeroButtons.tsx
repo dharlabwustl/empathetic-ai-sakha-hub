@@ -25,7 +25,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
     }
   };
 
-  // Only show these two buttons as requested - removed Go to Dashboard button
+  // Always show these two buttons regardless of login state
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <Button 
@@ -34,7 +34,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
         onClick={handleExamReadiness}
       >
         <Sparkles className="mr-2 h-5 w-5" />
-        Test Your Exam Readiness
+        Exam Readiness Analyzer
       </Button>
       <Button 
         size="lg" 

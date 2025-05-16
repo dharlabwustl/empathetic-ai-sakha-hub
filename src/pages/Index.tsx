@@ -14,6 +14,7 @@ import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import AchievementsSection from '@/components/home/AchievementsSection';
 import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
@@ -107,7 +108,10 @@ const Index = () => {
         {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
         
-        {/* The AchievementsSection has been removed as requested */}
+        {/* Add the AchievementsSection with improved spacing and z-index */}
+        <div className="relative z-10 mt-16 mb-24">
+          <AchievementsSection />
+        </div>
         
         <WhatIsSection />
         
