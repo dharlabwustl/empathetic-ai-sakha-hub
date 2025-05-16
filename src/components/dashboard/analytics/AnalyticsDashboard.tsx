@@ -6,16 +6,19 @@ import MoodPerformanceAnalysis from './MoodPerformanceAnalysis';
 import WeakAreasAnalysis from './WeakAreasAnalysis';
 import PredictiveAnalytics from './PredictiveAnalytics';
 import { ChartBar, Brain, LineChart, Lightbulb } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AnalyticsDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight mb-4">Enhanced Analytics Dashboard</h2>
-        <p className="text-muted-foreground">
-          Gain deeper insights into your study patterns and performance to optimize your NEET preparation.
-        </p>
-      </div>
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+        <CardContent className="p-6">
+          <h2 className="text-3xl font-bold tracking-tight mb-2 text-gradient bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Enhanced Analytics Dashboard</h2>
+          <p className="text-muted-foreground max-w-3xl">
+            Gain deeper insights into your study patterns, performance correlations, and personalized recommendations to optimize your NEET preparation and maximize your learning potential.
+          </p>
+        </CardContent>
+      </Card>
       
       <Tabs defaultValue="habits" className="w-full">
         <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 h-auto mb-8">

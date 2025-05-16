@@ -1,174 +1,166 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, PieChart, Pie, Cell } from 'recharts';
-import { Brain, Brain as BrainIcon, Smile } from 'lucide-react';
-import { MoodType } from '@/types/user/base';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis } from 'recharts';
+import { Brain, Clock, Lightbulb } from 'lucide-react';
 
-// Mock data for mood-performance correlation
-const moodPerformanceData = [
-  { mood: MoodType.MOTIVATED, score: 92, retention: 88, hours: 3.5 },
-  { mood: MoodType.HAPPY, score: 85, retention: 80, hours: 3.2 },
-  { mood: MoodType.FOCUSED, score: 89, retention: 85, hours: 4.0 },
-  { mood: MoodType.CURIOUS, score: 82, retention: 79, hours: 3.8 },
-  { mood: MoodType.TIRED, score: 68, retention: 60, hours: 2.5 },
-  { mood: MoodType.STRESSED, score: 72, retention: 65, hours: 2.8 },
-  { mood: MoodType.ANXIOUS, score: 74, retention: 68, hours: 3.0 },
-  { mood: MoodType.OVERWHELMED, score: 65, retention: 58, hours: 2.2 },
+// Mock mood-performance data
+const moodScoreData = [
+  { date: 'Jan 1', happy: 85, anxious: 65, tired: 72, motivated: 90 },
+  { date: 'Jan 5', happy: 75, anxious: 68, tired: 60, motivated: 82 },
+  { date: 'Jan 10', happy: 90, anxious: 55, tired: 65, motivated: 88 },
+  { date: 'Jan 15', happy: 70, anxious: 75, tired: 80, motivated: 65 },
+  { date: 'Jan 20', happy: 80, anxious: 60, tired: 75, motivated: 78 },
+  { date: 'Jan 25', happy: 88, anxious: 52, tired: 60, motivated: 95 },
+  { date: 'Jan 30', happy: 78, anxious: 72, tired: 85, motivated: 68 },
 ];
 
-const moodDistributionData = [
-  { name: MoodType.MOTIVATED, value: 25, color: '#4CAF50' },
-  { name: MoodType.HAPPY, value: 20, color: '#2196F3' },
-  { name: MoodType.FOCUSED, value: 18, color: '#9C27B0' },
-  { name: MoodType.CURIOUS, value: 15, color: '#FF9800' },
-  { name: MoodType.TIRED, value: 8, color: '#607D8B' },
-  { name: MoodType.STRESSED, value: 7, color: '#F44336' },
-  { name: MoodType.ANXIOUS, value: 5, color: '#FF5722' },
-  { name: MoodType.OVERWHELMED, value: 2, color: '#795548' },
-];
-
-// Efficiency by time window
 const moodEfficiencyData = [
-  { mood: MoodType.MOTIVATED, morning: 95, afternoon: 85, evening: 88 },
-  { mood: MoodType.HAPPY, morning: 90, afternoon: 82, evening: 85 },
-  { mood: MoodType.FOCUSED, morning: 92, afternoon: 80, evening: 75 },
-  { mood: MoodType.TIRED, morning: 70, afternoon: 65, evening: 60 },
-  { mood: MoodType.STRESSED, morning: 75, afternoon: 72, evening: 70 },
-  { mood: MoodType.ANXIOUS, morning: 78, afternoon: 70, evening: 68 },
+  { mood: 'Motivated', efficiency: 92, duration: 2.5, color: '#10b981' },
+  { mood: 'Happy', efficiency: 85, duration: 2.1, color: '#3b82f6' },
+  { mood: 'Calm', efficiency: 80, duration: 1.8, color: '#8b5cf6' },
+  { mood: 'Neutral', efficiency: 75, duration: 1.7, color: '#6b7280' },
+  { mood: 'Tired', efficiency: 65, duration: 1.5, color: '#f59e0b' },
+  { mood: 'Anxious', efficiency: 60, duration: 1.2, color: '#ef4444' },
+  { mood: 'Stressed', efficiency: 50, duration: 0.8, color: '#dc2626' },
 ];
 
 const MoodPerformanceAnalysis: React.FC = () => {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center">
-          <Smile className="mr-2 h-5 w-5 text-primary" />
-          Mood-Performance Correlation
-        </CardTitle>
-        <CardDescription>
-          How your emotional state impacts your study effectiveness
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="impact" className="w-full">
-          <TabsList className="grid grid-cols-3 gap-2 mb-4">
-            <TabsTrigger value="impact">Mood Impact</TabsTrigger>
-            <TabsTrigger value="efficiency">Efficiency Metrics</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="impact" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ScatterChart margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                    <XAxis type="category" dataKey="mood" name="Mood" />
-                    <YAxis type="number" dataKey="score" name="Test Score" />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                    <Scatter name="Mood vs Score" data={moodPerformanceData} fill="#8884d8" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-                <p className="text-xs text-center text-muted-foreground mt-2">Mood vs. Test Performance</p>
-              </div>
-              
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={moodDistributionData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {moodDistributionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <p className="text-xs text-center text-muted-foreground mt-2">Your Study Mood Distribution</p>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-md mb-2">Key Insights:</h4>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                <li>You perform best when in a <span className="font-semibold text-emerald-600">Motivated</span> or <span className="font-semibold text-purple-600">Focused</span> state</li>
-                <li>There's a 28% performance drop when studying while feeling overwhelmed</li>
-                <li>Material retention is most affected by your emotional state</li>
-              </ul>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="efficiency" className="space-y-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Brain className="h-4 w-4 text-primary" />
+            Mood Impact on Test Scores
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={moodScoreData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="happy" name="Happy" stroke="#3b82f6" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="anxious" name="Anxious" stroke="#ef4444" />
+                <Line type="monotone" dataKey="tired" name="Tired" stroke="#f59e0b" />
+                <Line type="monotone" dataKey="motivated" name="Motivated" stroke="#10b981" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              Mood vs Study Efficiency
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={moodEfficiencyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="mood" />
-                  <YAxis />
-                  <Tooltip />
+                <ScatterChart
+                  margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    type="category"
+                    dataKey="mood" 
+                    name="Mood" 
+                    label={{ value: 'Mood', position: 'insideBottomRight', offset: 0 }}
+                  />
+                  <YAxis 
+                    type="number" 
+                    dataKey="efficiency" 
+                    name="Efficiency" 
+                    label={{ value: 'Efficiency (%)', angle: -90, position: 'insideLeft' }} 
+                  />
+                  <ZAxis 
+                    type="number" 
+                    dataKey="duration" 
+                    range={[40, 400]} 
+                    name="Duration"
+                  />
+                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
                   <Legend />
-                  <Line type="monotone" dataKey="morning" stroke="#8884d8" name="Morning Efficiency" />
-                  <Line type="monotone" dataKey="afternoon" stroke="#82ca9d" name="Afternoon Efficiency" />
-                  <Line type="monotone" dataKey="evening" stroke="#ffc658" name="Evening Efficiency" />
-                </LineChart>
+                  <Scatter 
+                    name="Study Efficiency" 
+                    data={moodEfficiencyData} 
+                    fill="#8884d8"
+                    shape="circle"
+                    legendType="circle"
+                  />
+                </ScatterChart>
               </ResponsiveContainer>
             </div>
-            <div>
-              <h4 className="font-medium text-md mb-2">Efficiency Analysis:</h4>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                <li>Morning studying is most effective across all mood states</li>
-                <li>When motivated, your efficiency remains high throughout the day</li>
-                <li>Afternoon slumps are most pronounced when you're tired or anxious</li>
-                <li>Your efficiency drops by an average of 15% in the evening when stressed</li>
-              </ul>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="recommendations" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-primary/5 p-4 rounded-lg">
-                <h4 className="font-medium flex items-center mb-2">
-                  <Brain className="mr-2 h-4 w-4 text-primary" />
-                  Schedule Optimization
-                </h4>
-                <ul className="list-disc pl-5 space-y-2 text-sm">
-                  <li>Schedule your most challenging topics during morning hours when you're typically more motivated</li>
-                  <li>Use afternoon sessions for review rather than learning new material</li>
-                  <li>Consider 5-minute mindfulness exercises before evening study sessions</li>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-primary" />
+              Adaptive Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-80 overflow-auto">
+            <div className="space-y-4">
+              <div className="p-4 border border-green-200 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">When Motivated</h3>
+                <p className="text-sm mb-2">Your data shows 92% efficiency when motivated - your optimal study state.</p>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  <li>Tackle challenging topics and complex problems</li>
+                  <li>Focus on new material and conceptual understanding</li>
+                  <li>Schedule practice exams during these periods</li>
+                  <li>Try to identify what creates this mood state for you</li>
                 </ul>
               </div>
-              
-              <div className="bg-primary/5 p-4 rounded-lg">
-                <h4 className="font-medium flex items-center mb-2">
-                  <BrainIcon className="mr-2 h-4 w-4 text-primary" />
-                  Mood Management
-                </h4>
-                <ul className="list-disc pl-5 space-y-2 text-sm">
-                  <li>Begin study sessions with 2-minute breathing exercises</li>
-                  <li>Use the Pomodoro technique with mood check-ins between sessions</li>
-                  <li>Try switching subjects when feeling stressed with one topic</li>
+
+              <div className="p-4 border border-blue-200 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">When Happy</h3>
+                <p className="text-sm mb-2">Your efficiency is 85% when happy - great for balanced learning.</p>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  <li>Ideal for group study sessions and discussions</li>
+                  <li>Good time for review of material you're comfortable with</li>
+                  <li>Balance challenging content with reinforcing existing knowledge</li>
+                </ul>
+              </div>
+
+              <div className="p-4 border border-amber-200 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">When Tired</h3>
+                <p className="text-sm mb-2">Efficiency drops to 65% when tired - adjust your approach.</p>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  <li>Focus on review rather than learning new concepts</li>
+                  <li>Use spaced repetition and flashcards</li>
+                  <li>Break study sessions into smaller 25-minute blocks</li>
+                  <li>Consider physical activity before studying to boost energy</li>
+                </ul>
+              </div>
+
+              <div className="p-4 border border-red-200 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <h3 className="font-medium text-red-800 dark:text-red-300 mb-2">When Anxious/Stressed</h3>
+                <p className="text-sm mb-2">Efficiency is lowest (50-60%) during anxious states.</p>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  <li>Implement 5-minute mindfulness or breathing exercises first</li>
+                  <li>Focus on simple, structured tasks and avoid complex problems</li>
+                  <li>Use the Pomodoro technique (25min work, 5min break)</li>
+                  <li>Consider skipping study altogether if anxiety is very high and focus on self-care</li>
                 </ul>
               </div>
             </div>
-            
-            <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800 p-4 rounded-lg mt-4">
-              <h4 className="font-semibold text-sky-800 dark:text-sky-300">Personalized Recommendation</h4>
-              <p className="text-sm mt-2">Based on your patterns, we recommend starting your day with a 25-minute focused study session on Biology topics when your motivation is highest, followed by Physics in the afternoon. Reserve Chemistry for your weekend sessions when you report being most focused.</p>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 

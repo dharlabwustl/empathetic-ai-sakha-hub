@@ -1,236 +1,175 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { ArrowDown, Lightbulb, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { AlertTriangle, BookOpen, Target, ArrowUpRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
 // Mock data for weak areas
 const subjectWeaknessData = [
-  { subject: 'Physics', score: 65, benchmark: 75, gap: 10 },
-  { subject: 'Organic Chemistry', score: 58, benchmark: 75, gap: 17 },
-  { subject: 'Inorganic Chemistry', score: 72, benchmark: 75, gap: 3 },
-  { subject: 'Physical Chemistry', score: 69, benchmark: 75, gap: 6 },
-  { subject: 'Botany', score: 78, benchmark: 75, gap: -3 },
-  { subject: 'Zoology', score: 73, benchmark: 75, gap: 2 },
+  { subject: 'Physics', mastery: 85, gap: 15 },
+  { subject: 'Chemistry', mastery: 78, gap: 22 },
+  { subject: 'Biology', mastery: 62, gap: 38 },
+  { subject: 'Mathematics', mastery: 70, gap: 30 },
 ];
 
 const topicWeaknessData = [
-  { topic: 'Mechanics', score: 60, importance: 'high' },
-  { topic: 'Thermodynamics', score: 68, importance: 'medium' },
-  { topic: 'Optics', score: 55, importance: 'high' },
-  { topic: 'Electrostatics', score: 72, importance: 'high' },
-  { topic: 'Organic Compounds', score: 58, importance: 'high' },
-  { topic: 'Reactions', score: 62, importance: 'medium' },
+  { topic: 'Cell Division', subject: 'Biology', accuracy: 45, attempts: 32, urgency: 'high' },
+  { topic: 'Organic Chemistry', subject: 'Chemistry', accuracy: 52, attempts: 28, urgency: 'high' },
+  { topic: 'Thermodynamics', subject: 'Physics', accuracy: 58, attempts: 40, urgency: 'medium' },
+  { topic: 'Calculus', subject: 'Mathematics', accuracy: 60, attempts: 35, urgency: 'medium' },
+  { topic: 'Mechanics', subject: 'Physics', accuracy: 67, attempts: 42, urgency: 'low' },
 ];
 
-const progressData = [
-  { area: 'Optics', pastScore: 45, currentScore: 55, targetScore: 75 },
-  { area: 'Organic Chemistry', pastScore: 52, currentScore: 58, targetScore: 75 },
-  { area: 'Mechanics', pastScore: 55, currentScore: 60, targetScore: 75 },
+const skillRadarData = [
+  { skill: 'Conceptual Understanding', score: 70 },
+  { skill: 'Problem Solving', score: 65 },
+  { skill: 'Memory Recall', score: 80 },
+  { skill: 'Numerical Calculation', score: 60 },
+  { skill: 'Visual Analysis', score: 75 },
+  { skill: 'Pattern Recognition', score: 55 },
 ];
 
-// Skills radar data
-const skillsData = [
-  { subject: 'Problem Solving', fullMark: 100, score: 65 },
-  { subject: 'Memorization', fullMark: 100, score: 75 },
-  { subject: 'Formula Application', fullMark: 100, score: 60 },
-  { subject: 'Concept Understanding', fullMark: 100, score: 70 },
-  { subject: 'Time Management', fullMark: 100, score: 55 },
-  { subject: 'Exam Strategy', fullMark: 100, score: 50 },
-];
+// Helper function for urgency badge
+const getUrgencyBadge = (urgency: string) => {
+  switch (urgency) {
+    case 'high':
+      return <Badge variant="destructive">High Priority</Badge>;
+    case 'medium':
+      return <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200">Medium Priority</Badge>;
+    default:
+      return <Badge variant="outline">Low Priority</Badge>;
+  }
+};
 
 const WeakAreasAnalysis: React.FC = () => {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center">
-          <AlertTriangle className="mr-2 h-5 w-5 text-amber-500" />
-          Weak Areas Identification
-        </CardTitle>
-        <CardDescription>
-          Priority improvement areas based on your performance
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="subjects" className="w-full">
-          <TabsList className="grid grid-cols-3 gap-2 mb-4">
-            <TabsTrigger value="subjects">Subject Analysis</TabsTrigger>
-            <TabsTrigger value="topics">Topic Weaknesses</TabsTrigger>
-            <TabsTrigger value="progress">Improvement Progress</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="subjects" className="space-y-4">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ArrowDown className="h-4 w-4 text-red-500" />
+              Subject Performance Gaps
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={subjectWeaknessData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="subject" />
-                  <YAxis domain={[0, 100]} />
+                <BarChart
+                  data={subjectWeaknessData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  layout="vertical"
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis type="category" dataKey="subject" />
                   <Tooltip />
-                  <Bar dataKey="score" fill="#8884d8" name="Your Score" />
-                  <Bar dataKey="benchmark" fill="#82ca9d" name="Target Score" />
+                  <Legend />
+                  <Bar dataKey="mastery" name="Current Mastery %" fill="#3b82f6" />
+                  <Bar dataKey="gap" name="Improvement Gap" fill="#f87171" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            
-            <div className="space-y-3 mt-4">
-              <h4 className="font-medium text-md">Priority Areas:</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {subjectWeaknessData
-                  .filter(item => item.gap > 0)
-                  .sort((a, b) => b.gap - a.gap)
-                  .slice(0, 3)
-                  .map((area, index) => (
-                    <div key={index} className="bg-muted/30 p-3 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-sm">{area.subject}</span>
-                        <Badge variant={area.gap > 10 ? "destructive" : "secondary"}>
-                          Gap: {area.gap}%
-                        </Badge>
-                      </div>
-                      <Progress value={area.score} className="h-2 mb-1" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Current: {area.score}%</span>
-                        <span>Target: {area.benchmark}%</span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-primary" />
+              Skills Assessment
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillRadarData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="skill" />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                  <Radar
+                    name="Your Skills"
+                    dataKey="score"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.6}
+                  />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
             </div>
-            
-            <div className="flex justify-center mt-4">
-              <Button className="gap-2">
-                Generate Improvement Plan <ArrowUpRight className="h-4 w-4" />
-              </Button>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Focus on improving <span className="font-medium">Pattern Recognition</span> and <span className="font-medium">Numerical Calculation</span>
+              </p>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="topics" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <h4 className="font-medium text-md">Critical Topic Weaknesses</h4>
-                <div className="space-y-3">
-                  {topicWeaknessData
-                    .sort((a, b) => {
-                      // Sort by importance first, then by score
-                      if (a.importance === 'high' && b.importance !== 'high') return -1;
-                      if (a.importance !== 'high' && b.importance === 'high') return 1;
-                      return a.score - b.score;
-                    })
-                    .map((topic, index) => (
-                      <div key={index} className="bg-muted/30 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center">
-                            <span className="font-medium text-sm">{topic.topic}</span>
-                            {topic.importance === 'high' && (
-                              <Badge className="ml-2 bg-red-100 text-red-800 border-red-200">
-                                High Priority
-                              </Badge>
-                            )}
-                          </div>
-                          <span className={`text-sm ${topic.score < 60 ? 'text-red-600' : topic.score < 70 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                            {topic.score}%
-                          </span>
-                        </div>
-                        <Progress 
-                          value={topic.score} 
-                          className={`h-2 ${
-                            topic.score < 60 ? 'bg-red-100' : 
-                            topic.score < 70 ? 'bg-amber-100' : 
-                            'bg-emerald-100'
-                          }`}
-                        />
-                      </div>
-                    ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            Priority Improvement Areas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {topicWeaknessData.map((topic, index) => (
+              <div key={index} className="border p-4 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                  <div>
+                    <h3 className="font-medium text-lg">{topic.topic}</h3>
+                    <p className="text-sm text-muted-foreground">{topic.subject}</p>
+                  </div>
+                  {getUrgencyBadge(topic.urgency)}
+                </div>
+                
+                <div className="mb-2">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Accuracy Rate</span>
+                    <span>{topic.accuracy}%</span>
+                  </div>
+                  <Progress value={topic.accuracy} className="h-2" />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium">{topic.attempts}</span> questions attempted
+                  </div>
+                  <Button size="sm" className="flex items-center gap-1">
+                    Focus Study
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
-              
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillsData}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="subject" />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                    <Radar name="Skills" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-                    <Tooltip />
-                  </RadarChart>
-                </ResponsiveContainer>
-                <p className="text-xs text-center text-muted-foreground mt-2">Your Skills Analysis</p>
-              </div>
-            </div>
-            
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 p-4 rounded-lg mt-4">
-              <h4 className="font-semibold text-amber-800 dark:text-amber-300 flex items-center">
-                <Target className="mr-2 h-4 w-4" />
-                Action Required
-              </h4>
-              <p className="text-sm mt-2">Your exam strategy and time management skills need immediate attention as they directly impact performance across all topics. We recommend focusing on Optics and Organic Chemistry first due to their high importance in the NEET exam.</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="progress" className="space-y-4">
-            <div className="space-y-4">
-              <h4 className="font-medium text-md">Improvement Progress Tracking</h4>
-              
-              {progressData.map((item, index) => (
-                <div key={index} className="bg-muted/30 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h5 className="font-medium">{item.area}</h5>
-                      <div className="text-xs text-muted-foreground">
-                        {item.currentScore - item.pastScore > 0 ? (
-                          <span className="text-emerald-600 flex items-center">
-                            <ArrowUpRight className="h-3 w-3 mr-1" />
-                            Improved by {item.currentScore - item.pastScore}% since last assessment
-                          </span>
-                        ) : (
-                          <span className="text-amber-600">No improvement since last assessment</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-medium">{item.currentScore}%</span>
-                      <div className="text-xs text-muted-foreground">
-                        Target: {item.targetScore}%
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="relative pt-1">
-                    <div className="overflow-hidden h-2 mb-1 text-xs flex rounded bg-gray-200">
-                      <div style={{ width: `${item.pastScore}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-300"></div>
-                      <div style={{ width: `${item.currentScore - item.pastScore}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
-                      <div style={{ width: `${item.targetScore - item.currentScore}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap justify-center bg-gray-300"></div>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Past: {item.pastScore}%</span>
-                      <span>Current: {item.currentScore}%</span>
-                      <span>Target: {item.targetScore}%</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3 flex justify-end">
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <BookOpen className="h-3 w-3 mr-1" /> Review Material
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              
-              <div className="flex justify-center mt-4">
-                <Button className="gap-2">
-                  Generate Updated Study Plan <ArrowUpRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+
+          <div className="mt-6 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
+            <h4 className="font-medium text-indigo-800 dark:text-indigo-300 mb-2">Personalized Improvement Plan</h4>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-start">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-white text-xs mr-2 mt-0.5">1</span>
+                <span>Focus on <span className="font-medium">Cell Division</span> topics with dedicated 30-minute daily sessions for the next week.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-white text-xs mr-2 mt-0.5">2</span>
+                <span>Revisit <span className="font-medium">Organic Chemistry</span> fundamentals before attempting advanced problems.</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-white text-xs mr-2 mt-0.5">3</span>
+                <span>Practice more numerical calculation problems to strengthen your quantitative skills across subjects.</span>
+              </li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

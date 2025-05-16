@@ -1,233 +1,215 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Target, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Activity, Award, Clock, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
-// Mock data for exam readiness forecast
-const readinessForecastData = [
-  { month: 'Jan', score: 45 },
-  { month: 'Feb', score: 52 },
-  { month: 'Mar', score: 58 },
-  { month: 'Apr', score: 62 }, // Current month
-  { month: 'May', projection: 68 },
-  { month: 'Jun', projection: 73 },
-  { month: 'Jul', projection: 78 },
-  { month: 'Aug', projection: 82 },
-  { month: 'Sep', projection: 85 },
+// Mock data for predictive analytics
+const predictionData = [
+  { week: 'Current', physics: 72, chemistry: 68, biology: 65, overall: 68 },
+  { week: 'Week 1', physics: 75, chemistry: 70, biology: 67, overall: 71 },
+  { week: 'Week 2', physics: 78, chemistry: 73, biology: 70, overall: 74 },
+  { week: 'Week 3', physics: 80, chemistry: 76, biology: 74, overall: 77 },
+  { week: 'Week 4', physics: 83, chemistry: 79, biology: 77, overall: 80 },
+  { week: 'Week 5', physics: 85, chemistry: 82, biology: 80, overall: 82 },
+  { week: 'Week 6', physics: 88, chemistry: 84, biology: 82, overall: 85 },
+  { week: 'Week 7', physics: 90, chemistry: 86, biology: 84, overall: 87 },
+  { week: 'Week 8', physics: 92, chemistry: 88, biology: 87, overall: 89 },
 ];
 
-// Subject-wise predictions
-const subjectPredictionsData = [
-  { subject: 'Physics', current: 62, predicted: 78, benchmark: 85 },
-  { subject: 'Chemistry', current: 68, predicted: 82, benchmark: 85 },
-  { subject: 'Biology', current: 72, predicted: 86, benchmark: 85 },
+const rankPredictionData = [
+  { name: 'Top 1%', value: 15 },
+  { name: 'Top 5%', value: 30 },
+  { name: 'Top 10%', value: 25 },
+  { name: 'Top 25%', value: 20 },
+  { name: 'Below Top 25%', value: 10 },
 ];
 
-// Score improvement potential
-const improvementPotentialData = [
-  { name: 'Current Trajectory', value: 78, color: '#3f51b5' },
-  { name: 'Optimization Potential', value: 12, color: '#4caf50' },
-  { name: 'Gap to Perfect', value: 10, color: '#e0e0e0' },
+const COLORS = ['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#ffc658'];
+
+const improvementRecommendations = [
+  {
+    subject: 'Biology',
+    currentScore: 65,
+    potentialImprovement: 25,
+    effortRequired: 'high',
+    recommendation: 'Focus on cell biology and human physiology concepts',
+  },
+  {
+    subject: 'Chemistry',
+    currentScore: 68,
+    potentialImprovement: 22,
+    effortRequired: 'medium',
+    recommendation: 'Strengthen organic chemistry and chemical equilibrium',
+  },
+  {
+    subject: 'Physics',
+    currentScore: 72,
+    potentialImprovement: 20,
+    effortRequired: 'medium',
+    recommendation: 'Practice more problems in thermodynamics and electromagnetism',
+  },
 ];
 
 const PredictiveAnalytics: React.FC = () => {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center">
-          <TrendingUp className="mr-2 h-5 w-5 text-blue-500" />
-          Predictive Analytics
-        </CardTitle>
-        <CardDescription>
-          Forecast your exam readiness and potential improvements
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="forecast" className="w-full">
-          <TabsList className="grid grid-cols-3 gap-2 mb-4">
-            <TabsTrigger value="forecast">Readiness Forecast</TabsTrigger>
-            <TabsTrigger value="subjects">Subject Predictions</TabsTrigger>
-            <TabsTrigger value="optimization">Optimization Plan</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="forecast" className="space-y-4">
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={readinessForecastData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="month" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="score" name="Actual Score" stroke="#8884d8" strokeWidth={3} dot={{ r: 5 }} />
-                  <Line type="monotone" dataKey="projection" name="Projected Score" stroke="#82ca9d" strokeDasharray="5 5" dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-800 dark:text-blue-300 flex items-center">
-                <Target className="mr-2 h-4 w-4" />
-                Exam Readiness Projection
-              </h4>
-              <div className="mt-3">
-                <div className="flex justify-between mb-1 text-sm">
-                  <span>Current Readiness:</span>
-                  <span className="font-medium">62%</span>
-                </div>
-                <Progress value={62} className="h-2 mb-3" />
-                
-                <div className="flex justify-between mb-1 text-sm">
-                  <span>Projected for Exam Date (Sep):</span>
-                  <span className="font-medium">85%</span>
-                </div>
-                <Progress value={85} className="h-2 mb-3" />
-                
-                <p className="text-sm mt-4">
-                  At your current rate of progress, you're projected to reach 85% readiness by your target exam date. This is a strong position, but optimization could further improve your results.
-                </p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            Score Projection Forecast
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={predictionData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="physics" name="Physics" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="chemistry" name="Chemistry" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="biology" name="Biology" stroke="#ffc658" />
+                <Line type="monotone" dataKey="overall" name="Overall Score" stroke="#ff7300" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-4 text-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <span className="font-medium">Current Projected Score:</span>
+                <span>68%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="font-medium">8-Week Projection:</span>
+                <span className="text-green-600 font-medium">89% (+21%)</span>
               </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="subjects" className="space-y-4">
-            <div className="h-80">
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Award className="h-4 w-4 text-primary" />
+              Rank Prediction
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={subjectPredictionsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="subject" />
-                  <YAxis domain={[0, 100]} />
+                <PieChart>
+                  <Pie
+                    data={rankPredictionData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {rankPredictionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
                   <Tooltip />
-                  <Legend />
-                  <Bar dataKey="current" name="Current Score" fill="#8884d8" />
-                  <Bar dataKey="predicted" name="Predicted Score" fill="#82ca9d" />
-                  <Bar dataKey="benchmark" name="Target Score" fill="#ffc658" />
-                </BarChart>
+                </PieChart>
               </ResponsiveContainer>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              {subjectPredictionsData.map((subject, index) => (
-                <div key={index} className="bg-muted/30 p-4 rounded-lg">
-                  <h5 className="font-medium mb-3">{subject.subject}</h5>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Current</span>
-                        <span>{subject.current}%</span>
-                      </div>
-                      <Progress value={subject.current} className="h-1.5" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Predicted</span>
-                        <span className="text-emerald-600 font-medium">{subject.predicted}%</span>
-                      </div>
-                      <Progress value={subject.predicted} className="h-1.5 bg-emerald-100" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Benchmark</span>
-                        <span>{subject.benchmark}%</span>
-                      </div>
-                      <Progress value={subject.benchmark} className="h-1.5 bg-amber-100" />
+            <div className="mt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Based on your current trajectory, you have a <span className="font-medium">70%</span> chance of ranking in the top 10%.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" />
+              Score Optimization Opportunities
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {improvementRecommendations.map((item, index) => (
+                <div key={index} className="border p-4 rounded-lg">
+                  <div className="flex justify-between mb-2">
+                    <h3 className="font-medium">{item.subject}</h3>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm">Current:</span>
+                      <span className="font-medium">{item.currentScore}%</span>
+                      <span className="text-green-600 text-sm ml-2">+{item.potentialImprovement}%</span>
                     </div>
                   </div>
                   
-                  <div className="mt-4 text-xs text-muted-foreground">
-                    {subject.predicted >= subject.benchmark ? (
-                      <div className="text-emerald-600">On track to exceed target!</div>
-                    ) : (
-                      <div className="text-amber-600">Potential gap: {subject.benchmark - subject.predicted}%</div>
-                    )}
+                  <div className="mb-3">
+                    <div className="relative pt-1">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Potential Improvement</span>
+                        <span>{item.currentScore + item.potentialImprovement}%</span>
+                      </div>
+                      <div className="flex h-2 overflow-hidden rounded bg-gray-200">
+                        <div
+                          className="bg-blue-500 h-2"
+                          style={{ width: `${item.currentScore}%` }}
+                        ></div>
+                        <div
+                          className="bg-green-400 h-2"
+                          style={{ width: `${item.potentialImprovement}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      <span>Effort: </span>
+                      <span className={`font-medium ${
+                        item.effortRequired === 'high' 
+                          ? 'text-red-500' 
+                          : item.effortRequired === 'medium' 
+                            ? 'text-amber-500' 
+                            : 'text-green-500'
+                      }`}>
+                        {item.effortRequired.charAt(0).toUpperCase() + item.effortRequired.slice(1)}
+                      </span>
+                    </div>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      View Study Plan
+                    </Button>
+                  </div>
+                  
+                  <div className="mt-3 text-sm bg-gray-50 p-2 rounded dark:bg-gray-800">
+                    <strong>Tip:</strong> {item.recommendation}
                   </div>
                 </div>
               ))}
             </div>
-          </TabsContent>
-          
-          <TabsContent value="optimization" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium text-md mb-3">Score Improvement Potential</h4>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={improvementPotentialData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {improvementPotentialData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="text-center mt-2">
-                  <div className="text-2xl font-bold">+12%</div>
-                  <div className="text-sm text-muted-foreground">Potential Score Improvement</div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-md mb-3">Optimization Recommendations</h4>
-                <div className="space-y-3">
-                  <div className="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                    <h5 className="font-medium flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-2 text-blue-600" />
-                      Study Pattern Adjustment
-                    </h5>
-                    <p className="text-sm mt-1">
-                      Increase frequency of practice tests from once to twice weekly to improve test-taking efficiency.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-emerald-50 dark:bg-emerald-900/10 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
-                    <h5 className="font-medium flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-2 text-emerald-600" />
-                      Content Coverage
-                    </h5>
-                    <p className="text-sm mt-1">
-                      Focus on Optics and Organic Chemistry topics - currently at 55% and 58% mastery respectively.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/10 p-3 rounded-lg border border-purple-100 dark:border-purple-800/50">
-                    <h5 className="font-medium flex items-center">
-                      <AlertCircle className="h-4 w-4 mr-2 text-purple-600" />
-                      Skill Development
-                    </h5>
-                    <p className="text-sm mt-1">
-                      Dedicate 30 minutes daily to time-management exercises to improve exam performance speed.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-center mt-4">
+
+            <div className="mt-4 flex justify-center">
               <Button className="gap-2">
-                Get Detailed Optimization Plan <ArrowUpRight className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
+                Generate Optimized Study Schedule
               </Button>
             </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
