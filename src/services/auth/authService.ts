@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { UserRole } from '@/types/user/base';
@@ -125,6 +124,8 @@ const authService = {
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('new_user_signup', 'true');
+    localStorage.setItem('sawWelcomeSlider', 'false'); // Ensures welcome flow runs
+    localStorage.setItem('sawWelcomeTour', 'false'); // Ensures tour shows after welcome
     
     // Trigger auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
