@@ -84,7 +84,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        // For demo purposes, accept any email that includes 'admin'
+        // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
         if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
           // Clear student login data first
           localStorage.removeItem('userData');
@@ -115,7 +115,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           setAdminLoading(false);
           resolve(false);
         }
-      }, 800);
+      }, 400); // Reduced timeout for faster login
     });
   };
 

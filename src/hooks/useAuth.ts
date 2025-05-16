@@ -54,6 +54,7 @@ export function useAuth() {
     
     return new Promise<User>((resolve, reject) => {
       setTimeout(() => {
+        // For demo login, accept any non-empty credentials
         if (email && password) {
           // Create mock user
           const newUser: User = {

@@ -65,32 +65,28 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       
       // Login as student
       console.log("Attempting to log in with:", credentials.emailOrPhone);
-      const success = await login(credentials.emailOrPhone, credentials.password);
+      await login(credentials.emailOrPhone, credentials.password);
       
-      if (success) {
-        // Handle remember me functionality
-        if (rememberMe) {
-          localStorage.setItem("prepzr_remembered_login", credentials.emailOrPhone);
-        } else {
-          localStorage.removeItem("prepzr_remembered_login");
-        }
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Prepzr"
-        });
-        
-        // Dispatch custom event for auth state change
-        window.dispatchEvent(new Event('auth-state-changed'));
-        
-        // Navigate to student dashboard
-        navigate("/dashboard/student", { replace: true });
+      // Handle remember me functionality
+      if (rememberMe) {
+        localStorage.setItem("prepzr_remembered_login", credentials.emailOrPhone);
       } else {
-        setLoginError("Invalid email/phone or password");
+        localStorage.removeItem("prepzr_remembered_login");
       }
+      
+      toast({
+        title: "Login successful",
+        description: "Welcome back to Prepzr"
+      });
+      
+      // Dispatch custom event for auth state change
+      window.dispatchEvent(new Event('auth-state-changed'));
+      
+      // Navigate to student dashboard
+      navigate("/dashboard/student", { replace: true });
     } catch (error) {
       console.error("Login error:", error);
-      setLoginError("An unexpected error occurred. Please try again later.");
+      setLoginError("Invalid email/phone or password");
     } finally {
       setIsLoading(false);
     }

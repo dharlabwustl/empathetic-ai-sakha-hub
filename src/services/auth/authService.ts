@@ -2,6 +2,7 @@
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
+import { UserRole } from '@/types/user/base';
 
 // Auth service types
 export interface LoginCredentials {
@@ -106,6 +107,7 @@ const authService = {
       isFirstTimeUser: true
     };
     
+    // Important - set these values to ensure user is logged in after signup
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('new_user_signup', 'true');
