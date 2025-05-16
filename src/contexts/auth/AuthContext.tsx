@@ -7,13 +7,14 @@ interface User {
   id: string;
   name: string;
   email: string;
+  phoneNumber?: string;
   role: UserRole;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (emailOrPhone: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -43,15 +44,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData && isLoggedIn === 'true') {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.email && parsedData.isAuthenticated === true) {
+          if ((parsedData.email || parsedData.phoneNumber) && parsedData.isAuthenticated === true) {
             // User is already logged in
             setUser({
               id: parsedData.id || '1',
               name: parsedData.name || 'User',
-              email: parsedData.email,
+              email: parsedData.email || '',
+              phoneNumber: parsedData.phoneNumber || '',
               role: parsedData.role || UserRole.Student
             });
-            console.log("User authenticated from localStorage:", parsedData.email);
+            console.log("User authenticated from localStorage:", parsedData.email || parsedData.phoneNumber);
           } else {
             // Invalid authentication state
             setUser(null);
@@ -78,20 +80,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Login function
-  const login = async (email: string, password: string): Promise<boolean> => {
+  // Login function that accepts email or phone number
+  const login = async (emailOrPhone: string, password: string): Promise<boolean> => {
     setLoading(true);
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        if (email && password && password.length >= 2) {
+        if (emailOrPhone && password && password.length >= 2) {
+          // Check if input is email or phone number
+          const isEmail = emailOrPhone.includes('@');
+          
           // Determine user role from email
-          const role = email.includes('admin') ? UserRole.Admin : UserRole.Student;
+          const role = emailOrPhone.includes('admin') ? UserRole.Admin : UserRole.Student;
           
           const newUser: User = {
             id: '1',
-            name: email.split('@')[0] || (role === UserRole.Admin ? 'Admin' : 'Student'),
-            email: email,
+            name: isEmail ? emailOrPhone.split('@')[0] : `User_${emailOrPhone.substring(emailOrPhone.length - 4)}`,
+            email: isEmail ? emailOrPhone : '',
+            phoneNumber: isEmail ? '' : emailOrPhone,
             role: role
           };
           
@@ -117,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
+            phoneNumber: newUser.phoneNumber,
             role: newUser.role,
             lastLogin: new Date().toISOString(),
             loginCount: loginCount,
@@ -129,13 +136,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Also mark as logged in for other parts of the app
           localStorage.setItem('isLoggedIn', 'true');
           
+          // Clear admin auth if this is a student login
+          if (role !== UserRole.Admin) {
+            localStorage.removeItem('admin_logged_in');
+            localStorage.removeItem('admin_user');
+          }
+          
           setUser(newUser);
           setLoading(false);
-          console.log("Login successful for:", email, "with role:", role);
+          console.log("Login successful for:", emailOrPhone, "with role:", role);
           resolve(true);
         } else {
           setLoading(false);
-          console.log("Login failed for:", email);
+          console.log("Login failed for:", emailOrPhone);
           resolve(false);
         }
       }, 800);

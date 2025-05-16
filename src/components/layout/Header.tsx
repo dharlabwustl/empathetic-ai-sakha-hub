@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, Volume2 } from 'lucide-react';
@@ -15,9 +15,29 @@ import {
 } from "@/components/ui/tooltip";
 
 const Header = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const { adminUser, adminLogout, isAdminAuthenticated } = useAdminAuth();
+  
+  // Force component to re-render whenever auth state might change
+  const [, forceUpdate] = useState({});
+  
+  // Check current authentication state to ensure UI stays in sync
+  useEffect(() => {
+    // Force a component re-render to update the UI
+    const intervalId = setInterval(() => {
+      const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+      
+      // Only force update if auth state has changed
+      if ((isUserLoggedIn !== isAuthenticated) || (isAdminLoggedIn !== isAdminAuthenticated)) {
+        forceUpdate({});
+      }
+    }, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, isAdminAuthenticated]);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -34,7 +54,21 @@ const Header = () => {
     } else {
       logout();
     }
+    // Force page reload after logout to ensure clean state
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 100);
   };
+  
+  // Check current auth state directly from localStorage to avoid stale state
+  const checkActualAuthState = () => {
+    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    return { isUserLoggedIn, isAdminLoggedIn };
+  };
+  
+  const { isUserLoggedIn, isAdminLoggedIn } = checkActualAuthState();
+  const isLoggedIn = isUserLoggedIn || isAdminLoggedIn;
   
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
@@ -68,11 +102,11 @@ const Header = () => {
             </TooltipProvider>
             
             <ThemeToggle />
-            {(isAuthenticated || isAdminAuthenticated) ? (
+            {isLoggedIn ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to={isAdminAuthenticated ? "/admin/dashboard" : "/dashboard/student"}>
-                    {isAdminAuthenticated ? "Admin Dashboard" : "Dashboard"}
+                  <Link to={isAdminLoggedIn ? "/admin/dashboard" : "/dashboard/student"}>
+                    {isAdminLoggedIn ? "Admin Dashboard" : "Dashboard"}
                   </Link>
                 </Button>
                 <Button variant="ghost" onClick={handleLogout}>
@@ -123,11 +157,11 @@ const Header = () => {
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-2">
               <ThemeToggle />
-              {(isAuthenticated || isAdminAuthenticated) ? (
+              {isLoggedIn ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to={isAdminAuthenticated ? "/admin/dashboard" : "/dashboard/student"}>
-                      {isAdminAuthenticated ? "Admin Dashboard" : "Dashboard"}
+                    <Link to={isAdminLoggedIn ? "/admin/dashboard" : "/dashboard/student"}>
+                      {isAdminLoggedIn ? "Admin Dashboard" : "Dashboard"}
                     </Link>
                   </Button>
                   <Button variant="ghost" onClick={handleLogout} className="justify-start">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, Loader2, UserCheck, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -19,8 +21,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, isAuthenticated } = useAuth();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const [formData, setFormData] = useState({
-    email: "",
+    emailOrPhone: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -30,12 +33,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
 
   // Check for saved email on component mount
   useEffect(() => {
-    const savedEmail = localStorage.getItem("prepzr_remembered_email");
-    if (savedEmail) {
-      setFormData(prev => ({ ...prev, email: savedEmail }));
+    const savedEmailOrPhone = localStorage.getItem("prepzr_remembered_login");
+    if (savedEmailOrPhone) {
+      setFormData(prev => ({ ...prev, emailOrPhone: savedEmailOrPhone }));
       setRememberMe(true);
     }
   }, []);
+  
+  // Check if already authenticated and redirect accordingly
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+    
+    if (isAuthenticated) {
+      navigate('/dashboard/student', { replace: true });
+      return;
+    }
+  }, [isAuthenticated, isAdminAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,8 +62,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.password) {
-      setLoginError("Please provide both email and password");
+    if (!formData.emailOrPhone || !formData.password) {
+      setLoginError("Please provide both email/phone and password");
       return;
     }
     
@@ -55,45 +71,53 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
     setLoginError(null);
     
     try {
-      const success = await login(formData.email, formData.password);
+      // Check if trying to login as admin
+      const isAdminEmail = formData.emailOrPhone.includes('admin');
       
-      if (success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome to PREPZR! Redirecting to your dashboard...",
-        });
+      if (isAdminEmail) {
+        // Try admin login
+        const adminSuccess = await adminLogin(formData.emailOrPhone, formData.password);
         
-        // Remember email if option is checked
-        if (rememberMe) {
-          localStorage.setItem("prepzr_remembered_email", formData.email);
-        } else {
-          localStorage.removeItem("prepzr_remembered_email");
-        }
-        
-        // Get the user role from localStorage to determine where to navigate
-        const userData = localStorage.getItem("userData");
-        let targetDashboard = "/dashboard/student"; // Default
-        
-        if (userData) {
-          try {
-            const parsedData = JSON.parse(userData);
-            
-            // Navigate based on user role
-            if (parsedData.role === UserRole.Admin) {
-              targetDashboard = "/admin/dashboard";
-            } else {
-              targetDashboard = "/dashboard/student";
-            }
-            
-          } catch (error) {
-            console.error("Error parsing user data:", error);
+        if (adminSuccess) {
+          toast({
+            title: "Admin Login successful",
+            description: "Welcome to the PREPZR admin dashboard!",
+          });
+          
+          // Remember email if option is checked
+          if (rememberMe) {
+            localStorage.setItem("prepzr_remembered_login", formData.emailOrPhone);
+          } else {
+            localStorage.removeItem("prepzr_remembered_login");
           }
+          
+          // Navigate to admin dashboard
+          navigate("/admin/dashboard", { replace: true });
+        } else {
+          setLoginError("Invalid admin credentials.");
         }
-        
-        // Navigate to the appropriate dashboard
-        navigate(targetDashboard, { replace: true });
       } else {
-        setLoginError("Invalid email or password. Please try again.");
+        // Try regular student login
+        const success = await login(formData.emailOrPhone, formData.password);
+        
+        if (success) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back to PREPZR!",
+          });
+          
+          // Remember email if option is checked
+          if (rememberMe) {
+            localStorage.setItem("prepzr_remembered_login", formData.emailOrPhone);
+          } else {
+            localStorage.removeItem("prepzr_remembered_login");
+          }
+          
+          // Navigate to student dashboard
+          navigate("/dashboard/student", { replace: true });
+        } else {
+          setLoginError("Invalid email/phone or password.");
+        }
       }
     } catch (error) {
       setLoginError("An unexpected error occurred. Please try again.");
@@ -109,7 +133,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
   
   const handleDemoLogin = () => {
     setFormData({
-      email: "demo@prepzr.com",
+      emailOrPhone: "demo@prepzr.com",
       password: "demo123"
     });
   };
@@ -129,20 +153,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student' }
           transition={{ duration: 0.3 }}
           className="space-y-2"
         >
-          <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+          <Label htmlFor="emailOrPhone" className="text-sm font-medium">Email Address or Phone Number</Label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
               <Mail size={16} />
             </div>
             <Input
-              id="email"
-              name="email"
-              value={formData.email}
+              id="emailOrPhone"
+              name="emailOrPhone"
+              value={formData.emailOrPhone}
               onChange={handleInputChange}
-              placeholder="Enter your email"
-              type="email"
-              className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.email ? "border-red-500" : ""}`}
-              autoComplete="email"
+              placeholder="Enter your email or phone number"
+              type="text"
+              className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.emailOrPhone ? "border-red-500" : ""}`}
             />
           </div>
         </motion.div>

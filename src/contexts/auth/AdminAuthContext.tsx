@@ -46,7 +46,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
               id: parsedData.id || 'admin-1',
               name: parsedData.name || 'Admin User',
               email: parsedData.email,
-              role: parsedData.role || 'admin',
+              role: 'admin',
               permissions: parsedData.permissions || ['all']
             });
           } else {
@@ -80,9 +80,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         if (email.includes('admin') || email === 'admin@prepzr.com') {
           const newAdminUser: AdminUser = {
             id: 'admin-1',
-            name: 'Admin User',
+            name: "Admin User",
             email: email,
-            role: 'admin',
+            role: "admin",
             permissions: ['all']
           };
           
@@ -115,7 +115,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     
-    // Clear any session storage items related to admin
+    // Clear session storage items related to admin
     sessionStorage.removeItem('admin_session');
     sessionStorage.removeItem('admin_token');
     

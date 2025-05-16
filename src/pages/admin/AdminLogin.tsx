@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ const AdminLogin = () => {
   const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
   
   const navigate = useNavigate();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
+  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,16 +28,22 @@ const AdminLogin = () => {
 
   // Redirect to admin dashboard if already authenticated
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    if (isAdminAuthenticated && !adminLoading) {
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [isAdminAuthenticated, adminLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
       setLoginError("Please enter your email and password");
+      return;
+    }
+    
+    // Validate that email contains 'admin'
+    if (!email.includes('admin')) {
+      setLoginError("This login is for admins only. Email must contain 'admin'");
       return;
     }
     
@@ -49,14 +56,18 @@ const AdminLogin = () => {
       
       if (success) {
         toast({
-          title: "Login successful",
+          title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Make sure to go to admin dashboard, not student dashboard
+        // Clear any regular user data
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        // Make sure we go to admin dashboard, not student dashboard
         navigate('/admin/dashboard', { replace: true });
       } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'.");
+        setLoginError("Invalid admin credentials.");
       }
     } catch (error) {
       setLoginError("An unexpected error occurred. Please try again.");
@@ -146,7 +157,7 @@ const AdminLogin = () => {
                       variant="ghost"
                       size="icon"
                       className="absolute right-0 top-0 h-full"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={togglePasswordVisibility}
                       type="button"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -170,6 +181,15 @@ const AdminLogin = () => {
                       <span>Sign In</span>
                     </div>
                   )}
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full mt-2"
+                  onClick={handleDemoAdminLogin}
+                >
+                  Use Demo Admin Account
                 </Button>
               </div>
             </CardContent>

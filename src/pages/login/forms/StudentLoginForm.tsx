@@ -18,16 +18,16 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { toast } = useToast();
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({ emailOrPhone: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Check for saved credentials when component mounts
   useEffect(() => {
-    const savedEmail = localStorage.getItem("prepzr_remembered_email");
-    if (savedEmail) {
-      setCredentials(prev => ({ ...prev, email: savedEmail }));
+    const savedEmailOrPhone = localStorage.getItem("prepzr_remembered_login");
+    if (savedEmailOrPhone) {
+      setCredentials(prev => ({ ...prev, emailOrPhone: savedEmailOrPhone }));
       setRememberMe(true);
     }
   }, []);
@@ -39,8 +39,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   };
 
   const validateForm = () => {
-    if (!credentials.email) {
-      setLoginError("Email is required");
+    if (!credentials.emailOrPhone) {
+      setLoginError("Email or phone number is required");
       return false;
     }
     if (!credentials.password) {
@@ -60,16 +60,16 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     
     try {
       // In a real app, this would validate credentials against a backend
-      console.log("Attempting to log in with:", credentials.email);
+      console.log("Attempting to log in with:", credentials.emailOrPhone);
       
-      const success = await login(credentials.email, credentials.password);
+      const success = await login(credentials.emailOrPhone, credentials.password);
       
       if (success) {
         // Handle remember me functionality
         if (rememberMe) {
-          localStorage.setItem("prepzr_remembered_email", credentials.email);
+          localStorage.setItem("prepzr_remembered_login", credentials.emailOrPhone);
         } else {
-          localStorage.removeItem("prepzr_remembered_email");
+          localStorage.removeItem("prepzr_remembered_login");
         }
         
         toast({
@@ -100,10 +100,17 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           }
         }
         
-        // Direct navigation to the student dashboard
-        navigate("/dashboard/student", { replace: true });
+        // Check if the user is an admin based on the email or stored role
+        const isAdmin = credentials.emailOrPhone.includes('admin');
+        
+        // Direct navigation based on user role
+        if (isAdmin) {
+          navigate("/admin/dashboard", { replace: true });
+        } else {
+          navigate("/dashboard/student", { replace: true });
+        }
       } else {
-        setLoginError("Invalid email or password");
+        setLoginError("Invalid email/phone or password");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -115,7 +122,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
 
   const handleDemoLogin = () => {
     setCredentials({
-      email: "demo@prepzr.com",
+      emailOrPhone: "demo@prepzr.com",
       password: "demo123"
     });
   };
@@ -129,15 +136,15 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
         <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="your.email@example.com"
-          value={credentials.email}
+          id="emailOrPhone"
+          name="emailOrPhone"
+          type="text"
+          placeholder="Email or Phone Number"
+          value={credentials.emailOrPhone}
           onChange={handleChange}
-          className={loginError && !credentials.email ? "border-red-500" : ""}
+          className={loginError && !credentials.emailOrPhone ? "border-red-500" : ""}
           autoComplete="email"
           required
         />
