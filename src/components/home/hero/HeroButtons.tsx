@@ -36,7 +36,11 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
     window.addEventListener('auth-state-changed', checkAuthStatus);
     
     // Add event listener for storage changes (for multi-tab support)
-    window.addEventListener('storage', checkAuthStatus);
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'isLoggedIn' || event.key === 'admin_logged_in') {
+        checkAuthStatus();
+      }
+    });
     
     return () => {
       window.removeEventListener('auth-state-changed', checkAuthStatus);

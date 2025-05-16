@@ -15,6 +15,7 @@ import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
 import FormulaLabPage from "@/pages/dashboard/student/formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
 import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
+import AnalyticsDashboard from "@/components/dashboard/student/analytics/AnalyticsDashboard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 
@@ -40,6 +41,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
       <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
+      <Route path="/analytics" element={<AnalyticsDashboard />} />
     </Routes>
   );
 };

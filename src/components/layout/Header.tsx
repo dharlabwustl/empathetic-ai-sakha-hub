@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, User } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { useToast } from '@/hooks/use-toast';
 
 const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // Use state to track login status
@@ -31,7 +33,11 @@ const Header = () => {
     window.addEventListener('auth-state-changed', checkAuthStatus);
     
     // Add event listener for storage changes (for multi-tab support)
-    window.addEventListener('storage', checkAuthStatus);
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'isLoggedIn' || event.key === 'admin_logged_in') {
+        checkAuthStatus();
+      }
+    });
     
     return () => {
       window.removeEventListener('auth-state-changed', checkAuthStatus);
@@ -58,6 +64,12 @@ const Header = () => {
     
     // Dispatch event to notify components
     window.dispatchEvent(new Event('auth-state-changed'));
+    
+    // Show toast
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account.",
+    });
     
     // Force a hard reload to reset all components
     window.location.href = '/';

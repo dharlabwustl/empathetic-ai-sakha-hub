@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
-import { Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
@@ -18,14 +17,14 @@ const AdminLogin = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
 
   // Check if already authenticated
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (adminLoggedIn) {
       navigate('/admin/dashboard');
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,23 +38,36 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      const success = await adminLogin(email, password);
-      
-      if (success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard",
-        });
-        
-        // Navigate to admin dashboard
-        navigate("/admin/dashboard");
-      } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'");
-      }
+      // For demo purposes, we'll simulate an API call with a timeout
+      setTimeout(() => {
+        // Check if email contains 'admin' for demo validation
+        if (email.includes('admin')) {
+          // Set admin auth data
+          localStorage.setItem('admin_logged_in', 'true');
+          localStorage.setItem('admin_user', JSON.stringify({
+            name: "Admin User",
+            email: email,
+            role: "admin"
+          }));
+          
+          // Dispatch auth state change event
+          window.dispatchEvent(new Event('auth-state-changed'));
+          
+          toast({
+            title: "Login successful",
+            description: "Welcome to the admin dashboard",
+          });
+          
+          // Navigate to admin dashboard
+          navigate("/admin/dashboard");
+        } else {
+          setLoginError("Invalid admin credentials. Email must contain 'admin'");
+          setIsLoading(false);
+        }
+      }, 1000);
     } catch (error) {
       setLoginError("An unexpected error occurred");
       console.error("Admin login error:", error);
-    } finally {
       setIsLoading(false);
     }
   };
