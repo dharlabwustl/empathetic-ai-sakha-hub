@@ -29,9 +29,9 @@ const AdminLogin = () => {
   // Check if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated) {
-      window.location.href = returnTo;
+      navigate(returnTo);
     }
-  }, [isAdminAuthenticated, returnTo]);
+  }, [isAdminAuthenticated, navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,8 +54,8 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use window.location.href for more reliable navigation
-        window.location.href = returnTo;
+        // Navigate to admin dashboard or returnTo
+        navigate(returnTo);
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }

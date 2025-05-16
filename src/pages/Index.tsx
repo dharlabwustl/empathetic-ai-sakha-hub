@@ -13,20 +13,20 @@ import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
+import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
+import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
+import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
-import { MoonIcon, SunIcon } from 'lucide-react';
-import { useTheme } from '@/components/theme-provider';
 
 const Index = () => {
   const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  const { theme, setTheme } = useTheme();
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -125,24 +125,38 @@ const Index = () => {
         <CallToAction />
       </main>
       
-      <Footer>
-        <div className="flex justify-center items-center space-x-4">
-          <button
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            {theme === "light" ? (
-              <MoonIcon className="h-5 w-5" />
-            ) : (
-              <SunIcon className="h-5 w-5" />
-            )}
-            <span className="sr-only">Toggle theme</span>
-          </button>
-        </div>
-      </Footer>
+      <Footer />
       
-      {/* Enhanced home page voice assistant with improved Indian English guidance */}
+      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
       <HomePageVoiceAssistant language="en-IN" />
+      
+      {/* Floating Voice Assistant button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.button
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          onClick={handleOpenVoiceAssistant}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg>
+          <span className="ml-2 font-medium">Voice Assistant</span>
+        </motion.button>
+      </div>
+      
+      {/* Enhanced Floating Voice Assistant with settings panel */}
+      <FloatingVoiceAssistant 
+        isOpen={showVoiceAssistant} 
+        onClose={handleCloseVoiceAssistant}
+        language="en-IN"
+        onNavigationCommand={handleNavigationCommand}
+      />
     </div>
   );
 };

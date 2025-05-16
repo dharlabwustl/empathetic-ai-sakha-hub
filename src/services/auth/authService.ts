@@ -121,12 +121,10 @@ const authService = {
       isFirstTimeUser: true
     };
     
-    // Important - set these values to ensure user is redirected to dashboard after signup
+    // Important - set these values to ensure user is logged in after signup
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('new_user_signup', 'true');
-    localStorage.setItem('skipLogin', 'true'); // Add this flag to skip the login step
-    localStorage.setItem('authenticate_user', 'true'); // Add this flag to indicate user is authenticated
     
     // Trigger auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
@@ -173,8 +171,6 @@ const authService = {
     // Store admin-specific data
     localStorage.setItem('admin_user', JSON.stringify(adminUser));
     localStorage.setItem('admin_logged_in', 'true');
-    localStorage.setItem('adminToken', adminUser.token);
-    localStorage.setItem('adminUser', JSON.stringify(adminUser));
     
     // Trigger auth state change event
     window.dispatchEvent(new Event('auth-state-changed'));
@@ -213,8 +209,6 @@ const authService = {
       'prepzr_remembered_login',
       'new_user_signup',
       'current_mood',
-      'skipLogin',
-      'authenticate_user'
     ];
     
     // Clear each item individually
@@ -267,8 +261,6 @@ const authService = {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('skipLogin');
-    localStorage.removeItem('authenticate_user');
     
     // Reset API client
     apiClient.setAuthToken(null);
@@ -305,9 +297,8 @@ const authService = {
     const token = this.getToken();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    const authenticateUser = localStorage.getItem('authenticate_user') === 'true';
     
-    return (!!token && (isLoggedIn || adminLoggedIn || authenticateUser)); 
+    return (!!token && (isLoggedIn || adminLoggedIn)); 
   },
   
   // Verify if token is still valid
