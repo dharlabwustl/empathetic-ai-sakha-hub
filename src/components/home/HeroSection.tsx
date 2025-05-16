@@ -1,12 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import HeroButtons from '@/components/home/hero/HeroButtons';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 const HeroSection: React.FC = () => {
-  const navigate = useNavigate();
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)");
   const [currentTagline, setCurrentTagline] = useState(0);
   
@@ -38,13 +36,15 @@ const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mx-auto max-w-[98%] sm:max-w-[90%] lg:max-w-[95%] overflow-hidden"
+            className="mx-auto max-w-full sm:max-w-[95%] lg:max-w-[1100px] overflow-visible"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-normal px-2 mb-6">
-              <span className="text-gray-900 dark:text-gray-100">
-                अब तैयारी करो अपने तरीके से, सिर्फ{" "}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-normal px-0 sm:px-2 mb-6">
+              <span className="text-gray-900 dark:text-gray-100 flex flex-wrap justify-center whitespace-normal">
+                <span className="whitespace-nowrap mx-1">अब तैयारी करो</span>
+                <span className="whitespace-nowrap mx-1">अपने तरीके से,</span>
+                <span className="whitespace-nowrap mx-1">सिर्फ{" "}</span>
                 <motion.span 
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600"
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 whitespace-nowrap mx-1"
                   animate={{ 
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                     scale: [1, 1.05, 1]
@@ -57,7 +57,7 @@ const HeroSection: React.FC = () => {
                 >
                   PREPZR
                 </motion.span>{" "}
-                के साथ!
+                <span className="whitespace-nowrap mx-1">के साथ!</span>
               </span>
             </h1>
           </motion.div>
@@ -136,6 +136,9 @@ const HeroSection: React.FC = () => {
           <motion.div 
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
             whileHover={{ y: -5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600 dark:text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
@@ -151,6 +154,9 @@ const HeroSection: React.FC = () => {
           <motion.div 
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
             whileHover={{ y: -5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
           >
             <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor">
@@ -166,6 +172,9 @@ const HeroSection: React.FC = () => {
           <motion.div 
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
             whileHover={{ y: -5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
           >
             <div className="h-12 w-12 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-pink-600 dark:text-pink-400" viewBox="0 0 20 20" fill="currentColor">

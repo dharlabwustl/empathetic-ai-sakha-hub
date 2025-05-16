@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,8 +19,16 @@ const Login = () => {
       // Clear the signup flag
       localStorage.removeItem('new_user_signup');
       
-      // Navigate directly to dashboard, bypassing login
-      navigate('/dashboard/student', { replace: true });
+      // Navigate directly to welcome-back page, bypassing login
+      navigate('/welcome-back', { replace: true });
+      return;
+    }
+    
+    // Handle any leftover admin login attempts
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoggedIn) {
+      navigate('/admin/dashboard', { replace: true });
+      return;
     }
   }, [navigate]);
 

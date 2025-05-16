@@ -41,6 +41,9 @@ const PostLoginWelcomeBack = () => {
         setShowSlider(false);
         setShowTour(true);
       }
+      
+      // Ensure we've set the login flag
+      localStorage.setItem('isLoggedIn', 'true');
       return;
     }
     
@@ -60,6 +63,8 @@ const PostLoginWelcomeBack = () => {
     
     // Auto-redirect after 45 seconds if no action taken
     const timer = setTimeout(() => {
+      // Before redirecting, ensure login flag is set
+      localStorage.setItem('isLoggedIn', 'true');
       navigate('/dashboard/student');
       toast({
         title: "Welcome to PREPZR!",
@@ -73,6 +78,8 @@ const PostLoginWelcomeBack = () => {
   const handleSliderComplete = () => {
     // Mark that they've seen the welcome slider
     localStorage.setItem('sawWelcomeSlider', 'true');
+    // Ensure login flag is set
+    localStorage.setItem('isLoggedIn', 'true');
     setShowSlider(false);
     setShowTour(true); // Always show tour after welcome slider for all users
   };
@@ -80,6 +87,8 @@ const PostLoginWelcomeBack = () => {
   const handleTourSkip = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    // Ensure login flag is set
+    localStorage.setItem('isLoggedIn', 'true');
     navigate('/dashboard/student');
     toast({
       title: "Welcome to your dashboard!",
@@ -90,6 +99,8 @@ const PostLoginWelcomeBack = () => {
   const handleTourComplete = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    // Ensure login flag is set
+    localStorage.setItem('isLoggedIn', 'true');
     navigate('/dashboard/student');
     toast({
       title: "Tour Completed!",
