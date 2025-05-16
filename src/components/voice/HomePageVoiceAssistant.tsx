@@ -111,6 +111,17 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       utterance.pitch = voicePitch; // Slightly higher pitch for female voice
       utterance.volume = voiceVolume;
       
+      // Add event listeners to track when speaking starts and ends
+      utterance.onstart = () => {
+        document.dispatchEvent(new CustomEvent('voice-speaking-started', {
+          detail: { message: welcomeText }
+        }));
+      };
+      
+      utterance.onend = () => {
+        document.dispatchEvent(new Event('voice-speaking-ended'));
+      };
+      
       // Speak the welcome message
       window.speechSynthesis.speak(utterance);
       

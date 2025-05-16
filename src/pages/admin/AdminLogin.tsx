@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -43,9 +44,25 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      const success = await adminLogin(email, password);
-      
-      if (success) {
+      // For demo purposes accept any email containing "admin"
+      if (email.includes('admin') && password.length > 0) {
+        // Clear student login data first to avoid conflicts
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        // Create admin user data
+        const adminUser = {
+          id: `admin_${Date.now()}`,
+          name: email.split('@')[0] || 'Admin User',
+          email: email,
+          role: "admin",
+          permissions: ['all']
+        };
+        
+        // Save admin data to localStorage
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', JSON.stringify(adminUser));
+        
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
@@ -54,10 +71,10 @@ const AdminLogin = () => {
         // Direct navigation is more reliable than React Router in some cases
         window.location.href = '/admin/dashboard';
       } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'");
+        throw new Error("Invalid admin credentials");
       }
     } catch (error) {
-      setLoginError("An unexpected error occurred");
+      setLoginError("Invalid admin credentials. Email must contain 'admin'");
       console.error("Admin login error:", error);
     } finally {
       setIsLoading(false);
@@ -76,21 +93,32 @@ const AdminLogin = () => {
       setIsLoading(true);
       setLoginError(null);
       
-      const success = await adminLogin("admin@prepzr.com", "admin123");
+      // Clear student login data first to avoid conflicts
+      localStorage.removeItem('userData');
+      localStorage.removeItem('isLoggedIn');
       
-      if (success) {
-        toast({
-          title: "Admin Demo Login",
-          description: "Logged in successfully as demo admin",
-        });
-        
-        // Direct navigation
-        window.location.href = '/admin/dashboard';
-      } else {
-        setLoginError("Demo login failed. Please try again.");
-      }
+      // Create admin user data
+      const adminUser = {
+        id: `admin_${Date.now()}`,
+        name: "Demo Admin",
+        email: "admin@prepzr.com",
+        role: "admin",
+        permissions: ['all']
+      };
+      
+      // Save admin data to localStorage
+      localStorage.setItem('admin_logged_in', 'true');
+      localStorage.setItem('admin_user', JSON.stringify(adminUser));
+      
+      toast({
+        title: "Admin Demo Login",
+        description: "Logged in successfully as demo admin",
+      });
+      
+      // Direct navigation
+      window.location.href = '/admin/dashboard';
     } catch (error) {
-      setLoginError("An unexpected error occurred");
+      setLoginError("Demo login failed. Please try again.");
       console.error("Demo login error:", error);
     } finally {
       setIsLoading(false);

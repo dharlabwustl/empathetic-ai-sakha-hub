@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
@@ -101,6 +101,20 @@ const AdminLogin = () => {
     }
   };
 
+  const handleDemoAdminLogin = () => {
+    setFormData({
+      email: "admin@prepzr.com",
+      password: "admin123"
+    });
+    
+    // Trigger login after a brief delay to allow state update
+    setTimeout(() => {
+      document.getElementById("admin-login-form")?.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true })
+      );
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -120,7 +134,7 @@ const AdminLogin = () => {
             </CardDescription>
           </CardHeader>
           
-          <form onSubmit={handleLogin}>
+          <form id="admin-login-form" onSubmit={handleLogin}>
             <CardContent className="p-6 space-y-6">
               <div className="space-y-4">
                 {loginError && (
@@ -175,19 +189,28 @@ const AdminLogin = () => {
                 </div>
                 
                 <Button 
+                  type="button"
+                  variant="outline"
+                  className="w-full mt-2"
+                  onClick={handleDemoAdminLogin}
+                >
+                  Use Demo Admin Account
+                </Button>
+                
+                <Button 
                   className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
                   type="submit"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       <span>Signing in...</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-2">
+                      <ShieldCheck size={16} />
                       <span>Sign In</span>
-                      <ArrowRight size={16} />
                     </div>
                   )}
                 </Button>
