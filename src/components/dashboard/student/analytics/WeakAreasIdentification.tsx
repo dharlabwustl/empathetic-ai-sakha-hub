@@ -1,224 +1,214 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer, PieChart, Pie, Legend } from 'recharts';
+import { Progress } from "@/components/ui/progress";
+import { AlertTriangle, ArrowUp, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, ArrowUpRight, BookOpen } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 // Mock data for weak areas
-const weakAreasList = [
-  {
-    id: 'wa1',
-    subject: 'Physics',
-    topic: 'Electromagnetism',
-    subtopic: 'Electromagnetic Induction',
-    masteryLevel: 35,
-    priority: 'high',
-    lastTestScore: 42,
-    recommendation: 'Review Faraday\'s Law and Lenz\'s Law concepts',
-    resources: [
-      { type: 'video', title: 'Faraday\'s Law Explained', duration: '15 min' },
-      { type: 'practice', title: 'Electromagnetic Induction Problems', count: 12 },
-    ]
-  },
-  {
-    id: 'wa2',
-    subject: 'Chemistry',
-    topic: 'Organic Chemistry',
-    subtopic: 'Reaction Mechanisms',
-    masteryLevel: 40,
-    priority: 'high',
-    lastTestScore: 45,
-    recommendation: 'Practice more SN1 and SN2 reaction problems',
-    resources: [
-      { type: 'concept', title: 'Substitution Reactions Overview', count: 1 },
-      { type: 'practice', title: 'Mechanism Prediction Quiz', count: 8 },
-    ]
-  },
-  {
-    id: 'wa3',
-    subject: 'Biology',
-    topic: 'Molecular Biology',
-    subtopic: 'DNA Replication',
-    masteryLevel: 48,
-    priority: 'medium',
-    lastTestScore: 52,
-    recommendation: 'Focus on understanding the enzymes involved in replication',
-    resources: [
-      { type: 'video', title: 'DNA Replication Animation', duration: '10 min' },
-      { type: 'flashcards', title: 'DNA Replication Enzymes', count: 15 },
-    ]
-  },
-  {
-    id: 'wa4',
-    subject: 'Physics',
-    topic: 'Optics',
-    subtopic: 'Wave Optics',
-    masteryLevel: 45,
-    priority: 'medium',
-    lastTestScore: 50,
-    recommendation: 'Work on diffraction grating problems',
-    resources: [
-      { type: 'practice', title: 'Wave Optics Problem Set', count: 10 },
-      { type: 'concept', title: 'Interference Patterns Explained', count: 1 },
-    ]
-  }
+const subjectPerformanceData = [
+  { subject: 'Physics', mastery: 85, color: '#4ade80' },
+  { subject: 'Chemistry', mastery: 72, color: '#facc15' },
+  { subject: 'Biology', mastery: 45, color: '#f87171' },
+  { subject: 'Mathematics', mastery: 68, color: '#fb923c' },
 ];
 
-// Previously weak areas with improvement
-const improvedAreas = [
-  {
-    id: 'ia1',
-    subject: 'Chemistry',
-    topic: 'Thermodynamics',
-    initialMastery: 32,
-    currentMastery: 78,
-    improvement: 46,
-    timeSpent: '8.5 hours'
-  },
-  {
-    id: 'ia2',
-    subject: 'Biology',
-    topic: 'Cell Division',
-    initialMastery: 45,
-    currentMastery: 82,
-    improvement: 37,
-    timeSpent: '6 hours'
-  }
+const topicPerformanceData = [
+  { name: 'Electromagnetism', score: 40, time: 35, expected: 70, category: 'Physics' },
+  { name: 'Organic Chemistry', score: 50, time: 40, expected: 75, category: 'Chemistry' },
+  { name: 'Human Physiology', score: 35, time: 45, expected: 70, category: 'Biology' },
+  { name: 'Genetics', score: 45, time: 38, expected: 75, category: 'Biology' },
+  { name: 'Calculus', score: 55, time: 42, expected: 80, category: 'Mathematics' },
 ];
 
-const WeakAreasIdentification: React.FC = () => {
+// Sort topics by performance gap (expected - actual)
+const sortedWeakTopics = [...topicPerformanceData]
+  .sort((a, b) => (b.expected - b.score) - (a.expected - a.score))
+  .slice(0, 3);
+
+// Calculate improvement over time
+const improvementData = [
+  { name: 'Electromagnetism', week1: 25, week2: 30, week3: 40 },
+  { name: 'Organic Chemistry', week1: 30, week2: 40, week3: 50 },
+  { name: 'Human Physiology', week1: 20, week2: 25, week3: 35 },
+];
+
+// Get color based on score
+const getColorByScore = (score: number) => {
+  if (score < 50) return '#f87171'; // red
+  if (score < 70) return '#fb923c'; // orange
+  if (score < 85) return '#facc15'; // yellow
+  return '#4ade80'; // green
+};
+
+const WeakAreasIdentification = () => {
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Weak Areas Identification</h2>
+      <p className="text-muted-foreground">
+        Target your study efforts where they'll have the greatest impact
+      </p>
+      
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
-            Priority Improvement Areas
-          </CardTitle>
+          <CardTitle>Subject Mastery Overview</CardTitle>
           <CardDescription>
-            Topics that need immediate attention based on test scores and mastery levels
+            Your proficiency level across different subjects
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {weakAreasList.map((area) => (
-              <div key={area.id} className="border rounded-lg p-4">
-                <div className="flex flex-wrap justify-between gap-2 mb-3">
-                  <div>
-                    <h4 className="font-medium text-lg">{area.subtopic}</h4>
-                    <p className="text-sm text-muted-foreground">{area.subject} • {area.topic}</p>
-                  </div>
-                  <Badge className={
-                    area.priority === 'high' 
-                      ? "bg-red-100 text-red-800 border-red-200" 
-                      : "bg-amber-100 text-amber-800 border-amber-200"
-                  }>
-                    {area.priority === 'high' ? 'High Priority' : 'Medium Priority'}
-                  </Badge>
-                </div>
-                
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Mastery Level</span>
-                    <span className="font-medium">{area.masteryLevel}%</span>
-                  </div>
-                  <Progress 
-                    value={area.masteryLevel} 
-                    className="h-2" 
-                  />
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm mb-4">
-                  <span className="text-muted-foreground">Last Test Score:</span>
-                  <span className={`font-medium ${
-                    area.lastTestScore < 50 ? 'text-red-500' : 'text-amber-500'
-                  }`}>
-                    {area.lastTestScore}%
-                  </span>
-                </div>
-                
-                <div className="mb-4">
-                  <h5 className="text-sm font-medium mb-1">AI Recommendation:</h5>
-                  <p className="text-sm">{area.recommendation}</p>
-                </div>
-                
-                <div className="border-t pt-3 mt-3">
-                  <h5 className="text-sm font-medium mb-2">Suggested Resources:</h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {area.resources.map((resource, idx) => (
-                      <Button key={idx} variant="outline" size="sm" className="justify-start">
-                        {resource.type === 'video' && <BookOpen className="h-3 w-3 mr-2" />}
-                        {resource.type === 'practice' && <ArrowUpRight className="h-3 w-3 mr-2" />}
-                        {resource.type === 'concept' && <BookOpen className="h-3 w-3 mr-2" />}
-                        {resource.type === 'flashcards' && <BookOpen className="h-3 w-3 mr-2" />}
-                        <span className="truncate">{resource.title}</span>
-                        <span className="ml-auto text-xs opacity-70">
-                          {resource.duration || `${resource.count} items`}
-                        </span>
-                      </Button>
-                    ))}
+            {subjectPerformanceData.map((subject) => (
+              <div key={subject.subject} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="font-medium">{subject.subject}</div>
+                  <div 
+                    className={`text-sm font-medium ${
+                      subject.mastery < 50 ? 'text-red-500' : 
+                      subject.mastery < 70 ? 'text-orange-500' : 
+                      subject.mastery < 85 ? 'text-yellow-500' : 
+                      'text-green-500'
+                    }`}
+                  >
+                    {subject.mastery}%
                   </div>
                 </div>
+                <Progress 
+                  value={subject.mastery} 
+                  className="h-2"
+                  style={{ 
+                    '--progress-background': subject.color,
+                  } as React.CSSProperties}
+                />
               </div>
             ))}
-          </div>
-          
-          <div className="mt-6">
-            <Button className="w-full">
-              Generate Personalized Improvement Plan
-            </Button>
           </div>
         </CardContent>
       </Card>
       
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Priority Improvement Areas</CardTitle>
+            <CardDescription>
+              Topics with the largest gap between current mastery and expected level
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={topicPerformanceData}
+                  layout="vertical"
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="score" name="Your Score" barSize={20}>
+                    {topicPerformanceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getColorByScore(entry.score)} />
+                    ))}
+                  </Bar>
+                  <Bar dataKey="expected" name="Expected Level" barSize={20} fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Improvement Tracking</CardTitle>
+            <CardDescription>
+              Progress in previously identified weak areas over time
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={improvementData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip />
+                  <Bar dataKey="week1" name="Week 1" fill="#f87171" />
+                  <Bar dataKey="week2" name="Week 2" fill="#fb923c" />
+                  <Bar dataKey="week3" name="Week 3" fill="#facc15" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <ArrowUpRight className="h-5 w-5 text-green-500" />
-            Progress Tracking
-          </CardTitle>
+          <CardTitle>Personalized Improvement Plan</CardTitle>
           <CardDescription>
-            Areas where you've shown significant improvement
+            Targeted recommendations to address your weakest areas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {improvedAreas.map((area) => (
-              <div key={area.id} className="border rounded-lg p-4 bg-green-50 dark:bg-green-900/10">
-                <div className="flex flex-wrap justify-between mb-3">
+            {sortedWeakTopics.map((topic, index) => (
+              <div key={index} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h4 className="font-medium">{area.topic}</h4>
-                    <p className="text-sm text-muted-foreground">{area.subject}</p>
+                    <h3 className="font-semibold text-lg">{topic.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {topic.category} • Current Score: {topic.score}% • Target: {topic.expected}%
+                    </p>
                   </div>
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                    +{area.improvement}% Improvement
-                  </Badge>
+                  <div className="flex items-center gap-2 text-sm">
+                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                    <span>Priority {index + 1}</span>
+                  </div>
                 </div>
                 
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Initial Mastery</span>
-                    <span>{area.initialMastery}%</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm">Recommended: 4-5 hours</span>
                   </div>
-                  <Progress 
-                    value={area.initialMastery} 
-                    className="h-2 mb-3" 
-                  />
                   
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Current Mastery</span>
-                    <span className="font-medium">{area.currentMastery}%</span>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">6 concept cards available</span>
                   </div>
-                  <Progress 
-                    value={area.currentMastery} 
-                    className="h-2 bg-gray-100 dark:bg-gray-700" 
-                  />
+                  
+                  <div className="flex items-center gap-2">
+                    <ArrowUp className="h-4 w-4 text-orange-500" />
+                    <span className="text-sm">+15% improvement potential</span>
+                  </div>
                 </div>
                 
-                <div className="text-sm text-muted-foreground">
-                  Total time spent: {area.timeSpent}
+                <div className="space-y-3">
+                  <h4 className="font-medium">Recommended Actions:</h4>
+                  <ul className="text-sm space-y-1">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Review {topic.name} concept cards with the interactive formula lab</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Practice with targeted questions focusing on common mistake patterns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                      <span>Schedule a 2-hour focused study session with AI tutor assistance</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="mt-4 flex gap-2">
+                  <Button size="sm">Go to Concept Cards</Button>
+                  <Button size="sm" variant="outline">Add to Study Plan</Button>
                 </div>
               </div>
             ))}

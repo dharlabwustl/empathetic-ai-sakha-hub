@@ -1,13 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import FloatingVoiceAssistant from './FloatingVoiceAssistant';
 import { MoodType } from '@/types/user/base';
-import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'react-router-dom';
 
 interface DashboardVoiceAssistantProps {
-  userName?: string;
+  userName: string;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
 }
@@ -17,136 +15,158 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   currentMood,
   onMoodChange
 }) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const location = useLocation();
+  const [hasWelcomed, setHasWelcomed] = useState(false);
+  const [lastPath, setLastPath] = useState(location.pathname);
   
   const { 
     speakMessage, 
-    isVoiceSupported,
+    isVoiceSupported, 
     voiceSettings,
-    toggleMute
+    startListening,
+    transcript,
+    isListening,
+    stopListening
   } = useVoiceAnnouncer({
     userName,
-    mood: currentMood,
-    isFirstTimeUser: isFirstLoad,
-    initialSettings: { language: 'en-IN' } // Setting Indian English as default
+    initialSettings: { 
+      language: 'en-IN', // Default to Indian English
+      rate: 0.95, 
+      pitch: 1.0,
+      enabled: true 
+    }
   });
 
+  // Welcome message when dashboard first loads
   useEffect(() => {
-    // Check if this is the first time loading the page in this session
-    const hasSeenVoiceGreeting = sessionStorage.getItem('hasSeenVoiceGreeting');
-    if (!hasSeenVoiceGreeting && isVoiceSupported && voiceSettings.enabled && !voiceSettings.muted) {
-      // Delay the welcome message to make sure the page is loaded
+    // Check if we should show welcome message
+    const isFirstVisit = sessionStorage.getItem('dashboard_welcomed') !== 'true';
+    
+    if (isVoiceSupported && voiceSettings.enabled && !voiceSettings.muted && isFirstVisit && !hasWelcomed) {
+      // Delay welcome message slightly to ensure UI has loaded
       const timer = setTimeout(() => {
-        const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
-        const currentPath = window.location.pathname;
+        let welcomeMessage = '';
         
-        let greeting = '';
-        
-        // Context-aware greetings based on current page
-        if (currentPath.includes('/dashboard/student')) {
-          greeting = isFirstTimeUser 
-            ? `Namaste ${userName || 'there'}! Welcome to your PREPZR student dashboard. Here you can track your study progress, access concept cards, and prepare for your NEET exams. I'm your voice assistant and I can help you navigate through different sections. Just click the microphone when you need assistance.`
-            : `Welcome back to your dashboard, ${userName || 'there'}! Would you like to continue with your study plan or explore concept cards today? Just ask me if you need any help.`;
-        } else if (currentPath.includes('/signup')) {
-          greeting = `Welcome to the signup page. Please fill in your details to create your PREPZR account. Don't forget to include your school or institute details for a more personalized experience.`;
-        } else if (currentPath.includes('/login')) {
-          greeting = `Welcome to the login page. Please enter your credentials to access your PREPZR account.`;
+        if (location.pathname.includes('dashboard/student')) {
+          welcomeMessage = `Welcome to your personalized PREPZR dashboard, ${userName}. Here you can track your study progress, access your personalized study plan, practice with concept cards, and analyze your performance. Use the sidebar navigation to explore different sections. If you need any help, just click the voice assistant button at the bottom of the screen.`;
+        } else if (location.pathname.includes('admin')) {
+          welcomeMessage = `Welcome to the PREPZR admin dashboard. Here you can manage users, content, and monitor system performance. The sidebar contains all the administrative tools you need.`;
         } else {
-          greeting = isFirstTimeUser 
-            ? `Welcome to PREPZR, ${userName || 'there'}! I'm your voice assistant with an Indian accent. I can help you navigate the platform and provide study suggestions for your NEET preparation. Just click the microphone icon when you need me.`
-            : `Welcome back, ${userName || 'there'}! I'm here to help with your NEET studies today. Click the microphone if you need assistance.`;
+          welcomeMessage = `Welcome to PREPZR, ${userName}. I'm your voice assistant and I'll help you navigate through the platform.`;
         }
         
-        speakMessage(greeting);
-        sessionStorage.setItem('hasSeenVoiceGreeting', 'true');
+        speakMessage(welcomeMessage);
+        setHasWelcomed(true);
+        sessionStorage.setItem('dashboard_welcomed', 'true');
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-    setIsFirstLoad(false);
-  }, [isVoiceSupported, userName, speakMessage, voiceSettings.enabled, voiceSettings.muted]);
+  }, [isVoiceSupported, voiceSettings.enabled, voiceSettings.muted, hasWelcomed, userName, location.pathname, speakMessage]);
 
-  const handleMoodCommand = (moodString: string) => {
-    let newMood: MoodType | undefined;
-    
-    // Convert string to MoodType enum
-    switch (moodString.toUpperCase()) {
-      case 'HAPPY': newMood = MoodType.HAPPY; break;
-      case 'MOTIVATED': newMood = MoodType.MOTIVATED; break;
-      case 'FOCUSED': newMood = MoodType.FOCUSED; break;
-      case 'TIRED': newMood = MoodType.TIRED; break;
-      case 'STRESSED': newMood = MoodType.STRESSED; break;
-      case 'ANXIOUS': newMood = MoodType.ANXIOUS; break;
-      case 'OVERWHELMED': newMood = MoodType.OVERWHELMED; break;
-      case 'CONFUSED': newMood = MoodType.CONFUSED; break;
-      case 'CURIOUS': newMood = MoodType.CURIOUS; break;
-      case 'CALM': newMood = MoodType.CALM; break;
-      case 'NEUTRAL': newMood = MoodType.NEUTRAL; break;
-      default: return; // Invalid mood
+  // Provide contextual guidance based on path changes
+  useEffect(() => {
+    if (location.pathname !== lastPath && isVoiceSupported && voiceSettings.enabled && !voiceSettings.muted) {
+      setLastPath(location.pathname);
+      
+      // Only speak if the user has already been welcomed
+      if (sessionStorage.getItem('dashboard_welcomed') === 'true') {
+        const timer = setTimeout(() => {
+          let pathMessage = '';
+          
+          // Provide context-specific messages based on the current path
+          if (location.pathname.includes('/dashboard/student/analytics')) {
+            pathMessage = `The analytics dashboard shows your performance metrics and study patterns. Here you can see your progress, identify weak areas, and get personalized recommendations.`;
+          } else if (location.pathname.includes('/dashboard/student/concepts')) {
+            pathMessage = `The concept cards section contains all the key topics for your exam. Each card has summaries, explanations, formulas, visuals, and practice questions to test your understanding.`;
+          } else if (location.pathname.includes('/dashboard/student/plan')) {
+            pathMessage = `This is your personalized study plan, designed based on your learning style, goals, and current progress. It adapts as you learn and identifies the optimal path to exam success.`;
+          } else if (location.pathname.includes('/dashboard/student/practice')) {
+            pathMessage = `In the practice section, you can take mock tests and solve targeted questions to prepare for your exam. Each attempt is analyzed to help improve your performance.`;
+          } else if (location.pathname.includes('/dashboard/student/profile')) {
+            pathMessage = `This is your profile page where you can update your personal information, preferences, and settings. You can also track your overall progress here.`;
+          }
+          
+          if (pathMessage) {
+            speakMessage(pathMessage);
+          }
+        }, 1000);
+        
+        return () => clearTimeout(timer);
+      }
     }
-    
-    if (newMood && onMoodChange) {
-      onMoodChange(newMood);
-      toast({
-        title: "Mood Updated",
-        description: `Your mood has been updated to ${moodString}`,
-      });
+  }, [location.pathname, lastPath, isVoiceSupported, voiceSettings.enabled, voiceSettings.muted, speakMessage]);
+
+  // Process voice commands
+  useEffect(() => {
+    if (transcript) {
+      const lowerTranscript = transcript.toLowerCase();
       
-      // Provide context-aware response based on mood
-      const currentPath = window.location.pathname;
-      
-      if (currentPath.includes('/dashboard/student')) {
-        if (newMood === MoodType.STRESSED || newMood === MoodType.ANXIOUS || newMood === MoodType.OVERWHELMED) {
-          speakMessage("I notice you're feeling stressed. Would you like to try a quick mindfulness exercise or view some relaxation content in the Feel Good Corner?");
-        } else if (newMood === MoodType.MOTIVATED || newMood === MoodType.FOCUSED) {
-          speakMessage("Great to see you're feeling motivated! This is the perfect time to tackle some challenging concepts or practice questions.");
-        } else if (newMood === MoodType.TIRED) {
-          speakMessage("I understand you're feeling tired. Consider taking a short break or exploring easier topics today.");
+      // Handle mood-related commands
+      if (lowerTranscript.includes('feeling') || lowerTranscript.includes('mood')) {
+        const moodMap: Record<string, MoodType> = {
+          'happy': MoodType.HAPPY,
+          'motivated': MoodType.MOTIVATED,
+          'focused': MoodType.FOCUSED,
+          'calm': MoodType.CALM,
+          'tired': MoodType.TIRED,
+          'confused': MoodType.CONFUSED,
+          'anxious': MoodType.ANXIOUS,
+          'stressed': MoodType.STRESSED,
+        };
+        
+        let detectedMood: MoodType | null = null;
+        
+        Object.entries(moodMap).forEach(([keyword, mood]) => {
+          if (lowerTranscript.includes(keyword)) {
+            detectedMood = mood;
+          }
+        });
+        
+        if (detectedMood && onMoodChange) {
+          speakMessage(`I've updated your mood to ${detectedMood.toLowerCase()}. I'll adjust recommendations based on this.`);
+          onMoodChange(detectedMood);
         }
       }
-    }
-  };
-
-  const handleNavigationCommand = (route: string) => {
-    if (route) {
-      // Context-aware navigation responses
-      switch (route) {
-        case '/dashboard/student':
-          speakMessage("Taking you to your student dashboard where you can see your study overview.");
-          break;
-        case '/dashboard/student/concepts':
-          speakMessage("Navigating to concept cards where you can study key NEET topics with visual aids and formulas.");
-          break;
-        case '/dashboard/student/flashcards':
-          speakMessage("Opening your flashcards section for quick revision of important facts.");
-          break;
-        case '/dashboard/student/practice':
-          speakMessage("Taking you to practice exams where you can test your knowledge with NEET-style questions.");
-          break;
-        default:
-          speakMessage(`Navigating to ${route}`);
+      
+      // Handle navigation commands
+      else if (lowerTranscript.includes('go to') || lowerTranscript.includes('open') || lowerTranscript.includes('show')) {
+        if (lowerTranscript.includes('dashboard') || lowerTranscript.includes('home')) {
+          speakMessage("Opening dashboard");
+          window.location.href = '/dashboard/student';
+        } else if (lowerTranscript.includes('analytics') || lowerTranscript.includes('performance')) {
+          speakMessage("Opening analytics");
+          window.location.href = '/dashboard/student/analytics';
+        } else if (lowerTranscript.includes('concepts') || lowerTranscript.includes('cards')) {
+          speakMessage("Opening concept cards");
+          window.location.href = '/dashboard/student/concepts';
+        } else if (lowerTranscript.includes('plan') || lowerTranscript.includes('study plan')) {
+          speakMessage("Opening your study plan");
+          window.location.href = '/dashboard/student/plan';
+        } else if (lowerTranscript.includes('practice') || lowerTranscript.includes('tests')) {
+          speakMessage("Opening practice tests");
+          window.location.href = '/dashboard/student/practice';
+        } else if (lowerTranscript.includes('profile') || lowerTranscript.includes('settings')) {
+          speakMessage("Opening your profile");
+          window.location.href = '/dashboard/student/profile';
+        }
       }
       
-      navigate(route);
-      toast({
-        title: "Navigating",
-        description: `Taking you to ${route}`,
-      });
+      // Help commands
+      else if (lowerTranscript.includes('help') || lowerTranscript.includes('what can you do')) {
+        speakMessage(`I can help you navigate through PREPZR, update your mood, and provide information about different features. 
+          Try saying things like "Go to analytics", "I'm feeling motivated", or "Tell me about concept cards".`);
+      }
+      
+      // Stop listening after processing command
+      if (isListening) {
+        stopListening();
+      }
     }
-  };
+  }, [transcript, isListening, stopListening, onMoodChange, speakMessage]);
 
-  return (
-    <FloatingVoiceAssistant
-      userName={userName}
-      currentMood={currentMood ? currentMood.toString() : undefined}
-      onMoodCommand={handleMoodCommand}
-      onNavigationCommand={handleNavigationCommand}
-      pronouncePrepzr={true}
-      language="en-IN" // Set Indian English as default
-    />
-  );
+  // This component doesn't render anything visible
+  return null;
 };
 
 export default DashboardVoiceAssistant;
