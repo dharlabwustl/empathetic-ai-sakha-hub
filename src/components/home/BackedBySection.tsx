@@ -6,27 +6,27 @@ const BackedBySection = () => {
   const partners = [
     {
       name: 'NVIDIA Inception',
-      logo: '/img/partners/nvidia-inception.png',
+      logo: '/lovable-uploads/942253c5-380a-4285-85aa-06a90b045ade.png',
       alt: 'NVIDIA Inception Program Logo'
     },
     {
       name: 'NASSCOM Centre of Excellence',
-      logo: '/img/partners/nasscom-coe.png',
+      logo: '/lovable-uploads/d1760e15-ce66-47b7-8a4c-0c61d52d3c66.png',
       alt: 'NASSCOM Centre of Excellence Logo'
     },
     {
       name: 'IndiaAI (GCARED)',
-      logo: '/img/partners/indiaai-gcared.png',
+      logo: '/lovable-uploads/c22d3091-93f3-466d-ac2a-a871167e98e4.png',
       alt: 'IndiaAI (GCARED) Logo'
     },
     {
       name: 'Microsoft for Startups',
-      logo: '/img/partners/microsoft-startups.png',
+      logo: '/lovable-uploads/caff3d84-1157-41ac-961f-be3b0b5bb9b8.png',
       alt: 'Microsoft for Startups Logo'
     },
     {
       name: 'AWS Startups',
-      logo: '/img/partners/aws-startups.png',
+      logo: '/lovable-uploads/357a0e22-3fec-4a5c-808e-0540d5f7ba05.png',
       alt: 'AWS Startups Logo'
     }
   ];

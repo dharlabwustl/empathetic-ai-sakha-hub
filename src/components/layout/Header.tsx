@@ -6,6 +6,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, User } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
+import authService from '@/services/auth/authService';
+import adminAuthService from '@/services/auth/adminAuthService';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -15,15 +17,40 @@ const Header = () => {
   // Use state to track login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userName, setUserName] = useState("");
   
   // Check auth status on mount and when auth events occur
   useEffect(() => {
     const checkAuthStatus = () => {
+      // Check if user is logged in
       const studentLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
       
       setIsLoggedIn(studentLoggedIn || adminLoggedIn);
       setIsAdmin(adminLoggedIn);
+      
+      // Get user name if available
+      if (studentLoggedIn) {
+        try {
+          const userData = localStorage.getItem('userData');
+          if (userData) {
+            const parsedData = JSON.parse(userData);
+            setUserName(parsedData.name || "User");
+          }
+        } catch (e) {
+          console.error("Error parsing user data", e);
+        }
+      } else if (adminLoggedIn) {
+        try {
+          const adminUser = localStorage.getItem('adminUser');
+          if (adminUser) {
+            const parsedData = JSON.parse(adminUser);
+            setUserName(parsedData.name || "Admin");
+          }
+        } catch (e) {
+          console.error("Error parsing admin data", e);
+        }
+      }
     };
     
     // Check on component mount
@@ -41,7 +68,7 @@ const Header = () => {
     
     return () => {
       window.removeEventListener('auth-state-changed', checkAuthStatus);
-      window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('storage', checkAuthStatus as EventListener);
     };
   }, []);
   
@@ -49,30 +76,46 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
-    // Clear authentication data
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    
-    // Update state
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    
-    // Dispatch event to notify components
-    window.dispatchEvent(new Event('auth-state-changed'));
-    
-    // Show toast
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account.",
-    });
-    
-    // Force a hard reload to reset all components
-    window.location.href = '/';
+  const handleLogout = async () => {
+    try {
+      // Determine if we're logging out admin or regular user
+      if (isAdmin) {
+        await adminAuthService.adminLogout();
+      } else {
+        await authService.logout();
+      }
+      
+      // Clear authentication data
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      
+      // Update state
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      
+      // Dispatch event to notify components
+      window.dispatchEvent(new Event('auth-state-changed'));
+      
+      // Show toast
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
+      
+      // Navigate to home page
+      navigate('/');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout Error",
+        description: "There was an error logging you out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
@@ -89,10 +132,13 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             {isLoggedIn ? (
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  Hi, {userName}
+                </span>
                 <Button variant="ghost" asChild>
                   <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
-                    {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
+                    {isAdmin ? "Admin Dashboard" : "Dashboard"}
                   </Link>
                 </Button>
                 <Button variant="ghost" onClick={handleLogout}>
@@ -126,9 +172,12 @@ const Header = () => {
             <div className="flex flex-col space-y-2">
               {isLoggedIn ? (
                 <>
+                  <div className="py-2 px-1 text-sm text-gray-600 dark:text-gray-300">
+                    Hi, {userName}
+                  </div>
                   <Button variant="ghost" asChild className="justify-start">
                     <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
-                      {isAdmin ? "Admin Dashboard" : "Student Dashboard"}
+                      {isAdmin ? "Admin Dashboard" : "Dashboard"}
                     </Link>
                   </Button>
                   <Button variant="ghost" onClick={handleLogout} className="justify-start">

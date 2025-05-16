@@ -8,20 +8,13 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)");
-  const [exploreFeatures, setExploreFeatures] = useState(false);
   
-  const handleExploreFeatures = () => {
-    setExploreFeatures(true);
-    const featuresElement = document.getElementById('features');
-    if (featuresElement) {
-      featuresElement.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleExamAnalyzer = () => {
+    // Dispatch an event to open the exam analyzer
+    const event = new Event('open-exam-analyzer');
+    window.dispatchEvent(event);
   };
   
-  const handleAnalyzeClick = () => {
-    navigate('/login');
-  };
-
   return (
     <div className="relative overflow-hidden bg-white dark:bg-gray-950 pt-16 md:pt-20">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -49,9 +42,8 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
           >
-            <HeroButtons 
-              scrollToFeatures={handleExploreFeatures}
-              onAnalyzeClick={handleAnalyzeClick}
+            <HeroButtons
+              onAnalyzeClick={handleExamAnalyzer}
             />
           </motion.div>
         </div>

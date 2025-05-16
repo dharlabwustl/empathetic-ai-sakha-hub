@@ -14,18 +14,14 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
   onAnalyzeClick,
 }) => {
   const navigate = useNavigate();
-  
-  const handleExploreFeatures = () => {
-    if (scrollToFeatures) {
-      scrollToFeatures();
-    }
-  };
 
-  const handleAnalyze = () => {
+  const handleExamReadiness = () => {
     if (onAnalyzeClick) {
       onAnalyzeClick();
     } else {
-      navigate("/login");
+      // Dispatch an event to open the exam analyzer
+      const event = new Event('open-exam-analyzer');
+      window.dispatchEvent(event);
     }
   };
 
@@ -35,7 +31,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({
       <Button 
         size="lg" 
         className="font-semibold rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-8"
-        onClick={handleAnalyze}
+        onClick={handleExamReadiness}
       >
         <Sparkles className="mr-2 h-5 w-5" />
         Exam Readiness Analyzer

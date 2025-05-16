@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, Award, Clock } from 'lucide-react';
+import { Users, BookOpen, Award, Clock, Brain, CheckSquare } from 'lucide-react';
+import { adminService } from '@/services/adminService';
 
 const KpiStats = () => {
-  const stats = [
+  // Using the stats data directly from the adminService
+  const [stats, setStats] = React.useState([
     {
       icon: <Users className="h-8 w-8 text-blue-500" />,
       value: '50,000+',
@@ -15,7 +17,7 @@ const KpiStats = () => {
       icon: <BookOpen className="h-8 w-8 text-purple-500" />,
       value: '1,200+',
       label: 'Concept Cards',
-      description: 'Covering key NEET topics'
+      description: 'Per student on average'
     },
     {
       icon: <Award className="h-8 w-8 text-green-500" />,
@@ -28,8 +30,87 @@ const KpiStats = () => {
       value: '35%',
       label: 'Time Saved',
       description: 'Study more efficiently with AI'
+    },
+    {
+      icon: <Brain className="h-8 w-8 text-red-500" />,
+      value: '72%',
+      label: 'Stress Reduced',
+      description: 'Feel better while studying'
+    },
+    {
+      icon: <CheckSquare className="h-8 w-8 text-indigo-500" />,
+      value: '24+',
+      label: 'Dynamic Plans',
+      description: 'Personalized study plans delivered'
     }
-  ];
+  ]);
+
+  // Fetch stats from backend when component mounts
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const dashboardStats = await adminService.getDashboardStats();
+        
+        if (dashboardStats) {
+          // Update the stats with data from the backend
+          setStats([
+            {
+              icon: <Users className="h-8 w-8 text-blue-500" />,
+              value: dashboardStats.totalStudents ? 
+                dashboardStats.totalStudents.toLocaleString() + '+' : 
+                '50,000+',
+              label: 'Students',
+              description: 'Mastering exams with our platform'
+            },
+            {
+              icon: <BookOpen className="h-8 w-8 text-purple-500" />,
+              value: dashboardStats.averageConcepts ? 
+                dashboardStats.averageConcepts.toLocaleString() + '+' : 
+                '1,200+',
+              label: 'Concept Cards',
+              description: 'Per student on average'
+            },
+            {
+              icon: <Award className="h-8 w-8 text-green-500" />,
+              value: dashboardStats.successRate ? 
+                dashboardStats.successRate + '%' : 
+                '92%',
+              label: 'Success Rate',
+              description: 'Higher exam scores using PREPZR'
+            },
+            {
+              icon: <Clock className="h-8 w-8 text-orange-500" />,
+              value: dashboardStats.averageTimeSavedPerWeek ? 
+                dashboardStats.averageTimeSavedPerWeek * 10 + '%' : 
+                '35%',
+              label: 'Time Saved',
+              description: 'Study more efficiently with AI'
+            },
+            {
+              icon: <Brain className="h-8 w-8 text-red-500" />,
+              value: dashboardStats.verifiedMoodImprovement ? 
+                dashboardStats.verifiedMoodImprovement + '%' : 
+                '72%',
+              label: 'Stress Reduced',
+              description: 'Feel better while studying'
+            },
+            {
+              icon: <CheckSquare className="h-8 w-8 text-indigo-500" />,
+              value: dashboardStats.totalStudyPlans ? 
+                Math.round(dashboardStats.totalStudyPlans / 500) + '+' : 
+                '24+',
+              label: 'Dynamic Plans',
+              description: 'Personalized study plans delivered'
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching KPI stats:', error);
+      }
+    };
+    
+    fetchStats();
+  }, []);
 
   return (
     <motion.div 
@@ -48,7 +129,7 @@ const KpiStats = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 p-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 p-6">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
