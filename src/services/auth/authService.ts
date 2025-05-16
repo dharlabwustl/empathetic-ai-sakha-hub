@@ -1,6 +1,7 @@
 
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
+import { validateCredentials } from './accountData';
 
 // Auth service types
 export interface LoginCredentials {
@@ -14,7 +15,6 @@ export interface RegisterData {
   phoneNumber: string;
   password: string;
   role?: string;
-  school?: string; // Added school/institute field
 }
 
 export interface AuthUser {
@@ -25,7 +25,6 @@ export interface AuthUser {
   role: string;
   token: string;
   permissions?: string[];
-  school?: string; // Added school field
 }
 
 // Local storage keys
@@ -80,8 +79,7 @@ const authService = {
       email: userData.email,
       phoneNumber: userData.phoneNumber,
       role: userData.role || 'student',
-      token: `token_${Date.now()}`,
-      school: userData.school // Include school/institute field
+      token: `token_${Date.now()}`
     };
     
     // Set the auth data
@@ -92,8 +90,7 @@ const authService = {
       name: mockUser.name,
       email: mockUser.email,
       mood: 'MOTIVATED',
-      isAuthenticated: true,
-      school: mockUser.school
+      isAuthenticated: true
     };
     localStorage.setItem('userData', JSON.stringify(userDataObj));
     localStorage.setItem('isLoggedIn', 'true');
@@ -137,99 +134,93 @@ const authService = {
   async logout(): Promise<ApiResponse<void>> {
     console.log("Starting enhanced logout process to clear all auth data...");
     
-    try {
-      // Document cookies handling - clear all cookies
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
-      }
-      
-      // Clear all authentication data from local storage - comprehensive list
-      const itemsToRemove = [
-        'userData',
-        'isLoggedIn',
-        AUTH_TOKEN_KEY,
-        AUTH_USER_KEY,
-        'user_profile_image',
-        'prepzr_remembered_email',
-        'admin_logged_in',
-        'admin_user',
-        'sawWelcomeTour',
-        'hasSeenTour',
-        'hasSeenSplash',
-        'voiceSettings',
-        'new_user_signup',
-        'study_time_allocations',
-        'current_mood',
-        'mood_history',
-        'dashboard_tour_completed',
-        'study_plan',
-        'user_preferences',
-        'session_data',
-        'concept_progress',
-        'exam_history',
-        'flash_cards',
-        'last_login',
-        'temp_auth',
-        'selected_subjects',
-        'saved_notes',
-        'practice_results',
-        'adminToken',
-        'sakha_auth_token',
-        'sakha_auth_user',
-        'voice-tested',
-        'auth_session',
-        'auth_token',
-        'token',
-        'session_token',
-        'refresh_token',
-        'user_id',
-        'user_session',
-        'user_data'
-      ];
-      
-      // Clear each item individually and log it for debugging
-      itemsToRemove.forEach(item => {
-        try {
-          if (localStorage.getItem(item)) {
-            console.log(`Clearing localStorage item: ${item}`);
-            localStorage.removeItem(item);
-          }
-        } catch (e) {
-          console.error(`Error clearing ${item}:`, e);
-        }
-      });
-      
-      // Additionally clear any session storage items
-      console.log("Clearing all session storage data");
-      try {
-        sessionStorage.clear();
-      } catch (e) {
-        console.error("Error clearing sessionStorage:", e);
-      }
-      
-      // Reset API client
-      apiClient.setAuthToken(null);
-      
-      console.log("Logout complete - All authentication data cleared");
-      
-      // Return success - we'll handle navigation separately in the component
-      return {
-        success: true,
-        data: null,
-        error: null
-      };
-    } catch (error) {
-      console.error("Error during logout:", error);
-      return {
-        success: false,
-        data: null,
-        error: "Failed to complete logout process"
-      };
+    // Document cookies handling - clear all cookies
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
     }
+    
+    // Clear all authentication data from local storage - comprehensive list
+    const itemsToRemove = [
+      'userData',
+      'isLoggedIn',
+      AUTH_TOKEN_KEY,
+      AUTH_USER_KEY,
+      'user_profile_image',
+      'prepzr_remembered_email',
+      'admin_logged_in',
+      'admin_user',
+      'sawWelcomeTour',
+      'hasSeenTour',
+      'hasSeenSplash',
+      'voiceSettings',
+      'new_user_signup',
+      'study_time_allocations',
+      'current_mood',
+      'mood_history',
+      'dashboard_tour_completed',
+      'study_plan',
+      'user_preferences',
+      'session_data',
+      'concept_progress',
+      'exam_history',
+      'flash_cards',
+      'last_login',
+      'temp_auth',
+      'selected_subjects',
+      'saved_notes',
+      'practice_results',
+      'adminToken',
+      'sakha_auth_token',
+      'sakha_auth_user',
+      'voice-tested',
+      'auth_session',
+      'auth_token',
+      'token',
+      'session_token',
+      'refresh_token',
+      'user_id',
+      'user_session',
+      'user_data'
+    ];
+    
+    // Clear each item individually and log it for debugging
+    itemsToRemove.forEach(item => {
+      try {
+        if (localStorage.getItem(item)) {
+          console.log(`Clearing localStorage item: ${item}`);
+          localStorage.removeItem(item);
+        }
+      } catch (e) {
+        console.error(`Error clearing ${item}:`, e);
+      }
+    });
+    
+    // Additionally clear any session storage items
+    console.log("Clearing all session storage data");
+    try {
+      sessionStorage.clear();
+    } catch (e) {
+      console.error("Error clearing sessionStorage:", e);
+    }
+    
+    // Reset API client
+    apiClient.setAuthToken(null);
+    
+    console.log("Logout complete - All authentication data cleared");
+    
+    // Force redirection to login page to prevent any auto-login issues
+    window.location.href = '/login';
+    
+    // Return success - we'll handle navigation separately in the component
+    return {
+      success: true,
+      data: null,
+      error: null
+    };
   },
   
   // Set auth data in local storage and configure API client
@@ -245,24 +236,20 @@ const authService = {
   clearAuthData(): void {
     console.log("Clearing auth data and redirecting to login...");
     
-    try {
-      // Clear authentication from localStorage
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
-      localStorage.removeItem('userData');
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      
-      // Reset API client
-      apiClient.setAuthToken(null);
-      
-      // Clear any potential persistent login data from cookies
-      document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    } catch (error) {
-      console.error("Error clearing auth data:", error);
-    }
+    // Clear authentication from localStorage
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    
+    // Reset API client
+    apiClient.setAuthToken(null);
+    
+    // Clear any potential persistent login data from cookies
+    document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'auth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
     // Force redirection to login page
     window.location.href = '/login';
@@ -270,88 +257,54 @@ const authService = {
   
   // Get current authenticated user
   getCurrentUser(): AuthUser | null {
-    try {
-      const userJson = localStorage.getItem(AUTH_USER_KEY);
-      return userJson ? JSON.parse(userJson) : null;
-    } catch (error) {
-      console.error("Error getting current user:", error);
-      return null;
-    }
+    const userJson = localStorage.getItem(AUTH_USER_KEY);
+    return userJson ? JSON.parse(userJson) : null;
   },
   
   // Get auth token
   getToken(): string | null {
-    try {
-      return localStorage.getItem(AUTH_TOKEN_KEY);
-    } catch (error) {
-      console.error("Error getting auth token:", error);
-      return null;
-    }
+    return localStorage.getItem(AUTH_TOKEN_KEY);
   },
   
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    try {
-      const token = this.getToken();
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      return !!token && isLoggedIn; // Both must be true for authenticated state
-    } catch (error) {
-      console.error("Error checking authentication status:", error);
-      return false;
-    }
+    const token = this.getToken();
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    return !!token && isLoggedIn; // Both must be true for authenticated state
   },
   
   // Verify if token is still valid
   async verifyToken(): Promise<boolean> {
-    try {
-      const token = this.getToken();
-      
-      if (!token) {
-        return false;
-      }
-      
-      // For demo, always return true to simulate valid token
-      return true;
-    } catch (error) {
-      console.error("Error verifying token:", error);
+    const token = this.getToken();
+    
+    if (!token) {
       return false;
     }
+    
+    // For demo, always return true to simulate valid token
+    return true;
   },
   
   // Check if user has admin access
   isAdmin(): boolean {
-    try {
-      const user = this.getCurrentUser();
-      return user?.role === 'admin';
-    } catch (error) {
-      console.error("Error checking admin access:", error);
-      return false;
-    }
+    const user = this.getCurrentUser();
+    return user?.role === 'admin';
   },
   
   // Check if user has specific permissions
   hasPermission(permission: string): boolean {
-    try {
-      const user = this.getCurrentUser();
-      if (!user || user.role !== 'admin') return false;
-      
-      // If user has 'all' permission or the specific requested permission
-      return user.permissions?.includes('all') || user.permissions?.includes(permission) || false;
-    } catch (error) {
-      console.error("Error checking permission:", error);
-      return false;
-    }
+    const user = this.getCurrentUser();
+    if (!user || user.role !== 'admin') return false;
+    
+    // If user has 'all' permission or the specific requested permission
+    return user.permissions?.includes('all') || user.permissions?.includes(permission) || false;
   },
   
   // Initialize auth state from local storage
   initializeAuth(): void {
-    try {
-      const token = this.getToken();
-      if (token) {
-        apiClient.setAuthToken(token);
-      }
-    } catch (error) {
-      console.error("Error initializing auth:", error);
+    const token = this.getToken();
+    if (token) {
+      apiClient.setAuthToken(token);
     }
   }
 };

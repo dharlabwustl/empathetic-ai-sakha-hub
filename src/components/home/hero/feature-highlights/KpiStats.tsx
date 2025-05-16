@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, Award, Clock, Brain, Sparkles } from 'lucide-react';
+import { Users, BookOpen, Award, Clock } from 'lucide-react';
 
 const KpiStats = () => {
   const stats = [
@@ -28,18 +28,6 @@ const KpiStats = () => {
       value: '35%',
       label: 'Time Saved',
       description: 'Study more efficiently with AI'
-    },
-    {
-      icon: <Brain className="h-8 w-8 text-red-500" />,
-      value: '40%',
-      label: 'Stress Reduced',
-      description: 'Less exam anxiety with PREPZR'
-    },
-    {
-      icon: <Sparkles className="h-8 w-8 text-indigo-500" />,
-      value: '150+',
-      label: 'Dynamic Plans',
-      description: 'Personalized study journeys'
     }
   ];
 
@@ -60,7 +48,7 @@ const KpiStats = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 p-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 p-6">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
