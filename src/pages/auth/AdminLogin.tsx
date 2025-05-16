@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,25 +12,26 @@ import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
-  
-  const navigate = useNavigate();
-  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
 
-  // Redirect to admin dashboard if already authenticated
+  // Get the return URL from query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/admin/dashboard';
+
+  // Check if already authenticated
   useEffect(() => {
-    if (isAdminAuthenticated && !adminLoading) {
-      navigate('/admin/dashboard', { replace: true });
+    if (isAdminAuthenticated) {
+      navigate(returnTo);
     }
-  }, [isAdminAuthenticated, adminLoading, navigate]);
+  }, [isAdminAuthenticated, navigate, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,22 +45,22 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // Call the adminLogin function from the context
+      // Use the adminLogin function from the context
       const success = await adminLogin(email, password);
       
       if (success) {
         toast({
-          title: "Admin Login successful",
+          title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard
-        navigate('/admin/dashboard', { replace: true });
+        // Navigate to admin dashboard or returnTo
+        navigate(returnTo);
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'");
       }
     } catch (error) {
-      setLoginError("An unexpected error occurred. Please try again.");
+      setLoginError("An unexpected error occurred");
       console.error("Admin login error:", error);
     } finally {
       setIsLoading(false);
@@ -76,20 +77,17 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height={120} />
-          </Link>
-          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-md w-full px-4">
+        <div className="text-center mb-6">
+          <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          <h1 className="mt-4 text-2xl font-bold">Admin Portal</h1>
         </div>
         
-        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-purple-100">
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
+            <CardDescription className="text-center">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
@@ -103,7 +101,7 @@ const AdminLogin = () => {
           )}
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-6">
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -118,7 +116,6 @@ const AdminLogin = () => {
                   required
                 />
               </div>
-              
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
