@@ -75,8 +75,9 @@ const StepHandler = ({
         description: "Let's start your learning journey.",
       });
       
-      // Go directly to the dashboard, no more login page
-      navigate("/dashboard/student", { replace: true });
+      // Go directly to the dashboard using window.location for a hard redirect
+      // This ensures we don't get stuck in React Router navigation issues
+      window.location.href = "/dashboard/student";
     } catch (error) {
       console.error("Signup error:", error);
       toast({

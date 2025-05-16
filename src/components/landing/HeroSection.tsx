@@ -44,14 +44,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollToFeatures, scrollToFor
       />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-500 dark:from-purple-400 dark:to-indigo-300 mb-6">
-              Revolutionizing NEET Exam Preparation with AI
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-500 dark:from-purple-400 dark:to-indigo-300 mb-6 whitespace-normal">
+              अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
             </h1>
           </motion.div>
           
@@ -59,10 +59,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollToFeatures, scrollToFor
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
+            className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto"
           >
-            PREPZR supercharges your NEET preparation with personalized study plans, adaptive learning, 
-            and in-depth analytics—all powered by cutting-edge AI that adapts to your individual learning style.
+            We Understand Your Mindset, Not Just the Exam.
           </motion.p>
           
           <motion.div
