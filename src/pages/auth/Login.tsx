@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,8 +19,9 @@ const Login = () => {
       // Clear the signup flag
       localStorage.removeItem('new_user_signup');
       
-      // Navigate directly to dashboard, bypassing login
-      navigate('/dashboard/student', { replace: true });
+      // Navigate directly to dashboard, bypassing login - use window.location for more reliable navigation
+      window.location.href = '/dashboard/student';
+      return;
     }
   }, [navigate]);
 
