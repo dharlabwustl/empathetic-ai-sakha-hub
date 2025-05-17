@@ -3,8 +3,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, FileCheck, BookOpen, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { LayoutDashboard, FileCheck, BookOpen, Clock } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -53,7 +53,9 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
-    navigate(getDefaultRoute(task));
+    const route = getDefaultRoute(task);
+    console.log("Navigating to concept route:", route);
+    navigate(route);
   };
 
   return (

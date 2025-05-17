@@ -42,7 +42,7 @@ const StudentRoutes = () => {
           <ConceptCardDetailPage />
         </SidebarLayout>
       } />
-      <Route path="/concepts/study/:conceptId" element={
+      <Route path="/concept-study/:conceptId" element={
         <SidebarLayout>
           <ConceptStudyPage />
         </SidebarLayout>
