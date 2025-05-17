@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
+import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const Login = () => {
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
@@ -16,15 +17,18 @@ const Login = () => {
   
   // Check if user is already logged in
   useEffect(() => {
+    console.log("Checking login status in Login.tsx");
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
     if (isAdminLoggedIn) {
-      window.location.href = '/admin/dashboard';
+      console.log("Admin already logged in, redirecting to admin dashboard");
+      window.location.replace('/admin/dashboard');
       return;
     }
     
     if (isUserLoggedIn) {
+      console.log("Student already logged in, redirecting to student dashboard");
       navigate('/dashboard/student', { replace: true });
       return;
     }
@@ -45,6 +49,11 @@ const Login = () => {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <VoiceGreeting 
+        isFirstTimeUser={false}
+        userName="User"
+        language="en"
+      />
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">

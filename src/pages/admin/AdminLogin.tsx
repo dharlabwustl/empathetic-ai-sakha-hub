@@ -25,7 +25,7 @@ const AdminLogin = () => {
     
     if (isAdminLoggedIn) {
       // Direct navigation - more reliable for routing issues
-      window.location.href = '/admin/dashboard';
+      window.location.replace('/admin/dashboard');
     }
   }, []);
 
@@ -68,8 +68,9 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use direct window location change for guaranteed redirect
-        window.location.href = '/admin/dashboard';
+        // Use window.location.replace for more reliable redirection
+        window.location.replace('/admin/dashboard');
+        return;
       } else {
         throw new Error("Invalid admin credentials");
       }
@@ -89,9 +90,10 @@ const AdminLogin = () => {
     setEmail("admin@prepzr.com");
     setPassword("admin123");
     
-    // Submit the form immediately via the function call
+    // Submit the form after setting the values using a short timeout
     setTimeout(() => {
-      handleSubmit(new Event('submit') as any);
+      const formEl = document.getElementById('admin-login-form') as HTMLFormElement;
+      if (formEl) formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     }, 100);
   };
 

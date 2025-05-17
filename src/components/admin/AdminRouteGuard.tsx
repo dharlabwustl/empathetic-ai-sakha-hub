@@ -23,25 +23,35 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
       const authenticated = isAdminLoggedIn && (hasAdminUser || hasAdminToken);
       
       if (!authenticated) {
+        console.log("Admin authentication failed, redirecting to login");
         toast({
           title: "Authentication required",
           description: "Please log in to access the admin area",
           variant: "destructive",
         });
+      } else {
+        console.log("Admin authentication successful");
       }
       
       setIsAuthenticated(authenticated);
       setIsChecking(false);
     };
     
+    // Run check immediately
     checkAdminAuth();
     
     // Listen for auth state changes
-    const handleAuthChange = () => checkAdminAuth();
+    const handleAuthChange = () => {
+      console.log("Auth state changed, rechecking admin authentication");
+      checkAdminAuth();
+    };
+    
     window.addEventListener('auth-state-changed', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-state-changed', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
     };
   }, [toast]);
 
@@ -56,10 +66,13 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    // Use Navigate for React Router navigation
-    return <Navigate to="/admin/login" replace />;
+    console.log("Admin not authenticated, navigating to login page");
+    // Use direct window location for more reliable navigation
+    window.location.href = '/admin/login';
+    return null;
   }
 
+  // Only render children if authenticated
   return <>{children}</>;
 };
 

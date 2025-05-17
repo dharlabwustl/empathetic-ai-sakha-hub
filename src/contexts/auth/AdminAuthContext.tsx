@@ -52,11 +52,13 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
               role: 'admin',
               permissions: parsedData.permissions || ['all']
             });
+            console.log("Admin user found in localStorage, setting as authenticated");
           } else {
             setAdminUser(null);
             localStorage.removeItem('admin_user');
             localStorage.removeItem('adminUser');
             localStorage.removeItem('admin_logged_in');
+            console.log("Invalid admin data found, clearing authentication");
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
@@ -75,11 +77,17 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     checkAdminAuth();
     
     // Listen for auth changes
-    const handleAuthChange = () => checkAdminAuth();
+    const handleAuthChange = () => {
+      console.log("Auth state change detected in AdminAuthContext");
+      checkAdminAuth();
+    };
+    
     window.addEventListener('auth-state-changed', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-state-changed', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
     };
   }, []);
 
@@ -115,8 +123,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         
         setAdminLoading(false);
         
-        // Direct navigation to admin dashboard
-        window.location.href = '/admin/dashboard';
+        // Direct navigation to admin dashboard using replace for cleaner history
+        window.location.replace('/admin/dashboard');
         
         return true;
       } else {
@@ -151,8 +159,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Direct navigation to login page
-    window.location.href = '/login';
+    // Direct navigation to login page using replace for cleaner history
+    window.location.replace('/login');
   };
 
   return (
