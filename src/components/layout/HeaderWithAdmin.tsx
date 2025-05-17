@@ -153,9 +153,6 @@ const Header = () => {
                 <Button variant="default" asChild>
                   <Link to="/signup">Sign Up</Link>
                 </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/admin/login">Admin</Link>
-                </Button>
               </div>
             )}
           </div>
@@ -194,9 +191,6 @@ const Header = () => {
                   </Button>
                   <Button variant="default" asChild className="justify-start">
                     <Link to="/signup">Sign Up</Link>
-                  </Button>
-                  <Button variant="outline" asChild className="justify-start">
-                    <Link to="/admin/login">Admin</Link>
                   </Button>
                 </>
               )}

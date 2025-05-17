@@ -21,17 +21,12 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    const checkAdminAuth = async () => {
-      const isAdminAuthenticated = adminAuthService.isAuthenticated();
-      
-      if (isAdminAuthenticated) {
-        // Direct navigation using window.location for more reliable redirect
-        console.log("Admin already authenticated, redirecting to dashboard");
-        window.location.href = '/admin/dashboard';
-      }
-    };
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
-    checkAdminAuth();
+    if (isAdminLoggedIn) {
+      // Direct navigation using window.location for more reliable redirect
+      window.location.href = '/admin/dashboard';
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +49,7 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use setTimeout to ensure the redirect happens reliably after state updates
+        // Use setTimeout to ensure the redirect happens reliably
         setTimeout(() => {
           window.location.href = '/admin/dashboard';
         }, 500);
@@ -182,7 +177,7 @@ const AdminLogin = () => {
               </Button>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700" disabled={isLoading} type="submit">
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600" disabled={isLoading} type="submit">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
