@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { fixPronunciation } from './voiceUtils';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
@@ -26,9 +27,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         // Different messages based on the current page and user status
         if (location.pathname.includes('welcome-flow')) {
           if (isFirstTimeUser) {
-            message = `Welcome to PREPZR, ${userName}! I'm your AI voice assistant. I'll guide you through our platform setup and help you get started with your NEET exam preparation journey. Please follow the on-screen instructions to complete your onboarding.`;
+            message = `Welcome to Prep-zer, ${userName}! I'm your AI voice assistant. I'll guide you through our platform setup and help you get started with your NEET exam preparation journey. Please follow the on-screen instructions to complete your onboarding.`;
           } else {
-            message = `Welcome back to PREPZR, ${userName}. Let me guide you through your learning journey today.`;
+            message = `Welcome back to Prep-zer, ${userName}. Let me guide you through your learning journey today.`;
           }
         } else if (location.pathname.includes('dashboard')) {
           if (isFirstTimeUser) {
@@ -41,7 +42,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             else if (hour < 18) timeGreeting = 'Good afternoon';
             else timeGreeting = 'Good evening';
             
-            message = `${timeGreeting}, ${userName}. Welcome back to your PREPZR dashboard. Your study materials are ready for you. Let me know if you need any help navigating the platform.`;
+            message = `${timeGreeting}, ${userName}. Welcome back to your Prep-zer dashboard. Your study materials are ready for you. Let me know if you need any help navigating the platform.`;
           }
         }
         
@@ -61,7 +62,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       window.speechSynthesis.cancel();
       
       // Create utterance
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(fixPronunciation(text));
       
       // Find an Indian female voice
       const voices = window.speechSynthesis.getVoices();
