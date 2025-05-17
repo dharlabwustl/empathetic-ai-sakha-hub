@@ -24,4 +24,10 @@ export interface ConceptCard {
   bookmarked?: boolean;
 }
 
+export interface MasteryLevel {
+  level: 'Beginner' | 'Basic' | 'Intermediate' | 'Advanced' | 'Expert';
+  color: string;
+  minScore: number;
+}
+
 export type { ConceptCard };
