@@ -20,37 +20,42 @@ const Login = () => {
     const newUserSignup = localStorage.getItem('new_user_signup') === 'true';
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
+    // Handle any leftover admin login attempts
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoggedIn) {
+      console.log("Admin already logged in, redirecting to admin dashboard");
+      // Use setTimeout to avoid navigation issues
+      setTimeout(() => {
+        navigate('/admin/dashboard', { replace: true });
+      }, 100);
+      return;
+    }
+    
     if (newUserSignup && isLoggedIn) {
       // Clear the signup flag
       localStorage.removeItem('new_user_signup');
       
-      // Use setTimeout to ensure the navigation happens reliably
+      // Redirect to welcome flow
+      console.log("New user signup detected, redirecting to welcome flow");
       setTimeout(() => {
-        window.location.replace('/welcome-flow');
+        navigate('/welcome-flow', { replace: true });
       }, 100);
       return;
     }
     
-    // Handle any leftover admin login attempts
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    if (isAdminLoggedIn) {
-      setTimeout(() => {
-        window.location.replace('/admin/dashboard');
-      }, 100);
-      return;
-    }
-    
-    // If already authenticated, redirect to returnTo
+    // If already authenticated as student, redirect to returnTo
     if (isAuthenticated || isLoggedIn) {
+      console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
-        window.location.replace(returnTo);
+        navigate(returnTo, { replace: true });
       }, 100);
       return;
     }
     
     // If not authenticated, redirect to welcome-back after a short delay
+    console.log("User not authenticated, redirecting to welcome-back");
     setTimeout(() => {
-      window.location.replace(`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`);
+      navigate(`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     }, 300);
     
     // Set processing to false after a delay to show loading

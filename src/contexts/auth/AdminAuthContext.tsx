@@ -38,11 +38,11 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       setAdminLoading(true);
       
       // Check if admin data exists in localStorage
-      const adminData = localStorage.getItem('adminUser');
-      const isLoggedIn = localStorage.getItem('admin_logged_in');
-      
-      if (adminData && isLoggedIn === 'true') {
-        try {
+      try {
+        const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+        const adminData = localStorage.getItem('adminUser');
+        
+        if (adminData && isAdminLoggedIn) {
           const parsedData = JSON.parse(adminData);
           if (parsedData.email) {
             setAdminUser({
@@ -60,15 +60,16 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             localStorage.removeItem('admin_logged_in');
             console.log("Invalid admin data found, clearing authentication");
           }
-        } catch (error) {
-          console.error('Error parsing admin data:', error);
+        } else {
           setAdminUser(null);
+          console.log("No admin data found, user is not authenticated");
         }
-      } else {
+      } catch (error) {
+        console.error('Error parsing admin data:', error);
         setAdminUser(null);
+      } finally {
+        setAdminLoading(false);
       }
-      
-      setAdminLoading(false);
     };
     
     checkAdminAuth();
@@ -91,39 +92,35 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     setAdminLoading(true);
     
     try {
+      console.log("Attempting admin login in context for:", email);
       const response = await adminAuthService.adminLogin({ email, password });
       
       if (response.success && response.data) {
+        console.log("Admin login successful in context");
         // Update React state
         setAdminUser(response.data);
-        
-        // Dispatch event to notify other components about auth change
-        window.dispatchEvent(new Event('auth-state-changed'));
-        
-        setAdminLoading(false);
         return true;
       } else {
-        setAdminLoading(false);
+        console.log("Admin login failed in context");
         return false;
       }
     } catch (error) {
       console.error("Error during admin login:", error);
-      setAdminLoading(false);
       return false;
+    } finally {
+      setAdminLoading(false);
     }
   };
 
   // Admin logout function - return Promise but don't navigate
   const adminLogout = async (): Promise<void> => {
     try {
+      console.log("Admin logout initiated in context");
       // First clear React state
       setAdminUser(null);
       
       // Call service to clean up authentication data
       await adminAuthService.adminLogout();
-      
-      // Dispatch event to notify other components about auth change
-      window.dispatchEvent(new Event('auth-state-changed'));
     } catch (error) {
       console.error("Error during admin logout:", error);
     }

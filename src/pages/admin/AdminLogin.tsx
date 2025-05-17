@@ -41,15 +41,20 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
+      console.log("Submitting admin login form with email:", email);
       const success = await adminLogin(email, password);
       
       if (success) {
+        console.log("Admin login successful, preparing to navigate");
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        navigate('/admin/dashboard', { replace: true });
+        // Use setTimeout to ensure state updates have propagated
+        setTimeout(() => {
+          navigate('/admin/dashboard', { replace: true });
+        }, 100);
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
