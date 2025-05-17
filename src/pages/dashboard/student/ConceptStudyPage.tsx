@@ -10,7 +10,7 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
   }, [conceptId]);
   
-  // We're passing conceptId to the ConceptCardDetail component
+  // This component should render the ConceptCardDetail component and pass the conceptId
   return <ConceptCardDetail conceptId={conceptId} />;
 };
 
