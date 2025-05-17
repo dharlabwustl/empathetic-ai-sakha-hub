@@ -13,7 +13,6 @@ import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
-import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
@@ -151,12 +150,13 @@ const Index = () => {
       </div>
       
       {/* Enhanced Floating Voice Assistant with settings panel */}
-      <FloatingVoiceAssistant 
-        isOpen={showVoiceAssistant} 
-        onClose={handleCloseVoiceAssistant}
-        language="en-IN"
-        onNavigationCommand={handleNavigationCommand}
-      />
+      {showVoiceAssistant && (
+        <FloatingVoiceAssistant 
+          isOpen={showVoiceAssistant} 
+          onClose={handleCloseVoiceAssistant}
+          onNavigationCommand={handleNavigationCommand}
+        />
+      )}
     </div>
   );
 };
