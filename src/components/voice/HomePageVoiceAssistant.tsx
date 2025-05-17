@@ -1,18 +1,20 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 
 interface HomePageVoiceAssistantProps {
   language?: string;
+  userName?: string;
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-IN' 
+  language = 'en-IN',
+  userName = ''
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { speakMessage, isSpeaking } = useVoiceAnnouncer({ lang: language });
   
   // If this is the homepage, use a 4-second delay to allow for page load
   // If this is another page, use a shorter delay
@@ -26,8 +28,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         
         // Determine appropriate welcome message based on page and user status
         if (location.pathname === '/') {
-          if (user) {
-            message = `Welcome back to PREPZR. Would you like to continue your NEET exam preparation journey?`;
+          if (userName) {
+            message = `Welcome back to PREPZR${userName ? ', ' + userName : ''}. Would you like to continue your NEET exam preparation journey?`;
           } else {
             message = `Welcome to PREPZR, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
           }
@@ -43,46 +45,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [location.pathname, user, greetingPlayed, delayTime]);
-
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      // Create utterance
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Use voices API to find an Indian female voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const indianFemaleVoice = voices.find(v => 
-        (v.name.includes('Indian') || v.lang === 'en-IN' || v.lang === 'hi-IN') && 
-        (v.name.toLowerCase().includes('female') || v.name.includes('Kalpana') || v.name.includes('Kajal'))
-      );
-      
-      if (indianFemaleVoice) {
-        utterance.voice = indianFemaleVoice;
-      }
-      
-      // Set properties
-      utterance.lang = language;
-      utterance.rate = 0.9; // Slightly slower for better comprehension
-      utterance.pitch = 1.1; // Slightly higher pitch for female voice
-      utterance.volume = 0.8;
-      
-      // Speak the message
-      window.speechSynthesis.speak(utterance);
-      
-      // Dispatch event to notify other components
-      document.dispatchEvent(new CustomEvent('voice-speaking-started', {
-        detail: { message: text }
-      }));
-      
-      utterance.onend = () => {
-        document.dispatchEvent(new Event('voice-speaking-ended'));
-      };
-    }
-  };
+  }, [location.pathname, userName, greetingPlayed, delayTime, speakMessage]);
 
   // This is an invisible component - it only provides voice functionality
   return null;

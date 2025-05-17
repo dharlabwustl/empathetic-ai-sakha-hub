@@ -272,20 +272,20 @@ const ConceptCardDetailPage: React.FC = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start mb-6 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Badge variant="outline" className={`${getDifficultyColor(concept.difficulty)} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
-              {concept.difficulty}
+            <Badge variant="outline" className={`${getDifficultyColor(concept?.difficulty || 'medium')} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
+              {concept?.difficulty || 'Medium'}
             </Badge>
             <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-3 py-1 text-xs font-semibold">
-              {concept.subject}
+              {concept?.subject || 'Subject'}
             </Badge>
-            {concept.chapter && (
+            {concept?.chapter && (
               <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 rounded-full px-3 py-1 text-xs font-semibold">
                 {concept.chapter}
               </Badge>
             )}
           </div>
-          <h1 className="text-3xl font-bold mb-2">{concept.title}</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">{concept.description}</p>
+          <h1 className="text-3xl font-bold mb-2">{concept?.title || 'Loading...'}</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{concept?.description || 'Loading description...'}</p>
         </div>
         
         <div className="flex flex-wrap gap-2 mt-2 lg:mt-0">
@@ -313,14 +313,14 @@ const ConceptCardDetailPage: React.FC = () => {
       <div className="mb-6">
         <div className="flex justify-between text-sm font-medium mb-1">
           <span>Progress</span>
-          <span className="text-indigo-600 dark:text-indigo-400">{concept.progress || 0}%</span>
+          <span className="text-indigo-600 dark:text-indigo-400">{concept?.progress || 0}%</span>
         </div>
         <Progress 
-          value={concept.progress || 0} 
+          value={concept?.progress || 0} 
           className="h-2 bg-gray-100 dark:bg-gray-800" 
           indicatorClassName={
-            (concept.progress || 0) >= 80 ? "bg-gradient-to-r from-green-400 to-green-500" :
-            (concept.progress || 0) >= 40 ? "bg-gradient-to-r from-blue-400 to-blue-500" :
+            (concept?.progress || 0) >= 80 ? "bg-gradient-to-r from-green-400 to-green-500" :
+            (concept?.progress || 0) >= 40 ? "bg-gradient-to-r from-blue-400 to-blue-500" :
             "bg-gradient-to-r from-amber-400 to-amber-500"
           }
         />
@@ -342,10 +342,10 @@ const ConceptCardDetailPage: React.FC = () => {
                 <CardContent className="pt-6">
                   <div 
                     className="prose dark:prose-invert max-w-none" 
-                    dangerouslySetInnerHTML={{ __html: concept.content || 'No content available' }} 
+                    dangerouslySetInnerHTML={{ __html: concept?.content || 'No content available' }} 
                   />
                   
-                  {concept.examples && concept.examples.length > 0 && (
+                  {concept?.examples && concept.examples.length > 0 && (
                     <div className="mt-8">
                       <h3 className="text-xl font-semibold mb-4">Examples</h3>
                       <ul className="list-disc pl-5 space-y-2">
@@ -356,7 +356,7 @@ const ConceptCardDetailPage: React.FC = () => {
                     </div>
                   )}
                   
-                  {concept.commonMistakes && concept.commonMistakes.length > 0 && (
+                  {concept?.commonMistakes && concept.commonMistakes.length > 0 && (
                     <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
                       <h3 className="text-xl font-semibold mb-4 text-amber-800 dark:text-amber-300">Common Mistakes to Avoid</h3>
                       <ul className="list-disc pl-5 space-y-2">
@@ -367,7 +367,7 @@ const ConceptCardDetailPage: React.FC = () => {
                     </div>
                   )}
                   
-                  {concept.examRelevance && (
+                  {concept?.examRelevance && (
                     <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
                       <h3 className="text-xl font-semibold mb-2 text-blue-800 dark:text-blue-300">Exam Relevance</h3>
                       <p className="text-blue-700 dark:text-blue-300">{concept.examRelevance}</p>
