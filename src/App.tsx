@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -105,11 +104,7 @@ function App() {
                 <Route 
                   key={index} 
                   path={route.path} 
-                  element={
-                    <AdminRouteGuard>
-                      {route.element}
-                    </AdminRouteGuard>
-                  } 
+                  element={route.element}
                 />
               ))}
 

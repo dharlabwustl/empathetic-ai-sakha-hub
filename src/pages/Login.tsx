@@ -20,7 +20,7 @@ const Login = () => {
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
     if (isAdminLoggedIn) {
-      navigate('/admin/dashboard', { replace: true });
+      window.location.href = '/admin/dashboard';
       return;
     }
     
@@ -36,6 +36,11 @@ const Login = () => {
       description: error,
       variant: "destructive"
     });
+  };
+  
+  const handleAdminLoginRedirect = () => {
+    // Use direct window location to prevent routing issues
+    window.location.href = '/admin/login';
   };
   
   return (
@@ -75,7 +80,7 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => navigate(`/admin/login`)}>
+                    <Button variant="outline" className="w-full" onClick={handleAdminLoginRedirect}>
                       Go to Admin Login
                     </Button>
                   </div>

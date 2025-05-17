@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,8 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -17,20 +16,18 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
 
   // Check if already authenticated
   useEffect(() => {
     // Check for direct localStorage value for more robust detection
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
-    if (isAdminLoggedIn || isAdminAuthenticated) {
-      // Direct navigation - more reliable than React Router in some cases
+    if (isAdminLoggedIn) {
+      // Direct navigation - more reliable for routing issues
       window.location.href = '/admin/dashboard';
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +46,7 @@ const AdminLogin = () => {
         // Clear student login data first to avoid conflicts
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('new_user_signup');
         
         // Create admin user data
         const adminUser = {
@@ -59,16 +57,18 @@ const AdminLogin = () => {
           permissions: ['all']
         };
         
-        // Save admin data to localStorage
+        // Save admin data to localStorage with multiple flags for redundancy
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('admin_user', JSON.stringify(adminUser));
+        localStorage.setItem('adminToken', `token_${Date.now()}`);
+        localStorage.setItem('adminUser', JSON.stringify(adminUser));
         
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Direct navigation is more reliable than React Router in some cases
+        // Use direct window location change for guaranteed redirect
         window.location.href = '/admin/dashboard';
       } else {
         throw new Error("Invalid admin credentials");
@@ -85,51 +85,23 @@ const AdminLogin = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleDemoAdminLogin = async () => {
+  const handleDemoAdminLogin = () => {
     setEmail("admin@prepzr.com");
     setPassword("admin123");
     
-    try {
-      setIsLoading(true);
-      setLoginError(null);
-      
-      // Clear student login data first to avoid conflicts
-      localStorage.removeItem('userData');
-      localStorage.removeItem('isLoggedIn');
-      
-      // Create admin user data
-      const adminUser = {
-        id: `admin_${Date.now()}`,
-        name: "Demo Admin",
-        email: "admin@prepzr.com",
-        role: "admin",
-        permissions: ['all']
-      };
-      
-      // Save admin data to localStorage
-      localStorage.setItem('admin_logged_in', 'true');
-      localStorage.setItem('admin_user', JSON.stringify(adminUser));
-      
-      toast({
-        title: "Admin Demo Login",
-        description: "Logged in successfully as demo admin",
-      });
-      
-      // Direct navigation
-      window.location.href = '/admin/dashboard';
-    } catch (error) {
-      setLoginError("Demo login failed. Please try again.");
-      console.error("Demo login error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Submit the form immediately via the function call
+    setTimeout(() => {
+      handleSubmit(new Event('submit') as any);
+    }, 100);
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-6">
-          <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          <Link to="/">
+            <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          </Link>
           <h1 className="mt-4 text-2xl font-bold">Admin Portal</h1>
         </div>
         
@@ -149,7 +121,7 @@ const AdminLogin = () => {
             </div>
           )}
           
-          <form onSubmit={handleSubmit}>
+          <form id="admin-login-form" onSubmit={handleSubmit}>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -214,7 +186,6 @@ const AdminLogin = () => {
                 variant="outline"
                 className="w-full mt-2"
                 onClick={handleDemoAdminLogin}
-                disabled={isLoading}
               >
                 Use Demo Admin Account
               </Button>
@@ -238,9 +209,9 @@ const AdminLogin = () => {
         </Card>
         
         <div className="mt-4 text-center">
-          <Button variant="link" onClick={() => navigate("/login")}>
+          <Link to="/login" className="text-sm text-blue-600 hover:underline">
             Back to Student Login
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

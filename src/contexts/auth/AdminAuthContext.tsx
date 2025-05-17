@@ -36,13 +36,14 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     const checkAdminAuth = () => {
       setAdminLoading(true);
       
-      // Check if admin data exists in localStorage
+      // Check if admin data exists in localStorage - multiple checks for redundancy
       const adminData = localStorage.getItem('admin_user');
+      const adminDataBackup = localStorage.getItem('adminUser');
       const isLoggedIn = localStorage.getItem('admin_logged_in');
       
-      if (adminData && isLoggedIn === 'true') {
+      if ((adminData || adminDataBackup) && isLoggedIn === 'true') {
         try {
-          const parsedData = JSON.parse(adminData);
+          const parsedData = JSON.parse(adminData || adminDataBackup || '{}');
           if (parsedData.email) {
             setAdminUser({
               id: parsedData.id || 'admin-1',
@@ -54,11 +55,13 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           } else {
             setAdminUser(null);
             localStorage.removeItem('admin_user');
+            localStorage.removeItem('adminUser');
             localStorage.removeItem('admin_logged_in');
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
           localStorage.removeItem('admin_user');
+          localStorage.removeItem('adminUser');
           localStorage.removeItem('admin_logged_in');
           setAdminUser(null);
         }
@@ -99,9 +102,11 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           permissions: ['all']
         };
         
-        // Save admin data to localStorage
+        // Save admin data to localStorage with multiple values for redundancy
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
+        localStorage.setItem('adminToken', `token_${Date.now()}`);
+        localStorage.setItem('adminUser', JSON.stringify(newAdminUser));
         
         setAdminUser(newAdminUser);
         
@@ -110,7 +115,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         
         setAdminLoading(false);
         
-        // Direct navigation to admin dashboard to prevent redirection issues
+        // Direct navigation to admin dashboard
         window.location.href = '/admin/dashboard';
         
         return true;
