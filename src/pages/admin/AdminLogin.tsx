@@ -23,7 +23,6 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    // Check for direct localStorage value for more robust detection
     if (isAdminAuthenticated) {
       console.log("Already authenticated as admin, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
@@ -50,7 +49,6 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use React Router navigation for more reliable redirect
         navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");

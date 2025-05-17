@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,14 +7,13 @@ import { Menu, X } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 import authService from '@/services/auth/authService';
-import adminAuthService from '@/services/auth/adminAuthService';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogout } = useAdminAuth();
+  const { adminLogout, isAdminAuthenticated } = useAdminAuth();
   
   // Use state to track login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,7 +25,7 @@ const Header = () => {
     const checkAuthStatus = () => {
       // Check if user is logged in
       const studentLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+      const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true' || isAdminAuthenticated;
       
       setIsLoggedIn(studentLoggedIn || adminLoggedIn);
       setIsAdmin(adminLoggedIn);
@@ -71,7 +71,7 @@ const Header = () => {
       window.removeEventListener('auth-state-changed', checkAuthStatus);
       window.removeEventListener('storage', checkAuthStatus as EventListener);
     };
-  }, []);
+  }, [isAdminAuthenticated]);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -82,19 +82,19 @@ const Header = () => {
       // Determine if we're logging out admin or regular user
       if (isAdmin) {
         await adminLogout();
+        toast({
+          title: "Logged out successfully",
+          description: "You have been logged out of your admin account.",
+        });
         navigate('/admin/login');
       } else {
         await authService.logout();
+        toast({
+          title: "Logged out successfully",
+          description: "You have been logged out of your account.",
+        });
+        navigate('/');
       }
-      
-      // Show toast
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
-      });
-      
-      // Navigate to home page
-      navigate('/');
     } catch (error) {
       console.error("Logout error:", error);
       toast({
