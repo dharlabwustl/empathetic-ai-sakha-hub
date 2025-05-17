@@ -8,31 +8,34 @@ import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Login = () => {
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdminAuthenticated } = useAdminAuth();
   
   // Check if user is already logged in
   useEffect(() => {
     console.log("Checking login status in Login.tsx");
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
-    if (isAdminLoggedIn) {
+    // Check admin auth first
+    if (isAdminAuthenticated) {
       console.log("Admin already logged in, redirecting to admin dashboard");
-      window.location.replace('/admin/dashboard');
+      navigate('/admin/dashboard', { replace: true });
       return;
     }
     
+    // Then check student auth
+    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
       navigate('/dashboard/student', { replace: true });
       return;
     }
-  }, [navigate]);
+  }, [navigate, isAdminAuthenticated]);
   
   const handleLoginError = (error: string) => {
     toast({
@@ -43,8 +46,8 @@ const Login = () => {
   };
   
   const handleAdminLoginRedirect = () => {
-    // Use direct window location to prevent routing issues
-    window.location.href = '/admin/login';
+    // Use React Router for navigation
+    navigate('/admin/login');
   };
   
   return (

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +9,12 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
+  const navigate = useNavigate();
+  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,14 +24,11 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    // Check for direct localStorage value for more robust detection
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    
-    if (isAdminLoggedIn) {
-      // Direct navigation - more reliable for routing issues
-      window.location.replace('/admin/dashboard');
+    if (isAdminAuthenticated) {
+      // Use navigate for React Router navigation
+      navigate('/admin/dashboard', { replace: true });
     }
-  }, []);
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,36 +42,16 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // For demo purposes accept any email containing "admin"
-      if (email.includes('admin') && password.length > 0) {
-        // Clear student login data first to avoid conflicts
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('new_user_signup');
-        
-        // Create admin user data
-        const adminUser = {
-          id: `admin_${Date.now()}`,
-          name: email.split('@')[0] || 'Admin User',
-          email: email,
-          role: "admin",
-          permissions: ['all']
-        };
-        
-        // Save admin data to localStorage with multiple flags for redundancy
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_user', JSON.stringify(adminUser));
-        localStorage.setItem('adminToken', `token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
-        
+      const success = await adminLogin(email, password);
+      
+      if (success) {
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Use window.location.replace for more reliable redirection
-        window.location.replace('/admin/dashboard');
-        return;
+        // Navigate using React Router
+        navigate('/admin/dashboard', { replace: true });
       } else {
         throw new Error("Invalid admin credentials");
       }
@@ -90,12 +71,24 @@ const AdminLogin = () => {
     setEmail("admin@prepzr.com");
     setPassword("admin123");
     
-    // Submit the form after setting the values using a short timeout
+    // Submit the form after a brief delay to allow state update
     setTimeout(() => {
-      const formEl = document.getElementById('admin-login-form') as HTMLFormElement;
-      if (formEl) formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      const form = document.getElementById('admin-login-form') as HTMLFormElement;
+      if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     }, 100);
   };
+
+  // If checking auth status, show loading
+  if (adminLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto text-blue-600" />
+          <p className="text-xl">Checking authentication status...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -142,6 +135,7 @@ const AdminLogin = () => {
                     placeholder="admin@prepzr.com"
                     className="pl-9"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -170,6 +164,7 @@ const AdminLogin = () => {
                     }}
                     className="pl-9 pr-10"
                     required
+                    disabled={isLoading}
                   />
                   <Button
                     type="button" 
@@ -177,6 +172,7 @@ const AdminLogin = () => {
                     size="icon"
                     className="absolute right-0 top-0 h-full"
                     onClick={togglePasswordVisibility}
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
@@ -188,12 +184,17 @@ const AdminLogin = () => {
                 variant="outline"
                 className="w-full mt-2"
                 onClick={handleDemoAdminLogin}
+                disabled={isLoading}
               >
                 Use Demo Admin Account
               </Button>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600" disabled={isLoading} type="submit">
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-violet-600" 
+                disabled={isLoading} 
+                type="submit"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

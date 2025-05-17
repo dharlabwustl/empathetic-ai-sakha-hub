@@ -55,16 +55,20 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             console.log("Admin user found in localStorage, setting as authenticated");
           } else {
             setAdminUser(null);
+            // Clear invalid data
             localStorage.removeItem('admin_user');
             localStorage.removeItem('adminUser');
             localStorage.removeItem('admin_logged_in');
+            localStorage.removeItem('adminToken');
             console.log("Invalid admin data found, clearing authentication");
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
+          // Clear invalid data
           localStorage.removeItem('admin_user');
           localStorage.removeItem('adminUser');
           localStorage.removeItem('admin_logged_in');
+          localStorage.removeItem('adminToken');
           setAdminUser(null);
         }
       } else {
@@ -98,10 +102,17 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     try {
       // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
       if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
-        // Clear student login data first to avoid conflicts
+        console.log("Admin login successful, setting admin user data");
+        
+        // First clear any existing auth data to avoid conflicts
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('adminUser');
+        localStorage.removeItem('admin_logged_in');
+        localStorage.removeItem('adminToken');
         
+        // Create new admin user object
         const newAdminUser: AdminUser = {
           id: 'admin-1',
           name: "Admin User",
@@ -122,10 +133,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         window.dispatchEvent(new Event('auth-state-changed'));
         
         setAdminLoading(false);
-        
-        // Direct navigation to admin dashboard using replace for cleaner history
-        window.location.replace('/admin/dashboard');
-        
         return true;
       } else {
         setAdminLoading(false);
@@ -159,7 +166,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Direct navigation to login page using replace for cleaner history
+    // Direct navigation to login page
     window.location.replace('/login');
   };
 
