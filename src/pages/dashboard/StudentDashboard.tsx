@@ -218,7 +218,7 @@ const StudentDashboard = () => {
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en"
+        language="en-IN"
       />
       
       {/* Dashboard Voice Assistant with mood integration */}

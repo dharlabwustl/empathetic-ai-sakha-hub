@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import FloatingVoiceAssistant from './FloatingVoiceAssistant';
-import { MoodType } from '@/types/user/base';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { MoodType } from '@/types/user/base';
+import useVoiceAnnouncer from '@/hooks/useVoiceAnnouncer';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
@@ -17,135 +19,256 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   currentMood,
   onMoodChange
 }) => {
-  const navigate = useNavigate();
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const navigate = useNavigate();
   
-  const { 
-    speakMessage, 
-    isVoiceSupported,
+  const {
+    speakMessage,
+    isSpeaking,
+    isListening,
+    startListening,
+    stopListening,
+    transcript,
     voiceSettings,
-    toggleMute
+    toggleMute,
+    processVoiceCommand
   } = useVoiceAnnouncer({
     userName,
     mood: currentMood,
-    isFirstTimeUser: isFirstLoad,
-    initialSettings: { language: 'en-IN' } // Setting Indian English as default
+    initialSettings: { language: 'en-IN' }
   });
-
+  
+  // Show the button after a delay
   useEffect(() => {
-    // Check if this is the first time loading the page in this session
-    const hasSeenVoiceGreeting = sessionStorage.getItem('hasSeenVoiceGreeting');
-    if (!hasSeenVoiceGreeting && isVoiceSupported && voiceSettings.enabled && !voiceSettings.muted) {
-      // Delay the welcome message to make sure the page is loaded
-      const timer = setTimeout(() => {
-        const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
-        const currentPath = window.location.pathname;
-        
-        let greeting = '';
-        
-        // Context-aware greetings based on current page
-        if (currentPath.includes('/dashboard/student')) {
-          greeting = isFirstTimeUser 
-            ? `Namaste ${userName || 'there'}! Welcome to your PREPZR student dashboard. Here you can track your study progress, access concept cards, and prepare for your NEET exams. I'm your voice assistant and I can help you navigate through different sections. Just click the microphone when you need assistance.`
-            : `Welcome back to your dashboard, ${userName || 'there'}! Would you like to continue with your study plan or explore concept cards today? Just ask me if you need any help.`;
-        } else if (currentPath.includes('/signup')) {
-          greeting = `Welcome to the signup page. Please fill in your details to create your PREPZR account. Don't forget to include your school or institute details for a more personalized experience.`;
-        } else if (currentPath.includes('/login')) {
-          greeting = `Welcome to the login page. Please enter your credentials to access your PREPZR account.`;
-        } else {
-          greeting = isFirstTimeUser 
-            ? `Welcome to PREPZR, ${userName || 'there'}! I'm your voice assistant with an Indian accent. I can help you navigate the platform and provide study suggestions for your NEET preparation. Just click the microphone icon when you need me.`
-            : `Welcome back, ${userName || 'there'}! I'm here to help with your NEET studies today. Click the microphone if you need assistance.`;
-        }
-        
-        speakMessage(greeting);
-        sessionStorage.setItem('hasSeenVoiceGreeting', 'true');
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-    setIsFirstLoad(false);
-  }, [isVoiceSupported, userName, speakMessage, voiceSettings.enabled, voiceSettings.muted]);
-
-  const handleMoodCommand = (moodString: string) => {
-    let newMood: MoodType | undefined;
+    const timer = setTimeout(() => {
+      setIsButtonVisible(true);
+    }, 2000);
     
-    // Convert string to MoodType enum
-    switch (moodString.toUpperCase()) {
-      case 'HAPPY': newMood = MoodType.HAPPY; break;
-      case 'MOTIVATED': newMood = MoodType.MOTIVATED; break;
-      case 'FOCUSED': newMood = MoodType.FOCUSED; break;
-      case 'TIRED': newMood = MoodType.TIRED; break;
-      case 'STRESSED': newMood = MoodType.STRESSED; break;
-      case 'ANXIOUS': newMood = MoodType.ANXIOUS; break;
-      case 'OVERWHELMED': newMood = MoodType.OVERWHELMED; break;
-      case 'CONFUSED': newMood = MoodType.CONFUSED; break;
-      case 'CURIOUS': newMood = MoodType.CURIOUS; break;
-      case 'CALM': newMood = MoodType.CALM; break;
-      case 'NEUTRAL': newMood = MoodType.NEUTRAL; break;
-      default: return; // Invalid mood
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Process transcript when it changes
+  useEffect(() => {
+    if (transcript) {
+      handleVoiceCommand(transcript);
     }
+  }, [transcript]);
+  
+  const handleVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
     
-    if (newMood && onMoodChange) {
-      onMoodChange(newMood);
-      toast({
-        title: "Mood Updated",
-        description: `Your mood has been updated to ${moodString}`,
-      });
-      
-      // Provide context-aware response based on mood
-      const currentPath = window.location.pathname;
-      
-      if (currentPath.includes('/dashboard/student')) {
-        if (newMood === MoodType.STRESSED || newMood === MoodType.ANXIOUS || newMood === MoodType.OVERWHELMED) {
-          speakMessage("I notice you're feeling stressed. Would you like to try a quick mindfulness exercise or view some relaxation content in the Feel Good Corner?");
-        } else if (newMood === MoodType.MOTIVATED || newMood === MoodType.FOCUSED) {
-          speakMessage("Great to see you're feeling motivated! This is the perfect time to tackle some challenging concepts or practice questions.");
-        } else if (newMood === MoodType.TIRED) {
-          speakMessage("I understand you're feeling tired. Consider taking a short break or exploring easier topics today.");
-        }
+    // Handle mood changes
+    if (lowerCommand.includes('i feel') || lowerCommand.includes('i am')) {
+      if (lowerCommand.includes('happy') && onMoodChange) {
+        onMoodChange(MoodType.HAPPY);
+        speakMessage(`I've updated your mood to happy. That's great to hear!`);
+        return;
+      } else if (lowerCommand.includes('tired') && onMoodChange) {
+        onMoodChange(MoodType.TIRED);
+        speakMessage(`I've updated your mood to tired. Remember to take breaks as needed.`);
+        return;
+      } else if (lowerCommand.includes('stressed') && onMoodChange) {
+        onMoodChange(MoodType.STRESSED);
+        speakMessage(`I've updated your mood to stressed. Let's focus on manageable tasks today.`);
+        return;
+      } else if (lowerCommand.includes('motivated') && onMoodChange) {
+        onMoodChange(MoodType.MOTIVATED);
+        speakMessage(`I've updated your mood to motivated. Let's make the most of this energy!`);
+        return;
       }
     }
+    
+    // Handle navigation commands
+    if (lowerCommand.includes('go to') || lowerCommand.includes('navigate to') || lowerCommand.includes('open')) {
+      if (lowerCommand.includes('dashboard')) {
+        navigateTo('/dashboard/student');
+        return;
+      } else if (lowerCommand.includes('study plan')) {
+        navigateTo('/dashboard/student/study-plan');
+        return;
+      } else if (lowerCommand.includes('concepts')) {
+        navigateTo('/dashboard/student/concepts');
+        return;
+      } else if (lowerCommand.includes('flashcard')) {
+        navigateTo('/dashboard/student/flashcards/landing');
+        return;
+      } else if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
+        navigateTo('/dashboard/student/practice');
+        return;
+      } else if (lowerCommand.includes('profile')) {
+        navigateTo('/dashboard/student/profile');
+        return;
+      } else if (lowerCommand.includes('feel good') || lowerCommand.includes('wellness')) {
+        navigateTo('/dashboard/student/feel-good-corner');
+        return;
+      } else if (lowerCommand.includes('advisor')) {
+        navigateTo('/dashboard/student/academic-advisor');
+        return;
+      }
+    }
+    
+    // For all other commands, let the useVoiceAnnouncer handle them
+    processVoiceCommand(command);
   };
-
-  const handleNavigationCommand = (route: string) => {
-    if (route) {
-      // Context-aware navigation responses
-      switch (route) {
-        case '/dashboard/student':
-          speakMessage("Taking you to your student dashboard where you can see your study overview.");
-          break;
-        case '/dashboard/student/concepts':
-          speakMessage("Navigating to concept cards where you can study key NEET topics with visual aids and formulas.");
-          break;
-        case '/dashboard/student/flashcards':
-          speakMessage("Opening your flashcards section for quick revision of important facts.");
-          break;
-        case '/dashboard/student/practice':
-          speakMessage("Taking you to practice exams where you can test your knowledge with NEET-style questions.");
-          break;
-        default:
-          speakMessage(`Navigating to ${route}`);
-      }
-      
-      navigate(route);
+  
+  const navigateTo = (path: string) => {
+    speakMessage(`Navigating to ${path.split('/').pop()?.replace('-', ' ')}`);
+    navigate(path);
+  };
+  
+  const handleListen = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
       toast({
-        title: "Navigating",
-        description: `Taking you to ${route}`,
+        title: "Listening...",
+        description: "Speak now and I'll try to help you."
       });
     }
   };
-
+  
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+  
   return (
-    <FloatingVoiceAssistant
-      userName={userName}
-      currentMood={currentMood ? currentMood.toString() : undefined}
-      onMoodCommand={handleMoodCommand}
-      onNavigationCommand={handleNavigationCommand}
-      pronouncePrepzr={true}
-      language="en-IN" // Set Indian English as default
-    />
+    <>
+      {/* Floating Voice Assistant Button */}
+      <AnimatePresence>
+        {isButtonVisible && !isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="fixed bottom-6 right-6 z-50"
+          >
+            <Button 
+              onClick={handleOpen}
+              className={`rounded-full shadow-lg ${isSpeaking ? 'bg-green-500 hover:bg-green-600 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'}`}
+              size="icon"
+            >
+              {isSpeaking ? (
+                <Volume2 className="h-5 w-5" />
+              ) : (
+                <Mic className="h-5 w-5" />
+              )}
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Voice Assistant Panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-20 right-6 z-50 w-[350px] shadow-2xl rounded-lg overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+          >
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-white">
+                <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-green-400 animate-pulse' : 'bg-white'}`}></div>
+                <span className="font-medium">Voice Assistant</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  onClick={() => toggleMute()}
+                >
+                  {voiceSettings.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded p-3 h-[120px] overflow-auto">
+                <p className="text-sm mb-2">
+                  <span className="font-medium">Hello, {userName || 'student'}!</span> 
+                  {currentMood && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      You're feeling {currentMood.toLowerCase()} today
+                    </span>
+                  )}
+                </p>
+                
+                {transcript ? (
+                  <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded text-sm">
+                    <p className="font-medium">You said:</p>
+                    <p>{transcript}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Ask me to navigate to different sections, update your mood, or help with your study plan.
+                  </p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  className={isListening ? 'bg-red-500 hover:bg-red-600' : undefined}
+                  onClick={handleListen}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="mr-2 h-4 w-4" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="mr-2 h-4 w-4" />
+                      Speak
+                    </>
+                  )}
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    speakMessage("I can help you navigate through your dashboard, update your mood, find study materials, or answer questions about your progress.");
+                  }}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Help
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { path: '/dashboard/student/concepts', label: 'Concepts' },
+                  { path: '/dashboard/student/practice', label: 'Practice' },
+                  { path: '/dashboard/student/study-plan', label: 'Study Plan' },
+                  { path: '/dashboard/student/academic-advisor', label: 'Get Help' }
+                ].map(item => (
+                  <Button 
+                    key={item.path}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => navigateTo(item.path)}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
