@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, BookOpen, FileText, Calculator, ChartBar, CheckCircle, BarChart } from 'lucide-react';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface MethodologyPoint {
   id: number;
