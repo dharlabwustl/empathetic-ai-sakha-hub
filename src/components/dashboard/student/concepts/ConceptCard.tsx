@@ -56,12 +56,12 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Navigate to concept card detail page
-    navigate(`/dashboard/student/concepts/card/${id}`);
+    navigate(`/dashboard/student/concepts/${id}`);
   };
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/dashboard/student/concepts/card/${id}`);
+    navigate(`/dashboard/student/concepts/${id}`);
   };
 
   return (
