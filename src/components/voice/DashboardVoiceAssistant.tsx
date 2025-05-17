@@ -47,15 +47,15 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         // Context-aware greetings based on current page
         if (currentPath.includes('/dashboard/student')) {
           greeting = isFirstTimeUser 
-            ? `Namaste ${userName || 'there'}! Welcome to your Prep-zer student dashboard. Here you can track your study progress, access concept cards, and prepare for your NEET exams. I'm your voice assistant and I can help you navigate through different sections. Just click the microphone when you need assistance.`
+            ? `Namaste ${userName || 'there'}! Welcome to your PREPZR student dashboard. Here you can track your study progress, access concept cards, and prepare for your NEET exams. I'm your voice assistant and I can help you navigate through different sections. Just click the microphone when you need assistance.`
             : `Welcome back to your dashboard, ${userName || 'there'}! Would you like to continue with your study plan or explore concept cards today? Just ask me if you need any help.`;
         } else if (currentPath.includes('/signup')) {
-          greeting = `Welcome to the signup page. Please fill in your details to create your Prep-zer account. Don't forget to include your school or institute details for a more personalized experience.`;
+          greeting = `Welcome to the signup page. Please fill in your details to create your PREPZR account. Don't forget to include your school or institute details for a more personalized experience.`;
         } else if (currentPath.includes('/login')) {
-          greeting = `Welcome to the login page. Please enter your credentials to access your Prep-zer account.`;
+          greeting = `Welcome to the login page. Please enter your credentials to access your PREPZR account.`;
         } else {
           greeting = isFirstTimeUser 
-            ? `Welcome to Prep-zer, ${userName || 'there'}! I'm your voice assistant with an Indian accent. I can help you navigate the platform and provide study suggestions for your NEET preparation. Just click the microphone icon when you need me.`
+            ? `Welcome to PREPZR, ${userName || 'there'}! I'm your voice assistant with an Indian accent. I can help you navigate the platform and provide study suggestions for your NEET preparation. Just click the microphone icon when you need me.`
             : `Welcome back, ${userName || 'there'}! I'm here to help with your NEET studies today. Click the microphone if you need assistance.`;
         }
         
