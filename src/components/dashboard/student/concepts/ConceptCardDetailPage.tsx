@@ -1,616 +1,586 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import useVoiceAnnouncer from '@/hooks/useVoiceAnnouncer';
-import {
-  BookOpen,
-  ArrowRight,
-  Star,
-  Clock,
-  BrainCircuit,
-  Tag,
-  CheckCircle,
-  FileText,
-  Brain,
-  Link,
-  Volume2,
-  Layers,
-  BarChart3
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
+import { 
+  Headphones, 
+  Book, 
+  Zap, 
+  FileText, 
+  BarChart2, 
+  Link as LinkIcon,
+  Info
 } from "lucide-react";
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MoodType } from '@/types/user/base';
+import { motion } from 'framer-motion';
+import { ConceptCard } from '@/types/user/conceptCard';
 
-interface ConceptCardDetailPageProps {}
+interface ConceptAnalytics {
+  mastery: number;
+  recall: number;
+  attemptsHistory: { date: string; score: number }[];
+  timeSpent: number;
+  weakPoints: string[];
+  strongPoints: string[];
+  recommendedRevision: string[];
+}
 
-const ConceptCardDetailPage: React.FC<ConceptCardDetailPageProps> = () => {
+const ConceptCardDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { speakMessage, isSpeaking } = useVoiceAnnouncer();
+  const { speakMessage, isSpeaking, toggleMute } = useVoiceAnnouncer();
   
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [concept, setConcept] = useState<ConceptCard | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [notes, setNotes] = useState<string>("");
+  const [linkedConcepts, setLinkedConcepts] = useState<ConceptCard[]>([]);
+  const [activeTab, setActiveTab] = useState("content");
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+
+  const [analytics, setAnalytics] = useState<ConceptAnalytics>({
+    mastery: 75,
+    recall: 68,
+    attemptsHistory: [
+      { date: "2025-05-02", score: 65 },
+      { date: "2025-05-09", score: 72 },
+      { date: "2025-05-15", score: 75 }
+    ],
+    timeSpent: 120, // minutes
+    weakPoints: ["Reaction mechanisms", "Nomenclature rules"],
+    strongPoints: ["Basic principles", "Element properties"],
+    recommendedRevision: ["Review nomenclature", "Practice reaction balancing"]
+  });
   
-  // Mock concept data - in a real app, you would fetch this from your API
-  const conceptData = {
-    id: conceptId || 'default',
-    title: 'Newton\'s Third Law of Motion',
-    description: 'Newton\'s third law of motion states that for every action, there is an equal and opposite reaction. This means that if object A exerts a force on object B, then object B exerts an equal but opposite force on object A. These forces act simultaneously and are equal in magnitude but opposite in direction. This principle is fundamental to understanding interaction forces between objects and is the basis for many phenomena we observe in daily life, from walking to rocket propulsion. The mathematical expression is often written as F_AB = -F_BA, where F_AB is the force exerted by object A on object B, and F_BA is the force exerted by object B on object A.',
-    subject: 'Physics',
-    chapter: 'Laws of Motion',
-    topic: 'Newton\'s Laws',
-    difficulty: 'medium',
-    completed: true,
-    progress: 85,
-    mastery: 72,
-    timeEstimate: '25 min',
-    tags: ['forces', 'mechanics', 'fundamental'],
-    isBookmarked: true,
-    relatedConcepts: [
-      { id: 'concept1', title: 'Newton\'s First Law' },
-      { id: 'concept2', title: 'Newton\'s Second Law' },
-      { id: 'concept3', title: 'Conservation of Momentum' },
-    ],
-    content: `
-      <h2>What is Newton's Third Law?</h2>
-      <p>Newton's third law states that for every action force, there exists an equal and opposite reaction force.</p>
+  useEffect(() => {
+    console.log("ConceptCardDetailPage - Loading concept with ID:", conceptId);
+    
+    // Simulate fetching the concept data
+    setLoading(true);
+    setTimeout(() => {
+      // Mock data for demonstration
+      const mockConcept: ConceptCard = {
+        id: conceptId || "concept-1",
+        title: "Organic Chemistry Fundamentals",
+        description: "This concept covers the foundational principles of organic chemistry including carbon bonding, functional groups, and basic reaction mechanisms. Understanding these principles is crucial for advanced topics in chemistry.",
+        subject: "Chemistry",
+        chapter: "Organic Chemistry",
+        topic: "Chemical Bonding",
+        difficulty: "medium",
+        progress: 75,
+        completed: false,
+        content: `
+          <h2>Introduction to Organic Chemistry</h2>
+          <p>Organic chemistry is the study of carbon compounds. Carbon atoms can form stable covalent bonds with other carbon atoms and with atoms of other elements like hydrogen, oxygen, nitrogen, sulfur, and halogens.</p>
+          
+          <h2>Key Concepts</h2>
+          <ul>
+            <li>Carbon atoms form four covalent bonds</li>
+            <li>Carbon can form single, double, or triple bonds</li>
+            <li>Functional groups determine chemical properties</li>
+            <li>Stereochemistry affects biological activity</li>
+          </ul>
+          
+          <h2>Functional Groups</h2>
+          <p>Functional groups are specific groups of atoms within molecules that are responsible for the chemical reactions of those molecules. Common functional groups include:</p>
+          <ul>
+            <li>Alcohols (-OH)</li>
+            <li>Aldehydes (-CHO)</li>
+            <li>Ketones (-CO-)</li>
+            <li>Carboxylic acids (-COOH)</li>
+            <li>Amines (-NH2)</li>
+          </ul>
+        `,
+        examples: [
+          "Methane (CH4) is the simplest organic compound",
+          "Ethanol (C2H5OH) contains the alcohol functional group",
+          "Acetic acid (CH3COOH) contains the carboxylic acid group"
+        ],
+        commonMistakes: [
+          "Confusing structural isomers with stereoisomers",
+          "Incorrectly identifying functional groups",
+          "Forgetting to account for resonance structures"
+        ],
+        examRelevance: "High - appears in 75% of chemistry exams as fundamental knowledge",
+        relatedConcepts: ["Isomerism", "Reaction Mechanisms", "Biochemistry Basics"]
+      };
       
-      <h3>Mathematical Representation</h3>
-      <p>F_AB = -F_BA</p>
+      setConcept(mockConcept);
       
-      <h3>Key Points</h3>
-      <ul>
-        <li>Forces always occur in pairs</li>
-        <li>The forces are equal in magnitude</li>
-        <li>The forces act in opposite directions</li>
-        <li>The forces act on different objects</li>
-      </ul>
+      // Mock linked concepts
+      const mockLinkedConcepts: ConceptCard[] = [
+        {
+          id: "concept-2",
+          title: "Isomerism in Organic Chemistry",
+          description: "Understanding different types of isomers and their properties",
+          subject: "Chemistry",
+          difficulty: "hard",
+          progress: 60
+        },
+        {
+          id: "concept-3",
+          title: "Reaction Mechanisms",
+          description: "Step-by-step processes of chemical reactions",
+          subject: "Chemistry",
+          difficulty: "hard",
+          progress: 45
+        },
+        {
+          id: "concept-4",
+          title: "Biochemistry Basics",
+          description: "Chemical processes in living organisms",
+          subject: "Chemistry",
+          difficulty: "medium",
+          progress: 80
+        }
+      ];
       
-      <h3>Examples</h3>
-      <p>When you push against a wall, the wall pushes back with the same force. This is why you don't pass through the wall, and this is also why the wall doesn't move (assuming it's fixed firmly to the ground).</p>
-      <p>Rocket propulsion: The rocket expels gas backward (action), and the gas pushes the rocket forward (reaction).</p>
-    `,
-    examples: [
-      'Walking: You push the ground backward, the ground pushes you forward.',
-      'Swimming: You push water backward, water pushes you forward.',
-      'Rocket propulsion: Gases are expelled backward, rocket moves forward.',
-    ],
-    commonMistakes: [
-      'Thinking that the "reaction" force acts on the same object as the "action" force.',
-      'Assuming the forces "cancel each other out" (they act on different bodies).',
-      'Confusing Newton's Third Law with Newton's First Law (inertia).',
-    ],
-    examRelevance: 'High - Frequently appears in multiple-choice and problem-solving questions. Often combined with Free Body Diagrams.',
-    recallAccuracy: 72,
-    quizScore: 3.5,
-    lastPracticed: '2023-04-12',
-    timeSuggestion: 30,
-    flashcardsTotal: 12,
-    flashcardsCompleted: 8,
-    examReady: false,
-    formulas: [
-      { id: 'f1', name: 'F_AB = -F_BA', description: 'Force of A on B equals negative of force of B on A' },
-      { id: 'f2', name: 'p = mv', description: 'Momentum equals mass times velocity' },
-    ],
-    notes: [
-      {
-        id: 'note1',
-        title: 'Action-Reaction Pairs',
-        content: 'Remember that action-reaction pairs always act on different objects! This is crucial for solving problems.'
-      },
-      {
-        id: 'note2',
-        title: 'Free Body Diagrams',
-        content: 'When drawing FBDs, include all forces acting ON the object, not forces that the object exerts on other objects.'
+      setLinkedConcepts(mockLinkedConcepts);
+      
+      // Load saved notes if any
+      const savedNotes = localStorage.getItem(`notes-${conceptId}`);
+      if (savedNotes) {
+        setNotes(savedNotes);
       }
-    ]
+      
+      setLoading(false);
+      
+      toast({
+        title: "Concept loaded",
+        description: "Study materials are ready for you",
+      });
+    }, 1000);
+  }, [conceptId, toast]);
+  
+  const handleSaveNotes = () => {
+    localStorage.setItem(`notes-${conceptId}`, notes);
+    toast({
+      title: "Notes saved",
+      description: "Your notes have been saved successfully",
+    });
   };
   
-  const attemptHistory = [
-    { date: '2023-02-15', score: 65 },
-    { date: '2023-03-01', score: 70 },
-    { date: '2023-03-15', score: 68 },
-    { date: '2023-04-01', score: 75 },
-    { date: '2023-04-15', score: 72 },
-  ];
-  
-  // Read aloud functionality
-  const handleReadAloud = (text: string) => {
+  const handleReadAloud = () => {
+    if (!concept) return;
+    
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
-    } else {
-      speakMessage(text);
+      toggleMute(true); // Stop speaking
+      toast({
+        title: "Reading stopped",
+        description: "Voice reading has been stopped",
+      });
+      return;
     }
     
+    const textToRead = `${concept.title}. ${concept.description} ${extractTextFromHTML(concept.content || '')}`;
+    speakMessage(textToRead);
+    
     toast({
-      title: isSpeaking ? "Stopped reading" : "Reading aloud",
-      description: isSpeaking ? "Text-to-speech has been stopped" : "Now reading the concept content",
-    });
-  };
-
-  // Handle navigation to related content
-  const handleNavigateToFlashcards = () => {
-    navigate(`/dashboard/student/flashcard/${conceptId}`);
-    toast({
-      title: "Flashcards opened",
-      description: "Loading interactive flashcards for this concept",
-    });
-  };
-
-  const handleNavigateToExam = () => {
-    navigate(`/dashboard/student/practice-exam/${conceptId}`);
-    toast({
-      title: "Practice exam loaded",
-      description: "Preparing practice questions for this concept",
+      title: "Reading aloud",
+      description: "Voice assistant is reading the content",
     });
   };
   
-  const handleNavigateToRelatedConcept = (id: string) => {
+  const extractTextFromHTML = (html: string): string => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || '';
+  };
+  
+  const handlePracticeExam = () => {
+    navigate(`/dashboard/student/practice-exam?topic=${concept?.topic}`);
+    toast({
+      title: "Practice exam",
+      description: "Loading practice exam for this concept",
+    });
+  };
+  
+  const handleFlashcards = () => {
+    navigate(`/dashboard/student/flashcards?topic=${concept?.topic}`);
+    toast({
+      title: "Flashcards",
+      description: "Loading flashcards for this concept",
+    });
+  };
+  
+  const handleLinkedConcept = (id: string) => {
     navigate(`/dashboard/student/concepts/${id}`);
-    toast({
-      title: "Loading related concept",
-      description: "Navigating to linked concept",
-    });
   };
-
-  const handleAddNote = () => {
-    toast({
-      title: "Note added",
-      description: "Your note has been saved to this concept",
-    });
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'hard':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+  
+  const getDifficultyColor = (difficulty: string): string => {
+    switch (difficulty.toLowerCase()) {
+      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-blue-100 text-blue-800 border-blue-200';
     }
   };
-
-  const getMasteryColor = (mastery: number) => {
-    if (mastery >= 80) return 'bg-gradient-to-r from-emerald-500 to-green-600';
-    if (mastery >= 60) return 'bg-gradient-to-r from-yellow-400 to-amber-500';
-    if (mastery >= 40) return 'bg-gradient-to-r from-blue-400 to-blue-600';
-    return 'bg-gradient-to-r from-gray-400 to-gray-500';
+  
+  const getMasteryBadgeColor = (mastery: number): string => {
+    if (mastery >= 80) return 'bg-green-100 text-green-800 border-green-200';
+    if (mastery >= 60) return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (mastery >= 40) return 'bg-amber-100 text-amber-800 border-amber-200';
+    return 'bg-red-100 text-red-800 border-red-200';
   };
   
+  const getMasteryLabel = (mastery: number): string => {
+    if (mastery >= 80) return 'Excellent';
+    if (mastery >= 60) return 'Good';
+    if (mastery >= 40) return 'Moderate';
+    return 'Needs work';
+  };
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[80vh]">
+        <div className="text-center animate-pulse">
+          <h2 className="text-2xl font-semibold text-primary">Loading Concept</h2>
+          <p className="text-muted-foreground mt-2">Please wait while we prepare your study materials...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!concept) {
+    return (
+      <div className="flex items-center justify-center h-[80vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-red-600">Concept Not Found</h2>
+          <p className="text-muted-foreground mt-2">The requested concept could not be found</p>
+          <Button 
+            variant="outline" 
+            className="mt-4" 
+            onClick={() => navigate('/dashboard/student/concepts')}
+          >
+            Back to Concepts
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <SharedPageLayout
-      title="Concept Detail"
-      subtitle="Master and practice this concept"
-      showBackButton={true}
-      backButtonUrl="/dashboard/student/concepts"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main content - takes 2/3 of the page on large screens */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Concept header */}
-          <Card className="border border-gray-200 dark:border-gray-800 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 pb-2">
-              <div className="flex justify-between items-start">
-                <Badge variant="outline" className={`${getDifficultyColor(conceptData.difficulty)} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
-                  {conceptData.difficulty}
-                </Badge>
-                {conceptData.isBookmarked && (
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                )}
-              </div>
-              
-              <div className="flex items-center justify-between mt-2">
-                <CardTitle className="text-2xl font-bold">{conceptData.title}</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="flex items-center gap-1"
-                  onClick={() => handleReadAloud(conceptData.description)}
-                >
-                  <Volume2 className="h-4 w-4" />
-                  {isSpeaking ? 'Stop Reading' : 'Read Aloud'}
-                </Button>
-              </div>
-              
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 font-normal rounded-md">
-                  {conceptData.subject}
-                </Badge>
-                <Badge variant="outline" className="font-normal rounded-md bg-gray-50 dark:bg-gray-800">
-                  {conceptData.chapter}
-                </Badge>
-                <Badge variant="outline" className="font-normal rounded-md bg-gray-50 dark:bg-gray-800">
-                  {conceptData.topic}
-                </Badge>
-                {conceptData.tags.map((tag, i) => (
-                  <Badge key={i} variant="outline" className="font-normal rounded-md flex items-center gap-1 bg-gray-50 dark:bg-gray-800">
-                    <Tag className="h-3 w-3" />
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </CardHeader>
-            
-            <CardContent className="pt-4">
-              <p className={`text-gray-700 dark:text-gray-300 ${!showFullDescription ? 'line-clamp-3' : ''}`}>
-                {conceptData.description}
-              </p>
-              {conceptData.description.length > 150 && (
-                <Button 
-                  variant="link" 
-                  onClick={() => setShowFullDescription(!showFullDescription)} 
-                  className="p-0 h-auto text-indigo-600 dark:text-indigo-400"
-                >
-                  {showFullDescription ? 'Show less' : 'Read more'}
-                </Button>
-              )}
-            </CardContent>
-            
-            <CardFooter className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4">
-              <Button 
-                variant="default" 
-                className="flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800"
-                onClick={handleNavigateToFlashcards}
-              >
-                <FileText className="h-4 w-4" />
-                <span className="font-medium">Flashcards</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex justify-between items-center"
-                onClick={handleNavigateToExam}
-              >
-                <Brain className="h-4 w-4" />
-                <span className="font-medium">Practice Exam</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex justify-between items-center"
-                onClick={handleAddNote}
-              >
-                <BookOpen className="h-4 w-4" />
-                <span className="font-medium">Add Note</span>
-                <CheckCircle className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="secondary"
-                className="flex justify-between items-center bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800"
-              >
-                <BrainCircuit className="h-4 w-4" />
-                <span className="font-medium">Self Test</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start mb-6 gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="outline" className={`${getDifficultyColor(concept.difficulty)} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
+              {concept.difficulty}
+            </Badge>
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-3 py-1 text-xs font-semibold">
+              {concept.subject}
+            </Badge>
+            {concept.chapter && (
+              <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 rounded-full px-3 py-1 text-xs font-semibold">
+                {concept.chapter}
+              </Badge>
+            )}
+          </div>
+          <h1 className="text-3xl font-bold mb-2">{concept.title}</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{concept.description}</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mt-2 lg:mt-0">
+          <Button 
+            onClick={handleReadAloud}
+            variant="outline" 
+            className="flex items-center gap-2 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+          >
+            <Headphones className="h-4 w-4" />
+            {isSpeaking ? 'Stop Reading' : 'Read Aloud'}
+          </Button>
           
-          {/* Tabs for different content */}
-          <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="content">Study Content</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="practice">Practice</TabsTrigger>
+          <Button 
+            onClick={handleSaveNotes}
+            variant="outline" 
+            className="flex items-center gap-2 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            <Book className="h-4 w-4" />
+            Save Notes
+          </Button>
+        </div>
+      </div>
+      
+      {/* Progress tracking */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm font-medium mb-1">
+          <span>Progress</span>
+          <span className="text-indigo-600 dark:text-indigo-400">{concept.progress || 0}%</span>
+        </div>
+        <Progress 
+          value={concept.progress || 0} 
+          className="h-2 bg-gray-100 dark:bg-gray-800" 
+          indicatorClassName={
+            (concept.progress || 0) >= 80 ? "bg-gradient-to-r from-green-400 to-green-500" :
+            (concept.progress || 0) >= 40 ? "bg-gradient-to-r from-blue-400 to-blue-500" :
+            "bg-gradient-to-r from-amber-400 to-amber-500"
+          }
+        />
+      </div>
+      
+      {/* Main content grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column - Main content */}
+        <div className="lg:col-span-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="content">Content</TabsTrigger>
+              <TabsTrigger value="notes">My Notes</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="space-y-6">
+            <TabsContent value="content" className="space-y-4">
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Concept Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="prose dark:prose-invert max-w-none">
-                  <div dangerouslySetInnerHTML={{ __html: conceptData.content }} />
+                <CardContent className="pt-6">
+                  <div 
+                    className="prose dark:prose-invert max-w-none" 
+                    dangerouslySetInnerHTML={{ __html: concept.content || 'No content available' }} 
+                  />
                   
-                  <h3 className="text-lg font-semibold mt-4">Key Examples</h3>
-                  <ul className="space-y-2">
-                    {conceptData.examples.map((example, i) => (
-                      <li key={i} className="text-gray-700 dark:text-gray-300">{example}</li>
-                    ))}
-                  </ul>
-                  
-                  <h3 className="text-lg font-semibold mt-4">Common Mistakes</h3>
-                  <ul className="space-y-2">
-                    {conceptData.commonMistakes.map((mistake, i) => (
-                      <li key={i} className="text-gray-700 dark:text-gray-300">{mistake}</li>
-                    ))}
-                  </ul>
-                  
-                  <h3 className="text-lg font-semibold mt-4">Exam Relevance</h3>
-                  <p className="text-gray-700 dark:text-gray-300">{conceptData.examRelevance}</p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="content" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Detailed Content</CardTitle>
-                </CardHeader>
-                <CardContent className="prose dark:prose-invert max-w-none">
-                  <div dangerouslySetInnerHTML={{ __html: conceptData.content }} />
-                  
-                  <h3 className="text-lg font-semibold mt-4">Formulas</h3>
-                  <div className="space-y-3">
-                    {conceptData.formulas.map((formula) => (
-                      <div key={formula.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                        <div className="font-mono text-lg">{formula.name}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{formula.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full" variant="outline" onClick={() => handleReadAloud(conceptData.content)}>
-                    <Volume2 className="mr-2 h-4 w-4" />
-                    {isSpeaking ? 'Stop Reading' : 'Read Aloud Content'}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notes" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-lg">Personal Notes</CardTitle>
-                  <Button size="sm" variant="outline" onClick={handleAddNote}>
-                    Add Note
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {conceptData.notes.length > 0 ? (
-                    <div className="space-y-4">
-                      {conceptData.notes.map(note => (
-                        <div key={note.id} className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800/50">
-                          <h4 className="font-semibold">{note.title}</h4>
-                          <p className="mt-1 text-gray-600 dark:text-gray-400">{note.content}</p>
-                          <div className="mt-2 flex justify-end gap-2">
-                            <Button size="sm" variant="ghost">Edit</Button>
-                            <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">Delete</Button>
-                          </div>
-                        </div>
-                      ))}
+                  {concept.examples && concept.examples.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="text-xl font-semibold mb-4">Examples</h3>
+                      <ul className="list-disc pl-5 space-y-2">
+                        {concept.examples.map((example, index) => (
+                          <li key={index} className="text-gray-700 dark:text-gray-300">{example}</li>
+                        ))}
+                      </ul>
                     </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                      <p>You haven't added any notes for this concept yet.</p>
-                      <Button variant="link" onClick={handleAddNote}>Add your first note</Button>
+                  )}
+                  
+                  {concept.commonMistakes && concept.commonMistakes.length > 0 && (
+                    <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <h3 className="text-xl font-semibold mb-4 text-amber-800 dark:text-amber-300">Common Mistakes to Avoid</h3>
+                      <ul className="list-disc pl-5 space-y-2">
+                        {concept.commonMistakes.map((mistake, index) => (
+                          <li key={index} className="text-amber-700 dark:text-amber-300">{mistake}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {concept.examRelevance && (
+                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <h3 className="text-xl font-semibold mb-2 text-blue-800 dark:text-blue-300">Exam Relevance</h3>
+                      <p className="text-blue-700 dark:text-blue-300">{concept.examRelevance}</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
             
-            <TabsContent value="practice" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Interactive Flashcards</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 dark:text-gray-400">Practice with {conceptData.flashcardsCompleted}/{conceptData.flashcardsTotal} flashcards for this concept.</p>
-                    <Progress 
-                      value={(conceptData.flashcardsCompleted / conceptData.flashcardsTotal) * 100} 
-                      className="h-2 mt-4" 
-                    />
-                  </CardContent>
-                  <CardFooter>
-                    <Button onClick={handleNavigateToFlashcards} className="w-full">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Start Flashcards
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Practice Exam</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Test your knowledge with targeted questions about this concept.
+            <TabsContent value="notes">
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Study Notes</CardTitle>
+                  <CardDescription>
+                    Take personal notes on this concept. Your notes are automatically saved when you click "Save Notes".
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea 
+                    ref={notesRef}
+                    placeholder="Write your notes here..." 
+                    className="min-h-[300px] p-4" 
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                  />
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button onClick={handleSaveNotes} className="bg-emerald-600 hover:bg-emerald-700">
+                    Save Notes
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="analytics">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Learning Analytics</CardTitle>
+                  <CardDescription>
+                    Track your progress and understanding of this concept
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="p-4">
+                      <div className="text-2xl font-bold text-center mb-1">{analytics.mastery}%</div>
+                      <div className="text-sm text-center text-muted-foreground">Mastery Level</div>
+                      <Badge className={`${getMasteryBadgeColor(analytics.mastery)} mt-2 mx-auto block w-fit`}>
+                        {getMasteryLabel(analytics.mastery)}
+                      </Badge>
+                    </Card>
+                    
+                    <Card className="p-4">
+                      <div className="text-2xl font-bold text-center mb-1">{analytics.recall}%</div>
+                      <div className="text-sm text-center text-muted-foreground">Recall Strength</div>
+                      <Badge className={`${getMasteryBadgeColor(analytics.recall)} mt-2 mx-auto block w-fit`}>
+                        {getMasteryLabel(analytics.recall)}
+                      </Badge>
+                    </Card>
+                    
+                    <Card className="p-4">
+                      <div className="text-2xl font-bold text-center mb-1">{analytics.attemptsHistory.length}</div>
+                      <div className="text-sm text-center text-muted-foreground">Practice Attempts</div>
+                      <Badge className="bg-blue-100 text-blue-800 border-blue-200 mt-2 mx-auto block w-fit">
+                        Last: {analytics.attemptsHistory[analytics.attemptsHistory.length - 1]?.date}
+                      </Badge>
+                    </Card>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Study Time</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      You've spent <span className="font-medium text-primary">{analytics.timeSpent} minutes</span> studying this concept
                     </p>
-                    <div className="mt-4 text-sm">
-                      <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                          <Brain className="h-3.5 w-3.5" /> Mastery
-                        </span>
-                        <span className="text-indigo-600 dark:text-indigo-400">{conceptData.mastery}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${getMasteryColor(conceptData.mastery)} rounded-full`}
-                          style={{ width: `${conceptData.mastery}%` }}
-                        />
-                      </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">Weak Points</h3>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analytics.weakPoints.map((point, index) => (
+                          <li key={index} className="text-gray-700 dark:text-gray-300">{point}</li>
+                        ))}
+                      </ul>
                     </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button onClick={handleNavigateToExam} className="w-full">
-                      <Brain className="mr-2 h-4 w-4" />
-                      Start Practice Test
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-green-600 dark:text-green-400">Strong Points</h3>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analytics.strongPoints.map((point, index) => (
+                          <li key={index} className="text-gray-700 dark:text-gray-300">{point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="mt-6">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2">
+                    <Info className="h-5 w-5 text-blue-600" />
+                    AI Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Revision Suggestions</h3>
+                    <ul className="list-disc pl-5 space-y-2">
+                      {analytics.recommendedRevision.map((suggestion, index) => (
+                        <li key={index} className="text-blue-700 dark:text-blue-300">{suggestion}</li>
+                      ))}
+                    </ul>
+                    
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Weak Links Detected</h3>
+                      <p className="text-blue-700 dark:text-blue-300">
+                        Your understanding of reaction mechanisms seems to impact your performance in related concepts. 
+                        Focus on strengthening this fundamental knowledge to improve your overall performance.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
         
-        {/* Sidebar - takes 1/3 of the page on large screens */}
+        {/* Right column - Additional resources and related content */}
         <div className="space-y-6">
-          {/* Mastery and Performance Card */}
+          {/* Action buttons */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Mastery & Recall Tracker</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{conceptData.quizScore}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Exam Score (out of 5)</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{conceptData.recallAccuracy}%</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Recall Strength</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">45</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Avg. Time per MCQ (sec)</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">3</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Next Revision (days)</div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Attempt History</h4>
-                <div className="h-40 bg-gray-50 dark:bg-gray-800/50 rounded-md flex items-center justify-center">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Performance graph would appear here
-                  </div>
-                </div>
-                <p className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
-                  Showing quiz attempts over time
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Confidence Check</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  How confident are you with this concept?
-                </p>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Not at all</span>
-                  <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                    <div className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full w-3/4"></div>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Very confident</span>
-                </div>
-                <div className="mt-3 flex justify-end">
-                  <Button variant="outline" size="sm">Save Rating</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* AI Insights */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BrainCircuit className="h-5 w-5 text-indigo-500" />
-                AI Insights
-              </CardTitle>
+              <CardTitle>Study Resources</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium mb-2">Weak Link Detector</h4>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <li className="flex items-start gap-2">
-                    <span className="h-4 w-4 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 flex-shrink-0 flex items-center justify-center text-xs mt-0.5">!</span>
-                    <span>Understanding of balanced forces in real-world scenarios</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-4 w-4 rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400 flex-shrink-0 flex items-center justify-center text-xs mt-0.5">!</span>
-                    <span>Application of the concept in rotational motion</span>
-                  </li>
-                </ul>
-              </div>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200"
+                onClick={handleFlashcards}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Interactive Flashcards
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start bg-green-50 hover:bg-green-100 text-green-800 border-green-200"
+                onClick={handlePracticeExam}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Practice Exam
+              </Button>
+              
+              <Separator className="my-4" />
               
               <div>
-                <h4 className="text-sm font-medium mb-2">Suggested Revision Plan</h4>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Review the concept of balanced forces using everyday examples</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Practice more problems involving objects on inclined planes</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Topic-Level Analytics</h4>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Understanding of Core Concept</span>
-                      <span>75%</span>
-                    </div>
-                    <Progress value={75} className="h-1.5" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Application in Complex Problems</span>
-                      <span>60%</span>
-                    </div>
-                    <Progress value={60} className="h-1.5" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Memory Recall</span>
-                      <span>82%</span>
-                    </div>
-                    <Progress value={82} className="h-1.5" />
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                  <p className="text-sm text-center font-medium text-indigo-600 dark:text-indigo-400">
-                    You're in the top 30% for this concept!
-                  </p>
-                </div>
+                <h3 className="text-sm font-medium mb-3">Performance Analytics</h3>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-200"
+                  onClick={() => setActiveTab("analytics")}
+                >
+                  <BarChart2 className="h-4 w-4 mr-2" />
+                  View Detailed Analytics
+                </Button>
               </div>
             </CardContent>
           </Card>
           
-          {/* Related Concepts */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Link className="h-5 w-5 text-indigo-500" />
-                Related Concepts
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {conceptData.relatedConcepts.map((concept) => (
-                  <Button 
-                    key={concept.id}
-                    variant="outline" 
-                    className="w-full justify-start text-left h-auto py-3"
-                    onClick={() => handleNavigateToRelatedConcept(concept.id)}
-                  >
-                    <div>
-                      <div className="font-medium">{concept.title}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {conceptData.subject} • {conceptData.chapter}
+          {/* Linked concepts */}
+          {linkedConcepts.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Related Concepts</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {linkedConcepts.map((relatedConcept) => (
+                    <motion.div
+                      key={relatedConcept.id}
+                      whileHover={{ x: 5 }}
+                      className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                      onClick={() => handleLinkedConcept(relatedConcept.id)}
+                    >
+                      <div className="flex items-start gap-2">
+                        <LinkIcon className="h-4 w-4 mt-1 text-blue-500" />
+                        <div>
+                          <h4 className="font-medium text-sm">{relatedConcept.title}</h4>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{relatedConcept.description}</p>
+                          
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline" className={`${getDifficultyColor(relatedConcept.difficulty)} text-xs px-2 py-0.5`}>
+                              {relatedConcept.difficulty}
+                            </Badge>
+                            
+                            {relatedConcept.progress !== undefined && (
+                              <div className="text-xs text-muted-foreground">
+                                {relatedConcept.progress}% complete
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 ml-auto" />
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
-    </SharedPageLayout>
+    </div>
   );
 };
 
