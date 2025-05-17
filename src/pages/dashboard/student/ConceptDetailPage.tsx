@@ -1,539 +1,709 @@
 
 import React, { useState, useEffect } from 'react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Clock, BookOpen, Star, Calculator, Volume2, Video, FileText, BookOpen as BookIcon, Brain, Lightbulb, BarChart2, CheckCircle } from 'lucide-react';
+import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
-import { BookOpen, BookText, FileText, Play, BrainCircuit, Clock, ArrowRight, Star, CheckCircle, Volume2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SharedSectionLayout } from '@/components/dashboard/student/SharedSectionLayout';
 
-interface ConceptNote {
-  id: string;
-  content: string;
-  createdAt: string;
-}
-
-const ConceptDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
+const ConceptDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  // Start with the "learn" tab active by default
+  const [activeTab, setActiveTab] = useState('learn');
+  const [confidenceRating, setConfidenceRating] = useState<number>(0);
+  const [readAloudActive, setReadAloudActive] = useState(false);
+  
+  const { speakMessage, toggleMute, isVoiceSupported } = useVoiceAnnouncer({});
 
-  const [activeTab, setActiveTab] = useState('overview');
-  const [notes, setNotes] = useState<ConceptNote[]>([]);
-  const [newNote, setNewNote] = useState('');
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
-
-  // Fetch concept data based on ID
+  // In a real app, fetch concept details by ID from API
   // For now, we'll use mock data
-  const conceptData = {
-    id: conceptId || '1',
-    title: 'Newton\'s Laws of Motion',
-    subject: 'Physics',
-    difficulty: 'medium',
-    description: 'Newton\'s three laws of motion describe the relationship between the motion of an object and the forces acting on it. The first law states that an object will remain at rest or in uniform motion unless acted upon by an external force. The second law relates force, mass, and acceleration (F=ma). The third law states that for every action, there is an equal and opposite reaction.',
-    content: `
-      <h2>Newton's First Law of Motion</h2>
-      <p>Newton's first law states that an object will remain at rest or in a state of uniform motion unless acted upon by an external force. This property of objects to resist changes in motion is called inertia.</p>
-      
-      <h2>Newton's Second Law of Motion</h2>
-      <p>Newton's second law states that the force acting on an object is equal to the mass of the object multiplied by its acceleration (F=ma). This means that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
-      
-      <h2>Newton's Third Law of Motion</h2>
-      <p>Newton's third law states that for every action, there is an equal and opposite reaction. When one body exerts a force on another body, the second body exerts a force of equal magnitude and opposite direction on the first body.</p>
-      
-      <h2>Real-world Applications</h2>
-      <p>Newton's laws of motion have numerous applications in everyday life and engineering. They help us understand how objects move, why they stop moving, and how forces affect their behavior. Some examples include:</p>
-      <ul>
-        <li>Rocket propulsion (third law)</li>
-        <li>Car safety features like seat belts (first law)</li>
-        <li>Determining the force needed to move objects (second law)</li>
-      </ul>
-    `,
-    progress: 65,
-    mastery: 72,
-    timeEstimate: '45 min',
-    completed: false,
-    tags: ['Classical Mechanics', 'Forces', 'Motion'],
-    examScore: 3.5,
-    recallStrength: 72,
-    avgTimePerMCQ: 45,
-    nextRevisionDue: 3,
-    confidenceLevel: 65,
-    topicAnalytics: {
-      coreConcept: 75,
-      complexProblems: 60,
-      memoryRecall: 82,
-      topPercentile: 30
+  const concept = {
+    id: parseInt(id || "1"),
+    title: "Newton's Laws of Motion",
+    subject: "Physics",
+    chapter: "Mechanics",
+    description: "Understanding the fundamental principles of motion and forces in classical mechanics.",
+    status: "in-progress",
+    difficulty: "medium",
+    timeEstimate: 20,
+    mastery: 65,
+    priority: 1,
+    cardCount: 15,
+    isRecommended: true,
+    hasFormulas: true, // Flag to indicate if this concept has formulas
+    hasVideo: true,
+    has3dModel: true,
+    hasExamples: true,
+    hasPastExamQuestions: true,
+    examMistakes: [
+      "Forgetting to include units in the final answer",
+      "Confusing the First and Third Laws in application problems",
+      "Neglecting friction forces in calculations"
+    ],
+    content: {
+      summary: "Newton's three laws of motion describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics.",
+      keyPoints: [
+        "First Law (Law of Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
+        "Second Law: The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.",
+        "Third Law: For every action, there is an equal and opposite reaction."
+      ],
+      examples: [
+        "A book on a table remains at rest due to balanced forces (First Law).",
+        "Pushing a shopping cart - the acceleration depends on the force applied and the mass of the cart (Second Law).",
+        "A rocket expels gas backward, propelling itself forward (Third Law)."
+      ]
     },
-    weakLinks: [
-      'Understanding of balanced forces in real-world scenarios',
-      'Application of the concept in rotational motion'
+    aiInsights: "You seem to understand Newton's First Law well, but your recall of the mathematical forms of the Second Law could use some practice. Consider focusing on force calculation problems.",
+    videoUrl: "https://www.youtube.com/embed/mn34mnnDnKU",
+    pastExamQuestions: [
+      {
+        year: 2022,
+        question: "A 2 kg object is subjected to a force of 10 N. Calculate its acceleration.",
+        answer: "5 m/s²",
+        explanation: "Using Newton's Second Law: a = F/m = 10N/2kg = 5 m/s²"
+      },
+      {
+        year: 2021,
+        question: "Explain how Newton's Third Law applies when a person is standing on the ground.",
+        answer: "The person exerts a downward force on the ground due to their weight, and the ground exerts an equal upward force on the person, which keeps them from sinking into the ground."
+      }
     ],
-    revisionPlan: [
-      'Review the concept of balanced forces using everyday examples',
-      'Practice more problems involving objects on inclined planes'
-    ],
-    attemptHistory: [
-      { date: '2025-04-10', score: 45 },
-      { date: '2025-04-20', score: 62 },
-      { date: '2025-05-05', score: 72 },
-    ],
-    relatedConcepts: [
-      { id: '2', title: 'Conservation of Momentum', subject: 'Physics' },
-      { id: '3', title: 'Work-Energy Theorem', subject: 'Physics' },
-      { id: '4', title: 'Rotational Dynamics', subject: 'Physics' },
-    ],
-    relatedFlashcards: {
-      id: 'phys-newton-1',
-      title: 'Newton\'s Laws Flashcards',
-      count: 15
-    },
-    relatedExams: {
-      id: 'phys-exam-2',
-      title: 'Classical Mechanics Exam',
-      questionCount: 25
+    // New analytics data
+    analytics: {
+      examScore: 3.5,
+      totalExamScore: 5,
+      recallStrength: 72,
+      avgTimePerMCQ: 45,
+      nextRevisionDays: 3,
+      attemptHistory: [
+        { date: '2023-05-01', score: 60 },
+        { date: '2023-05-15', score: 65 },
+        { date: '2023-05-29', score: 72 }
+      ],
+      weakLinks: [
+        "Understanding of balanced forces in real-world scenarios",
+        "Application of the concept in rotational motion"
+      ],
+      revisionPlan: [
+        "Review the concept of balanced forces using everyday examples",
+        "Practice more problems involving objects on inclined planes"
+      ],
+      topicAnalytics: {
+        coreConcept: 75,
+        complexProblems: 60,
+        memoryRecall: 82
+      },
+      percentileRank: 30
     }
   };
 
-  // Initialize speech synthesis
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      setSpeechSynthesis(window.speechSynthesis);
-    }
-  }, []);
+  const handleBackToConcepts = () => {
+    navigate('/dashboard/student/concepts');
+  };
 
-  // Add a new note
-  const handleAddNote = () => {
-    if (newNote.trim()) {
-      const note: ConceptNote = {
-        id: Date.now().toString(),
-        content: newNote,
-        createdAt: new Date().toISOString(),
-      };
-      setNotes([...notes, note]);
-      setNewNote('');
+  const handleOpenFormulaLab = () => {
+    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
+  };
+
+  // Handle read aloud functionality
+  const toggleReadAloud = () => {
+    if (!isVoiceSupported) {
       toast({
-        title: "Note saved",
-        description: "Your note has been saved successfully",
+        title: "Text-to-Speech Not Supported",
+        description: "Your browser doesn't support text-to-speech functionality. Please try a different browser.",
+        variant: "destructive"
       });
-    }
-  };
-
-  // Delete a note
-  const handleDeleteNote = (id: string) => {
-    setNotes(notes.filter(note => note.id !== id));
-    toast({
-      title: "Note deleted",
-      description: "Your note has been removed",
-    });
-  };
-
-  // Read content aloud
-  const handleReadAloud = () => {
-    if (!speechSynthesis) return;
-
-    if (isSpeaking) {
-      speechSynthesis.cancel();
-      setIsSpeaking(false);
       return;
     }
-
-    // Extract text from HTML content
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = conceptData.content;
-    const textToSpeak = tempDiv.textContent || tempDiv.innerText || '';
-
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.onend = () => setIsSpeaking(false);
-    speechSynthesis.speak(utterance);
-    setIsSpeaking(true);
-
-    toast({
-      title: isSpeaking ? "Paused reading" : "Reading content aloud",
-      description: isSpeaking ? "Text-to-speech has been paused" : "Listening to content may help with retention",
-    });
+    
+    if (readAloudActive) {
+      // Stop reading
+      toggleMute(true);
+      setReadAloudActive(false);
+    } else {
+      // Start reading
+      setReadAloudActive(true);
+      
+      // Prepare the text to be read aloud
+      let textToRead = `${concept.title}. ${concept.description} ${concept.content.summary} `;
+      
+      // Add key points
+      textToRead += "Key points: ";
+      concept.content.keyPoints.forEach((point, index) => {
+        textToRead += `Point ${index + 1}: ${point} `;
+      });
+      
+      // Add examples
+      textToRead += "Examples: ";
+      concept.content.examples.forEach((example, index) => {
+        textToRead += `Example ${index + 1}: ${example} `;
+      });
+      
+      speakMessage(textToRead);
+      
+      // Auto turn off after content is read
+      setTimeout(() => {
+        setReadAloudActive(false);
+      }, textToRead.length * 50); // Rough estimate of reading time
+    }
   };
 
-  // Navigate to related concepts, flashcards, or exams
-  const navigateToFlashcards = () => {
-    navigate(`/dashboard/student/flashcards/${conceptData.relatedFlashcards.id}`);
+  // Update confidence rating
+  const handleConfidenceRating = (rating: number) => {
+    setConfidenceRating(rating);
+    
+    // Provide feedback based on confidence
+    let feedbackMessage = "";
+    if (rating <= 2) {
+      feedbackMessage = "It's okay to find this challenging. Let's focus on reviewing the basics first.";
+    } else if (rating <= 4) {
+      feedbackMessage = "You're making progress! Continue practicing with examples to build confidence.";
+    } else {
+      feedbackMessage = "Great confidence level! Try testing your knowledge with practice questions.";
+    }
+    
     toast({
-      title: "Loading flashcards",
-      description: `Opening ${conceptData.relatedFlashcards.title}`,
-    });
-  };
-
-  const navigateToPracticeExam = () => {
-    navigate(`/dashboard/student/practice-exam/${conceptData.relatedExams.id}/start`);
-    toast({
-      title: "Loading practice exam",
-      description: `Opening ${conceptData.relatedExams.title}`,
+      title: "Confidence Recorded",
+      description: feedbackMessage,
     });
   };
 
   return (
-    <SharedSectionLayout title={conceptData.title} subtitle={conceptData.subject}>
-      <div className="space-y-6">
-        {/* Header Section with Quick Actions */}
-        <div className="flex flex-col md:flex-row justify-between gap-4">
-          <div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300">
-                {conceptData.subject}
-              </Badge>
-              {conceptData.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300">
-                  {tag}
-                </Badge>
-              ))}
-              <Badge variant={conceptData.difficulty === 'easy' ? 'outline' : conceptData.difficulty === 'medium' ? 'secondary' : 'destructive'} className="capitalize">
-                {conceptData.difficulty}
-              </Badge>
-              {conceptData.completed && (
-                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> Completed
-                </Badge>
-              )}
+    <SharedPageLayout
+      title={concept.title}
+      subtitle={`${concept.subject} • ${concept.chapter}`}
+    >
+      <div className="mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          className="mb-4 flex items-center gap-1"
+          onClick={handleBackToConcepts}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Concepts</span>
+        </Button>
+
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-2xl">{concept.title}</CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={`p-2 rounded-full ${readAloudActive ? 'bg-blue-100 text-blue-700' : ''}`}
+                    onClick={toggleReadAloud}
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <CardDescription className="mt-1 flex flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+                    {concept.subject}
+                  </Badge>
+                  <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+                    {concept.chapter}
+                  </Badge>
+                  <Badge variant="outline" className={
+                    concept.difficulty === "easy"
+                      ? "bg-green-100 text-green-800 border-green-200"
+                      : concept.difficulty === "medium"
+                        ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                        : "bg-red-100 text-red-800 border-red-200"
+                  }>
+                    {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
+                  </Badge>
+                </CardDescription>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  <span>{concept.timeEstimate} min</span>
+                </div>
+                {concept.isRecommended && (
+                  <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200">
+                    <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
+                    Recommended
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-              onClick={handleReadAloud}
-            >
-              <Volume2 className={`h-4 w-4 ${isSpeaking ? 'text-primary animate-pulse' : ''}`} />
-              {isSpeaking ? 'Stop Reading' : 'Read Aloud'}
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">Progress</h3>
+              <div className="flex justify-between text-sm text-gray-500 mb-1">
+                <span>Mastery</span>
+                <span>{concept.mastery}%</span>
+              </div>
+              <Progress 
+                value={concept.mastery} 
+                className="h-2" 
+              />
+            </div>
+            <p className="text-muted-foreground">{concept.description}</p>
+          </CardContent>
+        </Card>
+
+        {/* New Analytics Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart2 className="h-5 w-5 text-blue-600" />
+              Mastery & Recall Tracker
+            </CardTitle>
+            <CardDescription>
+              Track your progress and performance with this concept
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Exam Score</div>
+                <div className="mt-1 flex justify-center items-baseline">
+                  <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">{concept.analytics.examScore}</span>
+                  <span className="text-lg text-gray-500 dark:text-gray-400">/{concept.analytics.totalExamScore}</span>
+                </div>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Recall Strength</div>
+                <div className="mt-1">
+                  <span className="text-2xl font-bold text-green-700 dark:text-green-400">{concept.analytics.recallStrength}%</span>
+                </div>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Time per MCQ</div>
+                <div className="mt-1">
+                  <span className="text-2xl font-bold text-purple-700 dark:text-purple-400">{concept.analytics.avgTimePerMCQ}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400"> sec</span>
+                </div>
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Next Revision</div>
+                <div className="mt-1">
+                  <span className="text-xl font-bold text-amber-700 dark:text-amber-400">Due in {concept.analytics.nextRevisionDays} days</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Attempt History */}
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Attempt History</h3>
+              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-4 h-40 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">Performance graph would appear here</p>
+                  <p className="text-xs text-gray-400 mt-2">Showing quiz attempts over time</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Topic-Level Analytics */}
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Topic-Level Analytics</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Understanding of Core Concept</span>
+                    <span>{concept.analytics.topicAnalytics.coreConcept}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.coreConcept} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Application in Complex Problems</span>
+                    <span>{concept.analytics.topicAnalytics.complexProblems}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.complexProblems} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Memory Recall</span>
+                    <span>{concept.analytics.topicAnalytics.memoryRecall}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.memoryRecall} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" /> 
+                  <span className="font-medium text-indigo-700 dark:text-indigo-300">
+                    You're in the top {concept.analytics.percentileRank}% for this concept!
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Confidence rating section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Confidence Check</CardTitle>
+            <CardDescription>How confident are you with this concept?</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col space-y-4">
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Button
+                    key={rating}
+                    variant={confidenceRating === rating ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleConfidenceRating(rating)}
+                    className="w-full"
+                  >
+                    {rating}
+                  </Button>
+                ))}
+              </div>
+              <div className="text-sm text-center text-gray-500">
+                {confidenceRating === 0 && "Select a confidence level"}
+                {confidenceRating === 1 && "Not at all"}
+                {confidenceRating === 2 && "Slightly confident"}
+                {confidenceRating === 3 && "Moderately confident"}
+                {confidenceRating === 4 && "Very confident"}
+                {confidenceRating === 5 && "Extremely confident"}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={confidenceRating === 0}
+                className="w-full md:w-auto md:self-end"
+              >
+                Save Rating
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Insights with Weak Link Detection */}
+        <Card className="mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-500" />
+              AI Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h3 className="font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-red-500 mr-1"></span>
+              Weak Link Detector
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300 mb-4">
+              {concept.analytics.weakLinks.map((weakLink, index) => (
+                <li key={index}>{weakLink}</li>
+              ))}
+            </ul>
+            
+            <h3 className="font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
+              <CheckCircle className="h-4 w-4" />
+              Suggested Revision Plan
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+              {concept.analytics.revisionPlan.map((plan, index) => (
+                <li key={index}>{plan}</li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter className="bg-gray-50 dark:bg-gray-800/50 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <Button variant="outline" size="sm" className="w-full">
+              Generate Custom Study Plan
             </Button>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-full md:w-auto grid grid-cols-3 md:grid-cols-4 gap-2">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab} 
+          className="space-y-4"
+        >
+          <TabsList className="w-full grid grid-cols-7">
+            <TabsTrigger value="learn">Learn</TabsTrigger>
+            <TabsTrigger value="visual">Visual</TabsTrigger>
+            <TabsTrigger value="video" className={concept.hasVideo ? "" : "hidden"}>
+              Video
             </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center gap-2">
-              <BookText className="h-4 w-4" />
-              <span className="hidden sm:inline">Notes</span>
+            <TabsTrigger value="formula" className={concept.hasFormulas ? "" : "hidden"}>
+              Formula Lab
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BrainCircuit className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
+            <TabsTrigger value="examples" className={concept.hasExamples ? "" : "hidden"}>
+              Examples
             </TabsTrigger>
-            <TabsTrigger value="practice" className="flex items-center gap-2">
-              <Play className="h-4 w-4" />
-              <span className="hidden sm:inline">Practice</span>
+            <TabsTrigger value="exam-questions" className={concept.hasPastExamQuestions ? "" : "hidden"}>
+              Past Exams
             </TabsTrigger>
+            <TabsTrigger value="test">Quick Test</TabsTrigger>
           </TabsList>
-
-          {/* Overview Tab Content */}
-          <TabsContent value="overview" className="space-y-6">
+          
+          {/* Learn Tab */}
+          <TabsContent value="learn" className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Concept Overview</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg">Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: conceptData.content }} />
+                <p>{concept.content.summary}</p>
+                
+                <h3 className="font-medium mt-4 mb-2">Key Points</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  {concept.content.keyPoints.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+                
+                <h3 className="font-medium mt-4 mb-2">Examples</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                  {concept.content.examples.map((example, index) => (
+                    <li key={index}>{example}</li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
             
-            {/* Related Concepts */}
+            {/* Common Mistakes Card */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Related Concepts</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg">Common Mistakes to Avoid</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {conceptData.relatedConcepts.map((concept) => (
-                    <Card key={concept.id} className="hover:shadow-md transition-all cursor-pointer" onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col gap-1">
-                          <h3 className="font-medium text-sm">{concept.title}</h3>
-                          <Badge variant="outline" className="w-fit text-xs">{concept.subject}</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
+                <ul className="list-disc pl-5 space-y-2">
+                  {concept.examMistakes.map((mistake, index) => (
+                    <li key={index} className="text-red-600 dark:text-red-400">{mistake}</li>
                   ))}
-                </div>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            {/* AI Insights Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-500" />
+                <CardTitle className="text-lg">AI Insights</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">{concept.aiInsights}</p>
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Notes Tab Content */}
-          <TabsContent value="notes" className="space-y-6">
+          
+          {/* Visual Tab */}
+          <TabsContent value="visual" className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Your Notes</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg">Visual Learning</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Textarea 
-                    placeholder="Add a new note about this concept..." 
-                    value={newNote} 
-                    onChange={(e) => setNewNote(e.target.value)}
-                    className="min-h-[100px] resize-y"
-                  />
-                  <Button onClick={handleAddNote}>Save Note</Button>
-                </div>
-                
-                <Separator className="my-4" />
-                
-                <div className="space-y-4">
-                  {notes.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-4">No notes yet. Add your first note above.</p>
-                  ) : (
-                    notes.map((note) => (
-                      <div key={note.id} className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
-                        <p className="text-sm mb-2">{note.content}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(note.createdAt).toLocaleDateString()}
-                          </span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-7 px-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => handleDeleteNote(note.id)}
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Interactive diagram placeholder */}
+                  <div className="rounded-lg bg-slate-100 dark:bg-slate-800 h-80 flex items-center justify-center text-center p-4">
+                    <div>
+                      <h3 className="font-medium mb-2">Interactive Diagram</h3>
+                      <p className="text-sm text-gray-500">
+                        An interactive visual representation of Newton's Laws would be displayed here.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* 3D Model Viewer */}
+                  {concept.has3dModel && (
+                    <div>
+                      <h3 className="font-medium mb-2">3D Model</h3>
+                      <div className="rounded-lg bg-slate-100 dark:bg-slate-800 h-64 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="mx-auto w-16 h-16 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-2">
+                            <BookIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <p className="text-sm text-muted-foreground">3D model visualization would be displayed here</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-4"
+                            onClick={() => toast({
+                              title: "3D Model",
+                              description: "Loading 3D model viewer...",
+                            })}
                           >
-                            Delete
+                            View 3D Model
                           </Button>
                         </div>
                       </div>
-                    ))
+                    </div>
                   )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Analytics Tab Content */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center">
-                    <h3 className="text-muted-foreground text-sm mb-2">Exam Score</h3>
-                    <div className="text-3xl font-bold">{conceptData.examScore}</div>
-                    <div className="text-xs text-muted-foreground mt-1">/5</div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center">
-                    <h3 className="text-muted-foreground text-sm mb-2">Recall Strength</h3>
-                    <div className="text-3xl font-bold">{conceptData.recallStrength}%</div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center">
-                    <h3 className="text-muted-foreground text-sm mb-2">Avg. Time per MCQ</h3>
-                    <div className="text-3xl font-bold">{conceptData.avgTimePerMCQ}</div>
-                    <div className="text-xs text-muted-foreground mt-1">sec</div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center">
-                    <h3 className="text-muted-foreground text-sm mb-2">Next Revision</h3>
-                    <div className="text-3xl font-bold">Due in {conceptData.nextRevisionDue} days</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Attempt History */}
+          
+          {/* Video Tab */}
+          <TabsContent value="video" className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Attempt History</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Video className="h-5 w-5" />
+                  Video Explanation
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[200px] w-full bg-gray-50 dark:bg-gray-800/50 rounded-md flex items-center justify-center">
-                  <p className="text-muted-foreground">Performance graph would appear here</p>
+                <div className="aspect-video">
+                  <iframe
+                    src={concept.videoUrl}
+                    className="w-full h-full rounded-lg"
+                    title={`Video explanation of ${concept.title}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
                 </div>
-                <p className="text-xs text-center text-muted-foreground mt-2">Showing quiz attempts over time</p>
-              </CardContent>
-            </Card>
-            
-            {/* Confidence Check */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Confidence Check</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm">How confident are you with this concept?</p>
-                  
-                  <div className="space-y-2">
-                    <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full">
-                      <div 
-                        className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full"
-                        style={{ width: `${conceptData.confidenceLevel}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Not at all</span>
-                      <span>Very confident</span>
-                    </div>
-                  </div>
-                  
-                  <Button size="sm">Save Rating</Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* AI Insights */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">AI Insights</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Weak Link Detector</h3>
-                  <ul className="space-y-1">
-                    {conceptData.weakLinks.map((link, index) => (
-                      <li key={index} className="text-sm flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                        {link}
-                      </li>
-                    ))}
+                <div className="mt-4 space-y-2">
+                  <h3 className="font-medium">Video Notes</h3>
+                  <p className="text-sm text-muted-foreground">
+                    This video covers all three of Newton's Laws with helpful visualizations and real-world examples.
+                    Key timestamps:
+                  </p>
+                  <ul className="list-disc pl-5 text-sm">
+                    <li>00:14 - Introduction to Newton's Laws</li>
+                    <li>01:23 - First Law explained</li>
+                    <li>03:45 - Second Law and calculations</li>
+                    <li>05:32 - Third Law and examples</li>
                   </ul>
                 </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="font-medium mb-2">Suggested Revision Plan</h3>
-                  <ol className="space-y-1 list-decimal list-inside">
-                    {conceptData.revisionPlan.map((step, index) => (
-                      <li key={index} className="text-sm">{step}</li>
-                    ))}
-                  </ol>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="font-medium mb-3">Topic-Level Analytics</h3>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Understanding of Core Concept</span>
-                        <span className="text-indigo-600 dark:text-indigo-400">{conceptData.topicAnalytics.coreConcept}%</span>
-                      </div>
-                      <Progress value={conceptData.topicAnalytics.coreConcept} className="h-1.5" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Application in Complex Problems</span>
-                        <span className="text-indigo-600 dark:text-indigo-400">{conceptData.topicAnalytics.complexProblems}%</span>
-                      </div>
-                      <Progress value={conceptData.topicAnalytics.complexProblems} className="h-1.5" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Memory Recall</span>
-                        <span className="text-indigo-600 dark:text-indigo-400">{conceptData.topicAnalytics.memoryRecall}%</span>
-                      </div>
-                      <Progress value={conceptData.topicAnalytics.memoryRecall} className="h-1.5" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Formula Tab */}
+          <TabsContent value="formula" className="space-y-4">
+            <FormulaTabContent 
+              conceptId={id || '1'} 
+              conceptTitle={concept.title} 
+              handleOpenFormulaLab={handleOpenFormulaLab}
+            />
+          </TabsContent>
+          
+          {/* Examples Tab */}
+          <TabsContent value="examples" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Detailed Examples</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="border p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                    <h3 className="font-medium mb-2">Example 1: Inertia in Daily Life</h3>
+                    <p className="mb-3">
+                      When a bus suddenly accelerates, passengers feel a force pushing them backward. This is actually their bodies
+                      resisting the change in motion - demonstrating Newton's First Law of Inertia.
+                    </p>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <p className="text-sm font-medium">Analysis:</p>
+                      <p className="text-sm">The passengers' bodies want to remain at rest relative to their original position. When the bus accelerates forward, their bodies initially stay in place due to inertia, giving the sensation of being pushed backward.</p>
                     </div>
                   </div>
                   
-                  <div className="mt-4 text-center">
-                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 py-1 px-3">
-                      You're in the top {conceptData.topicAnalytics.topPercentile}% for this concept!
-                    </Badge>
+                  <div className="border p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
+                    <h3 className="font-medium mb-2">Example 2: Second Law Calculation</h3>
+                    <p className="mb-3">
+                      A soccer player kicks a 0.43 kg ball with a force of 25 N. Calculate the acceleration of the ball.
+                    </p>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <p className="text-sm font-medium">Solution:</p>
+                      <p className="text-sm">Using Newton's Second Law: F = ma</p>
+                      <p className="text-sm">Rearranging to find acceleration: a = F/m</p>
+                      <p className="text-sm">a = 25 N / 0.43 kg = 58.14 m/s²</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Practice Tab Content */}
-          <TabsContent value="practice" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="hover:shadow-md transition-all">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-full">
-                      <BookOpen className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                    </div>
-                    <h3 className="font-semibold">Interactive Flashcards</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Practice {conceptData.relatedFlashcards.count} flashcards on {conceptData.title}
-                    </p>
-                    <Button className="w-full" onClick={navigateToFlashcards}>
-                      Start Flashcards
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-md transition-all">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
-                      <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <h3 className="font-semibold">Practice Exam</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Take a {conceptData.relatedExams.questionCount}-question exam on {conceptData.title}
-                    </p>
-                    <Button className="w-full" onClick={navigateToPracticeExam}>
-                      Start Practice Exam
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
+          
+          {/* Past Exam Questions Tab */}
+          <TabsContent value="exam-questions" className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Quick Links</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Previous Years' Questions
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Button variant="outline" className="justify-start">
-                    <BookText className="mr-2 h-4 w-4" />
-                    Solve Example Problems
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <Play className="mr-2 h-4 w-4" />
-                    Watch Video Explanation
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <BrainCircuit className="mr-2 h-4 w-4" />
-                    Test Understanding
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Timed Challenge
-                  </Button>
+                <div className="space-y-6">
+                  {concept.pastExamQuestions.map((question, index) => (
+                    <div key={index} className="border p-4 rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-medium">{question.year} Exam Question</h3>
+                        <Badge>{question.year}</Badge>
+                      </div>
+                      <p className="my-3">{question.question}</p>
+                      
+                      <div className="mt-4">
+                        <details className="group">
+                          <summary className="flex items-center font-medium cursor-pointer list-none">
+                            <span className="flex-1">View Answer</span>
+                            <span className="transition group-open:rotate-180">
+                              <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </span>
+                          </summary>
+                          <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                            <p className="font-medium">Answer:</p>
+                            <p>{question.answer}</p>
+                            {question.explanation && (
+                              <div className="mt-2">
+                                <p className="font-medium">Explanation:</p>
+                                <p>{question.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        </details>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Quick Test Tab */}
+          <TabsContent value="test" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  Knowledge Assessment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">Test your understanding of {concept.title} with this quick assessment.</p>
+                <Button size="lg" className="w-full">Start Quick Test</Button>
+                
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="font-medium mb-2">Recall Practice</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Try to recall and write down the key points about this concept before checking your answers.</p>
+                  <div className="border rounded-lg p-4">
+                    <textarea 
+                      className="w-full h-32 p-3 border rounded-lg" 
+                      placeholder="Write what you remember about Newton's Laws of Motion..."
+                    />
+                    <Button className="mt-3">Check My Recall</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </SharedSectionLayout>
+    </SharedPageLayout>
   );
 };
 
