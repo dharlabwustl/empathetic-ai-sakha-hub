@@ -1,474 +1,375 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
-  Tabs, TabsContent, TabsList, TabsTrigger 
-} from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { toast } from "@/hooks/use-toast";
-import { 
-  Sparkles, BookOpen, Brain, FlaskConical, PenLine, 
-  BookText, FileText, Play, BookMarked, BarChart3, 
-  ArrowLeft, Volume2, Save, Link, Clock, CheckCircle,
-  AlertCircle, ListChecks, Layers3, Lightbulb, Files, Bookmark
+  BookOpen, 
+  BookMarked, 
+  BarChart2, 
+  Lightbulb, 
+  File, 
+  VolumeX, 
+  Volume2, 
+  Link, 
+  PlaySquare, 
+  Layers, 
+  BrainCircuit, 
+  PencilLine, 
+  Bookmark, 
+  Star, 
+  CheckCircle, 
+  XCircle
 } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { useToast } from '@/hooks/use-toast';
-import { SharedPageLayout } from '../SharedPageLayout';
+import { Textarea } from "@/components/ui/textarea";
+import SharedPageLayout from '../SharedPageLayout';
+import { Separator } from '@/components/ui/separator';
+import { motion } from 'framer-motion';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-// Mock data for the concept detail
-const mockConcept = {
-  id: '1',
-  title: "Newton's Laws of Motion",
-  subject: "Physics",
-  topic: "Mechanics",
+// Mock data for concept details
+const CONCEPT_MOCK_DATA = {
+  id: 'concept-1',
+  title: 'Newton\'s Laws of Motion',
+  subject: 'Physics',
+  chapter: 'Mechanics',
+  difficulty: 'Medium',
+  essentialFor: ['NEET', 'JEE'],
+  masteryLevel: 68,
+  lastPracticed: '2023-05-12',
+  recallStrength: 72,
   content: `
-    <h2>Introduction to Newton's Laws of Motion</h2>
-    <p>Newton's laws of motion are fundamental principles that describe the relationship between an object and the forces acting upon it. These laws form the foundation of classical mechanics and are critical for understanding physical phenomena.</p>
+    <h2>First Law of Motion (Law of Inertia)</h2>
+    <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.</p>
+    <p>This property of objects to resist changes to their state of motion is called inertia.</p>
     
-    <h3>First Law: Law of Inertia</h3>
-    <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an external force.</p>
-    
-    <h3>Second Law: F = ma</h3>
-    <p>The acceleration of an object depends on the mass of the object and the force applied. This can be expressed as F = ma, where F is the force, m is the mass, and a is the acceleration.</p>
-    
-    <h3>Third Law: Action and Reaction</h3>
-    <p>For every action, there is an equal and opposite reaction. If object A exerts a force on object B, then object B exerts an equal and opposite force on object A.</p>
-    
-    <h2>Applications of Newton's Laws</h2>
-    <p>Newton's laws are applied in numerous scenarios from everyday situations to complex engineering problems:</p>
+    <h2>Second Law of Motion</h2>
+    <p>The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
+    <p>Mathematically: F = ma, where:</p>
     <ul>
-      <li>Automotive design and safety</li>
-      <li>Aerospace engineering</li>
-      <li>Sports performance analysis</li>
-      <li>Structural engineering</li>
-      <li>Biomechanics</li>
+      <li>F is the net force applied (in Newtons)</li>
+      <li>m is the mass of the object (in kilograms)</li>
+      <li>a is the acceleration (in meters per second squared)</li>
     </ul>
     
-    <h2>Common Misconceptions</h2>
-    <p>One common misconception is that a force is needed to keep an object in motion. According to the first law, once an object is in motion, it will continue in motion with the same speed and direction unless a force acts upon it.</p>
+    <h2>Third Law of Motion</h2>
+    <p>For every action, there is an equal and opposite reaction.</p>
+    <p>When one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.</p>
   `,
-  difficulty: "medium",
-  estimatedTime: "45 min",
-  tags: ["#Mechanics", "#Force", "#Motion"],
+  formulas: [
+    { id: 'f1', expression: 'F = ma', description: 'Net force equals mass times acceleration' },
+    { id: 'f2', expression: 'p = mv', description: 'Momentum equals mass times velocity' },
+    { id: 'f3', expression: 'F₁ = -F₂', description: 'Action and reaction forces are equal and opposite' }
+  ],
   relatedConcepts: [
-    { id: '2', title: 'Conservation of Momentum', subject: 'Physics' },
-    { id: '3', title: 'Work and Energy', subject: 'Physics' },
-    { id: '4', title: 'Circular Motion', subject: 'Physics' }
+    { id: 'concept-2', title: 'Conservation of Momentum' },
+    { id: 'concept-3', title: 'Friction' },
+    { id: 'concept-4', title: 'Circular Motion' },
   ],
   practiceExams: [
-    { id: 'e1', title: 'Newton\'s Laws Practice Test', questions: 15 },
-    { id: 'e2', title: 'Mechanics Fundamentals', questions: 20 }
+    { id: 'exam-1', title: 'Newton\'s Laws Basic Quiz', questions: 5, difficulty: 'Easy' },
+    { id: 'exam-2', title: 'Advanced Applications', questions: 10, difficulty: 'Hard' },
   ],
-  formulas: [
-    { id: 'f1', equation: 'F = ma', variables: [
-      { symbol: 'F', description: 'Force (N)' },
-      { symbol: 'm', description: 'Mass (kg)' },
-      { symbol: 'a', description: 'Acceleration (m/s²)' }
-    ]},
-    { id: 'f2', equation: 'W = F·d·cos(θ)', variables: [
-      { symbol: 'W', description: 'Work (J)' },
-      { symbol: 'F', description: 'Force (N)' },
-      { symbol: 'd', description: 'Distance (m)' },
-      { symbol: 'θ', description: 'Angle between force and displacement' }
-    ]},
-    { id: 'f3', equation: 'p = mv', variables: [
-      { symbol: 'p', description: 'Momentum (kg·m/s)' },
-      { symbol: 'm', description: 'Mass (kg)' },
-      { symbol: 'v', description: 'Velocity (m/s)' }
-    ]}
+  flashcards: [
+    { id: 'flash-1', front: 'State Newton\'s First Law of Motion', back: 'An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.' },
+    { id: 'flash-2', front: 'What is F = ma?', back: 'Newton\'s Second Law of Motion: The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.' },
   ],
-  studyStats: {
-    masteryLevel: 72,
-    studyTimeSpent: 210, // minutes
-    lastStudied: '2023-06-15',
-    attemptHistory: [
-      { date: '2023-06-10', score: 65, timeSpent: 45 },
-      { date: '2023-06-12', score: 70, timeSpent: 55 },
-      { date: '2023-06-15', score: 72, timeSpent: 40 }
+  performanceData: {
+    quizAttempts: [
+      { date: '2023-04-10', score: 60, timeSpent: '4:30' },
+      { date: '2023-04-25', score: 75, timeSpent: '3:45' },
+      { date: '2023-05-12', score: 85, timeSpent: '3:15' },
     ],
-    recallStrength: 68,
     weakAreas: [
-      { topic: 'Third Law Applications', confidence: 55 },
-      { topic: 'Force Calculations', confidence: 60 }
+      { topic: 'Applications of Third Law', confidence: 55 },
+      { topic: 'Complex Problems with Multiple Forces', confidence: 62 },
+    ],
+    strongAreas: [
+      { topic: 'Basic Definitions', confidence: 95 },
+      { topic: 'Simple Force Calculations', confidence: 88 },
+    ],
+    lastStudySession: '2023-05-12',
+    recommendedNextTopics: [
+      'Practice complex problems involving multiple forces',
+      'Review applications of Newton\'s Third Law in everyday situations'
     ]
   }
 };
 
-// Artificial Intelligence generated insights
-const aiInsights = {
-  strengths: [
-    "Strong understanding of First Law principles",
-    "Good grasp of basic equations and their applications"
-  ],
-  weaknesses: [
-    "Difficulty applying Third Law in complex scenarios",
-    "Need more practice with quantitative force problems"
-  ],
-  revisionSuggestions: [
-    "Review Third Law applications with vector diagrams",
-    "Practice force calculation problems with varying friction coefficients",
-    "Connect Newton's Second Law with circular motion concepts"
-  ],
-  learningRecommendations: [
-    "Try the interactive simulation 'Forces in Motion'",
-    "Watch Dr. Singh's video explanation of Third Law paradoxes",
-    "Solve problem set #42 in your question bank"
-  ]
-};
-
-const ConceptCardDetail = () => {
+const ConceptCardDetail: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [concept] = useState(mockConcept);
-  const [userNotes, setUserNotes] = useState(localStorage.getItem(`concept-notes-${conceptId}`) || '');
-  const [isReadingAloud, setIsReadingAloud] = useState(false);
-  const [activeTab, setActiveTab] = useState("content");
+  const { speakMessage, isSpeaking, toggleMute } = useVoiceAnnouncer();
+  
+  // States
+  const [concept, setConcept] = useState(CONCEPT_MOCK_DATA);
+  const [userNotes, setUserNotes] = useState<string>(localStorage.getItem(`concept-notes-${conceptId}`) || '');
+  const [isReadingAloud, setIsReadingAloud] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("content");
   const contentRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
-    // Log view event for analytics
-    console.log(`Viewing concept: ${conceptId}`);
+    // In a real app, fetch the concept data based on conceptId
+    console.log(`Loading concept with ID: ${conceptId}`);
     
-    // Fetch concept data here in a real app
-    
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
-    
-    // Set up voice speaking ended listener
-    const handleSpeakingEnded = () => {
-      setIsReadingAloud(false);
-    };
-    
-    document.addEventListener('voice-speaking-ended', handleSpeakingEnded);
-    
-    return () => {
-      // Clean up event listener
-      document.removeEventListener('voice-speaking-ended', handleSpeakingEnded);
-    };
+    // For now, we're using mock data
+    // In a real application, you would fetch data here
   }, [conceptId]);
-
+  
   // Save notes to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(`concept-notes-${conceptId}`, userNotes);
   }, [userNotes, conceptId]);
-
+  
   const handleBackClick = () => {
     navigate('/dashboard/student/concepts');
   };
-
+  
   const handleReadAloud = () => {
     if (isReadingAloud) {
-      // Cancel speech if already reading
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      toggleMute(true);
       setIsReadingAloud(false);
-      return;
-    }
-
-    // Extract text content from HTML
-    let textToRead = '';
-    if (contentRef.current) {
-      const textContent = contentRef.current.textContent || '';
-      textToRead = textContent.replace(/\s+/g, ' ').trim();
-    }
-
-    if (textToRead && 'speechSynthesis' in window) {
-      // Create utterance with proper PREPZR pronunciation (Prep-zer)
-      const correctedText = textToRead.replace(/PREPZR/gi, 'Prep-zer');
-      const utterance = new SpeechSynthesisUtterance(correctedText);
-      
-      // Use voices API to find an Indian female voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const indianFemaleVoice = voices.find(v => 
-        (v.name.includes('Indian') || v.lang === 'en-IN' || v.lang === 'hi-IN') && 
-        (v.name.toLowerCase().includes('female') || v.name.includes('Kalpana') || v.name.includes('Kajal'))
-      );
-      
-      if (indianFemaleVoice) {
-        utterance.voice = indianFemaleVoice;
-      }
-      
-      // Set properties
-      utterance.lang = 'en-IN';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
-      
-      utterance.onstart = () => {
-        setIsReadingAloud(true);
-      };
-      
-      utterance.onend = () => {
-        setIsReadingAloud(false);
-      };
-      
-      utterance.onerror = () => {
-        setIsReadingAloud(false);
-        toast({
-          title: "Read Aloud Error",
-          description: "There was a problem with the text-to-speech service.",
-          variant: "destructive"
-        });
-      };
-      
-      // Speak the message
-      window.speechSynthesis.speak(utterance);
-      
-      // Dispatch event to notify other components
-      document.dispatchEvent(new CustomEvent('voice-speaking-started', {
-        detail: { message: correctedText }
-      }));
     } else {
-      toast({
-        title: "Read Aloud Not Available",
-        description: "Text-to-speech is not supported in your browser or no content to read.",
-        variant: "destructive"
-      });
+      if (contentRef.current) {
+        const textToRead = contentRef.current.innerText;
+        speakMessage(`Reading ${concept.title}: ${textToRead}`);
+        setIsReadingAloud(true);
+        
+        // Set reading state to false when speech ends
+        document.addEventListener('voice-speaking-ended', () => {
+          setIsReadingAloud(false);
+        }, { once: true });
+      }
     }
   };
-
-  const handleSaveNotes = () => {
-    localStorage.setItem(`concept-notes-${conceptId}`, userNotes);
+  
+  const handleOpenFlashcards = () => {
     toast({
-      title: "Notes Saved",
-      description: "Your notes have been saved successfully.",
+      title: "Flashcards",
+      description: "Opening flashcard practice for this concept",
     });
+    // In a real app, this would navigate to a flashcards view or open a modal
   };
-
-  const handleRelatedConceptClick = (conceptId: string) => {
+  
+  const handleOpenPracticeExam = () => {
+    toast({
+      title: "Practice Exam",
+      description: "Starting a practice exam for this concept",
+    });
+    // In a real app, this would navigate to an exam view
+  };
+  
+  const handleLinkedConcepts = (conceptId: string) => {
     navigate(`/dashboard/student/concepts/card/${conceptId}`);
   };
 
-  const handlePracticeExamClick = (examId: string) => {
-    navigate(`/dashboard/student/practice/${examId}`);
-  };
-
-  const handleFlashcardsClick = () => {
-    navigate(`/dashboard/student/flashcards?concept=${conceptId}`);
-  };
-
-  // Determine mastery level color
-  const getMasteryLevelColor = (level: number) => {
-    if (level < 40) return 'bg-red-500';
-    if (level < 70) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
-
-  // Get difficulty badge class
-  const getDifficultyBadgeClass = (difficulty: string) => {
-    if (difficulty === "easy") return 'bg-green-100 text-green-800 hover:bg-green-200';
-    if (difficulty === "medium") return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
-    return 'bg-red-100 text-red-800 hover:bg-red-200';
-  };
-
+  const ExtraHeaderContent = () => (
+    <div className="flex items-center gap-2 mt-2 lg:mt-0">
+      <Button 
+        size="sm" 
+        variant={isReadingAloud ? "destructive" : "default"}
+        onClick={handleReadAloud}
+        className="flex items-center gap-1.5"
+      >
+        {isReadingAloud ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+      </Button>
+      
+      <Button variant="outline" size="sm" onClick={() => setActiveTab("notes")} className="flex items-center gap-1.5">
+        <PencilLine className="h-4 w-4" />
+        My Notes
+      </Button>
+    </div>
+  );
+  
   return (
     <SharedPageLayout
       title={concept.title}
-      subtitle={`${concept.subject} > ${concept.topic}`}
-      showBackButton
-      onBackClick={handleBackClick}
-      extraHeaderContent={
-        <div className="flex items-center gap-2 ml-auto">
-          <Button
-            size="sm"
-            variant={isReadingAloud ? "destructive" : "outline"}
-            className="flex items-center gap-1"
-            onClick={handleReadAloud}
-          >
-            <Volume2 size={16} />
-            {isReadingAloud ? "Stop Reading" : "Read Aloud"}
-          </Button>
-          
-          <Badge className={getDifficultyBadgeClass(concept.difficulty)}>
-            {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
-          </Badge>
-          
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Clock size={14} />
-            {concept.estimatedTime}
-          </Badge>
-        </div>
-      }
+      subtitle={`${concept.subject} > ${concept.chapter}`}
+      showBackButton={true}
+      extraHeaderContent={<ExtraHeaderContent />}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main content - takes 2/3 on large screens */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-xl font-semibold">Study Content</CardTitle>
-                <div className="flex items-center gap-2">
-                  {concept.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <CardDescription>
-                Master this concept with our comprehensive material
-              </CardDescription>
-            </CardHeader>
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-4 w-full">
-                <TabsTrigger value="content">
-                  <BookText className="h-4 w-4 mr-2" />
-                  Content
-                </TabsTrigger>
-                <TabsTrigger value="formulas">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Formulas
-                </TabsTrigger>
-                <TabsTrigger value="notes">
-                  <PenLine className="h-4 w-4 mr-2" />
-                  My Notes
-                </TabsTrigger>
-                <TabsTrigger value="analytics">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="content" className="mt-4">
-                <CardContent ref={contentRef}>
-                  <div className="prose prose-sm dark:prose-invert max-w-none" 
-                       dangerouslySetInnerHTML={{ __html: concept.content }} />
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="formulas" className="mt-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Main Content Area - 8 columns on large screens */}
+        <div className="lg:col-span-8 space-y-4">
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-5">
+              <TabsTrigger value="content" className="flex items-center gap-1.5">
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Content</span>
+              </TabsTrigger>
+              <TabsTrigger value="formulas" className="flex items-center gap-1.5">
+                <File className="h-4 w-4" />
+                <span className="hidden sm:inline">Formulas</span>
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="flex items-center gap-1.5">
+                <PencilLine className="h-4 w-4" />
+                <span className="hidden sm:inline">My Notes</span>
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex items-center gap-1.5">
+                <PlaySquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Practice</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-1.5">
+                <BarChart2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            {/* Content Tab */}
+            <TabsContent value="content" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Content</CardTitle>
+                  <CardDescription>
+                    Read and understand the concept. Use the Read Aloud feature for auditory learning.
+                  </CardDescription>
+                </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Key Formulas</h3>
-                    
-                    {concept.formulas.map((formula) => (
-                      <div key={formula.id} className="p-4 border rounded-md bg-muted/30">
-                        <div className="text-xl font-medium text-center my-2">
-                          {formula.equation}
-                        </div>
-                        <div className="text-sm mt-4">
-                          <h4 className="font-medium mb-2">Where:</h4>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {formula.variables.map((variable, index) => (
-                              <li key={index} className="flex items-start gap-1">
-                                <span className="font-medium">{variable.symbol}</span>
-                                <span>= {variable.description}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    <Button variant="outline" className="w-full mt-4">
-                      <Layers3 className="mr-2 h-4 w-4" />
-                      Open Formula Lab
-                    </Button>
-                  </div>
+                  <div 
+                    ref={contentRef} 
+                    className="prose dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: concept.content }} 
+                  />
                 </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="notes" className="mt-4">
+              </Card>
+            </TabsContent>
+            
+            {/* Formulas Tab */}
+            <TabsContent value="formulas" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Key Formulas</CardTitle>
+                  <CardDescription>
+                    Essential formulas related to {concept.title}
+                  </CardDescription>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">My Study Notes</h3>
-                    <Textarea
-                      placeholder="Take your personal notes on this concept here..."
-                      value={userNotes}
-                      onChange={(e) => setUserNotes(e.target.value)}
-                      className="min-h-[200px] w-full"
-                    />
-                    <div className="flex justify-end">
-                      <Button onClick={handleSaveNotes} className="flex items-center">
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Notes
-                      </Button>
-                    </div>
+                    {concept.formulas.map((formula) => (
+                      <div key={formula.id} className="border rounded-lg p-4">
+                        <div className="text-xl font-mono text-center mb-2">{formula.expression}</div>
+                        <p className="text-sm text-center text-muted-foreground">{formula.description}</p>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="analytics" className="mt-4">
+              </Card>
+            </TabsContent>
+            
+            {/* Notes Tab */}
+            <TabsContent value="notes" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Notes</CardTitle>
+                  <CardDescription>
+                    Take personal notes on this concept to enhance your understanding
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="Write your notes here..."
+                    value={userNotes}
+                    onChange={(e) => setUserNotes(e.target.value)}
+                    className="min-h-[300px] font-mono text-sm"
+                  />
+                  <div className="mt-4 text-sm text-muted-foreground">
+                    Notes are automatically saved as you type
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Practice Tab */}
+            <TabsContent value="practice" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Practice Resources</CardTitle>
+                  <CardDescription>
+                    Reinforce your understanding with these practice resources
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className="border border-primary/20 hover:border-primary/60 transition-colors">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Flashcards</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pb-2">
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {concept.flashcards.length} flashcards available for quick recall practice
+                        </p>
+                        <Button onClick={handleOpenFlashcards} className="w-full">
+                          Start Flashcard Practice
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border border-primary/20 hover:border-primary/60 transition-colors">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Practice Exams</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pb-2">
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {concept.practiceExams.length} quizzes available to test your knowledge
+                        </p>
+                        <Button onClick={handleOpenPracticeExam} className="w-full">
+                          Take Practice Exam
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Analytics Tab */}
+            <TabsContent value="analytics" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Analytics</CardTitle>
+                  <CardDescription>
+                    Track your progress and mastery of this concept
+                  </CardDescription>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Learning Analytics</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card className="bg-muted/30">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">Mastery Level</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold">{concept.studyStats.masteryLevel}%</div>
-                          <Progress 
-                            value={concept.studyStats.masteryLevel} 
-                            className={`h-2 mt-2 ${getMasteryLevelColor(concept.studyStats.masteryLevel)}`} 
-                          />
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="bg-muted/30">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">Recall Strength</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold">{concept.studyStats.recallStrength}%</div>
-                          <Progress 
-                            value={concept.studyStats.recallStrength} 
-                            className={`h-2 mt-2 ${getMasteryLevelColor(concept.studyStats.recallStrength)}`} 
-                          />
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="bg-muted/30">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">Study Time</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold">{Math.round(concept.studyStats.studyTimeSpent / 60)} hrs</div>
-                          <p className="text-sm text-muted-foreground">Last studied: {concept.studyStats.lastStudied}</p>
-                        </CardContent>
-                      </Card>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium">Mastery Level</h3>
+                        <span className="text-lg font-bold">{concept.masteryLevel}%</span>
+                      </div>
+                      <Progress value={concept.masteryLevel} className="h-2" />
                     </div>
                     
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium">Recall Strength</h3>
+                        <span className="text-lg font-bold">{concept.recallStrength}%</span>
+                      </div>
+                      <Progress value={concept.recallStrength} className="h-2" />
+                    </div>
+                    
+                    <Separator />
+                    
                     <div>
-                      <h4 className="font-medium mb-2">Attempt History</h4>
+                      <h3 className="font-medium mb-2">Quiz Attempts</h3>
                       <div className="space-y-2">
-                        {concept.studyStats.attemptHistory.map((attempt, i) => (
-                          <div key={i} className="flex items-center justify-between p-2 border rounded-md">
+                        {concept.performanceData.quizAttempts.map((attempt, index) => (
+                          <div key={index} className="flex justify-between items-center bg-muted/50 p-2 rounded">
                             <span>{attempt.date}</span>
                             <div className="flex items-center gap-4">
-                              <span className="text-sm">
-                                <Clock className="inline mr-1 h-3 w-3" />
-                                {attempt.timeSpent} min
-                              </span>
-                              <span className="font-medium">{attempt.score}%</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2">Areas for Improvement</h4>
-                      <div className="space-y-2">
-                        {concept.studyStats.weakAreas.map((area, i) => (
-                          <div key={i} className="flex items-center justify-between p-2 border rounded-md">
-                            <span>{area.topic}</span>
-                            <div className="flex items-center gap-2">
-                              <Progress 
-                                value={area.confidence} 
-                                className={`h-2 w-20 ${getMasteryLevelColor(area.confidence)}`}
-                              />
-                              <span>{area.confidence}%</span>
+                              <Badge variant={attempt.score >= 80 ? "success" : "default"}>
+                                {attempt.score}%
+                              </Badge>
+                              <span className="text-sm text-muted-foreground">{attempt.timeSpent}</span>
                             </div>
                           </div>
                         ))}
@@ -476,197 +377,124 @@ const ConceptCardDetail = () => {
                     </div>
                   </div>
                 </CardContent>
-              </TabsContent>
-            </Tabs>
-          </Card>
-          
-          {/* AI Insights Card */}
-          <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/40 dark:to-blue-950/30 border-purple-200 dark:border-purple-900">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-500" />
-                AI Insights & Suggestions
-              </CardTitle>
-              <CardDescription>
-                Personalized recommendations based on your learning patterns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2 flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4 text-green-500" /> Your Strengths
-                  </h4>
-                  <ul className="text-sm space-y-1">
-                    {aiInsights.strengths.map((strength, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-green-500">•</span>
-                        {strength}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <h4 className="font-medium mt-4 mb-2 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4 text-amber-500" /> Areas to Improve
-                  </h4>
-                  <ul className="text-sm space-y-1">
-                    {aiInsights.weaknesses.map((weakness, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-amber-500">•</span>
-                        {weakness}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2 flex items-center gap-1">
-                    <ListChecks className="h-4 w-4 text-blue-500" /> Revision Suggestions
-                  </h4>
-                  <ul className="text-sm space-y-1">
-                    {aiInsights.revisionSuggestions.map((suggestion, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-blue-500">•</span>
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <h4 className="font-medium mt-4 mb-2 flex items-center gap-1">
-                    <Lightbulb className="h-4 w-4 text-purple-500" /> Recommendations
-                  </h4>
-                  <ul className="text-sm space-y-1">
-                    {aiInsights.learningRecommendations.map((recommendation, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-purple-500">•</span>
-                        {recommendation}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
         
-        {/* Sidebar content - takes 1/3 on large screens */}
-        <div className="space-y-6">
-          {/* Related Study Materials */}
-          <Card>
+        {/* Sidebar - 4 columns on large screens */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* Mastery Card */}
+          <Card className="border-l-4 border-l-primary">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Study Tools</CardTitle>
-              <CardDescription>
-                Resources to enhance your learning
-              </CardDescription>
+              <CardTitle className="text-lg flex justify-between items-center">
+                Concept Mastery
+                <Badge variant={concept.masteryLevel >= 80 ? "success" : "default"}>
+                  {concept.masteryLevel}%
+                </Badge>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={handleFlashcardsClick}
-              >
-                <Files className="mr-2 h-4 w-4" />
-                <span>Interactive Flashcards</span>
-              </Button>
-              
-              <Separator />
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Practice Exams</h4>
-                <div className="space-y-2">
-                  {concept.practiceExams.map(exam => (
-                    <Button 
-                      key={exam.id}
-                      variant="outline" 
-                      className="w-full justify-start"
-                      onClick={() => handlePracticeExamClick(exam.id)}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      <div className="flex justify-between items-center w-full">
-                        <span>{exam.title}</span>
-                        <Badge variant="secondary" className="text-xs">
-                          {exam.questions} Q
-                        </Badge>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Related Concepts</h4>
-                <div className="space-y-2">
-                  {concept.relatedConcepts.map(relatedConcept => (
-                    <Button 
-                      key={relatedConcept.id}
-                      variant="outline" 
-                      className="w-full justify-start"
-                      onClick={() => handleRelatedConceptClick(relatedConcept.id)}
-                    >
-                      <Link className="mr-2 h-4 w-4" />
-                      <div className="flex justify-between items-center w-full">
-                        <span>{relatedConcept.title}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {relatedConcept.subject}
-                        </Badge>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
+            <CardContent>
+              <Progress value={concept.masteryLevel} className="h-2 mb-4" />
+              <div className="text-sm">
+                Last studied: <span className="font-medium">{concept.lastPracticed}</span>
               </div>
             </CardContent>
           </Card>
           
-          {/* Quick Actions Card */}
+          {/* Related Concepts */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Related Concepts</CardTitle>
+            </CardHeader>
+            <CardContent className="pb-4">
+              <ScrollArea className="max-h-[200px]">
+                <div className="space-y-2">
+                  {concept.relatedConcepts.map((relatedConcept) => (
+                    <motion.button
+                      key={relatedConcept.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleLinkedConcepts(relatedConcept.id)}
+                      className="w-full flex items-center gap-2 p-2 hover:bg-muted rounded transition-colors text-left"
+                    >
+                      <Link className="h-4 w-4 flex-shrink-0" />
+                      <span>{relatedConcept.title}</span>
+                    </motion.button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+          
+          {/* AI Insights */}
+          <Card className="border-l-4 border-l-blue-400 dark:border-l-blue-600">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BrainCircuit className="h-5 w-5 text-blue-500" />
+                AI Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <h4 className="font-medium mb-2">Weak Areas Detected</h4>
+              <div className="space-y-2 mb-4">
+                {concept.performanceData.weakAreas.map((area, index) => (
+                  <div key={index} className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 p-2 rounded text-sm">
+                    <span>{area.topic}</span>
+                    <Badge variant="outline" className="bg-red-100 dark:bg-red-900/40">
+                      {area.confidence}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              
+              <h4 className="font-medium mb-2">Strengths</h4>
+              <div className="space-y-2 mb-4">
+                {concept.performanceData.strongAreas.map((area, index) => (
+                  <div key={index} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-2 rounded text-sm">
+                    <span>{area.topic}</span>
+                    <Badge variant="outline" className="bg-green-100 dark:bg-green-900/40">
+                      {area.confidence}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              
+              <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <Lightbulb className="h-4 w-4 text-blue-500" />
+                <AlertTitle>Recommended Focus</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc list-inside text-sm space-y-1">
+                    {concept.performanceData.recommendedNextTopics.map((topic, i) => (
+                      <li key={i}>{topic}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+          
+          {/* Quick Actions */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button 
-                variant="default" 
-                className="w-full"
-                onClick={handleReadAloud}
-              >
-                <Volume2 className="mr-2 h-4 w-4" />
-                {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+            <CardContent className="grid grid-cols-2 gap-2">
+              <Button variant="outline" size="sm" onClick={handleOpenFlashcards} className="flex items-center justify-center gap-1.5">
+                <Layers className="h-4 w-4" />
+                Flashcards
               </Button>
-              
-              <Button 
-                variant="secondary" 
-                className="w-full"
-                onClick={handleFlashcardsClick}
-              >
-                <Brain className="mr-2 h-4 w-4" />
-                Practice with Flashcards
+              <Button variant="outline" size="sm" onClick={handleOpenPracticeExam} className="flex items-center justify-center gap-1.5">
+                <PlaySquare className="h-4 w-4" />
+                Practice
               </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  navigate('/dashboard/student/concepts');
-                }}
-              >
-                <BookOpen className="mr-2 h-4 w-4" />
-                Browse All Concepts
+              <Button variant="outline" size="sm" onClick={handleReadAloud} className="flex items-center justify-center gap-1.5">
+                {isReadingAloud ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {isReadingAloud ? "Stop" : "Read"}
               </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  // Toggle bookmark functionality here
-                  toast({
-                    title: "Concept Bookmarked",
-                    description: "Added to your saved concepts"
-                  });
-                }}
-              >
-                <Bookmark className="mr-2 h-4 w-4" />
-                Save for Later
+              <Button variant="outline" size="sm" onClick={() => setActiveTab("notes")} className="flex items-center justify-center gap-1.5">
+                <PencilLine className="h-4 w-4" />
+                Notes
               </Button>
             </CardContent>
           </Card>

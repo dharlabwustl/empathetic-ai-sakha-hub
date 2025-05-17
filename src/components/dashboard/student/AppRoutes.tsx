@@ -1,49 +1,91 @@
 
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import DashboardOverview from "./DashboardOverview";
-import TodaysPlanView from "./todays-plan/TodaysPlanView";
-import StudyPlanView from "./studyplan/StudyPlanView";
-import ConceptsView from "./concepts/ConceptsView";
-import ConceptCardDetailPage from "@/components/dashboard/student/concepts/ConceptCardDetailPage";
-import FlashcardsView from "./flashcards/FlashcardsView";
-import NotificationsView from "./notifications/NotificationsView";
-import PracticeExamsView from "./practice-exam/PracticeExamsView";
-import FeelGoodCorner from "./feel-good-corner/FeelGoodCorner";
-import AcademicAdvisorView from "./academic/AcademicAdvisorView";
-import ConceptCardDetail from "./concept-cards/ConceptCardDetail";
-import FormulaLabPage from "@/pages/dashboard/student/formula-lab/FormulaLabPage";
-import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
-import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
-import AnalyticsDashboard from "@/components/dashboard/student/analytics/AnalyticsDashboard";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { UserRole } from "@/types/user/base";
-import ConceptStudyPage from "./concepts/ConceptStudyPage";
+import React, { lazy, Suspense } from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import LoadingScreen from '@/components/common/LoadingScreen';
+import DashboardWrapper from './DashboardWrapper';
+import ConceptStudyPage from './concepts/ConceptStudyPage';
+import ConceptCardDetailPage from '@/pages/dashboard/student/ConceptCardDetailPage';
+
+// Lazy load routes for better performance
+const DashboardOverview = lazy(() => import('@/pages/dashboard/student/DashboardPage'));
+const ConceptsPage = lazy(() => import('@/pages/dashboard/student/ConceptsPage'));
+const PracticePage = lazy(() => import('@/pages/dashboard/student/PracticeExamPage'));
+const StudyPlanPage = lazy(() => import('@/pages/dashboard/student/StudyPlanPage'));
+const ProfilePage = lazy(() => import('@/pages/dashboard/student/ProfilePage'));
+const AnalyticsPage = lazy(() => import('@/pages/dashboard/student/AnalyticsPage'));
+const TodaysPlanPage = lazy(() => import('@/pages/dashboard/student/TodaysPlanPage'));
+const FlashcardsPage = lazy(() => import('@/pages/dashboard/student/FlashcardsPage'));
+const NotificationsPage = lazy(() => import('@/pages/dashboard/student/NotificationsPage'));
+const FeelGoodCornerPage = lazy(() => import('@/pages/dashboard/student/FeelGoodCornerPage'));
+const StudyGroups = lazy(() => import('@/pages/dashboard/student/StudyGroupsPage'));
 
 const AppRoutes: React.FC = () => {
-  const { userProfile } = useUserProfile(UserRole.Student);
-  const kpis = []; // Define your KPIs here or fetch them
-  
   return (
     <Routes>
-      <Route path="/" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
-      <Route path="/today" element={<TodaysPlanView />} />
-      <Route path="/plan" element={<StudyPlanView />} />
-      <Route path="/concepts" element={<ConceptsView />} />
-      <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-      <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
-      <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
-      <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
-      <Route path="/flashcards" element={<FlashcardsView />} />
-      <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
-      <Route path="/notifications" element={<NotificationsView />} />
-      <Route path="/practice-exam" element={<PracticeExamsView />} />
-      <Route path="/feel-good-corner" element={<FeelGoodCorner />} />
-      <Route path="/academic" element={<AcademicAdvisorView userProfile={userProfile} />} />
-      <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
-      <Route path="/formula-practice" element={<FormulaPracticePage />} />
-      <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
-      <Route path="/analytics" element={<AnalyticsDashboard />} />
+      <Route path="/" element={<DashboardWrapper />}>
+        <Route index element={
+          <Suspense fallback={<LoadingScreen />}>
+            <DashboardOverview />
+          </Suspense>
+        } />
+        <Route path="concepts" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <ConceptsPage />
+          </Suspense>
+        } />
+        <Route path="concepts/:conceptId" element={<ConceptStudyPage />} />
+        <Route path="concepts/card/:conceptId" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <ConceptCardDetailPage />
+          </Suspense>
+        } />
+        <Route path="practice" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <PracticePage />
+          </Suspense>
+        } />
+        <Route path="study-plan" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <StudyPlanPage />
+          </Suspense>
+        } />
+        <Route path="profile" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <ProfilePage />
+          </Suspense>
+        } />
+        <Route path="analytics" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <AnalyticsPage />
+          </Suspense>
+        } />
+        <Route path="todays-plan" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <TodaysPlanPage />
+          </Suspense>
+        } />
+        <Route path="flashcards" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <FlashcardsPage />
+          </Suspense>
+        } />
+        <Route path="notifications" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <NotificationsPage />
+          </Suspense>
+        } />
+        <Route path="feel-good-corner" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <FeelGoodCornerPage />
+          </Suspense>
+        } />
+        <Route path="study-groups" element={
+          <Suspense fallback={<LoadingScreen />}>
+            <StudyGroups />
+          </Suspense>
+        } />
+        <Route path="*" element={<Navigate to="/dashboard/student" replace />} />
+      </Route>
     </Routes>
   );
 };

@@ -1,69 +1,66 @@
 
-import React from 'react';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types/user/base';
+import React, { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ChevronLeft } from 'lucide-react';
 
-interface SharedPageLayoutProps {
+export interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  activeTab?: string;
-  children: React.ReactNode;
-  backButtonUrl?: string;
+  children: ReactNode;
   showBackButton?: boolean;
-  hideSidebar?: boolean;
-  hideTabsNav?: boolean;
-  showQuickAccess?: boolean;
+  onBackClick?: () => void;
+  extraHeaderContent?: ReactNode;
 }
 
-export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
+const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
   children,
-  backButtonUrl = '/dashboard/student',
-  showBackButton = true,
-  hideSidebar = false
+  showBackButton = false,
+  onBackClick,
+  extraHeaderContent
 }) => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  
-  if (loading || !userProfile) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Content to display within the shared page layout
   return (
-    <div className="flex-1 p-4 sm:p-6 space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
-        </div>
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full"
+      >
+        <header className="mb-6">
+          <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div className="flex items-start gap-4">
+              {showBackButton && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onBackClick} 
+                  className="mt-1 hover:bg-muted"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+              )}
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold">{title}</h1>
+                {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+              </div>
+            </div>
+            {extraHeaderContent && (
+              <div className="flex flex-wrap items-center gap-2">
+                {extraHeaderContent}
+              </div>
+            )}
+          </div>
+        </header>
         
-        {showBackButton && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(backButtonUrl)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Button>
-        )}
-      </div>
-      
-      {/* Main Content */}
-      {children}
+        <main>
+          {children}
+        </main>
+      </motion.div>
     </div>
   );
 };
+
+export default SharedPageLayout;
