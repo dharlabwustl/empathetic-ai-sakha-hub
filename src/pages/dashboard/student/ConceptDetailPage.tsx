@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, BookOpen, Star, Calculator, Volume2, Video, FileText, BookOpen as BookIcon, Brain, Lightbulb } from 'lucide-react';
+import { ArrowLeft, Clock, BookOpen, Star, Calculator, Volume2, Video, FileText, BookOpen as BookIcon, Brain, Lightbulb, BarChart2, CheckCircle } from 'lucide-react';
 import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { Progress } from '@/components/ui/progress';
@@ -75,7 +75,34 @@ const ConceptDetailPage = () => {
         question: "Explain how Newton's Third Law applies when a person is standing on the ground.",
         answer: "The person exerts a downward force on the ground due to their weight, and the ground exerts an equal upward force on the person, which keeps them from sinking into the ground."
       }
-    ]
+    ],
+    // New analytics data
+    analytics: {
+      examScore: 3.5,
+      totalExamScore: 5,
+      recallStrength: 72,
+      avgTimePerMCQ: 45,
+      nextRevisionDays: 3,
+      attemptHistory: [
+        { date: '2023-05-01', score: 60 },
+        { date: '2023-05-15', score: 65 },
+        { date: '2023-05-29', score: 72 }
+      ],
+      weakLinks: [
+        "Understanding of balanced forces in real-world scenarios",
+        "Application of the concept in rotational motion"
+      ],
+      revisionPlan: [
+        "Review the concept of balanced forces using everyday examples",
+        "Practice more problems involving objects on inclined planes"
+      ],
+      topicAnalytics: {
+        coreConcept: 75,
+        complexProblems: 60,
+        memoryRecall: 82
+      },
+      percentileRank: 30
+    }
   };
 
   const handleBackToConcepts = () => {
@@ -228,14 +255,104 @@ const ConceptDetailPage = () => {
           </CardContent>
         </Card>
 
+        {/* New Analytics Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart2 className="h-5 w-5 text-blue-600" />
+              Mastery & Recall Tracker
+            </CardTitle>
+            <CardDescription>
+              Track your progress and performance with this concept
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Exam Score</div>
+                <div className="mt-1 flex justify-center items-baseline">
+                  <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">{concept.analytics.examScore}</span>
+                  <span className="text-lg text-gray-500 dark:text-gray-400">/{concept.analytics.totalExamScore}</span>
+                </div>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Recall Strength</div>
+                <div className="mt-1">
+                  <span className="text-2xl font-bold text-green-700 dark:text-green-400">{concept.analytics.recallStrength}%</span>
+                </div>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Time per MCQ</div>
+                <div className="mt-1">
+                  <span className="text-2xl font-bold text-purple-700 dark:text-purple-400">{concept.analytics.avgTimePerMCQ}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400"> sec</span>
+                </div>
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg text-center">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Next Revision</div>
+                <div className="mt-1">
+                  <span className="text-xl font-bold text-amber-700 dark:text-amber-400">Due in {concept.analytics.nextRevisionDays} days</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Attempt History */}
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Attempt History</h3>
+              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-4 h-40 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">Performance graph would appear here</p>
+                  <p className="text-xs text-gray-400 mt-2">Showing quiz attempts over time</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Topic-Level Analytics */}
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Topic-Level Analytics</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Understanding of Core Concept</span>
+                    <span>{concept.analytics.topicAnalytics.coreConcept}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.coreConcept} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Application in Complex Problems</span>
+                    <span>{concept.analytics.topicAnalytics.complexProblems}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.complexProblems} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Memory Recall</span>
+                    <span>{concept.analytics.topicAnalytics.memoryRecall}%</span>
+                  </div>
+                  <Progress value={concept.analytics.topicAnalytics.memoryRecall} className="h-2 bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" /> 
+                  <span className="font-medium text-indigo-700 dark:text-indigo-300">
+                    You're in the top {concept.analytics.percentileRank}% for this concept!
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Confidence rating section */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-lg">How confident are you about this concept?</CardTitle>
-            <CardDescription>Rate your confidence level to get personalized study recommendations</CardDescription>
+            <CardTitle className="text-lg">Confidence Check</CardTitle>
+            <CardDescription>How confident are you with this concept?</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col space-y-4">
               <div className="flex space-x-1">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <Button
@@ -243,21 +360,66 @@ const ConceptDetailPage = () => {
                     variant={confidenceRating === rating ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleConfidenceRating(rating)}
-                    className="w-10 h-10"
+                    className="w-full"
                   >
                     {rating}
                   </Button>
                 ))}
               </div>
-              <div className="text-sm text-gray-500">
-                {confidenceRating === 1 && "Not confident at all"}
+              <div className="text-sm text-center text-gray-500">
+                {confidenceRating === 0 && "Select a confidence level"}
+                {confidenceRating === 1 && "Not at all"}
                 {confidenceRating === 2 && "Slightly confident"}
                 {confidenceRating === 3 && "Moderately confident"}
                 {confidenceRating === 4 && "Very confident"}
                 {confidenceRating === 5 && "Extremely confident"}
               </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={confidenceRating === 0}
+                className="w-full md:w-auto md:self-end"
+              >
+                Save Rating
+              </Button>
             </div>
           </CardContent>
+        </Card>
+
+        {/* AI Insights with Weak Link Detection */}
+        <Card className="mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-500" />
+              AI Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h3 className="font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-red-500 mr-1"></span>
+              Weak Link Detector
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300 mb-4">
+              {concept.analytics.weakLinks.map((weakLink, index) => (
+                <li key={index}>{weakLink}</li>
+              ))}
+            </ul>
+            
+            <h3 className="font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
+              <CheckCircle className="h-4 w-4" />
+              Suggested Revision Plan
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+              {concept.analytics.revisionPlan.map((plan, index) => (
+                <li key={index}>{plan}</li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter className="bg-gray-50 dark:bg-gray-800/50 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <Button variant="outline" size="sm" className="w-full">
+              Generate Custom Study Plan
+            </Button>
+          </CardFooter>
         </Card>
 
         <Tabs 
