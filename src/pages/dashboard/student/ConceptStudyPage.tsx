@@ -10,10 +10,10 @@ const ConceptStudyPage: React.FC = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
+    console.log("Pages/ConceptStudyPage - Loading concept with ID:", conceptId);
     
     if (conceptId) {
-      // Navigate to the concept detail page
+      // Navigate to the correct path format
       navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({

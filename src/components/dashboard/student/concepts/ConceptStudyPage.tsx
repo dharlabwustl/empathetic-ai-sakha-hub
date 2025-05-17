@@ -13,7 +13,7 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
     
     if (conceptId) {
-      // Navigate to the concept detail page
+      // Navigate to the concept detail page with the correct route
       navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({

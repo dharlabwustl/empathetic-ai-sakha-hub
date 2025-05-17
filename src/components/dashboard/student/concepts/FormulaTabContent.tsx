@@ -15,8 +15,13 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   conceptTitle,
   handleOpenFormulaLab 
 }) => {
+  // Log that the component is mounted
+  React.useEffect(() => {
+    console.log("FormulaTabContent mounted for concept:", conceptId, conceptTitle);
+  }, [conceptId, conceptTitle]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <Card className="border dark:border-gray-700">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -34,24 +33,36 @@ import FormulaTabContent from './FormulaTabContent';
 import { ConceptCard as ConceptCardType } from '@/types/user/conceptCard';
 
 const ConceptCardDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
+  const { conceptId, id } = useParams<{ conceptId: string; id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { conceptCard, loading } = useConceptCardDetails(conceptId || '');
+  const effectiveId = conceptId || id; // Use conceptId if available, otherwise use id
+  
+  const { conceptCard, loading } = useConceptCardDetails(effectiveId || '');
   const [activeTab, setActiveTab] = useState('overview');
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const [showActions, setShowActions] = useState(false);
 
   useEffect(() => {
-    if (conceptId) {
-      console.log("Loading concept details for:", conceptId);
+    console.log("ConceptCardDetailPage - Loaded with conceptId:", conceptId, "or id:", id);
+    console.log("Current route path:", window.location.pathname);
+    console.log("Effective ID for fetching details:", effectiveId);
+    
+    if (!effectiveId) {
+      console.error("No concept ID found in URL parameters");
+      toast({
+        title: "Error",
+        description: "Couldn't load concept details - missing ID",
+        variant: "destructive",
+      });
+      navigate('/dashboard/student/concepts');
     }
     
     // Initialize bookmarked state if available in concept card
     if (conceptCard && 'bookmarked' in conceptCard) {
       setBookmarked(Boolean(conceptCard.bookmarked));
     }
-  }, [conceptId, conceptCard]);
+  }, [conceptId, id, navigate, toast, conceptCard, effectiveId]);
 
   const handleBackClick = () => {
     navigate(-1);
@@ -81,6 +92,9 @@ const ConceptCardDetailPage: React.FC = () => {
       description: "Opening interactive formula practice environment",
     });
     // You would navigate to the formula lab or open a modal here
+    if (effectiveId) {
+      navigate(`/dashboard/student/concepts/${effectiveId}/formula-lab`);
+    }
   };
 
   const difficultyColor = (difficulty: string) => {
@@ -192,7 +206,7 @@ const ConceptCardDetailPage: React.FC = () => {
 
   // Safe access to extended properties
   const extendedCard = conceptCard as any;
-  const timeSuggestion = extendedCard.timeSuggestion;
+  const timeSuggestion = extendedCard.timeSuggestion || conceptCard.estimatedTime;
   const examReady = extendedCard.examReady;
   const recallAccuracy = extendedCard.recallAccuracy;
   const lastPracticed = extendedCard.lastPracticed;
@@ -476,7 +490,16 @@ const ConceptCardDetailPage: React.FC = () => {
         </div>
       </Tabs>
 
-      {/* Footer - Next/Previous navigation could be added here if needed */}
+      {/* Add debug info that will be shown during development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-0 right-0 bg-black/80 text-white p-2 text-xs max-w-xs overflow-auto m-2 rounded">
+          <p>Route: {window.location.pathname}</p>
+          <p>conceptId: {conceptId}</p>
+          <p>id: {id}</p>
+          <p>effectiveId: {effectiveId}</p>
+          <p>cardId: {conceptCard.id}</p>
+        </div>
+      )}
     </div>
   );
 };
