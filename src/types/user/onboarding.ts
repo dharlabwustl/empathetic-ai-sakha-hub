@@ -8,6 +8,7 @@ export interface OnboardingData {
   location?: string;
   city?: string;
   educationLevel?: string;
+  institute?: string; // Added institute field
   examGoal?: string;
   examAppearingDate?: Date; // Added field for exam appearing date
   jobTitle?: string;

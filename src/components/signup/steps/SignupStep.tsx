@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,13 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 interface SignupStepProps {
-  onSubmit: (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => void;
+  onSubmit: (formValues: { 
+    name: string; 
+    mobile: string; 
+    otp: string; 
+    institute?: string;
+    agreeTerms: boolean 
+  }) => void;
   isLoading: boolean;
 }
 
@@ -21,6 +28,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     name: "",
     mobile: "",
     otp: "",
+    institute: "",
     agreeTerms: false
   });
   const [fact, setFact] = useState("");
@@ -98,6 +106,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       name: "Google User",
       mobile: "9999999999",
       otp: "verified", 
+      institute: onboardingData.institute || "",
       agreeTerms: true
     });
   };
@@ -150,6 +159,20 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             type="tel"
             className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
             placeholder="+91 9876543210"
+          />
+        </div>
+        
+        <div>
+          <div className="mb-2">
+            <Label htmlFor="institute">School / Institute <span className="text-sm text-muted-foreground">(Optional)</span></Label>
+          </div>
+          <Input 
+            id="institute" 
+            name="institute" 
+            value={formValues.institute} 
+            onChange={handleFormChange}
+            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+            placeholder="Your school or institute name"
           />
         </div>
         

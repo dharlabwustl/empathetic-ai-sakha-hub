@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +30,8 @@ const SignupContent = () => {
     setOnboardingData({ 
       ...onboardingData, 
       demographics: data,
-      targetExamDate: data.examDate // Save exam date specifically
+      targetExamDate: data.examDate, // Save exam date specifically
+      institute: data.institute // Save institute information
     });
     goToNextStep();
   };
@@ -71,15 +71,16 @@ const SignupContent = () => {
     goToNextStep();
   };
 
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; institute?: string; agreeTerms: boolean }) => {
     setIsLoading(true);
 
     try {
-      // Set name from form data
+      // Set name and other fields from form data
       const finalData = {
         ...onboardingData,
         name: formValues.name,
         mobile: formValues.mobile,
+        institute: formValues.institute || onboardingData.institute
       };
 
       setOnboardingData(finalData);
