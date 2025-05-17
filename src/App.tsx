@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -13,7 +14,7 @@ import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminLogin from '@/pages/auth/AdminLogin'; // Updated import path
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
@@ -84,6 +85,8 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
+              {/* Redirect old admin login routes to the new path */}
+              <Route path="/login/admin" element={<Navigate to="/admin/login" replace />} />
               <Route path="/register" element={<SignUp />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

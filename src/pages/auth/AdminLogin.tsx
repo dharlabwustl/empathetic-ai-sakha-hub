@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { Link } from "react-router-dom";
+import adminAuthService from "@/services/auth/adminAuthService";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -20,11 +21,10 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    // Check for direct localStorage value for more robust detection
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn) {
-      // Direct navigation - more reliable than React Router
+      // Direct navigation using window.location for more reliable redirect
       window.location.href = '/admin/dashboard';
     }
   }, []);
@@ -41,45 +41,24 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // For demo purposes accept any email containing "admin"
-      if (email.includes('admin') && password.length > 0) {
-        // Clear student login data first to avoid conflicts
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('new_user_signup');
-        
-        // Create admin user data
-        const adminUser = {
-          id: `admin_${Date.now()}`,
-          name: email.split('@')[0] || 'Admin User',
-          email: email,
-          role: "admin",
-          permissions: ['all']
-        };
-        
-        // Save admin data to localStorage with multiple flags for redundancy
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_user', JSON.stringify(adminUser));
-        localStorage.setItem('adminToken', `token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
-        
+      const response = await adminAuthService.adminLogin({ email, password });
+      
+      if (response.success) {
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // More reliable redirect with setTimeout
+        // Use setTimeout to ensure the redirect happens reliably
         setTimeout(() => {
           window.location.href = '/admin/dashboard';
         }, 500);
-        
-        return;
       } else {
-        throw new Error("Invalid admin credentials");
+        setLoginError(response.message || "Invalid admin credentials");
       }
     } catch (error) {
-      setLoginError("Invalid admin credentials. Email must contain 'admin'");
       console.error("Admin login error:", error);
+      setLoginError("Error during login. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +82,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-6">
           <Link to="/">

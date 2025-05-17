@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
+import adminAuthService from "@/services/auth/adminAuthService";
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
@@ -10,46 +10,31 @@ interface AdminRouteGuardProps {
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { toast } = useToast();
-  const { isAdminAuthenticated, adminLoading } = useAdminAuth();
-  const [isChecking, setIsChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkAdminAuth = () => {
-      // Direct localStorage check for better reliability
-      const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-      const hasAdminUser = !!localStorage.getItem('adminUser');
-      const hasAdminToken = !!localStorage.getItem('adminToken');
+    const checkAdminAuth = async () => {
+      // Use the service to check authentication
+      const isAdminAuthenticated = adminAuthService.isAuthenticated();
       
-      // Consider authenticated if admin_logged_in is true AND we have either user data or token
-      const authenticated = isAdminLoggedIn && (hasAdminUser || hasAdminToken);
-      
-      if (!authenticated) {
+      if (!isAdminAuthenticated) {
         console.log("Admin authentication failed, redirecting to login");
         toast({
           title: "Authentication required",
           description: "Please log in to access the admin area",
           variant: "destructive",
         });
-        
-        // Ensure redirection happens reliably
-        setTimeout(() => {
-          window.location.replace('/admin/login');
-        }, 100);
+        setIsAuthenticated(false);
       } else {
         console.log("Admin authentication successful");
+        setIsAuthenticated(true);
       }
-      
-      setIsChecking(false);
     };
     
-    // Check after adminLoading is complete
-    if (!adminLoading) {
-      checkAdminAuth();
-    }
-    
-  }, [toast, adminLoading]);
+    checkAdminAuth();
+  }, [toast]);
 
-  if (adminLoading || isChecking) {
+  if (isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-pulse text-center">
@@ -59,7 +44,7 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     );
   }
 
-  if (!isAdminAuthenticated) {
+  if (isAuthenticated === false) {
     return <Navigate to="/admin/login" replace />;
   }
 
