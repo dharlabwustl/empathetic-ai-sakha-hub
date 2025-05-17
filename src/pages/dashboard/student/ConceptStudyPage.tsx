@@ -14,8 +14,6 @@ const ConceptStudyPage: React.FC = () => {
     
     if (conceptId) {
       // Navigate to the correct detail page with consistent URL pattern
-      // This ensures any links to /dashboard/student/concepts/:conceptId will
-      // resolve correctly to the detail page
       navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({

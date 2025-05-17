@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface ConceptCard {
@@ -17,6 +16,7 @@ export interface ConceptCard {
   commonMistakes?: string[];
   examRelevance?: string;
   relatedConcepts?: string[];
+  notes?: string; // Added notes property
 }
 
 export const useUserStudyPlan = () => {
@@ -52,7 +52,8 @@ export const useUserStudyPlan = () => {
               "Not accounting for all forces acting on an object when applying the equation F = ma."
             ],
             examRelevance: "Newton's Second Law is a critical concept in physics and frequently appears in IIT-JEE exams. You may encounter problems involving multiple forces, inclined planes, pulleys, or connected objects where you'll need to apply this law.",
-            relatedConcepts: ["c4", "c7", "c12"]
+            relatedConcepts: ["c4", "c7", "c12"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c2',
@@ -77,7 +78,8 @@ export const useUserStudyPlan = () => {
               "Not understanding the relationship between cell structure and function."
             ],
             examRelevance: "Cell biology is fundamental to understanding more complex biological processes. In NEET/IIT-JEE, you'll encounter questions on organelles, cellular processes, and differences between plant and animal cells.",
-            relatedConcepts: ["c3", "c5", "c8"]
+            relatedConcepts: ["c3", "c5", "c8"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c3',
@@ -102,7 +104,8 @@ export const useUserStudyPlan = () => {
               "Not understanding exceptions to periodic trends (e.g., anomalies in Group 13)."
             ],
             examRelevance: "The periodic table is a cornerstone of chemistry in IIT-JEE. Questions often focus on periodic trends, comparing element properties, and predicting chemical behavior based on position in the table.",
-            relatedConcepts: ["c6", "c9", "c11"]
+            relatedConcepts: ["c6", "c9", "c11"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c4',
@@ -127,7 +130,8 @@ export const useUserStudyPlan = () => {
               "Not recognizing when to apply integration by parts versus other integration techniques."
             ],
             examRelevance: "Integration by parts is a fundamental technique in calculus that frequently appears in IIT-JEE. You'll need to master this method to solve complex integration problems, especially those involving products of functions.",
-            relatedConcepts: ["c10", "c14", "c17"]
+            relatedConcepts: ["c10", "c14", "c17"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c5',
@@ -152,7 +156,8 @@ export const useUserStudyPlan = () => {
               "Overlooking the fact that internal energy is a state function while heat and work are path functions."
             ],
             examRelevance: "Thermodynamics is a major topic in physics for IIT-JEE. The First Law forms the foundation for understanding thermodynamic processes, cycles, and efficiency calculations.",
-            relatedConcepts: ["c13", "c15", "c16"]
+            relatedConcepts: ["c13", "c15", "c16"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c6',
@@ -177,7 +182,8 @@ export const useUserStudyPlan = () => {
               "Forgetting that bond strength affects physical properties like boiling point."
             ],
             examRelevance: "Chemical bonding appears extensively in IIT-JEE, covering topics like VSEPR theory, hybridization, molecular orbital theory, and bond properties.",
-            relatedConcepts: ["c3", "c9", "c12"]
+            relatedConcepts: ["c3", "c9", "c12"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c7',
@@ -202,7 +208,8 @@ export const useUserStudyPlan = () => {
               "Overlooking priority rules for multiple functional groups."
             ],
             examRelevance: "Organic nomenclature is fundamental to IIT-JEE chemistry. Questions often involve naming compounds or identifying structures from IUPAC names.",
-            relatedConcepts: ["c18", "c19", "c20"]
+            relatedConcepts: ["c18", "c19", "c20"],
+            notes: "" // Initialize empty notes
           },
           {
             id: 'c8',
@@ -227,7 +234,8 @@ export const useUserStudyPlan = () => {
               "Not checking solutions by substituting back into the original equation."
             ],
             examRelevance: "Quadratic equations are fundamental to algebra and appear frequently in IIT-JEE. Questions may involve finding roots, forming equations with given roots, or analyzing the nature of roots.",
-            relatedConcepts: ["c10", "c14", "c21"]
+            relatedConcepts: ["c10", "c14", "c21"],
+            notes: "" // Initialize empty notes
           },
         ];
         
@@ -239,52 +247,57 @@ export const useUserStudyPlan = () => {
     fetchData();
   }, []);
 
-  // Function to get details of a specific concept card
-  const useConceptCardDetails = (conceptId: string) => {
-    const [conceptCard, setConceptCard] = useState<ConceptCard | null>(null);
-    const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
-      setLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        const foundCard = conceptCards.find(card => card.id === conceptId);
-        if (foundCard) {
-          setConceptCard(foundCard);
-        }
-        setLoading(false);
-      }, 500);
-      
-    }, [conceptId, conceptCards]);
-    
-    return { conceptCard, loading };
-  };
-  
   return {
     conceptCards,
     loading,
-    useConceptCardDetails
   };
 };
 
 // Export the hook for individual concept card details
 export const useConceptCardDetails = (conceptId: string) => {
-  const { conceptCards, loading } = useUserStudyPlan();
   const [conceptCard, setConceptCard] = useState<ConceptCard | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    setIsLoading(true);
+    setLoading(true);
     
-    // Find the concept card by ID
-    const foundCard = conceptCards.find(card => card.id === conceptId);
-    if (foundCard) {
-      setConceptCard(foundCard);
-    }
-    
-    setIsLoading(false);
-  }, [conceptId, conceptCards]);
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      // Mock data for a specific concept
+      if (conceptId) {
+        const mockCard: ConceptCard = {
+          id: conceptId,
+          title: "Newton's Second Law of Motion",
+          description: "Understand the relationship between force, mass, and acceleration.",
+          content: "Newton's Second Law states that the rate of change of momentum of an object is directly proportional to the force applied, and occurs in the direction of the applied force. It can be mathematically expressed as F = ma, where F is the force, m is the mass, and a is the acceleration. This fundamental law is the basis for classical mechanics and has applications in various fields of science and engineering.",
+          subject: "Physics",
+          chapter: "Laws of Motion",
+          difficulty: "Medium",
+          estimatedTime: 20,
+          completed: false,
+          progress: 65,
+          scheduledFor: 'today',
+          examples: [
+            "When you push a shopping cart, the acceleration of the cart is directly proportional to the force you apply.",
+            "A rocket accelerates as the engines exert force by expelling gas in the opposite direction.",
+            "In a game of billiards, when the cue ball strikes another ball, the second ball accelerates in proportion to the force of impact."
+          ],
+          commonMistakes: [
+            "Forgetting that both force and acceleration are vector quantities with direction.",
+            "Confusing mass with weight, which is actually a force (weight = mass × gravity).",
+            "Not accounting for all forces acting on an object when applying the equation F = ma."
+          ],
+          examRelevance: "Newton's Second Law is a critical concept in physics and frequently appears in IIT-JEE exams. You may encounter problems involving multiple forces, inclined planes, pulleys, or connected objects where you'll need to apply this law.",
+          relatedConcepts: ["c4", "c7", "c12"],
+          notes: localStorage.getItem(`concept-notes-${conceptId}`) || "" // Load saved notes if they exist
+        };
+        
+        setConceptCard(mockCard);
+      }
+      
+      setLoading(false);
+    }, 500);
+  }, [conceptId]);
   
-  return { conceptCard, loading: loading || isLoading };
+  return { conceptCard, loading };
 };

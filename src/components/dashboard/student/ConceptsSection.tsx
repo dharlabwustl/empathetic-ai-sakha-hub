@@ -40,10 +40,8 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Log the navigation for debugging
+    // Navigate to the concept detail page
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
-    
-    // Use consistent URL pattern for concept details
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   

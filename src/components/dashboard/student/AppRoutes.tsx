@@ -32,7 +32,6 @@ const AppRoutes: React.FC = () => {
       <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
-      <Route path="/concepts/card/:id" element={<ConceptCardDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
       <Route path="/notifications" element={<NotificationsView />} />

@@ -16,7 +16,7 @@ import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
-import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 
 const StudentRoutes = () => {
   return (
