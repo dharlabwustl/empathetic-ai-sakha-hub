@@ -227,7 +227,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
   
   // Navigate to practice exams
   const navigateToPracticeExams = () => {
-    navigate('/dashboard/student/practice-exams');
+    navigate('/dashboard/student/practice-exam');
     toast({
       title: "Practice mode",
       description: "Loading practice questions related to this concept",
@@ -258,7 +258,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
       title={concept.title}
       subtitle={concept.subject}
       showBackButton
-      backButtonAction={() => navigate('/dashboard/student/concepts')}
+      backButtonUrl="/dashboard/student/concepts"
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content area - 2/3 width on large screens */}
