@@ -33,7 +33,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
         // Direct link to concept card detail page using task id
         return `/dashboard/student/concepts/card/${task.id}`;
       case 'revision':
-        return '/dashboard/student/flashcards/landing';
+        return '/dashboard/student/flashcards';
       default:
         return '/dashboard/student/today';
     }
@@ -54,7 +54,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
     const route = getDefaultRoute(task);
-    console.log("Navigating to concept route:", route);
+    console.log("Navigating to task route:", route);
     navigate(route);
   };
 
@@ -80,11 +80,11 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
               <div 
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md p-2 transition-colors"
+                className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md p-2 transition-colors"
               >
                 <div className={`p-2 mr-4 rounded-full ${
-                  task.type === 'exam' ? 'bg-blue-100' : 
-                  task.type === 'concept' ? 'bg-green-100' : 'bg-purple-100'
+                  task.type === 'exam' ? 'bg-blue-100 dark:bg-blue-900/30' : 
+                  task.type === 'concept' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-purple-100 dark:bg-purple-900/30'
                 }`}>
                   {getTaskIcon(task.type)}
                 </div>

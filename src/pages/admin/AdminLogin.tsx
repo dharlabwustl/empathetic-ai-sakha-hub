@@ -24,7 +24,7 @@ const AdminLogin = () => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn) {
-      // Direct navigation - more reliable than React Router
+      // Direct navigation using window.location for more reliable redirect
       window.location.href = '/admin/dashboard';
     }
   }, []);
@@ -61,7 +61,6 @@ const AdminLogin = () => {
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('admin_user', JSON.stringify(adminUser));
         localStorage.setItem('adminToken', `token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
         
         toast({
           title: "Admin Login successful",
@@ -69,9 +68,7 @@ const AdminLogin = () => {
         });
         
         // Use direct window location change for guaranteed redirect
-        setTimeout(() => {
-          window.location.href = '/admin/dashboard';
-        }, 100);
+        window.location.href = '/admin/dashboard';
         return; // Make sure we exit early after redirect
       } else {
         throw new Error("Invalid admin credentials");
@@ -102,7 +99,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-6">
           <Link to="/">
@@ -197,7 +194,7 @@ const AdminLogin = () => {
               </Button>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600" disabled={isLoading} type="submit">
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700" disabled={isLoading} type="submit">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
