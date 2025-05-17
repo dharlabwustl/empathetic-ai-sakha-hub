@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +9,7 @@ import {
   BookOpen as Book,
   Volume, 
   BookmarkPlus,
-  Lightning,
+  Zap,
   Pencil,
   Link,
   Brain,
@@ -28,6 +27,7 @@ import { ConceptNotesSection } from './ConceptNotesSection';
 import { LinkedConceptsSection } from './LinkedConceptsSection';
 import { ConceptFlashcardsSection } from './ConceptFlashcardsSection';
 import { ConceptExamSection } from './ConceptExamSection';
+import { ConceptCard as ConceptCardType } from '@/types/user/conceptCard';
 
 const ConceptCardDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -102,9 +102,9 @@ const ConceptCardDetailPage: React.FC = () => {
   }
 
   // Calculate mastery percentage based on recallAccuracy, quizScore, and completion status
-  const masteryPercent = conceptCard.recallAccuracy || 
-    (conceptCard.quizScore || 
-    (conceptCard.progress ? conceptCard.progress : 0));
+  const masteryPercent = conceptCard?.recallAccuracy || 
+    (conceptCard?.quizScore || 
+    (conceptCard?.progress ? conceptCard.progress : 0));
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -208,7 +208,7 @@ const ConceptCardDetailPage: React.FC = () => {
                 </Button>
                 
                 <Button onClick={handleStudyNow}>
-                  <Lightning className="h-4 w-4 mr-1" />
+                  <Zap className="h-4 w-4 mr-1" />
                   Study Now
                 </Button>
               </div>
@@ -248,7 +248,8 @@ const ConceptCardDetailPage: React.FC = () => {
         
         <div className="bg-white dark:bg-gray-800/40 rounded-lg shadow-sm border p-1">
           <TabsContent value="overview" className="mt-0 focus:outline-none">
-            <ConceptCardDetail conceptCard={conceptCard} />
+            {/* Cast the conceptCard to the correct type */}
+            <ConceptCardDetail conceptCard={conceptCard as ConceptCardType} />
           </TabsContent>
           
           <TabsContent value="notes" className="mt-0 focus:outline-none">

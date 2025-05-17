@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -254,7 +253,7 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
         </div>
       )}
       
-      <style jsx>{`
+      <style jsx="true">{`
         .perspective-1000 {
           perspective: 1000px;
         }
