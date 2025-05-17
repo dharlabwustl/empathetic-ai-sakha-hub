@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const Login = () => {
   const location = useLocation();
@@ -19,8 +20,8 @@ const Login = () => {
       // Clear the signup flag
       localStorage.removeItem('new_user_signup');
       
-      // Navigate directly to welcome page, bypassing login
-      window.location.href = '/welcome';
+      // Navigate directly to welcome-flow instead of welcome page
+      window.location.href = '/welcome-flow';
       return;
     }
     
@@ -39,7 +40,21 @@ const Login = () => {
 
   // Use window.location for direct navigation to welcome-back
   window.location.href = `/welcome-back?returnTo=${encodeURIComponent(returnTo)}`;
-  return null;
+  
+  return (
+    <div>
+      <VoiceGreeting 
+        isFirstTimeUser={false}
+        userName="Student"
+        language="en"
+      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-center">
+          <p className="text-xl">Preparing your dashboard...</p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Login;

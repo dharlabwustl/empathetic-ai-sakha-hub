@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,27 @@ import {
   Clock, Brain, ChevronRight, Sparkles, Volume, Mic
 } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const WelcomeFlow = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("Student");
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        if (parsedData.name) {
+          setUserName(parsedData.name);
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
 
   const totalSteps = 4; // Added one more step for voice assistant
   
@@ -26,9 +43,10 @@ const WelcomeFlow = () => {
       localStorage.setItem('new_user_signup', 'true');
       localStorage.setItem('sawWelcomeSlider', 'true');
       localStorage.setItem('sawWelcomeTour', 'false');
+      localStorage.setItem('isLoggedIn', 'true');
       
       // On completion, navigate to dashboard with tour flag
-      navigate('/dashboard/student?new=true&completedOnboarding=true');
+      window.location.href = '/dashboard/student?new=true&completedOnboarding=true';
     }
   };
 
@@ -434,6 +452,7 @@ const WelcomeFlow = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col items-center justify-center p-4">
+      <VoiceGreeting isFirstTimeUser={true} userName={userName} />
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
