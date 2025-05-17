@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -17,14 +18,17 @@ import {
   BookOpen,
   Check,
   Clock,
-  File,
-  FileQuestion,
+  FileText,
   Lightbulb,
-  Music,
-  FlaskConical,
   BookCheck,
   GraduationCap,
   BrainCircuit,
+  Beaker,
+  Notebook,
+  FlaskConical,
+  BookMarked,
+  LibrarySquare,
+  ScrollText
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -75,11 +79,12 @@ const ConceptCardDetail = () => {
   const { toast } = useToast();
   const [activeSummary, setActiveSummary] = useState('short');
   const [markingCompleted, setMarkingCompleted] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   
   // Mock concept data - in a real app, fetch this from API
   const concept = {
     id: conceptId || '1',
-    title: 'Bernoulli's Theorem and Its Applications',
+    title: "Bernoulli's Theorem and Its Applications",
     subject: 'Physics',
     chapter: 'Fluid Dynamics',
     difficulty: 'Medium',
@@ -120,11 +125,11 @@ const ConceptCardDetail = () => {
     practiceQuestions: [
       {
         question: 'A fluid flows through a horizontal pipe with a decreasing cross-sectional area. What happens to the pressure as the pipe narrows?',
-        answer: 'The pressure decreases as the pipe narrows, due to increased velocity (by continuity equation) and the conservation of energy as described by Bernoulli's theorem.',
+        answer: 'The pressure decreases as the pipe narrows, due to increased velocity (by continuity equation) and the conservation of energy as described by Bernoulli\'s theorem.',
       },
       {
-        question: 'Explain why a spinning ball curves in its trajectory using Bernoulli's principle.',
-        answer: 'When a ball spins, it creates a difference in air velocity around its surface. The side where the surface motion adds to the airflow has higher velocity, leading to lower pressure (Bernoulli's principle). This pressure differential creates a force perpendicular to the airflow, causing the ball to curve.',
+        question: 'Explain why a spinning ball curves in its trajectory using Bernoulli\'s principle.',
+        answer: 'When a ball spins, it creates a difference in air velocity around its surface. The side where the surface motion adds to the airflow has higher velocity, leading to lower pressure (Bernoulli\'s principle). This pressure differential creates a force perpendicular to the airflow, causing the ball to curve.',
       },
     ],
     relatedConcepts: [
@@ -134,6 +139,24 @@ const ConceptCardDetail = () => {
       'Pressure in Fluids',
       'Aerodynamics',
     ],
+    examples: [
+      {
+        title: 'Venturi Meter',
+        description: 'A device used to measure the flow rate of fluids based on Bernoulli\'s principle.',
+        explanation: 'When fluid passes through a constriction, its velocity increases and pressure decreases. The pressure difference can be used to calculate flow rate.'
+      },
+      {
+        title: 'Aircraft Wing',
+        description: 'Wing design creates lift based on Bernoulli\'s principle.',
+        explanation: 'The curved upper surface creates faster airflow, resulting in lower pressure above the wing compared to below, generating lift.'
+      }
+    ],
+    keyTakeaways: [
+      'The sum of pressure, kinetic energy per unit volume, and potential energy per unit volume is constant',
+      'As fluid velocity increases, pressure decreases',
+      'As elevation increases, pressure decreases',
+      'Only applies to incompressible, non-viscous fluids in laminar flow'
+    ]
   };
 
   const handleBack = () => {
@@ -158,7 +181,7 @@ const ConceptCardDetail = () => {
       title: "Opening Formula Lab",
       description: "Interactive formula workspace for Bernoulli's Theorem",
     });
-    // In a real app, navigate to the formula lab or open a dialog
+    navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`);
   };
   
   const handleOpenPracticeQuiz = () => {
@@ -167,6 +190,7 @@ const ConceptCardDetail = () => {
       description: "Launching practice questions for this concept",
     });
     // In a real app, navigate to the quiz page
+    navigate(`/dashboard/student/concepts/${conceptId}/quiz`);
   };
 
   const handleToggleSummary = () => {
@@ -184,9 +208,9 @@ const ConceptCardDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="pb-2">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="overflow-hidden border-t-4 border-t-blue-500">
+            <CardHeader className="pb-2 bg-blue-50/50 dark:bg-blue-900/20">
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-xl">{concept.title}</CardTitle>
@@ -201,14 +225,25 @@ const ConceptCardDetail = () => {
                       <Clock className="w-3 h-3" />
                       {concept.estimatedTime}
                     </Badge>
-                    <Badge variant={concept.difficulty === 'Easy' ? 'default' : concept.difficulty === 'Medium' ? 'secondary' : 'destructive'} 
+                    <Badge 
+                      variant={
+                        concept.difficulty === 'Easy' 
+                          ? 'default' 
+                          : concept.difficulty === 'Medium' 
+                          ? 'secondary' 
+                          : 'destructive'
+                      } 
                       className="font-normal">
                       {concept.difficulty}
                     </Badge>
                   </CardDescription>
                 </div>
-                <Button onClick={handleMarkComplete} disabled={markingCompleted} variant="outline" 
-                  className="flex items-center gap-1 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700">
+                <Button 
+                  onClick={handleMarkComplete} 
+                  disabled={markingCompleted} 
+                  variant="outline" 
+                  className="flex items-center gap-1 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+                >
                   <Check className="h-4 w-4" />
                   {markingCompleted ? 'Saving...' : 'Mark Complete'}
                 </Button>
@@ -227,7 +262,7 @@ const ConceptCardDetail = () => {
               <div className="mb-6">
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4" />
+                    <Lightbulb className="h-4 w-4 text-amber-500" />
                     Concept Summary
                   </h3>
                   <Button variant="ghost" size="sm" onClick={handleToggleSummary}>
@@ -239,13 +274,45 @@ const ConceptCardDetail = () => {
                 </div>
               </div>
 
-              <Tabs defaultValue="applications" className="w-full">
-                <TabsList className="w-full grid grid-cols-4">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-5">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="applications">Applications</TabsTrigger>
                   <TabsTrigger value="formulas">Formulas</TabsTrigger>
                   <TabsTrigger value="practice">Practice</TabsTrigger>
                   <TabsTrigger value="related">Related</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="overview" className="mt-4 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookCheck className="h-4 w-4 text-blue-500" />
+                    <h3 className="font-semibold">Key Takeaways</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {concept.keyTakeaways.map((takeaway, index) => (
+                      <li key={index} className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+                        <span className="mt-0.5 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                          {index + 1}
+                        </span>
+                        <span>{takeaway}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="flex items-center gap-2 mt-6 mb-2">
+                    <BrainCircuit className="h-4 w-4 text-purple-500" />
+                    <h3 className="font-semibold">Learning Examples</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {concept.examples.map((example, index) => (
+                      <div key={index} className="border rounded-md p-4 bg-purple-50/50 dark:bg-purple-900/20">
+                        <h4 className="font-semibold text-purple-700 dark:text-purple-300">{example.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{example.description}</p>
+                        <p className="mt-2">{example.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
 
                 <TabsContent value="applications" className="mt-4 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
@@ -265,127 +332,163 @@ const ConceptCardDetail = () => {
                 </TabsContent>
 
                 <TabsContent value="formulas" className="mt-4 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Formula className="h-4 w-4 text-purple-500" />
-                    <h3 className="font-semibold">Key Formulas</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Formula className="h-4 w-4 text-purple-500" />
+                      <h3 className="font-semibold">Key Formulas</h3>
+                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="bg-purple-100 hover:bg-purple-200 text-purple-800 border-purple-200"
+                      onClick={handleOpenFormulaLab}
+                    >
+                      <Beaker className="h-3.5 w-3.5 mr-1" />
+                      Formula Lab
+                    </Button>
                   </div>
                   <div className="space-y-3">
                     {concept.formulas.map((formula, index) => (
-                      <div key={index} className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-                        <div className="mb-2 font-mono text-center text-lg py-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                      <div key={index} className="bg-purple-50/50 dark:bg-purple-900/20 rounded-md p-4">
+                        <div className="font-mono text-lg text-center p-2 bg-white dark:bg-gray-800 rounded border border-purple-200 dark:border-purple-800">
                           {formula.equation}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{formula.description}</p>
+                        <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">{formula.description}</p>
                       </div>
                     ))}
                   </div>
-                  <Button variant="outline" className="w-full" onClick={handleOpenFormulaLab}>
-                    <Formula className="mr-2 h-4 w-4" />
-                    Open in Formula Lab
-                  </Button>
                 </TabsContent>
 
                 <TabsContent value="practice" className="mt-4 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileQuestion className="h-4 w-4 text-amber-500" />
-                    <h3 className="font-semibold">Practice Questions</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Flashcard className="h-4 w-4 text-green-500" />
+                      <h3 className="font-semibold">Practice Questions</h3>
+                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      className="bg-green-100 hover:bg-green-200 text-green-800 border-green-200"
+                      onClick={handleOpenPracticeQuiz}
+                    >
+                      <FileText className="h-3.5 w-3.5 mr-1" />
+                      Full Practice Quiz
+                    </Button>
                   </div>
                   <div className="space-y-4">
-                    {concept.practiceQuestions.map((q, index) => (
-                      <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 border-b border-gray-200 dark:border-gray-700">
-                          <p className="font-medium text-gray-800 dark:text-gray-200">{q.question}</p>
+                    {concept.practiceQuestions.map((qa, index) => (
+                      <div key={index} className="border rounded-md overflow-hidden">
+                        <div className="bg-green-50 dark:bg-green-900/20 p-3 border-b">
+                          <h4 className="font-medium flex items-start gap-2">
+                            <span className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mt-0.5">
+                              Q
+                            </span>
+                            {qa.question}
+                          </h4>
                         </div>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-800/50">
-                          <p className="text-gray-700 dark:text-gray-300 text-sm">{q.answer}</p>
+                        <div className="p-3 bg-white dark:bg-gray-800">
+                          <p className="text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                            <span className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mt-0.5">
+                              A
+                            </span>
+                            {qa.answer}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <Button onClick={handleOpenPracticeQuiz} className="w-full">
-                    <FileQuestion className="mr-2 h-4 w-4" />
-                    Start Practice Quiz
-                  </Button>
                 </TabsContent>
 
                 <TabsContent value="related" className="mt-4 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <File className="h-4 w-4 text-green-500" />
+                    <LibrarySquare className="h-4 w-4 text-indigo-500" />
                     <h3 className="font-semibold">Related Concepts</h3>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {concept.relatedConcepts.map((related, index) => (
-                      <Button key={index} variant="outline" className="justify-start">
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        {related}
-                      </Button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {concept.relatedConcepts.map((relConcept, index) => (
+                      <div 
+                        key={index}
+                        className="bg-indigo-50/50 dark:bg-indigo-900/20 rounded-md p-3 flex items-center justify-between hover:bg-indigo-100 dark:hover:bg-indigo-800/30 cursor-pointer transition-colors"
+                      >
+                        <span className="flex items-center gap-2">
+                          <BookMarked className="h-4 w-4 text-indigo-500" />
+                          <span>{relConcept}</span>
+                        </span>
+                        <Button size="icon" variant="ghost" className="h-7 w-7">
+                          <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 </TabsContent>
               </Tabs>
             </CardContent>
+            <CardFooter className="flex justify-between border-t pt-4 bg-gray-50/50 dark:bg-gray-800/20">
+              <Button variant="outline" size="sm" onClick={handleBack}>
+                <ArrowLeft className="mr-1 h-4 w-4" /> Back to Concepts
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Notebook className="mr-1 h-4 w-4" /> Add Notes
+                </Button>
+                <Button size="sm">
+                  <GraduationCap className="mr-1 h-4 w-4" /> Start Practice
+                </Button>
+              </div>
+            </CardFooter>
           </Card>
         </div>
-
+        
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Learning Resources</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FlaskConical className="h-4 w-4" />
+                Learning Resources
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Read Study Material
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Flashcard className="mr-2 h-4 w-4" />
-                Practice Flashcards
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Music className="mr-2 h-4 w-4" />
-                Audio Explanation
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <FlaskConical className="mr-2 h-4 w-4" />
-                Interactive Simulation
-              </Button>
+            <CardContent className="pt-0">
+              <ul className="space-y-3">
+                <li>
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <ScrollText className="mr-2 h-4 w-4 text-blue-600" />
+                    Interactive Diagram
+                  </Button>
+                </li>
+                <li>
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <FileText className="mr-2 h-4 w-4 text-purple-600" />
+                    Study Notes
+                  </Button>
+                </li>
+                <li>
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <GraduationCap className="mr-2 h-4 w-4 text-amber-600" />
+                    Video Explanation
+                  </Button>
+                </li>
+              </ul>
             </CardContent>
           </Card>
-
+          
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Learning Path</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <BookCheck className="h-4 w-4" />
+                Study Plan
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-900">
-                <Check className="h-4 w-4 text-green-600" />
-                <p className="text-sm">Continuity Equation</p>
+            <CardContent className="pt-0">
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Today's Progress</span>
+                    <span className="font-semibold">15/30 min</span>
+                  </div>
+                  <Progress value={50} className="h-1" />
+                </div>
+                <Button className="w-full">Continue Learning</Button>
               </div>
-              <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-900">
-                <BookOpen className="h-4 w-4 text-blue-600" />
-                <p className="text-sm font-semibold">Bernoulli's Theorem</p>
-              </div>
-              <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
-                <BrainCircuit className="h-4 w-4 text-gray-400" />
-                <p className="text-sm">Venturi Effect</p>
-              </div>
-              <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
-                <BrainCircuit className="h-4 w-4 text-gray-400" />
-                <p className="text-sm">Applications in Aerodynamics</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Your Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <textarea 
-                className="w-full h-32 p-2 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
-                placeholder="Add your notes about this concept here..."
-              ></textarea>
-              <Button className="mt-2 w-full">Save Notes</Button>
             </CardContent>
           </Card>
         </div>

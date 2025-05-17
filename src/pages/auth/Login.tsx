@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
@@ -19,26 +19,27 @@ const Login = () => {
       // Clear the signup flag
       localStorage.removeItem('new_user_signup');
       
-      // Navigate directly to welcome-back page, bypassing login
-      navigate('/welcome-back', { replace: true });
+      // Navigate directly to welcome page, bypassing login
+      window.location.href = '/welcome';
       return;
     }
     
     // Handle any leftover admin login attempts
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     if (isAdminLoggedIn) {
-      navigate('/admin/dashboard', { replace: true });
+      window.location.href = '/admin/dashboard';
       return;
     }
-  }, [navigate]);
+    
+    // If already authenticated, redirect to returnTo
+    if (isAuthenticated || isLoggedIn) {
+      window.location.href = returnTo;
+    }
+  }, [navigate, isAuthenticated, returnTo]);
 
-  // If already authenticated, redirect to returnTo
-  if (isAuthenticated || localStorage.getItem('isLoggedIn') === 'true') {
-    return <Navigate to={returnTo} replace />;
-  }
-
-  // Otherwise redirect to welcome-back page with returnTo parameter
-  return <Navigate to={`/welcome-back?returnTo=${returnTo}`} replace />;
+  // Use window.location for direct navigation to welcome-back
+  window.location.href = `/welcome-back?returnTo=${encodeURIComponent(returnTo)}`;
+  return null;
 };
 
 export default Login;

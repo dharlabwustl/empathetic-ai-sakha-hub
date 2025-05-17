@@ -67,7 +67,7 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Direct navigation is more reliable in some cases
+        // Use direct window location change for guaranteed redirect
         window.location.href = '/admin/dashboard';
       } else {
         throw new Error("Invalid admin credentials");

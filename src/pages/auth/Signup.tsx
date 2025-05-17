@@ -20,7 +20,9 @@ const Signup = () => {
   localStorage.setItem('userData', JSON.stringify(userData));
   
   // Navigate directly to welcome page (skipping login)
-  return <Navigate to="/welcome" replace />;
+  // Using direct navigation to ensure proper flow
+  window.location.href = '/welcome';
+  return null;
 };
 
 export default Signup;
