@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { 
   Headphones, 
-  Book, 
+  BookOpen, 
   Layers3, 
   FileText, 
   BarChart2, 
@@ -303,7 +303,7 @@ const ConceptCardDetailPage: React.FC = () => {
             variant="outline" 
             className="flex items-center gap-2 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
           >
-            <Book className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" />
             Save Notes
           </Button>
         </div>
