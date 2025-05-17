@@ -1,729 +1,623 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  BookOpen,
-  ChevronLeft,
-  Lightbulb,
-  BookmarkCheck,
-  BookmarkPlus,
-  Check,
-  StickyNote,
-  Headphones,
-  HeadphonesOff,
-  PauseCircle,
-  PlayCircle,
-  BarChart3,
-  BadgeCheck,
-  Clock,
-  FileText,
-  ArrowLeft,
-  ArrowRight,
-  Share,
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ArrowRight, BookOpen, CheckCircle, Clock, Bookmark, ArrowLeft, 
+  Calculator, Video, Eye, FileText, Brain, AlertTriangle, Star, PieChart
 } from 'lucide-react';
-import LoadingState from '@/components/common/LoadingState';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data for concept
-const mockConcepts = [
-  {
-    id: 'concept-1',
-    title: 'Newton\'s Laws of Motion',
-    subject: 'Physics',
-    chapter: 'Mechanics',
-    difficulty: 'Medium',
-    content: `
-      <h2>Introduction to Newton's Laws</h2>
-      <p>Newton's laws of motion are three physical laws that form the foundation for classical mechanics. They describe the relationship between the motion of an object and the forces acting on it.</p>
-      
-      <h3>First Law (Law of Inertia)</h3>
-      <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.</p>
-      
-      <h3>Second Law (F = ma)</h3>
-      <p>The acceleration of an object depends on the mass of the object and the amount of force applied. The mathematical formula is:</p>
-      <p><strong>F = ma</strong></p>
-      <p>where F is force, m is mass, and a is acceleration.</p>
-      
-      <h3>Third Law (Action-Reaction)</h3>
-      <p>For every action, there is an equal and opposite reaction. When one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.</p>
-      
-      <h3>Applications</h3>
-      <p>These laws explain everyday phenomena like:</p>
-      <ul>
-        <li>Why you move forward when a car stops suddenly</li>
-        <li>How rockets propel themselves in space</li>
-        <li>Why a heavier object requires more force to move</li>
-      </ul>
-    `,
-    formulas: [
-      { id: 'f1', formula: 'F = ma', description: 'Force equals mass times acceleration' },
-      { id: 'f2', formula: 'p = mv', description: 'Momentum equals mass times velocity' },
-      { id: 'f3', formula: 'Fₙᵉₜ = 0', description: 'Net force is zero for an object at equilibrium' }
-    ],
-    examples: [
-      { 
-        id: 'e1', 
-        title: 'Car Braking', 
-        description: 'When a car brakes suddenly, passengers continue moving forward due to inertia (First Law).' 
-      },
-      { 
-        id: 'e2', 
-        title: 'Rocket Propulsion', 
-        description: 'Rockets expel gas in one direction and experience thrust in the opposite direction (Third Law).'
-      }
-    ],
-    relatedConcepts: ['concept-2', 'concept-3', 'concept-4'],
-    recallStrength: 65,
-    lastReviewed: '2023-05-10'
-  },
-  {
-    id: 'concept-2',
-    title: 'Kinematics',
-    subject: 'Physics',
-    chapter: 'Mechanics',
-    difficulty: 'Medium',
-    content: 'Kinematics is the study of motion without considering its causes...',
-    relatedConcepts: ['concept-1', 'concept-3']
-  },
-  {
-    id: 'concept-3',
-    title: 'Conservation of Energy',
-    subject: 'Physics',
-    chapter: 'Energy',
-    difficulty: 'Medium',
-    content: 'The law of conservation of energy states that energy cannot be created or destroyed...',
-    relatedConcepts: ['concept-1', 'concept-2']
-  },
-  {
-    id: 'concept-4',
-    title: 'Gravitation',
-    subject: 'Physics',
-    chapter: 'Mechanics',
-    difficulty: 'Hard',
-    content: 'Newton\'s law of universal gravitation states that every particle attracts every other particle...',
-    relatedConcepts: ['concept-1']
-  }
-];
+// Mock concept card data for testing/development
+const mockConceptCard = {
+  id: '1',
+  title: "Newton's Laws of Motion",
+  subject: "Physics",
+  chapter: "Mechanics",
+  description: "The fundamental principles that describe the relationship between the motion of an object and the forces acting on it.",
+  difficulty: "medium",
+  timeEstimate: 25,
+  mastery: 65,
+  completed: false,
+  important: true
+};
 
-// Mock flashcard data
-const mockFlashcards = [
-  {
-    id: 'flash1',
-    question: 'What is Newton\'s First Law?',
-    answer: 'An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.'
-  },
-  {
-    id: 'flash2',
-    question: 'What is the formula for Newton\'s Second Law?',
-    answer: 'F = ma (Force equals mass times acceleration)'
-  },
-  {
-    id: 'flash3',
-    question: 'What is Newton\'s Third Law?',
-    answer: 'For every action, there is an equal and opposite reaction.'
-  }
-];
-
-// Mock exam questions
-const mockExamQuestions = [
-  {
-    id: 'q1',
-    question: 'A car accelerates from 0 to 60 km/h in 5 seconds. If the car has a mass of 1000 kg, what is the net force applied?',
-    options: [
-      { id: 'a', text: '3333 N' },
-      { id: 'b', text: '2000 N' },
-      { id: 'c', text: '3000 N' },
-      { id: 'd', text: '5000 N' }
-    ],
-    correctAnswer: 'a',
-    explanation: 'Using F = ma: First convert 60 km/h to m/s: 60 km/h = 16.67 m/s. Then calculate acceleration: a = change in velocity / time = 16.67 / 5 = 3.33 m/s². Finally, F = ma = 1000 kg × 3.33 m/s² = 3333 N.'
-  },
-  {
-    id: 'q2',
-    question: 'Which of Newton\'s laws explains why passengers in a vehicle move forward when the vehicle stops suddenly?',
-    options: [
-      { id: 'a', text: 'Newton\'s First Law' },
-      { id: 'b', text: 'Newton\'s Second Law' },
-      { id: 'c', text: 'Newton\'s Third Law' },
-      { id: 'd', text: 'Law of Conservation of Energy' }
-    ],
-    correctAnswer: 'a',
-    explanation: 'Newton\'s First Law (Law of Inertia) explains that an object in motion tends to stay in motion. When the car stops suddenly, the passengers continue moving forward due to inertia.'
-  }
-];
-
-// AI Insights Mock Data
-const mockAIInsights = [
-  {
-    id: 'ai1', 
-    title: 'Connection to Everyday Life',
-    content: 'Try to observe Newton\'s laws in your daily activities: riding a bicycle, throwing a ball, or even walking. This will help reinforce your understanding.'
-  },
-  {
-    id: 'ai2', 
-    title: 'Common Misconception',
-    content: 'Many students confuse mass and weight. Remember that mass is a property of matter, while weight is a force caused by gravity.'
-  },
-  {
-    id: 'ai3', 
-    title: 'Exam Success Tip',
-    content: 'In problems involving Newton\'s Second Law, always identify all forces acting on the object before calculating the net force.'
-  }
-];
-
-const ConceptCardDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+// Mock hook for getting concept card details
+const useConceptCardDetails = (id: string) => {
   const [loading, setLoading] = useState(true);
-  const [concept, setConcept] = useState<any>(null);
-  const [relatedConcepts, setRelatedConcepts] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [notes, setNotes] = useState('');
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [understood, setUnderstood] = useState(false);
-  const speechSynthesis = window.speechSynthesis;
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const { toast } = useToast();
-  
+  const [conceptCard, setConceptCard] = useState<any>(null);
+
   useEffect(() => {
-    // Simulate data loading
     setTimeout(() => {
-      const foundConcept = mockConcepts.find(c => c.id === id) || mockConcepts[0];
-      setConcept(foundConcept);
-      
-      // Find related concept data
-      if (foundConcept.relatedConcepts) {
-        const related = mockConcepts.filter(c => 
-          foundConcept.relatedConcepts.includes(c.id) && c.id !== foundConcept.id
-        );
-        setRelatedConcepts(related);
-      }
-      
+      setConceptCard(mockConceptCard);
       setLoading(false);
-      
-      // Load saved notes if any
-      const savedNotes = localStorage.getItem(`concept-notes-${foundConcept.id}`);
-      if (savedNotes) {
-        setNotes(savedNotes);
-      }
-      
-      // Check if bookmarked
-      const bookmarked = localStorage.getItem(`concept-bookmark-${foundConcept.id}`);
-      setIsBookmarked(bookmarked === 'true');
-      
-      // Check if understood
-      const conceptUnderstood = localStorage.getItem(`concept-understood-${foundConcept.id}`);
-      setUnderstood(conceptUnderstood === 'true');
-      
-    }, 800);
-    
-    // Clean up speech synthesis on unmount
-    return () => {
-      if (utteranceRef.current && speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-      }
-    };
+    }, 500);
   }, [id]);
-  
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Stop speech if tab changes
-    if (isSpeaking) {
-      handleStopSpeech();
-    }
+
+  return {
+    conceptCard,
+    loading
   };
-  
-  // Text-to-speech functionality
-  const handleReadAloud = () => {
-    if (!concept) return;
-    
-    if (isSpeaking) {
-      handleStopSpeech();
-      return;
-    }
-    
-    // Create a clean text version without HTML tags for reading aloud
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = concept.content;
-    const cleanText = tempDiv.textContent || tempDiv.innerText || '';
-    
-    utteranceRef.current = new SpeechSynthesisUtterance(cleanText);
-    utteranceRef.current.rate = 0.9; // Slightly slower for better comprehension
-    utteranceRef.current.onend = () => setIsSpeaking(false);
-    
-    speechSynthesis.speak(utteranceRef.current);
-    setIsSpeaking(true);
-    
+};
+
+const ConceptCardDetail = () => {
+  const { id: conceptId } = useParams();
+  const navigate = useNavigate();
+  const { conceptCard, loading } = useConceptCardDetails(conceptId || '');
+  const { toast } = useToast();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [userNote, setUserNote] = useState('');
+  const [activeTab, setActiveTab] = useState('summary');
+
+  // Function to navigate to the concept study page
+  const handleStudyClick = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
     toast({
-      title: "Reading aloud",
-      description: "Text-to-speech has started. Click the button again to stop.",
+      title: "Loading study materials",
+      description: "Preparing your personalized learning experience",
     });
   };
-  
-  const handleStopSpeech = () => {
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  };
-  
-  // Notes functionality
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newNotes = e.target.value;
-    setNotes(newNotes);
-    
-    // Save to local storage
-    if (concept) {
-      localStorage.setItem(`concept-notes-${concept.id}`, newNotes);
-    }
-  };
-  
-  // Bookmark functionality
-  const handleToggleBookmark = () => {
-    if (!concept) return;
-    
-    const newBookmarkState = !isBookmarked;
-    setIsBookmarked(newBookmarkState);
-    localStorage.setItem(`concept-bookmark-${concept.id}`, newBookmarkState.toString());
-    
+
+  // Function to navigate to formula lab for this concept
+  const handleFormulaLabClick = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`);
     toast({
-      title: newBookmarkState ? "Concept Bookmarked" : "Bookmark Removed",
-      description: newBookmarkState 
-        ? "This concept has been added to your bookmarks." 
-        : "This concept has been removed from your bookmarks.",
+      title: "Loading Formula Lab",
+      description: "Preparing practice exercises for this concept",
     });
   };
-  
-  // Mark as understood functionality
-  const handleMarkUnderstood = () => {
-    if (!concept) return;
-    
-    const newState = !understood;
-    setUnderstood(newState);
-    localStorage.setItem(`concept-understood-${concept.id}`, newState.toString());
-    
-    // Update recall strength in localStorage
-    if (newState) {
-      const currentDate = new Date().toISOString();
-      localStorage.setItem(`concept-last-reviewed-${concept.id}`, currentDate);
-      localStorage.setItem(`concept-recall-strength-${concept.id}`, '85'); // Boost recall strength
-      
-      toast({
-        title: "Concept Mastered!",
-        description: "Great job! Your recall strength has been updated.",
-      });
+
+  // Function to show hint for formula or concept
+  const handleShowHint = () => {
+    toast({
+      title: "Concept Hint",
+      description: "Hint: Think about how force, mass, and acceleration are related in Newton's Second Law.",
+    });
+  };
+
+  // Function to toggle bookmark status
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked ? "This concept has been removed from your bookmarks" : "This concept has been added to your bookmarks for easy access",
+    });
+  };
+
+  const handleBack = () => {
+    navigate('/dashboard/student/concepts');
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hard':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  // Update recall strength
-  const updateRecallStrength = (increase: boolean) => {
-    if (!concept) return;
-    
-    const currentRecallStr = localStorage.getItem(`concept-recall-strength-${concept.id}`) || '50';
-    let newStrength = parseInt(currentRecallStr);
-    
-    if (increase) {
-      newStrength = Math.min(newStrength + 10, 100);
-    } else {
-      newStrength = Math.max(newStrength - 5, 0);
-    }
-    
-    localStorage.setItem(`concept-recall-strength-${concept.id}`, newStrength.toString());
-    
-    // Update concept data for display
-    setConcept({...concept, recallStrength: newStrength});
-    
-    toast({
-      title: increase ? "Recall Improved!" : "Need More Review",
-      description: increase 
-        ? "Your understanding of this concept is improving." 
-        : "Keep practicing this concept to improve recall.",
-    });
-  };
-  
-  // Get recall strength from localStorage or concept data
-  const getRecallStrength = () => {
-    if (!concept) return 0;
-    
-    const savedStrength = localStorage.getItem(`concept-recall-strength-${concept.id}`);
-    if (savedStrength) {
-      return parseInt(savedStrength);
-    }
-    
-    return concept.recallStrength || 0;
-  };
-  
   if (loading) {
-    return <LoadingState message="Loading concept..." />;
+    return (
+      <div className="container py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
   }
 
-  if (!concept) {
+  if (!conceptCard) {
     return (
-      <Alert variant="destructive">
-        <AlertDescription>Failed to load concept details. Please try again later.</AlertDescription>
-      </Alert>
+      <div className="container py-8">
+        <Button 
+          variant="outline" 
+          className="flex gap-2 items-center mb-4" 
+          onClick={handleBack}
+        >
+          <ArrowLeft size={16} />
+          Back to Concepts
+        </Button>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Concept not found</h2>
+          <p className="text-muted-foreground mt-2">The concept you're looking for doesn't exist or has been removed.</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-6 space-y-2">
-        <div className="flex items-center justify-between">
-          <Link to="/dashboard/student/concepts" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            Back to Concepts
-          </Link>
-          
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleToggleBookmark}
-              className={`${isBookmarked ? 'text-yellow-500' : 'text-muted-foreground'}`}
-            >
-              {isBookmarked ? (
-                <>
-                  <BookmarkCheck className="h-4 w-4 mr-2" />
-                  Bookmarked
-                </>
-              ) : (
-                <>
-                  <BookmarkPlus className="h-4 w-4 mr-2" />
-                  Bookmark
-                </>
-              )}
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast({
-                  title: "Link Copied!",
-                  description: "Concept link copied to clipboard."
-                });
-              }}
-            >
-              <Share className="h-4 w-4 mr-2" />
-              Share
-            </Button>
+    <div className="container py-6">
+      {/* Back Button */}
+      <Button 
+        variant="outline" 
+        className="flex gap-2 items-center mb-4" 
+        onClick={handleBack}
+      >
+        <ArrowLeft size={16} />
+        Back to Concepts
+      </Button>
+      
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6 mt-4">
+        <div>
+          <h1 className="text-3xl font-bold">{conceptCard.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+              {conceptCard.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+              {conceptCard.chapter}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyColor(conceptCard.difficulty)}>
+              {conceptCard.difficulty.charAt(0).toUpperCase() + conceptCard.difficulty.slice(1)} Difficulty
+            </Badge>
+            {conceptCard.important && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                Important
+              </Badge>
+            )}
           </div>
         </div>
-        
-        <div>
-          <h1 className="text-3xl font-bold">{concept.title}</h1>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-              {concept.subject}
-            </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              {concept.chapter}
-            </Badge>
-            <Badge variant="outline" className={`
-              ${concept.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' : 
-                concept.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 
-                'bg-red-50 text-red-700 border-red-200'}
-            `}>
-              {concept.difficulty} Difficulty
-            </Badge>
-          </div>
+
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <Button 
+            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700"
+            onClick={handleStudyClick}
+          >
+            Start Studying
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+          
+          <Button 
+            variant="outline"
+            className={`w-full md:w-auto ${isBookmarked ? "bg-amber-100 text-amber-800 border-amber-200" : "border-indigo-200 text-indigo-700 hover:bg-indigo-50"}`}
+            onClick={toggleBookmark}
+          >
+            <Bookmark className={`mr-2 h-4 w-4 ${isBookmarked ? "fill-amber-500" : ""}`} />
+            {isBookmarked ? "Bookmarked" : "Bookmark"}
+          </Button>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              {/* Read aloud and other controls */}
-              <div className="flex justify-between items-center mb-4">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleReadAloud}
-                  className={isSpeaking ? 'bg-red-50 text-red-600' : ''}
-                >
-                  {isSpeaking ? (
-                    <>
-                      <HeadphonesOff className="h-4 w-4 mr-2" />
-                      Stop Reading
-                    </>
-                  ) : (
-                    <>
-                      <Headphones className="h-4 w-4 mr-2" />
-                      Read Aloud
-                    </>
-                  )}
-                </Button>
-                
-                <Button 
-                  variant={understood ? "default" : "outline"} 
-                  size="sm"
-                  onClick={handleMarkUnderstood}
-                >
-                  {understood ? (
-                    <>
-                      <BadgeCheck className="h-4 w-4 mr-2" />
-                      Understood
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Mark as Understood
-                    </>
-                  )}
-                </Button>
-              </div>
-            
-              {/* Tabs for different content sections */}
-              <Tabs value={activeTab} onValueChange={handleTabChange}>
-                <TabsList className="w-full grid grid-cols-4 mb-4">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="formulas">Formulas</TabsTrigger>
-                  <TabsTrigger value="examples">Examples</TabsTrigger>
-                  <TabsTrigger value="practice">Practice</TabsTrigger>
-                </TabsList>
-                
-                {/* Overview Tab */}
-                <TabsContent value="overview" className="space-y-4">
-                  <div 
-                    className="prose max-w-none" 
-                    dangerouslySetInnerHTML={{ __html: concept.content }}
-                  />
-                </TabsContent>
-                
-                {/* Formulas Tab */}
-                <TabsContent value="formulas" className="space-y-4">
-                  {concept.formulas ? (
-                    <div className="space-y-4">
-                      {concept.formulas.map((formula: any) => (
-                        <div key={formula.id} className="p-4 border rounded-md bg-blue-50/30">
-                          <div className="text-xl font-mono font-semibold text-center mb-2">
-                            {formula.formula}
-                          </div>
-                          <p className="text-sm text-muted-foreground text-center">
-                            {formula.description}
-                          </p>
-                        </div>
-                      ))}
-                      <div className="text-center mt-4">
-                        <Button variant="outline">
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          Open Formula Lab
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No formulas available for this concept.</p>
-                  )}
-                </TabsContent>
-                
-                {/* Examples Tab */}
-                <TabsContent value="examples" className="space-y-4">
-                  {concept.examples ? (
-                    <div className="space-y-4">
-                      {concept.examples.map((example: any) => (
-                        <div key={example.id} className="p-4 border rounded-md">
-                          <h3 className="text-lg font-semibold mb-2">{example.title}</h3>
-                          <p>{example.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No examples available for this concept.</p>
-                  )}
-                </TabsContent>
-                
-                {/* Practice Tab */}
-                <TabsContent value="practice" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center mb-4">
-                          <BookOpen className="h-5 w-5 mr-2 text-purple-600" />
-                          <h3 className="text-lg font-semibold">Flashcards</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Test your knowledge with flashcards related to {concept.title}.
-                        </p>
-                        <Button variant="outline" className="w-full">
-                          Practice Flashcards ({mockFlashcards.length})
-                        </Button>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center mb-4">
-                          <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                          <h3 className="text-lg font-semibold">Practice Questions</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Challenge yourself with exam-style questions.
-                        </p>
-                        <Button variant="outline" className="w-full">
-                          Try Practice Exam ({mockExamQuestions.length} Questions)
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-          
-          {/* Notes Section */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex items-center">
-                <StickyNote className="h-5 w-5 mr-2 text-yellow-600" />
-                <h3 className="text-lg font-semibold">My Notes</h3>
-              </div>
-              <Textarea 
-                placeholder="Add your notes here... They will be saved automatically."
-                value={notes}
-                onChange={handleNotesChange}
-                className="min-h-[150px] border border-yellow-200 focus:border-yellow-500"
-              />
-            </CardContent>
-          </Card>
-        </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Progress</CardTitle>
+          <CardDescription>Your mastery of this concept</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Mastery</span>
+              <span className="text-sm font-medium">{conceptCard.mastery}%</span>
+            </div>
+            <Progress value={conceptCard.mastery} className="h-2" />
+          </div>
+          <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Estimated time: {conceptCard.timeEstimate} min</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs defaultValue="summary" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 md:w-auto">
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="explanation">Explanation</TabsTrigger>
+          <TabsTrigger value="visual">Visual</TabsTrigger>
+          <TabsTrigger value="formula-lab">Formula Lab</TabsTrigger>
+          <TabsTrigger value="video">Video</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="exam-mistakes">Exam Mistakes</TabsTrigger>
+          <TabsTrigger value="previous-years">Previous Years</TabsTrigger>
+          <TabsTrigger value="recall">Recall</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
+          <TabsTrigger value="notes">My Notes</TabsTrigger>
+        </TabsList>
         
-        {/* Sidebar with related concepts, AI insights, recall tracking */}
-        <div className="space-y-6">
-          {/* Recall Strength */}
+        {/* Summary Tab */}
+        <TabsContent value="summary" className="space-y-4">
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-                  <h3 className="text-lg font-semibold">Recall Strength</h3>
-                </div>
-                <Badge variant="outline" className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Last reviewed: {concept.lastReviewed ? new Date(concept.lastReviewed).toLocaleDateString() : 'Never'}
-                </Badge>
+            <CardHeader>
+              <CardTitle>About this Concept</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{conceptCard.description}</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Key Points</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>First Law (Law of Inertia): Objects maintain their state of rest or motion unless acted upon by a force.</li>
+                      <li>Second Law: F = ma. The force equals mass times acceleration.</li>
+                      <li>Third Law: For every action, there is an equal and opposite reaction.</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Understanding Newton's laws is essential for:</p>
+                    <ul className="list-disc pl-5 space-y-2 mt-2">
+                      <li>Engineering design and analysis</li>
+                      <li>Sports science and athletic performance</li>
+                      <li>Vehicle safety and transportation</li>
+                      <li>Space exploration and orbital mechanics</li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Memory retention</span>
-                  <span className="font-medium">{getRecallStrength()}%</span>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Explanation Tab */}
+        <TabsContent value="explanation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Explanation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's First Law</h3>
+                  <p className="mt-2">An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force. This property of objects is called inertia.</p>
                 </div>
-                <Progress value={getRecallStrength()} className="h-2" />
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's Second Law</h3>
+                  <p className="mt-2">The acceleration of an object depends directly on the net force acting upon it and inversely on its mass. This relationship is expressed mathematically as:</p>
+                  <div className="p-3 bg-blue-50 mt-2 rounded-md font-mono text-center text-lg">F = ma</div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Newton's Third Law</h3>
+                  <p className="mt-2">For every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body simultaneously exerts a force equal in magnitude and opposite in direction on the first body.</p>
+                </div>
               </div>
-              
-              <p className="text-sm text-muted-foreground">
-                How well do you understand this concept?
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Visual Tab */}
+        <TabsContent value="visual" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Visual Representation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center space-y-6">
+                <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg w-full max-w-md">
+                  <div className="text-center text-sm text-gray-500">Visual representation placeholder</div>
+                </div>
+                <Button onClick={handleShowHint}>
+                  Show Hint
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Formula Lab Tab */}
+        <TabsContent value="formula-lab" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Formula Lab</CardTitle>
+              <CardDescription>Practice solving numeric problems with interactive formulas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Strengthen your understanding of {conceptCard.title} by practicing with formula-based problems.
               </p>
               
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1" 
-                  onClick={() => updateRecallStrength(false)}
-                >
-                  Need More Review
-                </Button>
-                <Button 
-                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600"
-                  onClick={() => updateRecallStrength(true)}
-                >
-                  Got It!
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Related Concepts */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex items-center">
-                <BookOpen className="h-5 w-5 mr-2 text-purple-600" />
-                <h3 className="text-lg font-semibold">Related Concepts</h3>
-              </div>
-              
-              {relatedConcepts.length > 0 ? (
-                <div className="space-y-2">
-                  {relatedConcepts.map((related) => (
-                    <Link 
-                      key={related.id} 
-                      to={`/dashboard/student/concepts/card/${related.id}`} 
-                      className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 transition-colors"
-                    >
-                      <div>
-                        <h4 className="font-medium">{related.title}</h4>
-                        <p className="text-xs text-muted-foreground">{related.subject} • {related.chapter}</p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No related concepts found.</p>
-              )}
-            </CardContent>
-          </Card>
-          
-          {/* AI Study Insights */}
-          <Card className="border-blue-200">
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex items-center">
-                <Lightbulb className="h-5 w-5 mr-2 text-amber-500" />
-                <h3 className="text-lg font-semibold">AI Study Insights</h3>
-              </div>
-              
-              <div className="space-y-3">
-                {mockAIInsights.map((insight) => (
-                  <div key={insight.id} className="p-3 bg-blue-50/50 rounded-md border border-blue-100">
-                    <h4 className="font-medium text-sm mb-1">{insight.title}</h4>
-                    <p className="text-sm text-muted-foreground">{insight.content}</p>
+              <div className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-6 rounded-lg border border-blue-100 dark:border-blue-900/50 mb-6">
+                <h3 className="font-medium text-lg mb-3 text-blue-800 dark:text-blue-300">Key Formulas for {conceptCard.title}</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">F = m×a</span>
+                    </div>
+                    <span>Force equals mass times acceleration (Newton's Second Law)</span>
                   </div>
-                ))}
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">a = F/m</span>
+                    </div>
+                    <span>Acceleration equals force divided by mass</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm">
+                      <span className="font-medium text-lg">F₁ = -F₂</span>
+                    </div>
+                    <span>For every action, there is an equal and opposite reaction (Newton's Third Law)</span>
+                  </div>
+                </div>
               </div>
               
-              <Button variant="outline" className="w-full">
-                <Lightbulb className="h-4 w-4 mr-2" />
-                Get Personalized Study Tips
-              </Button>
-            </CardContent>
-          </Card>
-          
-          {/* Study Tools */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h3 className="text-lg font-semibold">Study Tools</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="text-sm h-auto py-3 flex flex-col items-center justify-center">
-                  <BookOpen className="h-4 w-4 mb-1" />
-                  <span>Formula Lab</span>
-                </Button>
-                <Button variant="outline" className="text-sm h-auto py-3 flex flex-col items-center justify-center">
-                  <FileText className="h-4 w-4 mb-1" />
-                  <span>Practice Exam</span>
-                </Button>
-                <Button variant="outline" className="text-sm h-auto py-3 flex flex-col items-center justify-center">
-                  <StickyNote className="h-4 w-4 mb-1" />
-                  <span>Flashcards</span>
-                </Button>
-                <Button variant="outline" className="text-sm h-auto py-3 flex flex-col items-center justify-center">
-                  <Lightbulb className="h-4 w-4 mb-1" />
-                  <span>AI Tutor</span>
+              <div className="flex justify-center gap-4">
+                <Button onClick={handleShowHint}>Show Hint</Button>
+                <Button onClick={handleFormulaLabClick} className="flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  Open Interactive Formula Lab
                 </Button>
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+        
+        {/* Video Tab */}
+        <TabsContent value="video" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Video Explanation</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="w-full bg-gray-100 dark:bg-gray-800 aspect-video rounded-lg flex items-center justify-center">
+                <Video className="h-12 w-12 text-gray-400" />
+              </div>
+              <p className="text-center mt-4 text-sm text-gray-500">Video explanation coming soon!</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Examples Tab */}
+        <TabsContent value="examples" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Example Problems</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 1: First Law</h3>
+                  <p className="mt-2">A book is at rest on a table. Explain why it remains stationary even though Earth's gravity is pulling on it.</p>
+                  <Button className="mt-4">View Solution</Button>
+                </div>
+                
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 2: Second Law</h3>
+                  <p className="mt-2">A force of 10N acts on a 2kg mass. What is its acceleration?</p>
+                  <Button className="mt-4">View Solution</Button>
+                </div>
+                
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <h3 className="font-semibold">Example 3: Third Law</h3>
+                  <p className="mt-2">When a person stands on the ground, explain the forces acting between the person and Earth.</p>
+                  <Button className="mt-4">View Solution</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Exam Mistakes Tab */}
+        <TabsContent value="exam-mistakes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Common Exam Mistakes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Confusing Mass and Weight</h4>
+                    <p className="text-sm mt-1">Students often confuse mass (measured in kg) with weight (a force measured in N). Remember that F = ma uses mass, not weight.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Incorrect Force Diagrams</h4>
+                    <p className="text-sm mt-1">When drawing force diagrams, ensure all forces acting on a body are included, and only those forces.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 p-3 border border-red-100 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Ignoring Friction</h4>
+                    <p className="text-sm mt-1">In real-world problems, friction often plays a significant role. Don't forget to account for it when it's relevant.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Previous Years Questions Tab */}
+        <TabsContent value="previous-years" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Previous Years Questions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="border p-4 rounded-lg">
+                  <div className="text-sm text-gray-500">JEE Main 2021</div>
+                  <h4 className="font-medium mt-1">Question 1:</h4>
+                  <p className="mt-2">A block of mass m is placed on a smooth inclined plane of angle θ with the horizontal. The force exerted by the inclined plane on the block is:</p>
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button variant="outline">A. mg sin θ</Button>
+                    <Button variant="outline">B. mg cos θ</Button>
+                    <Button variant="outline">C. mg</Button>
+                    <Button variant="outline">D. mg cos θ perpendicular to the plane</Button>
+                  </div>
+                </div>
+                
+                <div className="border p-4 rounded-lg">
+                  <div className="text-sm text-gray-500">NEET 2020</div>
+                  <h4 className="font-medium mt-1">Question 2:</h4>
+                  <p className="mt-2">When a car takes a sharp turn on a horizontal road, the passengers feel a force pushing them away from the center of the curve. This apparent force is an example of:</p>
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button variant="outline">A. Centripetal force</Button>
+                    <Button variant="outline">B. Centrifugal force</Button>
+                    <Button variant="outline">C. Gravitational force</Button>
+                    <Button variant="outline">D. Frictional force</Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Recall Accuracy Tab */}
+        <TabsContent value="recall" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recall Accuracy</CardTitle>
+              <CardDescription>Test your memory of this concept</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6">
+                <h3 className="font-medium mb-2">Your Recall Performance</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Accuracy</span>
+                      <span>75%</span>
+                    </div>
+                    <Progress value={75} className="h-2 mt-1" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Retention</span>
+                      <span>60%</span>
+                    </div>
+                    <Progress value={60} className="h-2 mt-1" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm">
+                      <span>Application</span>
+                      <span>80%</span>
+                    </div>
+                    <Progress value={80} className="h-2 mt-1" />
+                  </div>
+                </div>
+              </div>
+              
+              <Button className="w-full">Start Recall Test</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* AI Insights Tab */}
+        <TabsContent value="ai-insights" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Insights</CardTitle>
+              <CardDescription>Personalized insights based on your learning patterns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Brain className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-medium">Learning Style Match</h3>
+                  </div>
+                  <p className="text-sm">Your visual learning style matches well with the diagrams in this concept. Spend extra time on the visual representations to reinforce your understanding.</p>
+                </div>
+                
+                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="h-5 w-5 text-purple-600" />
+                    <h3 className="font-medium">Strength Area</h3>
+                  </div>
+                  <p className="text-sm">You've demonstrated strong understanding of vector problems. Apply this strength to the force problems in Newton's Laws.</p>
+                </div>
+                
+                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <PieChart className="h-5 w-5 text-amber-600" />
+                    <h3 className="font-medium">Knowledge Gap</h3>
+                  </div>
+                  <p className="text-sm">You may need additional practice with problems involving multiple forces and resultant acceleration. Focus on the examples that involve force resolution.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Suggestions Tab */}
+        <TabsContent value="suggestions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Study Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded-full h-fit">
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Related Concepts</h4>
+                    <p className="text-sm mt-1">After mastering Newton's Laws, we recommend studying:</p>
+                    <ul className="list-disc pl-5 mt-1 text-sm space-y-1">
+                      <li>Work, Energy, and Power</li>
+                      <li>Circular Motion</li>
+                      <li>Gravitation</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded-full h-fit">
+                    <BookOpen className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Study Method</h4>
+                    <p className="text-sm mt-1">Try the Feynman Technique: Explain Newton's Laws in your own simple words as if teaching someone else. This will highlight any areas you don't fully understand.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-purple-100 dark:bg-purple-900/20 p-2 rounded-full h-fit">
+                    <Calculator className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium">Practice Strategy</h4>
+                    <p className="text-sm mt-1">Solve at least 5 problems for each law, gradually increasing in difficulty. Focus especially on problems that combine multiple laws.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* My Notes Tab */}
+        <TabsContent value="notes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea 
+                className="w-full min-h-[200px] p-3 border rounded-md"
+                value={userNote}
+                onChange={(e) => setUserNote(e.target.value)}
+                placeholder="Add your notes about this concept here..."
+              />
+              <div className="mt-4 flex justify-end">
+                <Button onClick={() => toast({ title: "Notes saved", description: "Your notes have been saved successfully" })}>
+                  Save Notes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
