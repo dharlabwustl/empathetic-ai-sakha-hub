@@ -38,7 +38,6 @@ export interface OnboardingData {
   name?: string;
   phoneNumber?: string;
   mobileNumber?: string; // Added mobile number for authentication
-  institute?: string;
   password?: string;
   preferredSubjects?: string[];
 }
