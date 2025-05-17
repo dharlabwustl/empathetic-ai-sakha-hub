@@ -46,6 +46,8 @@ const RedesignedTodaysPlan: React.FC = () => {
     );
   }
 
+  console.log("RedesignedTodaysPlan - Loaded plan data:", planData?.conceptCards?.length || 0, "concept cards");
+
   return (
     <SharedPageLayout
       title="Today's Plan"

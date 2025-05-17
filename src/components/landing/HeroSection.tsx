@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -191,6 +190,16 @@ const HeroSection = () => {
               </motion.span>
             )}
           </div>
+          
+          {/* ADD NEW TAGLINE: The world's first emotionally aware, hyper-personalized adaptive exam prep platform */}
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mt-2 italic"
+          >
+            The world's first emotionally aware, hyper-personalized, adaptive exam prep platform.
+          </motion.p>
           
           {/* Call to action buttons with enhanced animations */}
           <motion.div 

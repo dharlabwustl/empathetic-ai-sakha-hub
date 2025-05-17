@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,12 +43,19 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     // Navigate to concept card detail page with consistent path
     console.log("ConceptCard - Navigating to detail page for concept:", id);
     navigate(`/dashboard/student/concepts/${id}`);
+    
+    // If onView handler provided, also call it
+    if (onView) onView();
   };
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     // Use the same route format for consistency
+    console.log("ConceptCard Study Button - Navigating to detail page for concept:", id);
     navigate(`/dashboard/student/concepts/${id}`);
+    
+    // If onView handler provided, also call it
+    if (onView) onView();
   };
 
   return (
@@ -123,13 +131,12 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         
         <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 px-4 pb-4">
           <Button 
-            variant="default" 
-            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg"
             onClick={handleStudyNowClick}
+            variant="default" 
+            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-200"
           >
-            <BookOpen className="h-4 w-4" />
-            <span className="font-medium">Study Now</span>
-            <ArrowRight className="h-4 w-4" />
+            <span>Study Now</span>
+            <ArrowRight className="h-4 w-4 animate-pulse" />
           </Button>
         </CardFooter>
       </Card>
