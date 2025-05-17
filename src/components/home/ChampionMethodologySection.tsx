@@ -144,7 +144,7 @@ const ChampionMethodologySection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
             Our <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Champion-Making</span> Methodology
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">

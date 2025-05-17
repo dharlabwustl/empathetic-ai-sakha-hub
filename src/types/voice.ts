@@ -1,10 +1,11 @@
 
-// Voice settings type
 export interface VoiceSettings {
-  enabled: boolean;
-  muted: boolean;
-  language: string;
+  volume: number;
   rate: number;
   pitch: number;
-  volume: number;
+  language: string;
+  enabled: boolean;
+  muted: boolean;
+  voice: SpeechSynthesisVoice | null;
+  autoGreet?: boolean;
 }

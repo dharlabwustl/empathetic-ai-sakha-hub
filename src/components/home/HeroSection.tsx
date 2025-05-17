@@ -39,10 +39,12 @@ const HeroSection: React.FC = () => {
             className="mx-auto max-w-full sm:max-w-[95%] lg:max-w-[1100px] overflow-visible"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-normal px-0 sm:px-2 mb-6">
-              <div className="text-gray-900 dark:text-gray-100 flex justify-center items-center flex-wrap">
-                <span className="whitespace-nowrap">अब तैयारी करो अपने तरीके से, सिर्फ</span>
+              <span className="text-gray-900 dark:text-gray-100 flex flex-wrap justify-center whitespace-normal">
+                <span className="whitespace-nowrap mx-1">अब तैयारी करो</span>
+                <span className="whitespace-nowrap mx-1">अपने तरीके से,</span>
+                <span className="whitespace-nowrap mx-1">सिर्फ{" "}</span>
                 <motion.span 
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 whitespace-nowrap mx-2"
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 whitespace-nowrap mx-1"
                   animate={{ 
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                     scale: [1, 1.05, 1]
@@ -54,9 +56,9 @@ const HeroSection: React.FC = () => {
                   }}
                 >
                   PREPZR
-                </motion.span>
-                <span className="whitespace-nowrap">के साथ!</span>
-              </div>
+                </motion.span>{" "}
+                <span className="whitespace-nowrap mx-1">के साथ!</span>
+              </span>
             </h1>
           </motion.div>
           

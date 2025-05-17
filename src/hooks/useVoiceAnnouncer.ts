@@ -1,109 +1,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
-import { fixPronunciation } from '@/components/dashboard/student/voice/voiceUtils';
+import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
 import { MoodType } from '@/types/user/base';
-
-// Default voice settings
-export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  enabled: true,
-  muted: false,
-  language: 'en-IN',
-  rate: 0.92,
-  pitch: 1.1,
-  volume: 1.0
-};
-
-// Language options
-export const LANGUAGE_OPTIONS = [
-  { value: 'en-IN', label: 'English (India)' },
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'en-GB', label: 'English (UK)' },
-  { value: 'hi-IN', label: 'Hindi' }
-];
-
-// Find the best voice for the given language
-export const findBestVoice = (language: string, preferFemale: boolean = true) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
-  
-  // Get all available voices
-  const voices = window.speechSynthesis.getVoices();
-  
-  // Filter voices by language
-  let matchedVoices = voices.filter(voice => voice.lang.startsWith(language));
-  
-  // If we have no exact match but have a language base match, use it
-  if (matchedVoices.length === 0) {
-    const languageBase = language.split('-')[0];
-    matchedVoices = voices.filter(voice => voice.lang.startsWith(languageBase));
-  }
-  
-  // If still no match, fallback to any English voice
-  if (matchedVoices.length === 0) {
-    matchedVoices = voices.filter(voice => voice.lang.startsWith('en'));
-  }
-  
-  // If still no voices available, return first voice or null
-  if (matchedVoices.length === 0) {
-    return voices.length > 0 ? voices[0] : null;
-  }
-  
-  // Try to find a female voice if preferred
-  if (preferFemale) {
-    // Common substrings indicating female voices across different TTS systems
-    const femaleIndicators = ['female', 'woman', 'girl', 'f', 'samantha', 'victoria', 'joan', 'karen', 'ava', 'lisa', 'susan'];
-    
-    const femaleVoice = matchedVoices.find(voice => {
-      const lowerName = voice.name.toLowerCase();
-      return femaleIndicators.some(indicator => lowerName.includes(indicator));
-    });
-    
-    if (femaleVoice) return femaleVoice;
-  }
-  
-  // Return the first matched voice as fallback
-  return matchedVoices[0];
-};
-
-// Function to speak a message
-export const speakMessage = (message: string, settings: VoiceSettings) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return;
-  
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
-  
-  const utterance = new SpeechSynthesisUtterance(message);
-  
-  // Find appropriate voice
-  const voice = findBestVoice(settings.language);
-  if (voice) utterance.voice = voice;
-  
-  // Apply settings
-  utterance.lang = settings.language;
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.volume = settings.volume;
-  
-  // Add events to track speaking status
-  utterance.onstart = () => {
-    document.dispatchEvent(new CustomEvent('voice-speaking-started', { detail: { message } }));
-    document.body.classList.add('voice-speaking');
-  };
-  
-  utterance.onend = () => {
-    document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-    document.body.classList.remove('voice-speaking');
-  };
-  
-  utterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
-    document.dispatchEvent(new CustomEvent('voice-speaking-ended'));
-    document.body.classList.remove('voice-speaking');
-  };
-  
-  // Speak the utterance
-  window.speechSynthesis.speak(utterance);
-};
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
@@ -112,7 +11,7 @@ interface UseVoiceAnnouncerProps {
   mood?: MoodType;
 }
 
-const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
+export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const { userName, initialSettings, isFirstTimeUser = false, mood } = props || {};
   
   // Merge default settings with any initialSettings
@@ -158,6 +57,19 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setAvailableVoices(voices);
         setVoiceInitialized(true);
         console.log("Voice system initialized with available voices:", voices.length);
+        
+        // Log available voices and languages
+        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
+        const availableLanguages = new Set(voices.map(v => v.lang));
+        console.log("Available languages:", Array.from(availableLanguages));
+        
+        // Check if we have Hindi voices
+        const hindiVoices = voices.filter(v => v.lang.includes('hi-IN'));
+        console.log("Hindi voices available:", hindiVoices.length > 0, hindiVoices.map(v => v.name));
+        
+        // Check for Indian English voices
+        const indianVoices = voices.filter(v => v.lang.includes('en-IN'));
+        console.log("Indian English voices available:", indianVoices.length > 0, indianVoices.map(v => v.name));
       };
       
       // Ensure voices are loaded before initializing
@@ -206,10 +118,12 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     // Set up event listeners for tracking speaking status
     const handleSpeakingStarted = (event: any) => {
       setIsSpeaking(true);
+      console.log("Speech started:", event.detail?.message);
     };
     
     const handleSpeakingEnded = () => {
       setIsSpeaking(false);
+      console.log("Speech ended");
     };
     
     document.addEventListener('voice-speaking-started', handleSpeakingStarted);
@@ -228,6 +142,43 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       localStorage.setItem('voiceSettings', JSON.stringify(voiceSettings));
     }
   }, [voiceSettings]);
+  
+  // Track mood changes and offer suggestions
+  useEffect(() => {
+    if (mood && mood !== lastMoodSuggestion && voiceSettings.enabled && !voiceSettings.muted) {
+      const getMoodSuggestion = () => {
+        switch (mood) {
+          case MoodType.HAPPY:
+            return `Since you're feeling happy, it's a great time to tackle more challenging topics or try a practice test to maintain your positive momentum.`;
+          case MoodType.FOCUSED:
+            return `I notice you're feeling focused. This is the perfect time for deep learning sessions on complex topics.`;
+          case MoodType.TIRED:
+            return `You seem tired today. How about focusing on lighter review sessions or watching some educational videos instead of intense study?`;
+          case MoodType.STRESSED:
+            return `I can see you're feeling stressed. Let's take a short break with some breathing exercises, then try some confidence-building review of topics you already know well.`;
+          case MoodType.CURIOUS:
+            return `Your curious mood is perfect for exploring new concepts. Why not check out some of the advanced topics in your study plan?`;
+          case MoodType.OVERWHELMED:
+            return `Feeling overwhelmed is normal during exam preparation. Let's break down your study plan into smaller, manageable chunks today.`;
+          case MoodType.ANXIOUS:
+            return `When feeling anxious, it helps to start with a quick win. Try reviewing a topic you're already comfortable with to build confidence.`;
+          case MoodType.MOTIVATED:
+            return `Your motivation is high today! This is the perfect time to tackle those challenging topics you've been putting off.`;
+          case MoodType.CONFUSED:
+            return `I see you're feeling confused. Let's focus on clarifying fundamental concepts before moving to more complex topics.`;
+          default:
+            return `How about we adjust today's study plan based on your current mood?`;
+        }
+      };
+
+      // Delay the suggestion to not overwhelm the user right away
+      setTimeout(() => {
+        const suggestion = `Hey ${userName || 'there'}! ${getMoodSuggestion()}`;
+        speakMessage(suggestion);
+        setLastMoodSuggestion(mood);
+      }, 10000); // 10 seconds delay
+    }
+  }, [mood, lastMoodSuggestion, userName, voiceSettings.enabled, voiceSettings.muted]);
   
   // Function to update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
@@ -266,7 +217,7 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         // Improved pronunciation for PREPZR - spoken as "Prep-zer" with proper pause
         const correctedMessage = message.replace(/PREPZR/gi, 'Prep, zer').replace(/prepzr/gi, 'Prep, zer');
         
-        speakMessage(correctedMessage, voiceSettings);
+        speakVoiceMessage(correctedMessage, voiceSettings);
       }
     }
   }, [voiceSettings]);
@@ -369,31 +320,46 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       return;
     }
     
-    // NEET exam specific commands
-    if (lowerCommand.includes('neet') || lowerCommand.includes('medical') || lowerCommand.includes('entrance')) {
-      respond("PREPZR offers comprehensive NEET exam preparation with specialized concept cards for Biology, Physics, and Chemistry. Our AI-driven study plans are tailored specifically for NEET aspirants to help you achieve your best possible score.");
+    // Handle mood-related commands
+    if (lowerCommand.includes('i feel tired') || lowerCommand.includes('i am tired')) {
+      respond("I understand you feel tired. I recommend a short 15-minute break, followed by reviewing easier topics. Would you like me to suggest some light review topics?");
       return;
     }
     
-    if (lowerCommand.includes('free trial') || lowerCommand.includes('sign up')) {
-      respond("You can sign up for our 7-day free trial to access all premium features including personalized study plans, NEET-specific concept cards, and full-length practice tests. Would you like me to guide you to the registration page?");
+    if (lowerCommand.includes('i feel stressed') || lowerCommand.includes('i am stressed')) {
+      respond("I can see you're feeling stressed. Let's take a deep breath together. Remember, it's okay to take breaks. Would you like me to guide you through a quick breathing exercise?");
       return;
     }
     
-    if (lowerCommand.includes('exam readiness') || lowerCommand.includes('test my preparation')) {
-      respond("Our Exam Readiness Analyzer will evaluate your current preparation level for NEET. It provides a comprehensive analysis of your strengths and areas of improvement. Would you like me to open the analyzer for you?");
-      
-      // Dispatch event to open exam analyzer
-      setTimeout(() => {
-        const event = new Event('open-exam-analyzer');
-        window.dispatchEvent(event);
-      }, 2000);
-      
+    if (lowerCommand.includes('i feel motivated') || lowerCommand.includes('i am motivated')) {
+      respond("That's great! Your motivation is your superpower. This is the perfect time to tackle challenging topics. Would you like me to suggest some advanced concepts to study?");
       return;
     }
     
-    // Handle general inquiry
-    respond("I'm processing your request about " + command + ". How else can I assist with your exam preparation today?");
+    // Handle study-related commands
+    if (lowerCommand.includes('what should i study') || lowerCommand.includes('suggest topics')) {
+      respond("Based on your progress, I recommend focusing on Physics concepts, particularly Newton's Laws and Kinematics. Would you like me to open these topics for you?");
+      return;
+    }
+    
+    if (lowerCommand.includes('take a practice test') || lowerCommand.includes('start practice test')) {
+      respond("I'll help you start a practice test. Would you prefer a full-length test or a quick 15-minute quiz on recent topics?");
+      return;
+    }
+    
+    if (lowerCommand.includes('explain') && (lowerCommand.includes('concept') || lowerCommand.includes('topic'))) {
+      respond("I'd be happy to explain this concept. Let me break it down for you step by step. First, let's understand the basic principles...");
+      return;
+    }
+    
+    // Handle help and information commands
+    if (lowerCommand.includes('what can you do') || lowerCommand.includes('help me')) {
+      respond("I can help you navigate the platform, suggest study topics, explain concepts, start practice tests, track your mood, and provide personalized learning recommendations. Just ask me what you need help with.");
+      return;
+    }
+    
+    // Handle command not understood
+    respond("I'm processing your request to " + command + ". How else can I assist you with your studies today?");
     
   }, [speakMessage]);
   
@@ -427,8 +393,16 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   
   // Get supported languages
   const getSupportedLanguages = useCallback(() => {
-    return LANGUAGE_OPTIONS;
-  }, []);
+    if (!availableVoices.length) return LANGUAGE_OPTIONS;
+    
+    // Find languages that have at least one voice
+    const supportedLanguageCodes = new Set(availableVoices.map(v => v.lang));
+    
+    // Filter language options to only include those with available voices
+    return LANGUAGE_OPTIONS.filter(lang => 
+      Array.from(supportedLanguageCodes).some(code => code.includes(lang.value))
+    );
+  }, [availableVoices]);
   
   return {
     voiceSettings,
