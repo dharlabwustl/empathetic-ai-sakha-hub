@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,6 @@ import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import adminAuthService from "@/services/auth/adminAuthService";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -19,17 +18,15 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const { adminLogin } = useAdminAuth();
 
   // Check if already authenticated
   useEffect(() => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn) {
-      navigate('/admin/dashboard', { replace: true });
+      window.location.href = '/admin/dashboard';
     }
-  }, [navigate]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,17 +40,18 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      const success = await adminLogin(email, password);
+      const response = await adminAuthService.adminLogin({ email, password });
       
-      if (success) {
+      if (response.success) {
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        navigate('/admin/dashboard', { replace: true });
+        // Use direct location change for more reliable redirect
+        window.location.href = '/admin/dashboard';
       } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'");
+        setLoginError(response.message || "Invalid admin credentials");
       }
     } catch (error) {
       console.error("Admin login error:", error);

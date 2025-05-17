@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,13 +8,11 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 import authService from '@/services/auth/authService';
 import adminAuthService from '@/services/auth/adminAuthService';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogout } = useAdminAuth();
   
   // Use state to track login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -81,14 +80,25 @@ const Header = () => {
     try {
       // Determine if we're logging out admin or regular user
       if (isAdmin) {
-        await adminLogout();
+        await adminAuthService.adminLogout();
       } else {
         await authService.logout();
       }
       
+      // Clear authentication data
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      
       // Update state
       setIsLoggedIn(false);
       setIsAdmin(false);
+      
+      // Dispatch event to notify components
+      window.dispatchEvent(new Event('auth-state-changed'));
       
       // Show toast
       toast({

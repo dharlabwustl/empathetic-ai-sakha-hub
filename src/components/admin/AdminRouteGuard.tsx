@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import adminAuthService from "@/services/auth/adminAuthService";
 
@@ -10,7 +10,6 @@ interface AdminRouteGuardProps {
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
