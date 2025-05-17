@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface ConceptCard {
@@ -17,6 +16,7 @@ export interface ConceptCard {
   commonMistakes?: string[];
   examRelevance?: string;
   relatedConcepts?: string[];
+  notes?: string; // Added notes field
 }
 
 export const useUserStudyPlan = () => {
