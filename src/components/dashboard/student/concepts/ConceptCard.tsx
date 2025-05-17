@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +54,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page
+    // Navigate to concept detail page
     navigate(`/dashboard/student/concepts/${id}`);
   };
 
