@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -79,7 +79,6 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
       description: `Beginning flashcard session for ${conceptTitle}`,
     });
     // Navigate to flashcard practice page
-    // navigate(`/dashboard/student/flashcards/practice/${conceptId}`);
   };
   
   const updateConfidence = (id: string, confidence: 'low' | 'medium' | 'high') => {
@@ -253,20 +252,22 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
         </div>
       )}
       
-      <style jsx="true">{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-style-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
+      <style>
+        {`
+          .perspective-1000 {
+            perspective: 1000px;
+          }
+          .transform-style-3d {
+            transform-style: preserve-3d;
+          }
+          .backface-hidden {
+            backface-visibility: hidden;
+          }
+          .rotate-y-180 {
+            transform: rotateY(180deg);
+          }
+        `}
+      </style>
     </div>
   );
 };

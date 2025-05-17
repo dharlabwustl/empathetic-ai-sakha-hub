@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +18,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
@@ -74,6 +74,51 @@ const ConceptCardDetailPage: React.FC = () => {
     }
   };
 
+  const speakContent = () => {
+    if (conceptCard && conceptCard.content && 'speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Create utterance with proper PREPZR pronunciation
+      const correctedText = conceptCard.content
+        .replace(/PREPZR/gi, 'Prep-zer')
+        .replace(/prepzr/gi, 'Prep-zer')
+        .replace(/Prepzr/g, 'Prep-zer');
+      
+      const utterance = new SpeechSynthesisUtterance(correctedText);
+      
+      // Use voices API to find an appropriate Hindi/Indian voice
+      const voices = window.speechSynthesis.getVoices();
+      let selectedVoice = null;
+      
+      // Try to find a Hindi voice first
+      selectedVoice = voices.find(v => v.lang === 'hi-IN');
+      
+      // If no Hindi voice found, try for Indian English voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang === 'en-IN');
+      }
+      
+      // If still no match, use any available voice
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Set properties
+      utterance.rate = 0.9; // Slightly slower for better comprehension
+      utterance.pitch = 1.1; // Slightly higher pitch for female voice
+      utterance.volume = 0.8;
+      
+      // Speak the message
+      window.speechSynthesis.speak(utterance);
+      
+      toast({
+        title: "Reading concept content",
+        description: "Listening to concept explanation",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
@@ -101,10 +146,10 @@ const ConceptCardDetailPage: React.FC = () => {
     );
   }
 
-  // Calculate mastery percentage based on recallAccuracy, quizScore, and completion status
-  const masteryPercent = conceptCard?.recallAccuracy || 
-    (conceptCard?.quizScore || 
-    (conceptCard?.progress ? conceptCard.progress : 0));
+  // Calculate mastery percentage based on available metrics
+  const masteryPercent = conceptCard.recallAccuracy || 
+    conceptCard.quizScore || 
+    (conceptCard.progress ? conceptCard.progress : 0);
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -119,6 +164,17 @@ const ConceptCardDetailPage: React.FC = () => {
           ← Back
         </Button>
         <h1 className="text-2xl font-bold">Concept Details</h1>
+        
+        <div className="ml-auto flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={speakContent}
+          >
+            <Volume className="h-4 w-4 mr-2" />
+            Listen
+          </Button>
+        </div>
       </div>
 
       {/* Concept header card */}
@@ -144,7 +200,7 @@ const ConceptCardDetailPage: React.FC = () => {
               <p className="text-muted-foreground mb-4">{conceptCard.description}</p>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
-                {conceptCard.timeSuggestion && (
+                {conceptCard.timeSuggestion !== undefined && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-blue-600" />
                     <span className="text-sm">{conceptCard.timeSuggestion} min</span>
@@ -249,7 +305,7 @@ const ConceptCardDetailPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800/40 rounded-lg shadow-sm border p-1">
           <TabsContent value="overview" className="mt-0 focus:outline-none">
             {/* Cast the conceptCard to the correct type */}
-            <ConceptCardDetail conceptCard={conceptCard as ConceptCardType} />
+            <ConceptCardDetail conceptCard={conceptCard} />
           </TabsContent>
           
           <TabsContent value="notes" className="mt-0 focus:outline-none">

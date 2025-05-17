@@ -13,7 +13,7 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
-  const goalTitle = userProfile?.goals?.[0]?.title || "IIT-JEE";
+  const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
   // Get today's plan data
   const {

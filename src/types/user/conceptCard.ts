@@ -10,7 +10,7 @@ export interface ConceptCard {
   completed?: boolean;
   progress?: number;
   relatedConcepts?: string[];
-  content?: string;
+  content: string;
   examples?: string[];
   commonMistakes?: string[];
   examRelevance?: string;
@@ -29,5 +29,3 @@ export interface MasteryLevel {
   color: string;
   minScore: number;
 }
-
-export type { ConceptCard };
