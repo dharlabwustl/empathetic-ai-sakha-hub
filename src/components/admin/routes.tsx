@@ -6,6 +6,7 @@ import { DocumentationPage } from "@/pages/admin/DocumentationPage";
 import FlaskGuidePage from "@/pages/admin/FlaskGuidePage";
 import { Navigate } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import FeaturesManagementPage from "@/pages/admin/FeaturesManagementPage";
 import AdminLogin from "@/pages/admin/AdminLogin";
 
 const adminRoutes: RouteObject[] = [
@@ -16,6 +17,10 @@ const adminRoutes: RouteObject[] = [
   {
     path: "/admin/dashboard",
     element: <AdminRouteGuard><AdminDashboard /></AdminRouteGuard>,
+  },
+  {
+    path: "/admin/features",
+    element: <AdminRouteGuard><FeaturesManagementPage /></AdminRouteGuard>,
   },
   {
     path: "/admin/documentation",

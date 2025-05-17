@@ -65,9 +65,9 @@ const SubscriptionPage: React.FC = () => {
       });
     }
     
-    // Redirect to dashboard
+    // Redirect to billing page in profile
     setTimeout(() => {
-      navigate('/dashboard/student');
+      navigate('/dashboard/student/profile?tab=billing');
     }, 1500);
   };
   

@@ -11,7 +11,7 @@ interface VoiceGreetingProps {
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   isFirstTimeUser,
   userName,
-  language = 'en'
+  language = 'en-IN'
 }) => {
   const greetingPlayed = useRef<boolean>(false);
   
@@ -33,7 +33,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [isFirstTimeUser, voiceInitialized, voiceSettings.enabled, userName]);
+  }, [isFirstTimeUser, voiceInitialized, voiceSettings.enabled, userName, speakMessage]);
   
   const getGreetingMessage = (name: string): string => {
     const cleanName = name.split(' ')[0]; // Get first name only
