@@ -65,7 +65,7 @@ const adminAuthService = {
     }
   },
   
-  // Admin logout function with enhanced session clearing
+  // Admin logout function with enhanced session clearing but without navigation
   async adminLogout(): Promise<void> {
     console.log("Admin auth service: executing logout");
     
@@ -76,9 +76,6 @@ const adminAuthService = {
     
     // Dispatch event to notify components about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
-    
-    // Force hard navigation to login
-    window.location.href = '/admin/login';
   },
   
   // Get current admin user

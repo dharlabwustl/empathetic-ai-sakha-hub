@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import adminAuthService from '@/services/auth/adminAuthService';
 
 // Admin user interface
 interface AdminUser {
@@ -16,7 +17,7 @@ interface AdminAuthContextType {
   adminLoading: boolean;
   isAdminAuthenticated: boolean;
   adminLogin: (email: string, password: string) => Promise<boolean>;
-  adminLogout: () => void;
+  adminLogout: () => Promise<void>;
 }
 
 // Create context
@@ -90,25 +91,11 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     setAdminLoading(true);
     
     try {
-      // For demo purposes, accept any email that includes 'admin'
-      if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
-        console.log("Admin login successful, setting admin user data");
-        
-        // Create new admin user object
-        const newAdminUser: AdminUser = {
-          id: 'admin-1',
-          name: "Admin User",
-          email: email,
-          role: "admin",
-          permissions: ['all']
-        };
-        
-        // Save admin data to localStorage
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('adminToken', `token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(newAdminUser));
-        
-        setAdminUser(newAdminUser);
+      const response = await adminAuthService.adminLogin({ email, password });
+      
+      if (response.success && response.data) {
+        // Update React state
+        setAdminUser(response.data);
         
         // Dispatch event to notify other components about auth change
         window.dispatchEvent(new Event('auth-state-changed'));
@@ -126,21 +113,20 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     }
   };
 
-  // Admin logout function
-  const adminLogout = () => {
-    // First clear React state
-    setAdminUser(null);
-    
-    // Clear all admin authentication data
-    localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminToken');
-    
-    // Dispatch event to notify other components about auth change
-    window.dispatchEvent(new Event('auth-state-changed'));
-    
-    // Direct navigation to login page
-    window.location.href = '/admin/login';
+  // Admin logout function - return Promise but don't navigate
+  const adminLogout = async (): Promise<void> => {
+    try {
+      // First clear React state
+      setAdminUser(null);
+      
+      // Call service to clean up authentication data
+      await adminAuthService.adminLogout();
+      
+      // Dispatch event to notify other components about auth change
+      window.dispatchEvent(new Event('auth-state-changed'));
+    } catch (error) {
+      console.error("Error during admin logout:", error);
+    }
   };
 
   return (

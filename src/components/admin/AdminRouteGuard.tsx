@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import adminAuthService from "@/services/auth/adminAuthService";
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
@@ -10,31 +10,22 @@ interface AdminRouteGuardProps {
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
+  const { isAdminAuthenticated, adminLoading } = useAdminAuth();
+  const navigate = useNavigate();
+  
   useEffect(() => {
-    const checkAdminAuth = async () => {
-      // Use the service to check authentication
-      const isAdminAuthenticated = adminAuthService.isAuthenticated();
-      
-      if (!isAdminAuthenticated) {
-        console.log("Admin authentication failed, redirecting to login");
-        toast({
-          title: "Authentication required",
-          description: "Please log in to access the admin area",
-          variant: "destructive",
-        });
-        setIsAuthenticated(false);
-      } else {
-        console.log("Admin authentication successful");
-        setIsAuthenticated(true);
-      }
-    };
-    
-    checkAdminAuth();
-  }, [toast]);
+    if (!adminLoading && !isAdminAuthenticated) {
+      console.log("Admin authentication failed in AdminRouteGuard, redirecting to login");
+      toast({
+        title: "Authentication required",
+        description: "Please log in to access the admin area",
+        variant: "destructive",
+      });
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isAdminAuthenticated, adminLoading, toast, navigate]);
 
-  if (isAuthenticated === null) {
+  if (adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-pulse text-center">
@@ -44,12 +35,8 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     );
   }
 
-  if (isAuthenticated === false) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
   // Only render children if authenticated
-  return <>{children}</>;
+  return isAdminAuthenticated ? <>{children}</> : null;
 };
 
 export default AdminRouteGuard;
