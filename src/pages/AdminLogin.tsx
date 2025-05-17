@@ -75,8 +75,6 @@ const AdminLogin = () => {
         // Save admin data to localStorage
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('admin_user', JSON.stringify(adminUser));
-        localStorage.setItem('adminToken', `admin_token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
         
         toast({
           title: "Login successful",
@@ -181,9 +179,9 @@ const AdminLogin = () => {
                     <Button 
                       variant="ghost"
                       size="icon"
-                      type="button"
                       className="absolute right-0 top-0 h-full"
                       onClick={() => setShowPassword(!showPassword)}
+                      type="button"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
