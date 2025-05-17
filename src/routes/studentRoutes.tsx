@@ -15,6 +15,8 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
+import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
 
 const StudentRoutes = () => {
   return (
@@ -33,6 +35,16 @@ const StudentRoutes = () => {
       <Route path="/concepts" element={
         <SidebarLayout>
           <ConceptsPage />
+        </SidebarLayout>
+      } />
+      <Route path="/concepts/:conceptId" element={
+        <SidebarLayout>
+          <ConceptCardDetailPage />
+        </SidebarLayout>
+      } />
+      <Route path="/concepts/study/:conceptId" element={
+        <SidebarLayout>
+          <ConceptStudyPage />
         </SidebarLayout>
       } />
       <Route path="/flashcards" element={
