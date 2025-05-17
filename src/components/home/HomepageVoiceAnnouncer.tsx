@@ -36,29 +36,29 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   
   // Welcome messages sequence - focusing on NEET examination and PREPZR methodology
   const welcomeMessages = [
-    "Welcome to PREPZR. I'm your AI study assistant. How may I help you in preparing for NEET examination.",
-    "PREPZR is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
+    "Welcome to PREP-zer. I'm your AI study assistant. How may I help you in preparing for NEET examination.",
+    "PREP-zer is designed specifically for students preparing for competitive exams like NEET and IIT-JEE.",
     "Our personalized study plans adapt to your learning style and pace, making NEET preparation more effective.",
     "Our Champion Methodology helps students achieve top ranks by focusing on conceptual clarity and strategic practice.",
     "Take our quick Exam Readiness Test to assess your current preparation level and get a customized study plan.",
     "Sign up for a free 7-day trial to access all our features including AI-powered practice tests and personalized feedback.",
     "Our premium plans offer advanced features like doubt resolution, detailed performance tracking, and specialized NEET tutoring.",
     "We've helped thousands of students achieve their dream scores in NEET. Let us help you too!",
-    "Click 'Get Started' to begin your NEET preparation journey with PREPZR today!"
+    "Click 'Get Started' to begin your NEET preparation journey with PREP-zer today!"
   ];
 
   // PREPZR feature descriptions for the assistant - enhanced to focus on methodology and benefits
   const prepzrFeatures = [
-    "PREPZR adapts to your emotional state, providing personalized motivation when you feel anxious or tired.",
+    "PREP-zer adapts to your emotional state, providing personalized motivation when you feel anxious or tired.",
     "Our AI-powered study plans are tailored to your learning style and exam timeline.",
     "Practice with exam-like questions and get detailed performance analytics to track your progress.",
     "The voice assistant can answer your questions about NEET subjects and guide your study sessions.",
-    "PREPZR has helped thousands of students improve their scores by 30% or more!",
+    "PREP-zer has helped thousands of students improve their scores by 30% or more!",
     "Our champion methodology is based on years of research on how top scorers prepare for competitive exams.",
-    "PREPZR's unique Concept Card system helps you master difficult topics by breaking them into manageable chunks.",
+    "PREP-zer's unique Concept Card system helps you master difficult topics by breaking them into manageable chunks.",
     "We monitor your learning patterns and adjust your study plan to maximize efficiency.",
     "Our AI can identify knowledge gaps and provide targeted practice questions to strengthen weak areas.",
-    "PREPZR creates personalized revision schedules based on the forgetting curve to ensure long-term retention.",
+    "PREP-zer creates personalized revision schedules based on the forgetting curve to ensure long-term retention.",
     "Top NEET rankers have consistently praised our methodology for making complex topics easy to understand."
   ];
 
@@ -193,7 +193,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // If logged in, show different first message and fewer messages
     if (isLoggedIn && welcomeMessages.length > 0) {
-      welcomeMessages[0] = "Welcome back to PREPZR. Ready to continue your NEET preparation journey?";
+      welcomeMessages[0] = "Welcome back to PREP-zer. Ready to continue your NEET preparation journey?";
       // Trim the welcome messages for returning users
       welcomeMessages.splice(3);
       welcomeMessages.push("Let's pick up where you left off with your NEET preparation!");
@@ -202,34 +202,34 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
   
   const handleVoiceInput = (input: string) => {
     const lowerInput = input.toLowerCase();
-    let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREPZR?";
+    let response = "I'm sorry, I didn't understand that. How can I help you with your NEET preparation on PREP-zer?";
     
     // Process common queries
     if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
-      response = "Hello! Welcome to PREPZR. How can I assist you with your NEET preparation today?";
+      response = "Hello! Welcome to PREP-zer. How can I assist you with your NEET preparation today?";
     } else if (lowerInput.includes("methodology") || lowerInput.includes("champion")) {
-      response = "PREPZR's Champion Methodology is based on research of top NEET performers. It combines personalized adaptive learning, emotional intelligence, and strategic revision cycles to maximize your score. This approach has helped thousands achieve top ranks.";
+      response = "PREP-zer's Champion Methodology is based on research of top NEET performers. It combines personalized adaptive learning, emotional intelligence, and strategic revision cycles to maximize your score. This approach has helped thousands achieve top ranks.";
     } else if (lowerInput.includes("about") || lowerInput.includes("what is") || lowerInput.includes("tell me about")) {
-      response = "PREPZR is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
+      response = "PREP-zer is an AI-powered study assistant designed to help students prepare for competitive exams like NEET. We offer personalized study plans, adaptive learning, and emotional intelligence to support your journey to success.";
     } else if (lowerInput.includes("features") || lowerInput.includes("what can you do")) {
       // Select a random feature to highlight
       response = prepzrFeatures[Math.floor(Math.random() * prepzrFeatures.length)];
     } else if (lowerInput.includes("exam") || lowerInput.includes("readiness") || lowerInput.includes("test")) {
       response = "Our Exam Readiness Test will help you understand your current NEET preparation level and create a customized study plan. Click the Test Your Exam Readiness button to start.";
     } else if (lowerInput.includes("trial") || lowerInput.includes("free")) {
-      response = "You can try PREPZR with our 7-day free trial. Sign up now to access all features and see how our Champion Methodology can help you succeed in NEET.";
+      response = "You can try PREP-zer with our 7-day free trial. Sign up now to access all features and see how our Champion Methodology can help you succeed in NEET.";
     } else if (lowerInput.includes("neet") || lowerInput.includes("medical")) {
-      response = "PREPZR is specially designed for NEET aspirants. Our platform covers all NEET subjects - Physics, Chemistry, and Biology - with expert-curated content and AI-generated practice questions based on the latest exam patterns.";
+      response = "PREP-zer is specially designed for NEET aspirants. Our platform covers all NEET subjects - Physics, Chemistry, and Biology - with expert-curated content and AI-generated practice questions based on the latest exam patterns.";
     } else if (lowerInput.includes("better") || lowerInput.includes("different") || lowerInput.includes("unique")) {
-      response = "Unlike traditional coaching, PREPZR adapts to your individual learning style and emotional state. Our AI monitors your progress, identifies knowledge gaps, and adjusts your study plan in real-time - something no human tutor can do at scale.";
+      response = "Unlike traditional coaching, PREP-zer adapts to your individual learning style and emotional state. Our AI monitors your progress, identifies knowledge gaps, and adjusts your study plan in real-time - something no human tutor can do at scale.";
     } else if (lowerInput.includes("success") || lowerInput.includes("results")) {
-      response = "Our students have consistently achieved top ranks in NEET. On average, students using PREPZR for 3 months improve their scores by 30%. Our methodology has been endorsed by medical educators and NEET toppers.";
+      response = "Our students have consistently achieved top ranks in NEET. On average, students using PREP-zer for 3 months improve their scores by 30%. Our methodology has been endorsed by medical educators and NEET toppers.";
     } else if (lowerInput.includes("signup") || lowerInput.includes("register")) {
       response = "You can sign up for our free 7-day trial by clicking the 'Get Started' button. No credit card required - experience the full power of our Champion Methodology risk-free.";
     } else if (lowerInput.includes("premium") || lowerInput.includes("paid") || lowerInput.includes("plan")) {
       response = "Our premium plans offer advanced features including unlimited NEET practice tests, personalized feedback, doubt resolution, and specialized tutoring for NEET subjects. All backed by our Champion Methodology.";
     } else if (lowerInput.includes("concept") || lowerInput.includes("cards")) {
-      response = "PREPZR's unique Concept Card system breaks down complex NEET topics into digestible chunks, making even the most difficult concepts easy to understand. Each card is designed by expert educators to focus on key exam concepts.";
+      response = "PREP-zer's unique Concept Card system breaks down complex NEET topics into digestible chunks, making even the most difficult concepts easy to understand. Each card is designed by expert educators to focus on key exam concepts.";
     } else if (lowerInput.includes("adaptive") || lowerInput.includes("personalized")) {
       response = "Our adaptive learning system continuously analyzes your performance and adjusts your study material in real-time. You'll never waste time on topics you've already mastered or move too quickly past concepts you need to strengthen.";
     }
@@ -267,7 +267,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
       // Fix pronunciation for speech only - not for display
-      const processedMessage = message.replace(/PREPZR/g, "prep-ezer");
+      const processedMessage = message.replace(/PREPZR/g, "PREP-zer").replace(/PREP-zer/g, "PREP-zer");
       
       utteranceRef.current.text = processedMessage;
       window.speechSynthesis.speak(utteranceRef.current);
@@ -384,17 +384,17 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                       initial={{ opacity: 0, width: 0, x: -20 }}
                       animate={{ opacity: 1, width: 'auto', x: -10 }}
                       exit={{ opacity: 0, width: 0, x: -20 }}
-                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64"
+                      className="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 bg-white rounded-lg shadow-lg p-3 border border-gray-200 w-64"
                     >
-                      <p className="text-sm font-medium mb-1">PREPZR Voice Assistant</p>
-                      <p className="text-xs text-gray-500">Click to explore how PREPZR can help you crack your exams!</p>
+                      <p className="font-semibold text-sm mb-1">PREP-zer Voice Assistant</p>
+                      <p className="text-xs text-gray-500">Click to explore how PREP-zer can help you crack your exams!</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              Ask PREPZR about exam preparation
+              Ask PREP-zer about exam preparation
             </TooltipContent>
           </Tooltip>
         </motion.div>
@@ -424,7 +424,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                     >
                       <Volume2 className={`h-4 w-4 ${isMuted ? 'text-gray-400' : 'text-blue-500'}`} />
                     </motion.div>
-                    <h3 className="font-medium text-sm">PREPZR Assistant</h3>
+                    <h3 className="font-medium text-sm">PREP-zer Assistant</h3>
                   </div>
                   <div className="flex space-x-1">
                     <Tooltip delayDuration={300}>
@@ -455,7 +455,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        {isListening ? "Stop speaking" : "Ask PREPZR"}
+                        {isListening ? "Stop speaking" : "Ask PREP-zer"}
                       </TooltipContent>
                     </Tooltip>
                     
@@ -519,7 +519,7 @@ const HomepageVoiceAnnouncer: React.FC<HomepageVoiceAnnouncerProps> = ({
                   onClick={startAnnouncement}
                 >
                   <Volume2 className="h-3 w-3 mr-1" />
-                  PREPZR Voice Assistant
+                  PREP-zer Voice Assistant
                 </Button>
               </div>
             )}
