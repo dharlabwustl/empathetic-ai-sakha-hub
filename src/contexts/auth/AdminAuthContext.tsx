@@ -37,13 +37,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       setAdminLoading(true);
       
       // Check if admin data exists in localStorage - multiple checks for redundancy
-      const adminData = localStorage.getItem('admin_user');
-      const adminDataBackup = localStorage.getItem('adminUser');
+      const adminData = localStorage.getItem('adminUser');
       const isLoggedIn = localStorage.getItem('admin_logged_in');
       
-      if ((adminData || adminDataBackup) && isLoggedIn === 'true') {
+      if (adminData && isLoggedIn === 'true') {
         try {
-          const parsedData = JSON.parse(adminData || adminDataBackup || '{}');
+          const parsedData = JSON.parse(adminData);
           if (parsedData.email) {
             setAdminUser({
               id: parsedData.id || 'admin-1',
@@ -56,19 +55,15 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           } else {
             setAdminUser(null);
             // Clear invalid data
-            localStorage.removeItem('admin_user');
             localStorage.removeItem('adminUser');
             localStorage.removeItem('admin_logged_in');
-            localStorage.removeItem('adminToken');
             console.log("Invalid admin data found, clearing authentication");
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
           // Clear invalid data
-          localStorage.removeItem('admin_user');
           localStorage.removeItem('adminUser');
           localStorage.removeItem('admin_logged_in');
-          localStorage.removeItem('adminToken');
           setAdminUser(null);
         }
       } else {
@@ -87,11 +82,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
     
     window.addEventListener('auth-state-changed', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-state-changed', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
     };
   }, []);
 
@@ -123,7 +116,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         
         // Save admin data to localStorage with multiple values for redundancy
         localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
         localStorage.setItem('adminToken', `token_${Date.now()}`);
         localStorage.setItem('adminUser', JSON.stringify(newAdminUser));
         
@@ -152,13 +144,11 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     // Clear all admin authentication data
     localStorage.removeItem('admin_logged_in');
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
+    localStorage.removeItem('adminToken');
     
     // Clear session storage items related to admin
     sessionStorage.removeItem('admin_session');
-    sessionStorage.removeItem('admin_token');
     
     // Clear remembered login if exists
     localStorage.removeItem('prepzr_remembered_login');
@@ -166,8 +156,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Direct navigation to login page
-    window.location.replace('/login');
+    // Direct navigation to login page - more reliable than router
+    setTimeout(() => {
+      window.location.replace('/admin/login');
+    }, 100);
   };
 
   return (

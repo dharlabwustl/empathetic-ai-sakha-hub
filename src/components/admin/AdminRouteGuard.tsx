@@ -17,7 +17,7 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     const checkAdminAuth = () => {
       // Direct localStorage check for better reliability
       const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-      const hasAdminUser = !!localStorage.getItem('adminUser') || !!localStorage.getItem('admin_user');
+      const hasAdminUser = !!localStorage.getItem('adminUser');
       const hasAdminToken = !!localStorage.getItem('adminToken');
       
       // Consider authenticated if admin_logged_in is true AND we have either user data or token
@@ -30,6 +30,11 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
           description: "Please log in to access the admin area",
           variant: "destructive",
         });
+        
+        // Ensure redirection happens reliably
+        setTimeout(() => {
+          window.location.replace('/admin/login');
+        }, 100);
       } else {
         console.log("Admin authentication successful");
       }

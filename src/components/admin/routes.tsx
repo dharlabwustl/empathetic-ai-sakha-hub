@@ -27,6 +27,10 @@ const adminRoutes: RouteObject[] = [
   },
   // Add a fallback route to redirect to dashboard
   {
+    path: "/admin",
+    element: <Navigate to="/admin/dashboard" replace />,
+  },
+  {
     path: "/admin/*",
     element: <Navigate to="/admin/dashboard" replace />,
   }

@@ -25,8 +25,12 @@ const AdminLogin = () => {
   // Check if already authenticated
   useEffect(() => {
     if (isAdminAuthenticated) {
-      // Use navigate for React Router navigation
+      // Use both React Router and window.location for redundancy
       navigate('/admin/dashboard', { replace: true });
+      // Fallback to direct navigation if router doesn't work
+      setTimeout(() => {
+        window.location.replace('/admin/dashboard');
+      }, 300);
     }
   }, [isAdminAuthenticated, navigate]);
 
@@ -50,8 +54,13 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate using React Router
+        // Use both approaches for redundancy
         navigate('/admin/dashboard', { replace: true });
+        
+        // Direct location change as fallback - more reliable
+        setTimeout(() => {
+          window.location.replace('/admin/dashboard');
+        }, 300);
       } else {
         throw new Error("Invalid admin credentials");
       }

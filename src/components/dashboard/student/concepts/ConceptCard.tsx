@@ -116,6 +116,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
               <Progress 
                 value={progress} 
                 className="h-2 bg-gray-100 dark:bg-gray-800" 
+                indicatorClassName={getProgressColor()}
               />
             </div>
             
