@@ -24,11 +24,11 @@ const ConceptStudyPage: React.FC = () => {
   }, [conceptId, navigate, toast]);
   
   return (
-    <div className="flex items-center justify-center h-[80vh]">
+    <div className="flex items-center justify-center h-[80vh] bg-gradient-to-b from-blue-50 to-white dark:from-gray-900/20 dark:to-gray-900">
       <div className="text-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-semibold text-primary">Loading Concept</h2>
-        <p className="text-muted-foreground mt-2">Please wait while we prepare your study materials...</p>
+        <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-6" />
+        <h2 className="text-3xl font-semibold text-primary mb-2">Loading Concept</h2>
+        <p className="text-muted-foreground mt-2 max-w-md">Please wait while we prepare your study materials...</p>
       </div>
     </div>
   );
