@@ -44,11 +44,9 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         }
       }
       
-      // Check for saved language preference
-      const savedLanguage = localStorage.getItem('voiceAssistantLanguage');
-      if (savedLanguage) {
-        setVoiceSettings(prev => ({ ...prev, language: savedLanguage }));
-      }
+      // Check for saved language preference, default to Hindi if not set
+      const savedLanguage = localStorage.getItem('voiceAssistantLanguage') || 'hi-IN';
+      setVoiceSettings(prev => ({ ...prev, language: savedLanguage }));
       
       // Initialize voice
       const initializeVoice = () => {
@@ -139,6 +137,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('voiceSettings', JSON.stringify(voiceSettings));
+      localStorage.setItem('voiceAssistantLanguage', voiceSettings.language);
     }
   }, [voiceSettings]);
   
@@ -146,38 +145,65 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   useEffect(() => {
     if (mood && mood !== lastMoodSuggestion && voiceSettings.enabled && !voiceSettings.muted) {
       const getMoodSuggestion = () => {
-        switch (mood) {
-          case MoodType.HAPPY:
-            return `Since you're feeling happy, it's a great time to tackle more challenging topics or try a practice test to maintain your positive momentum.`;
-          case MoodType.FOCUSED:
-            return `I notice you're feeling focused. This is the perfect time for deep learning sessions on complex topics.`;
-          case MoodType.TIRED:
-            return `You seem tired today. How about focusing on lighter review sessions or watching some educational videos instead of intense study?`;
-          case MoodType.STRESSED:
-            return `I can see you're feeling stressed. Let's take a short break with some breathing exercises, then try some confidence-building review of topics you already know well.`;
-          case MoodType.CURIOUS:
-            return `Your curious mood is perfect for exploring new concepts. Why not check out some of the advanced topics in your study plan?`;
-          case MoodType.OVERWHELMED:
-            return `Feeling overwhelmed is normal during exam preparation. Let's break down your study plan into smaller, manageable chunks today.`;
-          case MoodType.ANXIOUS:
-            return `When feeling anxious, it helps to start with a quick win. Try reviewing a topic you're already comfortable with to build confidence.`;
-          case MoodType.MOTIVATED:
-            return `Your motivation is high today! This is the perfect time to tackle those challenging topics you've been putting off.`;
-          case MoodType.CONFUSED:
-            return `I see you're feeling confused. Let's focus on clarifying fundamental concepts before moving to more complex topics.`;
-          default:
-            return `How about we adjust today's study plan based on your current mood?`;
+        // Hindi mood suggestions
+        if (voiceSettings.language === 'hi-IN') {
+          switch (mood) {
+            case MoodType.HAPPY:
+              return `चूंकि आप खुश महसूस कर रहे हैं, यह अधिक चुनौतीपूर्ण विषयों को संभालने या अपनी सकारात्मक गति बनाए रखने के लिए एक अभ्यास परीक्षण का प्रयास करने का शानदार समय है।`;
+            case MoodType.FOCUSED:
+              return `मैं देख रहा हूं कि आप ध्यान केंद्रित महसूस कर रहे हैं। यह जटिल विषयों पर गहन अध्ययन सत्रों के लिए एकदम सही समय है।`;
+            case MoodType.TIRED:
+              return `आप आज थके हुए लग रहे हैं। गहन अध्ययन के बजाय हल्के समीक्षा सत्र या कुछ शैक्षिक वीडियो देखने पर ध्यान केंद्रित करने का क्या विचार है?`;
+            case MoodType.STRESSED:
+              return `मैं देख सकता हूं कि आप तनाव महसूस कर रहे हैं। कुछ श्वास व्यायाम के साथ एक छोटा ब्रेक लेते हैं, फिर उन विषयों की समीक्षा करके आत्मविश्वास बढ़ाते हैं जिन्हें आप पहले से ही अच्छी तरह से जानते हैं।`;
+            case MoodType.CURIOUS:
+              return `आपका जिज्ञासु मूड नए अवधारणाओं का पता लगाने के लिए एकदम सही है। आपकी अध्ययन योजना में कुछ उन्नत विषयों को क्यों नहीं देखते?`;
+            case MoodType.OVERWHELMED:
+              return `परीक्षा की तैयारी के दौरान अभिभूत महसूस करना सामान्य है। आज अपनी अध्ययन योजना को छोटे, प्रबंधनीय टुकड़ों में विभाजित करें।`;
+            case MoodType.ANXIOUS:
+              return `चिंतित महसूस करते समय, एक त्वरित जीत से शुरू करना मदद करता है। आत्मविश्वास बनाने के लिए एक ऐसे विषय की समीक्षा करने का प्रयास करें जिससे आप पहले से ही सहज हैं।`;
+            case MoodType.MOTIVATED:
+              return `आपका प्रेरणा आज बहुत अधिक है! यह उन चुनौतीपूर्ण विषयों को संभालने का एकदम सही समय है जिन्हें आप टाल रहे थे।`;
+            case MoodType.CONFUSED:
+              return `मैं देख रहा हूं कि आप भ्रमित महसूस कर रहे हैं। अधिक जटिल विषयों पर जाने से पहले मौलिक अवधारणाओं को स्पष्ट करने पर ध्यान केंद्रित करें।`;
+            default:
+              return `आपके ���र्तमान मूड के आधार पर आज की अध्ययन योजना को समायोजित करने का विचार कैसा है?`;
+          }
+        } else {
+          // English mood suggestions
+          switch (mood) {
+            case MoodType.HAPPY:
+              return `Since you're feeling happy, it's a great time to tackle more challenging topics or try a practice test to maintain your positive momentum.`;
+            case MoodType.FOCUSED:
+              return `I notice you're feeling focused. This is the perfect time for deep learning sessions on complex topics.`;
+            case MoodType.TIRED:
+              return `You seem tired today. How about focusing on lighter review sessions or watching some educational videos instead of intense study?`;
+            case MoodType.STRESSED:
+              return `I can see you're feeling stressed. Let's take a short break with some breathing exercises, then try some confidence-building review of topics you already know well.`;
+            case MoodType.CURIOUS:
+              return `Your curious mood is perfect for exploring new concepts. Why not check out some of the advanced topics in your study plan?`;
+            case MoodType.OVERWHELMED:
+              return `Feeling overwhelmed is normal during exam preparation. Let's break down your study plan into smaller, manageable chunks today.`;
+            case MoodType.ANXIOUS:
+              return `When feeling anxious, it helps to start with a quick win. Try reviewing a topic you're already comfortable with to build confidence.`;
+            case MoodType.MOTIVATED:
+              return `Your motivation is high today! This is the perfect time to tackle those challenging topics you've been putting off.`;
+            case MoodType.CONFUSED:
+              return `I see you're feeling confused. Let's focus on clarifying fundamental concepts before moving to more complex topics.`;
+            default:
+              return `How about we adjust today's study plan based on your current mood?`;
+          }
         }
       };
 
       // Delay the suggestion to not overwhelm the user right away
       setTimeout(() => {
-        const suggestion = `Hey ${userName || 'there'}! ${getMoodSuggestion()}`;
+        const suggestion = `${voiceSettings.language === 'hi-IN' ? 'नमस्ते' : 'Hey'} ${userName || (voiceSettings.language === 'hi-IN' ? 'दोस्त' : 'there')}! ${getMoodSuggestion()}`;
         speakMessage(suggestion);
         setLastMoodSuggestion(mood);
       }, 10000); // 10 seconds delay
     }
-  }, [mood, lastMoodSuggestion, userName, voiceSettings.enabled, voiceSettings.muted]);
+  }, [mood, lastMoodSuggestion, userName, voiceSettings.enabled, voiceSettings.muted, voiceSettings.language]);
   
   // Function to update voice settings
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
@@ -208,13 +234,16 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     });
   }, []);
   
-  // Function to speak a message with proper PREPZR pronunciation
+  // Function to speak a message with proper PREPZR pronunciation (Prep-zer)
   const speakMessage = useCallback((message: string, forceSpeech: boolean = false) => {
     // Only speak if enabled or force speech is true
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
-        // Improved pronunciation for PREPZR - spoken as "Prep zer" with proper pause
-        const correctedMessage = message.replace(/PREPZR/gi, 'Prep zer').replace(/prepzr/gi, 'Prep zer');
+        // Improved pronunciation for PREPZR - spoken as "Prep-zer" with proper pause
+        const correctedMessage = message
+          .replace(/PREPZR/gi, 'Prep-zer')
+          .replace(/prepzr/gi, 'Prep-zer')
+          .replace(/Prepzr/g, 'Prep-zer');
         
         speakVoiceMessage(correctedMessage, voiceSettings);
       }
@@ -224,16 +253,16 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   // Test voice function with language support
   const testVoice = useCallback(() => {
     // Use language-specific test messages with correct PREPZR pronunciation
-    let testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant.`;
+    let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप ज़र वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका Prep-zer वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
@@ -418,8 +447,11 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     voiceInitialized,
     transcript,
     availableVoices,
-    supportedLanguages: getSupportedLanguages(),
-    processVoiceCommand
+    supportedLanguages: LANGUAGE_OPTIONS,
+    processVoiceCommand: (command: string) => {
+      console.log("Processing command:", command);
+      // Command processing is handled in each specific component
+    }
   };
 };
 

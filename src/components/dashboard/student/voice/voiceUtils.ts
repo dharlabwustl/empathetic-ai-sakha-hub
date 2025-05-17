@@ -1,12 +1,12 @@
 
 import { VoiceSettings } from '@/types/voice';
 
-// Default voice settings
+// Default voice settings with Hindi as the default language
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   volume: 1.0,
   rate: 1.0,
   pitch: 1.0,
-  language: 'en-IN',
+  language: 'hi-IN', // Setting Hindi as default
   enabled: true,
   muted: false,
   voice: null,
@@ -15,8 +15,8 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
 
 // Language options for the voice assistant
 export const LANGUAGE_OPTIONS = [
-  { value: 'en-IN', label: 'English (Indian)' },
   { value: 'hi-IN', label: 'Hindi' },
+  { value: 'en-IN', label: 'English (Indian)' },
   { value: 'en-US', label: 'English (US)' },
   { value: 'en-GB', label: 'English (UK)' }
 ];
@@ -28,10 +28,20 @@ export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]):
     return null;
   }
 
-  // First, try to find an exact match for the language
-  let matchingVoice = voices.find(v => v.lang === language);
+  // First, try to find an exact match for the language with preference for female voices
+  let matchingVoice = voices.find(v => 
+    v.lang === language && 
+    (v.name.toLowerCase().includes('female') || 
+     v.name.includes('Kalpana') ||
+     v.name.includes('Kajal'))
+  );
   
-  // If no exact match, try to find a voice that starts with the language code
+  // If no female voice, try any voice with the exact language
+  if (!matchingVoice) {
+    matchingVoice = voices.find(v => v.lang === language);
+  }
+  
+  // If still no match, try to find a voice that starts with the language code
   if (!matchingVoice) {
     const langPrefix = language.split('-')[0];
     matchingVoice = voices.find(v => v.lang.startsWith(`${langPrefix}-`));
@@ -50,9 +60,12 @@ export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]):
 export const fixPronunciation = (text: string, language: string): string => {
   let fixedText = text;
   
-  // Special handling for "PREPZR" pronunciation - spoken as "Prep-zer" /prep-zər/
+  // Special handling for "PREPZR" pronunciation - spoken as "Prep-zer"
   // Add a slight pause between "Prep" and "zer" for clearer pronunciation
+  // This follows the exact pronunciation guide provided: /ˈprɛp.zɜr/ or /ˈprep.zər/
   fixedText = fixedText.replace(/PREPZR/gi, 'Prep-zer');
+  fixedText = fixedText.replace(/prepzr/gi, 'Prep-zer');
+  fixedText = fixedText.replace(/Prepzr/g, 'Prep-zer');
   
   if (language.startsWith('en')) {
     // Fix English pronunciations
@@ -63,7 +76,6 @@ export const fixPronunciation = (text: string, language: string): string => {
   } else if (language === 'hi-IN') {
     // Fix Hindi pronunciations if needed
     fixedText = fixedText
-      .replace(/PREPZR/gi, 'प्रेप ज़र')
       .replace(/NEET/gi, 'नीट')
       .replace(/JEE/gi, 'जे ई ई');
   }
