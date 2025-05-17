@@ -13,7 +13,7 @@ import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { 
   Headphones, 
   Book, 
-  Zap, 
+  Layers3, 
   FileText, 
   BarChart2, 
   Link as LinkIcon,
@@ -509,7 +509,7 @@ const ConceptCardDetailPage: React.FC = () => {
                 className="w-full justify-start bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200"
                 onClick={handleFlashcards}
               >
-                <Zap className="h-4 w-4 mr-2" />
+                <Layers3 className="h-4 w-4 mr-2" />
                 Interactive Flashcards
               </Button>
               
