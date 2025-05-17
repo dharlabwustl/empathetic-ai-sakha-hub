@@ -9,11 +9,12 @@ import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import SupportSection from '@/components/home/SupportSection';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import FloatingVoiceControl from '@/components/voice/FloatingVoiceControl';
 
 const Home = () => {
   return (
     <MainLayout>
-      <HomePageVoiceAssistant />
+      <HomePageVoiceAssistant language="hi-IN" />
       <HeroSection />
       <FeatureSection />
       <StatisticsSection />
@@ -21,6 +22,7 @@ const Home = () => {
       <ExamEcosystemSection />
       <TestimonialSection />
       <SupportSection />
+      <FloatingVoiceControl isHomepage={true} defaultLanguage="hi-IN" />
     </MainLayout>
   );
 };

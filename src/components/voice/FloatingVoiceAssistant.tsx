@@ -1,38 +1,47 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Mic, MicOff, Settings, Volume2, VolumeX, X, HelpCircle } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Mic, MicOff, Volume2, VolumeX, Settings, X } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import { motion } from "framer-motion";
-import { MoodType } from "@/types/user/base";
 
 interface FloatingVoiceAssistantProps {
   isOpen?: boolean;
   onClose?: () => void;
-  language?: string;
   onNavigationCommand?: (route: string) => void;
   onMoodCommand?: (mood: string) => void;
+  userName?: string;
+  currentMood?: string;
   pronouncePrepzr?: boolean;
+  language?: string;
 }
 
 const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
-  isOpen = false,
+  isOpen: propIsOpen,
   onClose,
-  language = 'en-IN',
   onNavigationCommand,
   onMoodCommand,
-  pronouncePrepzr = true
+  userName,
+  currentMood,
+  pronouncePrepzr = true,
+  language = 'en-IN'
 }) => {
-  const [open, setOpen] = useState(isOpen);
-  const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
-  const [assistantMode, setAssistantMode] = useState<'listening' | 'speaking' | 'idle'>('idle');
-  const [showHelpPanel, setShowHelpPanel] = useState(false);
+  const [isOpen, setIsOpen] = useState(propIsOpen || false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [suggestedCommands] = useState([
+    "Take me to my dashboard",
+    "Open concept cards",
+    "I'm feeling tired today",
+    "Show my progress",
+    "Take me to practice exams",
+    "Open the Feel Good Corner"
+  ]);
   
   const {
     voiceSettings,
@@ -46,284 +55,136 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     startListening,
     stopListening,
     transcript,
-    testVoice,
-    supportedLanguages,
-    processVoiceCommand
+    supportedLanguages
   } = useVoiceAnnouncer({
-    initialSettings: { language }
+    userName,
+    initialSettings: { language, enabled: true }
   });
-
-  // Update local open state when the isOpen prop changes
+  
+  const micButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Handle controlled component state
   useEffect(() => {
-    setOpen(isOpen);
-  }, [isOpen]);
-
-  // Update the mode based on the voice announcer state
-  useEffect(() => {
-    if (isListening) {
-      setAssistantMode('listening');
-    } else if (isSpeaking) {
-      setAssistantMode('speaking');
-    } else {
-      setAssistantMode('idle');
+    if (propIsOpen !== undefined) {
+      setIsOpen(propIsOpen);
     }
-  }, [isListening, isSpeaking]);
-
-  const handleClose = () => {
-    setOpen(false);
-    stopListening();
-    if (onClose) onClose();
-  };
-
-  const handleSettingsClick = () => {
-    setIsSettingsPanelOpen(true);
-  };
-
-  const handleHelpClick = () => {
-    setShowHelpPanel(true);
-  };
-
-  const handleStartListening = () => {
-    startListening();
-  };
-
-  const handleStopListening = () => {
-    stopListening();
-  };
-
-  const handleToggleMute = () => {
-    toggleMute();
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    updateVoiceSettings({ volume: value[0] });
-  };
-
-  const handleRateChange = (value: number[]) => {
-    updateVoiceSettings({ rate: value[0] });
-  };
-
-  const handlePitchChange = (value: number[]) => {
-    updateVoiceSettings({ pitch: value[0] });
-  };
-
-  const handleLanguageChange = (value: string) => {
-    updateVoiceSettings({ language: value });
-  };
-
-  const handleToggleVoice = (checked: boolean) => {
-    updateVoiceSettings({ enabled: checked });
-  };
-
-  // Handle voice commands that might involve navigation
+  }, [propIsOpen]);
+  
+  // Process transcript when it changes
   useEffect(() => {
-    if (transcript) {
-      // Process the transcript for navigation commands
-      const lowerTranscript = transcript.toLowerCase();
+    if (!transcript) return;
+    
+    const processCommand = (text: string) => {
+      const lowerText = text.toLowerCase();
       
       // Handle navigation commands
-      if ((lowerTranscript.includes('go to') || lowerTranscript.includes('navigate to') || lowerTranscript.includes('open')) && onNavigationCommand) {
-        if (lowerTranscript.includes('dashboard')) {
-          onNavigationCommand('/dashboard/student');
-        } else if (lowerTranscript.includes('login')) {
-          onNavigationCommand('/login');
-        } else if (lowerTranscript.includes('sign up') || lowerTranscript.includes('signup')) {
-          onNavigationCommand('/signup');
-        } else if (lowerTranscript.includes('home')) {
-          onNavigationCommand('/');
-        }
+      if (lowerText.includes('dashboard') || lowerText.includes('home')) {
+        onNavigationCommand?.('/dashboard/student');
+      } else if (lowerText.includes('concept')) {
+        onNavigationCommand?.('/dashboard/student/concepts');
+      } else if (lowerText.includes('practice') || lowerText.includes('exam')) {
+        onNavigationCommand?.('/dashboard/student/practice-exam');
+      } else if (lowerText.includes('feel good') || lowerText.includes('relax')) {
+        onNavigationCommand?.('/dashboard/student/feel-good-corner');
+      } else if (lowerText.includes('flashcards')) {
+        onNavigationCommand?.('/dashboard/student/flashcards');
+      } else if (lowerText.includes('study plan')) {
+        onNavigationCommand?.('/dashboard/student/study-plan');
       }
       
       // Handle mood commands
-      if (onMoodCommand && lowerTranscript.includes('feeling')) {
-        if (lowerTranscript.includes('happy')) {
-          onMoodCommand('happy');
-        } else if (lowerTranscript.includes('tired')) {
-          onMoodCommand('tired');
-        } else if (lowerTranscript.includes('motivated')) {
-          onMoodCommand('motivated');
-        } else if (lowerTranscript.includes('stressed')) {
-          onMoodCommand('stressed');
-        }
+      if (lowerText.includes('happy') || lowerText.includes('good mood')) {
+        onMoodCommand?.('HAPPY');
+      } else if (lowerText.includes('tired') || lowerText.includes('exhausted')) {
+        onMoodCommand?.('TIRED');
+      } else if (lowerText.includes('stressed')) {
+        onMoodCommand?.('STRESSED');
+      } else if (lowerText.includes('motivated')) {
+        onMoodCommand?.('MOTIVATED');
+      } else if (lowerText.includes('anxious')) {
+        onMoodCommand?.('ANXIOUS');
+      } else if (lowerText.includes('focused')) {
+        onMoodCommand?.('FOCUSED');
+      } else if (lowerText.includes('confused')) {
+        onMoodCommand?.('CONFUSED');
       }
-    }
+    };
+    
+    processCommand(transcript);
   }, [transcript, onNavigationCommand, onMoodCommand]);
-
-  // Test voice with custom pronunciation handling
-  const handleTestVoice = () => {
-    if (pronouncePrepzr) {
-      // Special handling for PREPZR pronunciation
-      const message = "Hello, I'm your PREPZR voice assistant. How can I help you today?";
-      speakMessage(message);
+  
+  const handleToggleMute = () => {
+    toggleMute();
+  };
+  
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
     } else {
-      testVoice();
+      setIsOpen(false);
     }
   };
-
-  // Example commands for the help panel
-  const exampleCommands = [
-    "Go to Dashboard",
-    "Open Study Plan",
-    "I'm feeling motivated today",
-    "Show me my analytics",
-    "Open practice tests",
-    "What's my next exam?",
-    "I need help with Chemistry",
-  ];
-
+  
+  const handleSuggestedCommand = (command: string) => {
+    speakMessage(`I'll help you with: ${command}`);
+    
+    setTimeout(() => {
+      // Process the command after speaking the confirmation
+      if (command.toLowerCase().includes('dashboard')) {
+        onNavigationCommand?.('/dashboard/student');
+      } else if (command.toLowerCase().includes('concept cards')) {
+        onNavigationCommand?.('/dashboard/student/concepts');
+      } else if (command.toLowerCase().includes('practice exams')) {
+        onNavigationCommand?.('/dashboard/student/practice-exam');
+      } else if (command.toLowerCase().includes('feel good corner')) {
+        onNavigationCommand?.('/dashboard/student/feel-good-corner');
+      } else if (command.toLowerCase().includes('tired')) {
+        onMoodCommand?.('TIRED');
+      } else if (command.toLowerCase().includes('progress')) {
+        onNavigationCommand?.('/dashboard/student/analytics');
+      }
+    }, 2000);
+  };
+  
   if (!isVoiceSupported) {
     return null;
   }
-
+  
+  const handleVolumeChange = (value: number[]) => {
+    updateVoiceSettings({ volume: value[0] });
+  };
+  
+  const handleRateChange = (value: number[]) => {
+    updateVoiceSettings({ rate: value[0] });
+  };
+  
+  const handlePitchChange = (value: number[]) => {
+    updateVoiceSettings({ pitch: value[0] });
+  };
+  
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateVoiceSettings({ language: e.target.value });
+  };
+  
   return (
-    <>
-      {/* Main assistant interface */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md overflow-hidden py-0 px-0" onInteractOutside={(e) => {
-          // Don't close when clicking outside to avoid accidental closures during voice interactions
-          e.preventDefault();
-        }}>
-          <DialogHeader className="p-4 border-b">
-            <div className="flex items-center justify-between w-full">
-              <DialogTitle className="flex items-center gap-2">
-                <span className="text-lg font-semibold">Voice Assistant</span>
-                {assistantMode === 'listening' && (
-                  <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full animate-pulse">Listening...</span>
-                )}
-                {assistantMode === 'speaking' && (
-                  <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full animate-pulse">Speaking...</span>
-                )}
-              </DialogTitle>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" onClick={handleHelpClick}>
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleSettingsClick}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleClose}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </DialogHeader>
-
-          <div className="p-4 h-[300px] overflow-y-auto space-y-4 bg-slate-50 dark:bg-slate-900">
-            {transcript && (
-              <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 animate-fade-in">
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">You said:</p>
-                <p className="text-sm text-blue-600 dark:text-blue-300">{transcript}</p>
-              </div>
-            )}
-            
-            <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3">
-              <p className="text-sm font-medium text-green-800 dark:text-green-200">Assistant:</p>
-              <p className="text-sm text-green-600 dark:text-green-300">
-                How can I help you with PREPZR today? You can ask me to navigate to different parts of the app or provide study assistance.
-              </p>
-            </div>
-            
-            <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-              <p>Try saying one of these commands:</p>
-              <div className="mt-2 flex flex-wrap gap-2 justify-center">
-                {exampleCommands.slice(0, 3).map((command, index) => (
-                  <div 
-                    key={index}
-                    className="bg-white dark:bg-slate-800 px-2 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700"
-                  >
-                    "{command}"
-                  </div>
-                ))}
-              </div>
-            </div>
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
+      {/* Settings panel */}
+      {showSettings && (
+        <Card className="p-4 w-72 shadow-lg animate-fade-in mb-3">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium">Voice Settings</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)} className="h-7 w-7 p-0">
+              <X className="h-4 w-4" />
+            </Button>
           </div>
           
-          <CardFooter className="border-t p-4 flex flex-col gap-4">
-            <div className="flex items-center justify-between w-full">
-              <Button
-                variant="outline"
-                size="sm"
-                className={voiceSettings.muted ? "text-gray-400" : ""}
-                onClick={handleToggleMute}
-              >
-                {voiceSettings.muted ? <VolumeX className="mr-2 h-4 w-4" /> : <Volume2 className="mr-2 h-4 w-4" />}
-                {voiceSettings.muted ? "Unmute" : "Mute"}
-              </Button>
-
-              <div className="flex gap-2">
-                <Button
-                  variant={isListening ? "destructive" : "default"}
-                  size="sm"
-                  onClick={isListening ? handleStopListening : handleStartListening}
-                >
-                  {isListening ? (
-                    <>
-                      <MicOff className="mr-2 h-4 w-4" /> Stop
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="mr-2 h-4 w-4" /> Start Listening
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="w-full text-center">
-              <Button 
-                variant="link" 
-                size="sm" 
-                className="text-xs text-gray-500"
-                onClick={handleClose}
-              >
-                Minimize Assistant
-              </Button>
-            </div>
-          </CardFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Settings Panel Dialog */}
-      <Dialog open={isSettingsPanelOpen} onOpenChange={setIsSettingsPanelOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Voice Assistant Settings</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="voice-enabled">Voice Assistant Enabled</Label>
-              <Switch 
-                id="voice-enabled" 
-                checked={voiceSettings.enabled}
-                onCheckedChange={handleToggleVoice}
-              />
-            </div>
-            
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Assistant Voice Language</Label>
-              <Select
-                value={voiceSettings.language}
-                onValueChange={handleLanguageChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {supportedLanguages.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="volume-slider">Volume: {voiceSettings.volume.toFixed(1)}</Label>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Volume</span>
+                <span className="text-xs text-muted-foreground">{Math.round(voiceSettings.volume * 100)}%</span>
               </div>
               <Slider
-                id="volume-slider"
                 defaultValue={[voiceSettings.volume]}
                 max={1}
                 step={0.1}
@@ -332,114 +193,219 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="rate-slider">Speech Rate: {voiceSettings.rate.toFixed(1)}x</Label>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Speed</span>
+                <span className="text-xs text-muted-foreground">
+                  {voiceSettings.rate < 1 ? 'Slow' : voiceSettings.rate === 1 ? 'Normal' : 'Fast'}
+                </span>
               </div>
               <Slider
-                id="rate-slider"
                 defaultValue={[voiceSettings.rate]}
                 min={0.5}
-                max={2}
+                max={1.5}
                 step={0.1}
                 onValueChange={handleRateChange}
               />
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="pitch-slider">Pitch: {voiceSettings.pitch.toFixed(1)}</Label>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Pitch</span>
+                <span className="text-xs text-muted-foreground">
+                  {voiceSettings.pitch < 1 ? 'Low' : voiceSettings.pitch === 1 ? 'Normal' : 'High'}
+                </span>
               </div>
               <Slider
-                id="pitch-slider"
                 defaultValue={[voiceSettings.pitch]}
-                min={0.5}
-                max={2}
+                min={0.8}
+                max={1.2}
                 step={0.1}
                 onValueChange={handlePitchChange}
               />
             </div>
             
-            <Button onClick={handleTestVoice} className="w-full">
-              Test Voice
+            <div className="space-y-2">
+              <label htmlFor="language" className="text-sm">Language</label>
+              <select
+                id="language"
+                className="w-full p-2 border rounded-md text-sm"
+                value={voiceSettings.language}
+                onChange={handleLanguageChange}
+              >
+                {supportedLanguages.map(lang => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex justify-between pt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={toggleVoiceEnabled}
+              >
+                {voiceSettings.enabled ? 'Disable Voice' : 'Enable Voice'}
+              </Button>
+              
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  speakMessage("Testing voice with current settings", true);
+                }}
+              >
+                Test Voice
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+      
+      {/* Main assistant panel */}
+      {isOpen && (
+        <Card className="p-4 w-80 shadow-lg animate-fade-in">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold">Prep-zer Voice Assistant</h3>
+            <div className="flex items-center space-x-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowSettings(!showSettings)}
+                className="h-7 w-7 p-0"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClose}
+                className="h-7 w-7 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          {transcript && (
+            <div className="bg-muted p-3 rounded-md mb-4">
+              <p className="text-xs text-muted-foreground">You said:</p>
+              <p className="text-sm">{transcript}</p>
+            </div>
+          )}
+          
+          <div className="flex justify-center mb-4 space-x-2">
+            <Button
+              ref={micButtonRef}
+              variant={isListening ? "destructive" : "default"}
+              className={`rounded-full p-6 ${isListening ? 'animate-pulse' : ''}`}
+              onClick={isListening ? stopListening : startListening}
+            >
+              {isListening ? (
+                <MicOff className="h-6 w-6" />
+              ) : (
+                <Mic className="h-6 w-6" />
+              )}
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="rounded-full p-5"
+              onClick={handleToggleMute}
+            >
+              {voiceSettings.muted ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''}`} />
+              )}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Help Panel Dialog */}
-      <Dialog open={showHelpPanel} onOpenChange={setShowHelpPanel}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Voice Assistant Help</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              The voice assistant can help you navigate PREPZR and provide study assistance.
-              Here are some commands you can try:
-            </p>
-            
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Navigation Commands:</h4>
-              <ul className="list-disc pl-5 text-sm space-y-1">
-                <li>"Go to Dashboard"</li>
-                <li>"Open Study Plan"</li>
-                <li>"Show me my Analytics"</li>
-                <li>"Open Practice Tests"</li>
-              </ul>
-            </div>
-            
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Mood Tracking:</h4>
-              <ul className="list-disc pl-5 text-sm space-y-1">
-                <li>"I'm feeling motivated today"</li>
-                <li>"I feel tired"</li>
-                <li>"I'm stressed about my exam"</li>
-              </ul>
-            </div>
-            
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Study Assistance:</h4>
-              <ul className="list-disc pl-5 text-sm space-y-1">
-                <li>"What should I study today?"</li>
-                <li>"Help me with Physics concepts"</li>
-                <li>"Create a flashcard for [topic]"</li>
-              </ul>
+          
+          <div>
+            <h4 className="text-sm font-medium mb-2">Try saying:</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {suggestedCommands.map((command, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto py-1 px-2 justify-start text-xs font-normal text-left"
+                  onClick={() => handleSuggestedCommand(command)}
+                >
+                  "{command}"
+                </Button>
+              ))}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Floating button when assistant is minimized */}
-      {!open && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.3 }}
-          className="fixed bottom-6 right-6 z-50"
-        >
-          <Button
-            onClick={() => setOpen(true)}
-            size="lg"
-            className={`rounded-full p-4 ${
-              assistantMode === 'listening'
-                ? 'bg-red-500 hover:bg-red-600'
-                : assistantMode === 'speaking'
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
-            }`}
-          >
-            {assistantMode === 'listening' ? (
-              <Mic className="h-6 w-6 animate-pulse" />
-            ) : assistantMode === 'speaking' ? (
-              <Volume2 className="h-6 w-6 animate-pulse" />
+          
+          <div className="mt-3 pt-3 border-t text-xs text-muted-foreground">
+            {currentMood ? (
+              <p>Current mood: {currentMood}</p>
             ) : (
-              <Mic className="h-6 w-6" />
+              <p>Try: "I'm feeling motivated today"</p>
             )}
-          </Button>
-        </motion.div>
+          </div>
+        </Card>
       )}
-    </>
+      
+      {/* Floating mic button when panel is closed */}
+      {!isOpen && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              className="rounded-full shadow-lg p-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            >
+              {isListening ? (
+                <MicOff className="h-5 w-5 animate-pulse" />
+              ) : (
+                <Mic className="h-5 w-5" />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-3">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-sm font-medium">Voice Controls</h4>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0"
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="text-xs">Expand</span>
+              </Button>
+            </div>
+            
+            <div className="flex justify-center space-x-2 mt-2">
+              <Button
+                size="sm"
+                variant={isListening ? "destructive" : "default"}
+                className={isListening ? 'animate-pulse' : ''}
+                onClick={isListening ? stopListening : startListening}
+              >
+                {isListening ? "Stop" : "Speak"}
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleToggleMute}
+              >
+                {voiceSettings.muted ? "Unmute" : "Mute"}
+              </Button>
+              
+              <Button 
+                size="sm"
+                variant="outline"
+                onClick={() => setShowSettings(!showSettings)}
+              >
+                <Settings className="h-3 w-3" />
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+    </div>
   );
 };
 

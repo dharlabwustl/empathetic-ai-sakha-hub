@@ -1,450 +1,229 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Brain, BookOpen, BarChart3, Users, Lightbulb, Clock, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Brain, Zap, Layers, Star, ArrowRight, BookOpen, BarChart2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const ChampionMethodologySection: React.FC = () => {
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { 
-        type: "spring",
-        stiffness: 100,
-        damping: 10
-      }
-    }
-  };
+  const [activeStep, setActiveStep] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   
-  const pulseVariants = {
-    pulse: {
-      scale: [1, 1.05, 1],
-      opacity: [0.7, 1, 0.7],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        repeatType: "reverse" as const
-      }
+  const steps = [
+    {
+      id: 0,
+      title: "Personalized Learning Profile",
+      description: "We start by analyzing your learning style, preferences, and academic history to create a unique profile tailored to you.",
+      icon: <BookOpen className="h-12 w-12 text-purple-600" />,
+      color: "from-purple-500 to-purple-700"
+    },
+    {
+      id: 1,
+      title: "AI-Powered Content Delivery",
+      description: "Our AI engine delivers study materials and practice questions optimized for your learning profile and current knowledge level.",
+      icon: <Brain className="h-12 w-12 text-blue-600" />,
+      color: "from-blue-500 to-blue-700"
+    },
+    {
+      id: 2,
+      title: "Real-time Adaptation",
+      description: "The system continuously adjusts to your performance, mood, and surrounding influences to optimize your learning experience.",
+      icon: <Zap className="h-12 w-12 text-yellow-600" />,
+      color: "from-yellow-500 to-yellow-700"
+    },
+    {
+      id: 3,
+      title: "Comprehensive Data Analysis",
+      description: "We analyze performance data across multiple dimensions to identify patterns, strengths, and areas needing improvement.",
+      icon: <BarChart2 className="h-12 w-12 text-green-600" />,
+      color: "from-green-500 to-green-700"
+    },
+    {
+      id: 4,
+      title: "Integrated Knowledge Network",
+      description: "Our system connects concepts, creating a neural network of knowledge that enhances understanding and recall.",
+      icon: <Layers className="h-12 w-12 text-red-600" />,
+      color: "from-red-500 to-red-700"
+    },
+    {
+      id: 5,
+      title: "Champion Results",
+      description: "The culmination of our methodology produces exceptional exam results, deeper understanding, and lifelong learning skills.",
+      icon: <Star className="h-12 w-12 text-orange-600" />,
+      color: "from-orange-500 to-orange-700"
     }
-  };
-
-  const connectionVariants = {
-    initial: { pathLength: 0, opacity: 0 },
-    animate: {
-      pathLength: 1, 
-      opacity: 1,
-      transition: { 
-        duration: 1.5,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  // Methodology steps
-  const methodologySteps = [
-    {
-      icon: <Brain className="h-8 w-8 text-purple-500" />,
-      title: "Personalized Learning",
-      description: "AI adapts to your unique learning style and creates customized study plans that evolve with you.",
-      color: "from-purple-500 to-indigo-600",
-      position: "top-left"
-    },
-    {
-      icon: <Sparkles className="h-8 w-8 text-blue-500" />,
-      title: "Micro-Concepts Mastery",
-      description: "Break down complex topics into digestible micro-concepts for efficient learning and retention.",
-      color: "from-blue-500 to-cyan-600",
-      position: "top-right"
-    },
-    {
-      icon: <BookOpen className="h-8 w-8 text-green-500" />,
-      title: "Active Recall",
-      description: "Scientifically proven techniques that strengthen memory through strategic testing and repetition.",
-      color: "from-green-500 to-emerald-600",
-      position: "middle-right"
-    },
-    {
-      icon: <BarChart3 className="h-8 w-8 text-amber-500" />,
-      title: "Progress Analytics",
-      description: "Track your improvement with detailed analytics that identify strengths and areas for growth.",
-      color: "from-amber-500 to-orange-600",
-      position: "bottom-right"
-    },
-    {
-      icon: <Clock className="h-8 w-8 text-rose-500" />,
-      title: "Optimization Loop",
-      description: "Continuous feedback system refines your study plan for maximum efficiency and effectiveness.",
-      color: "from-rose-500 to-pink-600",
-      position: "bottom-left"
-    },
-    {
-      icon: <Users className="h-8 w-8 text-indigo-500" />,
-      title: "Peer Community",
-      description: "Connect with like-minded students to share tips, collaborate, and stay motivated together.",
-      color: "from-indigo-500 to-violet-600",
-      position: "middle-left"
-    },
   ];
-
+  
+  // Auto-advancing animation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isAutoPlaying) {
+      interval = setInterval(() => {
+        setActiveStep((prev) => (prev === steps.length - 1 ? 0 : prev + 1));
+      }, 3000); // Change step every 3 seconds
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAutoPlaying, steps.length]);
+  
+  // Pause auto-play on hover
+  const handleMouseEnter = () => setIsAutoPlaying(false);
+  const handleMouseLeave = () => setIsAutoPlaying(true);
+  
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden relative">
+    <section 
+      className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-950"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="container mx-auto px-4">
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <h2 className="inline-block text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
-            Champion Methodology™
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+            The Champion Methodology
           </h2>
-          <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-lg">
-            Our scientifically-backed approach combines cutting-edge AI with proven learning techniques 
-            to maximize your exam preparation
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Our revolutionary approach combines AI intelligence with emotional awareness to create a deeply personalized learning experience.
           </p>
-        </motion.div>
-
-        {/* Central AI System with Dynamic Connections */}
-        <div className="relative mb-20 md:mb-28">
-          {/* Outer glow effect */}
-          <motion.div 
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0"
-            initial={{ scale: 0, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            variants={pulseVariants}
-            animate="pulse"
-          >
-            <div className="w-40 h-40 md:w-60 md:h-60 rounded-full bg-gradient-to-br from-violet-600/30 to-blue-600/30 blur-xl dark:from-violet-600/40 dark:to-blue-600/40" />
-          </motion.div>
-          
-          {/* Central AI Brain */}
-          <motion.div 
-            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center"
-            initial={{ scale: 0, rotate: -30, opacity: 0 }}
-            whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, delay: 0.5, type: "spring", stiffness: 100 }}
-          >
-            <div className="w-28 h-28 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center shadow-xl relative">
-              <Lightbulb className="h-12 w-12 md:h-16 md:w-16 text-white" />
-              
-              {/* Animated data points */}
-              <motion.div
-                className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full"
-                animate={{ 
-                  x: [0, 10, 5, 0],
-                  y: [0, -5, 10, 0],
-                  opacity: [1, 0.5, 0.8, 1]
-                }}
-                transition={{ duration: 3.5, repeat: Infinity }}
-              />
-              <motion.div
-                className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 bg-yellow-300 rounded-full"
-                animate={{ 
-                  x: [0, -8, 4, 0],
-                  y: [0, 7, -5, 0],
-                  opacity: [1, 0.7, 0.9, 1]
-                }}
-                transition={{ duration: 2.8, repeat: Infinity, delay: 0.5 }}
-              />
-              <motion.div
-                className="absolute top-1/3 right-1/4 w-2 h-2 bg-cyan-300 rounded-full"
-                animate={{ 
-                  x: [0, 7, -7, 0],
-                  y: [0, 8, 4, 0],
-                  opacity: [1, 0.6, 0.7, 1]
-                }}
-                transition={{ duration: 4, repeat: Infinity, delay: 1 }}
-              />
-              
-              {/* Pulsing effect */}
-              <motion.div
-                className="absolute w-full h-full rounded-full"
-                animate={{
-                  boxShadow: [
-                    "0 0 0 0px rgba(124, 58, 237, 0)",
-                    "0 0 0 15px rgba(124, 58, 237, 0.1)",
-                    "0 0 0 20px rgba(124, 58, 237, 0)",
-                  ],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2.5,
-                }}
-              />
-            </div>
-            <div className="absolute -bottom-10 text-center whitespace-nowrap font-medium text-violet-600 dark:text-violet-400 bg-white dark:bg-gray-800 px-4 py-1 rounded-full shadow-md">
-              <span className="flex items-center gap-1">
-                <Zap className="h-4 w-4 text-yellow-400" />
-                Emotional AI Engine
-                <Zap className="h-4 w-4 text-yellow-400" />
-              </span>
-            </div>
-          </motion.div>
-          
-          {/* SVG Connection Lines */}
-          <svg className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[600px] max-h-[600px] z-10" viewBox="0 0 200 200">
-            {/* Data Transmission Dots */}
-            <motion.circle 
-              cx="100" cy="45" r="2" fill="#8b5cf6"
-              animate={{
-                cx: [100, 80, 100],
-                cy: [45, 55, 45],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.circle 
-              cx="155" cy="100" r="2" fill="#3b82f6"
-              animate={{
-                cx: [155, 130, 155],
-                cy: [100, 90, 100],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear", delay: 0.5 }}
-            />
-            <motion.circle 
-              cx="100" cy="155" r="2" fill="#ef4444"
-              animate={{
-                cx: [100, 120, 100],
-                cy: [155, 130, 155],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear", delay: 1 }}
-            />
-            <motion.circle 
-              cx="45" cy="100" r="2" fill="#10b981"
-              animate={{
-                cx: [45, 70, 45],
-                cy: [100, 110, 100],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear", delay: 1.5 }}
-            />
-            
-            {/* Connection Lines */}
-            <motion.path
-              d="M100,100 L100,20"
-              stroke="url(#gradientTop)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-            />
-            <motion.path
-              d="M100,100 L180,55"
-              stroke="url(#gradientTopRight)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            />
-            <motion.path
-              d="M100,100 L180,145"
-              stroke="url(#gradientBottomRight)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-            />
-            <motion.path
-              d="M100,100 L100,180"
-              stroke="url(#gradientBottom)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-            />
-            <motion.path
-              d="M100,100 L20,145"
-              stroke="url(#gradientBottomLeft)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              transition={{ delay: 0.8 }}
-            />
-            <motion.path
-              d="M100,100 L20,55"
-              stroke="url(#gradientTopLeft)"
-              strokeWidth="1.5"
-              fill="none"
-              variants={connectionVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-              transition={{ delay: 1 }}
-            />
-            
-            {/* Gradients for connections */}
-            <defs>
-              <linearGradient id="gradientTop" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#8b5cf6" />
-                <stop offset="100%" stopColor="#4f46e5" />
-              </linearGradient>
-              <linearGradient id="gradientTopRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="100%" stopColor="#0ea5e9" />
-              </linearGradient>
-              <linearGradient id="gradientBottomRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="100%" stopColor="#10b981" />
-              </linearGradient>
-              <linearGradient id="gradientBottom" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#f97316" />
-              </linearGradient>
-              <linearGradient id="gradientBottomLeft" x1="100%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#ef4444" />
-                <stop offset="100%" stopColor="#e11d48" />
-              </linearGradient>
-              <linearGradient id="gradientTopLeft" x1="100%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#8b5cf6" />
-                <stop offset="100%" stopColor="#6366f1" />
-              </linearGradient>
-            </defs>
-          </svg>
         </div>
-
-        {/* Methodology Steps in a circular arrangement */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto relative z-10"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-        >
-          {methodologySteps.map((step, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all p-6 group"
-              whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-            >
-              <div className="absolute -top-6 left-6 p-2 rounded-lg bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 shadow-md group-hover:-translate-y-1 transition-transform">
-                <div className="p-3 rounded-lg bg-gradient-to-r group-hover:animate-pulse" style={{ backgroundImage: `linear-gradient(to right, ${step.color})` }}>
-                  {step.icon}
-                </div>
-              </div>
-              <h3 className="mt-6 text-lg font-semibold">{step.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">{step.description}</p>
-              
-              {/* Animated AI Connection Indicator */}
-              <motion.div 
-                className="absolute top-2 right-2 w-2 h-2 rounded-full bg-violet-500"
-                animate={{
-                  opacity: [0.3, 1, 0.3],
-                  scale: [0.8, 1.2, 0.8],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: index * 0.2,
-                }}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* AI Insights Message */}
-        <motion.div 
-          className="relative max-w-3xl mx-auto mt-16 bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 p-6 rounded-xl shadow-md border border-violet-100 dark:border-violet-800"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.7, delay: 1 }}
-        >
-          <div className="flex items-start gap-4">
-            <div className="bg-violet-600 rounded-full p-3 flex-shrink-0">
-              <Lightbulb className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-violet-800 dark:text-violet-300 mb-2">
-                AI Insight: Emotionally Intelligent Learning
-              </h4>
-              <p className="text-gray-700 dark:text-gray-300">
-                Our AI engine doesn't just understand your academic progress – it's emotionally aware and adapts to your learning state. When you're feeling overwhelmed, it suggests lighter materials. When you're motivated, it challenges you with advanced concepts.
-              </p>
-            </div>
-          </div>
-          
-          {/* Animated data streams */}
+        
+        {/* Main animation area */}
+        <div className="relative mx-auto max-w-5xl mb-12 min-h-[400px] md:min-h-[500px]">
+          {/* Central AI brain hub animation */}
           <motion.div 
-            className="absolute top-0 right-0 h-full w-1/4 overflow-hidden opacity-20 pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.2 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
           >
-            {[...Array(15)].map((_, i) => (
-              <motion.div 
-                key={i}
-                className="absolute h-px bg-gradient-to-r from-transparent via-violet-500 to-transparent"
-                style={{ 
-                  width: Math.random() * 60 + 20, 
-                  left: Math.random() * 100,
-                  top: Math.random() * 100 + '%'
-                }}
-                animate={{
-                  x: [-50, 100],
-                  opacity: [0, 1, 0]
-                }}
-                transition={{
-                  duration: Math.random() * 3 + 2,
-                  repeat: Infinity,
-                  delay: Math.random() * 2,
-                  ease: "linear"
-                }}
-              />
-            ))}
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-indigo-600 opacity-20 blur-xl animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full p-6 md:p-8 shadow-lg">
+                <Brain className="h-12 w-12 md:h-16 md:w-16 text-white" />
+              </div>
+              <div className="absolute inset-0 border-4 border-indigo-300 rounded-full animate-ping opacity-30"></div>
+            </div>
           </motion.div>
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div 
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7, delay: 1.2 }}
-        >
-          <p className="max-w-2xl mx-auto text-gray-500 dark:text-gray-400 text-lg font-medium mb-6">
-            This unique methodology has helped 10,000+ students achieve their exam goals
-          </p>
-          <div className="inline-block relative">
-            <motion.div
-              className="relative bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-medium text-lg cursor-pointer hover:shadow-lg transition-all z-10"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Discover Your Learning Path
-            </motion.div>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full blur-lg opacity-70 -z-10"></div>
-          </div>
-        </motion.div>
+          
+          {/* Connection lines */}
+          {steps.map((step) => (
+            <AnimatePresence key={`line-${step.id}`}>
+              {(activeStep === step.id || steps[(activeStep + 1) % steps.length].id === step.id) && (
+                <motion.div 
+                  className={`absolute hidden md:block top-1/2 left-1/2 h-px bg-gradient-to-r from-transparent to-indigo-500 transform -translate-y-1/2 origin-left`}
+                  style={{ 
+                    rotate: `${60 * step.id}deg`,
+                    width: '150px',
+                    transformOrigin: 'left center'
+                  }}
+                  initial={{ scaleX: 0, opacity: 0 }}
+                  animate={{ scaleX: 1, opacity: 0.7 }}
+                  exit={{ scaleX: 0, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                />
+              )}
+            </AnimatePresence>
+          ))}
+          
+          {/* Step nodes */}
+          {steps.map((step) => {
+            // Calculate position around the circle
+            const angle = (Math.PI * 2 * step.id) / steps.length - Math.PI / 2;
+            const radius = window.innerWidth < 768 ? 120 : 200; // Responsive radius
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            return (
+              <div 
+                key={step.id}
+                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+                style={{ 
+                  marginLeft: x,
+                  marginTop: y,
+                }}
+              >
+                <AnimatePresence>
+                  <motion.div
+                    className={`rounded-full ${activeStep === step.id ? 'bg-gradient-to-br ' + step.color : 'bg-gray-200 dark:bg-gray-700'} 
+                      ${activeStep === step.id ? 'text-white' : 'text-gray-600 dark:text-gray-300'} 
+                      p-3 cursor-pointer shadow-lg transition-all duration-300`}
+                    onClick={() => setActiveStep(step.id)}
+                    whileHover={{ scale: 1.1 }}
+                    animate={{
+                      scale: activeStep === step.id ? 1.2 : 1,
+                    }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+                      {step.icon}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Step details */}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={activeStep}
+            className="text-center max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className={`inline-flex bg-gradient-to-br ${steps[activeStep].color} rounded-full p-3 mb-4`}>
+              {steps[activeStep].icon}
+            </div>
+            <h3 className="text-xl md:text-2xl font-bold mb-3">{steps[activeStep].title}</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{steps[activeStep].description}</p>
+            
+            <div className="flex justify-center space-x-3">
+              <Button
+                variant="outline" 
+                onClick={() => setActiveStep(activeStep === 0 ? steps.length - 1 : activeStep - 1)}
+                size="sm"
+              >
+                Previous
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                {steps.map((step) => (
+                  <button
+                    key={step.id}
+                    onClick={() => setActiveStep(step.id)}
+                    className={`h-2 w-2 rounded-full transition-all duration-300 ${activeStep === step.id ? 'bg-indigo-600 w-4' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    aria-label={`Go to step ${step.id + 1}`}
+                  />
+                ))}
+              </div>
+              
+              <Button 
+                variant="outline"
+                onClick={() => setActiveStep(activeStep === steps.length - 1 ? 0 : activeStep + 1)}
+                size="sm"
+              >
+                Next
+              </Button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+        
+        <div className="mt-10 text-center">
+          <Button variant="default" className="group">
+            Learn more about our methodology
+            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
       </div>
     </section>
   );
