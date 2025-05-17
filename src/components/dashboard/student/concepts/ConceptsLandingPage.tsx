@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Clock, Star, Sparkles } from "lucide-react";
+import { Search, BookOpen, Star, Sparkles, Filter } from "lucide-react";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import ConceptCard from './ConceptCard';
 
 const ConceptsLandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,66 +22,78 @@ const ConceptsLandingPage = () => {
       title: "Newton's Laws of Motion",
       subject: "Physics",
       description: "The three fundamental laws that define the relationship between an object's motion and the forces acting on it.",
-      difficulty: "medium",
+      difficulty: "medium" as const,
       timeEstimate: "25 mins",
       isBookmarked: true,
+      tags: ["Classical Mechanics", "Dynamics"],
+      progress: 80,
+      mastery: 65,
       thumbnailUrl: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
-      progress: 0.8,
     },
     {
       id: "concept-2",
       title: "Periodic Table & Elements",
       subject: "Chemistry",
       description: "Organization and patterns of elements, their properties, and chemical behaviors.",
-      difficulty: "easy",
+      difficulty: "easy" as const,
       timeEstimate: "20 mins",
       isBookmarked: false,
+      tags: ["Periodic Table", "Elements"],
+      progress: 50,
+      mastery: 45,
       thumbnailUrl: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
-      progress: 0.5,
     },
     {
       id: "concept-3",
       title: "Cell Division & Mitosis",
       subject: "Biology",
       description: "The process by which a single cell divides into two identical daughter cells.",
-      difficulty: "hard",
+      difficulty: "hard" as const,
       timeEstimate: "30 mins",
       isBookmarked: true,
+      tags: ["Cell Biology", "Reproduction"],
+      progress: 30,
+      mastery: 25,
       thumbnailUrl: "/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png",
-      progress: 0.3,
     },
     {
       id: "concept-4",
       title: "Integration Techniques",
       subject: "Mathematics",
       description: "Methods for calculating integrals, including substitution, parts, and partial fractions.",
-      difficulty: "hard",
+      difficulty: "hard" as const,
       timeEstimate: "40 mins",
       isBookmarked: false,
+      tags: ["Calculus", "Integration"],
+      progress: 20,
+      mastery: 15,
       thumbnailUrl: "/lovable-uploads/d5f87c4f-6021-49b2-9e4d-ab83c4cb55c9.png",
-      progress: 0.2,
     },
     {
       id: "concept-5",
       title: "Electromagnetic Waves",
       subject: "Physics",
       description: "Waves of coupled electric and magnetic fields that propagate through space.",
-      difficulty: "hard",
+      difficulty: "hard" as const,
       timeEstimate: "35 mins",
       isBookmarked: false,
+      tags: ["Electromagnetism", "Waves"],
+      progress: 10,
+      mastery: 5,
       thumbnailUrl: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
-      progress: 0.1,
     },
     {
       id: "concept-6",
       title: "Organic Compounds",
       subject: "Chemistry",
       description: "Carbon-containing compounds, their structures, properties, and reactions.",
-      difficulty: "medium",
+      difficulty: "medium" as const,
       timeEstimate: "25 mins",
       isBookmarked: false,
-      thumbnailUrl: "/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png",
+      tags: ["Organic Chemistry", "Compounds"],
       progress: 0,
+      mastery: 0,
+      thumbnailUrl: "/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png",
     },
   ];
   
@@ -91,27 +104,12 @@ const ConceptsLandingPage = () => {
     
     if (activeTab === 'all') return matchesSearch;
     if (activeTab === 'bookmarked') return matchesSearch && concept.isBookmarked;
-    if (activeTab === 'inProgress') return matchesSearch && concept.progress > 0 && concept.progress < 1;
-    if (activeTab === 'completed') return matchesSearch && concept.progress === 1;
+    if (activeTab === 'inProgress') return matchesSearch && concept.progress > 0 && concept.progress < 100;
+    if (activeTab === 'completed') return matchesSearch && concept.progress === 100;
     if (activeTab === 'notStarted') return matchesSearch && concept.progress === 0;
     
     return matchesSearch && concept.subject.toLowerCase() === activeTab.toLowerCase();
   });
-
-  // Get difficulty badge color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 hover:bg-green-200';
-      case 'medium': return 'bg-amber-100 text-amber-800 hover:bg-amber-200';
-      case 'hard': return 'bg-red-100 text-red-800 hover:bg-red-200';
-      default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
-    }
-  };
-  
-  // Navigate to the concept card detail page
-  const handleViewConcept = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/card/${conceptId}`);
-  };
 
   return (
     <SharedPageLayout
@@ -119,15 +117,22 @@ const ConceptsLandingPage = () => {
       subtitle="Master key concepts and fundamentals"
     >
       <div className="space-y-6">
-        {/* Search bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search concepts..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Search and filter bar */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search concepts..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <Button variant="outline" className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span>Filters</span>
+          </Button>
         </div>
         
         {/* Tabs for filtering */}
@@ -148,55 +153,19 @@ const ConceptsLandingPage = () => {
           <TabsContent value={activeTab} className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredConcepts.map((concept) => (
-                <Card key={concept.id} className="hover:shadow-md transition-shadow overflow-hidden">
-                  <div className="aspect-video relative">
-                    <img 
-                      src={concept.thumbnailUrl} 
-                      alt={concept.title} 
-                      className="w-full h-full object-cover"
-                    />
-                    {concept.progress > 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gray-200 h-1">
-                        <div 
-                          className="bg-blue-600 h-1" 
-                          style={{ width: `${concept.progress * 100}%` }} 
-                        />
-                      </div>
-                    )}
-                    <Badge 
-                      className={`absolute top-2 right-2 ${getDifficultyColor(concept.difficulty)}`}
-                    >
-                      {concept.difficulty}
-                    </Badge>
-                    {concept.isBookmarked && (
-                      <div className="absolute top-2 left-2">
-                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                      </div>
-                    )}
-                    <Badge className="absolute bottom-2 left-2 bg-white/80 text-black">
-                      {concept.subject}
-                    </Badge>
-                  </div>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{concept.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{concept.description}</p>
-                    <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>{concept.timeEstimate}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      onClick={() => handleViewConcept(concept.id)} 
-                      className="w-full"
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Study Now
-                    </Button>
-                  </CardFooter>
-                </Card>
+                <ConceptCard 
+                  key={concept.id}
+                  id={concept.id}
+                  title={concept.title}
+                  description={concept.description}
+                  subject={concept.subject}
+                  difficulty={concept.difficulty}
+                  progress={concept.progress}
+                  mastery={concept.mastery}
+                  timeEstimate={concept.timeEstimate}
+                  tags={concept.tags}
+                  isBookmarked={concept.isBookmarked}
+                />
               ))}
               
               {filteredConcepts.length === 0 && (

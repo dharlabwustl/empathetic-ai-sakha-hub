@@ -1,156 +1,169 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { BookOpen, ArrowRight, Star, Clock, BrainCircuit, Tag, CheckCircle } from "lucide-react";
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Star, BookMarked, ArrowRight, BrainCircuit } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
 
-export interface ConceptCardProps {
+interface ConceptCardProps {
   id: string;
   title: string;
+  description: string;
   subject: string;
-  topic?: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  estimatedTime: string;
-  progress: number;
-  description?: string;
-  isPremium?: boolean;
-  isRecommended?: boolean;
-  masteryLevel?: number;
+  completed?: boolean;
+  progress?: number;
+  mastery?: number;
+  timeEstimate?: string;
+  tags?: string[];
+  isBookmarked?: boolean;
+  relatedConcepts?: string[];
+  onView?: () => void;
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({
   id,
   title,
-  subject,
-  topic,
-  difficulty,
-  estimatedTime,
-  progress,
   description,
-  isPremium = false,
-  isRecommended = false,
-  masteryLevel = 0,
+  subject,
+  difficulty,
+  completed = false,
+  progress = 0,
+  mastery = 0,
+  timeEstimate = "25 min",
+  tags = [],
+  isBookmarked = false,
+  relatedConcepts = [],
+  onView
 }) => {
-  // Determine difficulty color
-  const getDifficultyColor = () => {
-    switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'hard': return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
-      default: return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
-    }
+  const navigate = useNavigate();
+  
+  const difficultyColors = {
+    'easy': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300',
+    'medium': 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300',
+    'hard': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300'
   };
 
-  // Determine progress color
-  const getProgressColor = () => {
-    if (progress >= 80) return 'bg-green-500';
-    if (progress >= 50) return 'bg-yellow-500';
-    return 'bg-blue-500';
-  };
-
-  // Determine mastery indicator color
   const getMasteryColor = () => {
-    if (masteryLevel >= 80) return 'from-emerald-500 to-green-600';
-    if (masteryLevel >= 60) return 'from-yellow-400 to-amber-500';
-    if (masteryLevel >= 40) return 'from-blue-400 to-blue-600';
-    return 'from-gray-400 to-gray-500';
+    if (mastery >= 80) return 'bg-gradient-to-r from-emerald-500 to-green-600';
+    if (mastery >= 60) return 'bg-gradient-to-r from-yellow-400 to-amber-500';
+    if (mastery >= 40) return 'bg-gradient-to-r from-blue-400 to-blue-600';
+    return 'bg-gradient-to-r from-gray-400 to-gray-500';
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Navigate to concept card detail page
+    navigate(`/dashboard/student/concepts/card/${id}`);
+  };
+
+  const handleStudyNowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/dashboard/student/concepts/card/${id}`);
   };
 
   return (
-    <Link to={`/dashboard/student/concepts/card/${id}`}>
-      <motion.div
-        whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)' }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    <motion.div
+      whileHover={{ y: -5 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    >
+      <Card 
+        className="h-full flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
+                  border border-gray-200/60 dark:border-gray-800/60 rounded-xl cursor-pointer 
+                  bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-950/80"
+        onClick={handleCardClick}
       >
-        <Card className="overflow-hidden border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all h-full bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-          <CardHeader className="pb-2 relative border-b border-gray-100 dark:border-gray-800">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{subject}</p>
-                <CardTitle className="text-lg font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300">
-                  {title}
-                </CardTitle>
-                {topic && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{topic}</p>
-                )}
-              </div>
-              
-              {/* Premium tag */}
-              {isPremium && (
-                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0">
-                  <Star className="h-3 w-3 mr-1 fill-white" /> Premium
-                </Badge>
-              )}
-            </div>
-            
-            <div className="flex flex-wrap gap-1 mt-3">
-              <Badge variant="outline" className={cn("text-xs", getDifficultyColor())}>
-                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-              </Badge>
-              
-              {isRecommended && (
-                <Badge variant="outline" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 text-xs">
-                  <BookMarked className="h-3 w-3 mr-1" /> Recommended
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          
-          <CardContent className="pt-4 space-y-4">
-            {description && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                {description}
-              </p>
+        <CardHeader className="pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex justify-between items-start">
+            <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
+              {difficulty}
+            </Badge>
+            {isBookmarked && (
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             )}
+          </div>
+          <CardTitle 
+            className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
+          >
+            {title}
+          </CardTitle>
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            <Badge variant="secondary" className="font-normal rounded-md">
+              {subject}
+            </Badge>
             
+            {tags && tags.length > 0 && tags.slice(0, 2).map((tag, i) => (
+              <Badge key={i} variant="outline" className="font-normal rounded-md flex items-center gap-1 bg-gray-50 dark:bg-gray-800">
+                <Tag className="h-3 w-3" />
+                {tag}
+              </Badge>
+            ))}
+            
+            {completed && (
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-normal rounded-md flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                Completed
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        
+        <CardContent className="flex-grow pt-4 pb-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            {description}
+          </p>
+          
+          <div className="mt-4 space-y-3">
             <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-600 dark:text-gray-400">Progress</span>
-                <span className="font-medium">{progress}%</span>
+              <div className="flex justify-between text-xs font-medium mb-1">
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                  <Clock className="h-3.5 w-3.5" /> Study Progress
+                </span>
+                <span className="text-indigo-600 dark:text-indigo-400">{progress}%</span>
               </div>
               <Progress 
                 value={progress} 
-                className="h-2 bg-gray-100 dark:bg-gray-800" 
-                indicatorClassName={getProgressColor()}
+                className="h-1.5 bg-gray-100 dark:bg-gray-800" 
               />
             </div>
             
-            {masteryLevel > 0 && (
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                    <BrainCircuit className="h-3 w-3" /> Mastery
-                  </span>
-                  <span className="font-medium">{masteryLevel}%</span>
-                </div>
-                <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full bg-gradient-to-r ${getMasteryColor()} rounded-full`}
-                    style={{ width: `${masteryLevel}%` }}
-                  />
-                </div>
+            <div>
+              <div className="flex justify-between text-xs font-medium mb-1">
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                  <BrainCircuit className="h-3.5 w-3.5" /> Mastery
+                </span>
+                <span className="text-indigo-600 dark:text-indigo-400">{mastery}%</span>
               </div>
-            )}
-            
-            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <Clock className="w-3 h-3 mr-1" />
-              <span>{estimatedTime}</span>
+              <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${getMasteryColor()} rounded-full`}
+                  style={{ width: `${mastery}%` }}
+                />
+              </div>
             </div>
-          </CardContent>
+          </div>
           
-          <CardFooter className="pt-0 pb-3">
-            <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-400 p-0 hover:text-blue-700 hover:bg-transparent">
-              Continue learning <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </CardFooter>
-        </Card>
-      </motion.div>
-    </Link>
+          <div className="flex items-center mt-4 text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            <span>{timeEstimate}</span>
+          </div>
+        </CardContent>
+        
+        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 p-4">
+          <Button 
+            variant="default" 
+            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg"
+            onClick={handleStudyNowClick}
+          >
+            <BookOpen className="h-4 w-4" />
+            <span className="font-medium">Study Now</span>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 };
 
