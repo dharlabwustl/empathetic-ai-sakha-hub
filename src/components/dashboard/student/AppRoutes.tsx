@@ -5,7 +5,7 @@ import DashboardOverview from "./DashboardOverview";
 import TodaysPlanView from "./todays-plan/TodaysPlanView";
 import StudyPlanView from "./studyplan/StudyPlanView";
 import ConceptsView from "./concepts/ConceptsView";
-import ConceptDetailPage from "@/pages/dashboard/student/ConceptDetailPage";
+import ConceptCardDetailPage from "@/components/dashboard/student/concepts/ConceptCardDetailPage";
 import FlashcardsView from "./flashcards/FlashcardsView";
 import NotificationsView from "./notifications/NotificationsView";
 import PracticeExamsView from "./practice-exam/PracticeExamsView";
@@ -18,6 +18,7 @@ import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
 import AnalyticsDashboard from "@/components/dashboard/student/analytics/AnalyticsDashboard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
+import ConceptStudyPage from "./concepts/ConceptStudyPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -29,7 +30,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
-      <Route path="/concepts/:id" element={<ConceptDetailPage />} />
+      <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
       <Route path="/concepts/card/:id" element={<ConceptCardDetail />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
