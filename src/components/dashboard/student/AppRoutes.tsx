@@ -17,7 +17,7 @@ import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
 import AnalyticsDashboard from "@/components/dashboard/student/analytics/AnalyticsDashboard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
-import ConceptStudyPage from "./concepts/ConceptStudyPage";
+import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);

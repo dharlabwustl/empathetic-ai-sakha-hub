@@ -18,7 +18,8 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
   if (!planData) return null;
   
   const handleStartConcept = (conceptId: string) => {
-    // Navigate directly to the concept detail page with the updated path
+    console.log("NewTodaysPlanView - Starting concept study for ID:", conceptId);
+    // Navigate directly to the concept detail page
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
   

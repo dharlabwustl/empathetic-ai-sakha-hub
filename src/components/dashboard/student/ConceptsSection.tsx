@@ -40,8 +40,9 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Navigate to the concept detail page with the correct path
-    console.log("Navigating to concept detail page for concept:", cardId);
+    // Log the navigation for debugging
+    console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
+    // Navigate to the concept detail page with consistent path
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   

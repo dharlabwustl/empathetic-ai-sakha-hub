@@ -36,7 +36,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptCard }) =>
       
       const utterance = new SpeechSynthesisUtterance(correctedText);
       
-      // Use voices API to find an appropriate Hindi/Indian voice
+      // Try to find an appropriate voice
       const voices = window.speechSynthesis.getVoices();
       let selectedVoice = null;
       

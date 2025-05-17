@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,12 +39,14 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page
+    // Navigate to concept card detail page with consistent path
+    console.log("ConceptCard - Navigating to detail page for concept:", id);
     navigate(`/dashboard/student/concepts/${id}`);
   };
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Use the same route format for consistency
     navigate(`/dashboard/student/concepts/${id}`);
   };
 

@@ -30,7 +30,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
       case 'exam':
         return '/dashboard/student/practice-exam';
       case 'concept':
-        // Direct link to concept detail page using task id
+        // Use consistent path for concept navigation
         return `/dashboard/student/concepts/${task.id}`;
       case 'revision':
         return '/dashboard/student/flashcards';
@@ -54,7 +54,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
     const route = getDefaultRoute(task);
-    console.log("Navigating to task route:", route);
+    console.log("TodayStudyPlan - Navigating to task route:", route);
     navigate(route);
   };
 

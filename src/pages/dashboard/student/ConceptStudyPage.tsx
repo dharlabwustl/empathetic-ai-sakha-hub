@@ -13,13 +13,16 @@ const ConceptStudyPage: React.FC = () => {
     console.log("Pages/ConceptStudyPage - Loading concept with ID:", conceptId);
     
     if (conceptId) {
-      // Navigate to the correct path format
+      // Navigate to the correct detail page
       navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({
         title: "Loading concept details",
         description: "Please wait while we prepare your concept study materials",
       });
+    } else {
+      console.error("ConceptStudyPage: Missing conceptId parameter");
+      navigate('/dashboard/student/concepts', { replace: true });
     }
   }, [conceptId, navigate, toast]);
   
