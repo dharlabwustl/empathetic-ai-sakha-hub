@@ -32,11 +32,10 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Create text for speech with better pronunciation for PREPZR
             let welcomeText = '';
             if (language === 'en') {
-              // Use phonetic spelling to achieve the correct pronunciation
-              // "Prep" (pause) "zer" - /prep-zər/
-              welcomeText = `Welcome to Prepzr, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
+              // Use phonetic spelling with a pause between Prep and zer
+              welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
             } else if (language === 'hi') {
-              welcomeText = `प्रेप्ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
+              welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
             }
             
             // Get available voices
@@ -167,7 +166,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         <Volume className="h-6 w-6" />
       )}
       
-      <style jsx>{`
+      <style>
+        {`
         @keyframes bounce-slow {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
@@ -175,7 +175,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         .animate-bounce-slow {
           animation: bounce-slow 2s ease-in-out infinite;
         }
-      `}</style>
+      `}
+      </style>
     </div>
   );
 };

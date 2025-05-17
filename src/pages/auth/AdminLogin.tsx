@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -102,7 +103,9 @@ const AdminLogin = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-6">
-          <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          <Link to="/">
+            <PrepzrLogo width={140} height="auto" className="mx-auto" />
+          </Link>
           <h1 className="mt-4 text-2xl font-bold">Admin Portal</h1>
         </div>
         
@@ -210,9 +213,9 @@ const AdminLogin = () => {
         </Card>
         
         <div className="mt-4 text-center">
-          <Button variant="link" onClick={() => window.location.href = "/login"}>
+          <Link to="/login" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
             Back to Student Login
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

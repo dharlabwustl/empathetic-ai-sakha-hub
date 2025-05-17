@@ -6,12 +6,16 @@ import { DocumentationPage } from "@/pages/admin/DocumentationPage";
 import FlaskGuidePage from "@/pages/admin/FlaskGuidePage";
 import { Navigate } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminLogin from "@/pages/admin/AdminLogin";
+import AdminLogin from "@/pages/auth/AdminLogin";  // Update the path
 
 const adminRoutes: RouteObject[] = [
   {
     path: "/admin/login",
     element: <AdminLogin />,
+  },
+  {
+    path: "/login/admin",
+    element: <Navigate to="/admin/login" replace />,  // Add redirect from old path
   },
   {
     path: "/admin/dashboard",
