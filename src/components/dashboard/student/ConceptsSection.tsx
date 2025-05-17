@@ -40,7 +40,7 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Navigate to the concept detail page
+    // Navigate to the concept detail page using the consistent URL pattern
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
     navigate(`/dashboard/student/concepts/${cardId}`);
   };

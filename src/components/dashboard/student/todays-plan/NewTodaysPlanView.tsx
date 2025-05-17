@@ -19,7 +19,7 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
   
   const handleStartConcept = (conceptId: string) => {
     console.log("NewTodaysPlanView - Starting concept study for ID:", conceptId);
-    // Navigate directly to the concept detail page
+    // Navigate directly to the concept detail page using the consistent URL pattern
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
   
