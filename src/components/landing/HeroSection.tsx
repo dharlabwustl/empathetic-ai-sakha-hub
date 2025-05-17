@@ -95,32 +95,41 @@ const HeroSection = () => {
       <div className="w-full max-w-7xl px-4 relative z-10 mx-auto">
         <div className="flex flex-col items-center text-center">
           <div className="w-full max-w-6xl mx-auto">
-            {/* Hindi text line with enhanced gradient and special PREPZR animation */}
-            <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden px-2"
+            {/* Hindi text line with enhanced formatting to ensure it displays in one complete line */}
+            <motion.div
+              className="overflow-visible mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="py-2">
-                अब तैयारी करो अपने तरीके से, सिर्फ{" "}
-                <motion.span 
-                  className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
-                  animate={{ 
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ 
-                    duration: 5, 
-                    repeat: Infinity, 
-                    repeatType: "reverse" 
-                  }}
-                >
-                  PREPZR
-                </motion.span>{" "}
-                के साथ!
-              </span>
-            </motion.h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight whitespace-normal px-2">
+                <div className="inline-flex flex-wrap justify-center items-center text-gray-900 dark:text-white">
+                  <span className="mx-1">अब</span>
+                  <span className="mx-1">तैयारी</span>
+                  <span className="mx-1">करो</span>
+                  <span className="mx-1">अपने</span>
+                  <span className="mx-1">तरीके</span>
+                  <span className="mx-1">से,</span>
+                  <span className="mx-1">सिर्फ</span>
+                  <motion.span 
+                    className="mx-1 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"
+                    animate={{ 
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{ 
+                      duration: 5, 
+                      repeat: Infinity, 
+                      repeatType: "reverse" 
+                    }}
+                  >
+                    PREPZR
+                  </motion.span>
+                  <span className="mx-1">के</span>
+                  <span className="mx-1">साथ!</span>
+                </div>
+              </h1>
+            </motion.div>
             
             {/* English text line with different animation timing */}
             <motion.h2
