@@ -68,9 +68,12 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use direct window location change for guaranteed redirect
-        window.location.href = '/admin/dashboard';
-        return; // Make sure we exit early after redirect
+        // More reliable redirect with setTimeout
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard';
+        }, 500);
+        
+        return;
       } else {
         throw new Error("Invalid admin credentials");
       }

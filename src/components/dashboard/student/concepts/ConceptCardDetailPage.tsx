@@ -1,630 +1,822 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { 
-  Volume2, 
   BookOpen, 
-  Layers3, 
+  VolumeUp, 
+  VolumeX, 
+  Brain, 
   FileText, 
-  BarChart2, 
-  Link as LinkIcon,
+  Clock, 
+  CheckCircle2, 
+  ListChecks, 
+  FlaskConical, 
+  Sparkles, 
+  PencilLine,
+  Save,
+  Calendar,
   Info,
-  Brain,
-  Lightbulb,
-  Dumbbell,
-  Award
-} from "lucide-react";
-import { motion } from 'framer-motion';
-import { ConceptCard } from '@/types/user/conceptCard';
+  HeadphonesIcon,
+  BookmarkIcon,
+  LightbulbIcon,
+  LucideArrowRight
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Loader2 } from 'lucide-react';
 
-interface ConceptAnalytics {
-  mastery: number;
-  recall: number;
-  attemptsHistory: { date: string; score: number }[];
-  timeSpent: number;
-  weakPoints: string[];
-  strongPoints: string[];
-  recommendedRevision: string[];
+interface ConceptNote {
+  id: string;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const ConceptCardDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { speakMessage, isSpeaking, toggleMute } = useVoiceAnnouncer();
-  
-  const [concept, setConcept] = useState<ConceptCard | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [notes, setNotes] = useState<string>("");
-  const [linkedConcepts, setLinkedConcepts] = useState<ConceptCard[]>([]);
-  const [activeTab, setActiveTab] = useState("content");
-  const notesRef = useRef<HTMLTextAreaElement>(null);
+interface RelatedConcept {
+  id: string;
+  title: string;
+  subject: string;
+  masteryLevel: number;
+}
 
-  const [analytics, setAnalytics] = useState<ConceptAnalytics>({
-    mastery: 75,
-    recall: 68,
-    attemptsHistory: [
-      { date: "2025-05-02", score: 65 },
-      { date: "2025-05-09", score: 72 },
-      { date: "2025-05-15", score: 75 }
+interface FlashcardSet {
+  id: string;
+  title: string;
+  count: number;
+}
+
+interface PracticeExam {
+  id: string;
+  title: string;
+  questionsCount: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+interface RecallHistoryItem {
+  date: string;
+  score: number;
+}
+
+const ConceptCardDetailPage = () => {
+  const { conceptId } = useParams<{ conceptId: string }>();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('explanation');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesisUtterance | null>(null);
+  const [notes, setNotes] = useState<ConceptNote[]>([]);
+  const [newNote, setNewNote] = useState('');
+  const [recallStrength, setRecallStrength] = useState(65);
+  const [conceptData, setConceptData] = useState<any>(null);
+
+  // Mock data for concept
+  const mockConcept = {
+    id: conceptId,
+    title: "Newton's Laws of Motion",
+    subject: "Physics",
+    chapter: "Classical Mechanics",
+    masteryLevel: 65,
+    lastPracticed: "2023-09-15T10:30:00Z",
+    content: {
+      explanation: `
+        <h2>Introduction</h2>
+        <p>Newton's laws of motion are three fundamental laws that describe the relationship between the motion of an object and the forces acting on it. These laws are the foundation of classical mechanics.</p>
+        
+        <h2>First Law: Law of Inertia</h2>
+        <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction, unless acted upon by an unbalanced force.</p>
+        
+        <h2>Second Law: F = ma</h2>
+        <p>The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
+        <p>Mathematically: F = ma</p>
+        
+        <h2>Third Law: Action-Reaction</h2>
+        <p>For every action, there is an equal and opposite reaction. When one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.</p>
+        
+        <h2>Applications</h2>
+        <p>Newton's laws find applications in various fields:</p>
+        <ul>
+          <li>Rocket propulsion</li>
+          <li>Automobile safety</li>
+          <li>Sporting activities</li>
+          <li>Engineering designs</li>
+        </ul>
+      `,
+      examples: `
+        <h2>First Law Examples</h2>
+        <p>1. A ball on a smooth surface continues to roll until friction stops it.</p>
+        <p>2. Passengers in a moving vehicle tend to continue moving forward when the vehicle suddenly stops.</p>
+        
+        <h2>Second Law Examples</h2>
+        <p>1. A 2 kg object acted upon by a 10 N force accelerates at 5 m/s².</p>
+        <p>2. Heavier objects require more force to achieve the same acceleration as lighter ones.</p>
+        
+        <h2>Third Law Examples</h2>
+        <p>1. When swimming, you push water backwards, and the water pushes you forward.</p>
+        <p>2. A rocket expels gas downward (action) and the rocket moves upward (reaction).</p>
+      `,
+      practice: `
+        <h2>Practice Questions</h2>
+        <p>1. A 4 kg ball experiences a net force of 20 N. What is its acceleration?</p>
+        <p>2. Explain why a person standing on a boat and jumping off causes the boat to move in the opposite direction.</p>
+        <p>3. Calculate the force needed to accelerate a 1200 kg car from 0 to 27 m/s in 10 seconds.</p>
+      `,
+    },
+    formulas: [
+      { id: 'f1', name: 'Newton\'s Second Law', formula: 'F = ma', variables: [{symbol: 'F', name: 'Force'}, {symbol: 'm', name: 'Mass'}, {symbol: 'a', name: 'Acceleration'}] },
+      { id: 'f2', name: 'Weight', formula: 'W = mg', variables: [{symbol: 'W', name: 'Weight'}, {symbol: 'm', name: 'Mass'}, {symbol: 'g', name: 'Gravitational acceleration'}] },
+      { id: 'f3', name: 'Momentum', formula: 'p = mv', variables: [{symbol: 'p', name: 'Momentum'}, {symbol: 'm', name: 'Mass'}, {symbol: 'v', name: 'Velocity'}] },
     ],
-    timeSpent: 120, // minutes
-    weakPoints: ["Reaction mechanisms", "Nomenclature rules"],
-    strongPoints: ["Basic principles", "Element properties"],
-    recommendedRevision: ["Review nomenclature", "Practice reaction balancing"]
-  });
-  
+  };
+
+  // Mock data for related concepts
+  const relatedConcepts: RelatedConcept[] = [
+    { id: 'c1', title: 'Conservation of Momentum', subject: 'Physics', masteryLevel: 80 },
+    { id: 'c2', title: 'Friction Forces', subject: 'Physics', masteryLevel: 55 },
+    { id: 'c3', title: 'Circular Motion', subject: 'Physics', masteryLevel: 70 },
+  ];
+
+  // Mock data for flashcard sets
+  const flashcardSets: FlashcardSet[] = [
+    { id: 'fs1', title: 'Newton\'s Laws Basics', count: 12 },
+    { id: 'fs2', title: 'Advanced Mechanics', count: 18 },
+    { id: 'fs3', title: 'Physics Formulas', count: 15 },
+  ];
+
+  // Mock data for practice exams
+  const practiceExams: PracticeExam[] = [
+    { id: 'pe1', title: 'Newton\'s Laws Quiz', questionsCount: 10, difficulty: 'easy' },
+    { id: 'pe2', title: 'Mechanics Midterm', questionsCount: 25, difficulty: 'medium' },
+    { id: 'pe3', title: 'Advanced Physics Exam', questionsCount: 30, difficulty: 'hard' },
+  ];
+
+  // Mock recall history
+  const recallHistory: RecallHistoryItem[] = [
+    { date: '2023-08-01', score: 45 },
+    { date: '2023-08-15', score: 55 },
+    { date: '2023-09-01', score: 60 },
+    { date: '2023-09-15', score: 65 },
+  ];
+
+  // Load concept data and notes
   useEffect(() => {
-    console.log("ConceptCardDetailPage - Loading concept with ID:", conceptId);
-    
-    // Simulate fetching the concept data
-    setLoading(true);
-    setTimeout(() => {
-      // Mock data for demonstration
-      const mockConcept: ConceptCard = {
-        id: conceptId || "concept-1",
-        title: "Organic Chemistry Fundamentals",
-        description: "This concept covers the foundational principles of organic chemistry including carbon bonding, functional groups, and basic reaction mechanisms. Understanding these principles is crucial for advanced topics in chemistry.",
-        subject: "Chemistry",
-        chapter: "Organic Chemistry",
-        topic: "Chemical Bonding",
-        difficulty: "medium",
-        progress: 75,
-        completed: false,
-        content: `
-          <h2>Introduction to Organic Chemistry</h2>
-          <p>Organic chemistry is the study of carbon compounds. Carbon atoms can form stable covalent bonds with other carbon atoms and with atoms of other elements like hydrogen, oxygen, nitrogen, sulfur, and halogens.</p>
-          
-          <h2>Key Concepts</h2>
-          <ul>
-            <li>Carbon atoms form four covalent bonds</li>
-            <li>Carbon can form single, double, or triple bonds</li>
-            <li>Functional groups determine chemical properties</li>
-            <li>Stereochemistry affects biological activity</li>
-          </ul>
-          
-          <h2>Functional Groups</h2>
-          <p>Functional groups are specific groups of atoms within molecules that are responsible for the chemical reactions of those molecules. Common functional groups include:</p>
-          <ul>
-            <li>Alcohols (-OH)</li>
-            <li>Aldehydes (-CHO)</li>
-            <li>Ketones (-CO-)</li>
-            <li>Carboxylic acids (-COOH)</li>
-            <li>Amines (-NH2)</li>
-          </ul>
-        `,
-        examples: [
-          "Methane (CH4) is the simplest organic compound",
-          "Ethanol (C2H5OH) contains the alcohol functional group",
-          "Acetic acid (CH3COOH) contains the carboxylic acid group"
-        ],
-        commonMistakes: [
-          "Confusing structural isomers with stereoisomers",
-          "Incorrectly identifying functional groups",
-          "Forgetting to account for resonance structures"
-        ],
-        examRelevance: "High - appears in 75% of chemistry exams as fundamental knowledge",
-        relatedConcepts: ["Isomerism", "Reaction Mechanisms", "Biochemistry Basics"]
-      };
-      
-      setConcept(mockConcept);
-      
-      // Mock linked concepts
-      const mockLinkedConcepts: ConceptCard[] = [
-        {
-          id: "concept-2",
-          title: "Isomerism in Organic Chemistry",
-          description: "Understanding different types of isomers and their properties",
-          subject: "Chemistry",
-          difficulty: "hard",
-          progress: 60
-        },
-        {
-          id: "concept-3",
-          title: "Reaction Mechanisms",
-          description: "Step-by-step processes of chemical reactions",
-          subject: "Chemistry",
-          difficulty: "hard",
-          progress: 45
-        },
-        {
-          id: "concept-4",
-          title: "Biochemistry Basics",
-          description: "Chemical processes in living organisms",
-          subject: "Chemistry",
-          difficulty: "medium",
-          progress: 80
+    if (conceptId) {
+      // Simulate API call
+      setTimeout(() => {
+        setConceptData(mockConcept);
+        setLoading(false);
+        
+        // Load saved notes from localStorage
+        const savedNotes = localStorage.getItem(`concept_notes_${conceptId}`);
+        if (savedNotes) {
+          setNotes(JSON.parse(savedNotes));
         }
-      ];
-      
-      setLinkedConcepts(mockLinkedConcepts);
-      
-      // Load saved notes if any
-      const savedNotes = localStorage.getItem(`notes-${conceptId}`);
-      if (savedNotes) {
-        setNotes(savedNotes);
-      }
-      
-      setLoading(false);
-      
+      }, 800);
+    }
+  }, [conceptId]);
+
+  // Text to speech functionality
+  const startSpeech = () => {
+    if (!conceptData || isPlaying) return;
+    
+    // Create text content from HTML (basic version - in real app would need better HTML parsing)
+    const textContent = conceptData.content.explanation.replace(/<[^>]*>/g, ' ');
+    
+    const utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    
+    // Set up event handlers
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setSpeechSynthesis(null);
+    };
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      setSpeechSynthesis(null);
       toast({
-        title: "Concept loaded",
-        description: "Study materials are ready for you",
+        title: "Error",
+        description: "Failed to play audio. Please try again.",
+        variant: "destructive"
       });
-    }, 1000);
-  }, [conceptId, toast]);
-  
-  const handleSaveNotes = () => {
-    localStorage.setItem(`notes-${conceptId}`, notes);
+    };
+    
+    // Save reference to control playback
+    setSpeechSynthesis(utterance);
+    
+    // Start speaking
+    window.speechSynthesis.speak(utterance);
+    
     toast({
-      title: "Notes saved",
-      description: "Your notes have been saved successfully",
+      title: "Reading content",
+      description: "The concept explanation is now being read aloud."
     });
   };
-  
-  const handleReadAloud = () => {
-    if (!concept) return;
-    
-    if (isSpeaking) {
-      toggleMute(true); // Stop speaking
+
+  const stopSpeech = () => {
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      setSpeechSynthesis(null);
+      
       toast({
         title: "Reading stopped",
-        description: "Voice reading has been stopped",
+        description: "Audio playback has been stopped."
       });
-      return;
-    }
-    
-    // Prepare text for reading, replacing "PREPZR" with "Prep-zer" for better pronunciation
-    const textToRead = `${concept.title}. ${concept.description} ${extractTextFromHTML(concept.content || '')}`.replace(/PREPZR/gi, 'Prep-zer');
-    speakMessage(textToRead);
-    
-    toast({
-      title: "Reading aloud",
-      description: "Voice assistant is reading the content",
-    });
-  };
-  
-  const extractTextFromHTML = (html: string): string => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || '';
-  };
-  
-  const handlePracticeExam = () => {
-    navigate(`/dashboard/student/practice-exam?topic=${concept?.topic}`);
-    toast({
-      title: "Practice exam",
-      description: "Loading practice exam for this concept",
-    });
-  };
-  
-  const handleFlashcards = () => {
-    navigate(`/dashboard/student/flashcards?topic=${concept?.topic}`);
-    toast({
-      title: "Flashcards",
-      description: "Loading flashcards for this concept",
-    });
-  };
-  
-  const handleLinkedConcept = (id: string) => {
-    navigate(`/dashboard/student/concepts/${id}`);
-  };
-  
-  const getDifficultyColor = (difficulty: string): string => {
-    switch (difficulty.toLowerCase()) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'medium': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
     }
   };
-  
-  const getMasteryBadgeColor = (mastery: number): string => {
-    if (mastery >= 80) return 'bg-green-100 text-green-800 border-green-200';
-    if (mastery >= 60) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (mastery >= 40) return 'bg-amber-100 text-amber-800 border-amber-200';
-    return 'bg-red-100 text-red-800 border-red-200';
+
+  // Notes functionality
+  const handleAddNote = () => {
+    if (!newNote.trim()) return;
+    
+    const newNoteObj: ConceptNote = {
+      id: `note_${Date.now()}`,
+      text: newNote.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    const updatedNotes = [...notes, newNoteObj];
+    setNotes(updatedNotes);
+    setNewNote('');
+    
+    // Save to localStorage
+    localStorage.setItem(`concept_notes_${conceptId}`, JSON.stringify(updatedNotes));
+    
+    toast({
+      title: "Note saved",
+      description: "Your note has been saved successfully."
+    });
   };
-  
-  const getMasteryLabel = (mastery: number): string => {
-    if (mastery >= 80) return 'Excellent';
-    if (mastery >= 60) return 'Good';
-    if (mastery >= 40) return 'Moderate';
-    return 'Needs work';
+
+  const handleDeleteNote = (noteId: string) => {
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    setNotes(updatedNotes);
+    
+    // Update localStorage
+    localStorage.setItem(`concept_notes_${conceptId}`, JSON.stringify(updatedNotes));
+    
+    toast({
+      title: "Note deleted",
+      description: "Your note has been removed."
+    });
   };
-  
+
+  // Handle navigation to a related concept
+  const handleRelatedConceptClick = (conceptId: string) => {
+    console.log(`Navigate to concept: ${conceptId}`);
+    // This would use navigate to go to the related concept in a real app
+    toast({
+      title: "Loading concept",
+      description: "Navigating to the selected related concept."
+    });
+  };
+
+  // Handle navigation to flashcard set
+  const handleFlashcardClick = (setId: string) => {
+    console.log(`Navigate to flashcard set: ${setId}`);
+    toast({
+      title: "Opening flashcards",
+      description: "Loading flashcard practice session."
+    });
+  };
+
+  // Handle navigation to practice exam
+  const handlePracticeExamClick = (examId: string) => {
+    console.log(`Navigate to practice exam: ${examId}`);
+    toast({
+      title: "Loading exam",
+      description: "Setting up practice exam session."
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
-        <div className="text-center animate-pulse">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-primary">Loading Concept</h2>
           <p className="text-muted-foreground mt-2">Please wait while we prepare your study materials...</p>
         </div>
       </div>
     );
   }
-  
-  if (!concept) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600">Concept Not Found</h2>
-          <p className="text-muted-foreground mt-2">The requested concept could not be found</p>
-          <Button 
-            variant="outline" 
-            className="mt-4" 
-            onClick={() => navigate('/dashboard/student/concepts')}
-          >
-            Back to Concepts
-          </Button>
-        </div>
-      </div>
-    );
-  }
-  
+
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header with improved layout */}
-      <div className="flex flex-col lg:flex-row justify-between items-start mb-6 gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="outline" className={`${getDifficultyColor(concept.difficulty)} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
-              {concept.difficulty}
-            </Badge>
-            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-3 py-1 text-xs font-semibold">
-              {concept.subject}
-            </Badge>
-            {concept.chapter && (
-              <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 rounded-full px-3 py-1 text-xs font-semibold">
-                {concept.chapter}
-              </Badge>
-            )}
+    <SharedPageLayout
+      title={conceptData?.title || 'Concept Details'}
+      subtitle={`${conceptData?.subject} > ${conceptData?.chapter}`}
+      backButtonUrl="/dashboard/student/concepts"
+      showBackButton={true}
+    >
+      {/* Header with mastery and actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex flex-col gap-2 flex-grow">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200">{conceptData?.subject}</Badge>
+            <Badge variant="outline">{conceptData?.chapter}</Badge>
           </div>
-          <h1 className="text-3xl font-bold mb-2">{concept.title}</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">{concept.description}</p>
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">Mastery Level</p>
+              <p className="text-sm font-medium">{recallStrength}%</p>
+            </div>
+            <Progress value={recallStrength} className="h-2" />
+          </div>
         </div>
         
-        <div className="flex flex-wrap gap-2 mt-2 lg:mt-0">
-          <Button 
-            onClick={handleReadAloud}
-            variant="outline" 
-            className="flex items-center gap-2 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+        <div className="flex gap-2">
+          {isPlaying ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={stopSpeech}
+              className="flex items-center gap-2"
+            >
+              <VolumeX className="h-4 w-4" />
+              Stop Reading
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={startSpeech}
+              className="flex items-center gap-2"
+            >
+              <VolumeUp className="h-4 w-4" />
+              Read Aloud
+            </Button>
+          )}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => {
+              // Simulate marking as mastered
+              setRecallStrength(prevValue => Math.min(prevValue + 5, 100));
+              toast({
+                title: "Progress updated",
+                description: "Your mastery level has been updated."
+              });
+            }}
           >
-            <Volume2 className="h-4 w-4" />
-            {isSpeaking ? 'Stop Reading' : 'Read Aloud'}
-          </Button>
-          
-          <Button 
-            onClick={handleSaveNotes}
-            variant="outline" 
-            className="flex items-center gap-2 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-          >
-            <BookOpen className="h-4 w-4" />
-            Save Notes
+            <CheckCircle2 className="mr-2 h-4 w-4" />
+            Mark as Reviewed
           </Button>
         </div>
       </div>
       
-      {/* Progress tracking */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm font-medium mb-1">
-          <span>Progress</span>
-          <span className="text-indigo-600 dark:text-indigo-400">{concept.progress || 0}%</span>
-        </div>
-        <Progress 
-          value={concept.progress || 0} 
-          className="h-2 bg-gray-100 dark:bg-gray-800" 
-          indicatorClassName={
-            (concept.progress || 0) >= 80 ? "bg-gradient-to-r from-green-400 to-green-500" :
-            (concept.progress || 0) >= 40 ? "bg-gradient-to-r from-blue-400 to-blue-500" :
-            "bg-gradient-to-r from-amber-400 to-amber-500"
-          }
-        />
-      </div>
-      
-      {/* Main content grid with improved layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column - Main content */}
-        <div className="lg:col-span-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="notes">My Notes</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="content" className="space-y-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div 
-                    className="prose dark:prose-invert max-w-none" 
-                    dangerouslySetInnerHTML={{ __html: concept.content || 'No content available' }} 
-                  />
-                  
-                  {concept.examples && concept.examples.length > 0 && (
-                    <div className="mt-8">
-                      <h3 className="text-xl font-semibold mb-4">Examples</h3>
-                      <ul className="list-disc pl-5 space-y-2">
-                        {concept.examples.map((example, index) => (
-                          <li key={index} className="text-gray-700 dark:text-gray-300">{example}</li>
+      {/* Main content tabs */}
+      <Tabs defaultValue="explanation" value={activeTab} onValueChange={setActiveTab} className="mb-8">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 mb-4">
+          <TabsTrigger value="explanation">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Explanation
+          </TabsTrigger>
+          <TabsTrigger value="examples">
+            <ListChecks className="h-4 w-4 mr-2" />
+            Examples
+          </TabsTrigger>
+          <TabsTrigger value="practice">
+            <FlaskConical className="h-4 w-4 mr-2" />
+            Practice
+          </TabsTrigger>
+          <TabsTrigger value="notes">
+            <PencilLine className="h-4 w-4 mr-2" />
+            My Notes
+          </TabsTrigger>
+          <TabsTrigger value="related">
+            <Brain className="h-4 w-4 mr-2" />
+            Related
+          </TabsTrigger>
+          <TabsTrigger value="ai-insights">
+            <Sparkles className="h-4 w-4 mr-2" />
+            AI Insights
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="explanation" className="mt-0">
+          <Card>
+            <CardContent className="pt-6">
+              <div 
+                className="prose prose-blue max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: conceptData?.content.explanation || '' }}
+              />
+              
+              {/* Formulas section */}
+              <div className="mt-8 pt-6 border-t">
+                <h3 className="text-lg font-medium mb-4">Key Formulas</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {conceptData?.formulas.map((formula: any) => (
+                    <div key={formula.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900">
+                      <p className="font-medium">{formula.name}</p>
+                      <p className="text-lg font-mono my-2">{formula.formula}</p>
+                      <div className="text-xs text-muted-foreground">
+                        {formula.variables.map((v: any) => (
+                          <span key={v.symbol} className="mr-3">{v.symbol}: {v.name}</span>
                         ))}
-                      </ul>
+                      </div>
                     </div>
-                  )}
-                  
-                  {concept.commonMistakes && concept.commonMistakes.length > 0 && (
-                    <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <h3 className="text-xl font-semibold mb-4 text-amber-800 dark:text-amber-300">Common Mistakes to Avoid</h3>
-                      <ul className="list-disc pl-5 space-y-2">
-                        {concept.commonMistakes.map((mistake, index) => (
-                          <li key={index} className="text-amber-700 dark:text-amber-300">{mistake}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {concept.examRelevance && (
-                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <h3 className="text-xl font-semibold mb-2 text-blue-800 dark:text-blue-300">Exam Relevance</h3>
-                      <p className="text-blue-700 dark:text-blue-300">{concept.examRelevance}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notes">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Study Notes</CardTitle>
-                  <CardDescription>
-                    Take personal notes on this concept. Your notes are automatically saved when you click "Save Notes".
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Textarea 
-                    ref={notesRef}
-                    placeholder="Write your notes here..." 
-                    className="min-h-[300px] p-4" 
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                  />
-                </CardContent>
-                <CardFooter className="flex justify-end">
-                  <Button onClick={handleSaveNotes} className="bg-emerald-600 hover:bg-emerald-700">
-                    Save Notes
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="analytics">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Learning Analytics</CardTitle>
-                  <CardDescription>
-                    Track your progress and understanding of this concept
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold text-center mb-1">{analytics.mastery}%</div>
-                      <div className="text-sm text-center text-muted-foreground">Mastery Level</div>
-                      <Badge className={`${getMasteryBadgeColor(analytics.mastery)} mt-2 mx-auto block w-fit`}>
-                        {getMasteryLabel(analytics.mastery)}
-                      </Badge>
-                    </Card>
-                    
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold text-center mb-1">{analytics.recall}%</div>
-                      <div className="text-sm text-center text-muted-foreground">Recall Strength</div>
-                      <Badge className={`${getMasteryBadgeColor(analytics.recall)} mt-2 mx-auto block w-fit`}>
-                        {getMasteryLabel(analytics.recall)}
-                      </Badge>
-                    </Card>
-                    
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold text-center mb-1">{analytics.attemptsHistory.length}</div>
-                      <div className="text-sm text-center text-muted-foreground">Practice Attempts</div>
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-200 mt-2 mx-auto block w-fit">
-                        Last: {analytics.attemptsHistory[analytics.attemptsHistory.length - 1]?.date}
-                      </Badge>
-                    </Card>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="examples" className="mt-0">
+          <Card>
+            <CardContent className="pt-6">
+              <div 
+                className="prose prose-blue max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: conceptData?.content.examples || '' }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="practice" className="mt-0">
+          <Card>
+            <CardContent className="pt-6">
+              <div 
+                className="prose prose-blue max-w-none dark:prose-invert mb-8"
+                dangerouslySetInnerHTML={{ __html: conceptData?.content.practice || '' }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notes" className="mt-0">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-3">Add a Note</h3>
+                <Textarea 
+                  placeholder="Write your notes about this concept here..."
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  className="min-h-[120px]"
+                />
+                <Button 
+                  onClick={handleAddNote} 
+                  className="mt-3"
+                  disabled={!newNote.trim()}
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Note
+                </Button>
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium mb-4">Your Notes</h3>
+                {notes.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    You haven't added any notes for this concept yet.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {notes.map(note => (
+                      <div key={note.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900">
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(note.createdAt).toLocaleDateString()}
+                          </p>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteNote(note.id)}
+                            className="h-6 w-6 p-0 text-muted-foreground"
+                          >
+                            &times;
+                          </Button>
+                        </div>
+                        <p className="whitespace-pre-wrap">{note.text}</p>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Study Time</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      You've spent <span className="font-medium text-primary">{analytics.timeSpent} minutes</span> studying this concept
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="related" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Related concepts */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-blue-500" />
+                  Related Concepts
+                </CardTitle>
+                <CardDescription>
+                  These concepts are related to what you're currently studying
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {relatedConcepts.map(concept => (
+                    <div
+                      key={concept.id}
+                      className="p-3 border rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                      onClick={() => handleRelatedConceptClick(concept.id)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{concept.title}</h4>
+                        <Badge variant="outline">{concept.subject}</Badge>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex-grow">
+                          <Progress value={concept.masteryLevel} className="h-2" />
+                        </div>
+                        <span className="text-xs font-medium">{concept.masteryLevel}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Flashcard sets */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-500" />
+                  Flashcard Sets
+                </CardTitle>
+                <CardDescription>
+                  Practice with these flashcard sets to reinforce your learning
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {flashcardSets.map(set => (
+                    <div
+                      key={set.id}
+                      className="p-3 border rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                      onClick={() => handleFlashcardClick(set.id)}
+                    >
+                      <h4 className="font-medium">{set.title}</h4>
+                      <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                        <Brain className="h-4 w-4" />
+                        <span>{set.count} flashcards</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="mt-2 w-full">
+                        Practice Now
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Practice exams */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-green-500" />
+                  Practice Exams
+                </CardTitle>
+                <CardDescription>
+                  Test your knowledge with these practice exams
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {practiceExams.map(exam => (
+                    <div
+                      key={exam.id}
+                      className="p-3 border rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                      onClick={() => handlePracticeExamClick(exam.id)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{exam.title}</h4>
+                        <Badge
+                          variant="outline"
+                          className={`
+                            ${exam.difficulty === 'easy' ? 'bg-green-50 text-green-700 border-green-200' : 
+                            exam.difficulty === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                            'bg-red-50 text-red-700 border-red-200'}
+                          `}
+                        >
+                          {exam.difficulty}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                        <FileText className="h-4 w-4" />
+                        <span>{exam.questionsCount} questions</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="mt-2 w-full">
+                        Start Exam
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Recall tracking */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-orange-500" />
+                  Recall Strength
+                </CardTitle>
+                <CardDescription>
+                  Track your learning and recall over time
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">Current Recall Strength</p>
+                    <p className="text-sm font-medium">{recallStrength}%</p>
+                  </div>
+                  <Progress value={recallStrength} className="h-2 mt-2" />
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Recall History</h4>
+                  <div className="space-y-2">
+                    {recallHistory.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">
+                          {new Date(item.date).toLocaleDateString()}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={item.score} className="h-2 w-24" />
+                          <span>{item.score}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-muted-foreground">
+                    Last reviewed on {new Date(conceptData?.lastPracticed).toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Next review recommended: {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="ai-insights" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="bg-blue-50 dark:bg-blue-900/20 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <LightbulbIcon className="h-5 w-5 text-blue-500" />
+                  Learning Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-md bg-blue-50/50 dark:bg-blue-950/20">
+                    <h4 className="font-medium mb-1">Important Connections</h4>
+                    <p className="text-sm">
+                      This concept connects strongly with the Conservation of Momentum and Circular Motion.
+                      Understanding these relationships will help you solve complex problems.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400 flex items-center gap-2">
-                        <Brain className="h-5 w-5" />
-                        Weak Points
-                      </h3>
-                      <ul className="space-y-2">
-                        {analytics.weakPoints.map((point, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-red-500 mt-1">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  <div className="p-3 border rounded-md bg-green-50/50 dark:bg-green-950/20">
+                    <h4 className="font-medium mb-1">Study Suggestion</h4>
+                    <p className="text-sm">
+                      Your recall strength is improving, but you should focus on applications of the Third Law.
+                      Try the "Advanced Physics Exam" to strengthen this area.
+                    </p>
+                  </div>
+                  
+                  <div className="p-3 border rounded-md bg-amber-50/50 dark:bg-amber-950/20">
+                    <h4 className="font-medium mb-1">Common Mistake Alert</h4>
+                    <p className="text-sm">
+                      Many students confuse inertia with momentum. Remember that inertia is a property of matter,
+                      while momentum is a vector quantity equal to mass times velocity.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="bg-purple-50 dark:bg-purple-900/20 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BookmarkIcon className="h-5 w-5 text-purple-500" />
+                  Study Strategy
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      1
                     </div>
-                    
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-green-600 dark:text-green-400 flex items-center gap-2">
-                        <Award className="h-5 w-5" />
-                        Strong Points
-                      </h3>
-                      <ul className="space-y-2">
-                        {analytics.strongPoints.map((point, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-green-500 mt-1">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <h4 className="font-medium">Review Core Principles</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Re-read the explanation focusing on each law's implications
+                      </p>
                     </div>
                   </div>
                   
-                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800">
-                    <h3 className="text-lg font-semibold mb-3 text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5" />
-                      AI Study Recommendations
-                    </h3>
-                    <ul className="space-y-2">
-                      {analytics.recommendedRevision.map((recommendation, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-indigo-500 mt-1">→</span>
-                          <span>{recommendation}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Test Your Understanding</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Practice with "Newton's Laws Quiz" to confirm basic understanding
+                      </p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        {/* Right column - Related concepts and tools */}
-        <div className="space-y-6">
-          {/* Related concepts */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LinkIcon className="h-5 w-5" />
-                Related Concepts
-              </CardTitle>
-              <CardDescription>
-                Explore these connected concepts to deepen your understanding
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {linkedConcepts.map((relatedConcept) => (
-                <motion.div 
-                  key={relatedConcept.id}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Card 
-                    className="overflow-hidden cursor-pointer" 
-                    onClick={() => handleLinkedConcept(relatedConcept.id)}
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Apply to Complex Problems</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Work through the practice problems in the "Practice" tab
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      4
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Connect to Related Concepts</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Study "Conservation of Momentum" next to build on this knowledge
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full mt-2">
+                    Generate Personalized Study Plan
+                    <LucideArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="md:col-span-2">
+              <CardHeader className="bg-green-50 dark:bg-green-900/20 border-b">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <HeadphonesIcon className="h-5 w-5 text-green-500" />
+                  Audio Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-sm mb-4">
+                  Listen to a concise 3-minute summary of the key points from Newton's Laws of Motion.
+                  Perfect for quick revision before exams.
+                </p>
+                
+                <div className="flex justify-center gap-4">
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={isPlaying ? stopSpeech : startSpeech}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                          <h4 className="font-medium">{relatedConcept.title}</h4>
-                          <p className="text-sm text-muted-foreground">{relatedConcept.description}</p>
-                        </div>
-                        <Badge className={getDifficultyColor(relatedConcept.difficulty)}>
-                          {relatedConcept.difficulty}
-                        </Badge>
-                      </div>
-                      {relatedConcept.progress !== undefined && (
-                        <div className="mt-2">
-                          <div className="flex justify-between text-xs font-medium mb-1">
-                            <span>Progress</span>
-                            <span>{relatedConcept.progress}%</span>
-                          </div>
-                          <Progress value={relatedConcept.progress} className="h-1.5" />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </CardContent>
-          </Card>
-          
-          {/* Study tools */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Dumbbell className="h-5 w-5" />
-                Study Tools
-              </CardTitle>
-              <CardDescription>
-                Strengthen your understanding with these tools
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button 
-                onClick={handleFlashcards}
-                variant="outline"
-                className="w-full justify-start text-left"
-              >
-                <Layers3 className="h-4 w-4 mr-2" />
-                Interactive Flashcards
-              </Button>
-              <Button 
-                onClick={handlePracticeExam}
-                variant="outline"
-                className="w-full justify-start text-left"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Practice Exam
-              </Button>
-              <Button 
-                onClick={() => navigate(`/dashboard/student/analytics/concept/${conceptId}`)}
-                variant="outline"
-                className="w-full justify-start text-left"
-              >
-                <BarChart2 className="h-4 w-4 mr-2" />
-                Detailed Progress Analysis
-              </Button>
-            </CardContent>
-          </Card>
-          
-          {/* AI Insights */}
-          <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border-indigo-100 dark:border-indigo-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
-                <Info className="h-5 w-5" />
-                AI Study Insights
-              </CardTitle>
-              <CardDescription>
-                Personalized insights based on your learning patterns
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
-                <h4 className="font-medium text-sm mb-1">Knowledge Gap Detected</h4>
-                <p className="text-sm text-muted-foreground">
-                  You appear to struggle with reaction mechanisms. Focus on electron flow and intermediates.
-                </p>
-              </div>
-              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
-                <h4 className="font-medium text-sm mb-1">Recommended Approach</h4>
-                <p className="text-sm text-muted-foreground">
-                  Practice drawing mechanisms step-by-step and review nucleophiles vs. electrophiles.
-                </p>
-              </div>
-              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
-                <h4 className="font-medium text-sm mb-1">Connection Insight</h4>
-                <p className="text-sm text-muted-foreground">
-                  This concept strongly connects to "Isomerism" which you're currently studying. Understanding both will significantly boost your exam readiness.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+                    {isPlaying ? (
+                      <>
+                        <VolumeX className="h-4 w-4" />
+                        Stop Audio
+                      </>
+                    ) : (
+                      <>
+                        <VolumeUp className="h-4 w-4" />
+                        Play Audio Summary
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button variant="outline">
+                    <Info className="mr-2 h-4 w-4" />
+                    Generate Q&A
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </SharedPageLayout>
   );
 };
 
