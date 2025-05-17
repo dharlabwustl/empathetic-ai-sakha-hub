@@ -55,7 +55,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page
+    // Navigate to concept detail page with the correct URL structure
     navigate(`/dashboard/student/concepts/${id}`);
   };
 

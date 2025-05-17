@@ -12,7 +12,7 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
     
     if (conceptId) {
-      // Immediately redirect to the concept detail page with the correct URL structure
+      // Redirect to the concept detail page with the correct URL structure
       navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({

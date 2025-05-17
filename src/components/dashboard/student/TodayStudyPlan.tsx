@@ -30,7 +30,8 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
       case 'exam':
         return '/dashboard/student/practice-exam';
       case 'concept':
-        return '/dashboard/student/concepts/landing';
+        // Update to use correct concept detail page URL
+        return `/dashboard/student/concepts/${task.id}`;
       case 'revision':
         return '/dashboard/student/flashcards/landing';
       default:
