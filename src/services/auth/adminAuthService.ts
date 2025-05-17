@@ -76,9 +76,6 @@ const adminAuthService = {
     
     // Dispatch event to notify components about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
-    
-    // Force hard navigation to login
-    window.location.href = '/admin/login';
   },
   
   // Get current admin user

@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -14,15 +13,14 @@ import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import AdminLogin from '@/pages/auth/AdminLogin'; // Using the auth/AdminLogin
-import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
+import AdminLogin from '@/pages/auth/AdminLogin'; 
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetail from './components/dashboard/student/concept-cards/ConceptCardDetail';
-import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
+import ExamTakingPage from '@/pages/dashboard/student/practice-exam/ExamTakingPage';
+import ExamReviewPage from '@/pages/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
 import ProfilePage from '@/pages/student/ProfilePage';
@@ -43,7 +41,6 @@ import PracticeExamsSection from '@/components/dashboard/student/practice-exam/P
 import PostLoginWelcome from '@/components/login/PostLoginWelcome';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
-import FlaskDeveloperGuide from '@/pages/admin/FlaskDeveloperGuide';
 import FlaskGuidePage from '@/pages/admin/FlaskGuidePage';
 import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from '@/pages/admin/BatchManagementPage';
@@ -61,6 +58,7 @@ import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
+import AdminRouteGuard from './components/admin/AdminRouteGuard';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -95,7 +93,7 @@ function App() {
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
-              {/* Admin routes */}
+              {/* Admin routes with AdminRouteGuard */}
               <Route path="/admin/dashboard" element={
                 <AdminRouteGuard>
                   <AdminDashboard />

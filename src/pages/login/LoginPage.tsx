@@ -15,7 +15,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student', 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { isAdminAuthenticated } = useAdminAuth();
-  const [isLoading, setIsLoading] = useState(false);
   
   // Check if already authenticated and redirect
   useEffect(() => {
@@ -27,11 +26,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student', 
       return;
     }
     
-    if (isUserLoggedIn) {
-      navigate('/dashboard/student', { replace: true });
+    if (isUserLoggedIn || isAuthenticated) {
+      navigate(returnTo, { replace: true });
       return;
     }
-  }, [navigate, isAuthenticated, isAdminAuthenticated]);
+  }, [navigate, isAuthenticated, isAdminAuthenticated, returnTo]);
 
   // We ensure it defaults to student
   const activeTab = "student";
