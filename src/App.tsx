@@ -14,7 +14,7 @@ import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import AdminLogin from '@/pages/auth/AdminLogin'; // Updated import path
+import AdminLogin from '@/pages/auth/AdminLogin'; // Using the auth/AdminLogin
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';

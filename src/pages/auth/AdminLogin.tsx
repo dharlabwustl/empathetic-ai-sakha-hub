@@ -24,7 +24,6 @@ const AdminLogin = () => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn) {
-      // Direct navigation using window.location for more reliable redirect
       window.location.href = '/admin/dashboard';
     }
   }, []);
@@ -49,10 +48,8 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use setTimeout to ensure the redirect happens reliably
-        setTimeout(() => {
-          window.location.href = '/admin/dashboard';
-        }, 500);
+        // Use direct location change for more reliable redirect
+        window.location.href = '/admin/dashboard';
       } else {
         setLoginError(response.message || "Invalid admin credentials");
       }

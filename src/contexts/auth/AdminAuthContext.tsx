@@ -36,7 +36,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     const checkAdminAuth = () => {
       setAdminLoading(true);
       
-      // Check if admin data exists in localStorage - multiple checks for redundancy
+      // Check if admin data exists in localStorage
       const adminData = localStorage.getItem('adminUser');
       const isLoggedIn = localStorage.getItem('admin_logged_in');
       
@@ -61,9 +61,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
-          // Clear invalid data
-          localStorage.removeItem('adminUser');
-          localStorage.removeItem('admin_logged_in');
           setAdminUser(null);
         }
       } else {
@@ -88,22 +85,14 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function - improved to be more reliable and redirect properly
+  // Admin login function
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
     try {
-      // For demo purposes, accept any email that includes 'admin' or is explicitly admin@prepzr.com
+      // For demo purposes, accept any email that includes 'admin'
       if ((email.includes('admin') || email === 'admin@prepzr.com') && password.length > 0) {
         console.log("Admin login successful, setting admin user data");
-        
-        // First clear any existing auth data to avoid conflicts
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('admin_user');
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('admin_logged_in');
-        localStorage.removeItem('adminToken');
         
         // Create new admin user object
         const newAdminUser: AdminUser = {
@@ -114,7 +103,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           permissions: ['all']
         };
         
-        // Save admin data to localStorage with multiple values for redundancy
+        // Save admin data to localStorage
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('adminToken', `token_${Date.now()}`);
         localStorage.setItem('adminUser', JSON.stringify(newAdminUser));
@@ -147,19 +136,11 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     localStorage.removeItem('adminUser');
     localStorage.removeItem('adminToken');
     
-    // Clear session storage items related to admin
-    sessionStorage.removeItem('admin_session');
-    
-    // Clear remembered login if exists
-    localStorage.removeItem('prepzr_remembered_login');
-    
     // Dispatch event to notify other components about auth change
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Direct navigation to login page - more reliable than router
-    setTimeout(() => {
-      window.location.replace('/admin/login');
-    }, 100);
+    // Direct navigation to login page
+    window.location.href = '/admin/login';
   };
 
   return (

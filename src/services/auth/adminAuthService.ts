@@ -34,7 +34,7 @@ const adminAuthService = {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('new_user_signup');
         
-        // Store admin data in localStorage with multiple redundant flags
+        // Store admin data in localStorage 
         const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
         localStorage.setItem("adminToken", mockToken);
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
@@ -67,26 +67,18 @@ const adminAuthService = {
   
   // Admin logout function with enhanced session clearing
   async adminLogout(): Promise<void> {
-    console.log("Admin auth service: executing enhanced logout");
+    console.log("Admin auth service: executing logout");
     
     // Clear admin-specific tokens
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
-    localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("admin_logged_in");
-    
-    // Clear session cookies
-    document.cookie = "admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    
-    // Use the main authService for a complete cleanup
-    const authService = await import('@/services/auth/authService');
-    await authService.default.logout();
-    
-    // Force hard navigation to login
-    window.location.replace('/login');
     
     // Dispatch event to notify components about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
+    
+    // Force hard navigation to login
+    window.location.href = '/admin/login';
   },
   
   // Get current admin user
