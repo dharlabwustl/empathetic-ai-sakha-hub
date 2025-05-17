@@ -6,10 +6,11 @@ import { Mic, MicOff, Speaker } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 import { getMoodVoiceCommands } from '@/components/dashboard/student/mood-tracking/moodUtils';
 import { toast } from '@/hooks/use-toast';
+import { MoodType } from "@/types/user/base";
 
 interface VoiceStudyAssistantProps {
   userName?: string;
-  onMoodCommand?: (mood: string) => void;
+  onMoodCommand?: (mood: MoodType) => void;
   onStudyPlanCommand?: () => void;
   onTaskCommand?: (action: string, task?: string) => void;
 }
@@ -109,19 +110,19 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
   const handleMoodCommand = (command: string) => {
     // Extract mood from command if present
     const moodKeywords = [
-      { words: ['happy', 'glad', 'great'], mood: 'happy' },
-      { words: ['tired', 'exhausted', 'sleepy'], mood: 'tired' },
-      { words: ['stressed', 'overwhelmed'], mood: 'stressed' },
-      { words: ['motivated', 'determined'], mood: 'motivated' },
-      { words: ['confused'], mood: 'confused' },
-      { words: ['anxious', 'nervous', 'worried'], mood: 'anxious' },
+      { words: ['happy', 'glad', 'great'], mood: MoodType.HAPPY },
+      { words: ['tired', 'exhausted', 'sleepy'], mood: MoodType.TIRED },
+      { words: ['stressed', 'overwhelmed'], mood: MoodType.STRESSED },
+      { words: ['motivated', 'determined'], mood: MoodType.MOTIVATED },
+      { words: ['confused'], mood: MoodType.CONFUSED },
+      { words: ['anxious', 'nervous', 'worried'], mood: MoodType.ANXIOUS },
     ];
     
     // Check if any mood keywords are in the command
     for (const { words, mood } of moodKeywords) {
       if (words.some(word => command.includes(word))) {
         if (onMoodCommand) {
-          speakMessage(`I'll log that you're feeling ${mood} today.`);
+          speakMessage(`I'll log that you're feeling ${mood.toString().toLowerCase()} today.`);
           onMoodCommand(mood);
           return;
         }

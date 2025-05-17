@@ -13,7 +13,6 @@ import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
-import HomepageVoiceAnnouncer from '@/components/home/HomepageVoiceAnnouncer';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
@@ -159,6 +158,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
+          language="en-IN"  // Default to Indian English
         />
       )}
     </div>

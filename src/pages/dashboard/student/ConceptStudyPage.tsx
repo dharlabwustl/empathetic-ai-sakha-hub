@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import ConceptCardDetail from '@/components/dashboard/student/concepts/ConceptCardDetail';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -9,8 +10,8 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
   }, [conceptId]);
   
-  // Redirect to the concept detail page with the correct URL structure
-  return <Navigate to={`/dashboard/student/concepts/card/${conceptId}`} replace />;
+  // Now we render the ConceptCardDetail component directly
+  return <ConceptCardDetail />;
 };
 
 export default ConceptStudyPage;

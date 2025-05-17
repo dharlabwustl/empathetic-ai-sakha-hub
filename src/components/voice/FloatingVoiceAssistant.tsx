@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,7 +17,7 @@ interface FloatingVoiceAssistantProps {
   onClose?: () => void;
   language?: string;
   onNavigationCommand?: (route: string) => void;
-  onMoodCommand?: (mood: string) => void;
+  onMoodCommand?: (mood: MoodType) => void;
   pronouncePrepzr?: boolean;
 }
 
@@ -137,13 +137,13 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
       // Handle mood commands
       if (onMoodCommand && lowerTranscript.includes('feeling')) {
         if (lowerTranscript.includes('happy')) {
-          onMoodCommand('happy');
+          onMoodCommand(MoodType.HAPPY);
         } else if (lowerTranscript.includes('tired')) {
-          onMoodCommand('tired');
+          onMoodCommand(MoodType.TIRED);
         } else if (lowerTranscript.includes('motivated')) {
-          onMoodCommand('motivated');
+          onMoodCommand(MoodType.MOTIVATED);
         } else if (lowerTranscript.includes('stressed')) {
-          onMoodCommand('stressed');
+          onMoodCommand(MoodType.STRESSED);
         }
       }
     }
