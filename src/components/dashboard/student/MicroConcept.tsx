@@ -14,6 +14,7 @@ import {
   FileText 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface MicroConceptProps {
   id: string;
@@ -44,6 +45,7 @@ export default function MicroConcept({
 }: MicroConceptProps) {
   const [expanded, setExpanded] = useState(false);
   const [understood, setUnderstood] = useState(false);
+  const navigate = useNavigate();
   
   const handleMarkUnderstood = () => {
     setUnderstood(true);
@@ -52,6 +54,10 @@ export default function MicroConcept({
   
   const handleNeedHelp = () => {
     onNeedHelp(id);
+  };
+  
+  const handleViewDetails = () => {
+    navigate(`/dashboard/student/concepts/${id}`);
   };
   
   return (
@@ -102,6 +108,17 @@ export default function MicroConcept({
                   <span>Open {resourceType} Resource</span>
                 </a>
               )}
+              
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleViewDetails}
+                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                >
+                  View Complete Details
+                </Button>
+              </div>
             </div>
           )}
         </div>

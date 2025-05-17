@@ -27,12 +27,12 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         // Determine appropriate welcome message based on page and user status
         if (location.pathname === '/') {
           if (user) {
-            message = `Welcome back to PREPZR. Would you like to continue your NEET exam preparation journey?`;
+            message = `Welcome back to Prep-zer. Would you like to continue your NEET exam preparation journey?`;
           } else {
-            message = `Welcome to PREPZR, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
+            message = `Welcome to Prep-zer, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
           }
         } else if (location.pathname.includes('/signup')) {
-          message = `Welcome to PREPZR's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started.`;
+          message = `Welcome to Prep-zer's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started.`;
         }
         
         if (message) {
@@ -50,8 +50,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // Cancel any ongoing speech
       window.speechSynthesis.cancel();
       
-      // Create utterance
-      const utterance = new SpeechSynthesisUtterance(text);
+      // Create utterance with proper PREPZR pronunciation (Prep-zer)
+      const correctedText = text.replace(/PREPZR/gi, 'Prep-zer');
+      const utterance = new SpeechSynthesisUtterance(correctedText);
       
       // Use voices API to find an Indian female voice if available
       const voices = window.speechSynthesis.getVoices();
@@ -75,7 +76,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       // Dispatch event to notify other components
       document.dispatchEvent(new CustomEvent('voice-speaking-started', {
-        detail: { message: text }
+        detail: { message: correctedText }
       }));
       
       utterance.onend = () => {

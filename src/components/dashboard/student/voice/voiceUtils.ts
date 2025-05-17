@@ -1,3 +1,4 @@
+
 import { VoiceSettings } from '@/types/voice';
 
 // Default voice settings
@@ -51,7 +52,7 @@ export const fixPronunciation = (text: string, language: string): string => {
   
   // Special handling for "PREPZR" pronunciation - spoken as "Prep-zer" /prep-zər/
   // Add a slight pause between "Prep" and "zer" for clearer pronunciation
-  fixedText = fixedText.replace(/PREPZR/gi, 'Prep, zer');
+  fixedText = fixedText.replace(/PREPZR/gi, 'Prep-zer');
   
   if (language.startsWith('en')) {
     // Fix English pronunciations
@@ -150,7 +151,7 @@ export const getGreeting = (userName?: string, mood?: string, isFirstTime?: bool
     const name = userName ? `, ${userName}` : '';
     
     if (isFirstTime) {
-      return `${timeGreeting}${name}! PREPZR में आपका स्वागत है। मैं आपका आवाज़ सहायक हूँ। मैं आपको प्लेटफॉर्म में नेविगेट करने, प्रश्नों का उत्तर देने और अध्ययन सुझाव प्रदान करने में मदद कर सकता हूँ।`;
+      return `${timeGreeting}${name}! प्रेप-ज़र में आपका स्वागत है। मैं आपका आवाज़ सहायक हूँ। मैं आपको प्लेटफॉर्म में नेविगेट करने, प्रश्नों का उत्तर देने और अध्ययन सुझाव प्रदान करने में मदद कर सकता हूँ।`;
     }
     
     // General greeting in Hindi
@@ -166,7 +167,7 @@ export const getGreeting = (userName?: string, mood?: string, isFirstTime?: bool
     const name = userName ? `, ${userName}` : '';
     
     if (isFirstTime) {
-      return `${timeGreeting}${name}! Welcome to PREPZR. I'm your voice assistant. I can help you navigate the platform, answer questions, and provide study recommendations.`;
+      return `${timeGreeting}${name}! Welcome to Prep-zer. I'm your voice assistant. I can help you navigate the platform, answer questions, and provide study recommendations.`;
     }
     
     // General greeting

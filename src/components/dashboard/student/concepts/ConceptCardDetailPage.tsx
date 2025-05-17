@@ -11,13 +11,17 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { 
-  Headphones, 
+  Volume2, 
   BookOpen, 
   Layers3, 
   FileText, 
   BarChart2, 
   Link as LinkIcon,
-  Info
+  Info,
+  Brain,
+  Lightbulb,
+  Dumbbell,
+  Award
 } from "lucide-react";
 import { motion } from 'framer-motion';
 import { ConceptCard } from '@/types/user/conceptCard';
@@ -179,7 +183,8 @@ const ConceptCardDetailPage: React.FC = () => {
       return;
     }
     
-    const textToRead = `${concept.title}. ${concept.description} ${extractTextFromHTML(concept.content || '')}`;
+    // Prepare text for reading, replacing "PREPZR" with "Prep-zer" for better pronunciation
+    const textToRead = `${concept.title}. ${concept.description} ${extractTextFromHTML(concept.content || '')}`.replace(/PREPZR/gi, 'Prep-zer');
     speakMessage(textToRead);
     
     toast({
@@ -268,7 +273,7 @@ const ConceptCardDetailPage: React.FC = () => {
   
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header */}
+      {/* Header with improved layout */}
       <div className="flex flex-col lg:flex-row justify-between items-start mb-6 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -294,7 +299,7 @@ const ConceptCardDetailPage: React.FC = () => {
             variant="outline" 
             className="flex items-center gap-2 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
           >
-            <Headphones className="h-4 w-4" />
+            <Volume2 className="h-4 w-4" />
             {isSpeaking ? 'Stop Reading' : 'Read Aloud'}
           </Button>
           
@@ -326,7 +331,7 @@ const ConceptCardDetailPage: React.FC = () => {
         />
       </div>
       
-      {/* Main content grid */}
+      {/* Main content grid with improved layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Main content */}
         <div className="lg:col-span-2">
@@ -446,49 +451,49 @@ const ConceptCardDetailPage: React.FC = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">Weak Points</h3>
-                      <ul className="list-disc pl-5 space-y-1">
+                      <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400 flex items-center gap-2">
+                        <Brain className="h-5 w-5" />
+                        Weak Points
+                      </h3>
+                      <ul className="space-y-2">
                         {analytics.weakPoints.map((point, index) => (
-                          <li key={index} className="text-gray-700 dark:text-gray-300">{point}</li>
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-red-500 mt-1">•</span>
+                            <span>{point}</span>
+                          </li>
                         ))}
                       </ul>
                     </div>
                     
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-green-600 dark:text-green-400">Strong Points</h3>
-                      <ul className="list-disc pl-5 space-y-1">
+                      <h3 className="text-lg font-semibold mb-3 text-green-600 dark:text-green-400 flex items-center gap-2">
+                        <Award className="h-5 w-5" />
+                        Strong Points
+                      </h3>
+                      <ul className="space-y-2">
                         {analytics.strongPoints.map((point, index) => (
-                          <li key={index} className="text-gray-700 dark:text-gray-300">{point}</li>
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-1">•</span>
+                            <span>{point}</span>
+                          </li>
                         ))}
                       </ul>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="mt-6">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="h-5 w-5 text-blue-600" />
-                    AI Insights
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Revision Suggestions</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                      {analytics.recommendedRevision.map((suggestion, index) => (
-                        <li key={index} className="text-blue-700 dark:text-blue-300">{suggestion}</li>
+                  
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                    <h3 className="text-lg font-semibold mb-3 text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                      <Lightbulb className="h-5 w-5" />
+                      AI Study Recommendations
+                    </h3>
+                    <ul className="space-y-2">
+                      {analytics.recommendedRevision.map((recommendation, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-indigo-500 mt-1">→</span>
+                          <span>{recommendation}</span>
+                        </li>
                       ))}
                     </ul>
-                    
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold mb-3 text-blue-800 dark:text-blue-300">Weak Links Detected</h3>
-                      <p className="text-blue-700 dark:text-blue-300">
-                        Your understanding of reaction mechanisms seems to impact your performance in related concepts. 
-                        Focus on strengthening this fundamental knowledge to improve your overall performance.
-                      </p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -496,88 +501,127 @@ const ConceptCardDetailPage: React.FC = () => {
           </Tabs>
         </div>
         
-        {/* Right column - Additional resources and related content */}
+        {/* Right column - Related concepts and tools */}
         <div className="space-y-6">
-          {/* Action buttons */}
+          {/* Related concepts */}
           <Card>
             <CardHeader>
-              <CardTitle>Study Resources</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <LinkIcon className="h-5 w-5" />
+                Related Concepts
+              </CardTitle>
+              <CardDescription>
+                Explore these connected concepts to deepen your understanding
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
+              {linkedConcepts.map((relatedConcept) => (
+                <motion.div 
+                  key={relatedConcept.id}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card 
+                    className="overflow-hidden cursor-pointer" 
+                    onClick={() => handleLinkedConcept(relatedConcept.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <h4 className="font-medium">{relatedConcept.title}</h4>
+                          <p className="text-sm text-muted-foreground">{relatedConcept.description}</p>
+                        </div>
+                        <Badge className={getDifficultyColor(relatedConcept.difficulty)}>
+                          {relatedConcept.difficulty}
+                        </Badge>
+                      </div>
+                      {relatedConcept.progress !== undefined && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-xs font-medium mb-1">
+                            <span>Progress</span>
+                            <span>{relatedConcept.progress}%</span>
+                          </div>
+                          <Progress value={relatedConcept.progress} className="h-1.5" />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </CardContent>
+          </Card>
+          
+          {/* Study tools */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Dumbbell className="h-5 w-5" />
+                Study Tools
+              </CardTitle>
+              <CardDescription>
+                Strengthen your understanding with these tools
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <Button 
-                variant="outline" 
-                className="w-full justify-start bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200"
                 onClick={handleFlashcards}
+                variant="outline"
+                className="w-full justify-start text-left"
               >
                 <Layers3 className="h-4 w-4 mr-2" />
                 Interactive Flashcards
               </Button>
-              
               <Button 
-                variant="outline" 
-                className="w-full justify-start bg-green-50 hover:bg-green-100 text-green-800 border-green-200"
                 onClick={handlePracticeExam}
+                variant="outline"
+                className="w-full justify-start text-left"
               >
                 <FileText className="h-4 w-4 mr-2" />
                 Practice Exam
               </Button>
-              
-              <Separator className="my-4" />
-              
-              <div>
-                <h3 className="text-sm font-medium mb-3">Performance Analytics</h3>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-200"
-                  onClick={() => setActiveTab("analytics")}
-                >
-                  <BarChart2 className="h-4 w-4 mr-2" />
-                  View Detailed Analytics
-                </Button>
-              </div>
+              <Button 
+                onClick={() => navigate(`/dashboard/student/analytics/concept/${conceptId}`)}
+                variant="outline"
+                className="w-full justify-start text-left"
+              >
+                <BarChart2 className="h-4 w-4 mr-2" />
+                Detailed Progress Analysis
+              </Button>
             </CardContent>
           </Card>
           
-          {/* Linked concepts */}
-          {linkedConcepts.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Related Concepts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {linkedConcepts.map((relatedConcept) => (
-                    <motion.div
-                      key={relatedConcept.id}
-                      whileHover={{ x: 5 }}
-                      className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
-                      onClick={() => handleLinkedConcept(relatedConcept.id)}
-                    >
-                      <div className="flex items-start gap-2">
-                        <LinkIcon className="h-4 w-4 mt-1 text-blue-500" />
-                        <div>
-                          <h4 className="font-medium text-sm">{relatedConcept.title}</h4>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{relatedConcept.description}</p>
-                          
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline" className={`${getDifficultyColor(relatedConcept.difficulty)} text-xs px-2 py-0.5`}>
-                              {relatedConcept.difficulty}
-                            </Badge>
-                            
-                            {relatedConcept.progress !== undefined && (
-                              <div className="text-xs text-muted-foreground">
-                                {relatedConcept.progress}% complete
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* AI Insights */}
+          <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border-indigo-100 dark:border-indigo-800">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+                <Info className="h-5 w-5" />
+                AI Study Insights
+              </CardTitle>
+              <CardDescription>
+                Personalized insights based on your learning patterns
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
+                <h4 className="font-medium text-sm mb-1">Knowledge Gap Detected</h4>
+                <p className="text-sm text-muted-foreground">
+                  You appear to struggle with reaction mechanisms. Focus on electron flow and intermediates.
+                </p>
+              </div>
+              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
+                <h4 className="font-medium text-sm mb-1">Recommended Approach</h4>
+                <p className="text-sm text-muted-foreground">
+                  Practice drawing mechanisms step-by-step and review nucleophiles vs. electrophiles.
+                </p>
+              </div>
+              <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
+                <h4 className="font-medium text-sm mb-1">Connection Insight</h4>
+                <p className="text-sm text-muted-foreground">
+                  This concept strongly connects to "Isomerism" which you're currently studying. Understanding both will significantly boost your exam readiness.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
