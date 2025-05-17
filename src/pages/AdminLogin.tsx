@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
-import PrepzrLogo from '@/components/common/PrepzrLogo';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -46,7 +45,11 @@ const AdminLogin = () => {
     e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      setLoginError("Please provide both email and password.");
+      toast({
+        title: "Missing information",
+        description: "Please provide both email and password.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -69,24 +72,17 @@ const AdminLogin = () => {
           permissions: ['all']
         };
         
-        // Save admin data to localStorage with multiple backup flags
+        // Save admin data to localStorage
         localStorage.setItem('admin_logged_in', 'true');
         localStorage.setItem('admin_user', JSON.stringify(adminUser));
-        localStorage.setItem('adminToken', `token_${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
         
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard.",
         });
         
-        // Use both approaches for maximum reliability
-        navigate('/admin/dashboard', { replace: true });
-        
-        // Force a direct location change for guaranteed navigation
-        setTimeout(() => {
-          window.location.href = "/admin/dashboard";
-        }, 100);
+        // Use direct location change to force a complete navigation
+        window.location.href = "/admin/dashboard";
       } else {
         throw new Error("Invalid admin credentials");
       }
@@ -120,17 +116,17 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
             <PrepzrLogo width={120} height={120} />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">Login to access the PREPZR administration panel</p>
+          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
         </div>
         
-        <Card className="shadow-xl border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in">
+        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
           <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
             <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
             <CardDescription className="text-purple-100">
@@ -138,17 +134,15 @@ const AdminLogin = () => {
             </CardDescription>
           </CardHeader>
           
-          {loginError && (
-            <div className="px-6 pt-4">
-              <Alert variant="destructive">
-                <AlertDescription>{loginError}</AlertDescription>
-              </Alert>
-            </div>
-          )}
-          
           <form id="admin-login-form" onSubmit={handleLogin}>
             <CardContent className="p-6 space-y-6">
               <div className="space-y-4">
+                {loginError && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 text-sm text-red-700 rounded">
+                    {loginError}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                   <div className="relative">
@@ -225,7 +219,7 @@ const AdminLogin = () => {
           </form>
           
           <CardFooter className="flex justify-center pb-6 border-t pt-6">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-gray-600">
               Not an admin?{" "}
               <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
                 Go to Student Login

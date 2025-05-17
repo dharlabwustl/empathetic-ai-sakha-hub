@@ -3,8 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Search, ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Download, Search } from "lucide-react";
 
 interface Transaction {
   id: string;
@@ -94,20 +93,12 @@ const BillingHistoryPanel: React.FC = () => {
   
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold">Billing History</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Search className="h-4 w-4" />
-            <span>Search</span>
-          </Button>
-          <Link to="/dashboard/student/subscription">
-            <Button size="sm" className="flex items-center gap-2">
-              <ExternalLink className="h-4 w-4" />
-              <span>Manage Subscription</span>
-            </Button>
-          </Link>
-        </div>
+        <Button variant="outline">
+          <Search className="h-4 w-4 mr-1" />
+          Search Transactions
+        </Button>
       </div>
       
       {transactions.length === 0 ? (

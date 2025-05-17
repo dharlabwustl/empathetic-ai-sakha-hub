@@ -1,62 +1,183 @@
 
-import React, { useEffect, useRef } from 'react';
-import useVoiceAnnouncer from '@/hooks/useVoiceAnnouncer';
+import React, { useEffect, useState } from 'react';
+import { Volume, Volume2, VolumeX } from 'lucide-react';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
-  userName: string;
-  language?: string;
+  userName?: string;
+  language?: 'en' | 'hi';
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
-  isFirstTimeUser,
-  userName,
-  language = 'en-IN'
+const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
+  isFirstTimeUser, 
+  userName = 'Student',
+  language = 'en'
 }) => {
-  const greetingPlayed = useRef<boolean>(false);
-  
-  const { speakMessage, voiceSettings, voiceInitialized } = useVoiceAnnouncer({
-    userName,
-    language
-  });
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioPlayed, setAudioPlayed] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(false);
   
   useEffect(() => {
-    // Only play the greeting once and only for first-time users or when explicitly requested
-    if (isFirstTimeUser && !greetingPlayed.current && voiceInitialized && voiceSettings.enabled) {
-      // Small delay to ensure voice is ready and let the UI load first
-      const timer = setTimeout(() => {
-        // Personalized greeting message
-        const message = getGreetingMessage(userName);
-        speakMessage(message);
-        greetingPlayed.current = true;
-      }, 2500);
+    // Check if the greeting has been played already in this session
+    const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
+    
+    // Only play for first time users who haven't heard the greeting yet
+    if (isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) {
+      const playGreeting = async () => {
+        try {
+          // Use a timeout to ensure the component is fully mounted
+          setTimeout(() => {
+            setAudioPlaying(true);
+            
+            // Create text for speech with better pronunciation for PREPZR
+            let welcomeText = '';
+            if (language === 'en') {
+              // Use phonetic spelling to achieve the correct pronunciation
+              // "Prep" (pause) "zer" - /prep-zər/
+              welcomeText = `Welcome to Prepzr, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
+            } else if (language === 'hi') {
+              welcomeText = `प्रेप्ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
+            }
+            
+            // Get available voices
+            const voices = window.speechSynthesis.getVoices();
+            
+            // Create speech synthesis utterance
+            const speech = new SpeechSynthesisUtterance(welcomeText);
+            speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
+            speech.rate = 0.9; // Slightly slower for clarity
+            speech.volume = 0.8;
+            
+            // Find an Indian voice based on comprehensive list of possible voices
+            const preferredVoiceNames = [
+              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India',
+              'Kalpana', 'Kajal', 'Isha', 'Veena', 'Priya', 'Meena', 'Hindi India', 'en-IN',
+              'hi-IN', 'Indian', 'India'
+            ];
+            
+            // Try to find a preferred voice with better matching
+            let selectedVoice = null;
+            for (const name of preferredVoiceNames) {
+              const voice = voices.find(v => 
+                v.name?.toLowerCase().includes(name.toLowerCase()) || 
+                v.lang?.toLowerCase().includes(name.toLowerCase())
+              );
+              if (voice) {
+                console.log("Selected voice:", voice.name);
+                selectedVoice = voice;
+                break;
+              }
+            }
+            
+            // If still no voice selected, try to find any female voice
+            if (!selectedVoice) {
+              selectedVoice = voices.find(v => 
+                v.name?.toLowerCase().includes('female') || 
+                !v.name?.toLowerCase().includes('male')
+              );
+            }
+            
+            // If still nothing, use any available voice
+            if (!selectedVoice && voices.length > 0) {
+              selectedVoice = voices[0];
+            }
+            
+            // Set the selected voice if found
+            if (selectedVoice) {
+              speech.voice = selectedVoice;
+              console.log(`Using voice: ${selectedVoice.name}, lang: ${selectedVoice.lang}`);
+            } else {
+              console.log("No suitable voice found, using browser default");
+            }
+            
+            // Add event listeners
+            speech.onstart = () => setAudioPlaying(true);
+            speech.onend = () => {
+              setAudioPlaying(false);
+              setAudioPlayed(true);
+              sessionStorage.setItem('voiceGreetingPlayed', 'true');
+            };
+            speech.onerror = (e) => {
+              console.error("Speech synthesis error", e);
+              setAudioPlaying(false);
+              setAudioPlayed(true);
+            };
+            
+            // Play the speech
+            window.speechSynthesis.speak(speech);
+          }, 1500);
+        } catch (error) {
+          console.error("Error playing greeting:", error);
+          setAudioPlayed(true);
+        }
+      };
       
-      return () => clearTimeout(timer);
+      // Force voices to load first, then play greeting
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null; // Prevent multiple calls
+          playGreeting();
+        };
+        
+        // Trigger voice loading
+        window.speechSynthesis.getVoices();
+        
+        // Fallback in case onvoiceschanged doesn't fire
+        setTimeout(playGreeting, 1000);
+      }
     }
-  }, [isFirstTimeUser, voiceInitialized, voiceSettings.enabled, userName, speakMessage]);
+    
+    // Cleanup on unmount
+    return () => {
+      if (audioPlaying && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted]);
   
-  const getGreetingMessage = (name: string): string => {
-    const cleanName = name.split(' ')[0]; // Get first name only
-    const hour = new Date().getHours();
+  const handleToggleMute = () => {
+    setAudioMuted(!audioMuted);
     
-    let timeGreeting = '';
-    if (hour < 12) {
-      timeGreeting = 'Good morning';
-    } else if (hour < 18) {
-      timeGreeting = 'Good afternoon';
-    } else {
-      timeGreeting = 'Good evening';
-    }
-    
-    if (isFirstTimeUser) {
-      return `${timeGreeting}, ${cleanName}! Welcome to your Prepzr dashboard. I'm your AI study companion. I'll help guide you through your exam preparation journey. You can click the voice assistant icon in the bottom right corner anytime you need help. Let's begin by setting up your personalized study plan!`;
-    } else {
-      return `${timeGreeting}, ${cleanName}! Welcome back to Prepzr. Your study plan is ready, and I've prepared some new material based on your progress.`;
+    if (!audioMuted) {
+      // If currently not muted and about to be muted, stop any speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setAudioPlaying(false);
+      setAudioPlayed(true);
+      sessionStorage.setItem('voiceGreetingPlayed', 'true');
     }
   };
   
-  // This is a non-visual component
-  return null;
+  // Don't render anything if already played or not a first-time user
+  if (!isFirstTimeUser || audioPlayed) return null;
+  
+  return (
+    <div 
+      className={`fixed bottom-20 right-5 z-50 p-3 rounded-full shadow-md
+        ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
+        cursor-pointer transition-all duration-300 hover:scale-105 animate-bounce-slow`}
+      onClick={handleToggleMute}
+    >
+      {audioMuted ? (
+        <VolumeX className="h-6 w-6" />
+      ) : audioPlaying ? (
+        <Volume2 className="h-6 w-6 animate-pulse" />
+      ) : (
+        <Volume className="h-6 w-6" />
+      )}
+      
+      <style jsx>{`
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 2s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
+  );
 };
 
 export default VoiceGreeting;
