@@ -91,7 +91,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     };
   }, []);
 
-  // Admin login function - fixed to be more reliable and prevent race conditions
+  // Admin login function - improved to be more reliable and redirect properly
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setAdminLoading(true);
     
@@ -102,9 +102,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
         
-        // Generate a new admin token
-        const token = `admin_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
         const newAdminUser: AdminUser = {
           id: 'admin-1',
           name: "Admin User",
@@ -113,20 +110,21 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           permissions: ['all']
         };
         
-        // First store the token and set the logged_in flag
-        localStorage.setItem('adminToken', token);
+        // Save admin data to localStorage with multiple values for redundancy
         localStorage.setItem('admin_logged_in', 'true');
-        
-        // Then store the user data
         localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
+        localStorage.setItem('adminToken', `token_${Date.now()}`);
         localStorage.setItem('adminUser', JSON.stringify(newAdminUser));
         
-        // Update the state
         setAdminUser(newAdminUser);
-        setAdminLoading(false);
         
         // Dispatch event to notify other components about auth change
         window.dispatchEvent(new Event('auth-state-changed'));
+        
+        setAdminLoading(false);
+        
+        // Direct navigation to admin dashboard using replace for cleaner history
+        window.location.replace('/admin/dashboard');
         
         return true;
       } else {
@@ -140,7 +138,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     }
   };
 
-  // Admin logout function - more reliable
+  // Admin logout function
   const adminLogout = () => {
     // First clear React state
     setAdminUser(null);

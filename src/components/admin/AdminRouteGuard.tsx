@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 interface AdminRouteGuardProps {
@@ -15,11 +16,11 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     const checkAdminAuth = () => {
       // Multiple checks for better reliability
       const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+      const hasAdminUser = !!localStorage.getItem('adminUser') || !!localStorage.getItem('admin_user');
       const hasAdminToken = !!localStorage.getItem('adminToken');
-      const hasAdminUser = !!localStorage.getItem('admin_user') || !!localStorage.getItem('adminUser');
       
-      // Consider authenticated if admin_logged_in is true AND we have token or user data
-      const authenticated = isAdminLoggedIn && (hasAdminToken || hasAdminUser);
+      // Consider authenticated if admin_logged_in is true AND we have either user data or token
+      const authenticated = isAdminLoggedIn && (hasAdminUser || hasAdminToken);
       
       if (!authenticated) {
         console.log("Admin authentication failed, redirecting to login");
@@ -65,9 +66,9 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    console.log("Admin not authenticated, navigating to admin login page");
+    console.log("Admin not authenticated, navigating to login page");
     // Use direct window location for more reliable navigation
-    window.location.replace('/admin/login');
+    window.location.href = '/admin/login';
     return null;
   }
 

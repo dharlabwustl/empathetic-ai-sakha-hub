@@ -9,10 +9,6 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const adminRoutes: RouteObject[] = [
   {
-    path: "/admin/dashboard",
-    element: <AdminRouteGuard><AdminDashboard /></AdminRouteGuard>,
-  },
-  {
     path: "/admin/documentation",
     element: <AdminRouteGuard><DocumentationPage /></AdminRouteGuard>,
   },

@@ -18,18 +18,15 @@ const Login = () => {
   // Check if user is already logged in
   useEffect(() => {
     console.log("Checking login status in Login.tsx");
-    
-    // Check admin login first
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    
     if (isAdminLoggedIn) {
       console.log("Admin already logged in, redirecting to admin dashboard");
-      // Use replace for more reliable redirection
       window.location.replace('/admin/dashboard');
       return;
     }
     
-    // Then check student login
-    const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
       navigate('/dashboard/student', { replace: true });
@@ -46,7 +43,7 @@ const Login = () => {
   };
   
   const handleAdminLoginRedirect = () => {
-    // Use direct window location for more reliable navigation
+    // Use direct window location to prevent routing issues
     window.location.href = '/admin/login';
   };
   

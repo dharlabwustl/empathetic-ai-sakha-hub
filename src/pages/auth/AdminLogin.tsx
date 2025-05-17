@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -24,8 +23,8 @@ const AdminLogin = () => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     
     if (isAdminLoggedIn) {
-      // Direct navigation - more reliable for routing issues
-      window.location.replace('/admin/dashboard');
+      // Direct navigation - more reliable than React Router
+      window.location.href = '/admin/dashboard';
     }
   }, []);
 
@@ -68,9 +67,9 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use window.location.replace for more reliable redirection
-        window.location.replace('/admin/dashboard');
-        return;
+        // Use direct window location change for guaranteed redirect
+        window.location.href = '/admin/dashboard';
+        return; // Make sure we exit early after redirect
       } else {
         throw new Error("Invalid admin credentials");
       }
@@ -90,10 +89,12 @@ const AdminLogin = () => {
     setEmail("admin@prepzr.com");
     setPassword("admin123");
     
-    // Submit the form after setting the values using a short timeout
+    // Submit the form after a brief delay to allow state update
     setTimeout(() => {
-      const formEl = document.getElementById('admin-login-form') as HTMLFormElement;
-      if (formEl) formEl.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      const form = document.getElementById('admin-login-form');
+      if (form) {
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
     }, 100);
   };
 
@@ -101,9 +102,7 @@ const AdminLogin = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-md w-full px-4">
         <div className="text-center mb-6">
-          <Link to="/">
-            <PrepzrLogo width={140} height="auto" className="mx-auto" />
-          </Link>
+          <PrepzrLogo width={140} height="auto" className="mx-auto" />
           <h1 className="mt-4 text-2xl font-bold">Admin Portal</h1>
         </div>
         
@@ -211,9 +210,9 @@ const AdminLogin = () => {
         </Card>
         
         <div className="mt-4 text-center">
-          <Link to="/login" className="text-sm text-blue-600 hover:underline">
+          <Button variant="link" onClick={() => window.location.href = "/login"}>
             Back to Student Login
-          </Link>
+          </Button>
         </div>
       </div>
     </div>

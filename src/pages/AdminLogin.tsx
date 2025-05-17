@@ -1,0 +1,239 @@
+
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
+
+const AdminLogin = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Check if already logged in
+  useEffect(() => {
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoggedIn) {
+      window.location.href = "/admin/dashboard";
+    }
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setLoginError(null); // Clear any previous errors when user types
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email || !formData.password) {
+      toast({
+        title: "Missing information",
+        description: "Please provide both email and password.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    setLoginError(null);
+    
+    try {
+      // For demo login - accept any email with admin in it
+      if (formData.email.includes('admin') && formData.password.length > 0) {
+        // Clear student login data first to avoid conflicts
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        
+        // Create admin user data
+        const adminUser = {
+          id: `admin_${Date.now()}`,
+          name: "Admin User",
+          email: formData.email,
+          role: "admin",
+          permissions: ['all']
+        };
+        
+        // Save admin data to localStorage
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', JSON.stringify(adminUser));
+        
+        toast({
+          title: "Login successful",
+          description: "Welcome to the admin dashboard.",
+        });
+        
+        // Use direct location change to force a complete navigation
+        window.location.href = "/admin/dashboard";
+      } else {
+        throw new Error("Invalid admin credentials");
+      }
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      setLoginError("Invalid email or password. Admin email must contain 'admin'.");
+      
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoAdminLogin = () => {
+    setFormData({
+      email: "admin@prepzr.com",
+      password: "admin123"
+    });
+    
+    // Trigger login after a brief delay to allow state update
+    setTimeout(() => {
+      document.getElementById("admin-login-form")?.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true })
+      );
+    }, 100);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2">
+            <PrepzrLogo width={120} height={120} />
+          </Link>
+          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
+          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
+        </div>
+        
+        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
+            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
+            <CardDescription className="text-purple-100">
+              Enter your admin credentials to access the dashboard
+            </CardDescription>
+          </CardHeader>
+          
+          <form id="admin-login-form" onSubmit={handleLogin}>
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-4">
+                {loginError && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 text-sm text-red-700 rounded">
+                    {loginError}
+                  </div>
+                )}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      <Mail size={16} />
+                    </div>
+                    <Input
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter your admin email"
+                      type="email"
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      <Lock size={16} />
+                    </div>
+                    <Input
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Enter your password"
+                      type={showPassword ? "text" : "password"}
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
+                    />
+                    <Button 
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </Button>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="button"
+                  variant="outline"
+                  className="w-full mt-2"
+                  onClick={handleDemoAdminLogin}
+                >
+                  Use Demo Admin Account
+                </Button>
+                
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Signing in...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <ShieldCheck size={16} />
+                      <span>Sign In</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </form>
+          
+          <CardFooter className="flex justify-center pb-6 border-t pt-6">
+            <p className="text-sm text-gray-600">
+              Not an admin?{" "}
+              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
+                Go to Student Login
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+        
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminLogin;
