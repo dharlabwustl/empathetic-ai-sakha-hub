@@ -1,3 +1,4 @@
+
 import { VoiceSettings } from '@/types/voice';
 
 // Default voice settings
@@ -45,9 +46,7 @@ export const findBestVoice = (language: string, voices: SpeechSynthesisVoice[]):
   return matchingVoice;
 };
 
-// This function is part of voiceUtils.ts - I'm just updating this function
-// to fix the PREPZR pronunciation issue
-
+// Function to fix pronunciation of certain words for better speech quality
 export const fixPronunciation = (text: string, language: string): string => {
   let fixedText = text;
   
@@ -72,7 +71,7 @@ export const fixPronunciation = (text: string, language: string): string => {
   return fixedText;
 };
 
-// This function modifies how a message is spoken with proper pronunciation and event handling
+// Function to speak a message with proper event dispatching
 export const speakMessage = (message: string, settingsOrForceFlag: VoiceSettings | boolean = DEFAULT_VOICE_SETTINGS): void => {
   if (!message || message.trim() === '') return;
   
