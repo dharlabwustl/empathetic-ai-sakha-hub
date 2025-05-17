@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -191,15 +192,43 @@ const HeroSection = () => {
             )}
           </div>
           
-          {/* ADD NEW TAGLINE: The world's first emotionally aware, hyper-personalized adaptive exam prep platform */}
-          <motion.p 
+          {/* Enhanced tagline with vivid animation */}
+          <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.0 }}
-            className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mt-2 italic"
+            className="mt-2 relative"
           >
-            The world's first emotionally aware, hyper-personalized, adaptive exam prep platform.
-          </motion.p>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-400/10 via-blue-400/10 to-pink-400/10 rounded-lg blur-lg"></div>
+            <motion.p
+              className="text-base md:text-lg font-medium px-6 py-2 rounded-lg border border-indigo-100 dark:border-indigo-900/40 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm"
+              animate={{ 
+                boxShadow: [
+                  "0 0 0 rgba(139, 92, 246, 0)",
+                  "0 0 10px rgba(139, 92, 246, 0.3)",
+                  "0 0 0 rgba(139, 92, 246, 0)"
+                ],
+              }}
+              transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            >
+              <motion.span
+                className="inline-block"
+                animate={{ 
+                  color: ["#4338ca", "#8b5cf6", "#ec4899", "#3b82f6", "#4338ca"]
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+                style={{
+                  backgroundImage: 'linear-gradient(45deg, #4338ca, #8b5cf6, #ec4899, #3b82f6)',
+                  backgroundSize: '300% 300%',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent'
+                }}
+              >
+                The world's first emotionally aware, hyper-personalized, adaptive exam prep platform.
+              </motion.span>
+            </motion.p>
+          </motion.div>
           
           {/* Call to action buttons with enhanced animations */}
           <motion.div 
