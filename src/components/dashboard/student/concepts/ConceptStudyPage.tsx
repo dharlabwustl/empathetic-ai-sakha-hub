@@ -1,8 +1,8 @@
 
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -13,8 +13,8 @@ const ConceptStudyPage: React.FC = () => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);
     
     if (conceptId) {
-      // Navigate to the concept card detail page
-      navigate(`/dashboard/student/concepts/detail/${conceptId}`, { replace: true });
+      // Navigate to the concept detail page with the updated path
+      navigate(`/dashboard/student/concepts/${conceptId}`, { replace: true });
       
       toast({
         title: "Loading concept details",

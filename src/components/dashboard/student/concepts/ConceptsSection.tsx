@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Book, BookOpen, Clock } from 'lucide-react';
@@ -40,6 +40,7 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
+    // Navigate to the concept detail page with the updated path
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   

@@ -18,8 +18,8 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
   if (!planData) return null;
   
   const handleStartConcept = (conceptId: string) => {
-    // Navigate to the concept detail page
-    navigate(`/dashboard/student/concepts/detail/${conceptId}`);
+    // Navigate directly to the concept detail page with the updated path
+    navigate(`/dashboard/student/concepts/${conceptId}`);
   };
   
   const handleStartFlashcards = (flashcardId: string) => {

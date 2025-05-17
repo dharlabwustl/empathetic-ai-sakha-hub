@@ -41,7 +41,12 @@ const ConceptCardDetailPage: React.FC = () => {
     if (conceptId) {
       console.log("Loading concept details for:", conceptId);
     }
-  }, [conceptId]);
+    
+    // Initialize bookmarked state from concept card data
+    if (conceptCard?.bookmarked) {
+      setBookmarked(conceptCard.bookmarked);
+    }
+  }, [conceptId, conceptCard]);
 
   const handleBackClick = () => {
     navigate(-1);
@@ -305,7 +310,7 @@ const ConceptCardDetailPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800/40 rounded-lg shadow-sm border p-1">
           <TabsContent value="overview" className="mt-0 focus:outline-none">
             {/* Cast the conceptCard to the correct type */}
-            <ConceptCardDetail conceptCard={conceptCard} />
+            <ConceptCardDetail conceptCard={conceptCard as ConceptCardType} />
           </TabsContent>
           
           <TabsContent value="notes" className="mt-0 focus:outline-none">
