@@ -18,7 +18,6 @@ import AnalyticsDashboard from "@/components/dashboard/student/analytics/Analyti
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
-import ConceptDetailPage from "@/pages/dashboard/student/ConceptDetailPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -30,7 +29,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
-      <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
+      <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
       <Route path="/concepts/card/:id" element={<ConceptCardDetailPage />} />

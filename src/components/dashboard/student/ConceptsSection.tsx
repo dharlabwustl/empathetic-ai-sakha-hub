@@ -43,7 +43,7 @@ const ConceptsSection = () => {
     // Log the navigation for debugging
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
     
-    // Use direct navigation to the new detail page
+    // Use consistent URL pattern for concept details
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   
