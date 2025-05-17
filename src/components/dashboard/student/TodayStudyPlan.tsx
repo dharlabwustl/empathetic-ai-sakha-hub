@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,11 +62,9 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">Today's Plan</CardTitle>
-        <Link to="/dashboard/student/today">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <LayoutDashboard className="h-4 w-4" />
-          </Button>
-        </Link>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => navigate('/dashboard/student/today')}>
+          <LayoutDashboard className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -107,7 +105,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           
           {tasks.length > 0 && (
             <div className="pt-2">
-              <Button variant="outline" size="sm" className="w-full">
+              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/dashboard/student/today')}>
                 View Full Schedule
               </Button>
             </div>

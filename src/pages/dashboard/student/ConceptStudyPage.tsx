@@ -1,10 +1,13 @@
 
 import React, { useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ConceptCardDetail from '@/components/dashboard/student/concepts/ConceptCardDetail';
+import { useToast } from '@/hooks/use-toast';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
     console.log("ConceptStudyPage - Loading concept with ID:", conceptId);

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { BookAudio, BookText, FileText, Book, Brain, TrendingUp, History, CheckCircle, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { BookAudio, BookText, FileText, Book, Brain, TrendingUp, History, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Download, Star, Clock } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
@@ -108,8 +108,10 @@ const conceptData = {
 };
 
 // Component for the concept card detail page
-const ConceptCardDetail: React.FC = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
+const ConceptCardDetail: React.FC<{conceptId?: string}> = ({ conceptId: propsConceptId }) => {
+  const { conceptId: urlConceptId } = useParams<{ conceptId: string }>();
+  const actualConceptId = propsConceptId || urlConceptId;
+  
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("overview");
@@ -125,18 +127,53 @@ const ConceptCardDetail: React.FC = () => {
 
   // Local state for analytics
   const [showAnalytics, setShowAnalytics] = useState<boolean>(false);
+  
+  // Log the conceptId for debugging
+  useEffect(() => {
+    console.log("ConceptCardDetail - Concept ID:", actualConceptId);
+    console.log("From URL params:", urlConceptId);
+    console.log("From props:", propsConceptId);
+  }, [actualConceptId, urlConceptId, propsConceptId]);
 
   useEffect(() => {
     // Load saved notes from localStorage
-    const loadedNotes = localStorage.getItem(`concept-notes-${conceptId}`);
+    const loadedNotes = localStorage.getItem(`concept-notes-${actualConceptId}`);
     if (loadedNotes) {
       setNotes(loadedNotes);
       setSavedNotes(loadedNotes);
     }
-  }, [conceptId]);
+  }, [actualConceptId]);
+
+  // If conceptId doesn't exist, show error
+  if (!actualConceptId) {
+    return (
+      <SharedPageLayout 
+        title="Concept Not Found"
+        subtitle="The concept you're looking for could not be loaded"
+        showBackButton={true}
+        backButtonUrl="/dashboard/student/concepts"
+      >
+        <Card className="shadow-sm border">
+          <CardContent className="flex flex-col items-center justify-center p-8">
+            <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+            <h2 className="text-xl font-semibold text-center">Concept ID is missing</h2>
+            <p className="text-muted-foreground text-center mt-2">
+              We couldn't load this concept because the ID is missing or invalid.
+            </p>
+            <Button 
+              onClick={() => navigate('/dashboard/student/concepts')}
+              className="mt-6"
+            >
+              Go to Concepts
+            </Button>
+          </CardContent>
+        </Card>
+      </SharedPageLayout>
+    );
+  }
 
   const handleSaveNotes = () => {
-    localStorage.setItem(`concept-notes-${conceptId}`, notes);
+    localStorage.setItem(`concept-notes-${actualConceptId}`, notes);
     setSavedNotes(notes);
     toast({
       title: "Notes saved",
@@ -178,11 +215,11 @@ const ConceptCardDetail: React.FC = () => {
   };
 
   const navigateToFlashcards = () => {
-    navigate(`/dashboard/student/flashcards?concept=${conceptId}`);
+    navigate(`/dashboard/student/flashcards?concept=${actualConceptId}`);
   };
 
   const navigateToPracticeExams = () => {
-    navigate(`/dashboard/student/practice-exams?concept=${conceptId}`);
+    navigate(`/dashboard/student/practice-exams?concept=${actualConceptId}`);
   };
 
   return (
@@ -238,6 +275,21 @@ const ConceptCardDetail: React.FC = () => {
               <TrendingUp className="h-4 w-4" />
               Analytics
             </Button>
+          </div>
+          
+          {/* Enhanced UI elements */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {conceptData.estimatedTime} time
+            </Badge>
+            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 flex items-center gap-1">
+              <Book className="h-3 w-3" />
+              {conceptData.subject}
+            </Badge>
+            <Badge variant="outline" className={getDifficultyClass(conceptData.difficulty)}>
+              {conceptData.difficulty} Difficulty
+            </Badge>
           </div>
           
           {/* Analytics section */}
@@ -310,220 +362,260 @@ const ConceptCardDetail: React.FC = () => {
                   <CardTitle>{conceptData.title}</CardTitle>
                   <CardDescription>{conceptData.subject} • {conceptData.topic}</CardDescription>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
-                    {conceptData.difficulty}
-                  </Badge>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900 dark:text-purple-200">
-                    {conceptData.estimatedTime}
-                  </Badge>
-                </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="w-full mb-4 grid grid-cols-4">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="examples">Examples</TabsTrigger>
-                  <TabsTrigger value="applications">Applications</TabsTrigger>
+            
+            <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+              <div className="px-6">
+                <TabsList className="w-full">
+                  <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
+                  <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
+                  <TabsTrigger value="examples" className="flex-1">Examples</TabsTrigger>
+                  <TabsTrigger value="applications" className="flex-1">Applications</TabsTrigger>
                 </TabsList>
+              </div>
+              
+              <CardContent className="pt-4" ref={contentRef}>
+                <TabsContent value="overview" className="mt-0">
+                  <p className="text-muted-foreground">{conceptData.content.overview}</p>
+                  
+                  <div className="mt-6 flex justify-center">
+                    <Button
+                      onClick={() => setActiveTab("details")}
+                      className="flex items-center gap-2"
+                    >
+                      Learn More <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TabsContent>
                 
-                <div ref={contentRef}>
-                  <TabsContent value="overview" className="p-1">
-                    <p className="text-sm">{conceptData.content.overview}</p>
-                  </TabsContent>
-                  
-                  <TabsContent value="details" className="p-1">
-                    <div 
-                      className="prose prose-sm dark:prose-invert max-w-none" 
-                      dangerouslySetInnerHTML={{ __html: conceptData.content.details }}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="examples" className="p-1">
-                    <div 
-                      className="prose prose-sm dark:prose-invert max-w-none" 
-                      dangerouslySetInnerHTML={{ __html: conceptData.content.examples }}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="applications" className="p-1">
-                    <div 
-                      className="prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: conceptData.content.applications }}
-                    />
-                  </TabsContent>
-                </div>
-              </Tabs>
-            </CardContent>
+                <TabsContent value="details" className="mt-0">
+                  <div className="prose dark:prose-invert max-w-none" 
+                    dangerouslySetInnerHTML={{ __html: conceptData.content.details }}>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="examples" className="mt-0">
+                  <div className="prose dark:prose-invert max-w-none" 
+                    dangerouslySetInnerHTML={{ __html: conceptData.content.examples }}>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="applications" className="mt-0">
+                  <div className="prose dark:prose-invert max-w-none" 
+                    dangerouslySetInnerHTML={{ __html: conceptData.content.applications }}>
+                  </div>
+                </TabsContent>
+              </CardContent>
+            </Tabs>
           </Card>
-        </div>
-        
-        {/* Right column - Notes, Related Concepts, AI Insights */}
-        <div className="lg:col-span-1 space-y-6">
+          
           {/* Notes section */}
-          <Card className="shadow-sm border">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">My Notes</CardTitle>
+              <CardTitle className="text-lg">Your Notes</CardTitle>
+              <CardDescription>Take notes to help you remember this concept</CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea
-                placeholder="Take notes on this concept..."
-                className="min-h-[150px] resize-y"
+              <Textarea 
+                placeholder="Type your notes here..." 
+                className="min-h-[150px]"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </CardContent>
-            <CardFooter className="pt-0 flex justify-between">
-              <Button
+            <CardFooter className="flex justify-between">
+              <Button 
                 variant="outline"
-                size="sm"
-                onClick={() => setNotes(savedNotes)}
                 disabled={notes === savedNotes}
-              >
-                Reset
-              </Button>
-              <Button
-                size="sm"
                 onClick={handleSaveNotes}
-                disabled={notes === savedNotes}
               >
                 Save Notes
               </Button>
+              <Button 
+                variant="ghost"
+                onClick={() => {
+                  const noteContent = notes || conceptData.content.overview;
+                  const blob = new Blob([noteContent], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${conceptData.title.replace(/\s+/g, '_')}_notes.txt`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
             </CardFooter>
           </Card>
-          
-          {/* Mobile study tools */}
-          <div className="flex sm:hidden flex-wrap gap-2 justify-center">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-1"
-              onClick={() => navigateToFlashcards()}
-            >
-              <FileText className="h-4 w-4" />
-              Flashcards
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-1"
-              onClick={() => navigateToPracticeExams()}
-            >
-              <BookText className="h-4 w-4" />
-              Practice Exam
-            </Button>
-          </div>
-          
-          {/* Related concepts */}
-          <Card className="shadow-sm border">
+        </div>
+        
+        {/* Right column - Additional info */}
+        <div className="space-y-6">
+          {/* Formulas card */}
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
-                <Book className="h-4 w-4 mr-2" />
+                <Brain className="h-5 w-5 mr-2 text-purple-600" />
+                Key Formulas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-4">
+                {conceptData.formulas.map((formula, index) => (
+                  <div key={index} className="border rounded-md p-3">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium">{formula.name}</h4>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Star className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded border text-center my-2 font-mono">
+                      {formula.formula}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <p className="font-medium text-xs mb-1">Where:</p>
+                      <ul className="space-y-1 list-disc pl-4">
+                        {formula.variables.map((variable, vIdx) => (
+                          <li key={vIdx} className="text-xs">{variable}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate(`/dashboard/student/concepts/${actualConceptId}/formula-lab`)}
+                >
+                  Practice with Formulas
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Related concepts */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Book className="h-5 w-5 mr-2 text-blue-600" />
                 Related Concepts
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {conceptData.relatedConcepts.map((concept) => (
-                <Button 
-                  key={concept.id} 
-                  variant="outline" 
-                  className="w-full justify-between text-left h-auto py-3"
-                  onClick={() => navigateToConcept(concept.id)}
-                >
-                  <div>
-                    <div className="font-medium">{concept.title}</div>
-                    <div className="text-xs text-muted-foreground">{concept.subject}</div>
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                {conceptData.relatedConcepts.map((concept, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900"
+                    onClick={() => navigateToConcept(concept.id)}
+                  >
+                    <div>
+                      <p className="font-medium">{concept.title}</p>
+                      <p className="text-sm text-muted-foreground">{concept.subject}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <ArrowRight className="h-4 w-4 flex-shrink-0" />
-                </Button>
-              ))}
+                ))}
+              </div>
             </CardContent>
           </Card>
           
-          {/* AI Insights */}
-          <Card className="shadow-sm border bg-slate-50 dark:bg-slate-900">
+          {/* AI insights */}
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
-                <Brain className="h-4 w-4 mr-2 text-purple-500" />
-                AI Learning Insights
+                <Brain className="h-5 w-5 mr-2 text-indigo-600" />
+                AI Insights
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {conceptData.aiInsights.map((insight, idx) => (
-                <div key={idx} className="bg-white dark:bg-slate-800 p-3 rounded-md shadow-sm">
-                  {insight.type === 'weak-link' && (
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-amber-500 mt-1 flex-shrink-0" />
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {conceptData.aiInsights.map((insight, index) => (
+                  <div key={index} className={`p-3 rounded-md border ${
+                    insight.type === 'weak-link' ? 'border-red-200 bg-red-50 dark:bg-red-900/20' :
+                    insight.type === 'suggestion' ? 'border-blue-200 bg-blue-50 dark:bg-blue-900/20' : 
+                    'border-green-200 bg-green-50 dark:bg-green-900/20'
+                  }`}>
+                    <div className="flex gap-2 items-start">
+                      {insight.type === 'weak-link' ? (
+                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      ) : insight.type === 'suggestion' ? (
+                        <Brain className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      )}
                       <p className="text-sm">{insight.content}</p>
                     </div>
-                  )}
-                  {insight.type === 'suggestion' && (
-                    <div className="flex items-start gap-2">
-                      <Brain className="h-4 w-4 text-purple-500 mt-1 flex-shrink-0" />
-                      <p className="text-sm">{insight.content}</p>
-                    </div>
-                  )}
-                  {insight.type === 'revision' && (
-                    <div className="flex items-start gap-2">
-                      <History className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
-                      <p className="text-sm">{insight.content}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
           
-          {/* Formulas section */}
-          <Card className="shadow-sm border">
+          {/* Study history */}
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Key Formulas</CardTitle>
+              <CardTitle className="text-lg flex items-center">
+                <History className="h-5 w-5 mr-2 text-gray-600" />
+                Study History
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {conceptData.formulas.map((formula) => (
-                <div key={formula.id} className="bg-white dark:bg-slate-800 p-3 rounded-md shadow-sm">
-                  <div className="font-medium text-sm mb-1">{formula.name}</div>
-                  <div className="bg-slate-50 dark:bg-slate-900 p-2 text-center font-mono mb-2 rounded">
-                    {formula.formula}
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                {conceptData.studyHistory.slice(0, 4).map((history, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 border-b last:border-0">
+                    <div>
+                      <p className="text-sm font-medium capitalize">{history.activityType.replace('-', ' ')}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(history.date).toLocaleDateString()} • {history.duration} min
+                      </p>
+                    </div>
+                    {history.score && (
+                      <Badge variant={history.score > 75 ? "default" : "outline"}>
+                        {history.score}%
+                      </Badge>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Where:</p>
-                    <ul className="list-disc pl-4">
-                      {formula.variables.map((variable, idx) => (
-                        <li key={idx}>{variable}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              
+              {conceptData.studyHistory.length > 4 && (
+                <Button variant="ghost" size="sm" className="w-full mt-2">
+                  View All ({conceptData.studyHistory.length})
+                </Button>
+              )}
             </CardContent>
           </Card>
-        </div>
-      </div>
-
-      {/* Navigation buttons */}
-      <div className="flex justify-between mt-6">
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => navigate('/dashboard/student/concepts')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Concepts
-        </Button>
-        
-        <div className="flex gap-2">
-          {/* We removed the "Generate Custom Study Plan" button as requested */}
-          <Button variant="default" onClick={navigateToFlashcards}>
-            Practice Flashcards
-          </Button>
         </div>
       </div>
     </SharedPageLayout>
   );
+};
+
+// Helper functions
+const getDifficultyColor = (difficulty: string): string => {
+  switch (difficulty.toLowerCase()) {
+    case 'easy': return '#22c55e';
+    case 'medium': return '#f59e0b';
+    case 'hard': return '#ef4444';
+    default: return '#6366f1';
+  }
+};
+
+const getDifficultyClass = (difficulty: string): string => {
+  switch (difficulty.toLowerCase()) {
+    case 'easy': return 'bg-green-50 text-green-700 border-green-200';
+    case 'medium': return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'hard': return 'bg-red-50 text-red-700 border-red-200';
+    default: return '';
+  }
 };
 
 export default ConceptCardDetail;
