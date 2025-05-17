@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -10,7 +10,7 @@ import { Mic, MicOff, Settings, Volume2, VolumeX, X, HelpCircle } from "lucide-r
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { motion } from "framer-motion";
-import { SUPPORTED_LANGUAGES } from '@/utils/voiceUtils';
+import { MoodType } from "@/types/user/base";
 
 interface FloatingVoiceAssistantProps {
   isOpen?: boolean;
@@ -33,9 +33,6 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
   const [assistantMode, setAssistantMode] = useState<'listening' | 'speaking' | 'idle'>('idle');
   const [showHelpPanel, setShowHelpPanel] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
   
   const {
     voiceSettings,
@@ -45,9 +42,15 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     speakMessage,
     isVoiceSupported,
     isSpeaking,
-    cancelSpeech,
+    isListening,
+    startListening,
+    stopListening,
+    transcript,
+    testVoice,
+    supportedLanguages,
+    processVoiceCommand
   } = useVoiceAnnouncer({
-    lang: language
+    initialSettings: { language }
   });
 
   // Update local open state when the isOpen prop changes
@@ -80,64 +83,16 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     setShowHelpPanel(true);
   };
 
-  // Initialize speech recognition
-  useEffect(() => {
-    const initSpeechRecognition = () => {
-      if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
-        console.warn("Speech recognition not supported by this browser");
-        return false;
-      }
-      
-      // @ts-ignore - Need to use this because TypeScript doesn't have these types
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = voiceSettings.language;
-      
-      recognitionRef.current.onresult = (event: any) => {
-        const result = event.results[0][0].transcript;
-        console.log("Recognized speech:", result);
-        setTranscript(result);
-        processVoiceCommand(result);
-      };
-      
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        console.error("Speech recognition error:", event.error);
-        setIsListening(false);
-      };
-      
-      return true;
-    };
-    
-    initSpeechRecognition();
-    
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-    };
-  }, [voiceSettings.language]);
-
-  const startListening = () => {
-    if (recognitionRef.current) {
-      setTranscript('');
-      recognitionRef.current.start();
-      setIsListening(true);
-    } else {
-      console.error("Speech recognition not initialized");
-    }
+  const handleStartListening = () => {
+    startListening();
   };
 
-  const stopListening = () => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    }
+  const handleStopListening = () => {
+    stopListening();
+  };
+
+  const handleToggleMute = () => {
+    toggleMute();
   };
 
   const handleVolumeChange = (value: number[]) => {
@@ -156,145 +111,53 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     updateVoiceSettings({ language: value });
   };
 
-  // Process voice commands
-  const processVoiceCommand = (command: string) => {
-    if (!command) return;
-    
-    const lowerCommand = command.toLowerCase();
-    
-    // Helper function to speak responses
-    const respond = (text: string) => {
-      speakMessage(text);
-    };
-    
-    // Navigation commands
-    if (lowerCommand.includes('go to dashboard') || lowerCommand.includes('open dashboard')) {
-      respond('Opening the dashboard for you.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student');
-      return;
-    }
-    
-    if (lowerCommand.includes('go to study plan') || lowerCommand.includes('open study plan')) {
-      respond('Opening your study plan.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/study-plan');
-      return;
-    }
-    
-    if (lowerCommand.includes('go to practice') || lowerCommand.includes('open practice tests') || lowerCommand.includes('practice test')) {
-      respond('Opening practice tests for you.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/practice');
-      return;
-    }
-    
-    if ((lowerCommand.includes('go to concept') || lowerCommand.includes('open concept')) || 
-        lowerCommand.includes('concept card')) {
-      respond('Opening the concepts section.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/concepts');
-      return;
-    }
-    
-    if (lowerCommand.includes('analytics') || lowerCommand.includes('show analytics')) {
-      respond('Opening your analytics dashboard.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/analytics');
-      return;
-    }
-    
-    if (lowerCommand.includes('formula') || lowerCommand.includes('formulas')) {
-      respond('Opening the formula section for you.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/formulas');
-      return;
-    }
-    
-    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card')) {
-      respond('Opening the flashcards section.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/flashcards');
-      return;
-    }
-    
-    if (lowerCommand.includes('today') || lowerCommand.includes('today\'s plan')) {
-      respond('Opening your today\'s study plan.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/todays-plan');
-      return;
-    }
-    
-    if (lowerCommand.includes('feel good') || lowerCommand.includes('feel-good corner')) {
-      respond('Opening the feel good corner to boost your mood.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/feel-good-corner');
-      return;
-    }
-    
-    if (lowerCommand.includes('academic advisor') || lowerCommand.includes('advisor')) {
-      respond('Opening your academic advisor.');
-      if (onNavigationCommand) onNavigationCommand('/dashboard/student/academic-advisor');
-      return;
-    }
-    
-    // Exam readiness test command
-    if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness test')) {
-      respond('Opening the exam readiness test.');
-      window.dispatchEvent(new Event('open-exam-analyzer'));
-      return;
-    }
-
-    // Mood commands
-    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood')) {
-      if (lowerCommand.includes('happy')) {
-        respond("I'm glad you're feeling happy! That's a great state for productive studying.");
-        if (onMoodCommand) onMoodCommand('happy');
-      } else if (lowerCommand.includes('tired')) {
-        respond("If you're feeling tired, consider taking a short break before continuing your studies.");
-        if (onMoodCommand) onMoodCommand('tired');
-      } else if (lowerCommand.includes('motivated')) {
-        respond("Great to hear you're feeling motivated! This is the perfect time to tackle challenging topics.");
-        if (onMoodCommand) onMoodCommand('motivated');
-      } else if (lowerCommand.includes('stressed')) {
-        respond("I understand you're feeling stressed. Let's focus on deep breathing and tackling one concept at a time.");
-        if (onMoodCommand) onMoodCommand('stressed');
-      } else if (lowerCommand.includes('confused')) {
-        respond("If you're feeling confused, let's break down concepts into smaller, more manageable parts.");
-        if (onMoodCommand) onMoodCommand('confused');
-      }
-      return;
-    }
-    
-    // NEET exam specific commands
-    if (lowerCommand.includes('neet')) {
-      if (lowerCommand.includes('syllabus') || lowerCommand.includes('curriculum')) {
-        respond("The NEET exam syllabus covers Physics, Chemistry, Botany, and Zoology from classes 11 and 12. Would you like me to show you the detailed syllabus?");
-      } else if (lowerCommand.includes('date') || lowerCommand.includes('when')) {
-        respond("The NEET exam is typically held in May. For the exact date of the upcoming exam, please check the official NTA website.");
-      } else if (lowerCommand.includes('preparation') || lowerCommand.includes('prepare')) {
-        respond("To prepare for NEET, you should focus on understanding concepts thoroughly, practicing with previous years' questions, and taking regular mock tests. Would you like to see our NEET preparation plan?");
-      } else {
-        respond("NEET is the National Eligibility cum Entrance Test for admission to medical courses in India. How can I help you with your NEET preparation?");
-      }
-      return;
-    }
-    
-    // Generic responses for educational questions
-    if (lowerCommand.includes('help with') || lowerCommand.includes('explain')) {
-      if (lowerCommand.includes('physics')) {
-        respond("I can help you with Physics concepts. Please check out our Physics concept cards and video explanations in the dashboard.");
-      } else if (lowerCommand.includes('chemistry')) {
-        respond("For Chemistry help, I recommend our interactive flashcards and concept breakdowns. Would you like me to show you those resources?");
-      } else if (lowerCommand.includes('biology') || lowerCommand.includes('zoology') || lowerCommand.includes('botany')) {
-        respond("Our Biology resources include detailed diagrams, concept cards, and practice questions. Let's explore those together.");
-      } else {
-        respond("I'd be happy to explain any concepts you're struggling with. Please check our concept cards section for detailed explanations.");
-      }
-      return;
-    }
-    
-    // If no specific command is recognized
-    respond("I heard you say: " + command + ". How can I help you with your exam preparation today?");
+  const handleToggleVoice = (checked: boolean) => {
+    updateVoiceSettings({ enabled: checked });
   };
+
+  // Handle voice commands that might involve navigation
+  useEffect(() => {
+    if (transcript) {
+      // Process the transcript for navigation commands
+      const lowerTranscript = transcript.toLowerCase();
+      
+      // Handle navigation commands
+      if ((lowerTranscript.includes('go to') || lowerTranscript.includes('navigate to') || lowerTranscript.includes('open')) && onNavigationCommand) {
+        if (lowerTranscript.includes('dashboard')) {
+          onNavigationCommand('/dashboard/student');
+        } else if (lowerTranscript.includes('login')) {
+          onNavigationCommand('/login');
+        } else if (lowerTranscript.includes('sign up') || lowerTranscript.includes('signup')) {
+          onNavigationCommand('/signup');
+        } else if (lowerTranscript.includes('home')) {
+          onNavigationCommand('/');
+        }
+      }
+      
+      // Handle mood commands
+      if (onMoodCommand && lowerTranscript.includes('feeling')) {
+        if (lowerTranscript.includes('happy')) {
+          onMoodCommand('happy');
+        } else if (lowerTranscript.includes('tired')) {
+          onMoodCommand('tired');
+        } else if (lowerTranscript.includes('motivated')) {
+          onMoodCommand('motivated');
+        } else if (lowerTranscript.includes('stressed')) {
+          onMoodCommand('stressed');
+        }
+      }
+    }
+  }, [transcript, onNavigationCommand, onMoodCommand]);
 
   // Test voice with custom pronunciation handling
   const handleTestVoice = () => {
-    if (voiceSettings.muted) {
-      toggleMute(false);
+    if (pronouncePrepzr) {
+      // Special handling for PREPZR pronunciation
+      const message = "Hello, I'm your PREPZR voice assistant. How can I help you today?";
+      speakMessage(message);
+    } else {
+      testVoice();
     }
-    speakMessage("Hello, I'm your PREPZR voice assistant. How can I help you today?");
   };
 
   // Example commands for the help panel
@@ -381,7 +244,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
                 variant="outline"
                 size="sm"
                 className={voiceSettings.muted ? "text-gray-400" : ""}
-                onClick={() => toggleMute()}
+                onClick={handleToggleMute}
               >
                 {voiceSettings.muted ? <VolumeX className="mr-2 h-4 w-4" /> : <Volume2 className="mr-2 h-4 w-4" />}
                 {voiceSettings.muted ? "Unmute" : "Mute"}
@@ -391,7 +254,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
                 <Button
                   variant={isListening ? "destructive" : "default"}
                   size="sm"
-                  onClick={isListening ? stopListening : startListening}
+                  onClick={isListening ? handleStopListening : handleStartListening}
                 >
                   {isListening ? (
                     <>
@@ -432,7 +295,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
               <Switch 
                 id="voice-enabled" 
                 checked={voiceSettings.enabled}
-                onCheckedChange={(checked) => updateVoiceSettings({ enabled: checked })}
+                onCheckedChange={handleToggleVoice}
               />
             </div>
             
@@ -446,7 +309,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
                   <SelectValue placeholder="Select language" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SUPPORTED_LANGUAGES.map((lang) => (
+                  {supportedLanguages.map((lang) => (
                     <SelectItem key={lang.value} value={lang.value}>
                       {lang.label}
                     </SelectItem>
@@ -461,7 +324,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
               </div>
               <Slider
                 id="volume-slider"
-                value={[voiceSettings.volume]}
+                defaultValue={[voiceSettings.volume]}
                 max={1}
                 step={0.1}
                 onValueChange={handleVolumeChange}
@@ -474,7 +337,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
               </div>
               <Slider
                 id="rate-slider"
-                value={[voiceSettings.rate]}
+                defaultValue={[voiceSettings.rate]}
                 min={0.5}
                 max={2}
                 step={0.1}
@@ -488,7 +351,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
               </div>
               <Slider
                 id="pitch-slider"
-                value={[voiceSettings.pitch]}
+                defaultValue={[voiceSettings.pitch]}
                 min={0.5}
                 max={2}
                 step={0.1}
@@ -558,7 +421,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
           <Button
             onClick={() => setOpen(true)}
             size="lg"
-            className={`rounded-full p-4 shadow-lg ${
+            className={`rounded-full p-4 ${
               assistantMode === 'listening'
                 ? 'bg-red-500 hover:bg-red-600'
                 : assistantMode === 'speaking'
