@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Volume2, FileText, Link, Edit, Save, Play, BarChart2, Brain, Lightbulb, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Volume2, FileText, Link, Edit, Save, Play, BarChart2, Brain, Lightbulb, ArrowLeft, ArrowRight, CheckCircle2, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { findBestVoice } from '@/components/dashboard/student/voice/voiceUtils';
 import { useNavigate } from 'react-router-dom';
@@ -107,6 +107,8 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
   const [notes, setNotes] = useState("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [speechInstance, setSpeechInstance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [recallStrength, setRecallStrength] = useState(60); // Added for recall strength tracking
+  const [lastPracticed, setLastPracticed] = useState("3 days ago"); // Added for last practiced tracking
   
   const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -242,6 +244,20 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
       description: "Loading flashcards related to this concept",
     });
   };
+
+  // Mark as understood
+  const markAsUnderstood = () => {
+    // In a real app, this would update the mastery level in your data store
+    if (concept && concept.mastery) {
+      const newMastery = Math.min(concept.mastery + 5, 100);
+      setConcept({...concept, mastery: newMastery});
+      
+      toast({
+        title: "Progress updated",
+        description: "Your mastery level has been increased",
+      });
+    }
+  };
   
   if (!concept) {
     return (
@@ -268,8 +284,8 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
             <CardHeader className="bg-muted/30 pb-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-2xl font-bold">{concept.title}</CardTitle>
-                  <CardDescription className="mt-1">{concept.description}</CardDescription>
+                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-transparent">{concept.title}</CardTitle>
+                  <CardDescription className="mt-1 text-foreground/70">{concept.description}</CardDescription>
                 </div>
                 <div className="flex gap-2 items-center">
                   <Badge variant={concept.difficulty === 'Easy' ? 'outline' : 
@@ -306,13 +322,13 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                 
                 <div ref={contentRef}>
                   <TabsContent value="overview" className="mt-0">
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md">
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-800">
                       <p className="text-base leading-7">{concept.content.overview}</p>
                     </div>
                   </TabsContent>
                   
                   <TabsContent value="keypoints" className="mt-0">
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md">
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-800">
                       <ul className="space-y-3 list-disc pl-5">
                         {concept.content.keyPoints.map((point, index) => (
                           <li key={index} className="text-base leading-7">{point}</li>
@@ -322,7 +338,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                   </TabsContent>
                   
                   <TabsContent value="examples" className="mt-0">
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md space-y-6">
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-800 space-y-6">
                       {concept.content.examples.map((example, index) => (
                         <div key={index} className="border-l-4 border-primary pl-4 py-2">
                           <h4 className="font-semibold text-lg">{example.title}</h4>
@@ -333,7 +349,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                   </TabsContent>
                   
                   <TabsContent value="formulas" className="mt-0">
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md space-y-6">
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-800 space-y-6">
                       {concept.content.formulas?.map((formula, index) => (
                         <div key={index} className="bg-muted/30 p-4 rounded-md">
                           <h4 className="font-semibold text-lg">{formula.name}</h4>
@@ -350,22 +366,37 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
             </CardContent>
             
             <CardFooter className="pt-0 flex flex-wrap gap-2">
-              {/* Quick action buttons */}
+              {/* Learning action buttons */}
               <div className="flex flex-wrap gap-2 mt-4 w-full justify-center">
-                <Button variant="outline" size="sm" onClick={navigateToFlashcards} className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={navigateToFlashcards} 
+                  className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 border-blue-200 dark:border-blue-800"
+                >
+                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   Practice Flashcards
                 </Button>
-                <Button variant="outline" size="sm" onClick={navigateToPracticeExams} className="flex items-center gap-2">
-                  <Play className="h-4 w-4" />
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={navigateToPracticeExams} 
+                  className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border-green-200 dark:border-green-800"
+                >
+                  <Play className="h-4 w-4 text-green-600 dark:text-green-400" />
                   Practice Exams
                 </Button>
-                {concept.relatedConcepts && concept.relatedConcepts.length > 0 && (
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Link className="h-4 w-4" />
-                    Related Concepts
-                  </Button>
-                )}
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={markAsUnderstood} 
+                  className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 border-purple-200 dark:border-purple-800"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  Mark as Understood
+                </Button>
               </div>
             </CardFooter>
           </Card>
@@ -388,12 +419,12 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {isEditingNotes ? (
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add your notes about this concept here..."
+                  placeholder="Add your notes about this concept here... What are the key points you want to remember? How does this connect to other concepts you've learned?"
                   className="min-h-[200px]"
                 />
               ) : (
@@ -440,6 +471,18 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                     <li>Review the "Momentum and Collisions" related concept</li>
                   </ul>
                 </div>
+
+                {/* Learning path recommendation */}
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-md border border-green-200 dark:border-green-800">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <BarChart2 className="h-4 w-4 text-green-600" />
+                    <span>Learning Path</span>
+                  </h4>
+                  <p className="mt-2 text-sm">
+                    Based on your progress, we recommend completing 3 flashcard sessions and 2 practice exams 
+                    to solidify your understanding of Newton's Laws before moving to "Momentum and Collisions".
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -464,6 +507,18 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                   <p className="text-xs text-muted-foreground mt-2">
                     Keep practicing to increase your mastery level
                   </p>
+                </div>
+                
+                {/* Recall strength - New */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">Recall Strength</span>
+                    <span className="text-sm font-semibold">{recallStrength}%</span>
+                  </div>
+                  <Progress value={recallStrength} className="h-2 bg-blue-100 dark:bg-blue-900/30" />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>Last practiced: {lastPracticed}</span>
+                  </div>
                 </div>
                 
                 {/* Practice stats */}
@@ -503,7 +558,10 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
           {concept.relatedConcepts && concept.relatedConcepts.length > 0 && (
             <Card className="shadow-md border border-border">
               <CardHeader className="bg-muted/30 pb-2">
-                <CardTitle className="text-xl">Related Concepts</CardTitle>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Link className="h-4 w-4" />
+                  <span>Related Concepts</span>
+                </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
                 <div className="space-y-3">
@@ -511,7 +569,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
                     <Button 
                       key={related.id} 
                       variant="outline" 
-                      className="w-full justify-start text-left"
+                      className="w-full justify-start text-left hover:bg-primary/5"
                       onClick={() => navigateToRelatedConcept(related.id)}
                     >
                       <div>
@@ -524,13 +582,41 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId }) => {
             </Card>
           )}
           
+          {/* Study tools card - New */}
+          <Card className="shadow-md border border-border">
+            <CardHeader className="bg-muted/30 pb-2">
+              <CardTitle className="text-xl">Study Tools</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="space-y-3">
+                <Button variant="outline" onClick={navigateToFlashcards} className="w-full justify-start">
+                  <FileText className="h-4 w-4 mr-2 text-blue-500" />
+                  Practice with Flashcards
+                </Button>
+                <Button variant="outline" onClick={navigateToPracticeExams} className="w-full justify-start">
+                  <Play className="h-4 w-4 mr-2 text-green-500" />
+                  Test Knowledge with Exams
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <BarChart2 className="h-4 w-4 mr-2 text-purple-500" />
+                  View Detailed Analytics
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
           {/* Navigation buttons */}
           <div className="flex justify-between pt-2">
             <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/concepts')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               All Concepts
             </Button>
-            <Button variant="default" size="sm" onClick={navigateToPracticeExams}>
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="bg-gradient-to-r from-primary to-indigo-600" 
+              onClick={navigateToPracticeExams}
+            >
               Practice
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
