@@ -20,6 +20,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
+import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -102,6 +103,9 @@ const Index = () => {
         <div className="pt-12"></div>
                 
         <WhatIsSection />
+        
+        {/* Champion Methodology Section */}
+        <ChampionMethodologySection />
         
         <EcosystemAnimation />
         

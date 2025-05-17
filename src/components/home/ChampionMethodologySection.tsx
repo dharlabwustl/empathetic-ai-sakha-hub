@@ -1,358 +1,203 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, BookOpen, FileText, Calculator, ChartBar, CheckCircle, BarChart } from 'lucide-react';
-import { useMediaQuery } from '@/hooks/use-media-query';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, Brain, BookOpen, BarChart3, Users, Lightbulb, Clock } from 'lucide-react';
 
-interface MethodologyPoint {
-  id: number;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const ChampionMethodologySection = () => {
-  const [activePoint, setActivePoint] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const isMobile = useMediaQuery('(max-width: 768px)');
-
-  const methodologyPoints: MethodologyPoint[] = [
-    {
-      id: 1,
-      title: 'Student Assessment',
-      description: 'Comprehensive evaluation of learning style, strengths, and improvement areas tailored to each student.',
-      icon: <BookOpen size={24} />,
-      color: 'from-blue-500 to-cyan-400'
-    },
-    {
-      id: 2,
-      title: 'Hyper Personalization',
-      description: 'AI-driven content adaptation based on individual learning patterns, preferences, and progress.',
-      icon: <Brain size={24} />,
-      color: 'from-purple-500 to-violet-400'
-    },
-    {
-      id: 3,
-      title: 'Smart Study Plan',
-      description: 'Dynamically generated study schedules that optimize time allocation and prioritize weak areas.',
-      icon: <FileText size={24} />,
-      color: 'from-green-500 to-teal-400'
-    },
-    {
-      id: 4,
-      title: 'Byte Size Concept Cards',
-      description: 'Complex topics broken down into manageable, interconnected knowledge units for easier understanding.',
-      icon: <Calculator size={24} />,
-      color: 'from-orange-500 to-amber-400'
-    },
-    {
-      id: 5,
-      title: 'Interactive Flashcards',
-      description: 'Memory-enhancing active recall tools that adapt to your retention patterns for better memorization.',
-      icon: <ChartBar size={24} />,
-      color: 'from-pink-500 to-rose-400'
-    },
-    {
-      id: 6,
-      title: 'Exam Preparation',
-      description: 'Realistic practice tests and simulations that mirror actual exam conditions and question patterns.',
-      icon: <CheckCircle size={24} />,
-      color: 'from-indigo-500 to-blue-400'
-    },
-    {
-      id: 7,
-      title: 'Exam Readiness Score',
-      description: 'Real-time analytics that measure your preparation level and predict performance for your target exam.',
-      icon: <BarChart size={24} />,
-      color: 'from-red-500 to-orange-400'
+const ChampionMethodologySection: React.FC = () => {
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
     }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { 
+        type: "spring",
+        stiffness: 100,
+        damping: 10
+      }
+    }
+  };
+
+  // Methodology steps
+  const methodologySteps = [
+    {
+      icon: <Brain className="h-8 w-8 text-purple-500" />,
+      title: "Personalized Learning",
+      description: "AI adapts to your unique learning style and creates customized study plans that evolve with you.",
+      color: "from-purple-500 to-indigo-600"
+    },
+    {
+      icon: <Sparkles className="h-8 w-8 text-blue-500" />,
+      title: "Micro-Concepts Mastery",
+      description: "Break down complex topics into digestible micro-concepts for efficient learning and retention.",
+      color: "from-blue-500 to-cyan-600"
+    },
+    {
+      icon: <BookOpen className="h-8 w-8 text-green-500" />,
+      title: "Active Recall",
+      description: "Scientifically proven techniques that strengthen memory through strategic testing and repetition.",
+      color: "from-green-500 to-emerald-600"
+    },
+    {
+      icon: <BarChart3 className="h-8 w-8 text-amber-500" />,
+      title: "Progress Analytics",
+      description: "Track your improvement with detailed analytics that identify strengths and areas for growth.",
+      color: "from-amber-500 to-orange-600"
+    },
+    {
+      icon: <Clock className="h-8 w-8 text-rose-500" />,
+      title: "Optimization Loop",
+      description: "Continuous feedback system refines your study plan for maximum efficiency and effectiveness.",
+      color: "from-rose-500 to-pink-600"
+    },
+    {
+      icon: <Users className="h-8 w-8 text-indigo-500" />,
+      title: "Peer Community",
+      description: "Connect with like-minded students to share tips, collaborate, and stay motivated together.",
+      color: "from-indigo-500 to-violet-600"
+    },
   ];
 
-  useEffect(() => {
-    if (!isPaused) {
-      intervalRef.current = setInterval(() => {
-        setActivePoint(prev => (prev + 1) % methodologyPoints.length);
-      }, 3000);
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isPaused, methodologyPoints.length]);
-
-  const handlePointHover = (index: number) => {
-    setIsPaused(true);
-    setActivePoint(index);
-  };
-
-  const handleMouseLeave = () => {
-    setIsPaused(false);
-  };
-
-  const getNodeVariants = (index: number) => {
-    const baseDelay = index * 0.1;
-    const isActive = (index % methodologyPoints.length) === activePoint;
-    
-    return {
-      pulse: {
-        scale: [1, 1.1, 1],
-        opacity: [0.7, 1, 0.7],
-        transition: {
-          repeat: Infinity,
-          repeatType: "reverse" as const,
-          duration: 2,
-          delay: baseDelay
-        }
-      },
-      highlight: {
-        scale: isActive ? 1.2 : 1,
-        opacity: isActive ? 1 : 0.7,
-        boxShadow: isActive ? "0 0 15px rgba(147, 51, 234, 0.7)" : "0 0 5px rgba(147, 51, 234, 0.3)",
-        transition: { duration: 0.5 }
-      }
-    };
-  };
-
-  const currentMethodology = methodologyPoints[activePoint];
-
   return (
-    <section className="py-16 md:py-24 overflow-hidden relative bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-10">
-          {/* Background circuit pattern */}
-          <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-purple-500">
-            <g fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="400" cy="400" r="200" />
-              <circle cx="400" cy="400" r="150" />
-              <circle cx="400" cy="400" r="300" />
-              <path d="M400,100 L400,700 M100,400 L700,400 M200,200 L600,600 M200,600 L600,200" />
-              <path d="M400,100 C550,150 650,250 700,400 C650,550 550,650 400,700 C250,650 150,550 100,400 C150,250 250,150 400,100" />
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 relative">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+    <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+      <div className="container mx-auto px-4">
+        <motion.div 
           className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
         >
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            Our <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Champion-Making</span> Methodology
+          <h2 className="inline-block text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
+            Champion Methodology™
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Our AI-powered system transforms preparation into performance through a seven-step methodology that adapts to your unique learning journey.
+          <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-lg">
+            Our scientifically-backed approach combines cutting-edge AI with proven learning techniques to maximize your exam preparation
           </p>
         </motion.div>
 
-        {/* Engine Visualization and Features */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center">
-          {/* AI Engine Visualization - Left Side on Desktop */}
+        {/* Central AI Engine */}
+        <div className="relative mb-12">
           <motion.div 
-            className="w-full lg:w-1/2 aspect-square relative"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0"
+            initial={{ scale: 0, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <div className="relative w-full h-full">
-              {/* Central Brain */}
-              <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
-                animate={{
-                  rotate: 360,
-                  transition: { duration: 30, repeat: Infinity, ease: "linear" }
-                }}
-              >
-                <div className="relative">
-                  <motion.div
-                    className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center"
-                    animate={{
-                      boxShadow: [
-                        "0 0 10px rgba(147, 51, 234, 0.5)",
-                        "0 0 20px rgba(147, 51, 234, 0.7)",
-                        "0 0 10px rgba(147, 51, 234, 0.5)"
-                      ]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                  >
-                    <Brain size={isMobile ? 48 : 64} className="text-white" />
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* Orbital Paths */}
-              <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 rounded-full border border-purple-200 dark:border-purple-800"
-                animate={{
-                  rotate: 360,
-                  transition: { duration: 20, repeat: Infinity, ease: "linear" }
-                }}
-              />
-              
-              <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 md:w-96 md:h-96 rounded-full border border-blue-200 dark:border-blue-800"
-                animate={{
-                  rotate: -360,
-                  transition: { duration: 25, repeat: Infinity, ease: "linear" }
-                }}
-              />
-
-              {/* Nodes */}
-              {methodologyPoints.map((point, index) => {
-                const angle = (index * (360 / methodologyPoints.length)) * (Math.PI / 180);
-                const radius = isMobile ? 120 : 150;
-                const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
-                
-                return (
-                  <motion.div
-                    key={point.id}
-                    className={`absolute top-1/2 left-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r ${point.color} flex items-center justify-center shadow-lg cursor-pointer`}
-                    style={{
-                      translateX: `calc(${x}px - 50%)`,
-                      translateY: `calc(${y}px - 50%)`
-                    }}
-                    variants={getNodeVariants(index)}
-                    animate={activePoint === index ? "highlight" : "pulse"}
-                    whileHover={{ scale: 1.2, transition: { duration: 0.3 } }}
-                    onClick={() => handlePointHover(index)}
-                  >
-                    {point.icon}
-                  </motion.div>
-                );
-              })}
-
-              {/* Connection lines from center to active node */}
-              <svg className="absolute top-0 left-0 w-full h-full" style={{ overflow: 'visible' }}>
-                {methodologyPoints.map((point, index) => {
-                  const angle = (index * (360 / methodologyPoints.length)) * (Math.PI / 180);
-                  const radius = isMobile ? 120 : 150;
-                  const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius;
-                  const isActive = index === activePoint;
-                  
-                  return (
-                    <motion.line
-                      key={`line-${point.id}`}
-                      x1="50%"
-                      y1="50%"
-                      x2={`calc(50% + ${x}px)`}
-                      y2={`calc(50% + ${y}px)`}
-                      stroke={`url(#gradient-${index})`}
-                      strokeWidth={isActive ? 3 : 1}
-                      strokeDasharray={isActive ? "0" : "5,5"}
-                      initial={{ opacity: isActive ? 1 : 0.3 }}
-                      animate={{ opacity: isActive ? 1 : 0.3 }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  );
-                })}
-                
-                {/* Define gradients for lines */}
-                <defs>
-                  {methodologyPoints.map((point, index) => {
-                    const colors = point.color.split(" ");
-                    const fromColor = colors[0].replace("from-", "");
-                    const toColor = colors[1].replace("to-", "");
-                    
-                    return (
-                      <linearGradient key={`gradient-${index}`} id={`gradient-${index}`}>
-                        <stop stopColor={`var(--${fromColor})`} offset="0%" />
-                        <stop stopColor={`var(--${toColor})`} offset="100%" />
-                      </linearGradient>
-                    );
-                  })}
-                </defs>
-              </svg>
-            </div>
+            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-gradient-to-br from-violet-600/20 to-blue-600/20 blur-xl dark:from-violet-600/40 dark:to-blue-600/40" />
           </motion.div>
-
-          {/* Right side: Feature Description */}
-          <div className="w-full lg:w-1/2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-purple-100 dark:border-purple-900 relative">
-              {/* Processing indicator */}
-              <motion.div 
-                className="absolute top-0 right-0 mt-2 mr-2 flex items-center"
+          
+          <motion.div 
+            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
+            initial={{ scale: 0, rotate: -30, opacity: 0 }}
+            whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, delay: 0.5, type: "spring", stiffness: 100 }}
+          >
+            <div className="w-24 h-24 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center shadow-lg">
+              <Lightbulb className="h-10 w-10 md:h-14 md:w-14 text-white" />
+              <motion.div
+                className="absolute w-full h-full rounded-full"
                 animate={{
-                  opacity: [0.7, 1, 0.7]
+                  boxShadow: [
+                    "0 0 0 0px rgba(124, 58, 237, 0.4)",
+                    "0 0 0 15px rgba(124, 58, 237, 0)",
+                  ],
                 }}
                 transition={{
                   repeat: Infinity,
-                  duration: 2
+                  duration: 2.5,
                 }}
-              >
-                <span className="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
-                <span className="text-xs text-green-500 font-medium">Processing</span>
-              </motion.div>
-              
-              <div className="h-[300px] flex flex-col justify-center" onMouseEnter={() => setIsPaused(true)} onMouseLeave={handleMouseLeave}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activePoint}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center"
-                  >
-                    <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${currentMethodology.color} flex items-center justify-center mb-4`}>
-                      {currentMethodology.icon}
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-3">
-                      {currentMethodology.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                      {currentMethodology.description}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-              
-              {/* Navigation dots */}
-              <div className="flex justify-center mt-6 space-x-2">
-                {methodologyPoints.map((point, index) => (
-                  <button
-                    key={point.id}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activePoint ? 'bg-purple-600 scale-125' : 'bg-gray-300 dark:bg-gray-600'}`}
-                    onClick={() => handlePointHover(index)}
-                    aria-label={`View ${point.title}`}
-                  />
-                ))}
-              </div>
+              />
             </div>
-            
-            <div className="mt-8 grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
-              {methodologyPoints.map((point, index) => (
-                <motion.button
-                  key={point.id}
-                  className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm border transition-all duration-300 flex flex-col items-center ${
-                    index === activePoint 
-                      ? `bg-gradient-to-r ${point.color} text-white border-transparent` 
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePointHover(index)}
-                >
-                  <span className="block">{point.icon}</span>
-                  <span className="mt-1 line-clamp-1">{point.title}</span>
-                </motion.button>
-              ))}
+            <div className="absolute -bottom-8 text-center whitespace-nowrap font-medium text-violet-600 dark:text-violet-400">
+              AI Learning Engine
             </div>
-          </div>
+          </motion.div>
         </div>
+
+        {/* Methodology Steps in a circular arrangement */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto relative z-10 mt-24"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          {methodologySteps.map((step, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all p-6 group"
+            >
+              <div className="absolute -top-6 left-6 p-2 rounded-lg bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 shadow-md group-hover:-translate-y-1 transition-transform">
+                <div className="p-3 rounded-lg bg-gradient-to-r group-hover:animate-pulse" style={{ backgroundImage: `linear-gradient(to right, ${step.color})` }}>
+                  {step.icon}
+                </div>
+              </div>
+              <h3 className="mt-6 text-lg font-semibold">{step.title}</h3>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">{step.description}</p>
+              
+              {/* Connecting lines */}
+              <motion.div 
+                className={`hidden lg:block absolute ${
+                  index % 3 === 0 ? "right-0 top-1/2" : 
+                  index % 3 === 1 ? "right-0 top-1/2" : 
+                  "left-1/2 bottom-0"
+                } transform ${
+                  index % 3 === 0 ? "translate-x-1/2 -translate-y-1/2" : 
+                  index % 3 === 1 ? "translate-x-1/2 -translate-y-1/2" : 
+                  "-translate-x-1/2 translate-y-1/2"
+                } pointer-events-none z-[-1]`}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.4 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+              >
+                {((index < methodologySteps.length - 1) && ((index + 1) % 3 !== 0)) && (
+                  <div className="h-0.5 w-8 bg-gradient-to-r from-purple-400 to-blue-400" />
+                )}
+                {(index < 3) && (
+                  <div className="absolute w-0.5 h-8 bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full bg-gradient-to-b from-blue-400 to-purple-400 opacity-40" />
+                )}
+              </motion.div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Bottom CTA */}
+        <motion.div 
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, delay: 1.2 }}
+        >
+          <p className="max-w-2xl mx-auto text-gray-500 dark:text-gray-400 text-lg font-medium mb-6">
+            This unique methodology has helped 10,000+ students achieve their exam goals
+          </p>
+          <div className="inline-block">
+            <motion.div
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-full font-medium text-lg cursor-pointer hover:shadow-lg transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Discover Your Learning Path
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

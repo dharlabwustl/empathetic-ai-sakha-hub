@@ -97,34 +97,36 @@ const HeroSection = () => {
           <div className="w-full max-w-6xl mx-auto">
             {/* Hindi text line with enhanced gradient and special PREPZR animation */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-hindi whitespace-nowrap overflow-hidden px-2"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight font-hindi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="py-2">
-                अब तैयारी करो अपने तरीके से, सिर्फ{" "}
-                <motion.span 
-                  className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
-                  animate={{ 
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ 
-                    duration: 5, 
-                    repeat: Infinity, 
-                    repeatType: "reverse" 
-                  }}
-                >
-                  PREPZR
-                </motion.span>{" "}
-                के साथ!
-              </span>
+              <div className="inline-block py-2 text-center overflow-visible whitespace-normal px-4">
+                <span className="hindi-text">
+                  अब तैयारी करो अपने तरीके से, सिर्फ{" "}
+                  <motion.span 
+                    className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
+                    animate={{ 
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{ 
+                      duration: 5, 
+                      repeat: Infinity, 
+                      repeatType: "reverse" 
+                    }}
+                  >
+                    PREPZR
+                  </motion.span>{" "}
+                  के साथ!
+                </span>
+              </div>
             </motion.h1>
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden px-2"
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -134,7 +136,7 @@ const HeroSection = () => {
           </div>
           
           {/* Enhanced Animated taglines */}
-          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-20 flex items-center justify-center mt-6">
+          <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 h-20 flex items-center justify-center mt-2">
             <motion.div
               key={currentTagline}
               initial={{ opacity: 0, y: 10 }}
@@ -255,6 +257,17 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+      
+      {/* Add CSS to ensure the Hindi text displays properly */}
+      <style jsx>{`
+        .hindi-text {
+          font-family: 'Arial', 'Noto Sans Devanagari', sans-serif;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+          display: inline-block;
+          line-height: 1.5;
+        }
+      `}</style>
     </section>
   );
 };

@@ -363,7 +363,7 @@ export const processUserQuery = (
     }
     
     // Handle language switch commands
-    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्��िश में') || lowerQuery.includes('अंग्रेजी में')) {
+    if (lowerQuery.includes('अंग्रेजी में बोलो') || lowerQuery.includes('इंग्लिश में') || lowerQuery.includes('अंग्रेजी में')) {
       return "I'll speak English now. How can I help you with your studies?";
     }
     
@@ -462,4 +462,54 @@ export const processUserQuery = (
     // Default response if nothing specific matched
     return "I didn't quite catch that. You can ask me to navigate to different sections, start a practice test, or help with your study plan.";
   }
+};
+
+// Additional function to handle concept-specific voice commands
+export const processConceptVoiceCommand = (
+  query: string,
+  options: {
+    readAloud?: () => void,
+    saveNotes?: () => void, 
+    openFlashcards?: () => void,
+    openPracticeExam?: () => void,
+  } = {}
+): string | null => {
+  const lowerQuery = query.toLowerCase();
+  
+  // Read aloud commands
+  if (lowerQuery.includes('read') || 
+      lowerQuery.includes('read aloud') || 
+      lowerQuery.includes('read to me') || 
+      lowerQuery.includes('speak the content')) {
+    if (options.readAloud) options.readAloud();
+    return "Reading the concept content aloud for you.";
+  }
+  
+  // Save notes commands
+  if (lowerQuery.includes('save') || 
+      lowerQuery.includes('save my notes') || 
+      lowerQuery.includes('save notes')) {
+    if (options.saveNotes) options.saveNotes();
+    return "Your notes have been saved.";
+  }
+  
+  // Flashcard practice commands
+  if (lowerQuery.includes('flashcard') || 
+      lowerQuery.includes('practice cards') || 
+      lowerQuery.includes('study cards')) {
+    if (options.openFlashcards) options.openFlashcards();
+    return "Opening flashcards for this concept.";
+  }
+  
+  // Practice exam commands
+  if (lowerQuery.includes('test') || 
+      lowerQuery.includes('exam') || 
+      lowerQuery.includes('practice test') || 
+      lowerQuery.includes('take the quiz')) {
+    if (options.openPracticeExam) options.openPracticeExam();
+    return "Starting a practice exam for this concept.";
+  }
+  
+  // No matching command found
+  return null;
 };
