@@ -42,9 +42,9 @@ const ConceptCardDetailPage: React.FC = () => {
       console.log("Loading concept details for:", conceptId);
     }
     
-    // Initialize bookmarked state from concept card data
-    if (conceptCard?.bookmarked) {
-      setBookmarked(conceptCard.bookmarked);
+    // Initialize bookmarked state if available in concept card
+    if (conceptCard && 'bookmarked' in conceptCard) {
+      setBookmarked(Boolean(conceptCard.bookmarked));
     }
   }, [conceptId, conceptCard]);
 
@@ -152,9 +152,19 @@ const ConceptCardDetailPage: React.FC = () => {
   }
 
   // Calculate mastery percentage based on available metrics
-  const masteryPercent = conceptCard.recallAccuracy || 
-    conceptCard.quizScore || 
+  const masteryPercent = (conceptCard as any).recallAccuracy || 
+    (conceptCard as any).quizScore || 
     (conceptCard.progress ? conceptCard.progress : 0);
+
+  // Safe access to extended properties
+  const extendedCard = conceptCard as any;
+  const timeSuggestion = extendedCard.timeSuggestion;
+  const examReady = extendedCard.examReady;
+  const recallAccuracy = extendedCard.recallAccuracy;
+  const lastPracticed = extendedCard.lastPracticed;
+  const quizScore = extendedCard.quizScore;
+  const flashcardsTotal = extendedCard.flashcardsTotal;
+  const flashcardsCompleted = extendedCard.flashcardsCompleted;
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -205,10 +215,10 @@ const ConceptCardDetailPage: React.FC = () => {
               <p className="text-muted-foreground mb-4">{conceptCard.description}</p>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
-                {conceptCard.timeSuggestion !== undefined && (
+                {timeSuggestion !== undefined && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm">{conceptCard.timeSuggestion} min</span>
+                    <span className="text-sm">{timeSuggestion} min</span>
                   </div>
                 )}
                 
@@ -219,11 +229,11 @@ const ConceptCardDetailPage: React.FC = () => {
                   </span>
                 </div>
                 
-                {conceptCard.examReady !== undefined && (
+                {examReady !== undefined && (
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-green-600" />
                     <span className="text-sm">
-                      {conceptCard.examReady ? 'Exam ready' : 'Needs review'}
+                      {examReady ? 'Exam ready' : 'Needs review'}
                     </span>
                   </div>
                 )}
@@ -309,7 +319,6 @@ const ConceptCardDetailPage: React.FC = () => {
         
         <div className="bg-white dark:bg-gray-800/40 rounded-lg shadow-sm border p-1">
           <TabsContent value="overview" className="mt-0 focus:outline-none">
-            {/* Cast the conceptCard to the correct type */}
             <ConceptCardDetail conceptCard={conceptCard as ConceptCardType} />
           </TabsContent>
           
@@ -320,9 +329,9 @@ const ConceptCardDetailPage: React.FC = () => {
           <TabsContent value="mastery" className="mt-0 focus:outline-none">
             <ConceptMasterySection 
               conceptId={conceptCard.id} 
-              recallAccuracy={conceptCard.recallAccuracy}
-              lastPracticed={conceptCard.lastPracticed}
-              quizScore={conceptCard.quizScore} 
+              recallAccuracy={recallAccuracy}
+              lastPracticed={lastPracticed}
+              quizScore={quizScore} 
             />
           </TabsContent>
           
@@ -337,8 +346,8 @@ const ConceptCardDetailPage: React.FC = () => {
             <ConceptFlashcardsSection 
               conceptId={conceptCard.id}
               conceptTitle={conceptCard.title}
-              flashcardsTotal={conceptCard.flashcardsTotal}
-              flashcardsCompleted={conceptCard.flashcardsCompleted}
+              flashcardsTotal={flashcardsTotal}
+              flashcardsCompleted={flashcardsCompleted}
             />
           </TabsContent>
           
@@ -346,7 +355,7 @@ const ConceptCardDetailPage: React.FC = () => {
             <ConceptExamSection 
               conceptId={conceptCard.id}
               conceptTitle={conceptCard.title}
-              examReady={conceptCard.examReady}
+              examReady={examReady}
             />
           </TabsContent>
         </div>
