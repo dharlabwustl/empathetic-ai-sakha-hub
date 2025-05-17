@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 import { DEFAULT_VOICE_SETTINGS, findBestVoice, speakMessage as speakVoiceMessage, fixPronunciation, LANGUAGE_OPTIONS } from '@/components/dashboard/student/voice/voiceUtils';
@@ -215,7 +214,7 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
     if (voiceSettings.enabled || forceSpeech) {
       if (!voiceSettings.muted || forceSpeech) {
         // Improved pronunciation for PREPZR - spoken as "Prep zer" with proper pause
-        const correctedMessage = message.replace(/PREPZR/gi, 'Prep-zer').replace(/prepzr/gi, 'Prep-zer');
+        const correctedMessage = message.replace(/PREPZR/gi, 'Prep zer').replace(/prepzr/gi, 'Prep zer');
         
         speakVoiceMessage(correctedMessage, voiceSettings);
       }
@@ -225,16 +224,16 @@ export const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   // Test voice function with language support
   const testVoice = useCallback(() => {
     // Use language-specific test messages with correct PREPZR pronunciation
-    let testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant.`;
+    let testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant.`;
     
     if (voiceSettings.language === 'hi-IN') {
-      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप-ज़र वॉइस असिस्टेंट हूं।`;
+      testMessage = `नमस्ते ${userName || 'आप'}, मैं आपका प्रेप ज़र वॉइस असिस्टेंट हूं।`;
     } else if (voiceSettings.language === 'en-IN') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an Indian accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with an Indian accent.`;
     } else if (voiceSettings.language === 'en-US') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with an American accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with an American accent.`;
     } else if (voiceSettings.language === 'en-GB') {
-      testMessage = `Hello ${userName || 'there'}, I'm your Prep-zer voice assistant with a British accent.`;
+      testMessage = `Hello ${userName || 'there'}, I'm your Prep zer voice assistant with a British accent.`;
     }
     
     speakMessage(testMessage, true);
