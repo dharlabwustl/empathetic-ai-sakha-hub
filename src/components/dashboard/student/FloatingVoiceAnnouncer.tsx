@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Volume2, VolumeX, Volume } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -77,9 +76,9 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
       // Iterate through moodMap to find a matching mood
       for (const key in moodMap) {
         if (lowerCommand.includes(key)) {
-          setMood(moodMap[key as keyof typeof moodMap]);
+          setMood(moodMap[key]);
           toast({
-            title: `Mood Detected: ${moodMap[key as keyof typeof moodMap]}`,
+            title: `Mood Detected: ${moodMap[key]}`,
             description: `You seem ${key}.`,
           });
           break;

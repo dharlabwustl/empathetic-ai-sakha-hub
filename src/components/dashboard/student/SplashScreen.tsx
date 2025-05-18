@@ -51,27 +51,27 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
     const defaultMessage = "Let's achieve something great today!";
     
     const moodContent = {
-      [MoodType.MOTIVATED]: {
+      motivated: {
         quote: "Success is the sum of small efforts, repeated day in and day out.",
         message: "You're motivated! Let's channel that energy into focused study."
       },
-      [MoodType.HAPPY]: {
+      happy: {
         quote: "A positive mindset brings positive results.",
         message: "Great to see you happy! Ready to learn something new?"
       },
-      [MoodType.FOCUSED]: {
+      focused: {
         quote: "Discipline is the bridge between goals and accomplishment.",
         message: "You're in the zone! Let's make progress on important concepts."
       },
-      [MoodType.NEUTRAL]: {
+      neutral: {
         quote: "Small progress is still progress.",
         message: "Let's build some momentum with your studies today."
       },
-      [MoodType.STRESSED]: {
+      stressed: {
         quote: "Take a deep breath. You've got this.",
         message: "Let's break down your work into manageable chunks."
       },
-      [MoodType.TIRED]: {
+      tired: {
         quote: "Rest if you must, but don't quit.",
         message: "Let's focus on review and light learning today."
       }
@@ -81,7 +81,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
       return { quote: defaultQuote, message: defaultMessage };
     }
     
-    return moodContent[currentMood as keyof typeof moodContent] || { quote: defaultQuote, message: defaultMessage };
+    return moodContent[currentMood as keyof typeof moodContent];
   };
   
   const { quote, message } = getMoodSpecificContent();

@@ -20,7 +20,6 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import DonationNotice from '@/components/home/DonationNotice';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -121,9 +120,6 @@ const Index = () => {
         
         <VideoSection />
         
-        {/* Donation Notice for Subscription Plans */}
-        <DonationNotice />
-        
         <FounderSection />
         
         <FoundingTeamSection />
@@ -133,7 +129,7 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced homepage voice assistant with improved guidance */}
+      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
       <HomePageVoiceAssistant language="en-IN" />
       
       {/* Floating Voice Assistant button */}

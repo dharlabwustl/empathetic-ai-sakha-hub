@@ -12,7 +12,7 @@ interface VoiceGreetingProps {
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
   isFirstTimeUser, 
   userName = 'Student',
-  language = 'en' // Default to English
+  language = 'hi' // Changed default to Hindi
 }) => {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
@@ -51,24 +51,33 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Different greetings based on page context
             if (isConceptPage) {
               if (language === 'en') {
-                welcomeText = `I've loaded your concept details. You can now explore related flashcards, add notes, practice with quick recall questions, and mark this for revision if needed. Use the read aloud feature for better understanding.`;
-              } else {
-                welcomeText = `मैंने आपके अवधारणा विवरण लोड कर दिए हैं। अब आप संबंधित फ्लैशकार्ड देख सकते हैं, नोट्स जोड़ सकते हैं, त्वरित याद प्रश्नों के साथ अभ्यास कर सकते हैं, और यदि आवश्यक हो तो इसे संशोधन के लिए चिह्नित कर सकते हैं। बेहतर समझ के लिए जोर से पढ़ने वाली सुविधा का उपयोग करें।`;
+                welcomeText = `I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+              } else if (language === 'hi') {
+                welcomeText = `मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं। क्या आप चाहेंगे कि मैं इस अवधारणा के किसी भी हिस्से को समझाने में मदद करूं?`;
               }
             } else if (isWelcomePage) {
               if (language === 'en') {
-                welcomeText = `Welcome to PREPZR, ${userName}! Your personalized exam preparation platform is ready. We've created a tailored study plan for your needs. Explore concept cards, practice tests, and AI tutoring. Our system adapts to your learning style and helps identify areas where you need improvement. The smart flashcards use spaced repetition for better memory retention. You've made an excellent choice for your exam preparation journey.`;
-              } else {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपका व्यक्तिगत परीक्षा तैयारी प्लेटफॉर्म तैयार है। हमने आपकी ज़रूरतों के अनुसार एक अनुकूलित अध्ययन योजना बनाई है। अवधारणा कार्ड, अभ्यास परीक्षण और एआई ट्यूशन का अन्वेषण करें। हमारी प्रणाली आपकी सीखने की शैली के अनुकूल है और उन क्षेत्रों की पहचान करने में मदद करती है जहां आपको सुधार की आवश्यकता है। स्मार्ट फ्लैशकार्ड बेहतर स्मृति प्रतिधारण के लिए अंतराल पुनरावृत्ति का उपयोग करते हैं। आपने अपनी परीक्षा की तैयारी के सफर के लिए एक उत्कृष्ट विकल्प चुना है।`;
+                // Welcome flow specific greeting - faster voice
+                welcomeText = `Welcome to Prep zer! I'm your voice assistant and I'll guide you through your personalized learning journey. Let's get started!`;
+              } else if (language === 'hi') {
+                welcomeText = `प्रेप ज़र में आपका स्वागत है! मैं आपका वॉइस असिस्टेंट हूं और मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। आइए शुरू करें!`;
+              }
+            } else if (isFirstTimeUser) {
+              if (language === 'en') {
+                // Use phonetic spelling with a pause between Prep and zer
+                welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations.`;
+              } else if (language === 'hi') {
+                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें।`;
               }
             } else {
               if (language === 'en') {
-                // Use phonetic spelling with a pause between Prep and zer
-                welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. If you need any assistance, click the chat button to interact with your AI tutor.`;
-              } else if (language === 'hi') {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
+                welcomeText = getContextBasedGreeting(currentPageContext, userName, 'en');
+              } else {
+                welcomeText = getContextBasedGreeting(currentPageContext, userName, 'hi');
               }
             }
+            
+            if (!welcomeText) return;
             
             // Get available voices
             const voices = window.speechSynthesis.getVoices();
@@ -76,7 +85,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Create speech synthesis utterance
             const speech = new SpeechSynthesisUtterance(welcomeText);
             speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
-            speech.rate = 0.9; // Slightly slower for clarity
+            speech.rate = isWelcomePage ? 1.1 : 1.0; // Slightly faster for welcome flow
             speech.volume = 0.8;
             
             // Find an Indian voice based on comprehensive list of possible voices
@@ -126,7 +135,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             speech.onend = () => {
               setAudioPlaying(false);
               setAudioPlayed(true);
-              sessionStorage.setItem('voiceGreetingPlayed', 'true');
+              if (isFirstTimeUser) {
+                sessionStorage.setItem('voiceGreetingPlayed', 'true');
+              }
             };
             speech.onerror = (e) => {
               console.error("Speech synthesis error", e);
@@ -158,23 +169,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       }
     }
     
-    // Cleanup on unmount
+    // Cleanup on unmount or location change
     return () => {
       if (audioPlaying && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
   }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage]);
-  
-  // Helper function to determine the current page context
-  const getCurrentPageContext = (path: string): string => {
-    if (path.includes('/welcome-flow')) return 'welcome';
-    if (path.includes('/concepts/')) return 'concept';
-    if (path.includes('/dashboard')) return 'dashboard';
-    if (path.includes('/signup')) return 'signup';
-    if (path.includes('/login')) return 'login';
-    return 'general';
-  };
   
   const handleToggleMute = () => {
     setAudioMuted(!audioMuted);
@@ -189,10 +190,56 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       sessionStorage.setItem('voiceGreetingPlayed', 'true');
     }
   };
+
+  // Helper function to get context based greeting
+  const getCurrentPageContext = (pathname: string): string => {
+    if (pathname.includes('/welcome-flow')) return 'welcome';
+    if (pathname.includes('/concepts/')) return 'concept';
+    if (pathname.includes('/study-plan')) return 'study-plan';
+    if (pathname.includes('/practice-exam')) return 'practice-exam';
+    if (pathname.includes('/analytics')) return 'analytics';
+    if (pathname.includes('/dashboard')) return 'dashboard';
+    if (pathname === '/') return 'home';
+    return 'general';
+  };
+
+  // Helper function to get context-based greeting
+  const getContextBasedGreeting = (context: string, user: string, lang: 'en' | 'hi'): string => {
+    if (lang === 'en') {
+      switch(context) {
+        case 'dashboard': 
+          return `Welcome back to your dashboard, ${user}. Here you can see your study progress and today's plan.`;
+        case 'study-plan':
+          return `Here's your study plan, ${user}. I've organized your topics based on your learning needs.`;
+        case 'practice-exam':
+          return `Ready for a practice exam? This will help strengthen your knowledge and identify areas for improvement.`;
+        case 'analytics':
+          return `These analytics show your progress over time. Let's see which areas you're excelling in and where you might need more focus.`;
+        case 'home':
+          return `Welcome to Prep zer, ${user}! How can I assist you with your exam preparation today?`;
+        default:
+          return '';
+      }
+    } else {
+      switch(context) {
+        case 'dashboard': 
+          return `${user}, आपके डैशबोर्ड पर आपका स्वागत है। यहां आप अपनी पढ़ाई की प्रगति और आज की योजना देख सकते हैं।`;
+        case 'study-plan':
+          return `${user}, यह आपकी अध्ययन योजना है। मैंने आपके सीखने की जरूरतों के आधार पर आपके विषयों को व्यवस्थित किया है।`;
+        case 'practice-exam':
+          return `अभ्यास परीक्षा के लिए तैयार हैं? यह आपके ज्ञान को मजबूत करने और सुधार के क्षेत्रों की पहचान करने में मदद करेगा।`;
+        case 'analytics':
+          return `ये विश्लेषण आपकी समय के साथ प्रगति दिखाते हैं। देखते हैं कि आप किन क्षेत्रों में उत्कृष्टता प्राप्त कर रहे हैं और कहां आपको अधिक ध्यान देने की आवश्यकता हो सकती है।`;
+        case 'home':
+          return `प्रेप ज़र में आपका स्वागत है, ${user}! आज मैं आपकी परीक्षा की तैयारी में कैसे सहायता कर सकता हूं?`;
+        default:
+          return '';
+      }
+    }
+  };
   
-  // Don't render anything if already played or not a first-time user
-  if (!isFirstTimeUser && !isConceptPage && !isWelcomePage) return null;
-  if (audioPlayed) return null;
+  // Don't render anything if already played or not a first-time user and not on concept page
+  if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage) || audioPlayed) return null;
   
   return (
     <div 

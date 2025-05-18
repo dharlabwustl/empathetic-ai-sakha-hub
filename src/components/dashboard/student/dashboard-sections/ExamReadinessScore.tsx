@@ -8,16 +8,11 @@ import {
   Cell, 
   ResponsiveContainer,
   Legend,
-  Tooltip,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid
+  Tooltip
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Info, BookOpen, Brain, FileText, BarChart } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 const ReadinessScoreMeter = ({ score }: { score: number }) => {
   return (
@@ -61,15 +56,6 @@ const data = [
   { name: 'Practice Tests', value: 68 },
   { name: 'Flashcards', value: 82 },
   { name: 'Revision', value: 60 }
-];
-
-// Weekly trend data
-const weeklyTrendData = [
-  { week: 'Week 1', score: 55 },
-  { week: 'Week 2', score: 59 },
-  { week: 'Week 3', score: 64 },
-  { week: 'Week 4', score: 68 },
-  { week: 'Week 5', score: 72 }
 ];
 
 interface ExamReadinessScoreProps {
@@ -189,62 +175,13 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
                 </div>
               </div>
               
-              <div className="mt-6 mb-6">
-                <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                  Weekly Progress Trend
-                  <BarChart className="h-4 w-4 text-muted-foreground" />
-                </h4>
-                
-                <div className="h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={weeklyTrendData}
-                      margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-                      <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                      <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="score" 
-                        stroke="#8884d8" 
-                        strokeWidth={2} 
-                        dot={{ r: 4 }} 
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-sm space-y-4">
-                <h5 className="font-medium mb-1">Improvement Tips:</h5>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <BookOpen className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-blue-700 dark:text-blue-400">Concept Mastery</p>
-                      <p className="text-muted-foreground text-xs">Spend 20 minutes daily reviewing weak concepts in Physics to improve your overall understanding.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <Brain className="h-4 w-4 text-purple-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-purple-700 dark:text-purple-400">Flashcard Retention</p>
-                      <p className="text-muted-foreground text-xs">Your recall accuracy is high - continue with the spaced repetition schedule to maintain this strength.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <FileText className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-green-700 dark:text-green-400">Practice Tests</p>
-                      <p className="text-muted-foreground text-xs">Try to complete one full practice test weekly under timed conditions to build exam stamina.</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
+                <h5 className="font-medium mb-2">Recommendations:</h5>
+                <ul className="space-y-1 text-muted-foreground list-disc list-inside">
+                  <li>Focus more on Revision sessions</li>
+                  <li>Increase Practice Test frequency</li>
+                  <li>Keep up the good work with Flashcards!</li>
+                </ul>
               </div>
             </div>
           </motion.div>

@@ -1,683 +1,827 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
-  Volume2, BookOpen, Brain, FileText, Star, Flag, 
-  ThumbsUp, Send, CheckCircle, MessageCircle, Video,
-  Download, PenSquare, Link as LinkIcon, PlayCircle, VolumeX,
-  ChevronLeft, ChevronRight, ListChecks, Lightbulb, Bookmark, FileQuestion
+  BookOpen, 
+  Video, 
+  FileText, 
+  Lightbulb, 
+  Flag, 
+  MessageSquarePlus, 
+  Download, 
+  Share2, 
+  CheckCircle, 
+  Star, 
+  VolumeIcon, 
+  ExternalLink, 
+  PlayCircle,
+  Brain,
+  HelpCircle,
+  MessageSquare,
+  Link,
+  ArrowUpRight
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { useNavigate, useParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
-interface Resource {
-  id: string;
-  title: string;
-  type: 'video' | 'pdf' | 'link';
-  url: string;
+interface EnhancedConceptDetailProps {
+  conceptId: string;
 }
 
-interface Practice {
-  id: string;
-  question: string;
-  options: string[];
-  answer: number;
-  explanation: string;
-}
-
-interface RelatedCard {
-  id: string;
-  title: string;
-  type: 'concept' | 'flashcard' | 'exam';
-}
-
-interface ConceptDetailProps {
-  id?: string;
-}
-
-const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({ id: propId }) => {
-  const params = useParams();
-  const id = propId || params.id || 'concept-1';
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [activeTab, setActiveTab] = useState("content");
-  const [mastery, setMastery] = useState(65);
-  const [isFlagged, setIsFlagged] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isReadingAloud, setIsReadingAloud] = useState(false);
-  const [notes, setNotes] = useState("");
-  const [doubt, setDoubt] = useState("");
-  const [selectedPracticeQuestion, setSelectedPracticeQuestion] = useState<number | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  
-  // Mock concept data
-  const conceptData = {
-    id,
-    title: "Newton's Laws of Motion",
-    subject: "Physics",
-    difficulty: "medium",
-    description: "Understand the fundamental laws that govern classical mechanics.",
-    content: `
-      <h2>Newton's First Law of Motion</h2>
-      <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.</p>
-      <p>This is also known as the <strong>Law of Inertia</strong>. It means that objects naturally resist changes to their state of motion.</p>
-      
-      <h2>Newton's Second Law of Motion</h2>
-      <p>The acceleration of an object depends on the mass of the object and the amount of force applied.</p>
-      <p>Mathematically: F = ma, where F is force, m is mass, and a is acceleration.</p>
-      
-      <h2>Newton's Third Law of Motion</h2>
-      <p>For every action, there is an equal and opposite reaction.</p>
-      <p>When one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.</p>
-    `,
-    outcomes: [
-      "Explain the concept of inertia and its relation to Newton's First Law",
-      "Apply F = ma to solve mechanical problems",
-      "Identify action-reaction pairs in physical systems"
-    ],
-    video: "/assets/videos/newtons-laws.mp4",
-    relatedCards: [
-      { id: "concept-2", title: "Force and Free Body Diagrams", type: "concept" },
-      { id: "concept-3", title: "Friction Forces", type: "concept" },
-      { id: "flashcard-7", title: "Newton's Laws - Key Points", type: "flashcard" },
-      { id: "exam-3", title: "Mechanics Practice Test", type: "exam" }
-    ],
-    resources: [
-      { id: "res-1", title: "Newton's Laws Visualization", type: "video", url: "/assets/videos/newton-visualization.mp4" },
-      { id: "res-2", title: "Solved Examples PDF", type: "pdf", url: "/assets/docs/newton-examples.pdf" },
-      { id: "res-3", title: "Interactive Simulations", type: "link", url: "https://phet.colorado.edu/en/simulations/category/physics/motion" }
-    ],
-    practices: [
-      {
-        id: "q1",
-        question: "Which of Newton's laws is also known as the Law of Inertia?",
-        options: ["First Law", "Second Law", "Third Law", "Fourth Law"],
-        answer: 0,
-        explanation: "Newton's First Law is also known as the Law of Inertia as it describes how objects resist changes to their motion."
-      },
-      {
-        id: "q2",
-        question: "In the equation F = ma, what does 'a' represent?",
-        options: ["Area", "Acceleration", "Amplitude", "Angular velocity"],
-        answer: 1,
-        explanation: "In F = ma, 'a' represents acceleration, which is the rate of change of velocity over time."
-      },
-      {
-        id: "q3",
-        question: "According to Newton's Third Law, when you push against a wall:",
-        options: [
-          "The wall exerts no force on you", 
-          "The wall exerts a smaller force on you", 
-          "The wall exerts an equal and opposite force on you", 
-          "The wall exerts a greater force on you"
-        ],
-        answer: 2,
-        explanation: "Newton's Third Law states that for every action there is an equal and opposite reaction, so the wall pushes back on you with equal magnitude in the opposite direction."
-      }
-    ]
-  };
-
-  // Toggle speech synthesis for read aloud functionality
-  const toggleReadAloud = () => {
-    if (isReadingAloud) {
-      window.speechSynthesis.cancel();
-      setIsReadingAloud(false);
-    } else {
-      setIsReadingAloud(true);
-      
-      if (contentRef.current) {
-        // Get text content from HTML
-        const text = contentRef.current.textContent || '';
-        
-        // Create utterance and set properties
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-        
-        // Use available voices (prefer English)
-        const voices = window.speechSynthesis.getVoices();
-        const englishVoice = voices.find(voice => voice.lang.includes('en'));
-        if (englishVoice) utterance.voice = englishVoice;
-        
-        // Event handlers
-        utterance.onend = () => setIsReadingAloud(false);
-        utterance.onerror = () => setIsReadingAloud(false);
-        
-        // Start speaking
-        window.speechSynthesis.speak(utterance);
-      }
+// Mock concept data
+const mockConcept = {
+  id: "concept-1",
+  title: "Newton's Laws of Motion",
+  description: "An exploration of Newton's three laws of motion which form the foundation of classical mechanics.",
+  coverImage: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb",
+  progress: 65,
+  estimatedTime: "25 mins",
+  difficulty: "intermediate",
+  lastStudied: "2 days ago",
+  isFlagged: false,
+  learningOutcomes: [
+    "Understand and explain Newton's First Law (Law of Inertia)",
+    "Apply Newton's Second Law (F = ma) to solve problems",
+    "Recognize action-reaction pairs using Newton's Third Law",
+    "Analyze real-world examples of Newton's Laws"
+  ],
+  videoLessons: [
+    {
+      id: "v1",
+      title: "Newton's First Law Explained",
+      duration: "8:24",
+      thumbnail: "https://images.unsplash.com/photo-1581500947882-709458c363e6"
+    },
+    {
+      id: "v2",
+      title: "Force and Acceleration: Newton's Second Law",
+      duration: "9:12",
+      thumbnail: "https://images.unsplash.com/photo-1523726491678-bf852e717f6a"
+    },
+    {
+      id: "v3",
+      title: "Action and Reaction: The Third Law",
+      duration: "7:16",
+      thumbnail: "https://images.unsplash.com/photo-1607893469067-5ee0868b7e83"
     }
-  };
+  ],
+  notes: "Remember that Newton's First Law is often called the Law of Inertia. An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.",
+  practiceQuestions: [
+    {
+      id: "q1",
+      question: "What happens to an object's motion when no net external force acts upon it?",
+      options: [
+        "It accelerates in the direction of the largest force",
+        "It maintains constant velocity (or remains at rest)",
+        "It always comes to a stop",
+        "Its velocity increases at a constant rate"
+      ],
+      correctAnswer: 1
+    },
+    {
+      id: "q2",
+      question: "Newton's Second Law states that force equals:",
+      options: [
+        "Mass times velocity",
+        "Mass divided by acceleration",
+        "Mass times acceleration",
+        "Momentum times velocity"
+      ],
+      correctAnswer: 2
+    },
+    {
+      id: "q3",
+      question: "According to Newton's Third Law, when one object exerts a force on another object:",
+      options: [
+        "The second object exerts an equal and opposite force on the first",
+        "The second object moves in the opposite direction",
+        "The first object experiences twice the force",
+        "Both objects accelerate at the same rate"
+      ],
+      correctAnswer: 0
+    }
+  ],
+  resources: [
+    {
+      title: "Interactive Forces Simulation",
+      type: "simulation",
+      url: "https://example.com/force-simulation"
+    },
+    {
+      title: "Newton's Laws of Motion Fact Sheet",
+      type: "pdf",
+      url: "https://example.com/newton-laws-pdf"
+    },
+    {
+      title: "Historical Context: Isaac Newton Biography",
+      type: "article",
+      url: "https://example.com/newton-bio"
+    }
+  ],
+  relatedConcepts: [
+    { id: "concept-2", title: "Conservation of Momentum" },
+    { id: "concept-3", title: "Force and Friction" },
+    { id: "concept-4", title: "Circular Motion" }
+  ],
+  keyFormulas: [
+    { id: "f1", formula: "F = ma", description: "Force equals mass times acceleration" },
+    { id: "f2", formula: "p = mv", description: "Momentum equals mass times velocity" },
+    { id: "f3", formula: "Fg = G(m₁m₂)/r²", description: "Gravitational force" }
+  ],
+  flashcards: [
+    { id: "fc1", front: "Newton's First Law", back: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force." },
+    { id: "fc2", front: "Newton's Second Law", back: "Force is equal to the mass of an object multiplied by its acceleration (F = ma)." },
+    { id: "fc3", front: "Newton's Third Law", back: "For every action, there is an equal and opposite reaction." }
+  ],
+  relatedExams: [
+    { id: "exam1", title: "Physics Mid-term: Classical Mechanics", questions: 45, duration: "90 min" },
+    { id: "exam2", title: "NEET Physics: Forces and Motion", questions: 30, duration: "60 min" }
+  ]
+};
 
-  // Toggle flag for revision
-  const toggleFlag = () => {
+const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({ conceptId }) => {
+  const [concept, setConcept] = useState(mockConcept);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [isFlagged, setIsFlagged] = useState(concept.isFlagged);
+  const [userNotes, setUserNotes] = useState(concept.notes || "");
+  const [isReading, setIsReading] = useState(false);
+  const [showDoubtModal, setShowDoubtModal] = useState(false);
+  const [userDoubt, setUserDoubt] = useState("");
+  const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Load data effect
+  useEffect(() => {
+    // In a real app, we would fetch concept data based on conceptId
+    console.log(`Loading concept data for ID: ${conceptId}`);
+    // For demo, we'll use mock data
+  }, [conceptId]);
+
+  const handleFlagToggle = () => {
     setIsFlagged(!isFlagged);
-    
     toast({
-      title: isFlagged ? "Removed from revision list" : "Added to revision list",
-      description: isFlagged 
-        ? "This concept has been removed from your revision list" 
-        : "This concept will appear in your revision reminders",
-      variant: isFlagged ? "default" : "success"
+      title: !isFlagged ? "Concept flagged for revision" : "Flag removed",
+      description: !isFlagged 
+        ? "This concept will appear in your revision list" 
+        : "This concept has been removed from your revision list",
     });
   };
 
-  // Submit notes
-  const handleSaveNotes = () => {
-    if (notes.trim()) {
+  const handleAddNote = () => {
+    // In a real app, save the note to the backend
+    toast({
+      title: "Note saved",
+      description: "Your notes for this concept have been saved",
+    });
+  };
+
+  const handleShareConcept = () => {
+    // In a real app, generate a shareable link
+    navigator.clipboard.writeText(`https://yourapp.com/concepts/${concept.id}`);
+    toast({
+      title: "Link copied to clipboard",
+      description: "You can now share this concept with others",
+    });
+  };
+
+  const handleDownloadResources = () => {
+    // In a real app, generate a downloadable package
+    toast({
+      title: "Downloading resources",
+      description: "Your study materials are being prepared for download",
+    });
+  };
+
+  const handleTextToSpeech = () => {
+    setIsReading(!isReading);
+    
+    if (!isReading) {
+      const textToRead = `${concept.title}. ${concept.description}. ${concept.notes}`;
+      
+      // Use browser's text-to-speech API
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.onend = () => setIsReading(false);
+      speechSynthesis.speak(utterance);
+      
       toast({
-        title: "Notes saved",
-        description: "Your notes have been saved successfully",
-        variant: "success"
+        title: "Reading content aloud",
+        description: "Text-to-speech activated",
       });
     } else {
+      speechSynthesis.cancel();
+    }
+  };
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestion < concept.practiceQuestions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedAnswer(null);
+    } else {
       toast({
-        title: "Cannot save empty notes",
-        description: "Please write something before saving",
-        variant: "destructive"
+        title: "Practice completed",
+        description: "You've completed all practice questions for this concept",
       });
     }
   };
 
-  // Submit doubt
+  const handlePlayVideo = (videoId: string) => {
+    setIsPlaying(true);
+    toast({
+      title: "Playing video",
+      description: `Starting video: ${concept.videoLessons.find(v => v.id === videoId)?.title}`,
+    });
+  };
+  
   const handleSubmitDoubt = () => {
-    if (doubt.trim()) {
+    if (userDoubt.trim()) {
       toast({
         title: "Doubt submitted",
-        description: "Your question has been sent to our AI tutor. Check back soon for a response.",
-        variant: "success"
+        description: "Your doubt has been sent to the AI tutor. Check the chat for a response.",
       });
-      setDoubt("");
+      setShowDoubtModal(false);
+      setUserDoubt("");
+    }
+  };
+  
+  const handleFlashcardFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+  
+  const handleNextFlashcard = () => {
+    if (currentFlashcardIndex < concept.flashcards.length - 1) {
+      setCurrentFlashcardIndex(currentFlashcardIndex + 1);
+      setIsFlipped(false);
     } else {
+      setCurrentFlashcardIndex(0);
+      setIsFlipped(false);
       toast({
-        title: "Empty question",
-        description: "Please write your doubt before submitting",
-        variant: "destructive"
+        title: "Flashcard deck completed",
+        description: "You've gone through all flashcards for this concept",
       });
     }
   };
-
-  // Handle answering practice questions
-  const handleAnswerSelect = (questionIndex: number, optionIndex: number) => {
-    setSelectedPracticeQuestion(questionIndex);
-    setSelectedAnswer(optionIndex);
+  
+  const handleRelatedConceptClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+  
+  const handleExamClick = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}`);
+    toast({
+      title: "Opening practice exam",
+      description: "Loading your practice exam..."
+    });
+  };
+  
+  const handleNavigateToFlashcards = () => {
+    navigate('/dashboard/student/flashcards');
+    toast({
+      title: "Navigating to flashcards",
+      description: "Explore all your flashcard decks"
+    });
   };
 
-  // Navigate to other related concepts
-  const navigateToRelated = (card: RelatedCard) => {
-    if (card.type === 'concept') {
-      navigate(`/dashboard/student/concepts/${card.id}`);
-    } else if (card.type === 'flashcard') {
-      navigate(`/dashboard/student/flashcards`);
-    } else if (card.type === 'exam') {
-      navigate(`/dashboard/student/practice-exam`);
-    }
+  // Function to read specific content aloud
+  const readContentAloud = (text: string) => {
+    speechSynthesis.cancel(); // Stop any current speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setIsReading(false);
+    speechSynthesis.speak(utterance);
+    setIsReading(true);
+    
+    toast({
+      title: "Reading content aloud",
+      description: "Text-to-speech activated",
+    });
   };
-
-  // Handle difficulty badge color
-  const getDifficultyColor = () => {
-    if (conceptData.difficulty === "easy") {
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    } else if (conceptData.difficulty === "medium") {
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-    } else if (conceptData.difficulty === "hard") {
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    }
-    return "";
-  };
-
-  // Breadcrumb component for navigation path
-  const BreadcrumbItem = ({ children, isCurrentPage = false }) => (
-    <li className={`inline-flex items-center ${isCurrentPage ? "text-blue-600 dark:text-blue-400 font-medium" : "text-gray-500 dark:text-gray-400"}`}>
-      {children}
-    </li>
-  );
 
   return (
-    <div className="container mx-auto p-4 max-w-5xl">
-      {/* Navigation path */}
-      <nav className="flex mb-4 text-sm" aria-label="Breadcrumb">
-        <ol className="inline-flex items-center space-x-1 md:space-x-3">
-          <BreadcrumbItem>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-auto p-0"
-              onClick={() => navigate('/dashboard/student/concepts')}
-            >
-              <BookOpen className="h-3.5 w-3.5 mr-1" />
-              Concepts
-            </Button>
-            <ChevronRight className="h-3.5 w-3.5 mx-1 text-gray-400" />
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-auto p-0"
-              onClick={() => navigate('/dashboard/student/concepts?subject=physics')}
-            >
-              Physics
-            </Button>
-            <ChevronRight className="h-3.5 w-3.5 mx-1 text-gray-400" />
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrentPage>
-            <span>Newton's Laws</span>
-          </BreadcrumbItem>
-        </ol>
-      </nav>
-
-      {/* Concept Header */}
+    <div className="container mx-auto px-4 py-6">
+      {/* Header Section with Progress and Actions */}
       <div className="mb-6">
-        <div className="flex items-start justify-between">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1"
-          >
-            <h1 className="text-3xl font-bold">{conceptData.title}</h1>
-            <div className="flex items-center mt-2 space-x-2">
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                {conceptData.subject}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">{concept.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                Physics
               </Badge>
-              <Badge variant="secondary" className={getDifficultyColor()}>
-                {conceptData.difficulty.charAt(0).toUpperCase() + conceptData.difficulty.slice(1)}
+              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                {concept.difficulty}
               </Badge>
-              <div className="flex items-center">
-                <Star className="h-4 w-4 text-amber-400 mr-1" />
-                <span className="text-sm font-medium">Mastery: {mastery}%</span>
-              </div>
+              <span className="text-sm text-muted-foreground">
+                Last studied {concept.lastStudied}
+              </span>
             </div>
-          </motion.div>
+          </div>
           
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={isFlagged ? "default" : "outline"}
-              className={isFlagged ? "bg-amber-500 hover:bg-amber-600" : ""}
-              size="sm"
-              onClick={toggleFlag}
+          <div className="flex items-center gap-2 mt-4 lg:mt-0">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleTextToSpeech}
+              className={isReading ? "bg-blue-100" : ""}
             >
-              <Flag className={`h-4 w-4 ${isFlagged ? "text-white" : "text-amber-500"} mr-1`} />
-              {isFlagged ? "Flagged" : "Flag for Revision"}
+              <VolumeIcon className="h-4 w-4 mr-1" />
+              {isReading ? "Stop Reading" : "Read Aloud"}
             </Button>
-            <Button
-              variant={isReadingAloud ? "default" : "outline"}
-              size="sm"
-              onClick={toggleReadAloud}
+            
+            <Button 
+              size="sm" 
+              variant={isFlagged ? "destructive" : "outline"} 
+              onClick={handleFlagToggle}
             >
-              {isReadingAloud ? (
-                <>
-                  <VolumeX className="h-4 w-4 mr-1" />
-                  Stop Reading
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-4 w-4 mr-1" />
-                  Read Aloud
-                </>
-              )}
+              <Flag className="h-4 w-4 mr-1" />
+              {isFlagged ? "Unflag" : "Flag for Revision"}
+            </Button>
+            
+            <Button size="sm" variant="outline" onClick={handleShareConcept}>
+              <Share2 className="h-4 w-4 mr-1" />
+              Share
+            </Button>
+            
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setShowDoubtModal(true)}
+            >
+              <HelpCircle className="h-4 w-4 mr-1" />
+              Ask Doubt
             </Button>
           </div>
         </div>
         
-        <p className="text-gray-600 dark:text-gray-300 mt-2">{conceptData.description}</p>
-        <Progress value={mastery} className="h-1 mt-4" />
+        {/* Progress Bar */}
+        <div className="mb-2">
+          <div className="flex justify-between items-center mb-1 text-sm">
+            <span className="font-medium">Mastery Progress</span>
+            <span>{concept.progress}%</span>
+          </div>
+          <Progress value={concept.progress} className="h-2" />
+        </div>
+        
+        <p className="text-muted-foreground mt-4">
+          {concept.description}
+        </p>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-4">
-              <TabsTrigger value="content" className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Content</span>
-              </TabsTrigger>
-              <TabsTrigger value="video" className="flex items-center gap-1">
-                <Video className="h-4 w-4" />
-                <span className="hidden sm:inline">Video</span>
-              </TabsTrigger>
-              <TabsTrigger value="practice" className="flex items-center gap-1">
-                <ListChecks className="h-4 w-4" />
-                <span className="hidden sm:inline">Practice</span>
-              </TabsTrigger>
-              <TabsTrigger value="resources" className="flex items-center gap-1">
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Resources</span>
-              </TabsTrigger>
-              <TabsTrigger value="notes" className="flex items-center gap-1">
-                <PenSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Notes</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="content" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Learning Outcomes</CardTitle>
-                  <CardDescription>After studying this concept, you should be able to:</CardDescription>
-                </CardHeader>
-                <CardContent>
+      
+      {/* Main Content with Tabs */}
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 w-full">
+          <TabsTrigger value="overview">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="videos">
+            <Video className="h-4 w-4 mr-2" />
+            Videos
+          </TabsTrigger>
+          <TabsTrigger value="practice">
+            <Lightbulb className="h-4 w-4 mr-2" />
+            Practice
+          </TabsTrigger>
+          <TabsTrigger value="notes">
+            <MessageSquarePlus className="h-4 w-4 mr-2" />
+            Notes
+          </TabsTrigger>
+          <TabsTrigger value="resources">
+            <FileText className="h-4 w-4 mr-2" />
+            Resources
+          </TabsTrigger>
+          <TabsTrigger value="flashcards">
+            <Brain className="h-4 w-4 mr-2" />
+            Recall
+          </TabsTrigger>
+        </TabsList>
+        
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                {/* Learning Outcomes */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    Learning Outcomes
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => readContentAloud("Learning Outcomes. " + concept.learningOutcomes.join(". "))}
+                      className="ml-2"
+                    >
+                      <VolumeIcon className="h-3 w-3" />
+                    </Button>
+                  </h3>
                   <ul className="space-y-2">
-                    {conceptData.outcomes.map((outcome, index) => (
+                    {concept.learningOutcomes.map((outcome, index) => (
                       <li key={index} className="flex items-start">
-                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                        <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
                         <span>{outcome}</span>
                       </li>
                     ))}
                   </ul>
-                  
-                  <Separator className="my-6" />
-                  
-                  <div className="prose dark:prose-invert max-w-none" ref={contentRef} dangerouslySetInnerHTML={{ __html: conceptData.content }} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="video" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Video Lecture</CardTitle>
-                  <CardDescription>Visual explanation of the concept</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
-                    {/* This would be replaced with an actual video player */}
-                    <div className="text-center">
-                      <PlayCircle className="h-16 w-16 text-blue-500 mx-auto mb-2" />
-                      <p>Video Preview - Newton's Laws of Motion</p>
-                      <Button className="mt-4" onClick={() => setIsPlaying(!isPlaying)}>
-                        {isPlaying ? "Pause" : "Play"} Video
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-2">Key Takeaways</h3>
-                    <ul className="space-y-2">
-                      <li className="flex items-start">
-                        <Lightbulb className="h-5 w-5 text-amber-500 mt-0.5 mr-2 flex-shrink-0" />
-                        <span>Inertia is an object's resistance to changes in motion</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Lightbulb className="h-5 w-5 text-amber-500 mt-0.5 mr-2 flex-shrink-0" />
-                        <span>F = ma can predict how forces affect object movement</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Lightbulb className="h-5 w-5 text-amber-500 mt-0.5 mr-2 flex-shrink-0" />
-                        <span>Action-reaction pairs always act on different objects</span>
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="practice" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Practice Questions</CardTitle>
-                  <CardDescription>Test your understanding</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-8">
-                    {conceptData.practices.map((question, qIndex) => (
-                      <div key={question.id} className="space-y-4">
-                        <div className="flex items-start gap-2">
-                          <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0">
-                            {qIndex + 1}
-                          </span>
-                          <p className="font-medium">{question.question}</p>
-                        </div>
-                        
-                        <div className="ml-8 space-y-2">
-                          {question.options.map((option, oIndex) => (
-                            <div 
-                              key={oIndex} 
-                              className={`flex items-center p-2 rounded-md cursor-pointer border ${
-                                selectedPracticeQuestion === qIndex && selectedAnswer === oIndex
-                                  ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
-                                  : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                              }`}
-                              onClick={() => handleAnswerSelect(qIndex, oIndex)}
-                            >
-                              <div className={`h-5 w-5 rounded-full border flex items-center justify-center mr-3 ${
-                                selectedPracticeQuestion === qIndex && selectedAnswer === oIndex
-                                  ? 'border-blue-500 bg-blue-500'
-                                  : 'border-gray-300'
-                              }`}>
-                                {selectedPracticeQuestion === qIndex && selectedAnswer === oIndex && (
-                                  <div className="h-2.5 w-2.5 rounded-full bg-white" />
-                                )}
-                              </div>
-                              <span>{option}</span>
-                              
-                              {/* Show correct/incorrect after answering */}
-                              {showAnswer && selectedPracticeQuestion === qIndex && selectedAnswer === oIndex && (
-                                question.answer === oIndex 
-                                  ? <CheckCircle className="ml-auto h-5 w-5 text-green-500" />
-                                  : <div className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-red-100 text-red-600">✕</div>
-                              )}
-                              
-                              {/* Show correct answer */}
-                              {showAnswer && question.answer === oIndex && selectedPracticeQuestion === qIndex && selectedAnswer !== oIndex && (
-                                <CheckCircle className="ml-auto h-5 w-5 text-green-500" />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {/* Show explanation when answered */}
-                        {showAnswer && selectedPracticeQuestion === qIndex && (
-                          <div className={`ml-8 p-3 rounded-md ${
-                            selectedAnswer === question.answer
-                              ? 'bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-900/30'
-                              : 'bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-900/30'
-                          }`}>
-                            <p className="text-sm">{question.explanation}</p>
-                          </div>
-                        )}
+                </div>
+                
+                {/* Key Formulas */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    Key Formulas
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => readContentAloud("Key Formulas. " + concept.keyFormulas.map(f => `${f.formula}: ${f.description}`).join(". "))}
+                      className="ml-2"
+                    >
+                      <VolumeIcon className="h-3 w-3" />
+                    </Button>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {concept.keyFormulas.map((formula, index) => (
+                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                        <div className="text-lg font-mono font-semibold">{formula.formula}</div>
+                        <p className="text-sm text-muted-foreground">{formula.description}</p>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                  <Button 
-                    onClick={() => setShowAnswer(true)}
-                    disabled={selectedAnswer === null}
-                  >
-                    Check Answers
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="resources" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Additional Resources</CardTitle>
-                  <CardDescription>Enhance your understanding with these materials</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {conceptData.resources.map((resource) => (
-                      <div key={resource.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <div className="flex items-center">
-                          {resource.type === 'video' && <Video className="h-5 w-5 text-blue-500 mr-3" />}
-                          {resource.type === 'pdf' && <FileText className="h-5 w-5 text-red-500 mr-3" />}
-                          {resource.type === 'link' && <LinkIcon className="h-5 w-5 text-green-500 mr-3" />}
-                          <div>
-                            <p className="font-medium">{resource.title}</p>
-                            <p className="text-xs text-muted-foreground">{resource.type.toUpperCase()}</p>
+                </div>
+                
+                {/* Related Concepts */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Related Concepts</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {concept.relatedConcepts.map((related, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="secondary" 
+                        className="p-2 cursor-pointer hover:bg-secondary/80"
+                        onClick={() => handleRelatedConceptClick(related.id)}
+                      >
+                        {related.title}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Related Exams */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Practice Exams</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {concept.relatedExams.map((exam, index) => (
+                      <div 
+                        key={index} 
+                        className="border p-3 rounded-lg hover:bg-secondary/10 cursor-pointer"
+                        onClick={() => handleExamClick(exam.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <FileText className="h-4 w-4 text-indigo-500 mr-2" />
+                            <h4 className="font-medium text-sm">{exam.title}</h4>
                           </div>
+                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                            {resource.type === 'link' ? 'Visit' : 'View'}
-                          </a>
-                        </Button>
+                        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                          <span>{exam.questions} questions</span>
+                          <span>{exam.duration}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notes" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Notes</CardTitle>
-                  <CardDescription>Keep track of important points</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="notes">Personal Notes</Label>
-                      <Textarea 
-                        id="notes" 
-                        placeholder="Add your notes here..." 
-                        className="min-h-[200px] mt-2"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                      />
-                    </div>
-                    <Button onClick={handleSaveNotes} className="w-full">Save Notes</Button>
+                </div>
+                
+                {/* Quick Access */}
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="flex items-center">
+                    <Button variant="ghost" size="sm" className="text-blue-600 px-0">
+                      <Star className="h-4 w-4 mr-1" fill="currentColor" />
+                      Add to Favorites
+                    </Button>
                   </div>
-                  
-                  <Separator className="my-6" />
                   
                   <div>
-                    <Label htmlFor="doubt" className="flex items-center gap-2">
-                      <FileQuestion className="h-4 w-4" />
-                      Ask a Question to AI Tutor
-                    </Label>
-                    <Textarea 
-                      id="doubt" 
-                      placeholder="Have a doubt? Ask our AI tutor..."
-                      className="min-h-[100px] mt-2"
-                      value={doubt}
-                      onChange={(e) => setDoubt(e.target.value)}
-                    />
-                    <Button onClick={handleSubmitDoubt} className="mt-3">
-                      <Send className="h-4 w-4 mr-2" />
-                      Submit Question
+                    <Button variant="outline" size="sm" onClick={handleDownloadResources}>
+                      <Download className="h-4 w-4 mr-1" />
+                      Download Materials
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Videos Tab */}
+        <TabsContent value="videos" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {concept.videoLessons.map((video) => (
+              <Card key={video.id} className="overflow-hidden">
+                <div className="relative aspect-video bg-gray-100">
+                  <img 
+                    src={video.thumbnail} 
+                    alt={video.title}
+                    className="w-full h-full object-cover" 
+                  />
+                  <Button 
+                    variant="default"
+                    size="icon"
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 h-12 w-12 rounded-full"
+                    onClick={() => handlePlayVideo(video.id)}
+                  >
+                    <PlayCircle className="h-8 w-8" />
+                  </Button>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold">{video.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Duration: {video.duration}</p>
+                  <div className="flex justify-end mt-3">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => readContentAloud(`Video: ${video.title}. Duration: ${video.duration}`)}
+                    >
+                      <VolumeIcon className="h-4 w-4 mr-1" />
+                      Listen Description
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        <div className="space-y-6">
-          {/* Related cards section */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center">
-                <LinkIcon className="h-4 w-4 mr-2 text-blue-500" />
-                Related Content
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {conceptData.relatedCards.map((card) => (
-                  <div 
-                    key={card.id} 
-                    className="p-2 border rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                    onClick={() => navigateToRelated(card)}
-                  >
-                    <div className="flex items-center">
-                      {card.type === 'concept' && <BookOpen className="h-4 w-4 text-blue-500 mr-2" />}
-                      {card.type === 'flashcard' && <Brain className="h-4 w-4 text-violet-500 mr-2" />}
-                      {card.type === 'exam' && <FileText className="h-4 w-4 text-emerald-500 mr-2" />}
-                      <span className="text-sm">{card.title}</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <Badge variant="outline" className="text-xs capitalize">{card.type}</Badge>
-                      <ChevronRight className="h-3 w-3 text-gray-400" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
           
-          {/* Quick recall section */}
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Video Notes</h3>
+            <p>
+              When watching the videos, pay special attention to the demonstrations of Newton's laws in action. 
+              Try to identify real-world examples where you observe these laws in your daily life.
+            </p>
+            <Button 
+              variant="ghost" 
+              className="mt-2"
+              onClick={() => readContentAloud("Video Notes. When watching the videos, pay special attention to the demonstrations of Newton's laws in action. Try to identify real-world examples where you observe these laws in your daily life.")}
+            >
+              <VolumeIcon className="h-4 w-4 mr-1" />
+              Read Notes Aloud
+            </Button>
+          </div>
+        </TabsContent>
+        
+        {/* Practice Tab */}
+        <TabsContent value="practice" className="space-y-6">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center">
-                <Brain className="h-4 w-4 mr-2 text-purple-500" />
-                Quick Recall
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md border border-purple-100 dark:border-purple-900/30">
-                  <p className="text-sm font-medium mb-2">Newton's First Law states:</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 italic">
-                    "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force."
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Practice Questions</h3>
+                  <Badge variant="outline">
+                    {currentQuestion + 1}/{concept.practiceQuestions.length}
+                  </Badge>
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
+                  <p className="font-medium mb-4">
+                    {concept.practiceQuestions[currentQuestion].question}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="ml-2"
+                      onClick={() => readContentAloud(concept.practiceQuestions[currentQuestion].question)}
+                    >
+                      <VolumeIcon className="h-3 w-3" />
+                    </Button>
                   </p>
-                  <Button variant="ghost" size="sm" className="mt-2 w-full text-xs">
-                    <Bookmark className="h-3 w-3 mr-1" />
-                    Add to Flashcards
+                  
+                  <div className="space-y-3 mb-6">
+                    {concept.practiceQuestions[currentQuestion].options.map((option, index) => (
+                      <div 
+                        key={index} 
+                        className={`p-3 border rounded-md cursor-pointer transition-all ${
+                          selectedAnswer === index 
+                            ? selectedAnswer === concept.practiceQuestions[currentQuestion].correctAnswer
+                              ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                              : "border-red-500 bg-red-50 dark:bg-red-900/20"
+                            : "border-gray-200 dark:border-gray-700 hover:border-primary"
+                        }`}
+                        onClick={() => handleAnswerSelect(index)}
+                      >
+                        <div className="flex items-center">
+                          <div className="h-5 w-5 mr-2 rounded-full border flex items-center justify-center">
+                            {String.fromCharCode(65 + index)}
+                          </div>
+                          <span>{option}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button 
+                    onClick={handleNextQuestion} 
+                    disabled={selectedAnswer === null}
+                    className="w-full md:w-auto"
+                  >
+                    {currentQuestion < concept.practiceQuestions.length - 1 
+                      ? "Next Question" 
+                      : "Complete Practice"}
                   </Button>
                 </div>
-                <Button variant="outline" className="w-full">Practice Flashcards</Button>
               </div>
             </CardContent>
           </Card>
-          
-          {/* Feedback section */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">How useful was this?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between">
-                <Button variant="outline" size="sm" className="flex-1 mr-2">
-                  <ThumbsUp className="h-4 w-4 mr-2" />
-                  Helpful
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Feedback
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="flex justify-between mt-8">
-        <Button 
-          variant="outline"
-          onClick={() => navigate('/dashboard/student/concepts/concept-2')}
-          className="flex items-center"
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Previous: Work & Energy
-        </Button>
+        </TabsContent>
         
-        <Button 
-          onClick={() => navigate('/dashboard/student/concepts/concept-3')}
-          className="flex items-center"
-        >
-          Next: Momentum & Impulse
-          <ChevronRight className="h-4 w-4 ml-2" />
-        </Button>
-      </div>
+        {/* Notes Tab */}
+        <TabsContent value="notes" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Your Notes</h3>
+                <textarea 
+                  className="w-full min-h-[200px] p-3 border rounded-md"
+                  value={userNotes}
+                  onChange={(e) => setUserNotes(e.target.value)}
+                  placeholder="Add your notes about this concept here..."
+                />
+                <div className="flex justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={() => readContentAloud(userNotes)}
+                  >
+                    <VolumeIcon className="h-4 w-4 mr-1" />
+                    Read Notes
+                  </Button>
+                  <Button onClick={handleAddNote}>Save Notes</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Resources Tab */}
+        <TabsContent value="resources" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Study Resources</h3>
+                
+                <div className="space-y-4">
+                  {concept.resources.map((resource, index) => (
+                    <div key={index} className="flex items-start border-b pb-4 last:border-0 last:pb-0">
+                      <div className={`h-10 w-10 rounded-md flex items-center justify-center mr-3 ${
+                        resource.type === 'simulation' 
+                          ? 'bg-blue-100 text-blue-600' 
+                          : resource.type === 'pdf'
+                          ? 'bg-red-100 text-red-600'
+                          : 'bg-green-100 text-green-600'
+                      }`}>
+                        {resource.type === 'simulation' && (
+                          <PlayCircle className="h-5 w-5" />
+                        )}
+                        {resource.type === 'pdf' && (
+                          <FileText className="h-5 w-5" />
+                        )}
+                        {resource.type === 'article' && (
+                          <BookOpen className="h-5 w-5" />
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h4 className="font-medium">{resource.title}</h4>
+                        <p className="text-sm text-muted-foreground capitalize">{resource.type}</p>
+                        <a 
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm flex items-center mt-1"
+                        >
+                          Open Resource
+                          <ExternalLink className="h-3 w-3 ml-1" />
+                        </a>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => readContentAloud(`Resource: ${resource.title}. Type: ${resource.type}`)}
+                      >
+                        <VolumeIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="pt-4 border-t flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Download all resources as a package
+                  </span>
+                  <Button variant="outline" size="sm" onClick={handleDownloadResources}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download All
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Flashcards Tab */}
+        <TabsContent value="flashcards" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Quick Recall</h3>
+                  <Badge variant="outline">
+                    {currentFlashcardIndex + 1}/{concept.flashcards.length}
+                  </Badge>
+                </div>
+                
+                {/* Flashcard */}
+                <div 
+                  className="min-h-[200px] border rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer"
+                  onClick={handleFlashcardFlip}
+                  style={{
+                    perspective: "1000px",
+                    transition: "transform 0.6s",
+                    transformStyle: "preserve-3d"
+                  }}
+                >
+                  <div className="text-center">
+                    {!isFlipped ? (
+                      <>
+                        <h4 className="text-xl mb-6">{concept.flashcards[currentFlashcardIndex].front}</h4>
+                        <p className="text-sm text-muted-foreground">Click to reveal answer</p>
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="text-lg font-medium mb-2">Answer:</h4>
+                        <p className="text-base">{concept.flashcards[currentFlashcardIndex].back}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => readContentAloud(
+                      isFlipped 
+                        ? concept.flashcards[currentFlashcardIndex].back 
+                        : concept.flashcards[currentFlashcardIndex].front
+                    )}
+                  >
+                    <VolumeIcon className="h-4 w-4 mr-1" />
+                    Read Aloud
+                  </Button>
+                  
+                  <Button onClick={handleNextFlashcard}>
+                    {currentFlashcardIndex < concept.flashcards.length - 1 ? "Next Flashcard" : "Restart Deck"}
+                  </Button>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={handleNavigateToFlashcards}
+                  >
+                    <Brain className="h-4 w-4 mr-1" />
+                    View All Flashcards
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      
+      {/* Ask Doubt Modal - In a real implementation, this would be a proper dialog component */}
+      {showDoubtModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
+            <h3 className="font-semibold text-lg mb-4">Ask a Doubt to AI Tutor</h3>
+            <textarea
+              className="w-full min-h-[120px] p-3 border rounded-md mb-4"
+              value={userDoubt}
+              onChange={(e) => setUserDoubt(e.target.value)}
+              placeholder="Type your doubt or question here..."
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowDoubtModal(false)}>Cancel</Button>
+              <Button onClick={handleSubmitDoubt}>Submit</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

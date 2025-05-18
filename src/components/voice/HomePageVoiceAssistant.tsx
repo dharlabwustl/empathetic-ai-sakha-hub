@@ -8,7 +8,7 @@ interface HomePageVoiceAssistantProps {
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-IN' // Setting English (India) as default
+  language = 'hi-IN' // Setting Hindi as default
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const location = useLocation();
@@ -17,8 +17,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Only play greeting on specific pages, not on concept pages or dashboard pages
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome-back') ||
-                            location.pathname.includes('/welcome-flow');
+                            location.pathname.includes('/welcome-back');
   
   // If this is the homepage, use a 4-second delay to allow for page load
   // If this is another page, use a shorter delay
@@ -30,7 +29,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       const timer = setTimeout(() => {
         let message = '';
         const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
-        const isNewUserSignup = localStorage.getItem('new_user_signup') === 'true';
         
         // Determine appropriate welcome message based on page and user status
         if (location.pathname === '/') {
@@ -42,28 +40,27 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             }
           } else {
             if (language === 'hi-IN') {
-              message = `प्रेप-ज़र में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। हमारी AI-आधारित अध्ययन योजना और अनुकूलित अवधारणा कार्ड आपको परीक्षा के लिए सबसे प्रभावी ढंग से तैयार करने में मदद करेंगे।`;
+              message = `प्रेप-ज़र में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। क्या आप NEET के लिए हमारा मुफ्त परीक्षा तैयारी परीक्षण आज़माना चाहेंगे?`;
             } else {
-              message = `Welcome to Prep-zer, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Our AI-based study plans and personalized concept cards will help you prepare for your exams in the most effective way possible. Would you like me to tell you more about our personalized study plans?`;
+              message = `Welcome to Prep-zer, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
             }
           }
         } else if (location.pathname.includes('/signup')) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र के साथ आपका यात्रा शुरू हो गई है! हमारे AI-संचालित परीक्षा तैयारी उपकरण आपको अपने लक्ष्यों को प्राप्त करने में मदद करेंगे। आपके अद्वितीय सीखने की शैली के आधार पर, हम आपके लिए एक व्यक्तिगत अध्ययन योजना बनाएंगे जो आपकी प्रगति के साथ अनुकूलित होगी।`;
+            message = `प्रेप-ज़र के नि:शुल्क परीक्षण साइनअप में आपका स्वागत है। 7 दिनों के लिए हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
           } else {
-            message = `Your journey with Prep-zer has begun! Our AI-powered exam preparation tools will help you achieve your goals. Based on your unique learning style, we'll create a personalized study plan that adapts as you progress. Get ready for smart flashcards, interactive concept maps, and real-time progress tracking - the smartest way to prepare for your exams!`;
+            message = `Welcome to Prep-zer's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started.`;
           }
-        } else if (location.pathname.includes('/welcome-flow')) {
-          if (language === 'hi-IN') {
-            message = `प्रेप-ज़र के साथ आपकी तैयारी यात्रा शुरू हो रही है। अपने डैशबोर्ड पर, आप अपनी अध्ययन योजना, अवधारणा कार्ड और परीक्षण का विश्लेषण देख सकते हैं। हमारा AI ट्यूटर 24/7 आपकी मदद के लिए उपलब्ध है, और हमारे अनुकूलित फ्लैशकार्ड आपको महत्वपूर्ण अवधारणाओं को याद रखने में मदद करेंगे। आपकी परीक्षा तैयारी का यह नया तरीका आपको उच्च स्कोर प्राप्त करने में मदद करेगा।`;
-          } else {
-            message = `Your preparation journey with Prep-zer is beginning. On your dashboard, you'll see your study plan, concept cards, and test analytics. Our AI tutor is available 24/7 to assist you, and our adaptive flashcards will help you memorize key concepts. This new way of exam preparation will help you achieve higher scores and better understanding of complex topics.`;
+          
+          // If this is a Google signup, store this information for later use in the onboarding flow
+          if (isGoogleSignup) {
+            localStorage.setItem('needs_study_plan_creation', 'true');
           }
         } else if (location.pathname.includes('/welcome-back')) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र पर वापस स्वागत है। आपका अध्ययन डैशबोर्ड और व्यक्तिगत अध्ययन योजना आपका इंतज़ार कर रहे हैं। आप जहां छोड़ा था, वहीं से शुरू करें और अपनी परीक्षा तैयारी को अगले स्तर पर ले जाएँ।`;
+            message = `प्रेप-ज़र पर वापस स्वागत है। बस अपने ईमेल और पासवर्ड के साथ लॉगिन करें और हम आपके पढ़ाई के यात्रा को जारी रख सकते हैं।`;
           } else {
-            message = `Welcome back to Prep-zer. Your study dashboard and personalized study plan are waiting for you. Pick up where you left off and take your exam preparation to the next level with our AI-powered learning tools and adaptive study materials.`;
+            message = `Welcome back to Prep-zer. Simply log in with your email and password, and we can continue your study journey.`;
           }
         }
         
