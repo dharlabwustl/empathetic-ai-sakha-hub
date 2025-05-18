@@ -37,6 +37,7 @@ const StudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
+    upcomingEvents,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -203,6 +204,7 @@ const StudentDashboard = () => {
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
         onProfileImageUpdate={handleProfileImageUpdate}
+        upcomingEvents={upcomingEvents}
       >
         {getTabContent()}
       </DashboardLayout>

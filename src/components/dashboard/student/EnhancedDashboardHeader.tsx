@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { Bell, Calendar, CheckCircle, AlertCircle, BookOpen, Edit, BookMarked } from "lucide-react";
+import { BookMarked, Edit } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { Progress } from "@/components/ui/progress";
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileType;
@@ -49,7 +50,28 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const greetingText = getGreeting();
   const userName = userProfile?.name || "Student";
   const avatar = userProfile?.avatar || userProfile?.photoURL;
+  
+  // Extract exam goal information
   const examGoal = userProfile?.examPreparation || (userProfile?.goals && userProfile.goals[0]?.title);
+  
+  // Calculate days left until exam (mock data - in real app would come from user profile)
+  const calculateDaysLeft = () => {
+    // If we have a target date in the first goal, use it
+    if (userProfile?.goals?.[0]?.targetDate) {
+      const targetDate = new Date(userProfile.goals[0].targetDate);
+      const today = new Date();
+      const diffTime = targetDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays > 0 ? diffDays : 0;
+    }
+    
+    // Default mock value if no target date is available
+    return 120;
+  };
+  
+  const daysLeft = calculateDaysLeft();
+  const totalDays = 365; // Assuming a year of preparation
+  const progressPercentage = 100 - ((daysLeft / totalDays) * 100);
   
   const handleMoodChange = (mood: MoodType) => {
     if (onMoodChange) {
@@ -104,10 +126,14 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             
             <div className="flex items-center gap-3 mt-1">
               {examGoal && (
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 flex items-center gap-1">
-                  <BookMarked className="h-3 w-3" />
-                  <span>{examGoal}</span>
-                </Badge>
+                <div className="flex flex-col">
+                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 flex items-center gap-1 mb-1">
+                    <BookMarked className="h-3 w-3" />
+                    <span>{examGoal}</span>
+                    <span className="ml-2 text-xs bg-white/20 px-1 rounded">{daysLeft} days left</span>
+                  </Badge>
+                  <Progress value={progressPercentage} className="h-1.5 w-full bg-gray-200" />
+                </div>
               )}
               
               {userProfile.subscription && (
@@ -119,18 +145,18 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               )}
               
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="h-6 py-0 text-xs">
-                  Switch Plan
+                <Button variant="outline" size="sm" className="h-6 py-0 text-xs" asChild>
+                  <Link to="/dashboard/student/academic">Switch Exam</Link>
                 </Button>
-                <Button variant="outline" size="sm" className="h-6 py-0 text-xs">
-                  New Plan
+                <Button variant="outline" size="sm" className="h-6 py-0 text-xs" asChild>
+                  <Link to="/dashboard/student/academic">New Plan</Link>
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action buttons and mood */}
+        {/* Mood button only */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Mood button */}
           {onMoodChange && (
@@ -141,6 +167,9 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                     <MoodLogButton
                       currentMood={currentMood}
                       onMoodChange={handleMoodChange}
+                      size="default"
+                      showLabel={true}
+                      className="bg-white dark:bg-gray-800"
                     />
                   </div>
                 </TooltipTrigger>
@@ -150,48 +179,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               </Tooltip>
             </TooltipProvider>
           )}
-          
-          {/* View study plan button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onViewStudyPlan}
-                  className="gap-1"
-                >
-                  <Calendar className="h-4 w-4" />
-                  <span className="hidden sm:inline">Study Plan</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>View your personalized study plan</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          {/* Notifications button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="relative"
-                  asChild
-                >
-                  <a href="/dashboard/student/notifications">
-                    <Bell className="h-4 w-4" />
-                    <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                  </a>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>View your notifications</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           
           {/* Profile link */}
           <TooltipProvider>
@@ -229,11 +216,11 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           <CardContent className="p-3">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-medium flex items-center gap-1">
-                <BookOpen className="h-4 w-4 text-purple-500" /> Learning Profile
+                <span className="text-purple-500">💡</span> Learning Profile
               </h3>
               <Link to="/dashboard/student/profile">
                 <Button variant="ghost" size="sm" className="h-7 gap-1">
-                  <Edit className="h-3 w-3" /> Edit
+                  <Edit className="h-3 w-3" />
                 </Button>
               </Link>
             </div>
@@ -244,20 +231,25 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                 <span className="font-medium">{userProfile?.personalityType || "Analytical Learner"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Exam Goal:</span>
-                <span className="font-medium">{examGoal || "Not set"}</span>
+                <span className="text-gray-500">Daily Study Hours:</span>
+                <span className="font-medium">{userProfile?.preferences?.dailyStudyHours || userProfile?.studyPreferences?.hoursPerDay || 4} hours</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Preferred Study Time:</span>
                 <span className="font-medium">
-                  {userProfile?.studyPreferences?.preferredTimeStart 
+                  {userProfile?.preferences?.preferredStudyTime || 
+                   (userProfile?.studyPreferences?.preferredTimeStart 
                     ? `${userProfile?.studyPreferences?.preferredTimeStart} - ${userProfile?.studyPreferences?.preferredTimeEnd}` 
-                    : "Evening"}
+                    : "Evening")}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Study Pace:</span>
-                <span className="font-medium">{userProfile?.studyPreferences?.pace || "Moderate"}</span>
+                <span className="font-medium">{userProfile?.preferences?.studyPace || userProfile?.studyPreferences?.pace || "Moderate"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Total Study Hours:</span>
+                <span className="font-medium">124 hours</span>
               </div>
             </div>
           </CardContent>
@@ -273,8 +265,17 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             </div>
             
             <div className="text-center">
-              <div className="text-3xl font-bold text-orange-500">{userProfile?.studyStreak || 12}</div>
+              <div className="text-3xl font-bold text-orange-500">{userProfile?.streak?.current || userProfile?.studyStreak || 12}</div>
               <p className="text-sm text-gray-500">days</p>
+              
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                <p className="mb-1">Benefits of maintaining streak:</p>
+                <ul className="text-left list-disc pl-4 space-y-0.5">
+                  <li>Better knowledge retention</li>
+                  <li>Improved exam readiness</li>
+                  <li>Unlock special rewards</li>
+                </ul>
+              </div>
               
               <div className="mt-2">
                 <Link to="/dashboard/student/today">
@@ -290,25 +291,36 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
       
       {/* Today's upcoming events */}
       {upcomingEvents && upcomingEvents.length > 0 && (
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
           {upcomingEvents.map((event, i) => (
-            <Card key={i} className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className={`p-2 rounded-full ${
-                  event.type === 'exam' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 
-                  event.type === 'revision' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
-                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                }`}>
-                  {event.type === 'exam' ? <AlertCircle className="h-4 w-4" /> : 
-                   event.type === 'revision' ? <BookOpen className="h-4 w-4" /> : 
-                   <CheckCircle className="h-4 w-4" />}
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{event.title}</p>
-                  <p className="text-xs text-gray-500">{event.time}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <Link 
+              key={i} 
+              to={
+                event.type === 'exam' ? '/dashboard/student/practice-exam' : 
+                event.type === 'revision' ? '/dashboard/student/flashcards' :
+                '/dashboard/student/today'
+              }
+            >
+              <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-all">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className={`p-2 rounded-full ${
+                    event.type === 'exam' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 
+                    event.type === 'revision' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                  }`}>
+                    <span className="text-lg">
+                      {event.type === 'exam' ? '📝' : 
+                      event.type === 'revision' ? '🔄' : 
+                      '✅'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{event.title}</p>
+                    <p className="text-xs text-gray-500">{event.time}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

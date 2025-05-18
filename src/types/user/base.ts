@@ -104,8 +104,10 @@ export interface UserProfileBase {
     description?: string;
     targetDate?: Date | string;
     progress?: number;
+    targetYear?: string;
   }[];
   streak?: StudyStreak; // Added study streak field
+  studyStreak?: number; // For backwards compatibility
   examReadiness?: ExamReadiness; // Added exam readiness field
   preferences?: {
     theme?: 'light' | 'dark' | 'system';
@@ -130,6 +132,20 @@ export interface UserProfileBase {
   updatedAt?: Date | string;
   lastLogin?: Date | string;
   loginCount?: number;
+  
+  // Additional fields that were used in various components
+  examPreparation?: string;
+  personalityType?: string;
+  studyPreferences?: {
+    pace?: StudyPace;
+    hoursPerDay?: number;
+    preferredTimeStart?: string;
+    preferredTimeEnd?: string;
+    preferenceType?: StudyPreferenceType;
+  };
+  mood?: MoodType;
+  firstName?: string;
+  subjects?: string[];
 }
 
 export type UserProfileType = UserProfileBase;

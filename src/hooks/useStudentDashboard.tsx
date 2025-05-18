@@ -1,7 +1,7 @@
 
 // Mock implementation of useStudentDashboard hook
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRole, MoodType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { adminService } from '@/services/adminService';
 
@@ -24,6 +24,11 @@ export const useStudentDashboard = () => {
   const [lastActivity, setLastActivity] = useState<{ type: string; description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [upcomingEvents, setUpcomingEvents] = useState<Array<{
+    title: string;
+    time: string;
+    type: "exam" | "task" | "revision";
+  }>>([]);
   
   // Mock initialization
   useEffect(() => {
@@ -36,7 +41,17 @@ export const useStudentDashboard = () => {
         email: "amit@example.com",
         role: UserRole.Student,
         loginCount: 2,
-        avatar: '/lovable-uploads/64adc517-4ce6-49eb-9a63-7f433aa5c825.png'
+        avatar: '/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png',
+        personalityType: "Analytical learner",
+        examPreparation: "JEE Advanced 2025",
+        studyPreferences: {
+          pace: "Moderate",
+          hoursPerDay: 4,
+          preferredTimeStart: "18:00",
+          preferredTimeEnd: "22:00"
+        },
+        studyStreak: 12,
+        mood: MoodType.MOTIVATED
       });
       
       // Get stats from admin service for KPIs
@@ -80,6 +95,13 @@ export const useStudentDashboard = () => {
       
       // Set suggested next action
       setSuggestedNextAction("Complete the Physics quiz on Newton's Laws");
+      
+      // Set upcoming events with proper routing
+      setUpcomingEvents([
+        { title: 'Newton\'s Laws Practice Test', time: 'Today, 4:00 PM', type: 'exam' },
+        { title: 'Thermodynamics Revision', time: 'Tomorrow, 9:00 AM', type: 'revision' },
+        { title: 'Electricity Concept Card', time: 'Today, 2:00 PM', type: 'task' }
+      ]);
       
       // Set loading to false
       setLoading(false);
@@ -147,6 +169,7 @@ export const useStudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
+    upcomingEvents,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,

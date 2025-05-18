@@ -39,6 +39,11 @@ interface DashboardLayoutProps {
   onMoodChange?: (mood: MoodType) => void;
   children?: React.ReactNode;
   onProfileImageUpdate?: (imageUrl: string) => void;
+  upcomingEvents?: Array<{
+    title: string;
+    time: string;
+    type: "exam" | "task" | "revision";
+  }>;
 }
 
 const DashboardLayout = ({
@@ -63,7 +68,8 @@ const DashboardLayout = ({
   currentMood,
   onMoodChange,
   children,
-  onProfileImageUpdate
+  onProfileImageUpdate,
+  upcomingEvents = []
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -122,12 +128,6 @@ const DashboardLayout = ({
   };
   
   const subscriptionDetails = getSubscriptionDetails();
-
-  // Sample upcoming events
-  const upcomingEvents = [
-    { title: 'NEET Practice Test', time: 'Today, 4:00 PM', type: 'exam' as const },
-    { title: 'Biology Revision', time: 'Tomorrow, 9:00 AM', type: 'task' as const }
-  ];
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
