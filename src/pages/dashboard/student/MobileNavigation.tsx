@@ -22,15 +22,15 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   const isMobile = useIsMobile();
   
   const navItems = [
-    { icon: <Home size={16} />, title: "Dashboard", tab: "overview", tooltip: "Go to dashboard" },
-    { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today", tooltip: "View your study plan for today" },
+    { icon: <Home size={16} />, title: "Home", tab: "overview", tooltip: "Go to dashboard" },
+    { icon: <Calendar size={16} />, title: "Today", tab: "today", tooltip: "View your study plan for today" },
     { icon: <GraduationCap size={16} />, title: "Academic", tab: "academic", tooltip: "Get academic guidance" },
-    { icon: <Headphones size={16} />, title: "AI Tutor", tab: "tutor", tooltip: "Chat with your AI tutor" },
+    { icon: <Headphones size={16} />, title: "Tutor", tab: "tutor", tooltip: "Chat with your AI tutor" },
     { icon: <BookOpen size={16} />, title: "Concepts", tab: "concepts", tooltip: "Browse concept cards" },
     { icon: <Brain size={16} />, title: "Flashcards", tab: "flashcards", tooltip: "Practice with flashcards" },
     { icon: <ClipboardList size={16} />, title: "Exams", tab: "practice-exam", tooltip: "Take practice exams" },
     { icon: <FileText size={16} />, title: "Syllabus", tab: "syllabus", tooltip: "View exam syllabus" },
-    { icon: <FileSearch size={16} />, title: "Prev. Years", tab: "previous-year-analysis", tooltip: "Analyze previous year papers" },
+    { icon: <FileSearch size={16} />, title: "Past Papers", tab: "previous-year-analysis", tooltip: "Analyze previous year papers" },
     { icon: <Smile size={16} />, title: "Feel Good", tab: "feel-good-corner", tooltip: "Take a wellness break" }
   ];
 
@@ -45,14 +45,14 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
 
   return (
     <TooltipProvider>
-      <ScrollArea className="md:hidden mb-6 w-full">
-        <div className="flex gap-2 px-1 pb-3 overflow-x-auto">
+      <ScrollArea className="md:hidden mb-4 w-full">
+        <div className="flex gap-1 px-1 pb-2 overflow-x-auto">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
                 <Button
                   variant={activeTab === item.tab ? "default" : "outline"}
-                  className={`flex-shrink-0 shadow-sm ${
+                  className={`flex-shrink-0 shadow-sm px-2 ${
                     activeTab === item.tab 
                       ? "bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600" 
                       : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
@@ -61,11 +61,11 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                   onClick={() => handleTabChange(item.tab)}
                 >
                   {item.icon}
-                  <span className="ml-1 text-xs whitespace-nowrap">{item.title}</span>
+                  <span className="ml-1 text-xs">{item.title}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{item.tooltip}</p>
+                <p className="text-xs">{item.tooltip}</p>
               </TooltipContent>
             </Tooltip>
           ))}

@@ -68,11 +68,12 @@ const RedesignedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-6 ${isMobile ? 'px-1' : ''}`}>
+      <div className={`space-y-4 sm:space-y-6 ${isMobile ? 'px-0' : ''}`}>
         <PlanHeader 
           planData={planData} 
           activeView={activeView}
           setActiveView={setActiveView}
+          isMobile={isMobile}
         />
         
         <NewTodaysPlanView 

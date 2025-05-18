@@ -40,12 +40,12 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   }
 
   return (
-    <div className="flex-1 p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+    <div className="flex-1 p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-6">
       {/* Page Header with responsive layout */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-sm sm:text-base text-muted-foreground">{subtitle}</p>}
+          <h1 className={`${isMobile ? 'text-lg' : 'text-xl sm:text-2xl'} font-bold`}>{title}</h1>
+          {subtitle && <p className={`${isMobile ? 'text-xs' : 'text-sm sm:text-base'} text-muted-foreground`}>{subtitle}</p>}
         </div>
         
         {showBackButton && (
@@ -55,14 +55,16 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
             onClick={() => navigate(backButtonUrl)}
             className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             <span className={isMobile ? "text-xs" : "text-sm"}>Back</span>
           </Button>
         )}
       </div>
       
       {/* Main Content with responsive padding */}
-      {children}
+      <div className={isMobile ? "px-0" : ""}>
+        {children}
+      </div>
     </div>
   );
 };

@@ -8,7 +8,7 @@ export function useMediaQuery(query: string): boolean {
     // Create the media query
     const media = window.matchMedia(query);
     
-    // Set the initial value
+    // Set the initial value immediately
     setMatches(media.matches);
 
     // Define update function

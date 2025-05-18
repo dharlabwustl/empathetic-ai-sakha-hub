@@ -7,12 +7,14 @@ import { motion } from 'framer-motion';
 import ExamNamesBadge from '../home/hero/ExamNamesBadge';
 import { ArrowRight, SparklesIcon, BookOpen, Rocket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const HeroSection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentTagline, setCurrentTagline] = useState(0);
+  const isMobile = useIsMobile();
   
   const taglines = [
     "Ace your exams.",
@@ -95,16 +97,20 @@ const HeroSection = () => {
       <div className="w-full max-w-7xl px-4 relative z-10 mx-auto">
         <div className="flex flex-col items-center text-center">
           <div className="w-full max-w-6xl mx-auto">
-            {/* Hindi text line with enhanced gradient and special PREPZR animation */}
+            {/* Hindi text line with enhanced gradient and special PREPZR animation - now with improved mobile wrapping */}
             <motion.h1 
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight font-hindi"
+              className="text-2xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight font-hindi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <div className="inline-block py-2 text-center overflow-visible whitespace-normal px-4">
-                <span className="hindi-text">
-                  अब तैयारी करो अपने तरीके से, सिर्फ{" "}
+              <div className="inline-block py-2 text-center overflow-visible px-4">
+                <span className={`hindi-text ${isMobile ? 'hindi-text-mobile' : ''}`}>
+                  अब तैयारी करो 
+                  {isMobile ? <br/> : " "}
+                  अपने तरीके से, 
+                  {isMobile ? <br/> : " "}
+                  सिर्फ{" "}
                   <motion.span 
                     className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600"
                     animate={{ 
@@ -126,7 +132,7 @@ const HeroSection = () => {
             
             {/* English text line with different animation timing */}
             <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white mb-4"
+              className="text-2xl md:text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-white mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -225,7 +231,15 @@ const HeroSection = () => {
                   color: 'transparent'
                 }}
               >
-                The world's first emotionally aware, hyper-personalized, adaptive exam prep platform.
+                {isMobile ? (
+                  <>
+                    The world's first emotionally aware,
+                    <br />
+                    adaptive exam prep platform.
+                  </>
+                ) : (
+                  "The world's first emotionally aware, hyper-personalized, adaptive exam prep platform."
+                )}
               </motion.span>
             </motion.p>
           </motion.div>
@@ -238,8 +252,8 @@ const HeroSection = () => {
             transition={{ duration: 0.7, delay: 0.8 }}
           >
             {user ? (
-              <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
-                <Link to="/dashboard/student" className="flex items-center px-6 py-6">
+              <Button asChild size={isMobile ? "default" : "lg"} className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 shadow-lg hover:shadow-xl group">
+                <Link to="/dashboard/student" className="flex items-center px-4 py-2 sm:px-6 sm:py-6">
                   <SparklesIcon size={18} className="mr-2" />
                   <span>Go to Dashboard</span>
                   <motion.div
@@ -255,28 +269,28 @@ const HeroSection = () => {
               <>
                 {/* Using Test Your Exam Readiness button as requested */}
                 <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-6 py-6"
+                  size={isMobile ? "default" : "lg"} 
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-6"
                   onClick={handleExamReadiness}
                 >
-                  <SparklesIcon size={20} />
-                  <span className="font-medium">Test Your Exam Readiness</span>
+                  <SparklesIcon size={isMobile ? 16 : 20} />
+                  <span className="font-medium text-sm sm:text-base">Test Your Exam Readiness</span>
                 </Button>
                 
                 <Button 
                   asChild 
                   variant="outline" 
-                  size="lg" 
-                  className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50 px-6 py-6"
+                  size={isMobile ? "default" : "lg"} 
+                  className="border-violet-200 hover:border-violet-300 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all dark:border-violet-800 dark:hover:border-violet-700 dark:hover:bg-violet-900/50 px-4 py-2 sm:px-6 sm:py-6"
                 >
                   <Link to="/signup" className="flex items-center gap-2">
-                    <BookOpen size={20} />
-                    <span>7-Day Free Trial</span>
+                    <BookOpen size={isMobile ? 16 : 20} />
+                    <span className="text-sm sm:text-base">7-Day Free Trial</span>
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{ repeat: Infinity, duration: 1.5 }}
                     >
-                      <ArrowRight size={18} />
+                      <ArrowRight size={isMobile ? 16 : 18} />
                     </motion.div>
                   </Link>
                 </Button>
@@ -301,9 +315,13 @@ const HeroSection = () => {
         .hindi-text {
           font-family: 'Arial', 'Noto Sans Devanagari', sans-serif;
           letter-spacing: 0.5px;
-          white-space: nowrap;
-          display: inline-block;
           line-height: 1.5;
+        }
+        .hindi-text-mobile {
+          white-space: normal;
+          display: inline-block;
+          word-break: keep-all;
+          line-height: 1.7;
         }
       `}</style>
     </section>

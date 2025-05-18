@@ -4,14 +4,14 @@ import * as React from "react"
 const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     const updateSize = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     
-    // Set initial value
+    // Set initial value immediately
     updateSize()
     
     // Add event listener
@@ -21,5 +21,5 @@ export function useIsMobile() {
     return () => window.removeEventListener('resize', updateSize)
   }, [])
 
-  return isMobile === undefined ? false : isMobile
+  return isMobile
 }

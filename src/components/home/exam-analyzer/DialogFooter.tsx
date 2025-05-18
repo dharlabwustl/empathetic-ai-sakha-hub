@@ -38,19 +38,19 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   };
   
   return (
-    <DialogFooter className={`${isMobile ? 'flex-col space-y-2' : 'sm:justify-between'} border-t dark:border-gray-700 pt-2`}>
+    <DialogFooter className={`${isMobile ? 'flex-col space-y-2 mt-4' : 'sm:justify-between'} border-t dark:border-gray-700 pt-3`}>
       <Button
         variant="outline"
-        size="sm"
+        size={isMobile ? "sm" : "default"}
         onClick={onClose}
-        className={isMobile ? "w-full" : ""}
+        className={isMobile ? "w-full text-sm" : ""}
       >
         {currentTest === 'report' ? 'Close' : 'Cancel'}
       </Button>
       
       {shouldShowNextButton() && (
         <Button 
-          size="sm" 
+          size={isMobile ? "sm" : "default"} 
           disabled={currentTest === 'intro' && !selectedExam}
           onClick={() => {
             if (currentTest === 'intro') {
@@ -59,7 +59,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
               handleNavigation(getNextTest());
             }
           }}
-          className={isMobile ? "w-full" : ""}
+          className={isMobile ? "w-full text-sm" : ""}
         >
           {currentTest === 'intro' ? 'Start Analysis' : 'Continue'}
         </Button>
