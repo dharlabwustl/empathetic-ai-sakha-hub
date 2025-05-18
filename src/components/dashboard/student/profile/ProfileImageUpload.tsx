@@ -9,14 +9,20 @@ interface ProfileImageUploadProps {
   currentImageUrl?: string;
   userName?: string;
   onImageUpload?: (imageUrl: string) => void;
+  currentImage?: string;
+  onUpdate?: (imageUrl: string) => void;
 }
 
 const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   currentImageUrl,
+  currentImage,
   userName = 'User',
-  onImageUpload
+  onImageUpload,
+  onUpdate
 }) => {
-  const [imagePreview, setImagePreview] = useState<string | undefined>(currentImageUrl);
+  // Use currentImage prop if provided, otherwise fall back to currentImageUrl
+  const initialImage = currentImage || currentImageUrl;
+  const [imagePreview, setImagePreview] = useState<string | undefined>(initialImage);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -34,16 +40,20 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   // Load image from localStorage if available
   useEffect(() => {
     const savedImage = localStorage.getItem('user_profile_image');
+    
     if (savedImage && !imagePreview) {
       setImagePreview(savedImage);
       // Call onImageUpload to update parent components
       if (onImageUpload) {
         onImageUpload(savedImage);
       }
-    } else if (currentImageUrl && currentImageUrl !== imagePreview) {
-      setImagePreview(currentImageUrl);
+      if (onUpdate) {
+        onUpdate(savedImage);
+      }
+    } else if ((currentImage || currentImageUrl) && (currentImage || currentImageUrl) !== imagePreview) {
+      setImagePreview(currentImage || currentImageUrl);
     }
-  }, [currentImageUrl, imagePreview, onImageUpload]);
+  }, [currentImageUrl, currentImage, imagePreview, onImageUpload, onUpdate]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -95,6 +105,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         onImageUpload(previewUrl);
       }
       
+      if (onUpdate) {
+        onUpdate(previewUrl);
+      }
+      
       toast({
         title: 'Profile picture updated',
         description: 'Your profile picture has been successfully updated'
@@ -115,6 +129,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     
     if (onImageUpload) {
       onImageUpload('');
+    }
+    
+    if (onUpdate) {
+      onUpdate('');
     }
     
     toast({

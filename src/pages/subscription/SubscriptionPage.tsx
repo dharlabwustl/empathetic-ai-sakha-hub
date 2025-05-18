@@ -5,6 +5,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
 import { SubscriptionPlan } from '@/types/user/base';
+import { HeartIcon } from 'lucide-react';
 
 const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,6 +36,15 @@ const SubscriptionPage: React.FC = () => {
           >
             Back to Dashboard
           </button>
+        </div>
+        
+        {/* Donation Note */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 mb-8 flex items-center">
+          <HeartIcon className="text-pink-500 mr-3 h-6 w-6 flex-shrink-0" />
+          <p className="text-sm">
+            <span className="font-semibold">Making a difference together:</span>{" "}
+            We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
+          </p>
         </div>
         
         <SubscriptionPlans 
@@ -99,6 +109,11 @@ const SubscriptionPage: React.FC = () => {
                 Purchase
               </button>
             </div>
+          </div>
+          
+          {/* Reminder about donation */}
+          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+            <p>5% of all purchases helps fund free access for underprivileged students.</p>
           </div>
         </div>
       </div>

@@ -65,6 +65,9 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       }
     ];
     
+    // Use the new uploaded profile image
+    const defaultProfileImage = '/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png';
+    
     // Get saved profile image from localStorage, if available
     const savedProfileImage = typeof window !== 'undefined' ? localStorage.getItem('user_profile_image') : null;
     
@@ -75,7 +78,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       role: UserRole.Student,
       signupType: SignupType.Email,
       examPreparation: 'JEE Advanced 2025',
-      avatar: savedProfileImage || '/lovable-uploads/ff31535f-8bfc-4b7a-aab8-46c77a8ccfed.png',
+      avatar: savedProfileImage || defaultProfileImage,
       bio: 'Passionate student preparing for engineering entrance exams.',
       phoneNumber: '+91 98765 43210',
       personalityType: 'Analytical learner',
@@ -105,7 +108,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
         completedTasks: 42
       },
       subscription: {
-        type: 'pro_monthly',
+        type: SubscriptionType.PRO_MONTHLY,
         startDate: '2023-11-01',
         endDate: '2024-11-01',
         isActive: true,
@@ -126,7 +129,8 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       studyStreak: 12,
       mood: MoodType.MOTIVATED,
       paymentMethods: mockPaymentMethods,
-      billingHistory: mockBillingHistory
+      billingHistory: mockBillingHistory,
+      loginCount: 5
     };
   }
 };
