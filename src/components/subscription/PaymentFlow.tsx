@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, CreditCard, FileCheck, Users } from 'lucide-react';
+import { ArrowLeft, CreditCard, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SubscriptionPlan } from '@/types/user/base';
 import BatchInvitationInput from './batch/BatchInvitationInput';
@@ -100,6 +100,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
               <BatchInvitationInput 
                 planId={selectedPlan.id}
                 maxMembers={getMaxMembers()}
+                onComplete={handleBatchInvitationComplete}
               />
             </CardContent>
             <CardFooter className="flex justify-between">

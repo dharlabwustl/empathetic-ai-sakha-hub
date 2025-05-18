@@ -1,172 +1,141 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { subscriptionService } from '@/services/api/apiServices';
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Users, Check, Loader2 } from "lucide-react";
-import InvitationCodeDisplay from './InvitationCodeDisplay';
+import { Button } from "@/components/ui/button";
+import { Plus, Trash2, Check } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
 
 interface BatchInvitationInputProps {
   planId: string;
   maxMembers: number;
+  onComplete?: (emails: string[]) => void;
 }
 
-const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ planId, maxMembers }) => {
-  const [emails, setEmails] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [inviteCode, setInviteCode] = useState<string>("");
+const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({
+  planId,
+  maxMembers,
+  onComplete
+}) => {
+  const [emails, setEmails] = useState<string[]>([]);
+  const [currentEmail, setCurrentEmail] = useState('');
   const { toast } = useToast();
 
-  const validateEmails = (emailsString: string): boolean => {
-    const emailList = emailsString.split(",").map(e => e.trim());
+  const handleAddEmail = () => {
+    if (!currentEmail.trim()) return;
     
-    if (emailList.length > maxMembers) {
-      toast({
-        title: "Too many emails",
-        description: `You can invite up to ${maxMembers} members with this plan.`,
-        variant: "destructive"
-      });
-      return false;
-    }
-    
+    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const invalidEmails = emailList.filter(email => !emailRegex.test(email));
-    
-    if (invalidEmails.length > 0) {
+    if (!emailRegex.test(currentEmail)) {
       toast({
-        title: "Invalid email(s)",
-        description: `These emails are invalid: ${invalidEmails.join(", ")}`,
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
         variant: "destructive"
       });
-      return false;
+      return;
     }
     
-    return true;
-  };
-
-  const handleCreateInvitation = async () => {
-    if (!validateEmails(emails)) return;
-    
-    setLoading(true);
-    
-    try {
-      const emailList = emails.split(",").map(e => e.trim());
-      
-      // In a real app, this would create a batch invitation and send emails
-      // For demo, we'll simulate a response
-      
-      // Example API call (replace with actual implementation)
-      const response = await subscriptionService.createBatchInvitation({
-        planId,
-        emails: emailList
-      });
-      
-      if (response.success) {
-        // Generate a mock invite code for demonstration
-        const mockInviteCode = `BATCH-${planId.substring(0, 4)}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        setInviteCode(mockInviteCode);
-        
-        toast({
-          title: "Invitation created!",
-          description: "Invitation code generated successfully."
-        });
-      } else {
-        toast({
-          title: "Failed to create invitation",
-          description: response.error || "Unknown error occurred",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error creating batch invitation:", error);
+    // Check if email already exists in the list
+    if (emails.includes(currentEmail)) {
       toast({
-        title: "Error",
-        description: "Failed to create invitation. Please try again.",
+        title: "Duplicate Email",
+        description: "This email is already in your invitation list",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
+      return;
+    }
+    
+    // Check if we've reached the maximum allowed members
+    if (emails.length >= maxMembers) {
+      toast({
+        title: "Maximum Reached",
+        description: `You can only invite up to ${maxMembers} members with this plan`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setEmails([...emails, currentEmail]);
+    setCurrentEmail('');
+  };
+  
+  const handleRemoveEmail = (index: number) => {
+    const newEmails = [...emails];
+    newEmails.splice(index, 1);
+    setEmails(newEmails);
+  };
+  
+  const handleComplete = () => {
+    if (onComplete && emails.length > 0) {
+      onComplete(emails);
+    }
+  };
+  
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddEmail();
     }
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-medium">Invite Team Members</h3>
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter email address"
+          value={currentEmail}
+          onChange={(e) => setCurrentEmail(e.target.value)}
+          onKeyPress={handleKeyPress}
+          className="flex-1"
+        />
+        <Button 
+          onClick={handleAddEmail}
+          size="sm"
+          variant="outline"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Add
+        </Button>
+      </div>
+      
+      {emails.length > 0 && (
+        <div className="border rounded-md p-4 space-y-2">
+          <h4 className="text-sm font-medium">Invitations ({emails.length}/{maxMembers})</h4>
+          
+          <div className="space-y-2">
+            {emails.map((email, index) => (
+              <div 
+                key={index}
+                className="flex justify-between items-center p-2 bg-muted rounded-md"
+              >
+                <span className="text-sm">{email}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => handleRemoveEmail(index)}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
           </div>
           
-          {!inviteCode ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="emails">Email Addresses (comma-separated)</Label>
-                <Input
-                  id="emails"
-                  placeholder="user1@example.com, user2@example.com"
-                  value={emails}
-                  onChange={(e) => setEmails(e.target.value)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  You can invite up to {maxMembers} members with this plan.
-                </p>
-              </div>
-              
-              <Button 
-                className="w-full" 
-                onClick={handleCreateInvitation}
-                disabled={loading || !emails.trim()}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    Generate Invitation Code
-                  </>
-                )}
-              </Button>
-            </>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-200 dark:border-green-900/40">
-                <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                  <Check className="h-5 w-5" />
-                  <p className="font-medium">Invitation created successfully!</p>
-                </div>
-                <p className="text-sm text-green-600 dark:text-green-500 mt-1">
-                  Share this code with your team members or copy their email addresses above to send invitations.
-                </p>
-              </div>
-              
-              <InvitationCodeDisplay inviteCode={inviteCode} />
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  setInviteCode("");
-                  setEmails("");
-                }}
-              >
-                Create Another Invitation
-              </Button>
-            </div>
+          {emails.length > 0 && (
+            <Button
+              className="mt-4 w-full"
+              onClick={handleComplete}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Continue with {emails.length} Invitation{emails.length !== 1 ? 's' : ''}
+            </Button>
           )}
         </div>
-      </CardContent>
-      <CardFooter className="bg-muted/50 px-6 py-3">
-        <p className="text-xs text-muted-foreground">
-          Team members will need to create an account and enter this invitation code to join your subscription.
-        </p>
-      </CardFooter>
-    </Card>
+      )}
+      
+      <p className="text-xs text-muted-foreground">
+        Note: Group members will receive an email invitation after you complete the checkout process.
+      </p>
+    </div>
   );
 };
 

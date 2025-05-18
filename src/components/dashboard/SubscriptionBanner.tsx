@@ -29,7 +29,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
   };
   
   const handleManageSubscription = () => {
-    // Navigate to the student subscription page
+    // Navigate to the subscription page
     navigate('/dashboard/student/subscription');
   };
 
@@ -121,11 +121,6 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
               )}
             </p>
           )}
-          
-          <div className="flex items-center mt-1 text-xs text-pink-600">
-            <Heart className="w-3.5 h-3.5 mr-1 fill-pink-100" />
-            <span>Your contribution is making a difference!</span>
-          </div>
         </div>
         
         <Button variant="outline" size="sm" onClick={handleManageSubscription}>
