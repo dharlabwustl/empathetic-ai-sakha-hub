@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import WelcomeSlider from '@/components/welcome/WelcomeSlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const PostLoginWelcomeBack = () => {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ const PostLoginWelcomeBack = () => {
   const [userData, setUserData] = useState<any>({});
   const [showSlider, setShowSlider] = useState(true);
   const [showTour, setShowTour] = useState(false);
+  const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -33,13 +36,20 @@ const PostLoginWelcomeBack = () => {
     // For new users (who came from signup), go directly to tour
     // This is because they would have gone through the welcome-flow already
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     
-    if (isNewUser) {
+    if (isNewUser || isGoogleSignup) {
       // For new users, show tour immediately after welcome slider
       if (sawWelcomeSlider) {
         setShowSlider(false);
         setShowTour(true);
+        
+        // Check if study plan creation is needed
+        if (localStorage.getItem('needs_study_plan_creation') === 'true') {
+          // We'll show the dialog after the tour completes
+          localStorage.removeItem('needs_study_plan_creation');
+        }
       }
       
       // Ensure we've set the login flag
@@ -67,74 +77,92 @@ const PostLoginWelcomeBack = () => {
       localStorage.setItem('isLoggedIn', 'true');
       navigate('/dashboard/student');
       toast({
-        title: "Welcome to PREPZR!",
-        description: "You've been automatically redirected to Today's Plan.",
+        title: "Welcome back!",
+        description: "You've been automatically redirected to your dashboard."
       });
     }, 45000);
     
     return () => clearTimeout(timer);
   }, [navigate, toast]);
-
+  
+  // Handle slider completion
   const handleSliderComplete = () => {
-    // Mark that they've seen the welcome slider
     localStorage.setItem('sawWelcomeSlider', 'true');
-    // Ensure login flag is set
-    localStorage.setItem('isLoggedIn', 'true');
     setShowSlider(false);
-    setShowTour(true); // Always show tour after welcome slider for all users
+    setShowTour(true);
   };
   
-  const handleTourSkip = () => {
-    // Mark that they've seen the welcome tour
-    localStorage.setItem('sawWelcomeTour', 'true');
-    // Ensure login flag is set
-    localStorage.setItem('isLoggedIn', 'true');
-    navigate('/dashboard/student');
-    toast({
-      title: "Welcome to your dashboard!",
-      description: "You can always access the tour again from the help menu."
-    });
-  };
-  
+  // Handle tour completion
   const handleTourComplete = () => {
-    // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
-    // Ensure login flag is set
-    localStorage.setItem('isLoggedIn', 'true');
-    navigate('/dashboard/student');
-    toast({
-      title: "Tour Completed!",
-      description: "You're all set to start using PREPZR. Happy studying!"
-    });
+    setShowTour(false);
+    
+    // Check if study plan creation is needed (for Google signup users)
+    if (localStorage.getItem('needs_study_plan_creation') === 'true') {
+      localStorage.removeItem('needs_study_plan_creation');
+      setShowStudyPlanDialog(true);
+    } else {
+      navigateToDashboard();
+    }
   };
-
-  // If showing welcome slider
-  if (showSlider) {
-    return <WelcomeSlider onComplete={handleSliderComplete} userData={userData} />;
-  }
   
-  // If showing welcome tour
-  if (showTour) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-950/30">
-        <WelcomeTour 
-          open={true} 
-          onOpenChange={() => {}} 
-          onSkipTour={handleTourSkip} 
-          onCompleteTour={handleTourComplete}
-          isFirstTimeUser={true}
-          loginCount={1}
-        />
-      </div>
-    );
-  }
+  const navigateToDashboard = () => {
+    navigate('/dashboard/student');
+  };
   
-  // Default loading state
+  const handleCreateStudyPlan = () => {
+    // Navigate to study plan creation
+    navigate('/dashboard/student/create-study-plan');
+  };
+  
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-center">
-        <p className="text-xl">Loading your personalized dashboard...</p>
-      </div>
+    <div className="h-screen w-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Welcome slider for new users */}
+      {showSlider && (
+        <div className="h-full w-full">
+          <WelcomeSlider 
+            userName={userData.name || "Student"} 
+            onComplete={handleSliderComplete}
+          />
+        </div>
+      )}
+      
+      {/* Tour guide after welcome slider */}
+      {showTour && (
+        <div className="h-full w-full">
+          <WelcomeTour 
+            userName={userData.name || "Student"}
+            onComplete={handleTourComplete}
+          />
+        </div>
+      )}
+      
+      {/* Study Plan Creation Dialog for Google signup users */}
+      <Dialog open={showStudyPlanDialog} onOpenChange={setShowStudyPlanDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Your Personalized Study Plan</DialogTitle>
+            <DialogDescription>
+              To get the most out of PREPZR, let's create a personalized study plan based on your learning goals.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p>A personalized study plan will help you:</p>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>Focus on your specific exam requirements</li>
+              <li>Track your progress effectively</li>
+              <li>Get AI-powered recommendations</li>
+              <li>Optimize your study time</li>
+            </ul>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={navigateToDashboard}>Skip for now</Button>
+            <Button onClick={handleCreateStudyPlan}>Create Study Plan</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

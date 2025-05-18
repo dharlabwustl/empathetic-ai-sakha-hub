@@ -11,6 +11,9 @@ const Signup = () => {
     localStorage.setItem('new_user_signup', 'true');
     localStorage.setItem('isLoggedIn', 'true');
     
+    // Flag to indicate we need to show the study plan creation dialog after tour
+    localStorage.setItem('needs_study_plan_creation', 'true');
+    
     // Create a minimal user data object to avoid errors
     const userData = {
       id: `user_${Date.now()}`,
@@ -32,7 +35,7 @@ const Signup = () => {
       <VoiceGreeting 
         isFirstTimeUser={true}
         userName="New User"
-        language="en"
+        language="hi"
       />
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-center">
