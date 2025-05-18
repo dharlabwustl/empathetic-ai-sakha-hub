@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
+import VoiceGreeting from '@/components/dashboard/student/VoiceGreeting';
 import { Loader2 } from 'lucide-react';
 
 const Login = () => {
@@ -25,6 +25,11 @@ const Login = () => {
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
     if (isAdminLoggedIn) {
       console.log("Admin already logged in, redirecting to admin dashboard");
+      
+      // Make sure other login flags are cleared to avoid conflicts
+      localStorage.removeItem('new_user_signup');
+      localStorage.removeItem('google_signup');
+      
       // Use setTimeout to avoid navigation issues
       setTimeout(() => {
         navigate('/admin/dashboard', { replace: true });
@@ -36,14 +41,14 @@ const Login = () => {
       // Set flag for study plan creation dialog after tour
       localStorage.setItem('needs_study_plan_creation', 'true');
       
-      // Clear the signup flags to avoid loops
-      if (newUserSignup) {
-        localStorage.removeItem('new_user_signup');
+      if (isGoogleSignup) {
+        localStorage.removeItem('google_signup');
+        console.log("Google signup detected, redirecting to welcome flow");
       }
       
-      if (isGoogleSignup) {
-        // Ensure we still set this flag for Google signup flow
-        localStorage.setItem('needs_study_plan_creation', 'true');
+      if (newUserSignup) {
+        localStorage.removeItem('new_user_signup');
+        console.log("New user signup detected, redirecting to welcome flow");
       }
       
       // Redirect directly to welcome flow, skipping login
@@ -72,27 +77,29 @@ const Login = () => {
     // Set processing to false after a delay to show loading
     setTimeout(() => {
       setIsProcessing(false);
-    }, 1500);
+    }, 1000);
   }, [navigate, isAuthenticated, location.search]);
 
   return (
-    <div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900 dark:to-slate-900">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
         language="en"
       />
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          {isProcessing ? (
-            <>
-              <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-blue-600" />
-              <p className="text-xl">Preparing your dashboard...</p>
-            </>
-          ) : (
-            <p className="text-xl">Redirecting to login page...</p>
-          )}
-        </div>
+      <div className="text-center p-8 rounded-lg bg-white dark:bg-gray-800 shadow-lg w-full max-w-md flex flex-col items-center">
+        {isProcessing ? (
+          <>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-blue-600 dark:text-blue-400" />
+            <p className="text-xl font-medium">Preparing your dashboard...</p>
+            <p className="text-sm text-muted-foreground mt-2">Please wait while we load your personalized experience</p>
+          </>
+        ) : (
+          <>
+            <p className="text-xl font-medium">Redirecting to login page...</p>
+            <p className="text-sm text-muted-foreground mt-2">You'll be redirected in a moment</p>
+          </>
+        )}
       </div>
     </div>
   );

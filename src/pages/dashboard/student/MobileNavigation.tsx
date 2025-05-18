@@ -46,7 +46,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   return (
     <TooltipProvider>
       <ScrollArea className="md:hidden mb-6 w-full">
-        <div className="flex gap-3 px-1 pb-3 overflow-x-auto">
+        <div className="flex gap-2 px-1 pb-3 overflow-x-auto">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
@@ -61,7 +61,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                   onClick={() => handleTabChange(item.tab)}
                 >
                   {item.icon}
-                  <span className="ml-2 whitespace-nowrap">{item.title}</span>
+                  <span className="ml-1 text-xs whitespace-nowrap">{item.title}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

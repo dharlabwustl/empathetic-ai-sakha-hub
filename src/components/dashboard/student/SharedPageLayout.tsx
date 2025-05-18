@@ -39,30 +39,29 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
     );
   }
 
-  // Content to display within the shared page layout
   return (
-    <div className="flex-1 p-4 sm:p-6 space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+    <div className="flex-1 p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      {/* Page Header with responsive layout */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-sm sm:text-base text-muted-foreground">{subtitle}</p>}
         </div>
         
         {showBackButton && (
           <Button 
             variant="outline" 
-            size="sm" 
+            size={isMobile ? "sm" : "default"} 
             onClick={() => navigate(backButtonUrl)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            <span className={isMobile ? "text-xs" : "text-sm"}>Back</span>
           </Button>
         )}
       </div>
       
-      {/* Main Content */}
+      {/* Main Content with responsive padding */}
       {children}
     </div>
   );

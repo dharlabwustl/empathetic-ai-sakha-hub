@@ -40,7 +40,7 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Fixed navigation to use the consistent URL pattern for concept detail page
+    // Ensure we always use the consistent routing pattern
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
@@ -54,29 +54,29 @@ const ConceptsSection = () => {
           className="cursor-pointer"
         >
           <Card className="h-full hover:shadow-md transition-shadow duration-200 hover:translate-y-[-2px] overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
-            <CardContent className="p-4 h-full flex flex-col">
+            <CardContent className="p-3 sm:p-4 h-full flex flex-col">
               <div className="flex items-start justify-between mb-2">
-                <Badge variant={card.completed ? "outline" : "default"} className="mb-2">
+                <Badge variant={card.completed ? "outline" : "default"} className="mb-2 text-xs">
                   {card.completed ? "Completed" : "Pending"}
                 </Badge>
-                <Badge variant="outline" className={getDifficultyClass(card.difficulty)}>
+                <Badge variant="outline" className={`${getDifficultyClass(card.difficulty)} text-xs`}>
                   {card.difficulty}
                 </Badge>
               </div>
               
-              <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors duration-200">
+              <h3 className="font-semibold text-sm sm:text-lg mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
                 {card.title}
               </h3>
               
-              <div className="mt-auto pt-2 space-y-1 text-sm text-gray-500">
+              <div className="mt-auto pt-2 space-y-1 text-xs sm:text-sm text-gray-500">
                 <div className="flex items-center gap-1">
                   <Book size={14} />
-                  <span>{card.subject}</span>
+                  <span className="truncate">{card.subject}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">
                   <BookOpen size={14} />
-                  <span>{card.chapter}</span>
+                  <span className="truncate">{card.chapter}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">

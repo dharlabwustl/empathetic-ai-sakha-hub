@@ -11,10 +11,12 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
   // Get today's plan data
@@ -66,7 +68,7 @@ const RedesignedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className="space-y-8">
+      <div className={`space-y-6 ${isMobile ? 'px-1' : ''}`}>
         <PlanHeader 
           planData={planData} 
           activeView={activeView}
@@ -76,6 +78,7 @@ const RedesignedTodaysPlan: React.FC = () => {
         <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
+          isMobile={isMobile}
         />
       </div>
     </SharedPageLayout>

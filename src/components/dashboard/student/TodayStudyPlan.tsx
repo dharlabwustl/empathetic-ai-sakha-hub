@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LayoutDashboard, FileCheck, BookOpen, Clock } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Task {
   id: string;
@@ -21,6 +22,7 @@ interface TodayStudyPlanProps {
 
 const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Map task types to routes if not provided
   const getDefaultRoute = (task: Task) => {
@@ -30,7 +32,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
       case 'exam':
         return '/dashboard/student/practice-exam';
       case 'concept':
-        // Ensure concept cards link directly to concept detail page
+        // Always use direct linking to concept detail pages
         return `/dashboard/student/concepts/${task.id}`;
       case 'revision':
         return '/dashboard/student/flashcards';
@@ -67,7 +69,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {tasks.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-sm text-muted-foreground">No tasks for today</p>
@@ -82,7 +84,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
                 onClick={() => handleTaskClick(task)}
                 className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md p-2 transition-colors"
               >
-                <div className={`p-2 mr-4 rounded-full ${
+                <div className={`p-2 mr-2 sm:mr-4 rounded-full ${
                   task.type === 'exam' ? 'bg-blue-100 dark:bg-blue-900/30' : 
                   task.type === 'concept' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-purple-100 dark:bg-purple-900/30'
                 }`}>
@@ -90,12 +92,12 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
-                    <p className="font-medium text-sm truncate">{task.title}</p>
+                    <p className={`font-medium ${isMobile ? 'text-xs' : 'text-sm'} truncate`}>{task.title}</p>
                     <Badge variant={task.completed ? "outline" : "secondary"} className="ml-2 text-xs">
                       {task.time}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground capitalize mt-1">
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground capitalize mt-1`}>
                     {task.type} {task.completed && " • Completed"}
                   </p>
                 </div>
@@ -105,7 +107,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           
           {tasks.length > 0 && (
             <div className="pt-2">
-              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/dashboard/student/today')}>
+              <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm" onClick={() => navigate('/dashboard/student/today')}>
                 View Full Schedule
               </Button>
             </div>

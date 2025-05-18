@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { TestType, TestCompletionState } from './types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DialogFooterButtonsProps {
   currentTest: TestType;
@@ -20,6 +21,8 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   handleStartTest,
   handleNavigation
 }) => {
+  const isMobile = useIsMobile();
+  
   // Helper to check if we should show the next button
   const shouldShowNextButton = () => {
     if (currentTest === 'intro') return true;
@@ -35,32 +38,32 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   };
   
   return (
-    <DialogFooter className="sm:justify-between border-t dark:border-gray-700 pt-2">
+    <DialogFooter className={`${isMobile ? 'flex-col space-y-2' : 'sm:justify-between'} border-t dark:border-gray-700 pt-2`}>
       <Button
         variant="outline"
         size="sm"
         onClick={onClose}
+        className={isMobile ? "w-full" : ""}
       >
         {currentTest === 'report' ? 'Close' : 'Cancel'}
       </Button>
       
-      <div>
-        {shouldShowNextButton() && (
-          <Button 
-            size="sm" 
-            disabled={currentTest === 'intro' && !selectedExam}
-            onClick={() => {
-              if (currentTest === 'intro') {
-                handleStartTest();
-              } else {
-                handleNavigation(getNextTest());
-              }
-            }}
-          >
-            {currentTest === 'intro' ? 'Start Analysis' : 'Continue'}
-          </Button>
-        )}
-      </div>
+      {shouldShowNextButton() && (
+        <Button 
+          size="sm" 
+          disabled={currentTest === 'intro' && !selectedExam}
+          onClick={() => {
+            if (currentTest === 'intro') {
+              handleStartTest();
+            } else {
+              handleNavigation(getNextTest());
+            }
+          }}
+          className={isMobile ? "w-full" : ""}
+        >
+          {currentTest === 'intro' ? 'Start Analysis' : 'Continue'}
+        </Button>
+      )}
     </DialogFooter>
   );
 };
