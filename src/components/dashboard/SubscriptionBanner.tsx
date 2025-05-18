@@ -56,7 +56,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'fre
           <div className="flex items-center text-xs text-blue-700 dark:text-blue-300 gap-1 mt-1">
             <Heart className="h-3 w-3 fill-current" />
             <span>
-              <strong>Making a difference together:</strong> We donate 5% of monthly subscription revenue to fund underprivileged students.
+              <strong>Making a difference together:</strong> We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
             </span>
           </div>
         </div>

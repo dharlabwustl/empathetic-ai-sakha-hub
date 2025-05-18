@@ -8,9 +8,10 @@ interface PlanHeaderProps {
   planData: TodaysPlanData | null;
   activeView: TimelineView;
   setActiveView: (view: TimelineView) => void;
+  isMobile?: boolean;
 }
 
-const PlanHeader: React.FC<PlanHeaderProps> = ({ planData, activeView, setActiveView }) => {
+const PlanHeader: React.FC<PlanHeaderProps> = ({ planData, activeView, setActiveView, isMobile }) => {
   if (!planData) return null;
 
   return (

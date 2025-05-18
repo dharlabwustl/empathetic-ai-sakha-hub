@@ -6,7 +6,6 @@ import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
-import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 
@@ -93,15 +92,6 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         onCompleteTour={onCompleteTour}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-      />
-      
-      {/* Enhanced Floating Voice Assistant */}
-      <FloatingVoiceAssistant 
-        userName={userProfile?.name || "Student"}
-        currentMood={userProfile?.mood || "MOTIVATED"}
-        onMoodCommand={handleMoodCommand}
-        onNavigationCommand={handleNavigationCommand}
-        pronouncePrepzr={true}
       />
       
       {/* Chat assistant */}
