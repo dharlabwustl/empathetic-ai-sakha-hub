@@ -3,6 +3,7 @@ import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { X, Crown, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionBannerProps {
   planType?: string;
@@ -16,6 +17,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
   isExpired = false
 }) => {
   const [isVisible, setIsVisible] = React.useState(true);
+  const navigate = useNavigate();
 
   // Don't show banner for expired subscriptions
   if (isExpired || !isVisible) {
@@ -24,6 +26,10 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
 
   const handleClose = () => {
     setIsVisible(false);
+  };
+  
+  const handleManageSubscription = () => {
+    navigate('/subscription');
   };
 
   // Calculate days remaining if expiry date is provided
@@ -102,8 +108,12 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
               : 'Subscription Active'}
           </h3>
           
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Thank you! 5% of your subscription helps fund education for underprivileged students.
+          </p>
+          
           {expiryDate && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center">
+            <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center mt-1">
               <Calendar className="w-3.5 h-3.5 mr-1" />
               {daysRemaining && (
                 <span>Expires in {daysRemaining} ({formattedExpiryDate})</span>
@@ -112,7 +122,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
           )}
         </div>
         
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={handleManageSubscription}>
           Manage
         </Button>
       </div>

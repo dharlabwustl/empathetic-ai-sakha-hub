@@ -20,6 +20,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const location = useLocation();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [pageContext, setPageContext] = useState('');
   const [sessionStorage] = useState(() => {
     return {
       welcomeMessagePlayed: Boolean(localStorage.getItem('dashboard_welcome_played'))
@@ -42,6 +43,17 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     };
   }, []);
   
+  // Extract current page context
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/dashboard/student/overview')) setPageContext('overview');
+    else if (path.includes('/dashboard/student/concepts')) setPageContext('concepts');
+    else if (path.includes('/dashboard/student/study-plan')) setPageContext('study-plan');
+    else if (path.includes('/dashboard/student/practice')) setPageContext('practice');
+    else if (path.includes('/dashboard/student/analytics')) setPageContext('analytics');
+    else setPageContext('dashboard');
+  }, [location.pathname]);
+  
   useEffect(() => {
     // Only play welcome message once per session, and only on dashboard
     if (
@@ -56,7 +68,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         
         if (isFirstTimeUser) {
           // First-time user welcome
-          message = `Welcome to your personalized dashboard, ${userName}. I'm your AI study assistant. Here you can track your Exam Readiness Score, access your study plan, and practice tests. Your personalized dashboard adapts to your learning style and progress to help you achieve your exam goals efficiently.`;
+          message = `Congratulations ${userName} for joining Prep-zer! You've made an excellent decision in choosing us for your exam preparation journey. Our personalized dashboard adapts to your learning style and progress to help you achieve your goals efficiently. I'm your AI study assistant and will guide you through our powerful features including your Exam Readiness Score, personalized study plan, and adaptive practice tests.`;
         } else {
           // Returning user welcome
           message = `Welcome back to your dashboard, ${userName}. Your study plan has been updated based on your recent activity and progress. Let's continue your exam preparation journey.`;
@@ -93,19 +105,19 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       // Provide context-specific guidance based on which section they're viewing
       switch(dashboardSection) {
         case 'overview':
-          contextMessage = `This is your dashboard overview. Here you can see your Exam Readiness Score, upcoming events, and performance trends.`;
+          contextMessage = `This is your dashboard overview. Here you can see your Exam Readiness Score, upcoming events, and performance trends. The score reflects how prepared you are for your exams based on your engagement and performance.`;
           break;
         case 'study-plan':
-          contextMessage = `This is your personalized study plan. It adjusts based on your learning pace and performance to optimize your exam preparation.`;
+          contextMessage = `This is your personalized study plan. It adjusts based on your learning pace and performance to optimize your exam preparation. You can track your progress for each concept and see what's scheduled next.`;
           break;
         case 'concepts':
-          contextMessage = `Here you can explore all concepts you need to master. Click on any concept card to access detailed explanations, notes, and practice questions.`;
+          contextMessage = `Here you can explore all concepts you need to master. Click on any concept card to access detailed explanations, notes, practice questions, and use features like read-aloud or AI tutoring.`;
           break;
         case 'practice':
-          contextMessage = `Test your knowledge with practice exams. They simulate real exam conditions and provide detailed analytics on your performance.`;
+          contextMessage = `Test your knowledge with practice exams. They simulate real exam conditions and provide detailed analytics on your performance to identify areas that need improvement.`;
           break;
         case 'analytics':
-          contextMessage = `Your analytics show your progress over time. Use these insights to identify areas that need more focus.`;
+          contextMessage = `Your analytics show your progress over time. Use these insights to identify areas that need more focus and adjust your study plan accordingly.`;
           break;
       }
       

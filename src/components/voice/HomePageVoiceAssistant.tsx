@@ -13,6 +13,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const [hasVisitorInteracted, setHasVisitorInteracted] = useState(false);
+  const [speechCount, setSpeechCount] = useState(0);
   const location = useLocation();
   const { user } = useAuth();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -50,7 +51,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Enhanced messages for the home page visitor experience
   const homePageMessages = {
     initial: {
-      en: "Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students.",
+      en: "Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
       hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
     },
     signup: {
@@ -75,9 +76,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const getContextMessage = () => {
     if (location.pathname === '/') {
       // For homepage, base message on whether they've scrolled or clicked
-      if (hasVisitorInteracted) {
+      if (hasVisitorInteracted && speechCount === 0) {
+        setSpeechCount(1);
         return homePageMessages.signup;
-      } else {
+      } else if (speechCount === 0) {
         return homePageMessages.initial;
       }
     } else if (location.pathname.includes('/signup')) {
@@ -88,7 +90,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       return homePageMessages.features;
     }
     
-    return homePageMessages.initial;
+    return null;
   };
   
   useEffect(() => {
@@ -104,6 +106,11 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       const timer = setTimeout(() => {
         const contextMessage = getContextMessage();
+        if (!contextMessage) {
+          setGreetingPlayed(true);
+          return;
+        }
+        
         const message = language.includes('hi') ? contextMessage.hi : contextMessage.en;
         
         // Set flag to remember this visitor has been to the homepage
@@ -131,7 +138,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         setGreetingPlayed(false);
       }
     };
-  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime]);
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime, speechCount]);
 
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {

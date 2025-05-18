@@ -16,14 +16,14 @@ import {
   Bookmark, 
   MessageSquare, 
   File, 
-  Flashcard, 
-  Link, 
+  Link2 as LinkIcon, 
   Flag, 
   FlagOff,
   Brain,
   GraduationCap,
   Zap,
-  ClipboardList
+  ClipboardList,
+  CreditCard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -210,7 +210,7 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
             <span className="hidden sm:inline">Practice</span>
           </TabsTrigger>
           <TabsTrigger value="related" className="flex items-center gap-2">
-            <Link className="h-4 w-4" />
+            <LinkIcon className="h-4 w-4" />
             <span className="hidden sm:inline">Related</span>
           </TabsTrigger>
           <TabsTrigger value="ask" className="flex items-center gap-2">
@@ -278,7 +278,7 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Link className="h-4 w-4" /> Linked Concepts
+                  <LinkIcon className="h-4 w-4" /> Linked Concepts
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -300,7 +300,7 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Flashcard className="h-4 w-4" /> Related Flashcards
+                  <CreditCard className="h-4 w-4" /> Related Flashcards
                 </CardTitle>
               </CardHeader>
               <CardContent>
