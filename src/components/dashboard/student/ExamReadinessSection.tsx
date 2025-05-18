@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Info, BookOpen } from 'lucide-react';
+import { TrendingUp, Info, BookOpen, ArrowRight, LightbulbIcon, BrainIcon, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 interface WeeklyTrendData {
   week: string;
@@ -24,13 +27,14 @@ const ExamReadinessSection = ({
   weakAreas = [],
   strongAreas = []
 }: ExamReadinessSectionProps) => {
+  const [showDetailedSuggestions, setShowDetailedSuggestions] = useState(false);
   const scoreDifference = previousScore ? score - previousScore : 0;
   const scoreColor = score < 40 ? "text-red-500" : score < 70 ? "text-amber-500" : "text-green-500";
   
   // Calculate score trend (upward or downward)
   const scoreDirection = scoreDifference > 0 ? 'up' : scoreDifference < 0 ? 'down' : 'unchanged';
   
-  // Generate improvement tips based on score
+  // Generate improvement tips based on score and areas
   const getImprovementTips = () => {
     if (score < 40) {
       return [
@@ -56,7 +60,41 @@ const ExamReadinessSection = ({
     }
   };
   
+  // Generate personalized recommendations based on weak areas
+  const getPersonalizedRecommendations = () => {
+    const recommendations = [];
+    
+    if (weakAreas.includes('Organic Chemistry')) {
+      recommendations.push("For Organic Chemistry: Focus on reaction mechanisms and practice with molecular models");
+    }
+    
+    if (weakAreas.includes('Thermodynamics')) {
+      recommendations.push("For Thermodynamics: Review the laws and work through numerical problems step by step");
+    }
+    
+    if (weakAreas.includes('Vectors')) {
+      recommendations.push("For Vectors: Strengthen your visualization skills with graphical problems");
+    }
+    
+    if (weeklyTrends.length >= 2) {
+      const lastWeek = weeklyTrends[weeklyTrends.length - 1].score;
+      const secondLastWeek = weeklyTrends[weeklyTrends.length - 2].score;
+      
+      if (lastWeek < secondLastWeek) {
+        recommendations.push("Your performance has slightly declined recently. Consider revisiting recent topics you've studied.");
+      }
+    }
+    
+    // Add study pattern recommendations based on score
+    if (score < 50) {
+      recommendations.push("Based on your current score, we recommend increasing your daily study time by 25%");
+    }
+    
+    return recommendations.length > 0 ? recommendations : ["Continue with your current study pattern while focusing on weak areas"];
+  };
+  
   const improvementTips = getImprovementTips();
+  const personalizedRecommendations = getPersonalizedRecommendations();
   
   return (
     <Card className="shadow-md border-t-4 border-t-blue-500 animate-fade-in">
@@ -148,6 +186,83 @@ const ExamReadinessSection = ({
               </li>
             ))}
           </ul>
+          
+          <Button 
+            variant="link" 
+            size="sm" 
+            className="mt-2 p-0"
+            onClick={() => setShowDetailedSuggestions(!showDetailedSuggestions)}
+          >
+            {showDetailedSuggestions ? "Hide detailed suggestions" : "Show detailed suggestions"}
+            <ArrowRight className={`h-3 w-3 ml-1 transition-transform ${showDetailedSuggestions ? 'rotate-90' : ''}`} />
+          </Button>
+          
+          {showDetailedSuggestions && (
+            <div className="mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-800">
+              <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center">
+                <LightbulbIcon className="h-4 w-4 mr-1" />
+                Personalized Improvement Plan
+              </h4>
+              
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-medium text-blue-700 dark:text-blue-400">Based on your performance data</h5>
+                  <ul className="mt-1 space-y-1">
+                    {personalizedRecommendations.map((rec, i) => (
+                      <li key={`rec-${i}`} className="text-xs flex items-start">
+                        <span className="text-blue-500 mr-1">•</span>
+                        <span>{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h5 className="text-sm font-medium text-blue-700 dark:text-blue-400">Study time allocation</h5>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    {weakAreas.slice(0, 2).map((area, i) => (
+                      <div key={`focus-${i}`}>
+                        <div className="flex justify-between text-xs">
+                          <span>{area}</span>
+                          <span className="font-medium">40%</span>
+                        </div>
+                        <Progress value={40} className="h-1 mt-1" />
+                      </div>
+                    ))}
+                    {strongAreas.slice(0, 2).map((area, i) => (
+                      <div key={`maintain-${i}`}>
+                        <div className="flex justify-between text-xs">
+                          <span>{area}</span>
+                          <span className="font-medium">20%</span>
+                        </div>
+                        <Progress value={20} className="h-1 mt-1" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <BrainIcon className="h-3 w-3 text-purple-500 mr-1" />
+                    <span className="text-xs font-medium">Learning approach:</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300">
+                    Interactive practice
+                  </Badge>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Clock className="h-3 w-3 text-indigo-500 mr-1" />
+                    <span className="text-xs font-medium">Recommended study sessions:</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300">
+                    45 min with 10 min breaks
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

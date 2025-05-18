@@ -24,6 +24,7 @@ const SubscriptionPage: React.FC = () => {
   const currentPlanId = user?.subscription?.planType?.toString() || 'free';
   
   const handleSelectPlan = (plan: SubscriptionPlan, isGroupPlan: boolean) => {
+    console.log('Plan selected:', plan.name, isGroupPlan ? '(Group)' : '(Individual)');
     setSelectedPlan(plan);
     setIsGroup(isGroupPlan);
     setShowPayment(true);
@@ -90,22 +91,6 @@ const SubscriptionPage: React.FC = () => {
               Back to Profile
             </Button>
           </div>
-          
-          {/* Donation message banner */}
-          <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
-                <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  We donate 5% of monthly subscription revenue to fund underprivileged students,
-                  providing them free access to our platform.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
           
           {/* 7 Days Free Trial Banner */}
           <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">

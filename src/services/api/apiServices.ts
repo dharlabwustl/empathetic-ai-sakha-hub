@@ -117,6 +117,7 @@ const subscriptionService = {
   
   // Subscribe to a plan
   subscribe: async (planData: any): Promise<ApiResponse> => {
+    console.log("Subscribing to plan:", planData);
     return await apiClient.post('/subscription/subscribe', planData);
   },
   
@@ -133,6 +134,12 @@ const subscriptionService = {
   // Redeem invitation code
   redeemInvitationCode: async (inviteCode: string): Promise<ApiResponse> => {
     return await apiClient.post('/subscription/batch/redeem', { inviteCode });
+  },
+  
+  // Process payment for subscription
+  processPayment: async (paymentData: any): Promise<ApiResponse> => {
+    console.log("Processing payment:", paymentData);
+    return await apiClient.post('/subscription/process-payment', paymentData);
   }
 };
 
