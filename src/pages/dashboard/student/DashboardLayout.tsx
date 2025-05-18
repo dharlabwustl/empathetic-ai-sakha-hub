@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
@@ -204,7 +203,7 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      <ChatAssistant userType="student" />
+      {/* Chat assistant removed */}
       
       {showStudyPlan && (
         <StudyPlanDialog 

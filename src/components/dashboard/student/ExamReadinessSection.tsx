@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { TrendingUp, Info, BookOpen, ArrowRight, LightbulbIcon, BrainIcon, Clock, Star, Calendar, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -148,7 +148,7 @@ const ExamReadinessSection = ({
                   stroke="#3b82f6"
                   strokeWidth={2}
                   dot={{ r: 4 }}
-                  activeDot={{ r: 6, stroke: '#1d4ed8', strokeWidth: 2 }}
+                  activeDot={{ r: 6, stroke: '#1d4ed8', strokeWidth: 2, fill: '#1d4ed8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
