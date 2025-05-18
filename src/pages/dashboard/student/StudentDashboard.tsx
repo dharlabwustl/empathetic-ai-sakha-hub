@@ -10,7 +10,6 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
-import FloatingVoiceAssistant from "@/components/dashboard/student/voice/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -101,19 +100,19 @@ const StudentDashboard = () => {
     sessionStorage.setItem("hasSeenSplash", "true");
     
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
+      setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
+          parsedData.mood = MoodType.Motivated;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
           console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
         }
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
       }
     }
   };
@@ -127,20 +126,11 @@ const StudentDashboard = () => {
         parsedData.mood = mood;
         localStorage.setItem("userData", JSON.stringify(parsedData));
       } catch (err) {
-        console.error("Error updating user data in localStorage:", err);
+        console.error("Error updating mood in localStorage:", err);
         localStorage.setItem("userData", JSON.stringify({ mood }));
       }
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
-  };
-
-  const handleProfileImageUpdate = (imageUrl: string) => {
-    localStorage.setItem('user_profile_image', imageUrl);
-    
-    // If user profile exists, update its avatar property
-    if (userProfile) {
-      userProfile.avatar = imageUrl;
     }
   };
 
@@ -152,9 +142,8 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
-    const defaultGoal = "NEET";
+    const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
     return (
@@ -166,14 +155,12 @@ const StudentDashboard = () => {
     );
   }
 
-  // Update user profile with the profile image from localStorage
-  const profileImage = localStorage.getItem('user_profile_image');
+  // Ensure the profile has the correct image
   const enhancedUserProfile = {
     ...userProfile,
-    avatar: profileImage || userProfile.avatar || userProfile.photoURL
+    avatar: userProfile.avatar || localStorage.getItem('user_profile_image')
   };
 
-  // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
       return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
@@ -181,16 +168,19 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Force welcome tour to never show
+  const modifiedShowWelcomeTour = false;
+
   return (
     <DashboardLayout
       userProfile={enhancedUserProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav} // Always hide tabs nav to prevent double sidebar
+      hideSidebar={false}
+      hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
       activeTab={activeTab}
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={shouldShowTour} 
+      showWelcomeTour={modifiedShowWelcomeTour}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
@@ -203,16 +193,8 @@ const StudentDashboard = () => {
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
       onMoodChange={handleMoodChange}
-      onProfileImageUpdate={handleProfileImageUpdate}
-      upcomingEvents={[
-        { title: "Physics Quiz", time: "10:00 AM", type: "exam" },
-        { title: "Study Newton's Laws", time: "2:00 PM", type: "task" },
-        { title: "Chemistry Revision", time: "4:30 PM", type: "revision" }
-      ]}
     >
       {getTabContent()}
-      {/* Add floating voice assistant */}
-      <FloatingVoiceAssistant userName={enhancedUserProfile.name} position="bottom-right" />
     </DashboardLayout>
   );
 };

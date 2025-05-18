@@ -21,19 +21,19 @@ const AdminLogin = () => {
   const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
-  // Force navigate to admin dashboard if already authenticated
+  // Check if already authenticated
   useEffect(() => {
-    // Set admin flag
-    localStorage.setItem('admin_login_attempt', 'true');
+    // Check if this is an admin login attempt
+    const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
     
-    // Check if there's an admin token already (from previous login)
-    const adminToken = localStorage.getItem('adminToken');
-    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoginAttempt) {
+      // Clear the flag so we don't loop
+      localStorage.removeItem('admin_login_attempt');
+      console.log("Admin login attempt detected");
+    }
     
-    // If admin is already logged in, navigate directly to dashboard
-    if (isAdminAuthenticated || (adminToken && isAdminLoggedIn)) {
-      console.log("Admin already authenticated, redirecting to dashboard");
-      localStorage.setItem('admin_logged_in', 'true');
+    if (isAdminAuthenticated) {
+      console.log("Already authenticated as admin, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
@@ -59,7 +59,7 @@ const AdminLogin = () => {
       const success = await adminLogin(email, password);
       
       if (success) {
-        console.log("Admin login successful, navigating to dashboard");
+        console.log("Admin login successful, preparing to navigate");
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
@@ -68,33 +68,11 @@ const AdminLogin = () => {
         // Mark admin as logged in
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Force navigation to admin dashboard
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        // Even if login failed with invalid credentials, if email contains admin, allow access
-        // This is for demo purposes to ensure admin login always works
-        if (email.includes('admin')) {
-          console.log("Allowing demo admin access");
-          localStorage.setItem('admin_logged_in', 'true');
-          localStorage.setItem('adminToken', `demo_admin_token_${Date.now()}`);
-          
-          const adminUser = {
-            id: `admin_${Date.now()}`,
-            name: "Demo Admin",
-            email: email,
-            role: "admin",
-            permissions: ['all']
-          };
-          localStorage.setItem("adminUser", JSON.stringify(adminUser));
-          
-          toast({
-            title: "Demo Admin Access Granted",
-            description: "Welcome to the admin dashboard (demo mode)",
-          });
-          
+        // Use setTimeout to ensure state updates have propagated
+        setTimeout(() => {
           navigate('/admin/dashboard', { replace: true });
-          return;
-        }
+        }, 100);
+      } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
     } catch (error) {

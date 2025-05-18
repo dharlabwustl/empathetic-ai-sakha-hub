@@ -12,7 +12,7 @@ interface DashboardStatsProps {
     totalRevenue: number;
     newUsersToday: number;
     dailyActiveUsers: number;
-    weeklyTrends: Array<{ date: string; count: number; }>;
+    weeklyTrends?: { date: string; count: number; }[];
   }
 }
 
