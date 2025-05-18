@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, BookOpen, Brain, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 interface Task {
   id: string;
@@ -63,6 +64,18 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
         return '';
     }
   };
+  
+  const handleStartTask = (task: Task, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const route = getTaskRoute(task);
+    
+    toast({
+      title: `Starting ${task.type}: ${task.title}`,
+      description: `Opening ${task.subject} study material`,
+    });
+    
+    navigate(route);
+  };
 
   return (
     <Card>
@@ -99,10 +112,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
               <Button 
                 className="w-full mt-3" 
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(getTaskRoute(task));
-                }}
+                onClick={(e) => handleStartTask(task, e)}
               >
                 Start Now
               </Button>

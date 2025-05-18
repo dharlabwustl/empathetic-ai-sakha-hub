@@ -19,7 +19,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const [audioMuted, setAudioMuted] = useState(false);
   const location = useLocation();
   
-  // Check if this is a concept detail page or welcome flow page
+  // Check if this is a specific page type
   const isConceptPage = location.pathname.includes('/concepts/') && !location.pathname.includes('/concepts/formula-lab');
   const isWelcomePage = location.pathname.includes('/welcome-flow');
   
@@ -135,9 +135,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             speech.onend = () => {
               setAudioPlaying(false);
               setAudioPlayed(true);
-              if (isFirstTimeUser) {
-                sessionStorage.setItem('voiceGreetingPlayed', 'true');
-              }
+              sessionStorage.setItem('voiceGreetingPlayed', 'true');
             };
             speech.onerror = (e) => {
               console.error("Speech synthesis error", e);
@@ -169,13 +167,45 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       }
     }
     
-    // Cleanup on unmount or location change
+    // Cleanup on unmount
     return () => {
       if (audioPlaying && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location]);
+  
+  const getCurrentPageContext = (pathname: string): string => {
+    // Simplified context detection
+    if (pathname.includes('/welcome-flow')) {
+      return 'welcome';
+    } else if (pathname.includes('/dashboard')) {
+      return 'dashboard';
+    }
+    return 'general';
+  };
+  
+  const getContextBasedGreeting = (context: string, name: string, lang: string): string => {
+    if (lang === 'en') {
+      switch (context) {
+        case 'welcome':
+          return `Welcome to PREPZR, ${name}! Our AI-powered platform is designed to help you excel in your NEET exams through personalized study plans, interactive learning materials, and comprehensive analytics.`;
+        case 'dashboard':
+          return `Welcome to your dashboard, ${name}. Here you can view your study progress, upcoming tasks, and personalized recommendations.`;
+        default:
+          return `Hello ${name}, welcome to PREPZR. How can I assist with your studies today?`;
+      }
+    } else {
+      switch (context) {
+        case 'welcome':
+          return `प्रेप ज़र में आपका स्वागत है, ${name}! हमारा AI-संचालित प्लेटफॉर्म आपको NEET परीक्षाओं में उत्कृष्टता प्राप्त करने में मदद करने के लिए डिज़ाइन किया गया है।`;
+        case 'dashboard':
+          return `अपने डैशबोर्ड पर आपका स्वागत है, ${name}। यहां आप अपनी अध्ययन प्रगति, आगामी कार्य और व्यक्तिगत सिफारिशें देख सकते हैं।`;
+        default:
+          return `नमस्ते ${name}, प्रेप ज़र में आपका स्वागत है। मैं आज आपके अध्ययन में कैसे सहायता कर सकता हूं?`;
+      }
+    }
+  };
   
   const handleToggleMute = () => {
     setAudioMuted(!audioMuted);
@@ -190,56 +220,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       sessionStorage.setItem('voiceGreetingPlayed', 'true');
     }
   };
-
-  // Helper function to get context based greeting
-  const getCurrentPageContext = (pathname: string): string => {
-    if (pathname.includes('/welcome-flow')) return 'welcome';
-    if (pathname.includes('/concepts/')) return 'concept';
-    if (pathname.includes('/study-plan')) return 'study-plan';
-    if (pathname.includes('/practice-exam')) return 'practice-exam';
-    if (pathname.includes('/analytics')) return 'analytics';
-    if (pathname.includes('/dashboard')) return 'dashboard';
-    if (pathname === '/') return 'home';
-    return 'general';
-  };
-
-  // Helper function to get context-based greeting
-  const getContextBasedGreeting = (context: string, user: string, lang: 'en' | 'hi'): string => {
-    if (lang === 'en') {
-      switch(context) {
-        case 'dashboard': 
-          return `Welcome back to your dashboard, ${user}. Here you can see your study progress and today's plan.`;
-        case 'study-plan':
-          return `Here's your study plan, ${user}. I've organized your topics based on your learning needs.`;
-        case 'practice-exam':
-          return `Ready for a practice exam? This will help strengthen your knowledge and identify areas for improvement.`;
-        case 'analytics':
-          return `These analytics show your progress over time. Let's see which areas you're excelling in and where you might need more focus.`;
-        case 'home':
-          return `Welcome to PREPZR, ${user}! How can I assist you with your exam preparation today?`;
-        default:
-          return '';
-      }
-    } else {
-      switch(context) {
-        case 'dashboard': 
-          return `${user}, आपके डैशबोर्ड पर आपका स्वागत है। यहां आप अपनी पढ़ाई की प्रगति और आज की योजना देख सकते हैं।`;
-        case 'study-plan':
-          return `${user}, यह आपकी अध्ययन योजना है। मैंने आपके सीखने की जरूरतों के आधार पर आपके विषयों को व्यवस्थित किया है।`;
-        case 'practice-exam':
-          return `अभ्यास परीक्षा के लिए तैयार हैं? यह आपके ज्ञान को मजबूत करने और सुधार के क्षेत्रों की पहचान करने में मदद करेगा।`;
-        case 'analytics':
-          return `ये विश्लेषण आपकी समय के साथ प्रगति दिखाते हैं। देखते हैं कि आप किन क्षेत्रों में उत्कृष्टता प्राप्त कर रहे हैं और कहां आपको अधिक ध्यान देने की आवश्यकता हो सकती है।`;
-        case 'home':
-          return `प्रेप ज़र में आपका स्वागत है, ${user}! आज मैं आपकी परीक्षा की तैयारी में कैसे सहायता कर सकता हूं?`;
-        default:
-          return '';
-      }
-    }
-  };
   
-  // Don't render anything if already played or not a first-time user and not on concept page/welcome page
-  if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage) || audioPlayed) return null;
+  // Don't render anything if already played or not a first-time user
+  if (!isFirstTimeUser && !isWelcomePage && !isConceptPage || audioPlayed) return null;
   
   return (
     <div 
