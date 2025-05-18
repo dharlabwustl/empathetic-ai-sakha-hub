@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import CheckoutPage from '@/components/subscription/CheckoutPage';
 import { SubscriptionPlan } from '@/types/user/base';
+import { Heart } from 'lucide-react';
 
 const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -95,6 +96,45 @@ const SubscriptionPage: React.FC = () => {
               Back to Profile
             </Button>
           </div>
+          
+          {/* Donation message banner */}
+          <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
+                <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  We donate 5% of monthly subscription revenue to fund underprivileged students,
+                  providing them free access to our platform.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* 7 Days Free Trial Banner */}
+          <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                  <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    Experience all premium features with no commitment. Cancel anytime.
+                  </p>
+                  <div className="flex items-center gap-1 mt-2">
+                    <Heart className="h-4 w-4 text-pink-500 fill-pink-200 dark:fill-pink-900" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="font-medium">Making a difference:</span> 5% of subscriptions fund free access for underprivileged students.
+                    </p>
+                  </div>
+                </div>
+                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                  Start Free Trial
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
           
           <SubscriptionPlans
             currentPlanId={user?.subscription?.planType?.toString() || 'free'}

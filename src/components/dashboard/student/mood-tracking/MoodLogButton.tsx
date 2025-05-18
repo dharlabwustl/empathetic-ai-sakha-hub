@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
-import { MoodSelectionDialog } from './MoodSelectionDialog';
+import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
 interface MoodLogButtonProps {
@@ -113,25 +113,27 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   
   // Generate background color based on mood for enhanced visual appeal
   const getBgColorClass = () => {
-    if (!currentMood) return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300";
+    if (!currentMood) return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800 dark:to-gray-700";
     
     switch (currentMood) {
       case MoodType.HAPPY:
-        return "bg-gradient-to-r from-yellow-100 to-yellow-200 hover:from-yellow-200 hover:to-yellow-300";
+        return "bg-gradient-to-r from-yellow-100 to-yellow-200 hover:from-yellow-200 hover:to-yellow-300 dark:from-yellow-900/30 dark:to-yellow-800/30";
       case MoodType.MOTIVATED:
-        return "bg-gradient-to-r from-green-100 to-green-200 hover:from-green-200 hover:to-green-300";
+        return "bg-gradient-to-r from-green-100 to-green-200 hover:from-green-200 hover:to-green-300 dark:from-green-900/30 dark:to-green-800/30";
       case MoodType.FOCUSED:
-        return "bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300";
+        return "bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 dark:from-blue-900/30 dark:to-blue-800/30";
+      case MoodType.NEUTRAL:
+        return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
       case MoodType.TIRED:
-        return "bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-300";
-      case MoodType.STRESSED:
-        return "bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300";
+        return "bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-300 dark:from-orange-900/30 dark:to-orange-800/30";
       case MoodType.ANXIOUS:
-        return "bg-gradient-to-r from-purple-100 to-purple-200 hover:from-purple-200 hover:to-purple-300";
-      case MoodType.CALM:
-        return "bg-gradient-to-r from-teal-100 to-teal-200 hover:from-teal-200 hover:to-teal-300";
+        return "bg-gradient-to-r from-purple-100 to-purple-200 hover:from-purple-200 hover:to-purple-300 dark:from-purple-900/30 dark:to-purple-800/30";
+      case MoodType.STRESSED:
+        return "bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 dark:from-red-900/30 dark:to-red-800/30";
+      case MoodType.SAD:
+        return "bg-gradient-to-r from-indigo-100 to-indigo-200 hover:from-indigo-200 hover:to-indigo-300 dark:from-indigo-900/30 dark:to-indigo-800/30";
       default:
-        return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300";
+        return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
     }
   };
 

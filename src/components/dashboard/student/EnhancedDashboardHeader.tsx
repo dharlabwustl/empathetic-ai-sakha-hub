@@ -73,6 +73,9 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   const totalDays = 365; // Assuming a year of preparation
   const progressPercentage = 100 - ((daysLeft / totalDays) * 100);
   
+  // Calculate exam readiness score
+  const examReadinessScore = 72; // This would be calculated based on user performance
+  
   const handleMoodChange = (mood: MoodType) => {
     if (onMoodChange) {
       onMoodChange(mood);
@@ -125,14 +128,18 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
             </p>
             
             <div className="flex items-center gap-3 mt-1">
+              {/* Exam Goal Badge with Progress */}
               {examGoal && (
                 <div className="flex flex-col">
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 flex items-center gap-1 mb-1">
+                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 flex items-center gap-1 mb-1 text-base px-3 py-1">
                     <BookMarked className="h-3 w-3" />
                     <span>{examGoal}</span>
                     <span className="ml-2 text-xs bg-white/20 px-1 rounded">{daysLeft} days left</span>
                   </Badge>
-                  <Progress value={progressPercentage} className="h-1.5 w-full bg-gray-200" />
+                  <div className="flex items-center gap-2 w-full">
+                    <Progress value={progressPercentage} className="h-1.5 w-full bg-gray-200" />
+                    <span className="text-xs font-medium">{examReadinessScore}% Ready</span>
+                  </div>
                 </div>
               )}
               
@@ -158,7 +165,7 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
 
         {/* Mood button only */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Mood button */}
+          {/* Mood button with enhanced styling */}
           {onMoodChange && (
             <TooltipProvider>
               <Tooltip>
@@ -169,12 +176,12 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                       onMoodChange={handleMoodChange}
                       size="default"
                       showLabel={true}
-                      className="bg-white dark:bg-gray-800"
+                      className="bg-white dark:bg-gray-800 shadow-md hover:shadow-lg"
                     />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Log how you're feeling today</p>
+                  <p>Log how you're feeling today to personalize your study plan</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -209,87 +216,101 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
         </div>
       </div>
       
-      {/* Learning Profile & Daily Streak Section */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Learning Profile */}
-        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm col-span-2">
+      {/* Learning Profile & Daily Streak Section with improved layout */}
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Learning Profile - Compact and impressive */}
+        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm md:col-span-8">
           <CardContent className="p-3">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-1">
               <h3 className="font-medium flex items-center gap-1">
                 <span className="text-purple-500">💡</span> Learning Profile
               </h3>
               <Link to="/dashboard/student/profile">
-                <Button variant="ghost" size="sm" className="h-7 gap-1">
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                   <Edit className="h-3 w-3" />
                 </Button>
               </Link>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Learning Style:</span>
-                <span className="font-medium">{userProfile?.personalityType || "Analytical Learner"}</span>
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <div className="bg-blue-50/70 dark:bg-blue-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Learning Style</span>
+                <span className="font-medium">{userProfile?.personalityType || "Analytical"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Daily Study Hours:</span>
-                <span className="font-medium">{userProfile?.preferences?.dailyStudyHours || userProfile?.studyPreferences?.hoursPerDay || 4} hours</span>
+              <div className="bg-purple-50/70 dark:bg-purple-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Daily Hours</span>
+                <span className="font-medium">{userProfile?.preferences?.dailyStudyHours || userProfile?.studyPreferences?.hoursPerDay || 4}h</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Preferred Study Time:</span>
-                <span className="font-medium">
-                  {userProfile?.preferences?.preferredStudyTime || 
-                   (userProfile?.studyPreferences?.preferredTimeStart 
-                    ? `${userProfile?.studyPreferences?.preferredTimeStart} - ${userProfile?.studyPreferences?.preferredTimeEnd}` 
-                    : "Evening")}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Study Pace:</span>
-                <span className="font-medium">{userProfile?.preferences?.studyPace || userProfile?.studyPreferences?.pace || "Moderate"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Total Study Hours:</span>
+              <div className="bg-green-50/70 dark:bg-green-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Total Study</span>
                 <span className="font-medium">124 hours</span>
+              </div>
+              <div className="bg-amber-50/70 dark:bg-amber-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Study Time</span>
+                <span className="font-medium">Evening</span>
+              </div>
+              <div className="bg-indigo-50/70 dark:bg-indigo-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Study Pace</span>
+                <span className="font-medium">Moderate</span>
+              </div>
+              <div className="bg-pink-50/70 dark:bg-pink-900/20 rounded-lg p-2">
+                <span className="text-xs text-gray-500 block">Exam Score</span>
+                <span className="font-medium">{examReadinessScore}%</span>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        {/* Daily Streak */}
-        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm">
+        {/* Daily Streak - Enhanced with benefits */}
+        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm md:col-span-4">
           <CardContent className="p-3">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-1">
               <h3 className="font-medium flex items-center gap-1">
                 <span className="text-amber-500">🔥</span> Daily Streak
               </h3>
             </div>
             
-            <div className="text-center">
-              <div className="text-3xl font-bold text-orange-500">{userProfile?.streak?.current || userProfile?.studyStreak || 12}</div>
-              <p className="text-sm text-gray-500">days</p>
-              
-              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                <p className="mb-1">Benefits of maintaining streak:</p>
-                <ul className="text-left list-disc pl-4 space-y-0.5">
-                  <li>Better knowledge retention</li>
-                  <li>Improved exam readiness</li>
-                  <li>Unlock special rewards</li>
-                </ul>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-orange-500">{userProfile?.streak?.current || userProfile?.studyStreak || 12}</div>
+                <p className="text-xs text-gray-500">days</p>
               </div>
               
-              <div className="mt-2">
-                <Link to="/dashboard/student/today">
-                  <Button size="sm" className="bg-gradient-to-r from-orange-400 to-amber-500 border-0 w-full">
-                    Complete Today's Task
-                  </Button>
-                </Link>
+              <div className="text-xs text-gray-600 dark:text-gray-400 flex-1">
+                <p className="mb-1 font-medium">Benefits:</p>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <div className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-green-400"></span>
+                    <span className="text-[10px]">Better retention</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-blue-400"></span>
+                    <span className="text-[10px]">Exam readiness</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-purple-400"></span>
+                    <span className="text-[10px]">Special rewards</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-amber-400"></span>
+                    <span className="text-[10px]">Dopamine boost</span>
+                  </div>
+                </div>
               </div>
+            </div>
+              
+            <div className="mt-2">
+              <Link to="/dashboard/student/today">
+                <Button size="sm" className="bg-gradient-to-r from-orange-400 to-amber-500 border-0 w-full">
+                  Complete Today's Task
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
       </div>
       
-      {/* Today's upcoming events */}
+      {/* Today's upcoming events - Make them clickable and routed */}
       {upcomingEvents && upcomingEvents.length > 0 && (
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
           {upcomingEvents.map((event, i) => (
@@ -324,6 +345,50 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           ))}
         </div>
       )}
+      
+      {/* Daily Tasks Buttons */}
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+        <Link to="/dashboard/student/today" className="no-underline">
+          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-blue-50 border-blue-100 dark:from-gray-800 dark:to-blue-900/20 dark:border-blue-800/30 h-auto py-2">
+            <div className="flex flex-col items-center">
+              <span className="text-xl mb-1">📚</span>
+              <span className="text-xs">Today's Plan</span>
+            </div>
+          </Button>
+        </Link>
+        <Link to="/dashboard/student/concepts" className="no-underline">
+          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-purple-50 border-purple-100 dark:from-gray-800 dark:to-purple-900/20 dark:border-purple-800/30 h-auto py-2">
+            <div className="flex flex-col items-center">
+              <span className="text-xl mb-1">🧠</span>
+              <span className="text-xs">Concepts</span>
+            </div>
+          </Button>
+        </Link>
+        <Link to="/dashboard/student/flashcards" className="no-underline">
+          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-green-50 border-green-100 dark:from-gray-800 dark:to-green-900/20 dark:border-green-800/30 h-auto py-2">
+            <div className="flex flex-col items-center">
+              <span className="text-xl mb-1">🔄</span>
+              <span className="text-xs">Recall Practice</span>
+            </div>
+          </Button>
+        </Link>
+        <Link to="/dashboard/student/practice-exam" className="no-underline">
+          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-amber-50 border-amber-100 dark:from-gray-800 dark:to-amber-900/20 dark:border-amber-800/30 h-auto py-2">
+            <div className="flex flex-col items-center">
+              <span className="text-xl mb-1">📝</span>
+              <span className="text-xs">Practice Exam</span>
+            </div>
+          </Button>
+        </Link>
+        <Link to="/dashboard/student/feel-good-corner" className="no-underline">
+          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-pink-50 border-pink-100 dark:from-gray-800 dark:to-pink-900/20 dark:border-pink-800/30 h-auto py-2">
+            <div className="flex flex-col items-center">
+              <span className="text-xl mb-1">😊</span>
+              <span className="text-xs">Feel Good</span>
+            </div>
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };
