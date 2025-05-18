@@ -60,7 +60,7 @@ const ExamReadinessSection = ({
     }
   };
   
-  // Generate personalized recommendations based on weak areas
+  // Generate personalized recommendations based on weak areas and past performance
   const getPersonalizedRecommendations = () => {
     const recommendations = [];
     
@@ -82,12 +82,18 @@ const ExamReadinessSection = ({
       
       if (lastWeek < secondLastWeek) {
         recommendations.push("Your performance has slightly declined recently. Consider revisiting recent topics you've studied.");
+      } else if (lastWeek > secondLastWeek) {
+        recommendations.push("You're making good progress! Continue with your current study pattern while incorporating more practice tests.");
       }
     }
     
-    // Add study pattern recommendations based on score
+    // Add engagement-based recommendations
     if (score < 50) {
-      recommendations.push("Based on your current score, we recommend increasing your daily study time by 25%");
+      recommendations.push("Based on your current score and engagement patterns, we recommend increasing your daily study time by 25%");
+    } else if (score < 70) {
+      recommendations.push("Your engagement shows good consistency. Try adding 2-3 focused review sessions each week to boost retention.");
+    } else {
+      recommendations.push("Your high engagement is paying off! Maintain your study schedule and add more advanced practice problems.");
     }
     
     return recommendations.length > 0 ? recommendations : ["Continue with your current study pattern while focusing on weak areas"];

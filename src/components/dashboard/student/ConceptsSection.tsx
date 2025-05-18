@@ -42,9 +42,9 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Update to use consistent routing pattern
+    // Navigate to the enhanced concept detail page
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
-    navigate(`/dashboard/student/concepts/${cardId}`);
+    navigate(`/dashboard/student/concept-study/${cardId}`);
   };
   
   return (

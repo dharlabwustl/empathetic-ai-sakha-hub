@@ -1,185 +1,268 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Check, BookOpen, Brain, FileText } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { TodaysPlanData } from "@/hooks/useTodaysPlan";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Clock, BookOpen, ArrowRight, BookMarked, Brain, Flag } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  chapter?: string;
+  estimatedTime: number;
+  difficulty: string;
+  completed: boolean;
+}
+
+interface PracticeQuiz {
+  id: string;
+  title: string;
+  questions: number;
+  estimatedTime: number;
+  completed: boolean;
+  subject: string;
+}
+
+interface StudyPlan {
+  date: string;
+  totalItems: number;
+  completedItems: number;
+  conceptCards: ConceptCard[];
+  practiceQuizzes: PracticeQuiz[];
+  revision?: string[];
+}
 
 interface NewTodaysPlanViewProps {
-  planData?: TodaysPlanData;
+  planData: StudyPlan;
   onConceptClick: (conceptId: string) => void;
   isMobile?: boolean;
 }
 
-const NewTodaysPlanView = ({ planData, onConceptClick, isMobile = false }: NewTodaysPlanViewProps) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData, onConceptClick, isMobile = false }) => {
+  const { completedItems, totalItems, conceptCards, practiceQuizzes, revision = [] } = planData;
   
-  if (!planData || !planData.conceptCards?.length) {
-    return (
-      <Card className="mt-4">
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">No study plan data available.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const handleMarkComplete = (taskType: string, taskId: string) => {
-    toast({
-      title: `${taskType} marked as completed`,
-      description: "Your progress has been updated"
-    });
-  };
+  // Calculate completion percentage
+  const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
   
-  const getTaskIcon = (taskType: string) => {
-    switch(taskType) {
-      case 'concept': return <BookOpen className="h-4 w-4" />;
-      case 'flashcard': return <Brain className="h-4 w-4" />;
-      case 'quiz': return <FileText className="h-4 w-4" />;
-      default: return <BookOpen className="h-4 w-4" />;
+  // Break down plan data by type
+  const pendingConcepts = conceptCards.filter(card => !card.completed);
+  const completedConcepts = conceptCards.filter(card => card.completed);
+  const pendingQuizzes = practiceQuizzes.filter(quiz => !quiz.completed);
+  const completedQuizzes = practiceQuizzes.filter(quiz => quiz.completed);
+  
+  // Helper function for difficulty color
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'easy': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+      case 'medium': return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'hard': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+      default: return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
     }
   };
-
-  // Handle concept click to navigate to concept detail page
-  const handleConceptCardClick = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}`);
-  };
-
+  
   return (
-    <div className="space-y-5">
-      {/* Tasks section */}
-      <div className="space-y-3">
-        {planData.conceptCards.slice(0, 3).map((card, idx) => (
-          <Card key={idx} className="overflow-hidden hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="mr-3 bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                    {getTaskIcon('concept')}
-                  </div>
-                  <div>
-                    <h4 
-                      className="font-medium text-base cursor-pointer hover:text-blue-600 transition-colors" 
-                      onClick={() => handleConceptCardClick(card.id || 'concept-1')}
-                    >
-                      {card.title}
-                    </h4>
-                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>{card.studyTime || '20 min'}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <Badge variant="outline" className="mb-2 block text-center">
-                    {card.subject}
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleMarkComplete('Concept', card.id || '')}
-                  >
-                    <Check className="h-3 w-3 mr-1" />
-                    Done
-                  </Button>
-                </div>
+    <div className="space-y-6">
+      {/* Overall progress */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Today's Progress</h3>
+              <div className="flex items-center gap-2">
+                <Progress value={completionPercentage} className="h-2 w-[200px]" />
+                <span className="text-sm font-medium">{completionPercentage}%</span>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <p className="text-sm text-muted-foreground">
+                {completedItems} of {totalItems} items completed
+              </p>
+            </div>
+            
+            <Button variant="outline" className="gap-2">
+              <Flag className="h-4 w-4" />
+              <span>Mark All Complete</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Pending Concepts Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-blue-500" />
+            <span>Concepts to Learn ({pendingConcepts.length})</span>
+          </h3>
+        </div>
         
-        {planData.flashcardSets?.slice(0, 2).map((set, idx) => (
-          <Card key={`fc-${idx}`} className="overflow-hidden hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="mr-3 bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-                    {getTaskIcon('flashcard')}
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-base">
-                      {set.title} Flashcards
-                    </h4>
-                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>{set.studyTime || '15 min'}</span>
+        {pendingConcepts.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-4">
+            {pendingConcepts.map(concept => (
+              <Card
+                key={concept.id}
+                className="overflow-hidden cursor-pointer hover:border-blue-300 transition-colors"
+                onClick={() => onConceptClick(concept.id)}
+              >
+                <div className="border-l-4 border-blue-500 h-full">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge className={getDifficultyColor(concept.difficulty)}>
+                        {concept.difficulty}
+                      </Badge>
+                      <div className="flex items-center text-muted-foreground text-sm">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{concept.estimatedTime} min</span>
+                      </div>
                     </div>
-                  </div>
+                    
+                    <h4 className="font-medium mb-1">{concept.title}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {concept.description || `Learn about ${concept.title}`}
+                    </p>
+                    
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-xs text-muted-foreground">
+                        {concept.subject} {concept.chapter ? `• ${concept.chapter}` : ''}
+                      </span>
+                      <Button variant="ghost" size="sm" className="h-8 p-0 flex items-center gap-1">
+                        <span className="text-xs">Start</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
                 </div>
-                
-                <div>
-                  <Badge variant="outline" className="mb-2 block text-center">
-                    {set.subject || 'Physics'}
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleMarkComplete('Flashcards', set.id || '')}
-                  >
-                    <Check className="h-3 w-3 mr-1" />
-                    Done
-                  </Button>
-                </div>
-              </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="bg-gray-50 dark:bg-gray-900/20">
+            <CardContent className="p-4 text-center">
+              <p className="text-muted-foreground">No pending concepts for today</p>
             </CardContent>
           </Card>
-        ))}
-        
-        {planData.quizzes?.slice(0, 1).map((quiz, idx) => (
-          <Card key={`quiz-${idx}`} className="overflow-hidden hover:shadow-md transition-shadow border-l-4 border-l-green-500">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="mr-3 bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
-                    {getTaskIcon('quiz')}
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-base">
-                      {quiz.title}
-                    </h4>
-                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>{quiz.studyTime || '20 min'}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <Badge variant="outline" className="mb-2 block text-center">
-                    {quiz.subject || 'Chemistry'}
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleMarkComplete('Quiz', quiz.id || '')}
-                  >
-                    <Check className="h-3 w-3 mr-1" />
-                    Done
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        )}
       </div>
       
-      <div className="flex justify-between mt-4">
-        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/today')}>
-          View Full Plan
-        </Button>
+      {/* Practice Quizzes Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Brain className="h-5 w-5 text-purple-500" />
+            <span>Practice Quizzes ({pendingQuizzes.length})</span>
+          </h3>
+        </div>
         
-        <Button variant="default" size="sm" onClick={() => navigate('/dashboard/student/concepts')}>
-          Explore Concepts
-        </Button>
+        {pendingQuizzes.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-4">
+            {pendingQuizzes.map(quiz => (
+              <Card key={quiz.id} className="overflow-hidden cursor-pointer hover:border-purple-300 transition-colors">
+                <div className="border-l-4 border-purple-500 h-full">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+                        {quiz.questions} Questions
+                      </Badge>
+                      <div className="flex items-center text-muted-foreground text-sm">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{quiz.estimatedTime} min</span>
+                      </div>
+                    </div>
+                    
+                    <h4 className="font-medium mb-1">{quiz.title}</h4>
+                    
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-xs text-muted-foreground">
+                        {quiz.subject}
+                      </span>
+                      <Button variant="ghost" size="sm" className="h-8 p-0 flex items-center gap-1">
+                        <span className="text-xs">Start Quiz</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="bg-gray-50 dark:bg-gray-900/20">
+            <CardContent className="p-4 text-center">
+              <p className="text-muted-foreground">No practice quizzes scheduled for today</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
+      
+      {/* Revision Section */}
+      {revision.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <BookMarked className="h-5 w-5 text-amber-500" />
+              <span>Review & Revision ({revision.length})</span>
+            </h3>
+          </div>
+          
+          <Card>
+            <CardContent className="p-4">
+              <ul className="divide-y">
+                {revision.map((item, index) => (
+                  <li key={index} className="py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <BookMarked className="h-4 w-4 text-amber-500" />
+                      <span>{item}</span>
+                    </div>
+                    <Button size="sm" variant="ghost">Review</Button>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
+      {/* Completed Items */}
+      {(completedConcepts.length > 0 || completedQuizzes.length > 0) && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span>Completed Today ({completedConcepts.length + completedQuizzes.length})</span>
+            </h3>
+          </div>
+          
+          <Card>
+            <CardContent className="p-4">
+              <ul className="divide-y">
+                {completedConcepts.map(concept => (
+                  <li key={concept.id} className="py-3 flex justify-between items-center opacity-60">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-blue-500" />
+                      <span>{concept.title}</span>
+                    </div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                      Completed
+                    </Badge>
+                  </li>
+                ))}
+                {completedQuizzes.map(quiz => (
+                  <li key={quiz.id} className="py-3 flex justify-between items-center opacity-60">
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-purple-500" />
+                      <span>{quiz.title}</span>
+                    </div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                      Completed
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

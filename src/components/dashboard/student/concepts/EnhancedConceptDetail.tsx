@@ -4,17 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
   BookOpen, 
   Play, 
   Pause, 
-  VolumeX, 
-  Volume2, 
-  Bookmark, 
-  MessageSquare, 
   File, 
   Link2 as LinkIcon, 
   Flag, 
@@ -23,7 +18,8 @@ import {
   GraduationCap,
   Zap,
   ClipboardList,
-  CreditCard
+  CreditCard,
+  MessageSquare
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 

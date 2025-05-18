@@ -1,253 +1,287 @@
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { CheckCircle, X } from 'lucide-react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SubscriptionPlan } from '@/types/user/base';
-import { individualPlans, groupPlans } from '@/components/pricing/pricingData';
+import { Badge } from '@/components/ui/badge';
+import { Check, Info, Users } from 'lucide-react';
 
-interface SubscriptionPlansProps {
-  currentPlanId: string;
-  onSelectPlan: (plan: SubscriptionPlan, isGroup: boolean) => void;
+interface PlanFeature {
+  text: string;
+  highlighted?: boolean;
 }
 
-const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ 
-  currentPlanId,
-  onSelectPlan
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
+  type: string;
+  highlighted?: boolean;
+  popular?: boolean;
+  buttonText?: string;
+}
+
+interface SubscriptionPlansProps {
+  currentPlanId?: string;
+  onSelectPlan: (plan: any, isGroup: boolean) => void;
+}
+
+const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
+  currentPlanId = 'free',
+  onSelectPlan,
 }) => {
-  // Convert pricing data format to subscription plan format
-  const plans: SubscriptionPlan[] = [
+  const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'annual'>('monthly');
+  
+  // Plans configuration
+  const plans: Plan[] = [
     {
       id: 'free',
-      type: 'free',
-      name: 'Free Trial',
+      name: 'Free Plan',
       price: 0,
-      currency: 'INR',
-      interval: 'month',
-      description: 'Experience Sakha AI for 7 days',
+      description: 'Basic access with limited features',
       features: [
-        '5 Concept Cards (Auto-generated)',
-        '5 Flashcards',
-        '5 Practice Exams with analytics',
-        '1 Academic Advisor plan',
-        'Basic Smart Study Plan',
-        '10 AI Tutor requests',
-        'Feel Good Corner'
+        'Access to basic study materials',
+        'Limited practice questions',
+        'Community forum access',
+        'One mock test per month'
       ],
-      notIncluded: [
-        'Custom Card Creation',
-        'Surrounding Influence',
-        'Mood-Based Study Plan'
-      ]
+      type: 'free'
     },
     {
-      id: 'premium-monthly',
+      id: selectedPeriod === 'monthly' ? 'basic-monthly' : 'basic-annual',
+      name: 'Basic',
+      price: selectedPeriod === 'monthly' ? 299 : 2990,
+      description: 'Essential features for serious students',
+      features: [
+        'Everything in Free',
+        'Unlimited practice questions',
+        'Personalized study plan',
+        'Weekly performance reports',
+        '10 mock tests per month'
+      ],
+      highlighted: true,
+      type: 'basic',
+      popular: true,
+      buttonText: 'Upgrade Now'
+    },
+    {
+      id: selectedPeriod === 'monthly' ? 'premium-monthly' : 'premium-annual',
+      name: 'Premium',
+      price: selectedPeriod === 'monthly' ? 499 : 4990,
+      description: 'Advanced features for top performance',
+      features: [
+        'Everything in Basic',
+        'AI-powered study assistant',
+        'All premium study materials',
+        'Video explanations',
+        'Detailed performance analytics',
+        'Unlimited mock tests'
+      ],
       type: 'premium',
-      name: 'Pro Plan (Monthly)',
-      price: 999,
-      currency: 'INR',
-      interval: 'month',
-      description: 'Complete AI-powered learning companion',
-      features: [
-        'Unlimited Concept Cards (via Study Plan)',
-        'Unlimited Flashcards',
-        'Unlimited Practice Exams',
-        'Custom Cards (via credits)',
-        '2 Academic Advisor plans/month',
-        'Full + Mood-Based Study Plan',
-        'Unlimited AI Tutor (Fair Use)',
-        'Surrounding Influence',
-        'Feel Good Corner'
-      ],
-      notIncluded: [
-        'Study Groups'
-      ]
-    },
-    {
-      id: 'pro-annual',
-      type: 'pro',
-      name: 'Pro Plan (Annual)',
-      price: 9999,
-      currency: 'INR',
-      interval: 'year',
-      description: 'All Pro features with annual savings',
-      features: [
-        'All Pro Plan Monthly features',
-        '₹2,000 savings vs. monthly plan',
-        'Priority support',
-        'Early access to new features',
-        'Unlimited Concept Cards',
-        'Unlimited Flashcards',
-        'Unlimited Practice Exams',
-        'Custom Cards (via credits)',
-        'Full + Mood-Based Study Plan',
-        'Unlimited AI Tutor (Fair Use)'
-      ],
-      notIncluded: []
+      buttonText: 'Go Premium'
     }
   ];
-
-  const groupPlans: SubscriptionPlan[] = [
+  
+  // Group plans configuration
+  const groupPlans: Plan[] = [
     {
-      id: 'group-monthly',
-      type: 'group',
-      name: 'Group Plan (5 Users)',
-      price: 3999,
-      currency: 'INR',
-      interval: 'month',
-      description: 'For study groups & small batches',
+      id: selectedPeriod === 'monthly' ? 'team-monthly' : 'team-annual',
+      name: 'Team',
+      price: selectedPeriod === 'monthly' ? 999 : 9990,
+      description: 'Perfect for small study groups',
       features: [
-        '5 Users included (₹799/user extra)',
-        'Unlimited Concept Cards (via Study Plan)',
-        'Unlimited Flashcards',
-        'Unlimited Practice Exams',
-        'Custom Cards (shared credit pool)',
-        '4 Academic Advisor plans/month shared',
-        'Study Groups',
-        'Admin Dashboard',
-        'Batch Manager'
+        'Access for up to 5 members',
+        'Everything in Premium plan',
+        'Team progress dashboard',
+        'Collaborative study tools',
+        'Group mock tests'
       ],
-      notIncluded: []
+      type: 'team'
     },
     {
-      id: 'group-annual',
-      type: 'group_annual',
-      name: 'Group Plan (Annual)',
-      price: 39999,
-      currency: 'INR',
-      interval: 'year',
-      description: 'Best value for study groups',
+      id: selectedPeriod === 'monthly' ? 'institute-monthly' : 'institute-annual',
+      name: 'Institute',
+      price: selectedPeriod === 'monthly' ? 4999 : 49990,
+      description: 'Complete solution for coaching institutes',
       features: [
-        'All Group Plan Monthly features',
-        '₹8,000 savings vs. monthly plan',
-        'Priority group support',
-        'Enhanced analytics',
-        'Customized onboarding session',
-        '5 Users included (₹799/user extra)',
-        'Batch Manager',
-        'Admin Dashboard'
+        'Access for up to 50 members',
+        'Everything in Team plan',
+        'Admin dashboard',
+        'Custom branding',
+        'API access',
+        'Dedicated support'
       ],
-      notIncluded: []
+      type: 'institute'
     }
   ];
-
+  
+  const handlePeriodToggle = (period: 'monthly' | 'annual') => {
+    setSelectedPeriod(period);
+  };
+  
+  const getPriceDisplay = (price: number) => {
+    return (
+      <>
+        <span className="mr-1">₹</span>
+        <span className="text-3xl font-bold">{price}</span>
+        <span className="text-muted-foreground">/{selectedPeriod === 'monthly' ? 'mo' : 'year'}</span>
+      </>
+    );
+  };
+  
+  // Helper to check if a plan is the current plan
+  const isCurrentPlan = (planId: string) => {
+    return planId === currentPlanId;
+  };
+  
   return (
-    <div className="space-y-10">
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Individual Plans</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          {plans.map(plan => (
-            <Card 
-              key={plan.id}
-              className={`p-6 border-2 transition-all duration-300 hover:shadow-lg ${
-                plan.id === currentPlanId 
-                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20' 
-                  : plan.id === 'pro-annual' 
-                    ? 'border-purple-200 hover:border-purple-500' 
-                    : plan.id === 'premium-monthly' 
-                      ? 'border-blue-200 hover:border-blue-500'
-                      : 'border-gray-200 hover:border-gray-400'
-              }`}
-            >
-              <div className="flex flex-col h-full">
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                  <p className="text-3xl font-bold">
-                    {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
-                    {plan.interval && (
-                      <span className="text-sm font-normal text-gray-500">
-                        /{plan.interval}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
-                </div>
-
-                <div className="flex-grow">
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                    
-                    {plan.notIncluded && plan.notIncluded.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-400">
-                        <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Button
-                  className={`w-full mt-4 ${
-                    plan.id === 'pro-annual'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                      : ''
-                  }`}
-                  variant={plan.id === currentPlanId ? "outline" : "default"}
-                  onClick={() => onSelectPlan(plan, false)}
-                  disabled={plan.id === currentPlanId}
-                >
-                  {plan.id === currentPlanId ? 'Current Plan' : 'Choose Plan'}
-                </Button>
-              </div>
-            </Card>
-          ))}
+    <div className="space-y-8">
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button
+            className={`px-4 py-2 rounded-md ${selectedPeriod === 'monthly' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+            onClick={() => handlePeriodToggle('monthly')}
+          >
+            Monthly
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md ${selectedPeriod === 'annual' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''}`}
+            onClick={() => handlePeriodToggle('annual')}
+          >
+            <div className="flex items-center gap-2">
+              Annual
+              <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800">
+                Save 20%
+              </Badge>
+            </div>
+          </button>
         </div>
       </div>
-
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Group Plans</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {groupPlans.map(plan => (
-            <Card 
-              key={plan.id}
-              className="p-6 border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 hover:shadow-lg"
-            >
-              <div className="flex flex-col h-full">
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                  <p className="text-3xl font-bold">
-                    {plan.currency === 'INR' ? '₹' : '$'}{plan.price}
-                    {plan.interval && (
-                      <span className="text-sm font-normal text-gray-500">
-                        /{plan.interval}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
-                </div>
-
-                <div className="flex-grow">
-                  <ul className="space-y-3 mb-6">
+      
+      <div className="space-y-12">
+        <section>
+          <h2 className="text-2xl font-bold mb-6">Individual Plans</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`rounded-lg border ${
+                  plan.highlighted
+                  ? 'border-primary shadow-md dark:border-primary/50'
+                  : 'border-gray-200 dark:border-gray-800'
+                } overflow-hidden transition-all hover:shadow-md`}
+              >
+                {plan.popular && (
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-1.5 text-sm font-medium">
+                    Most Popular Choice
+                  </div>
+                )}
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                  <p className="text-muted-foreground mt-1.5 h-12">{plan.description}</p>
+                  
+                  {plan.price === 0 ? (
+                    <div className="mt-4 mb-6">
+                      <div className="text-3xl font-bold">Free</div>
+                      <div className="text-muted-foreground">Forever</div>
+                    </div>
+                  ) : (
+                    <div className="mt-4 mb-6">
+                      {getPriceDisplay(plan.price)}
+                      {selectedPeriod === 'annual' && (
+                        <div className="text-xs text-green-600 mt-1">
+                          Billed annually (₹{Math.round(plan.price / 12)}/month)
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="space-y-3 mb-6">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
+                      <div key={i} className="flex items-start">
+                        <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
+                        <span>{feature}</span>
+                      </div>
                     ))}
-                    
-                    {plan.notIncluded && plan.notIncluded.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-400">
-                        <X className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  </div>
+                  
+                  <Button
+                    className={`w-full ${plan.highlighted ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : ''}`}
+                    variant={plan.highlighted ? "default" : "outline"}
+                    onClick={() => onSelectPlan(plan, false)}
+                    disabled={isCurrentPlan(plan.id)}
+                  >
+                    {isCurrentPlan(plan.id) 
+                      ? 'Current Plan' 
+                      : plan.buttonText || 'Select Plan'}
+                  </Button>
                 </div>
-
-                <Button
-                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
-                  onClick={() => onSelectPlan(plan, true)}
-                >
-                  Choose Group Plan
-                </Button>
               </div>
-            </Card>
-          ))}
+            ))}
+          </div>
+        </section>
+        
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <h2 className="text-2xl font-bold">Group Plans</h2>
+            <Badge className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">
+              <Users className="h-3 w-3 mr-1" />
+              Teams
+            </Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {groupPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden transition-all hover:shadow-md"
+              >
+                <div className="p-6">
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                  <p className="text-muted-foreground mt-1.5 h-12">{plan.description}</p>
+                  
+                  <div className="mt-4 mb-6">
+                    {getPriceDisplay(plan.price)}
+                    {selectedPeriod === 'annual' && (
+                      <div className="text-xs text-green-600 mt-1">
+                        Billed annually (₹{Math.round(plan.price / 12)}/month)
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3 mb-6">
+                    {plan.features.map((feature, i) => (
+                      <div key={i} className="flex items-start">
+                        <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => onSelectPlan(plan, true)}
+                    disabled={isCurrentPlan(plan.id)}
+                  >
+                    {isCurrentPlan(plan.id) ? 'Current Plan' : 'Select Group Plan'}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <p className="text-blue-800 dark:text-blue-300 font-medium">Need help choosing?</p>
+          <p className="text-blue-600 dark:text-blue-400">
+            Contact our support team for personalized recommendations based on your exam needs.
+          </p>
         </div>
       </div>
     </div>
