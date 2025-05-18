@@ -41,23 +41,23 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
 
   // Content to display within the shared page layout
   return (
-    <div className={`flex-1 ${isMobile ? 'p-3' : 'p-4 sm:p-6'} space-y-4 sm:space-y-6`}>
+    <div className="flex-1 p-4 sm:p-6 space-y-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{title}</h1>
-          {subtitle && <p className={`text-muted-foreground ${isMobile ? 'text-sm mt-0.5' : 'mt-1'}`}>{subtitle}</p>}
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
         </div>
         
         {showBackButton && (
           <Button 
             variant="outline" 
-            size={isMobile ? "sm" : "default"}
+            size="sm" 
             onClick={() => navigate(backButtonUrl)}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
-            <span className={isMobile ? 'text-xs' : ''}>Back</span>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
           </Button>
         )}
       </div>

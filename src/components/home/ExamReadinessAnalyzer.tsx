@@ -33,16 +33,14 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className={`bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800 mx-auto max-h-[90vh] overflow-hidden flex flex-col
-        ${isMobile ? 'p-3 w-[95vw] sm:max-w-[95vw] rounded-lg' : 'p-6 sm:max-w-md md:max-w-2xl lg:max-w-4xl rounded-xl'}`}>
+      <DialogContent className={`sm:max-w-md md:max-w-2xl lg:max-w-4xl bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800 ${isMobile ? 'p-3 w-[95vw]' : 'p-6'} mx-auto max-h-[90vh] overflow-hidden flex flex-col`}>
         <ExamDialogHeader 
           title={getDialogTitle(currentTest)} 
           description={getDialogDescription(currentTest)}
           onClose={onClose} 
-          isMobile={isMobile}
         />
         
-        <div className={`flex-1 overflow-auto ${isMobile ? 'px-1' : ''}`}>
+        <div className="flex-1 overflow-auto">
           <TestContainer 
             currentTest={currentTest}
             selectedExam={selectedExam}
@@ -69,7 +67,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           onClose={onClose}
           handleStartTest={handleStartTest}
           handleNavigation={handleNavigation}
-          isMobile={isMobile}
         />
       </DialogContent>
     </Dialog>

@@ -44,9 +44,9 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   }
 
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider>
       <ScrollArea className="md:hidden mb-6 w-full">
-        <div className="flex gap-2 px-1 pb-3 overflow-x-auto no-scrollbar">
+        <div className="flex gap-3 px-1 pb-3 overflow-x-auto">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
@@ -56,16 +56,16 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                     activeTab === item.tab 
                       ? "bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600" 
                       : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
-                  } px-2.5 py-1 h-auto min-w-0`}
+                  }`}
                   size="sm"
                   onClick={() => handleTabChange(item.tab)}
                 >
                   {item.icon}
-                  <span className="ml-1.5 text-xs whitespace-nowrap">{item.title}</span>
+                  <span className="ml-2 whitespace-nowrap">{item.title}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-xs">{item.tooltip}</p>
+                <p>{item.tooltip}</p>
               </TooltipContent>
             </Tooltip>
           ))}
