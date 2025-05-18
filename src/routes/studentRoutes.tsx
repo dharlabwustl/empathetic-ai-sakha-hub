@@ -17,7 +17,6 @@ import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
-import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 
 const StudentRoutes = () => {
   return (
@@ -81,11 +80,6 @@ const StudentRoutes = () => {
       <Route path="/profile" element={
         <SidebarLayout>
           <StudentProfile />
-        </SidebarLayout>
-      } />
-      <Route path="/subscription" element={
-        <SidebarLayout>
-          <SubscriptionPage />
         </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
