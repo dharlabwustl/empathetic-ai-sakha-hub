@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, School, BookOpen } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
 
 interface DonationNoticeProps {
   variant?: 'compact' | 'full';
@@ -12,11 +11,6 @@ interface DonationNoticeProps {
 const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => {
   const handleDonate = () => {
     // This would link to a donation platform in a real implementation
-    toast({
-      title: "Thank you!",
-      description: "Your support helps us make education accessible to all.",
-      duration: 5000,
-    });
     window.open('https://example.com/donate', '_blank');
   };
 

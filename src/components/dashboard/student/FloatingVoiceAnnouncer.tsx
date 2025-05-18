@@ -65,7 +65,7 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
     stopListening, 
     transcript, 
     processVoiceCommand,
-    speakMessage // Make sure this is imported correctly from useVoiceAnnouncer
+    speak
   } = useVoiceAnnouncer();
   
   const handleClose = () => {
@@ -90,11 +90,11 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
   useEffect(() => {
     if (isOpen && !isSpeaking && voiceSettings && !voiceSettings.muted) {
       const contextResponse = getContextResponse(location.pathname);
-      if (contextResponse && speakMessage) {
-        speakMessage(contextResponse);
+      if (contextResponse && speak) {
+        speak(contextResponse);
       }
     }
-  }, [isOpen, location.pathname, speakMessage, isSpeaking, voiceSettings]);
+  }, [isOpen, location.pathname, speak, isSpeaking, voiceSettings]);
   
   // Process transcript when it changes and listening mode is active
   useEffect(() => {

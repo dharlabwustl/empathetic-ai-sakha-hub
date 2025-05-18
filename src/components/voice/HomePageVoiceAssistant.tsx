@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 
 interface HomePageVoiceAssistantProps {
   language?: string;
@@ -14,7 +13,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  const { toast } = useToast();
   
   // Only play greeting on specific pages, not on concept pages or dashboard pages
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -68,20 +66,15 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           }
         } else if (isWelcomeFlow) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। आपने अपनी परीक्षा सफलता के लिए एक उत्कृष्ट विकल्प चुना है।`;
+            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। `;
           } else {
-            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your NEET exam preparation. You've made an excellent choice for your exam success. Our platform is designed to boost your exam readiness with minimal effort and maximum results.`;
+            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your NEET exam preparation. You've made an excellent choice for your exam success.`;
           }
         }
         
         if (message) {
           speakMessage(message);
           setGreetingPlayed(true);
-          
-          toast({
-            title: "Voice Assistant",
-            description: "Welcome message playing. Click the volume icon to mute if needed."
-          });
         }
       }, delayTime);
       
@@ -94,7 +87,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         setGreetingPlayed(false);
       }
     };
-  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, toast]);
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting]);
 
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {

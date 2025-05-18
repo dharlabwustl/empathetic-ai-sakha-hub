@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import { useToast } from '@/hooks/use-toast';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
@@ -17,7 +16,6 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
 }) => {
   const [lastSpokenContext, setLastSpokenContext] = useState<string | null>(null);
   const location = useLocation();
-  const { toast } = useToast();
   
   // Only play context-specific messages when the page changes
   useEffect(() => {
@@ -45,51 +43,47 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   const getContextInfo = (pathname: string): string | null => {
     // Don't speak on these pages (they have their own greeting)
     if (pathname.includes('/welcome-flow') || pathname === '/') {
-      return getWelcomeFlowContext();
+      return null;
     }
     
     if (pathname.includes('/dashboard/student/today')) {
-      return `Here's today's personalized study plan, ${userName}. I've prioritized your most important topics based on your progress and goals. Click on any concept or task to begin studying in detail.`;
+      return `Here's today's personalized study plan, ${userName}. I've prioritized your most important topics based on your progress and goals. Click on any concept or task to begin.`;
     }
     
     if (pathname.includes('/dashboard/student/overview')) {
-      return `Welcome to your dashboard overview, ${userName}. Here you can track your exam readiness score, weekly progress, and upcoming tasks. I recommend focusing on improving your weakest areas first.`;
+      return `Welcome to your dashboard overview, ${userName}. Here you can track your exam readiness score, weekly progress, and upcoming tasks.`;
     }
     
     if (pathname.includes('/dashboard/student/concepts/study')) {
-      return `I've loaded the concept details for you. You can read the material, take notes, and use the read aloud feature if you prefer listening. Links to related flashcards and practice questions are available below. Flag it for revision if you need to review it again later.`;
+      return `I've loaded the concept details for you. You can read the material, take notes, and use the read aloud feature if you prefer listening. Links to related flashcards and practice questions are available below.`;
     }
     
     if (pathname.includes('/dashboard/student/concepts')) {
-      return `Here are all your study concepts, organized by subject. Click on any concept to study in detail or mark it for revision. The color coding shows your proficiency level in each topic.`;
+      return `Here are all your study concepts, organized by subject. Click on any concept to study in detail or mark it for revision.`;
     }
     
     if (pathname.includes('/dashboard/student/flashcards')) {
-      return `These flashcards are designed to help you memorize key facts and formulas. Use the spaced repetition system for better retention. Regular practice with these cards will significantly improve your exam readiness score.`;
+      return `These flashcards are designed to help you memorize key facts and formulas. Use the spaced repetition system for better retention.`;
     }
     
     if (pathname.includes('/dashboard/student/practice-exam')) {
-      return `Practice exams simulate real test conditions and help identify your weak areas. Complete these regularly to track your exam readiness. Our AI provides personalized feedback on each question to help you improve.`;
+      return `Practice exams simulate real test conditions and help identify your weak areas. Complete these regularly to track your exam readiness.`;
     }
     
     if (pathname.includes('/dashboard/student/analytics')) {
-      return `Your analytics dashboard shows your progress over time. I've highlighted areas where you're excelling and where you might need more focus. Use these insights to adjust your study plan for maximum efficiency.`;
+      return `Your analytics dashboard shows your progress over time. I've highlighted areas where you're excelling and where you might need more focus.`;
     }
     
     if (pathname.includes('/dashboard/student/profile')) {
-      return `This is your profile page where you can update your personal information, preferences, and subscription details. Make sure to keep your exam goals updated so we can customize your learning experience accordingly.`;
+      return `This is your profile page where you can update your personal information, preferences, and subscription details.`;
     }
     
     // Default message for other dashboard pages
     if (pathname.includes('/dashboard')) {
-      return `Welcome to your PREPZR dashboard, ${userName}. I'm here to help with your exam preparation. Remember, consistent daily practice is the key to success in your exams.`;
+      return `Welcome to your PREPZR dashboard, ${userName}. I'm here to help with your exam preparation.`;
     }
     
     return null;
-  };
-
-  const getWelcomeFlowContext = (): string => {
-    return `Welcome to PREPZR! We're thrilled you've joined us. Our AI-powered platform is designed specifically for NEET exam preparation. With personalized study plans, adaptive learning algorithms, and comprehensive performance tracking, you've made the best choice for your exam success. Here's what makes PREPZR unique: First, we analyze your learning style and create a customized study plan. Second, our spaced repetition system optimizes memorization. Third, our practice exams simulate real test conditions to build your confidence. Let me guide you through the platform features to help you get started.`;
   };
   
   const speakMessage = (text: string) => {
@@ -147,12 +141,6 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     
     // Speak the message
     window.speechSynthesis.speak(utterance);
-    
-    // Show toast notification
-    toast({
-      title: "Voice Assistant",
-      description: "Speaking about this page..."
-    });
   };
 
   // This component doesn't render anything visible
