@@ -1,7 +1,6 @@
 
 import { getStressTestQuestions as getBaseStressQuestions } from './stress-test/stressTestBase';
 import { TestQuestion } from '../types';
-import { neetStressQuestions } from './stress-test/neetStressQuestions';
 
 // Function to get all cognitive test sets for a specific exam
 export const getCognitiveTestSets = (examType: string): number[] => {
@@ -93,10 +92,10 @@ const modifyQuestionsForSet = (
           
         case 'memory-recall':
           // Change memory questions for set 3
-          newQuestion.question = `Memorize these NEET-related terms: NEPHRON, CORTISOL, GLYCOLYSIS, ALLELE, PLACENTA. Which term was third?`;
-          newQuestion.options = ['CORTISOL', 'GLYCOLYSIS', 'ALLELE', 'PLACENTA'];
-          newQuestion.correctAnswer = 'GLYCOLYSIS';
-          newQuestion.explanation = 'The sequence was NEPHRON, CORTISOL, GLYCOLYSIS, ALLELE, PLACENTA, so GLYCOLYSIS was third.';
+          newQuestion.question = `Memorize these words: SYSTEM, DATA, LOGIC, QUERY, CODE. Which word was third?`;
+          newQuestion.options = ['DATA', 'LOGIC', 'QUERY', 'CODE'];
+          newQuestion.correctAnswer = 'LOGIC';
+          newQuestion.explanation = 'The sequence was SYSTEM, DATA, LOGIC, QUERY, CODE, so LOGIC was third.';
           break;
           
         case 'timed-calculation':
@@ -123,18 +122,9 @@ const modifyQuestionsForSet = (
   });
 };
 
-// Modified function to get stress test questions with set number - now includes 2023-2024 NEET questions
+// Modified function to get stress test questions with set number
 export const getStressTestQuestions = (examType: string, setNumber: number = 1): TestQuestion[] => {
-  let baseQuestions = getBaseStressQuestions(examType);
-  
-  // For NEET specifically, use our updated NEET questions
-  if (examType.toLowerCase().includes('neet')) {
-    // Supplement with newer NEET questions from 2023-2024
-    const specificNeetQuestions = neetStressQuestions;
-    
-    // Merge base questions with NEET-specific questions, prioritizing the latter
-    baseQuestions = [...specificNeetQuestions, ...baseQuestions.slice(0, Math.max(0, 10 - specificNeetQuestions.length))];
-  }
+  const baseQuestions = getBaseStressQuestions(examType);
   
   // Create unique questions based on set number
   const modifiedQuestions = modifyQuestionsForSet(baseQuestions, setNumber, examType);

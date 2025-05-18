@@ -3,7 +3,7 @@ import { TestQuestion } from '../../types';
 
 // NEET specific questions following NTA pattern and standards
 export const neetStressQuestions: TestQuestion[] = [
-  // Physics questions (following NEET/NTA format - 2023-2024)
+  // Physics questions (following NEET/NTA format)
   {
     id: 'st-neet1-physics',
     question: 'The dimensional formula for electric field strength is:',
@@ -18,30 +18,18 @@ export const neetStressQuestions: TestQuestion[] = [
   },
   {
     id: 'st-neet2-physics',
-    question: 'A uniform rod of mass M and length L rotates in a horizontal plane about a vertical axis passing through one of its ends. The moment of inertia about this axis is:',
-    options: ['ML2/2', 'ML2/3', 'ML2/4', 'ML2/6'],
-    correctAnswer: 'ML2/3',
+    question: 'In Young\'s double slit experiment, if the separation between the slits is halved and the distance between slits and screen is doubled, then fringe width will:',
+    options: ['remain the same', 'be doubled', 'be halved', 'be quadrupled'],
+    correctAnswer: 'be quadrupled',
     timeLimit: 60,
-    explanation: 'For a rod of mass M and length L rotating about an axis perpendicular to the rod and passing through one end, I = ML²/3.',
+    explanation: 'Fringe width is directly proportional to wavelength and distance between slits and screen, and inversely proportional to slit separation.',
     category: 'Physics',
     subject: 'Physics',
-    difficulty: 'medium',
-    chapter: 'Rotational Mechanics'
-  },
-  {
-    id: 'st-neet3-physics',
-    question: 'A body of mass m is thrown vertically upward with an initial velocity v. The work done by the gravitational force during the ascent of the body is:',
-    options: ['mgv', '-mgv', 'mgv²/2', '-mgv²/2'],
-    correctAnswer: '-mgv²/2',
-    timeLimit: 60,
-    explanation: 'Work done by gravity = -mg × height = -mg × v²/(2g) = -mv²/2.',
-    category: 'Physics',
-    subject: 'Physics',
-    difficulty: 'medium',
-    chapter: 'Work, Energy and Power'
+    difficulty: 'hard',
+    chapter: 'Wave Optics'
   },
   
-  // Chemistry questions (following NEET/NTA format - 2023-2024)
+  // Chemistry questions (following NEET/NTA format)
   {
     id: 'st-neet1-chem',
     question: 'Which of the following has the highest lattice energy?',
@@ -56,30 +44,18 @@ export const neetStressQuestions: TestQuestion[] = [
   },
   {
     id: 'st-neet2-chem',
-    question: 'The IUPAC name of the compound CH₃-CH=CH-CHO is:',
-    options: ['But-2-enal', 'But-3-enal', 'But-2-en-1-al', 'But-1-en-3-al'],
-    correctAnswer: 'But-2-enal',
+    question: 'In the reaction: NH3 + O2 → NO + H2O, when 2 moles of ammonia react with 5 moles of O2, the limiting reagent is:',
+    options: ['NH3', 'O2', 'Both are limiting', 'Neither is limiting'],
+    correctAnswer: 'NH3',
     timeLimit: 60,
-    explanation: 'The compound CH₃-CH=CH-CHO has a C=C double bond at 2nd position and an aldehyde group (CHO). According to IUPAC nomenclature, it is named as But-2-enal.',
+    explanation: 'Balanced equation is 4NH3 + 5O2 → 4NO + 6H2O. For 2 moles of NH3, 2.5 moles of O2 are required. Since 5 moles of O2 are available, NH3 is limiting.',
     category: 'Chemistry',
     subject: 'Chemistry',
-    difficulty: 'easy',
-    chapter: 'Organic Chemistry - Nomenclature'
-  },
-  {
-    id: 'st-neet3-chem',
-    question: 'Which of the following is an amphoteric oxide?',
-    options: ['CaO', 'CO₂', 'SiO₂', 'Al₂O₃'],
-    correctAnswer: 'Al₂O₃',
-    timeLimit: 60,
-    explanation: 'Amphoteric oxides show both acidic and basic behavior. Al₂O₃ reacts with both acids and bases, showing amphoteric character.',
-    category: 'Chemistry',
-    subject: 'Chemistry',
-    difficulty: 'easy',
-    chapter: 'p-Block Elements'
+    difficulty: 'medium',
+    chapter: 'Stoichiometry'
   },
   
-  // Biology questions (following NEET/NTA format - 2023-2024)
+  // Biology questions (following NEET/NTA format)
   {
     id: 'st-neet1-bio',
     question: 'The functional unit of kidney is:',
@@ -94,50 +70,38 @@ export const neetStressQuestions: TestQuestion[] = [
   },
   {
     id: 'st-neet2-bio',
-    question: 'Which of the following human cells do not undergo cell division?',
-    options: ['Liver cells', 'Mature neurons', 'Epithelial cells', 'Osteoblasts'],
-    correctAnswer: 'Mature neurons',
+    question: 'Which of the following is NOT a nitrogenous base in DNA?',
+    options: ['Adenine', 'Uracil', 'Guanine', 'Cytosine'],
+    correctAnswer: 'Uracil',
     timeLimit: 60,
-    explanation: 'Mature neurons are terminally differentiated cells that have lost their ability to undergo cell division. They remain in the G₀ phase of the cell cycle permanently.',
+    explanation: 'Uracil is found in RNA, not DNA. DNA contains Adenine, Thymine, Guanine, and Cytosine.',
     category: 'Biology',
     subject: 'Biology',
     difficulty: 'easy',
-    chapter: 'Cell Cycle and Cell Division'
+    chapter: 'Molecular Basis of Inheritance'
   },
   {
     id: 'st-neet3-bio',
-    question: 'The respiratory pigment present in muscle tissues, which also acts as an oxygen reservoir, is:',
-    options: ['Haemoglobin', 'Myoglobin', 'Haemocyanin', 'Haemothymin'],
-    correctAnswer: 'Myoglobin',
+    question: 'Which vitamin deficiency causes night blindness?',
+    options: ['Vitamin A', 'Vitamin B1', 'Vitamin C', 'Vitamin D'],
+    correctAnswer: 'Vitamin A',
     timeLimit: 60,
-    explanation: 'Myoglobin is a respiratory pigment found in muscle tissues. It has a higher affinity for oxygen than hemoglobin and serves as an oxygen reservoir during periods of oxygen deficit.',
+    explanation: 'Vitamin A deficiency leads to night blindness as it is essential for rhodopsin formation in rod cells of retina.',
     category: 'Biology',
     subject: 'Biology',
     difficulty: 'easy',
-    chapter: 'Breathing and Exchange of Gases'
+    chapter: 'Human Health and Diseases'
   },
   {
     id: 'st-neet4-bio',
-    question: 'Which of the following is NOT a function of the placenta?',
-    options: ['Transport of nutrients from mother to fetus', 'Production of estrogen', 'Production of oxytocin', 'Act as a barrier to harmful substances'],
-    correctAnswer: 'Production of oxytocin',
+    question: 'Which of these is the universal recipient blood group?',
+    options: ['A', 'B', 'AB', 'O'],
+    correctAnswer: 'AB',
     timeLimit: 60,
-    explanation: 'The placenta does not produce oxytocin. Oxytocin is produced by the hypothalamus and released by the posterior pituitary gland.',
+    explanation: 'AB blood group has no antibodies against A or B antigens, so can receive blood from any ABO blood group.',
     category: 'Biology',
     subject: 'Biology',
-    difficulty: 'medium',
-    chapter: 'Human Reproduction'
-  },
-  {
-    id: 'st-neet5-bio',
-    question: 'In Citric Acid Cycle, which of the following reactions produces FADH₂?',
-    options: ['Conversion of isocitrate to α-ketoglutarate', 'Conversion of succinate to fumarate', 'Conversion of malate to oxaloacetate', 'Conversion of α-ketoglutarate to succinyl-CoA'],
-    correctAnswer: 'Conversion of succinate to fumarate',
-    timeLimit: 60,
-    explanation: 'In the citric acid cycle, the conversion of succinate to fumarate is catalyzed by succinate dehydrogenase, which uses FAD as a coenzyme. This reaction produces FADH₂.',
-    category: 'Biology',
-    subject: 'Biology',
-    difficulty: 'medium',
-    chapter: 'Respiration in Plants'
+    difficulty: 'easy',
+    chapter: 'Human Physiology'
   }
 ];
