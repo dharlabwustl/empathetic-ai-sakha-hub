@@ -10,12 +10,10 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
-import FloatingVoiceAssistant from "@/components/dashboard/student/voice/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [showVoiceAssistant, setShowVoiceAssistant] = useState(true);
   const location = useLocation();
   
   const {
@@ -145,10 +143,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const toggleVoiceAssistant = () => {
-    setShowVoiceAssistant(!showVoiceAssistant);
-  };
-
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -216,15 +210,6 @@ const StudentDashboard = () => {
       ]}
     >
       {getTabContent()}
-      
-      {/* Floating Voice Assistant */}
-      {showVoiceAssistant && (
-        <FloatingVoiceAssistant 
-          userName={userProfile.name}
-          onClose={toggleVoiceAssistant}
-          onMoodChange={handleMoodChange}
-        />
-      )}
     </DashboardLayout>
   );
 };

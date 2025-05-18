@@ -9,11 +9,6 @@ export interface KpiData {
   change?: string;
   trend?: 'up' | 'down' | 'neutral';
   since?: string;
-  // Adding properties needed for dashboard
-  title?: string;
-  icon?: React.ComponentType<any>;
-  unit?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
 }
 
 export interface NudgeData {
@@ -25,10 +20,6 @@ export interface NudgeData {
   actionUrl?: string;
   isRead: boolean;
   timestamp: Date;
-  // Adding fields for consistency with other types
-  description?: string;
-  priority?: 'low' | 'medium' | 'high';
-  createdAt?: Date;
 }
 
 export const useKpiTracking = (userId?: string) => {
@@ -39,10 +30,7 @@ export const useKpiTracking = (userId?: string) => {
       value: '12',
       change: '+2.5',
       trend: 'up',
-      since: 'last week',
-      title: 'Study Hours',
-      unit: 'hrs',
-      changeType: 'positive'
+      since: 'last week'
     },
     {
       id: uuidv4(),
@@ -50,10 +38,7 @@ export const useKpiTracking = (userId?: string) => {
       value: '8',
       change: '+3',
       trend: 'up',
-      since: 'last week',
-      title: 'Practice Tests',
-      unit: '',
-      changeType: 'positive'
+      since: 'last week'
     },
     {
       id: uuidv4(),
@@ -61,10 +46,7 @@ export const useKpiTracking = (userId?: string) => {
       value: '68%',
       change: '+5%',
       trend: 'up',
-      since: 'last month',
-      title: 'Concept Mastery',
-      unit: '%',
-      changeType: 'positive'
+      since: 'last month'
     },
     {
       id: uuidv4(),
@@ -72,10 +54,7 @@ export const useKpiTracking = (userId?: string) => {
       value: '5',
       change: '-1',
       trend: 'down',
-      since: 'days',
-      title: 'Study Streak',
-      unit: 'days',
-      changeType: 'negative'
+      since: 'days'
     }
   ]);
   
@@ -88,10 +67,7 @@ export const useKpiTracking = (userId?: string) => {
       actionLabel: 'Complete Profile',
       actionUrl: '/dashboard/student/profile',
       isRead: false,
-      timestamp: new Date(),
-      priority: 'medium',
-      createdAt: new Date(),
-      description: 'Complete your profile to get personalized recommendations'
+      timestamp: new Date()
     },
     {
       id: uuidv4(),
@@ -101,10 +77,7 @@ export const useKpiTracking = (userId?: string) => {
       actionLabel: 'Take Test',
       actionUrl: '/dashboard/student/tests',
       isRead: false,
-      timestamp: new Date(),
-      priority: 'low',
-      createdAt: new Date(),
-      description: 'Take a quick test to assess your current knowledge'
+      timestamp: new Date()
     }
   ]);
   
