@@ -62,26 +62,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     {
       en: "Unlike coaching institutes with fixed schedules, PREPZR offers 24/7 access to personalized study plans, adaptive learning, and AI tutoring that focuses on your weak areas. Study at your own pace, anywhere, anytime.",
       hi: "निश्चित समय सारिणी वाले कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं, अनुकूली शिक्षण, और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है जो आपके कमजोर क्षेत्रों पर ध्यान केंद्रित करता है।"
-    },
-    // Free trial
-    {
-      en: "Start with our 7-day free trial and experience how our AI tailors study materials to your specific needs. No credit card required to begin your journey to exam success.",
-      hi: "हमारे 7-दिवसीय निःशुल्क परीक्षण के साथ शुरुआत करें और अनुभव करें कि हमारा AI कैसे आपकी विशिष्ट आवश्यकताओं के अनुसार अध्ययन सामग्री तैयार करता है।"
-    },
-    // Features overview
-    {
-      en: "PREPZR features include personalized study plans, interactive flashcards, practice tests with detailed analytics, concept maps, and a virtual AI tutor available 24/7 for doubt resolution.",
-      hi: "प्रेप-ज़र की विशेषताओं में शामिल हैं व्यक्तिगत अध्ययन योजनाएं, इंटरैक्टिव फ्लैशकार्ड, विस्तृत विश्लेषण के साथ अभ्यास परीक्षण, कॉन्सेप्ट मैप्स, और संदेह समाधान के लिए 24/7 उपलब्ध वर्चुअल AI ट्यूटर।"
-    },
-    // Why PREPZR is better
-    {
-      en: "PREPZR outperforms other online platforms through our adaptive learning algorithms that identify and address your unique knowledge gaps. Our mood-based study recommendations help maintain optimal learning conditions.",
-      hi: "प्रेप-ज़र अपने अनुकूली लर्निंग एल्गोरिदम के माध्यम से अन्य ऑनलाइन प्लेटफॉर्म से बेहतर प्रदर्शन करता है जो आपके अद्वितीय ज्ञान अंतराल की पहचान करता है और उन्हें संबोधित करता है।"
-    },
-    // Social impact
-    {
-      en: "By choosing PREPZR, you're not just investing in your education. We donate 5% of subscription revenue to help underprivileged students access quality exam preparation materials.",
-      hi: "प्रेप-ज़र को चुनकर, आप केवल अपनी शिक्षा में निवेश नहीं कर रहे हैं। हम सदस्यता राजस्व का 5% वंचित छात्रों को गुणवत्तापूर्ण परीक्षा तैयारी सामग्री तक पहुंच प्रदान करने में मदद करने के लिए दान करते हैं।"
     }
   ];
   
@@ -125,11 +105,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           } else {
             message = `Welcome to PREPZR's premium signup. Get access to our AI-powered exam preparation tools for personalized study plans, adaptive learning, and practice tests. 5% of your subscription helps provide access to underprivileged students. Our platform outperforms traditional coaching institutes by focusing on your unique learning needs and knowledge gaps.`;
           }
-          
-          // If this is a Google signup, store this information for later use in the onboarding flow
-          if (isGoogleSignup) {
-            localStorage.setItem('needs_study_plan_creation', 'true');
-          }
         } else if (location.pathname.includes('/welcome-back')) {
           if (language === 'hi-IN') {
             message = `प्रेप-ज़र पर वापस स्वागत है। बस अपने ईमेल और पासवर्ड के साथ लॉगिन करें और हम आपके पढ़ाई के यात्रा को जारी रख सकते हैं। आपका व्यक्तिगत AI ट्यूटर आपके परीक्षा तैयारी स्कोर को बेहतर बनाने में आपकी मदद करने के लिए तैयार है।`;
@@ -138,9 +113,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           }
         } else if (isWelcomeFlow) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। हमारी प्रीमियम सुविधाओं के साथ, आप अपनी परीक्षाओं के लिए पूरी तरह तैयार होंगे। याद रखें, आपकी सदस्यता का 5% वंचित छात्रों का समर्थन करता है।`;
+            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। याद रखें, आपकी सदस्यता का 5% वंचित छात्रों का समर्थन करता है।`;
           } else {
-            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your exam preparation. Unlike traditional coaching institutes, we adapt to your schedule and provide 24/7 support. With our premium features, you'll be fully prepared for your exams. Remember, 5% of your subscription supports underprivileged students.`;
+            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your exam preparation. Remember, 5% of your subscription supports underprivileged students.`;
           }
         }
         
