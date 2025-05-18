@@ -26,7 +26,7 @@ const Signup = () => {
     // Store it in localStorage for downstream components
     localStorage.setItem('userData', JSON.stringify(userData));
     
-    // First navigate directly to welcome flow - skip login screen
+    // First navigate directly to welcome flow - skip login screen completely
     navigate('/welcome-flow', { replace: true });
   }, [navigate]);
 

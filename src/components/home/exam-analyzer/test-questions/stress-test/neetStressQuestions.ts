@@ -1,86 +1,107 @@
 
 import { TestQuestion } from '../../types';
 
-// NEET specific questions
+// NEET specific questions following NTA pattern and standards
 export const neetStressQuestions: TestQuestion[] = [
+  // Physics questions (following NEET/NTA format)
   {
-    id: 'st-neet1',
-    question: 'What is the normal heart rate (beats per minute) in adults?',
-    options: ['40-60', '60-100', '100-140', '140-180'],
-    correctAnswer: '60-100',
-    timeLimit: 15,
-    explanation: 'Normal resting heart rate in adults is 60-100 beats per minute.',
-    category: 'Physiology',
-    difficulty: 'easy'
+    id: 'st-neet1-physics',
+    question: 'The dimensional formula for electric field strength is:',
+    options: ['MLT-3A-1', 'MLT-2A-1', 'MLT-3A-2', 'ML2T-3A-1'],
+    correctAnswer: 'MLT-3A-1',
+    timeLimit: 60, // NTA gives 60 seconds per question
+    explanation: 'Electric field strength has units of Newton/Coulomb or Volt/meter, which has dimensional formula MLT-3A-1.',
+    category: 'Physics',
+    subject: 'Physics',
+    difficulty: 'medium',
+    chapter: 'Electrostatics'
   },
   {
-    id: 'st-neet2',
-    question: 'Which of these is NOT a nitrogenous base in DNA?',
+    id: 'st-neet2-physics',
+    question: 'In Young\'s double slit experiment, if the separation between the slits is halved and the distance between slits and screen is doubled, then fringe width will:',
+    options: ['remain the same', 'be doubled', 'be halved', 'be quadrupled'],
+    correctAnswer: 'be quadrupled',
+    timeLimit: 60,
+    explanation: 'Fringe width is directly proportional to wavelength and distance between slits and screen, and inversely proportional to slit separation.',
+    category: 'Physics',
+    subject: 'Physics',
+    difficulty: 'hard',
+    chapter: 'Wave Optics'
+  },
+  
+  // Chemistry questions (following NEET/NTA format)
+  {
+    id: 'st-neet1-chem',
+    question: 'Which of the following has the highest lattice energy?',
+    options: ['NaCl', 'KCl', 'MgO', 'CaO'],
+    correctAnswer: 'MgO',
+    timeLimit: 60,
+    explanation: 'MgO has the highest lattice energy due to its high charge density (Mg2+ and O2-) and smaller ionic radii.',
+    category: 'Chemistry',
+    subject: 'Chemistry',
+    difficulty: 'medium',
+    chapter: 'Chemical Bonding'
+  },
+  {
+    id: 'st-neet2-chem',
+    question: 'In the reaction: NH3 + O2 → NO + H2O, when 2 moles of ammonia react with 5 moles of O2, the limiting reagent is:',
+    options: ['NH3', 'O2', 'Both are limiting', 'Neither is limiting'],
+    correctAnswer: 'NH3',
+    timeLimit: 60,
+    explanation: 'Balanced equation is 4NH3 + 5O2 → 4NO + 6H2O. For 2 moles of NH3, 2.5 moles of O2 are required. Since 5 moles of O2 are available, NH3 is limiting.',
+    category: 'Chemistry',
+    subject: 'Chemistry',
+    difficulty: 'medium',
+    chapter: 'Stoichiometry'
+  },
+  
+  // Biology questions (following NEET/NTA format)
+  {
+    id: 'st-neet1-bio',
+    question: 'The functional unit of kidney is:',
+    options: ['Neuron', 'Nephron', 'Nephridia', 'Alveolus'],
+    correctAnswer: 'Nephron',
+    timeLimit: 60,
+    explanation: 'Nephron is the functional unit of kidney responsible for filtering blood and forming urine.',
+    category: 'Biology',
+    subject: 'Biology',
+    difficulty: 'easy',
+    chapter: 'Excretory System'
+  },
+  {
+    id: 'st-neet2-bio',
+    question: 'Which of the following is NOT a nitrogenous base in DNA?',
     options: ['Adenine', 'Uracil', 'Guanine', 'Cytosine'],
     correctAnswer: 'Uracil',
-    timeLimit: 15,
+    timeLimit: 60,
     explanation: 'Uracil is found in RNA, not DNA. DNA contains Adenine, Thymine, Guanine, and Cytosine.',
     category: 'Biology',
-    difficulty: 'medium'
+    subject: 'Biology',
+    difficulty: 'easy',
+    chapter: 'Molecular Basis of Inheritance'
   },
   {
-    id: 'st-neet3',
-    question: 'The functional unit of kidney is:',
-    options: ['Neuron', 'Nephron', 'Axon', 'Alveolus'],
-    correctAnswer: 'Nephron',
-    timeLimit: 15,
-    explanation: 'Nephron is the functional unit of kidney responsible for filtering blood.',
-    category: 'Anatomy',
-    difficulty: 'easy'
-  },
-  {
-    id: 'st-neet4',
+    id: 'st-neet3-bio',
     question: 'Which vitamin deficiency causes night blindness?',
-    options: ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'],
+    options: ['Vitamin A', 'Vitamin B1', 'Vitamin C', 'Vitamin D'],
     correctAnswer: 'Vitamin A',
-    timeLimit: 15,
-    explanation: 'Vitamin A deficiency leads to night blindness as it is essential for rhodopsin formation.',
-    category: 'Physiology',
-    difficulty: 'medium'
+    timeLimit: 60,
+    explanation: 'Vitamin A deficiency leads to night blindness as it is essential for rhodopsin formation in rod cells of retina.',
+    category: 'Biology',
+    subject: 'Biology',
+    difficulty: 'easy',
+    chapter: 'Human Health and Diseases'
   },
   {
-    id: 'st-neet5',
-    question: 'The pH of human blood under normal conditions is:',
-    options: ['6.4', '7.0', '7.4', '8.0'],
-    correctAnswer: '7.4',
-    timeLimit: 15,
-    explanation: 'Normal blood pH is tightly regulated between 7.35-7.45, with 7.4 being the average.',
-    category: 'Physiology',
-    difficulty: 'medium'
-  },
-  {
-    id: 'st-neet6',
+    id: 'st-neet4-bio',
     question: 'Which of these is the universal recipient blood group?',
     options: ['A', 'B', 'AB', 'O'],
     correctAnswer: 'AB',
-    timeLimit: 15,
-    explanation: 'AB blood group has no antibodies against A or B antigens, so can receive any blood type.',
-    category: 'Physiology',
-    difficulty: 'easy'
-  },
-  {
-    id: 'st-neet7',
-    question: 'The junction between two neurons is called:',
-    options: ['Dendrite', 'Synapse', 'Axon', 'Myelin sheath'],
-    correctAnswer: 'Synapse',
-    timeLimit: 15,
-    explanation: 'Synapse is the junction where neurons communicate with each other.',
-    category: 'Neurology',
-    difficulty: 'medium'
-  },
-  {
-    id: 'st-neet8',
-    question: 'Which organelle is known as the "powerhouse of the cell"?',
-    options: ['Nucleus', 'Ribosome', 'Mitochondria', 'Golgi apparatus'],
-    correctAnswer: 'Mitochondria',
-    timeLimit: 15,
-    explanation: 'Mitochondria produce ATP through cellular respiration, providing energy for the cell.',
-    category: 'Cell Biology',
-    difficulty: 'easy'
+    timeLimit: 60,
+    explanation: 'AB blood group has no antibodies against A or B antigens, so can receive blood from any ABO blood group.',
+    category: 'Biology',
+    subject: 'Biology',
+    difficulty: 'easy',
+    chapter: 'Human Physiology'
   }
 ];

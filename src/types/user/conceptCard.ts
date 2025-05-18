@@ -56,7 +56,7 @@ export interface ConceptCard {
 }
 
 export interface MasteryLevel {
-  level: 'Beginner' | 'Basic' | 'Intermediate' | 'Advanced' | 'Expert';
+  level: "Beginner" | "Basic" | "Intermediate" | "Advanced" | "Expert";
   color: string;
   minScore: number;
 }

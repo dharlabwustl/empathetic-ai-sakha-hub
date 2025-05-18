@@ -1,87 +1,147 @@
 
 import { TestQuestion } from '../types';
 
-// NEET-specific readiness assessment questions
+// NEET-specific readiness assessment questions following NTA standards
 const neetReadinessQuestions: TestQuestion[] = [
   {
     id: 'rt-neet1',
-    question: 'How thoroughly have you studied NCERT Biology textbooks?',
-    options: ['Not started yet', 'Read partially', 'Completed once', 'Multiple thorough revisions with notes'],
+    question: 'How thoroughly have you studied NCERT Biology textbooks (Class 11 & 12)?',
+    options: [
+      'Not started yet', 
+      'Completed less than 50% of chapters', 
+      'Completed once but need revision', 
+      'Multiple revisions with practice questions completed'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Concept Completion'
+    category: 'Concept Completion',
+    subject: 'Biology',
   },
   {
     id: 'rt-neet2',
-    question: 'How comfortable are you with memorizing biological terminology and classifications?',
-    options: ['Very uncomfortable', 'Somewhat comfortable', 'Reasonably comfortable', 'Highly comfortable'],
+    question: 'How well can you solve numerical problems in Physics section (mechanics, thermodynamics, etc.)?',
+    options: [
+      'Struggle with basic formulas', 
+      'Can solve direct application problems', 
+      'Can solve moderate complexity problems', 
+      'Can solve complex multi-concept problems'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Concept Completion'
+    category: 'Practice Performance',
+    subject: 'Physics',
   },
   {
     id: 'rt-neet3',
-    question: 'How many NEET practice tests have you completed so far?',
-    options: ['None', '1-3 tests', '4-10 tests', 'More than 10 tests'],
+    question: 'How many full-length NEET mock tests have you completed so far?',
+    options: [
+      'None', 
+      '1-3 tests', 
+      '4-10 tests', 
+      'More than 10 tests with thorough analysis'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Practice Performance'
+    category: 'Practice Performance',
+    subject: 'General',
   },
   {
     id: 'rt-neet4',
-    question: 'How regular is your study schedule for NEET preparation?',
-    options: ['Irregular/occasional', '1-2 days per week', '3-5 days per week', 'Daily with fixed hours'],
+    question: 'How consistent is your daily study schedule for NEET preparation?',
+    options: [
+      'Irregular/occasional study sessions', 
+      '2-3 hours on most days', 
+      '4-6 hours daily with breaks', 
+      '6+ hours daily with structured time blocks per subject'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management'
+    category: 'Time Management',
+    subject: 'General',
   },
   {
     id: 'rt-neet5',
-    question: 'How well can you solve numerical problems in Physics and Chemistry sections?',
-    options: ['Struggle with most', 'Can solve basic problems', 'Good with most problems', 'Excellent with even complex problems'],
+    question: 'How comfortable are you with organic reaction mechanisms in Chemistry?',
+    options: [
+      'Cannot recall basic reactions', 
+      'Know common named reactions but struggle with mechanisms', 
+      'Can predict products of most reactions', 
+      'Can draw complete mechanisms and predict multi-step reaction products'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Practice Performance'
+    category: 'Concept Completion',
+    subject: 'Chemistry',
   },
   {
     id: 'rt-neet6',
-    question: 'How comfortable are you with organic chemistry reaction mechanisms?',
-    options: ['Not familiar', 'Basic understanding', 'Good understanding', 'Thorough understanding'],
+    question: 'How well can you recall and apply Human Physiology concepts?',
+    options: [
+      'Struggle with basic structures', 
+      'Know major organs but not detailed functions', 
+      'Understand systems with some molecular details', 
+      'Can explain integrated functions and pathophysiology'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Concept Completion'
+    category: 'Concept Completion',
+    subject: 'Biology',
   },
   {
     id: 'rt-neet7',
-    question: 'How do you handle topics you find difficult?',
-    options: ['Skip them', 'Try briefly before moving on', 'Work on them until somewhat understood', 'Master them completely before moving on'],
+    question: 'How do you approach difficult Physics concepts like Optics or Electrodynamics?',
+    options: [
+      'Skip them entirely', 
+      'Read theory but avoid numerical problems', 
+      'Practice until basic understanding is achieved', 
+      'Master with conceptual clarity and varied problem-solving'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management'
+    category: 'Time Management',
+    subject: 'Physics',
   },
   {
     id: 'rt-neet8',
-    question: 'How familiar are you with the NEET exam pattern and marking scheme?',
-    options: ['Not familiar', 'Vaguely familiar', 'Mostly familiar', 'Completely familiar'],
+    question: 'How familiar are you with the latest NEET exam pattern, marking scheme, and negative marking?',
+    options: [
+      'Not familiar with current pattern', 
+      'Know basic structure but not details', 
+      'Understand all aspects of the exam pattern', 
+      'Fully prepared with exam strategy tailored to current pattern'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Practice Performance'
+    category: 'Practice Performance',
+    subject: 'General',
   },
   {
     id: 'rt-neet9',
-    question: 'How effective is your method for revising previously studied topics?',
-    options: ['No revision strategy', 'Random revision when I remember', 'Periodic revision but unsystematic', 'Systematic spaced repetition'],
+    question: 'How effective is your method for revising previously studied Biology topics?',
+    options: [
+      'No structured revision plan', 
+      'Occasional rereading of notes', 
+      'Regular revision with flashcards/diagrams', 
+      'Spaced repetition system with active recall testing'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management'
+    category: 'Time Management',
+    subject: 'Biology',
   },
   {
     id: 'rt-neet10',
-    question: 'How confident do you feel about your current NEET preparation?',
-    options: ['Not confident at all', 'Somewhat confident', 'Fairly confident', 'Very confident'],
+    question: 'How confident do you feel about the Inorganic Chemistry portion of NEET?',
+    options: [
+      'Very low confidence, many gaps', 
+      'Moderate confidence in basic concepts', 
+      'Good grasp of most topics with few weak areas', 
+      'Highly confident across all periodic trends and properties'
+    ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Overall Confidence'
+    category: 'Overall Confidence',
+    subject: 'Chemistry',
   }
 ];
 

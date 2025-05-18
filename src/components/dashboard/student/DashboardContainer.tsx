@@ -97,8 +97,8 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
       
       {/* Enhanced Floating Voice Assistant */}
       <FloatingVoiceAssistant 
-        userName={userProfile?.name}
-        currentMood={userProfile?.mood}
+        userName={userProfile?.name || "Student"}
+        currentMood={userProfile?.mood || "MOTIVATED"}
         onMoodCommand={handleMoodCommand}
         onNavigationCommand={handleNavigationCommand}
         pronouncePrepzr={true}

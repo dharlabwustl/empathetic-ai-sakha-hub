@@ -14,10 +14,51 @@ import NotesTab from './NotesTab';
 import PracticeTab from './PracticeTab';
 import ResourcesTab from './ResourcesTab';
 import { useConceptDetail } from '@/hooks/useConceptDetail';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
-import ErrorState from '@/components/common/ErrorState';
-import ConceptMasteryCard from './ConceptMasteryCard';
 import { SharedPageLayout } from '../SharedPageLayout';
+
+// Placeholder for loading spinner component
+const LoadingSpinner = ({ message = "Loading..." }) => (
+  <div className="flex flex-col items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+    <p className="text-gray-500">{message}</p>
+  </div>
+);
+
+// Placeholder for error state component
+const ErrorState = ({ title, message, action }) => (
+  <div className="flex flex-col items-center justify-center h-64 text-center">
+    <div className="text-red-500 mb-2 text-5xl">!</div>
+    <h3 className="text-xl font-semibold mb-2">{title}</h3>
+    <p className="text-gray-500 mb-4">{message}</p>
+    {action}
+  </div>
+);
+
+// ConceptMasteryCard component
+const ConceptMasteryCard = ({ mastery, onPractice }) => (
+  <Card>
+    <CardHeader className="pb-3">
+      <CardTitle className="text-sm font-medium">Your Mastery</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="text-sm font-medium">{mastery.level}</span>
+          <span className="text-sm text-muted-foreground">{mastery.percentage}%</span>
+        </div>
+        <Progress value={mastery.percentage} className="h-2" />
+      </div>
+      <Button 
+        variant="outline"
+        size="sm"
+        className="w-full mt-4"
+        onClick={onPractice}
+      >
+        Practice to improve
+      </Button>
+    </CardContent>
+  </Card>
+);
 
 const ConceptCardDetailPage = () => {
   const { toast } = useToast();
@@ -200,7 +241,10 @@ const ConceptCardDetailPage = () => {
               {/* Right sidebar */}
               <div className="md:col-span-4 space-y-4">
                 <ConceptMasteryCard 
-                  mastery={concept.mastery || { level: 'Beginner', percentage: 20 }}
+                  mastery={{ 
+                    level: concept.mastery?.level || 'Beginner', 
+                    percentage: concept.mastery?.percentage || 20 
+                  }}
                   onPractice={() => setActiveTab('practice')}
                 />
                 
