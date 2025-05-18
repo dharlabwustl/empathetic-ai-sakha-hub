@@ -72,6 +72,7 @@ const SubscriptionPage: React.FC = () => {
       {showPayment && selectedPlan ? (
         <PaymentFlow 
           selectedPlan={selectedPlan}
+          isGroupPlan={isGroup}
           onCancel={handleCancelPayment}
           onSuccess={handlePurchaseComplete}
         />
