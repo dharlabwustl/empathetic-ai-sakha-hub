@@ -11,8 +11,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   language = 'en-IN' // Setting English as default, with India accent
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
+  const [hasVisitorInteracted, setHasVisitorInteracted] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -21,6 +21,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   useEffect(() => {
     const handleUserInteraction = () => {
       setLastInteractionTime(Date.now());
+      setHasVisitorInteracted(true);
     };
     
     // Track user interactions
@@ -47,23 +48,48 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const isReturningVisitor = localStorage.getItem('has_visited_homepage') === 'true';
   
   // Enhanced messages for the home page visitor experience
-  const homePageMessages = [
-    // Initial greeting and value proposition
-    {
-      en: "Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription provides personalized guidance to maximize your exam performance. We allocate 5% of subscription revenue to provide access for underprivileged students.",
-      hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है। हमारी प्रीमियम सदस्यता से आपको व्यक्तिगत मार्गदर्शन मिलेगा।"
+  const homePageMessages = {
+    initial: {
+      en: "Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students.",
+      hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
     },
-    // Exam readiness focus
-    {
-      en: "Our Exam Readiness Score helps you track your progress with real-time performance analytics. Unlike traditional coaching, we adapt to your unique learning style and pace.",
-      hi: "हमारा परीक्षा तैयारी स्कोर आपको वास्तविक समय में प्रदर्शन विश्लेषण के साथ अपनी प्रगति को ट्रैक करने में मदद करता है। पारंपरिक कोचिंग के विपरीत, हम आपकी अद्वितीय सीखने की शैली और गति के अनुकूल हैं।"
+    signup: {
+      en: "Ready to start your exam preparation journey? Sign up for our premium trial to access AI-powered study plans and performance analytics.",
+      hi: "अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
     },
-    // Advantages over coaching institutes
-    {
-      en: "Unlike coaching institutes with fixed schedules, PREPZR offers 24/7 access to personalized study plans, adaptive learning, and AI tutoring that focuses on your weak areas. Study at your own pace, anywhere, anytime.",
-      hi: "निश्चित समय सारिणी वाले कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं, अनुकूली शिक्षण, और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है जो आपके कमजोर क्षेत्रों पर ध्यान केंद्रित करता है।"
+    features: {
+      en: "Unlike coaching institutes, PREPZR offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
+      hi: "कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
+    },
+    donation: {
+      en: "We allocate 5% of subscription revenue to provide access for underprivileged students, making quality education more accessible.",
+      hi: "हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
+    },
+    welcome_back: {
+      en: "Welcome back to PREPZR. Simply log in to continue your personalized study journey.",
+      hi: "प्रेप-ज़र पर वापस स्वागत है। बस लॉग इन करें और अपनी अध्ययन यात्रा जारी रखें।"
     }
-  ];
+  };
+  
+  // Get context-aware message based on page and interaction
+  const getContextMessage = () => {
+    if (location.pathname === '/') {
+      // For homepage, base message on whether they've scrolled or clicked
+      if (hasVisitorInteracted) {
+        return homePageMessages.signup;
+      } else {
+        return homePageMessages.initial;
+      }
+    } else if (location.pathname.includes('/signup')) {
+      return homePageMessages.features;
+    } else if (location.pathname.includes('/welcome-back')) {
+      return homePageMessages.welcome_back;
+    } else if (location.pathname.includes('/welcome-flow')) {
+      return homePageMessages.features;
+    }
+    
+    return homePageMessages.initial;
+  };
   
   useEffect(() => {
     // Only play the greeting if speech synthesis is supported and we're on the right page
@@ -77,71 +103,15 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       }
       
       const timer = setTimeout(() => {
-        let message = '';
-        const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
-        const isWelcomeFlow = location.pathname.includes('/welcome-flow');
+        const contextMessage = getContextMessage();
+        const message = language.includes('hi') ? contextMessage.hi : contextMessage.en;
         
-        // Determine appropriate welcome message based on page and user status
-        if (location.pathname === '/') {
-          // For home page, use the enhanced messaging sequence
-          const messageObj = homePageMessages[currentMessageIndex];
-          message = language.includes('hi') ? messageObj.hi : messageObj.en;
-          
-          // Set flag to remember this visitor has been to the homepage
-          localStorage.setItem('has_visited_homepage', 'true');
-          
-          // Only schedule next message if user is actively engaged (hasn't clicked away or scrolled)
-          const timeSinceLastInteraction = Date.now() - lastInteractionTime;
-          if (timeSinceLastInteraction < 10000) { // 10 seconds threshold
-            // Set up the next message to play after this one finishes
-            setCurrentMessageIndex((prevIndex) => (prevIndex + 1) % homePageMessages.length);
-          } else {
-            // User seems disinterested, don't play more messages
-            setGreetingPlayed(true);
-          }
-        } else if (location.pathname.includes('/signup')) {
-          if (language === 'hi-IN') {
-            message = `प्रेप-ज़र के प्रीमियम परीक्षण साइनअप में आपका स्वागत है। हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ। हमारी प्रीमियम सदस्यता के साथ आप परीक्षा की पूरी तैयारी कर सकते हैं। हम आपकी सदस्यता राजस्व का 5% वंचित छात्रों को शिक्षा देने के लिए उपयोग करते हैं।`;
-          } else {
-            message = `Welcome to PREPZR's premium signup. Get access to our AI-powered exam preparation tools for personalized study plans, adaptive learning, and practice tests. 5% of your subscription helps provide access to underprivileged students. Our platform outperforms traditional coaching institutes by focusing on your unique learning needs and knowledge gaps.`;
-          }
-        } else if (location.pathname.includes('/welcome-back')) {
-          if (language === 'hi-IN') {
-            message = `प्रेप-ज़र पर वापस स्वागत है। बस अपने ईमेल और पासवर्ड के साथ लॉगिन करें और हम आपके पढ़ाई के यात्रा को जारी रख सकते हैं। आपका व्यक्तिगत AI ट्यूटर आपके परीक्षा तैयारी स्कोर को बेहतर बनाने में आपकी मदद करने के लिए तैयार है।`;
-          } else {
-            message = `Welcome back to PREPZR. Simply log in with your email and password, and we can continue your study journey. Your personal AI tutor is ready to help you improve your exam readiness score. Our adaptive platform remembers your progress and will suggest the best study path forward.`;
-          }
-        } else if (isWelcomeFlow) {
-          if (language === 'hi-IN') {
-            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। याद रखें, आपकी सदस्यता का 5% वंचित छात्रों का समर्थन करता है।`;
-          } else {
-            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your exam preparation. Remember, 5% of your subscription supports underprivileged students.`;
-          }
-        }
+        // Set flag to remember this visitor has been to the homepage
+        localStorage.setItem('has_visited_homepage', 'true');
         
         if (message) {
           speakMessage(message);
           setGreetingPlayed(true);
-          
-          // For homepage, set a timer to play the next message after this one finishes
-          // but only if we're still on the homepage and this isn't the last message
-          if (location.pathname === '/' && currentMessageIndex < homePageMessages.length - 1) {
-            // Estimate speaking time based on message length (approx. 100 chars spoken per 5 seconds)
-            const speakingTimeEstimate = Math.max(6000, message.length * 50);
-            
-            if (messageTimerRef.current) {
-              clearTimeout(messageTimerRef.current);
-            }
-            
-            messageTimerRef.current = setTimeout(() => {
-              // Check if user is still engaged before playing next message
-              const timeSinceInteraction = Date.now() - lastInteractionTime;
-              if (timeSinceInteraction < 15000) { // Only continue if user interacted in last 15 seconds
-                setGreetingPlayed(false); // Reset so next message will play
-              }
-              messageTimerRef.current = null;
-            }, speakingTimeEstimate);
-          }
         }
       }, delayTime);
       
@@ -161,7 +131,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         setGreetingPlayed(false);
       }
     };
-  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, currentMessageIndex, isReturningVisitor, lastInteractionTime]);
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime]);
 
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -216,17 +186,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       utterance.onend = () => {
         document.dispatchEvent(new Event('voice-speaking-ended'));
-        
-        // For home page, after utterance ends, trigger the next message if we haven't gone through all
-        // and if user is still engaged
-        if (location.pathname === '/' && currentMessageIndex < homePageMessages.length - 1) {
-          const timeSinceInteraction = Date.now() - lastInteractionTime;
-          if (timeSinceInteraction < 15000) { // Only continue if user interacted in last 15 seconds
-            setTimeout(() => {
-              setGreetingPlayed(false); // Reset to allow next message to play
-            }, 2000); // Short pause between messages
-          }
-        }
       };
     }
   };

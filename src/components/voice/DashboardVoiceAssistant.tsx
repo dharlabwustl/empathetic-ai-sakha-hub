@@ -10,135 +10,176 @@ interface DashboardVoiceAssistantProps {
   isFirstTimeUser?: boolean;
 }
 
-const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
-  userName = 'Student',
+const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
+  userName = '',
   currentMood,
   onMoodChange,
   isFirstTimeUser = false
 }) => {
-  const [greeting, setGreeting] = useState<string>('');
-  const [alreadySpoke, setAlreadySpoke] = useState<boolean>(false);
+  const [greetingPlayed, setGreetingPlayed] = useState(false);
+  const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const location = useLocation();
-  const timerId = useRef<NodeJS.Timeout | null>(null);
+  const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [sessionStorage] = useState(() => {
+    return {
+      welcomeMessagePlayed: Boolean(localStorage.getItem('dashboard_welcome_played'))
+    };
+  });
   
-  // A function to determine appropriate greeting based on pathname
-  const getContextGreeting = (pathname: string): string => {
-    if (isFirstTimeUser) {
-      return `Welcome to your personalized dashboard, ${userName}! This is where your learning journey begins. You'll find your study plan, concepts to learn, flashcards for practice, and more. I'm your voice assistant and I'll help you navigate through the platform. Let's start by exploring your dashboard!`;
-    }
-    
-    // Different greetings for different dashboard sections
-    if (pathname.includes('/today')) {
-      return `Welcome to your daily plan, ${userName}. Here you'll find a personalized schedule of concepts, flashcards, and practice tests for today. Your Exam Readiness Score is being tracked as you complete each task.`;
-    } else if (pathname.includes('/concepts')) {
-      return `This is your concepts section. All the subjects and topics you need to master are organized here. You can read concept cards, listen to audio explanations, and test your knowledge.`;
-    } else if (pathname.includes('/flashcards')) {
-      return `Welcome to the flashcards section. This is where you can review key facts and formulas using our spaced repetition system for better memory retention.`;
-    } else if (pathname.includes('/practice-exam')) {
-      return `In the practice exam section, you can take full and partial practice tests that simulate your actual exam experience. Detailed analytics will show your strengths and areas for improvement.`;
-    } else if (pathname.includes('/analytics')) {
-      return `Your analytics dashboard shows your Exam Readiness Score and other key performance indicators. Use this data to adjust your study plan and focus on areas that need improvement.`;
-    } else {
-      // Default greeting for main dashboard
-      return `Welcome back to your dashboard, ${userName}! Your personalized study journey continues. Let me know if you need help with any of our platform features or have questions about your study plan.`;
-    }
-  };
-
+  // Track user interaction to avoid annoying users with too many messages
   useEffect(() => {
-    // Don't speak if we've already spoken on this page visit or if we're in certain paths
-    if (alreadySpoke || location.pathname.includes('/settings') || location.pathname.includes('/profile')) {
-      return;
-    }
+    const handleUserInteraction = () => {
+      setLastInteractionTime(Date.now());
+    };
     
-    // Clear any existing timers
-    if (timerId.current) {
-      clearTimeout(timerId.current);
-    }
+    // Track user interactions
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('scroll', handleUserInteraction);
     
-    // Set a delay before speaking to avoid interrupting other components
-    timerId.current = setTimeout(() => {
-      const newGreeting = getContextGreeting(location.pathname);
-      setGreeting(newGreeting);
-      
-      // Only speak if we have a greeting and haven't spoken yet
-      if (newGreeting && !alreadySpoke) {
-        speakMessage(newGreeting);
-        setAlreadySpoke(true);
-        
-        // Reset the spoken flag after a navigation
-        setTimeout(() => {
-          setAlreadySpoke(false);
-        }, 60000); // Reset after 1 minute, so navigation within that time won't trigger voice again
-      }
-    }, 1500);
-    
-    // Clear timeout on unmount or route change
     return () => {
-      if (timerId.current) {
-        clearTimeout(timerId.current);
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('scroll', handleUserInteraction);
+    };
+  }, []);
+  
+  useEffect(() => {
+    // Only play welcome message once per session, and only on dashboard
+    if (
+      'speechSynthesis' in window &&
+      !greetingPlayed && 
+      !sessionStorage.welcomeMessagePlayed &&
+      location.pathname.includes('/dashboard')
+    ) {
+      const timer = setTimeout(() => {
+        // Different message for first-time users vs returning users
+        let message = '';
+        
+        if (isFirstTimeUser) {
+          // First-time user welcome
+          message = `Welcome to your personalized dashboard, ${userName}. I'm your AI study assistant. Here you can track your Exam Readiness Score, access your study plan, and practice tests. Your personalized dashboard adapts to your learning style and progress to help you achieve your exam goals efficiently.`;
+        } else {
+          // Returning user welcome
+          message = `Welcome back to your dashboard, ${userName}. Your study plan has been updated based on your recent activity and progress. Let's continue your exam preparation journey.`;
+        }
+        
+        if (message) {
+          speakMessage(message);
+          setGreetingPlayed(true);
+          localStorage.setItem('dashboard_welcome_played', 'true');
+        }
+      }, 1500);
+      
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    }
+    
+    return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
       }
     };
-  }, [location.pathname, userName, isFirstTimeUser, alreadySpoke]);
-
-  const speakMessage = (text: string) => {
-    if (!text || !('speechSynthesis' in window)) return;
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Create utterance
-    const correctedText = text.replace(/PREPZR/gi, 'Prep-zer');
-    const utterance = new SpeechSynthesisUtterance(correctedText);
-    
-    // Get voices
-    const voices = window.speechSynthesis.getVoices();
-    let selectedVoice = null;
-    
-    // Try to find an Indian English voice
-    const preferredVoiceNames = [
-      'Google English India', 'Microsoft Kajal', 'en-IN',
-      'Indian', 'India'
-    ];
-    
-    // Try to find a preferred voice
-    for (const name of preferredVoiceNames) {
-      const voice = voices.find(v => 
-        v.name?.toLowerCase().includes(name.toLowerCase()) || 
-        v.lang?.toLowerCase().includes(name.toLowerCase())
-      );
-      if (voice) {
-        selectedVoice = voice;
-        break;
+  }, [location.pathname, userName, greetingPlayed, isFirstTimeUser, sessionStorage.welcomeMessagePlayed]);
+  
+  // Handle context-specific messages based on dashboard section
+  useEffect(() => {
+    // Only provide context hints if user has already seen the welcome message
+    if (greetingPlayed && location.pathname.includes('/dashboard')) {
+      // Extract the specific dashboard section from the URL
+      const dashboardSection = location.pathname.split('/').pop();
+      
+      let contextMessage = '';
+      
+      // Provide context-specific guidance based on which section they're viewing
+      switch(dashboardSection) {
+        case 'overview':
+          contextMessage = `This is your dashboard overview. Here you can see your Exam Readiness Score, upcoming events, and performance trends.`;
+          break;
+        case 'study-plan':
+          contextMessage = `This is your personalized study plan. It adjusts based on your learning pace and performance to optimize your exam preparation.`;
+          break;
+        case 'concepts':
+          contextMessage = `Here you can explore all concepts you need to master. Click on any concept card to access detailed explanations, notes, and practice questions.`;
+          break;
+        case 'practice':
+          contextMessage = `Test your knowledge with practice exams. They simulate real exam conditions and provide detailed analytics on your performance.`;
+          break;
+        case 'analytics':
+          contextMessage = `Your analytics show your progress over time. Use these insights to identify areas that need more focus.`;
+          break;
+      }
+      
+      if (contextMessage) {
+        // Set a delay so it doesn't speak immediately after the welcome message
+        messageTimerRef.current = setTimeout(() => {
+          speakMessage(contextMessage);
+        }, 5000);
       }
     }
     
-    // If still no voice selected, try to find any female voice
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => 
-        v.name?.toLowerCase().includes('female')
+    return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
+    };
+  }, [greetingPlayed, location.pathname]);
+  
+  // Speak with proper PREPZR pronunciation
+  const speakMessage = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Create utterance with proper PREPZR pronunciation (Prep-zer)
+      const correctedText = text
+        .replace(/PREPZR/gi, 'Prep-zer')
+        .replace(/prepzr/gi, 'Prep-zer')
+        .replace(/Prepzr/g, 'Prep-zer');
+      
+      const utterance = new SpeechSynthesisUtterance(correctedText);
+      
+      // Use voices API to find an appropriate voice
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Try to find an Indian English female voice first
+      let selectedVoice = voices.find(v => 
+        (v.lang === 'en-IN' || v.name.includes('Indian')) && 
+        (v.name.toLowerCase().includes('female') || v.name.includes('Kalpana') || v.name.includes('Kajal'))
       );
+      
+      // If no Indian voice, try to find any English female voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => 
+          v.lang.includes('en') && v.name.toLowerCase().includes('female')
+        );
+      }
+      
+      // If still no match, use default voice
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Set properties
+      utterance.lang = 'en-IN';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.1; 
+      utterance.volume = 0.8;
+      
+      // Speak the message
+      window.speechSynthesis.speak(utterance);
+      
+      // Dispatch event to notify other components
+      document.dispatchEvent(new CustomEvent('voice-speaking-started', {
+        detail: { message: correctedText }
+      }));
+      
+      utterance.onend = () => {
+        document.dispatchEvent(new Event('voice-speaking-ended'));
+      };
     }
-    
-    // If still nothing, use any available voice
-    if (!selectedVoice && voices.length > 0) {
-      selectedVoice = voices[0];
-    }
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-    
-    // Set properties
-    utterance.lang = 'en-IN';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.1; // Slightly higher for female voice
-    utterance.volume = 0.8;
-    
-    // Speak
-    window.speechSynthesis.speak(utterance);
   };
 
-  // Invisible component
+  // This is an invisible component - it only provides voice functionality
   return null;
 };
 

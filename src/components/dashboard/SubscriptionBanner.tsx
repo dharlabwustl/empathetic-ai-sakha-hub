@@ -1,74 +1,122 @@
 
 import React from 'react';
-import { SubscriptionType } from '@/types/user/base';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
-import { ArrowUp, Heart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { X, Crown, Calendar } from 'lucide-react';
 
 interface SubscriptionBannerProps {
-  planType?: SubscriptionType;
-  expiryDate?: Date;
+  planType?: string;
+  expiryDate?: string;
   isExpired?: boolean;
 }
 
-const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'free', expiryDate, isExpired = false }) => {
-  const navigate = useNavigate();
+const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
+  planType = 'free',
+  expiryDate,
+  isExpired = false
+}) => {
+  const [isVisible, setIsVisible] = React.useState(true);
+
+  // Don't show banner for expired subscriptions
+  if (isExpired || !isVisible) {
+    return null;
+  }
+
+  const handleClose = () => {
+    setIsVisible(false);
+  };
+
+  // Calculate days remaining if expiry date is provided
+  const getDaysRemaining = () => {
+    if (!expiryDate) return null;
+    
+    const expiry = new Date(expiryDate);
+    const now = new Date();
+    
+    // If date is in the past, subscription has expired
+    if (expiry < now) return "Expired";
+    
+    // Return human readable format (e.g., "3 days", "2 weeks")
+    return formatDistanceToNow(expiry, { addSuffix: false });
+  };
   
-  // Don't show banner for premium users who are not expired
-  if ((planType === 'premium' || planType === 'pro') && !isExpired) {
+  // Format expiry date for better readability
+  const formatExpiryDate = () => {
+    if (!expiryDate) return null;
+    return new Date(expiryDate).toLocaleDateString('en-US', {
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    });
+  };
+  
+  const daysRemaining = getDaysRemaining();
+  const formattedExpiryDate = formatExpiryDate();
+  
+  // Determine banner style based on subscription type
+  const getBannerStyle = () => {
+    if (planType.toLowerCase().includes('premium') || planType.toLowerCase().includes('pro')) {
+      return {
+        bgClass: 'bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20',
+        iconClass: 'text-amber-500 dark:text-amber-400',
+        borderClass: 'border-amber-200 dark:border-amber-800',
+        textClass: 'text-amber-800 dark:text-amber-300'
+      };
+    }
+    
+    // Free plan
+    return {
+      bgClass: 'bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20',
+      iconClass: 'text-blue-500 dark:text-blue-400',
+      borderClass: 'border-blue-200 dark:border-blue-800',
+      textClass: 'text-blue-800 dark:text-blue-300'
+    };
+  };
+  
+  const styles = getBannerStyle();
+  
+  // Only show for certain subscription types
+  if (planType.toLowerCase() === 'free' || planType.toLowerCase() === 'basic') {
     return null;
   }
   
-  const handleUpgradeClick = () => {
-    navigate('/dashboard/student/subscription');
-  };
-  
-  // Show warning for expired premium users
-  if ((planType === 'premium' || planType === 'pro') && isExpired) {
-    return (
-      <Alert className="mb-4 bg-red-50 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50">
-        <AlertDescription className="flex justify-between items-center">
-          <span>
-            Your {planType} subscription has expired on {expiryDate ? format(new Date(expiryDate), 'PPP') : 'recently'}. Renew now to continue premium features.
-          </span>
-          <Button variant="default" className="bg-red-600 hover:bg-red-700 text-white" onClick={handleUpgradeClick}>
-            Renew Subscription
-          </Button>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  // Show upgrade message for free/basic users with donation message
   return (
-    <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-800/30">
-      <AlertDescription className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-        <div className="space-y-1">
-          <span className="block">
-            {planType === 'free' ? (
-              'Upgrade to Premium for advanced features, personalized feedback, and unlimited practice tests.'
-            ) : (
-              'Upgrade to Premium for AI tutoring and advanced analytics to boost your exam performance.'
-            )}
-          </span>
-          <div className="flex items-center text-xs text-blue-700 dark:text-blue-300 gap-1 mt-1">
-            <Heart className="h-3 w-3 fill-current" />
-            <span>
-              <strong>Making a difference together:</strong> We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
-            </span>
-          </div>
+    <div className={`relative px-4 py-2 mb-4 rounded-lg border ${styles.borderClass} ${styles.bgClass}`}>
+      <button
+        onClick={handleClose}
+        className="absolute right-2 top-2 p-1 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50"
+        aria-label="Dismiss"
+      >
+        <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+      </button>
+      
+      <div className="flex items-center space-x-3">
+        <div className={`p-2 rounded-full bg-white/80 dark:bg-gray-800/80 ${styles.iconClass}`}>
+          <Crown className="w-5 h-5" />
         </div>
-        <Button 
-          variant="default" 
-          className="bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
-          onClick={handleUpgradeClick}
-        >
-          <ArrowUp className="h-4 w-4 mr-2" /> Upgrade
+        
+        <div className="flex-1">
+          <h3 className={`font-medium ${styles.textClass}`}>
+            {planType.toLowerCase().includes('premium') || planType.toLowerCase().includes('pro')
+              ? 'Premium Plan Active'
+              : 'Subscription Active'}
+          </h3>
+          
+          {expiryDate && (
+            <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center">
+              <Calendar className="w-3.5 h-3.5 mr-1" />
+              {daysRemaining && (
+                <span>Expires in {daysRemaining} ({formattedExpiryDate})</span>
+              )}
+            </p>
+          )}
+        </div>
+        
+        <Button variant="outline" size="sm">
+          Manage
         </Button>
-      </AlertDescription>
-    </Alert>
+      </div>
+    </div>
   );
 };
 

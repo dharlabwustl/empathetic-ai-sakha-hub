@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -232,6 +233,7 @@ const StudentDashboard = () => {
         userName={userProfile.name || userProfile.firstName || 'Student'} 
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
+        isFirstTimeUser={isFirstTimeUser}
       />
     </>
   );
