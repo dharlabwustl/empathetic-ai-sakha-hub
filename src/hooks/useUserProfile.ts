@@ -65,8 +65,8 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       }
     ];
     
-    // Use the newly uploaded image
-    const uploadedAvatarImage = '/lovable-uploads/ff31535f-8bfc-4b7a-aab8-46c77a8ccfed.png';
+    // Get saved profile image from localStorage, if available
+    const savedProfileImage = typeof window !== 'undefined' ? localStorage.getItem('user_profile_image') : null;
     
     return {
       id: 'student-123',
@@ -75,7 +75,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       role: UserRole.Student,
       signupType: SignupType.Email,
       examPreparation: 'JEE Advanced 2025',
-      avatar: uploadedAvatarImage,
+      avatar: savedProfileImage || '/lovable-uploads/ff31535f-8bfc-4b7a-aab8-46c77a8ccfed.png',
       bio: 'Passionate student preparing for engineering entrance exams.',
       phoneNumber: '+91 98765 43210',
       personalityType: 'Analytical learner',
@@ -124,7 +124,7 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
         memberLimit: 0
       },
       studyStreak: 12,
-      mood: MoodType.Motivated,
+      mood: MoodType.MOTIVATED,
       paymentMethods: mockPaymentMethods,
       billingHistory: mockBillingHistory
     };
@@ -147,6 +147,12 @@ export const useUserProfile = (role: UserRole = UserRole.Student) => {
         // Get mock profile based on role
         const mockProfile = generateMockUserProfile(role);
         
+        // Check if there's a saved profile image in localStorage
+        const savedImage = localStorage.getItem('user_profile_image');
+        if (savedImage) {
+          mockProfile.avatar = savedImage;
+        }
+        
         // Set user as logged in to conditionally show components
         localStorage.setItem('isLoggedIn', 'true');
         
@@ -166,7 +172,13 @@ export const useUserProfile = (role: UserRole = UserRole.Student) => {
   // Function to update user profile
   const updateUserProfile = (updates: Partial<UserProfileType>) => {
     if (userProfile) {
-      setUserProfile({ ...userProfile, ...updates });
+      const updatedProfile = { ...userProfile, ...updates };
+      setUserProfile(updatedProfile);
+      
+      // If avatar is updated, store in localStorage
+      if (updates.avatar) {
+        localStorage.setItem('user_profile_image', updates.avatar);
+      }
     }
   };
 

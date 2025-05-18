@@ -101,7 +101,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       });
       
       setIsUploading(false);
-    }, 1500);
+    }, 1000);
   };
 
   const handleRemoveImage = () => {
@@ -126,9 +126,11 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="relative">
-        <Avatar className="h-24 w-24">
+        <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-md">
           <AvatarImage src={imagePreview} alt={userName} />
-          <AvatarFallback className="text-lg">{getInitials(userName)}</AvatarFallback>
+          <AvatarFallback className="text-lg bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+            {getInitials(userName)}
+          </AvatarFallback>
         </Avatar>
         
         <div className="absolute bottom-0 right-0 flex gap-1">

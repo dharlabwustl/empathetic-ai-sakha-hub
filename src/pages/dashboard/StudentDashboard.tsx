@@ -113,6 +113,11 @@ const StudentDashboard = () => {
   const handleProfileImageUpdate = (imageUrl: string) => {
     setProfileImage(imageUrl);
     localStorage.setItem('user_profile_image', imageUrl);
+    
+    // If user profile exists, update its avatar property
+    if (userProfile) {
+      userProfile.avatar = imageUrl;
+    }
   };
 
   const handleSkipTourWrapper = () => {
@@ -160,10 +165,10 @@ const StudentDashboard = () => {
     );
   }
 
-  // Update user profile with the profile image
+  // Update user profile with the profile image from localStorage
   const enhancedUserProfile = {
     ...userProfile,
-    photoURL: profileImage || userProfile.photoURL
+    avatar: profileImage || userProfile.avatar || userProfile.photoURL
   };
 
   // Custom content based on active tab
@@ -178,8 +183,8 @@ const StudentDashboard = () => {
     <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
-        hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent double sidebar
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav} // Always hide tabs nav to prevent double sidebar
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}

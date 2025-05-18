@@ -1,303 +1,291 @@
-import React, { useState } from 'react';
-import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
-import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
-import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
-import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
-import { useToast } from '@/hooks/use-toast';
-import { v4 as uuidv4 } from 'uuid';
-import { format, differenceInCalendarDays } from 'date-fns';
-import type { StudyPlan, NewStudyPlan, StudyPlanSubject, StudyPlanTopic } from '@/types/user/studyPlan';
 
-interface AcademicAdvisorProps {
-  userProfile: {
-    examPreparation?: string;
-  };
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, Clock, Zap, Calendar, BarChart3, ArrowRight } from 'lucide-react';
+
+// Define StudyPlanTopic interface to fix build errors
+interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+  status: 'pending' | 'in-progress' | 'completed';
+  priority: number; // Add required priority field
 }
 
-const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
-  const { toast } = useToast();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
+const AcademicAdvisor = () => {
+  const [activeTab, setActiveTab] = React.useState("current-plan");
 
-  // State for plans
-  const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
-    id: "plan-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: userProfile?.examPreparation || "NEET",
-    examDate: "2024-12-15",
-    createdAt: "2024-04-10T12:00:00Z",
-    updatedAt: "2024-04-10T12:00:00Z",
-    status: 'active',
-    weeklyHours: 42,
-    progressPercentage: 35,
-    daysLeft: 240,
-    subjects: [
-      {
-        id: "physics-1",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 14,
-        priority: "high",
-        proficiency: "medium",
-        completed: false,
-        topics: [
-          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
-          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
-          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
-        ]
-      },
-      {
-        id: "chem-1",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "medium",
-        proficiency: "weak",
-        completed: false,
-        topics: [
-          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
-          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
-          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
-        ]
-      },
-      {
-        id: "math-1",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 16,
-        priority: "high",
-        proficiency: "strong",
-        completed: false,
-        topics: [
-          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
-          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
-        ]
-      }
-    ],
-    studyHoursPerDay: 6,
-    preferredStudyTime: 'evening',
-    learningPace: 'moderate'
-  }]);
-
-  // State for completed plans
-  const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
-    id: "plan-old-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: "NEET",
-    examDate: "2024-03-15",
-    createdAt: "2024-01-01T12:00:00Z",
-    updatedAt: "2024-03-15T12:00:00Z",
-    status: 'completed',
-    weeklyHours: 35,
-    progressPercentage: 100,
-    daysLeft: 0,
-    subjects: [
-      {
-        id: "physics-old",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 10,
-        priority: "medium",
-        proficiency: "weak",
-        completed: true,
-        topics: [
-          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
-      },
-      {
-        id: "chem-old",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "low",
-        proficiency: "weak",
-        completed: true,
-        topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
-      },
-      {
-        id: "math-old",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 13,
-        priority: "high",
-        proficiency: "medium",
-        completed: true,
-        topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
-        ]
-      }
-    ],
-    studyHoursPerDay: 5,
-    preferredStudyTime: 'morning',
-    learningPace: 'slow'
-  }]);
-
-  const handleCreatePlan = () => {
-    setShowCreateDialog(true);
-  };
-
-  const handleViewPlanDetails = (planId: string) => {
-    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
-    if (plan) {
-      setSelectedPlan(plan);
-    }
-  };
-
-  // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
-    let topics = [];
-    const priorities = ['high', 'medium', 'low'];
-    const statuses = ['pending', 'in-progress'];
-    
-    // Generate topics based on subject
-    switch(subject.toLowerCase()) {
-      case 'physics':
-        topics = [
-          { id: `phys-${Date.now()}-1`, name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `phys-${Date.now()}-2`, name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `phys-${Date.now()}-3`, name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      case 'chemistry':
-        topics = [
-          { id: `chem-${Date.now()}-1`, name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `chem-${Date.now()}-2`, name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `chem-${Date.now()}-3`, name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'easy' as const, completed: false }
-        ];
-        break;
-      case 'mathematics':
-        topics = [
-          { id: `math-${Date.now()}-1`, name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `math-${Date.now()}-2`, name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `math-${Date.now()}-3`, name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      default:
-        topics = [
-          { id: `gen-${Date.now()}-1`, name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `gen-${Date.now()}-2`, name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false }
-        ];
-    }
-    
-    return topics;
-  };
-
-  const mockTopics: StudyPlanTopic[] = [
+  // Sample data
+  const upcomingExams = [
     {
-      id: "topic1",
-      name: "Kinematics",
-      difficulty: "medium",
-      completed: true, 
-      status: "completed",
-      priority: "high"
+      id: "exam-1",
+      title: "Physics Unit Test",
+      date: "2023-11-20",
+      timeRemaining: "3 days",
+      topics: 5,
+      readiness: 80,
     },
     {
-      id: "topic2",
-      name: "Newton's Laws of Motion",
-      difficulty: "medium",
-      completed: true, 
-      status: "completed",
-      priority: "high"
-    },
-    {
-      id: "topic3",
-      name: "Electromagnetic Theory",
-      difficulty: "hard",
-      completed: true, 
-      status: "completed",
-      priority: "medium"
+      id: "exam-2",
+      title: "Chemistry Mock Test",
+      date: "2023-11-25",
+      timeRemaining: "8 days",
+      topics: 7,
+      readiness: 65,
     }
   ];
 
-  const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object
-    const newPlan: StudyPlan = {
-      id: uuidv4(),
-      userId: "user-1",
-      goal: "NEET Preparation",
-      examGoal: plan.examGoal,
-      examDate: typeof plan.examDate === 'string' ? plan.examDate : format(plan.examDate as Date, 'yyyy-MM-dd'),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      weeklyHours: plan.weeklyHours || 20,
-      progressPercentage: 0,
-      daysLeft: typeof plan.examDate === 'string' 
-        ? differenceInCalendarDays(new Date(plan.examDate), new Date())
-        : differenceInCalendarDays(plan.examDate as Date, new Date()),
-      subjects: plan.subjects.map(subject => {
-        // Ensure each subject has the required properties with proper types
-        const studyPlanSubject: StudyPlanSubject = {
-          id: subject.id || `subject-${uuidv4()}`,
-          name: subject.name,
-          color: subject.color || "#3b82f6",
-          hoursPerWeek: subject.hoursPerWeek || 10,
-          priority: subject.priority || "medium",
-          proficiency: subject.proficiency || "medium",
-          completed: false,
-          topics: generateTopicsForSubject(subject.name, subject.proficiency || "medium")
-        };
-        return studyPlanSubject;
-      }),
-      studyHoursPerDay: plan.studyHoursPerDay,
-      preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
-    };
-    
-    // Move previous active plans to completed
-    const updatedCompletedPlans = [...completedPlans];
-    if (activePlans.length > 0) {
-      const oldActivePlans = activePlans.map(plan => ({
-        ...plan,
-        status: 'completed' as 'completed'
-      }));
-      updatedCompletedPlans.push(...oldActivePlans);
+  const weeklyGoals = [
+    {
+      id: "goal-1",
+      title: "Complete Physics Motion chapter",
+      progress: 70,
+      due: "2 days left",
+    },
+    {
+      id: "goal-2",
+      title: "Practice 50 Organic Chemistry problems",
+      progress: 30,
+      due: "5 days left",
+    },
+    {
+      id: "goal-3",
+      title: "Review Calculus concepts",
+      progress: 100,
+      due: "Completed",
     }
-    
-    // Add the new plan as the active one
-    setActivePlans([newPlan]);
-    setCompletedPlans(updatedCompletedPlans);
-    
-    // Show toast
-    toast({
-      title: "Success",
-      description: "Your new study plan has been created and is now active!",
-    });
-    
-    setShowCreateDialog(false);
-  };
+  ];
+
+  const studyPlanTopics: StudyPlanTopic[] = [
+    {
+      id: "topic-1",
+      name: "Newton's Laws of Motion",
+      difficulty: "medium",
+      completed: true,
+      status: "completed",
+      priority: 1
+    },
+    {
+      id: "topic-2",
+      name: "Atomic Structure",
+      difficulty: "medium",
+      completed: true,
+      status: "completed",
+      priority: 2
+    },
+    {
+      id: "topic-3",
+      name: "Differentiation",
+      difficulty: "hard",
+      completed: true,
+      status: "completed",
+      priority: 3
+    }
+  ];
 
   return (
-    <div className="space-y-12">
-      <AcademicHeader examGoal={userProfile?.examPreparation} />
-      
-      <StudyPlansList
-        activePlans={activePlans}
-        completedPlans={completedPlans}
-        onCreatePlan={handleCreatePlan}
-        onViewPlanDetails={handleViewPlanDetails}
-      />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Academic Advisor</h2>
+          <p className="text-muted-foreground">
+            Your personalized study plan and academic guidance
+          </p>
+        </div>
+        <Button size="sm">Generate New Plan</Button>
+      </div>
 
-      <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        examGoal={userProfile?.examPreparation}
-        onCreatePlan={handleNewPlanCreated}
-      />
-
-      {selectedPlan && (
-        <StudyPlanDetail
-          plan={selectedPlan}
-          isOpen={!!selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-        />
-      )}
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="current-plan">Current Plan</TabsTrigger>
+          <TabsTrigger value="upcoming-exams">Upcoming Exams</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="current-plan" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="col-span-1 md:col-span-2">
+              <CardHeader>
+                <CardTitle>Weekly Study Plan</CardTitle>
+                <CardDescription>Topics and goals for this week</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {weeklyGoals.map(goal => (
+                  <div key={goal.id} className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center">
+                        <CheckCircle2 className={`h-5 w-5 mr-2 ${
+                          goal.progress === 100 ? "text-green-500" : "text-gray-400"
+                        }`} />
+                        <span>{goal.title}</span>
+                      </div>
+                      <Badge variant={goal.progress === 100 ? "default" : "outline"}>
+                        {goal.due}
+                      </Badge>
+                    </div>
+                    
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full" 
+                        style={{width: `${goal.progress}%`}}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+                
+                <Button variant="outline" className="w-full mt-4">View All Topics</Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Study Stats</CardTitle>
+                <CardDescription>Your weekly progress</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="text-sm font-medium">Study Hours</div>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1 text-blue-500" />
+                    <span className="text-2xl font-bold">12.5</span>
+                    <span className="text-sm text-muted-foreground ml-1">/ 15h goal</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="text-sm font-medium">Topics Covered</div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />
+                    <span className="text-2xl font-bold">8</span>
+                    <span className="text-sm text-muted-foreground ml-1">/ 10 planned</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="text-sm font-medium">Productivity Score</div>
+                  <div className="flex items-center">
+                    <Zap className="h-4 w-4 mr-1 text-yellow-500" />
+                    <span className="text-2xl font-bold">82</span>
+                    <span className="text-sm text-muted-foreground ml-1">/ 100</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Upcoming Focus Topics</CardTitle>
+              <CardDescription>Based on your performance and exam schedule</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {studyPlanTopics.map(topic => (
+                  <div key={topic.id} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Badge variant={
+                        topic.difficulty === 'easy' ? 'outline' : 
+                        topic.difficulty === 'medium' ? 'secondary' : 
+                        'destructive'
+                      } className="mr-2">
+                        {topic.difficulty}
+                      </Badge>
+                      <span className={topic.completed ? "line-through text-muted-foreground" : ""}>
+                        {topic.name}
+                      </span>
+                    </div>
+                    
+                    {topic.completed ? (
+                      <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                        Completed
+                      </Badge>
+                    ) : (
+                      <Button size="sm" variant="ghost">
+                        Study Now <ArrowRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="upcoming-exams" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {upcomingExams.map(exam => (
+              <Card key={exam.id}>
+                <CardHeader>
+                  <CardTitle>{exam.title}</CardTitle>
+                  <CardDescription className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    {new Date(exam.date).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Time Remaining:</span>
+                      <Badge variant="outline">{exam.timeRemaining}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Topics:</span>
+                      <span>{exam.topics}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Readiness:</span>
+                        <span>{exam.readiness}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            exam.readiness >= 80 ? 'bg-green-500' :
+                            exam.readiness >= 60 ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }`}
+                          style={{width: `${exam.readiness}%`}}
+                        ></div>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-2">Prepare for Exam</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <Button variant="outline" className="w-full">View All Exams</Button>
+        </TabsContent>
+        
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Analytics</CardTitle>
+              <CardDescription>Track your progress over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground" />
+                  <h3 className="mt-4 text-lg font-medium">Performance charts will appear here</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Complete more quizzes and exams to see your performance data
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

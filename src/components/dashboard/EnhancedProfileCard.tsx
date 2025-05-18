@@ -7,6 +7,7 @@ import { UserProfileBase, MoodType } from '@/types/user/base';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { File, Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface SkillRating {
   name: string;
@@ -116,15 +117,17 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
             onMouseEnter={() => setUploadHover(true)}
             onMouseLeave={() => setUploadHover(false)}
           >
-            <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-md">
-              {profile.avatar ? (
-                <AvatarImage src={profile.avatar} alt={profile.name} />
-              ) : (
-                <AvatarFallback className="text-2xl bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                  {getInitials(profile.name)}
-                </AvatarFallback>
-              )}
-            </Avatar>
+            <Link to="/dashboard/student/profile">
+              <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-md">
+                {profile.avatar ? (
+                  <AvatarImage src={profile.avatar} alt={profile.name} />
+                ) : (
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                    {getInitials(profile.name)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Link>
             
             {onUploadImage && uploadHover && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -162,12 +165,19 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
               <div className="text-xs text-muted-foreground">Logins</div>
             </div>
             
-            {showPeerRanking && (
+            {showPeerRanking ? (
               <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
                 <div className="text-2xl font-bold text-primary">
                   Top 15%
                 </div>
                 <div className="text-xs text-muted-foreground">Peer Ranking</div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+                <div className="text-2xl font-bold text-primary">
+                  {profile.studyStreak || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Day Streak</div>
               </div>
             )}
           </div>
@@ -220,9 +230,11 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
       
       <CardFooter className="flex justify-center py-4">
         {profile.role === 'student' && (
-          <Button variant="outline" size="sm" className="w-full">
-            <File className="mr-2 h-4 w-4" />
-            View Full Profile
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <Link to="/dashboard/student/profile">
+              <File className="mr-2 h-4 w-4" />
+              View Full Profile
+            </Link>
           </Button>
         )}
       </CardFooter>
