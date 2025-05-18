@@ -1,38 +1,43 @@
 
-export type TestType = 'intro' | 'readiness' | 'concept' | 'report';
-export type TestCompletionState = {
-  readiness: boolean;
-  stress: boolean;
-  concept: boolean;
-};
-
-export interface ExamType {
-  value: string;
-  label: string;
-}
-
-export interface Question {
+export interface TestQuestion {
   id: string;
-  text: string;
+  question: string;
   options: string[];
-  correctAnswer?: number;
-  explanation?: string;
-  subject?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  timeLimit?: number;
   type?: string;
+  category?: string;
+  subcategory?: string;
+  imageUrl?: string;
+  diagram?: string;
+  correctAnswer?: string;
+  explanation?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
-export interface TestResult {
+export interface UserAnswer {
+  questionId: string;
+  answer: string;
+  timeToAnswer?: number;
+  isCorrect?: boolean;
+  confidenceLevel?: number;
+}
+
+export interface TestResults {
   score: number;
-  level: string;
+  timeElapsed?: number;
+  readinessLevel?: string;
+  weakAreas?: string[];
+  strengths?: string[];
   analysis: string;
-  strengths: string[];
-  improvements: string[];
+  recommendations: string[];
+  conceptsToReview?: string[];
 }
 
-export interface ExamResults {
-  stress: TestResult;
-  readiness: TestResult;
-  concept: TestResult;
-  overall: TestResult;
+export interface TestState {
+  currentTest: 'select' | 'readiness' | 'concept' | 'results';
+  selectedExam: string;
+  loading: boolean;
+  progress: number;
+  testCompleted: boolean;
+  results: TestResults;
 }

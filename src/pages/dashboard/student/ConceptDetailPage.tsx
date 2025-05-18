@@ -1,705 +1,586 @@
 
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, BookOpen, Star, Calculator, Volume2, Video, FileText, BookOpen as BookIcon, Brain, Lightbulb, BarChart2, CheckCircle } from 'lucide-react';
-import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  BookOpen, 
+  BookMarked, 
+  CheckCircle, 
+  AlarmClock, 
+  Star, 
+  Volume2, 
+  PenLine, 
+  FlaskConical, 
+  GraduationCap, 
+  Lightbulb, 
+  Zap, 
+  VolumeX,
+  Brain
+} from 'lucide-react';
+import { ConceptExamSection } from '@/components/dashboard/student/concepts/ConceptExamSection';
+import { ConceptCard as ConceptCardType } from '@/types/user/conceptCard';
 
-const ConceptDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  // Start with the "learn" tab active by default
-  const [activeTab, setActiveTab] = useState('learn');
-  const [confidenceRating, setConfidenceRating] = useState<number>(0);
-  const [readAloudActive, setReadAloudActive] = useState(false);
-  
-  const { speakMessage, toggleMute, isVoiceSupported } = useVoiceAnnouncer({});
-
-  // In a real app, fetch concept details by ID from API
-  // For now, we'll use mock data
-  const concept = {
-    id: parseInt(id || "1"),
-    title: "Newton's Laws of Motion",
-    subject: "Physics",
-    chapter: "Mechanics",
-    description: "Understanding the fundamental principles of motion and forces in classical mechanics.",
-    status: "in-progress",
+// Mock concept data
+const getMockConcept = (conceptId: string): ConceptCardType => {
+  return {
+    id: conceptId,
+    title: "Cellular Respiration & Photosynthesis",
+    description: "Comprehensive study of the processes of cellular respiration and photosynthesis, their relationship, and their role in energy production within cells.",
+    subject: "Biology",
+    chapter: "Cell Biology",
+    topic: "Cellular Metabolism",
     difficulty: "medium",
-    timeEstimate: 20,
-    mastery: 65,
-    priority: 1,
-    cardCount: 15,
-    isRecommended: true,
-    hasFormulas: true, // Flag to indicate if this concept has formulas
-    hasVideo: true,
-    has3dModel: true,
-    hasExamples: true,
-    hasPastExamQuestions: true,
-    examMistakes: [
-      "Forgetting to include units in the final answer",
-      "Confusing the First and Third Laws in application problems",
-      "Neglecting friction forces in calculations"
+    completed: false,
+    progress: 65,
+    relatedConcepts: ["Enzyme Kinetics", "Cell Structure", "Mitochondria Function"],
+    content: `
+      <h2>Cellular Respiration</h2>
+      <p>Cellular respiration is the process by which cells break down glucose and other organic compounds to produce energy in the form of ATP (adenosine triphosphate).</p>
+      
+      <h3>The Stages of Cellular Respiration</h3>
+      <ol>
+        <li><strong>Glycolysis:</strong> Occurs in the cytoplasm and breaks down glucose into pyruvate, producing a small amount of ATP.</li>
+        <li><strong>Pyruvate Oxidation:</strong> Pyruvate is converted to acetyl-CoA, which enters the Krebs cycle.</li>
+        <li><strong>The Krebs Cycle (Citric Acid Cycle):</strong> Takes place in the mitochondrial matrix, generating NADH and FADH2.</li>
+        <li><strong>Electron Transport Chain:</strong> Located in the inner mitochondrial membrane, this is where most ATP is produced through oxidative phosphorylation.</li>
+      </ol>
+      
+      <h3>The Net ATP Production</h3>
+      <p>The complete oxidation of one glucose molecule through cellular respiration produces approximately 30-32 ATP molecules (the exact number varies slightly depending on the organism and conditions).</p>
+      
+      <h2>Photosynthesis</h2>
+      <p>Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy in the form of glucose or other carbohydrates.</p>
+      
+      <h3>The Stages of Photosynthesis</h3>
+      <ol>
+        <li><strong>Light-Dependent Reactions:</strong> Occur in the thylakoid membrane of chloroplasts. These reactions convert light energy into chemical energy in the form of ATP and NADPH.</li>
+        <li><strong>Calvin Cycle (Light-Independent Reactions):</strong> Takes place in the stroma of chloroplasts. These reactions use the ATP and NADPH produced in the light-dependent reactions to convert CO2 into glucose.</li>
+      </ol>
+      
+      <h3>The Overall Equation for Photosynthesis</h3>
+      <p>6 CO₂ + 6 H₂O + Light Energy → C₆H₁₂O₆ (glucose) + 6 O₂</p>
+      
+      <h2>The Relationship Between Cellular Respiration and Photosynthesis</h2>
+      <p>Cellular respiration and photosynthesis can be considered opposite processes. Photosynthesis captures energy from sunlight to build carbohydrates, while cellular respiration breaks down carbohydrates to release energy. The products of one process are the reactants of the other.</p>
+    `,
+    examples: [
+      "In muscle cells during exercise, cellular respiration rates increase to meet the higher energy demands.",
+      "Plants in low light conditions may have reduced photosynthesis rates, affecting their growth and overall health.",
+      "C4 plants have evolved special adaptations to enhance photosynthetic efficiency in hot, dry environments."
     ],
-    content: {
-      summary: "Newton's three laws of motion describe the relationship between the motion of an object and the forces acting on it. These laws are fundamental to classical mechanics.",
-      keyPoints: [
-        "First Law (Law of Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
-        "Second Law: The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.",
-        "Third Law: For every action, there is an equal and opposite reaction."
-      ],
-      examples: [
-        "A book on a table remains at rest due to balanced forces (First Law).",
-        "Pushing a shopping cart - the acceleration depends on the force applied and the mass of the cart (Second Law).",
-        "A rocket expels gas backward, propelling itself forward (Third Law)."
-      ]
+    commonMistakes: [
+      "Confusing the location of glycolysis (cytoplasm) and the Krebs cycle (mitochondria).",
+      "Thinking photosynthesis only occurs during the day - while light reactions require light, the Calvin cycle can continue in the dark if ATP and NADPH are available.",
+      "Overlooking the role of water in photosynthesis as a source of electrons, not just a medium for reactions."
+    ],
+    examRelevance: "Extremely high: Questions on cellular respiration and photosynthesis appear in virtually every biology examination, with particular emphasis on comparing and contrasting these processes.",
+    recallAccuracy: 72,
+    quizScore: 68,
+    lastPracticed: "2023-10-15",
+    timeSuggestion: 45,
+    flashcardsTotal: 15,
+    flashcardsCompleted: 9,
+    examReady: false,
+    bookmarked: true
+  };
+};
+
+// Notes interface
+interface Note {
+  id: string;
+  content: string;
+  timestamp: Date;
+}
+
+// Related resource interface
+interface RelatedResource {
+  id: string;
+  title: string;
+  type: 'video' | 'article' | 'practice' | 'interactive';
+  url: string;
+  duration?: string;
+}
+
+const ConceptDetailPage: React.FC = () => {
+  const { conceptId } = useParams<{ conceptId: string }>();
+  const { toast } = useToast();
+  const [concept, setConcept] = useState<ConceptCardType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [readingAloud, setReadingAloud] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [activeTab, setActiveTab] = useState("content");
+  
+  // Related resources
+  const [relatedResources] = useState<RelatedResource[]>([
+    {
+      id: "video1",
+      title: "Cellular Respiration: Glycolysis Explained",
+      type: "video",
+      url: "#",
+      duration: "12 min"
     },
-    aiInsights: "You seem to understand Newton's First Law well, but your recall of the mathematical forms of the Second Law could use some practice. Consider focusing on force calculation problems.",
-    videoUrl: "https://www.youtube.com/embed/mn34mnnDnKU",
-    pastExamQuestions: [
-      {
-        year: 2022,
-        question: "A 2 kg object is subjected to a force of 10 N. Calculate its acceleration.",
-        answer: "5 m/s²",
-        explanation: "Using Newton's Second Law: a = F/m = 10N/2kg = 5 m/s²"
-      },
-      {
-        year: 2021,
-        question: "Explain how Newton's Third Law applies when a person is standing on the ground.",
-        answer: "The person exerts a downward force on the ground due to their weight, and the ground exerts an equal upward force on the person, which keeps them from sinking into the ground."
-      }
-    ],
-    // New analytics data
-    analytics: {
-      examScore: 3.5,
-      totalExamScore: 5,
-      recallStrength: 72,
-      avgTimePerMCQ: 45,
-      nextRevisionDays: 3,
-      attemptHistory: [
-        { date: '2023-05-01', score: 60 },
-        { date: '2023-05-15', score: 65 },
-        { date: '2023-05-29', score: 72 }
-      ],
-      weakLinks: [
-        "Understanding of balanced forces in real-world scenarios",
-        "Application of the concept in rotational motion"
-      ],
-      revisionPlan: [
-        "Review the concept of balanced forces using everyday examples",
-        "Practice more problems involving objects on inclined planes"
-      ],
-      topicAnalytics: {
-        coreConcept: 75,
-        complexProblems: 60,
-        memoryRecall: 82
-      },
-      percentileRank: 30
+    {
+      id: "video2",
+      title: "Photosynthesis: Light and Dark Reactions",
+      type: "video",
+      url: "#",
+      duration: "15 min"
+    },
+    {
+      id: "article1",
+      title: "ATP Production in Mitochondria",
+      type: "article",
+      url: "#"
+    },
+    {
+      id: "practice1",
+      title: "Photosynthesis Practice Problems",
+      type: "practice",
+      url: "#"
+    },
+    {
+      id: "interactive1",
+      title: "Interactive Electron Transport Chain",
+      type: "interactive",
+      url: "#"
     }
-  };
-
-  const handleBackToConcepts = () => {
-    navigate('/dashboard/student/concepts');
-  };
-
-  const handleOpenFormulaLab = () => {
-    navigate(`/dashboard/student/concepts/${id}/formula-lab`);
-  };
-
-  // Handle read aloud functionality
-  const toggleReadAloud = () => {
-    if (!isVoiceSupported) {
-      toast({
-        title: "Text-to-Speech Not Supported",
-        description: "Your browser doesn't support text-to-speech functionality. Please try a different browser.",
-        variant: "destructive"
-      });
-      return;
-    }
+  ]);
+  
+  // Fetch concept data
+  useEffect(() => {
+    if (!conceptId) return;
     
-    if (readAloudActive) {
+    setLoading(true);
+    
+    // In a real app, this would be an API call
+    const mockData = getMockConcept(conceptId);
+    
+    setTimeout(() => {
+      setConcept(mockData);
+      setIsBookmarked(mockData.bookmarked || false);
+      setLoading(false);
+    }, 800);
+  }, [conceptId]);
+  
+  // Function to handle read aloud
+  const handleReadAloud = () => {
+    if (!concept) return;
+    
+    if (readingAloud) {
       // Stop reading
-      toggleMute(true);
-      setReadAloudActive(false);
+      window.speechSynthesis.cancel();
+      setReadingAloud(false);
+      toast({
+        title: "Reading stopped",
+        description: "Text-to-speech has been stopped",
+      });
     } else {
       // Start reading
-      setReadAloudActive(true);
+      const utterance = new SpeechSynthesisUtterance();
+      // Strip HTML tags for reading
+      const textContent = concept.content.replace(/<[^>]*>/g, '');
+      utterance.text = textContent;
+      utterance.lang = 'en-IN';
+      utterance.rate = 0.9;
       
-      // Prepare the text to be read aloud
-      let textToRead = `${concept.title}. ${concept.description} ${concept.content.summary} `;
+      window.speechSynthesis.speak(utterance);
+      setReadingAloud(true);
       
-      // Add key points
-      textToRead += "Key points: ";
-      concept.content.keyPoints.forEach((point, index) => {
-        textToRead += `Point ${index + 1}: ${point} `;
+      // Event handler for when speech ends
+      utterance.onend = () => {
+        setReadingAloud(false);
+      };
+      
+      toast({
+        title: "Reading aloud",
+        description: "Text-to-speech has started",
       });
-      
-      // Add examples
-      textToRead += "Examples: ";
-      concept.content.examples.forEach((example, index) => {
-        textToRead += `Example ${index + 1}: ${example} `;
-      });
-      
-      speakMessage(textToRead);
-      
-      // Auto turn off after content is read
-      setTimeout(() => {
-        setReadAloudActive(false);
-      }, textToRead.length * 50); // Rough estimate of reading time
     }
   };
-
-  // Update confidence rating
-  const handleConfidenceRating = (rating: number) => {
-    setConfidenceRating(rating);
+  
+  // Function to toggle bookmark
+  const handleToggleBookmark = () => {
+    if (!concept) return;
     
-    // Provide feedback based on confidence
-    let feedbackMessage = "";
-    if (rating <= 2) {
-      feedbackMessage = "It's okay to find this challenging. Let's focus on reviewing the basics first.";
-    } else if (rating <= 4) {
-      feedbackMessage = "You're making progress! Continue practicing with examples to build confidence.";
-    } else {
-      feedbackMessage = "Great confidence level! Try testing your knowledge with practice questions.";
-    }
+    setIsBookmarked(!isBookmarked);
     
     toast({
-      title: "Confidence Recorded",
-      description: feedbackMessage,
+      title: isBookmarked ? "Bookmark removed" : "Bookmark added",
+      description: isBookmarked ? "Concept removed from bookmarks" : "Concept added to bookmarks for easy access",
     });
   };
-
+  
+  // Function to add a note
+  const handleAddNote = () => {
+    if (!newNote.trim()) return;
+    
+    const newNoteObj: Note = {
+      id: `note_${Date.now()}`,
+      content: newNote,
+      timestamp: new Date()
+    };
+    
+    setNotes([...notes, newNoteObj]);
+    setNewNote("");
+    
+    toast({
+      title: "Note added",
+      description: "Your note has been saved",
+    });
+  };
+  
+  // Function to delete a note
+  const handleDeleteNote = (noteId: string) => {
+    setNotes(notes.filter(note => note.id !== noteId));
+    
+    toast({
+      title: "Note deleted",
+      description: "Your note has been removed",
+    });
+  };
+  
+  if (loading) {
+    return (
+      <SharedPageLayout
+        title="Loading Concept..."
+        subtitle="Please wait while we load the concept details"
+        showBackButton
+        backButtonUrl="/dashboard/student/concepts"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-pulse flex flex-col items-center space-y-6 w-full">
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            <div className="space-y-3 w-full">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
+            </div>
+          </div>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+  
+  if (!concept) {
+    return (
+      <SharedPageLayout
+        title="Concept Not Found"
+        subtitle="The requested concept could not be found"
+        showBackButton
+        backButtonUrl="/dashboard/student/concepts"
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <p className="text-muted-foreground">
+            We couldn't find the concept you're looking for.
+          </p>
+          <Button className="mt-4" variant="outline">Return to Concepts</Button>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+  
+  const getDifficultyColor = () => {
+    switch (concept.difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'hard': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+  
   return (
     <SharedPageLayout
       title={concept.title}
-      subtitle={`${concept.subject} • ${concept.chapter}`}
+      subtitle={`${concept.subject} > ${concept.chapter} > ${concept.topic}`}
+      showBackButton
+      backButtonUrl="/dashboard/student/concepts"
     >
-      <div className="mb-6">
-        <Button
-          variant="outline"
-          size="sm"
-          className="mb-4 flex items-center gap-1"
-          onClick={handleBackToConcepts}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Concepts</span>
-        </Button>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-2xl">{concept.title}</CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className={`p-2 rounded-full ${readAloudActive ? 'bg-blue-100 text-blue-700' : ''}`}
-                    onClick={toggleReadAloud}
-                  >
-                    <Volume2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <CardDescription className="mt-1 flex flex-wrap gap-2">
-                  <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-                    {concept.subject}
-                  </Badge>
-                  <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
-                    {concept.chapter}
-                  </Badge>
-                  <Badge variant="outline" className={
-                    concept.difficulty === "easy"
-                      ? "bg-green-100 text-green-800 border-green-200"
-                      : concept.difficulty === "medium"
-                        ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                        : "bg-red-100 text-red-800 border-red-200"
-                  }>
+      <div className="space-y-6">
+        {/* Header with actions and progress */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={getDifficultyColor()}>
                     {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
                   </Badge>
-                </CardDescription>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>{concept.timeEstimate} min</span>
+                  {concept.examReady && (
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                      Exam Ready
+                    </Badge>
+                  )}
                 </div>
-                {concept.isRecommended && (
-                  <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200">
-                    <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
-                    Recommended
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <h3 className="font-medium mb-2">Progress</h3>
-              <div className="flex justify-between text-sm text-gray-500 mb-1">
-                <span>Mastery</span>
-                <span>{concept.mastery}%</span>
-              </div>
-              <Progress 
-                value={concept.mastery} 
-                className="h-2" 
-              />
-            </div>
-            <p className="text-muted-foreground">{concept.description}</p>
-          </CardContent>
-        </Card>
-
-        {/* New Analytics Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <BarChart2 className="h-5 w-5 text-blue-600" />
-              Mastery & Recall Tracker
-            </CardTitle>
-            <CardDescription>
-              Track your progress and performance with this concept
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Exam Score</div>
-                <div className="mt-1 flex justify-center items-baseline">
-                  <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">{concept.analytics.examScore}</span>
-                  <span className="text-lg text-gray-500 dark:text-gray-400">/{concept.analytics.totalExamScore}</span>
-                </div>
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Recall Strength</div>
-                <div className="mt-1">
-                  <span className="text-2xl font-bold text-green-700 dark:text-green-400">{concept.analytics.recallStrength}%</span>
-                </div>
-              </div>
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Time per MCQ</div>
-                <div className="mt-1">
-                  <span className="text-2xl font-bold text-purple-700 dark:text-purple-400">{concept.analytics.avgTimePerMCQ}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400"> sec</span>
-                </div>
-              </div>
-              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Next Revision</div>
-                <div className="mt-1">
-                  <span className="text-xl font-bold text-amber-700 dark:text-amber-400">Due in {concept.analytics.nextRevisionDays} days</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Attempt History */}
-            <div className="mt-6">
-              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Attempt History</h3>
-              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-4 h-40 flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500">Performance graph would appear here</p>
-                  <p className="text-xs text-gray-400 mt-2">Showing quiz attempts over time</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Topic-Level Analytics */}
-            <div className="mt-6">
-              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3">Topic-Level Analytics</h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Understanding of Core Concept</span>
-                    <span>{concept.analytics.topicAnalytics.coreConcept}%</span>
-                  </div>
-                  <Progress value={concept.analytics.topicAnalytics.coreConcept} className="h-2 bg-gray-200 dark:bg-gray-700" />
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Application in Complex Problems</span>
-                    <span>{concept.analytics.topicAnalytics.complexProblems}%</span>
-                  </div>
-                  <Progress value={concept.analytics.topicAnalytics.complexProblems} className="h-2 bg-gray-200 dark:bg-gray-700" />
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Memory Recall</span>
-                    <span>{concept.analytics.topicAnalytics.memoryRecall}%</span>
-                  </div>
-                  <Progress value={concept.analytics.topicAnalytics.memoryRecall} className="h-2 bg-gray-200 dark:bg-gray-700" />
-                </div>
-              </div>
-              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" /> 
-                  <span className="font-medium text-indigo-700 dark:text-indigo-300">
-                    You're in the top {concept.analytics.percentileRank}% for this concept!
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Confidence rating section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Confidence Check</CardTitle>
-            <CardDescription>How confident are you with this concept?</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col space-y-4">
-              <div className="flex space-x-1">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <Button
-                    key={rating}
-                    variant={confidenceRating === rating ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleConfidenceRating(rating)}
-                    className="w-full"
-                  >
-                    {rating}
-                  </Button>
-                ))}
-              </div>
-              <div className="text-sm text-center text-gray-500">
-                {confidenceRating === 0 && "Select a confidence level"}
-                {confidenceRating === 1 && "Not at all"}
-                {confidenceRating === 2 && "Slightly confident"}
-                {confidenceRating === 3 && "Moderately confident"}
-                {confidenceRating === 4 && "Very confident"}
-                {confidenceRating === 5 && "Extremely confident"}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={confidenceRating === 0}
-                className="w-full md:w-auto md:self-end"
-              >
-                Save Rating
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* AI Insights with Weak Link Detection */}
-        <Card className="mb-6">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Brain className="h-5 w-5 text-purple-500" />
-              AI Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <h3 className="font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-red-500 mr-1"></span>
-              Weak Link Detector
-            </h3>
-            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300 mb-4">
-              {concept.analytics.weakLinks.map((weakLink, index) => (
-                <li key={index}>{weakLink}</li>
-              ))}
-            </ul>
-            
-            <h3 className="font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
-              <CheckCircle className="h-4 w-4" />
-              Suggested Revision Plan
-            </h3>
-            <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-              {concept.analytics.revisionPlan.map((plan, index) => (
-                <li key={index}>{plan}</li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter className="bg-gray-50 dark:bg-gray-800/50 pt-3 border-t border-gray-100 dark:border-gray-800">
-            <Button variant="outline" size="sm" className="w-full">
-              Generate Custom Study Plan
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
-          className="space-y-4"
-        >
-          <TabsList className="w-full grid grid-cols-7">
-            <TabsTrigger value="learn">Learn</TabsTrigger>
-            <TabsTrigger value="visual">Visual</TabsTrigger>
-            <TabsTrigger value="video" className={concept.hasVideo ? "" : "hidden"}>
-              Video
-            </TabsTrigger>
-            <TabsTrigger value="formula" className={concept.hasFormulas ? "" : "hidden"}>
-              Formula Lab
-            </TabsTrigger>
-            <TabsTrigger value="examples" className={concept.hasExamples ? "" : "hidden"}>
-              Examples
-            </TabsTrigger>
-            <TabsTrigger value="exam-questions" className={concept.hasPastExamQuestions ? "" : "hidden"}>
-              Past Exams
-            </TabsTrigger>
-            <TabsTrigger value="test">Quick Test</TabsTrigger>
-          </TabsList>
-          
-          {/* Learn Tab */}
-          <TabsContent value="learn" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>{concept.content.summary}</p>
                 
-                <h3 className="font-medium mt-4 mb-2">Key Points</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                  {concept.content.keyPoints.map((point, index) => (
-                    <li key={index}>{point}</li>
-                  ))}
-                </ul>
-                
-                <h3 className="font-medium mt-4 mb-2">Examples</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                  {concept.content.examples.map((example, index) => (
-                    <li key={index}>{example}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-            
-            {/* Common Mistakes Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Common Mistakes to Avoid</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  {concept.examMistakes.map((mistake, index) => (
-                    <li key={index} className="text-red-600 dark:text-red-400">{mistake}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-            
-            {/* AI Insights Card */}
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-500" />
-                <CardTitle className="text-lg">AI Insights</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{concept.aiInsights}</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Visual Tab */}
-          <TabsContent value="visual" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Visual Learning</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* Interactive diagram placeholder */}
-                  <div className="rounded-lg bg-slate-100 dark:bg-slate-800 h-80 flex items-center justify-center text-center p-4">
-                    <div>
-                      <h3 className="font-medium mb-2">Interactive Diagram</h3>
-                      <p className="text-sm text-gray-500">
-                        An interactive visual representation of Newton's Laws would be displayed here.
-                      </p>
-                    </div>
+                <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-3">
+                  <div className="flex items-center">
+                    <AlarmClock className="h-4 w-4 mr-1" />
+                    <span>Study time: {concept.timeSuggestion} min</span>
                   </div>
                   
-                  {/* 3D Model Viewer */}
-                  {concept.has3dModel && (
-                    <div>
-                      <h3 className="font-medium mb-2">3D Model</h3>
-                      <div className="rounded-lg bg-slate-100 dark:bg-slate-800 h-64 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="mx-auto w-16 h-16 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-2">
-                            <BookIcon className="h-8 w-8 text-muted-foreground" />
+                  <div className="flex items-center">
+                    <BookMarked className="h-4 w-4 mr-1" />
+                    <span>Last practiced: {new Date(concept.lastPracticed || Date.now()).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={handleReadAloud}>
+                  {readingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                  {readingAloud ? "Stop Reading" : "Read Aloud"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleToggleBookmark}
+                  className={isBookmarked ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300" : ""}
+                >
+                  <Star className={`h-4 w-4 mr-2 ${isBookmarked ? "fill-yellow-500" : ""}`} />
+                  {isBookmarked ? "Bookmarked" : "Bookmark"}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Progress</span>
+                <span className="text-sm text-muted-foreground">{concept.progress}%</span>
+              </div>
+              <Progress value={concept.progress || 0} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Main content tabs */}
+        <Tabs defaultValue="content" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-4">
+            <TabsTrigger value="content" className="flex items-center gap-1.5">
+              <BookOpen className="h-4 w-4" />
+              <span>Content</span>
+            </TabsTrigger>
+            <TabsTrigger value="practice" className="flex items-center gap-1.5">
+              <FlaskConical className="h-4 w-4" />
+              <span>Practice</span>
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center gap-1.5">
+              <PenLine className="h-4 w-4" />
+              <span>Notes</span>
+            </TabsTrigger>
+            <TabsTrigger value="exam" className="flex items-center gap-1.5">
+              <GraduationCap className="h-4 w-4" />
+              <span>Exam Prep</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="content" className="border rounded-md mt-4">
+            <div className="p-6">
+              <div className="prose dark:prose-invert max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: concept.content }} />
+              </div>
+              
+              {/* Examples section */}
+              {concept.examples && concept.examples.length > 0 && (
+                <div className="mt-8 border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <Lightbulb className="h-5 w-5 mr-2 text-amber-500" />
+                    Real-World Examples
+                  </h3>
+                  <ul className="space-y-3">
+                    {concept.examples.map((example, index) => (
+                      <li key={index} className="flex items-start">
+                        <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>{example}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* Common mistakes section */}
+              {concept.commonMistakes && concept.commonMistakes.length > 0 && (
+                <div className="mt-8 border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-red-500" />
+                    Common Pitfalls to Avoid
+                  </h3>
+                  <ul className="space-y-3">
+                    {concept.commonMistakes.map((mistake, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-red-500 font-bold mr-2 flex-shrink-0">⚠</span>
+                        <span>{mistake}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* Exam relevance */}
+              {concept.examRelevance && (
+                <div className="mt-8 border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-2 flex items-center">
+                    <Zap className="h-5 w-5 mr-2 text-blue-500" />
+                    Exam Relevance
+                  </h3>
+                  <p>{concept.examRelevance}</p>
+                </div>
+              )}
+              
+              {/* Related resources section */}
+              <div className="mt-8 border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Additional Resources</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {relatedResources.map(resource => (
+                    <div 
+                      key={resource.id} 
+                      className="p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center">
+                        {resource.type === 'video' && <BookOpen className="h-5 w-5 mr-3 text-red-500" />}
+                        {resource.type === 'article' && <BookMarked className="h-5 w-5 mr-3 text-blue-500" />}
+                        {resource.type === 'practice' && <FlaskConical className="h-5 w-5 mr-3 text-green-500" />}
+                        {resource.type === 'interactive' && <Zap className="h-5 w-5 mr-3 text-purple-500" />}
+                        
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{resource.title}</h4>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant="outline" className="text-xs font-normal capitalize">
+                              {resource.type}
+                            </Badge>
+                            {resource.duration && (
+                              <span className="text-xs text-muted-foreground">
+                                {resource.duration}
+                              </span>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground">3D model visualization would be displayed here</p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-4"
-                            onClick={() => toast({
-                              title: "3D Model",
-                              description: "Loading 3D model viewer...",
-                            })}
-                          >
-                            View 3D Model
-                          </Button>
                         </div>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              
+              {/* AI Tutor Insights */}
+              <div className="mt-8 border-t pt-6">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                  <div className="flex items-start">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-full mr-3">
+                      <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-medium mb-2">AI Tutor Insights</h3>
+                      <p className="text-sm">
+                        This concept is foundational to understanding energy transformations in living organisms. 
+                        Based on your current progress, focus on the relationship between the electron transport chain 
+                        and ATP synthesis. Previous assessments show you're confident with glycolysis but could 
+                        strengthen your understanding of photosynthetic light reactions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </TabsContent>
           
-          {/* Video Tab */}
-          <TabsContent value="video" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Video className="h-5 w-5" />
-                  Video Explanation
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-video">
-                  <iframe
-                    src={concept.videoUrl}
-                    className="w-full h-full rounded-lg"
-                    title={`Video explanation of ${concept.title}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                <div className="mt-4 space-y-2">
-                  <h3 className="font-medium">Video Notes</h3>
-                  <p className="text-sm text-muted-foreground">
-                    This video covers all three of Newton's Laws with helpful visualizations and real-world examples.
-                    Key timestamps:
-                  </p>
-                  <ul className="list-disc pl-5 text-sm">
-                    <li>00:14 - Introduction to Newton's Laws</li>
-                    <li>01:23 - First Law explained</li>
-                    <li>03:45 - Second Law and calculations</li>
-                    <li>05:32 - Third Law and examples</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Formula Tab */}
-          <TabsContent value="formula" className="space-y-4">
-            <FormulaTabContent 
-              conceptId={id || '1'} 
-              conceptTitle={concept.title} 
-              handleOpenFormulaLab={handleOpenFormulaLab}
-            />
-          </TabsContent>
-          
-          {/* Examples Tab */}
-          <TabsContent value="examples" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Detailed Examples</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="border p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                    <h3 className="font-medium mb-2">Example 1: Inertia in Daily Life</h3>
-                    <p className="mb-3">
-                      When a bus suddenly accelerates, passengers feel a force pushing them backward. This is actually their bodies
-                      resisting the change in motion - demonstrating Newton's First Law of Inertia.
-                    </p>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <p className="text-sm font-medium">Analysis:</p>
-                      <p className="text-sm">The passengers' bodies want to remain at rest relative to their original position. When the bus accelerates forward, their bodies initially stay in place due to inertia, giving the sensation of being pushed backward.</p>
+          <TabsContent value="practice" className="border rounded-md mt-4">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Practice Questions</h2>
+              <div className="space-y-6">
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-medium mb-2">Question 1</h3>
+                  <p className="mb-4">Which stage of cellular respiration produces the most ATP?</p>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                      <input type="radio" id="q1-a" name="q1" className="h-4 w-4" />
+                      <label htmlFor="q1-a" className="flex-grow cursor-pointer">Glycolysis</label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                      <input type="radio" id="q1-b" name="q1" className="h-4 w-4" />
+                      <label htmlFor="q1-b" className="flex-grow cursor-pointer">Krebs Cycle</label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                      <input type="radio" id="q1-c" name="q1" className="h-4 w-4" />
+                      <label htmlFor="q1-c" className="flex-grow cursor-pointer">Electron Transport Chain</label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                      <input type="radio" id="q1-d" name="q1" className="h-4 w-4" />
+                      <label htmlFor="q1-d" className="flex-grow cursor-pointer">Fermentation</label>
                     </div>
                   </div>
                   
-                  <div className="border p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
-                    <h3 className="font-medium mb-2">Example 2: Second Law Calculation</h3>
-                    <p className="mb-3">
-                      A soccer player kicks a 0.43 kg ball with a force of 25 N. Calculate the acceleration of the ball.
-                    </p>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <p className="text-sm font-medium">Solution:</p>
-                      <p className="text-sm">Using Newton's Second Law: F = ma</p>
-                      <p className="text-sm">Rearranging to find acceleration: a = F/m</p>
-                      <p className="text-sm">a = 25 N / 0.43 kg = 58.14 m/s²</p>
-                    </div>
+                  <div className="mt-4 flex justify-end">
+                    <Button>Check Answer</Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <Button variant="outline" className="w-full">
+                  View More Practice Questions
+                </Button>
+              </div>
+            </div>
           </TabsContent>
           
-          {/* Past Exam Questions Tab */}
-          <TabsContent value="exam-questions" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Previous Years' Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {concept.pastExamQuestions.map((question, index) => (
-                    <div key={index} className="border p-4 rounded-lg">
+          <TabsContent value="notes" className="border rounded-md mt-4">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Your Notes</h2>
+              
+              <div className="mb-6">
+                <textarea 
+                  className="w-full border rounded-md p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Add your notes here..."
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                ></textarea>
+                <div className="mt-2 flex justify-end">
+                  <Button onClick={handleAddNote}>Save Note</Button>
+                </div>
+              </div>
+              
+              {notes.length === 0 ? (
+                <div className="text-center py-8 border rounded-md">
+                  <p className="text-muted-foreground">You haven't added any notes yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {notes.map(note => (
+                    <div key={note.id} className="p-4 border rounded-lg">
                       <div className="flex justify-between items-start">
-                        <h3 className="font-medium">{question.year} Exam Question</h3>
-                        <Badge>{question.year}</Badge>
+                        <p className="whitespace-pre-wrap">{note.content}</p>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-muted-foreground"
+                          onClick={() => handleDeleteNote(note.id)}
+                        >
+                          ✕
+                        </Button>
                       </div>
-                      <p className="my-3">{question.question}</p>
-                      
-                      <div className="mt-4">
-                        <details className="group">
-                          <summary className="flex items-center font-medium cursor-pointer list-none">
-                            <span className="flex-1">View Answer</span>
-                            <span className="transition group-open:rotate-180">
-                              <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                              </svg>
-                            </span>
-                          </summary>
-                          <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                            <p className="font-medium">Answer:</p>
-                            <p>{question.answer}</p>
-                            {question.explanation && (
-                              <div className="mt-2">
-                                <p className="font-medium">Explanation:</p>
-                                <p>{question.explanation}</p>
-                              </div>
-                            )}
-                          </div>
-                        </details>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {note.timestamp.toLocaleString()}
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </div>
           </TabsContent>
           
-          {/* Quick Test Tab */}
-          <TabsContent value="test" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5" />
-                  Knowledge Assessment
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">Test your understanding of {concept.title} with this quick assessment.</p>
-                <Button size="lg" className="w-full">Start Quick Test</Button>
-                
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="font-medium mb-2">Recall Practice</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Try to recall and write down the key points about this concept before checking your answers.</p>
-                  <div className="border rounded-lg p-4">
-                    <textarea 
-                      className="w-full h-32 p-3 border rounded-lg" 
-                      placeholder="Write what you remember about Newton's Laws of Motion..."
-                    />
-                    <Button className="mt-3">Check My Recall</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="exam" className="mt-4">
+            <ConceptExamSection
+              conceptId={concept.id}
+              conceptTitle={concept.title}
+              examReady={concept.examReady}
+            />
           </TabsContent>
         </Tabs>
       </div>
