@@ -10,6 +10,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -172,30 +173,35 @@ const StudentDashboard = () => {
   const modifiedShowWelcomeTour = false;
 
   return (
-    <DashboardLayout
-      userProfile={enhancedUserProfile}
-      hideSidebar={false}
-      hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={modifiedShowWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodChange={handleMoodChange}
-    >
-      {getTabContent()}
-    </DashboardLayout>
+    <>
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={false}
+        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={modifiedShowWelcomeTour}
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTour}
+        onCompleteTour={handleCompleteTour}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+      >
+        {getTabContent()}
+      </DashboardLayout>
+      
+      {/* Add the floating voice assistant */}
+      <FloatingVoiceAssistant userName={userProfile.name} />
+    </>
   );
 };
 

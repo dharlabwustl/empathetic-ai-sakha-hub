@@ -5,8 +5,6 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
-import VoiceTestPanel from '@/components/dashboard/student/VoiceTestPanel';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
 
 interface DashboardTabsProps {
@@ -108,13 +106,6 @@ const DashboardContent = ({
         />
       )}
       
-      {/* Voice Test Panel - Show only if voice hasn't been tested */}
-      {!hasTestedVoice && (
-        <div className="mb-4">
-          <VoiceTestPanel userName={userProfile.name} />
-        </div>
-      )}
-      
       {/* Exam Readiness Section - For the main dashboard */}
       {activeTab === 'overview' && (
         <div className="mb-6">
@@ -127,9 +118,6 @@ const DashboardContent = ({
           />
         </div>
       )}
-      
-      {/* Quick Access Buttons for all pages */}
-      <QuickAccess />
       
       {/* Content area - Using custom content if provided, otherwise the generated tab content */}
       <div className="mt-4">

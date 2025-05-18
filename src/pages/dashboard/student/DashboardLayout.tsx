@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
@@ -204,7 +203,7 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      <ChatAssistant userType="student" />
+      {/* Removed the ChatAssistant component */}
       
       {showStudyPlan && (
         <StudyPlanDialog 
@@ -213,7 +212,7 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour */}
+      {/* WelcomeTour with modified text (no mention of free/donations) */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
