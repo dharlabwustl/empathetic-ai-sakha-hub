@@ -10,9 +10,11 @@ import NewTodaysPlanView from './NewTodaysPlanView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useNavigate } from 'react-router-dom';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
+  const navigate = useNavigate();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
   // Get today's plan data
@@ -48,6 +50,11 @@ const RedesignedTodaysPlan: React.FC = () => {
 
   console.log("RedesignedTodaysPlan - Loaded plan data:", planData?.conceptCards?.length || 0, "concept cards");
 
+  const handleConceptClick = (conceptId: string) => {
+    console.log("Navigating to concept detail page:", conceptId);
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
   return (
     <SharedPageLayout
       title="Today's Plan"
@@ -68,10 +75,7 @@ const RedesignedTodaysPlan: React.FC = () => {
         
         <NewTodaysPlanView 
           planData={planData}
-          onConceptClick={(conceptId) => {
-            // Directly navigate to the concept detail page with the right URL format
-            window.location.href = `/dashboard/student/concepts/${conceptId}`;
-          }}
+          onConceptClick={handleConceptClick}
         />
       </div>
     </SharedPageLayout>

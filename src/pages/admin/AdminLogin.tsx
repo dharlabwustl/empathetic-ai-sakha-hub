@@ -23,6 +23,15 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
+    // Check if this is an admin login attempt
+    const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
+    
+    if (isAdminLoginAttempt) {
+      // Clear the flag so we don't loop
+      localStorage.removeItem('admin_login_attempt');
+      console.log("Admin login attempt detected");
+    }
+    
     if (isAdminAuthenticated) {
       console.log("Already authenticated as admin, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });

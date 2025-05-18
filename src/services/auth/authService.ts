@@ -16,6 +16,7 @@ export interface RegisterData {
   password: string;
   role?: string;
   schoolName?: string; // Added field for school/institute name
+  provider?: 'google' | 'email' | 'phone';
 }
 
 export interface AuthUser {
@@ -83,9 +84,61 @@ const authService = {
     };
   },
   
+  // Google login or signup
+  async googleAuth(userData: Partial<RegisterData>): Promise<ApiResponse<AuthUser>> {
+    console.log("Google auth with:", userData);
+    
+    // Set the google signup flag
+    localStorage.setItem('google_signup', 'true');
+    localStorage.setItem('isLoggedIn', 'true');
+    
+    // For demo, create a mock successful response
+    const mockUser: AuthUser = {
+      id: `google_user_${Date.now()}`,
+      name: userData.name || 'Google User',
+      email: userData.email || `google${Date.now()}@gmail.com`,
+      role: 'student',
+      token: `google_token_${Date.now()}`
+    };
+    
+    // Set the auth data
+    this.setAuthData(mockUser);
+    
+    // Save user data in localStorage
+    const userDataObj = {
+      id: mockUser.id,
+      name: mockUser.name,
+      email: mockUser.email,
+      role: UserRole.Student,
+      mood: 'MOTIVATED',
+      isAuthenticated: true,
+      lastLogin: new Date().toISOString(),
+      isFirstTimeUser: true
+    };
+    
+    // Important - set these values to ensure user is logged in after signup
+    localStorage.setItem('userData', JSON.stringify(userDataObj));
+    localStorage.setItem('needs_study_plan_creation', 'true');
+    
+    // Trigger auth state change
+    window.dispatchEvent(new Event('auth-state-changed'));
+    
+    // Return success response
+    return {
+      success: true,
+      data: mockUser,
+      error: null
+    };
+  },
+  
   // Register user with auto-login
   async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service registering user:", userData);
+    
+    // Handle Google signup flow differently
+    if (userData.provider === 'google') {
+      return this.googleAuth(userData);
+    }
     
     // Clear any existing admin login
     localStorage.removeItem('admin_logged_in');
@@ -164,6 +217,7 @@ const authService = {
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('google_signup');
     
     // Set admin auth data
     this.setAuthData(adminUser);
@@ -208,6 +262,8 @@ const authService = {
       'adminUser',
       'prepzr_remembered_login',
       'new_user_signup',
+      'google_signup',
+      'needs_study_plan_creation',
       'current_mood',
     ];
     
@@ -261,6 +317,9 @@ const authService = {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('google_signup');
+    localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('needs_study_plan_creation');
     
     // Reset API client
     apiClient.setAuthToken(null);

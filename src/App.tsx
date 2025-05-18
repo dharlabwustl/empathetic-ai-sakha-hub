@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -60,7 +61,11 @@ import FormulaPracticeLab from '@/pages/dashboard/student/FormulaPracticeLab';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 import AdminLogin from '@/pages/admin/AdminLogin';
+// Import auth pages
 import auth from '@/pages/auth/AdminLogin';
+import Signup from '@/pages/auth/Signup';
+import LoginPage from '@/pages/auth/Login';
+import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
@@ -91,6 +96,11 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
+              
+              {/* Auth-specific routes */}
+              <Route path="/auth/signup" element={<Signup />} />
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/admin-login" element={<auth />} />
               
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
@@ -124,7 +134,7 @@ function App() {
               <Route path="/welcome-flow" element={<WelcomeFlow />} />
               
               {/* Post-login welcome back screen */}
-              <Route path="/welcome-back" element={<PostLoginWelcome />} />
+              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
 
               {/* Student dashboard - Protected with the combined wrapper */}
               <Route path="/dashboard/student" element={<ProtectedSidebarRoute Component={StudentDashboard} />} />

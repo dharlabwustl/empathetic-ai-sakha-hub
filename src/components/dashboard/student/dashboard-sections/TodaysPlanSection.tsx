@@ -32,6 +32,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
     }
   };
 
+  // Navigate to concept detail when requested
+  const handleGoToConceptDetail = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">

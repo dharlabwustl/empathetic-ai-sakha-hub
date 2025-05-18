@@ -26,11 +26,25 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
     }
   };
   
+  // Format options according to NEET standard (using 1, 2, 3, 4 numbering)
+  const getFormattedOptions = () => {
+    return question.options.map((option, index) => {
+      // NEET uses numbers (1,2,3,4) for options, not letters
+      const optionNumber = index + 1;
+      return {
+        label: `${optionNumber}. ${option}`,
+        value: option
+      };
+    });
+  };
+  
+  const formattedOptions = getFormattedOptions();
+  
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-lg font-medium flex items-center">
-          <Brain className="mr-2 text-pink-500" size={20} />
+        <h3 className="text-lg font-medium flex items-start">
+          <Brain className="mr-2 text-pink-500 mt-1 flex-shrink-0" size={20} />
           <span>{question.question}</span>
         </h3>
         
@@ -46,25 +60,25 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
       </div>
       
       <RadioGroup className="space-y-3 mb-6">
-        {question.options.map((option, index) => (
+        {formattedOptions.map((option, index) => (
           <div 
             key={index} 
             className={`flex items-center space-x-2 p-3 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-              selectedAnswer === option ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800' : ''
+              selectedAnswer === option.value ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800' : ''
             }`}
-            onClick={() => !disabled && setSelectedAnswer(option)}
+            onClick={() => !disabled && setSelectedAnswer(option.value)}
           >
             <RadioGroupItem 
-              value={option} 
+              value={option.value} 
               id={`option-${index}`} 
-              checked={selectedAnswer === option}
+              checked={selectedAnswer === option.value}
               disabled={disabled}
             />
             <Label 
               htmlFor={`option-${index}`}
               className="flex-1 cursor-pointer"
             >
-              {option}
+              {option.label}
             </Label>
           </div>
         ))}

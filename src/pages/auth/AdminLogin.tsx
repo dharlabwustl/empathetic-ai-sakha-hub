@@ -15,7 +15,13 @@ const AdminLogin = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('new_user_signup');
     localStorage.removeItem('google_signup');
-  }, []);
+    
+    // Notify the user that they're being redirected to admin login
+    toast({
+      title: "Admin Login",
+      description: "Redirecting you to the admin login page..."
+    });
+  }, [toast]);
 
   // Direct redirect to admin login page with proper flags set
   return <Navigate to="/admin/login" replace />;

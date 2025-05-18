@@ -9,9 +9,13 @@ import { useToast } from '@/hooks/use-toast';
 
 interface NewTodaysPlanViewProps {
   planData: TodaysPlanData | null;
+  onConceptClick?: (conceptId: string) => void; 
 }
 
-const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
+const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ 
+  planData,
+  onConceptClick 
+}) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -19,8 +23,12 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
   
   const handleStartConcept = (conceptId: string) => {
     console.log("NewTodaysPlanView - Starting concept study for ID:", conceptId);
-    // Navigate directly to the concept detail page using the consistent URL pattern
-    navigate(`/dashboard/student/concepts/${conceptId}`);
+    if (onConceptClick) {
+      onConceptClick(conceptId);
+    } else {
+      // Navigate directly to the concept detail page using the consistent URL pattern
+      navigate(`/dashboard/student/concepts/${conceptId}`);
+    }
   };
   
   const handleStartFlashcards = (flashcardId: string) => {
@@ -28,7 +36,7 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData }) => {
   };
   
   const handleStartPracticeExam = (examId: string) => {
-    navigate(`/dashboard/student/practice/${examId}`);
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
   
   const markAsComplete = (id: string, type: string) => {

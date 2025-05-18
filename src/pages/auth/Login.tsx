@@ -41,6 +41,11 @@ const Login = () => {
         localStorage.removeItem('new_user_signup');
       }
       
+      if (isGoogleSignup) {
+        // Ensure we still set this flag for Google signup flow
+        localStorage.setItem('needs_study_plan_creation', 'true');
+      }
+      
       // Redirect directly to welcome flow, skipping login
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {

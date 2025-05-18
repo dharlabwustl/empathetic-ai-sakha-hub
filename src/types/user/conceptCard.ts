@@ -22,6 +22,37 @@ export interface ConceptCard {
   flashcardsCompleted?: number;
   examReady?: boolean;
   bookmarked?: boolean;
+  
+  // Added fields for concept detail page
+  keyPoints?: string[];
+  formulas?: string[];
+  notes?: string[];
+  masteryLevel?: number;
+  mastery?: {
+    level: string;
+    percentage: number;
+  };
+  videos?: {
+    id: string;
+    title: string;
+    url: string;
+    duration: string;
+    thumbnail?: string;
+  }[];
+  resources?: {
+    id: string;
+    title: string;
+    type: string;
+    url: string;
+  }[];
+  practiceQuestions?: {
+    id: string;
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation?: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }[];
 }
 
 export interface MasteryLevel {

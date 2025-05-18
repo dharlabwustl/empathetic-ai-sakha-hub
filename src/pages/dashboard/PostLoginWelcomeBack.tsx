@@ -49,6 +49,11 @@ const PostLoginWelcomeBack = () => {
       
       // Ensure we've set the login flag
       localStorage.setItem('isLoggedIn', 'true');
+      
+      // For Google signup, set special flag to show study plan dialog after tour
+      if (isGoogleSignup) {
+        localStorage.setItem('needs_study_plan_creation', 'true');
+      }
       return;
     }
     
@@ -98,7 +103,7 @@ const PostLoginWelcomeBack = () => {
     localStorage.setItem('sawWelcomeTour', 'true');
     setShowTour(false);
     
-    // Check if study plan creation is needed (for Google signup users)
+    // Check if study plan creation is needed (for new/Google signup users)
     if (localStorage.getItem('needs_study_plan_creation') === 'true') {
       localStorage.removeItem('needs_study_plan_creation');
       setShowStudyPlanDialog(true);
