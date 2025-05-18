@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import authService from '@/services/auth/authService';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -18,16 +18,16 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
-  // Check if already authenticated
+  // Check if already authenticated as admin
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (isAdminLoggedIn) {
       console.log("Already authenticated as admin, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +42,12 @@ const AdminLogin = () => {
     
     try {
       console.log("Submitting admin login form with email:", email);
-      const success = await adminLogin(email, password);
+      const response = await authService.adminLogin({
+        email: email,
+        password: password
+      });
       
-      if (success) {
+      if (response.success && response.data) {
         console.log("Admin login successful, preparing to navigate");
         toast({
           title: "Admin Login successful",

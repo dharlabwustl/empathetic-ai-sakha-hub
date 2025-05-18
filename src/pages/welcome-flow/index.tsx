@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,10 +15,15 @@ const WelcomeFlow = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("Student");
+  const [isGoogleSignup, setIsGoogleSignup] = useState(false);
 
   useEffect(() => {
-    // Get user data from localStorage
+    // Get user data and check if this is a Google signup
     const userData = localStorage.getItem('userData');
+    const googleSignup = localStorage.getItem('google_signup') === 'true';
+    
+    setIsGoogleSignup(googleSignup);
+    
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
@@ -45,7 +51,13 @@ const WelcomeFlow = () => {
       localStorage.setItem('sawWelcomeTour', 'false');
       localStorage.setItem('isLoggedIn', 'true');
       
+      // For Google signups, flag for study plan creation should be maintained
+      if (isGoogleSignup) {
+        localStorage.setItem('needs_study_plan_creation', 'true');
+      }
+      
       // On completion, navigate to dashboard with tour flag
+      // Direct navigation to dashboard with query parameters
       window.location.href = '/dashboard/student?new=true&completedOnboarding=true';
     }
   };
@@ -65,7 +77,7 @@ const WelcomeFlow = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        // Welcome screen - keep existing code
+        // Welcome screen
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
@@ -136,332 +148,189 @@ const WelcomeFlow = () => {
                     }}
                   >
                     <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                    <span>Track your progress with detailed analytics and insights</span>
+                    <span>Smart analytics to track your progress and identify areas for improvement</span>
                   </motion.li>
                 </motion.ul>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
-                  Next <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
+            <CardFooter className="flex justify-end pt-2">
+              <Button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8">
+                Continue <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </CardFooter>
           </Card>
         );
       case 2:
-        // Voice Assistant Information
+        // Personalized learning step
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
             <CardHeader className="text-center pb-2">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <CardTitle className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Voice Intelligent Assistant</CardTitle>
-                <CardDescription className="text-lg">Your hands-free study companion</CardDescription>
-              </motion.div>
+              <CardTitle className="text-2xl font-bold">Personalized Learning</CardTitle>
+              <CardDescription>How PREPZR adapts to your needs</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <motion.div 
-                initial={{ scale: 0, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
-                className="p-4 rounded-full bg-primary/10 mb-6"
-              >
-                <Volume className="h-16 w-16 text-primary" />
-              </motion.div>
-              <div className="space-y-4">
-                <motion.p 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-center"
-                >
-                  PREPZR's voice intelligent assistant helps you study efficiently, get answers to questions, and navigate the platform hands-free.
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="bg-blue-50 p-4 rounded-lg shadow-inner"
-                >
-                  <h4 className="font-medium text-center mb-2 flex items-center justify-center gap-2">
-                    <Mic className="h-4 w-4 text-blue-600" />
-                    Voice Assistant Features
-                  </h4>
-                  <ul className="space-y-2">
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Multiple Languages:</span>
-                      <span className="font-medium text-blue-700">Hindi & English</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.7 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Voice Commands:</span>
-                      <span className="font-medium text-blue-700">Navigation & Search</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Voice Explanations:</span>
-                      <span className="font-medium text-blue-700">Learn by listening</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.9 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Accessibility:</span>
-                      <span className="font-medium text-blue-700">Hands-free learning</span>
-                    </motion.li>
-                  </ul>
-                </motion.div>
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.1 }}
-                  className="text-center text-sm text-muted-foreground"
-                >
-                  Your voice assistant will welcome you on your first login and guide you through the platform.
-                </motion.p>
+            <CardContent className="space-y-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-blue-100 text-blue-700">
+                  <Brain className="h-10 w-10" />
+                </div>
+                <div>
+                  <h3 className="font-medium">AI-Driven Study Plans</h3>
+                  <p className="text-sm text-gray-500">Our AI analyzes your performance to create optimal study schedules</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-purple-100 text-purple-700">
+                  <Book className="h-10 w-10" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Smart Concept Cards</h3>
+                  <p className="text-sm text-gray-500">Break down complex topics into manageable, interactive learning cards</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-pink-100 text-pink-700">
+                  <Calendar className="h-10 w-10" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Spaced Repetition</h3>
+                  <p className="text-sm text-gray-500">Review concepts at optimal intervals to maximize long-term retention</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-yellow-100 text-yellow-700">
+                  <Clock className="h-10 w-10" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Time Optimization</h3>
+                  <p className="text-sm text-gray-500">Focus on what matters most based on your exam goals and timeline</p>
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between sm:justify-between">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
-                  Next <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
+            <CardFooter className="flex justify-end pt-2">
+              <Button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8">
+                Next <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </CardFooter>
           </Card>
         );
       case 3:
-        // Study plan screen - keep existing code
+        // Voice assistant introduction
         return (
           <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
             <CardHeader className="text-center pb-2">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <CardTitle className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Your Study Plan</CardTitle>
-                <CardDescription className="text-lg">Optimized time allocation for your success</CardDescription>
-              </motion.div>
+              <CardTitle className="text-2xl font-bold">Meet Your Voice Assistant</CardTitle>
+              <CardDescription>Your personal AI study companion</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <motion.div 
-                initial={{ scale: 0, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
-                className="p-4 rounded-full bg-primary/10 mb-6"
-              >
-                <Clock className="h-16 w-16 text-primary" />
-              </motion.div>
-              <div className="space-y-4">
-                <motion.p 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-center"
-                >
-                  Your time is precious. Our AI allocates study hours based on your learning pace and exam timeline.
-                </motion.p>
+            <CardContent className="flex flex-col items-center space-y-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
+                  <Volume className="h-10 w-10 text-white" />
+                </div>
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="bg-blue-50 p-4 rounded-lg shadow-inner"
-                >
-                  <h4 className="font-medium text-center mb-2 flex items-center justify-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-600" />
-                    Optimized Time Allocation
-                  </h4>
-                  <ul className="space-y-2">
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Strong Subjects:</span>
-                      <span className="font-medium text-blue-700">30% of study time</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.7 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Medium Proficiency:</span>
-                      <span className="font-medium text-blue-700">40% of study time</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Weak Areas:</span>
-                      <span className="font-medium text-blue-700">50% of study time</span>
-                    </motion.li>
-                    <motion.li 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.9 }}
-                      className="flex items-center justify-between"
-                    >
-                      <span>Regular Breaks:</span>
-                      <span className="font-medium text-blue-700">Pomodoro technique</span>
-                    </motion.li>
-                  </ul>
-                </motion.div>
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.1 }}
-                  className="text-center text-sm text-muted-foreground"
-                >
-                  Your schedule adapts in real-time as you progress through your studies.
-                </motion.p>
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="absolute inset-0 rounded-full border-4 border-purple-300 opacity-70"
+                ></motion.div>
               </div>
-            </CardContent>
-            <CardFooter className="flex justify-between sm:justify-between">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
-                  Next <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
-            </CardFooter>
-          </Card>
-        );
-      case 4:
-        // Founder message - keep existing code
-        return (
-          <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
-            <CardHeader className="text-center pb-2">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <CardTitle className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">From Our Founder</CardTitle>
-                <CardDescription className="text-lg">A personal message for your learning journey</CardDescription>
-              </motion.div>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <motion.div 
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
-                className="rounded-full overflow-hidden w-24 h-24 mb-4 shadow-lg"
-              >
-                <img 
-                  src="/lovable-uploads/2536e929-d62e-4754-919e-759100b32e1d.png" 
-                  alt="Amit Singh" 
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-              <motion.p 
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="font-medium text-center mb-1"
-              >
-                Amit Singh
-              </motion.p>
-              <motion.p 
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="text-sm text-muted-foreground text-center mb-4"
-              >
-                Founder, PREPZR
-              </motion.p>
               
-              <div className="space-y-4 text-center">
-                <motion.p 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="italic"
-                >
-                  "At PREPZR, we believe every student deserves personalized guidance to reach their full potential. 
-                  Our AI-powered platform is designed to adapt to your unique learning style and help you achieve your academic goals."
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  Your journey with PREPZR begins now. We're excited to help you excel in your exams and become the best version of yourself.
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="pt-4"
-                >
-                  <p className="font-medium">Ready to transform your study experience?</p>
-                </motion.div>
+              <div className="space-y-4 text-center max-w-md">
+                <p>Your AI assistant helps you study more effectively through voice interaction.</p>
+                
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Mic className="h-4 w-4 text-purple-600" />
+                    <p className="text-sm">"Show me today's tasks"</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mic className="h-4 w-4 text-purple-600" />
+                    <p className="text-sm">"Explain Newton's Laws"</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mic className="h-4 w-4 text-purple-600" />
+                    <p className="text-sm">"Create flashcards for biology"</p>
+                  </div>
+                </div>
+                
+                <div className="pt-2">
+                  <VoiceGreeting 
+                    isFirstTimeUser={true}
+                    userName={userName}
+                    language="en"
+                    autoPlay={false}
+                  />
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between sm:justify-between">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button onClick={handleNext} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
-                  Let's Begin <ChevronRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
+            <CardFooter className="flex justify-end pt-2">
+              <Button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8">
+                Next <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </CardFooter>
           </Card>
         );
+        
+      case 4:
+        // Final step - getting started
+        return (
+          <Card className="w-full max-w-xl bg-white shadow-2xl border-0 overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400"></div>
+            <CardHeader className="text-center pb-2">
+              <CardTitle className="text-2xl font-bold">Ready to Get Started!</CardTitle>
+              <CardDescription>Your dashboard is waiting for you</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center space-y-6">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, ease: "easeInOut" }}
+                className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600"
+              >
+                <Sparkles className="h-14 w-14 text-white" />
+              </motion.div>
+              
+              <div className="text-center max-w-md space-y-4">
+                <p className="font-medium text-lg">
+                  Welcome, {userName}! We're excited to help you achieve your academic goals.
+                </p>
+                <p className="text-gray-600">
+                  Your personalized dashboard is all set up. Take the guided tour to learn all the features that will help you succeed.
+                </p>
+
+                <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 text-sm">
+                  {isGoogleSignup ? (
+                    <p>
+                      Since you signed up with Google, we'll help you create your study plan after the tour.
+                    </p>
+                  ) : (
+                    <p>
+                      Your study preferences have been saved. You can update them anytime from your profile.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-center pt-4">
+              <Button 
+                onClick={handleNext} 
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 px-8 py-6 text-lg"
+              >
+                Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </CardFooter>
+          </Card>
+        );
+        
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col items-center justify-center p-4">
-      <VoiceGreeting isFirstTimeUser={true} userName={userName} />
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
-      >
-        <PrepzrLogo width={180} height="auto" className="filter drop-shadow-lg" />
-      </motion.div>
-      
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -475,25 +344,6 @@ const WelcomeFlow = () => {
           {renderStep()}
         </motion.div>
       </AnimatePresence>
-      
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        transition={{ delay: 0.5 }}
-        className="mt-8 flex space-x-2"
-      >
-        {Array.from({ length: totalSteps }).map((_, index) => (
-          <motion.div
-            key={index}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: index < step ? 1 : 0.3 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index < step ? 'bg-gradient-to-r from-blue-500 to-purple-500 w-8' : 'bg-gray-300 w-2'
-            }`}
-          />
-        ))}
-      </motion.div>
     </div>
   );
 };
