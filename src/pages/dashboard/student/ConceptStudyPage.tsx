@@ -25,6 +25,31 @@ const mockConceptData = {
   ]
 };
 
+// Mock concept data for different IDs
+const conceptDataMap: Record<string, typeof mockConceptData> = {
+  'concept-1': mockConceptData,
+  'concept-2': {
+    ...mockConceptData,
+    conceptId: 'concept-2',
+    conceptTitle: 'Conservation of Momentum',
+    conceptContent: 'The law of conservation of momentum states that the total momentum of an isolated system remains constant. Momentum is defined as the product of an object\'s mass and velocity.',
+    linkedConcepts: [
+      { id: 'concept-1', title: 'Newton\'s Laws of Motion' },
+      { id: 'concept-3', title: 'Work and Energy' }
+    ]
+  },
+  'concept-3': {
+    ...mockConceptData,
+    conceptId: 'concept-3',
+    conceptTitle: 'Work and Energy',
+    conceptContent: 'Work is defined as the product of force and displacement in the direction of the force. Energy is the capacity to do work. The work-energy theorem states that the work done on an object equals the change in its kinetic energy.',
+    linkedConcepts: [
+      { id: 'concept-1', title: 'Newton\'s Laws of Motion' },
+      { id: 'concept-2', title: 'Conservation of Momentum' }
+    ]
+  }
+};
+
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
@@ -46,10 +71,15 @@ const ConceptStudyPage: React.FC = () => {
       // For now, simulate loading and use mock data
       const timer = setTimeout(() => {
         setLoading(false);
-        setConceptData({
+        
+        // Get concept data based on ID, or use default if not found
+        const foundConceptData = conceptDataMap[conceptId] || {
           ...mockConceptData,
-          conceptId: conceptId
-        });
+          conceptId: conceptId,
+          conceptTitle: `Concept ${conceptId}`
+        };
+        
+        setConceptData(foundConceptData);
       }, 1200);
       
       return () => clearTimeout(timer);

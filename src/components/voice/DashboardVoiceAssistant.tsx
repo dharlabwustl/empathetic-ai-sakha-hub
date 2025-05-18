@@ -52,6 +52,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     else if (path.includes('/dashboard/student/study-plan')) setPageContext('study-plan');
     else if (path.includes('/dashboard/student/practice')) setPageContext('practice');
     else if (path.includes('/dashboard/student/analytics')) setPageContext('analytics');
+    else if (path.includes('/dashboard/student/subscription')) setPageContext('subscription');
     else setPageContext('dashboard');
     
     // Check if we've moved to a new page
@@ -135,6 +136,9 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           break;
         case 'analytics':
           contextMessage = `Your analytics show your progress over time. Use these insights to identify areas that need more focus and adjust your study plan accordingly.`;
+          break;
+        case 'subscription':
+          contextMessage = `This is the subscription management page. You can upgrade your plan to access premium features or manage your current subscription. Remember, 5% of all subscription revenue goes toward providing free access to underprivileged students.`;
           break;
       }
       

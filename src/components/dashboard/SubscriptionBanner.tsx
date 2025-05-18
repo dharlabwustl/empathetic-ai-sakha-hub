@@ -29,7 +29,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
   };
   
   const handleManageSubscription = () => {
-    navigate('/subscription');
+    navigate('/dashboard/student/subscription');
   };
 
   // Calculate days remaining if expiry date is provided

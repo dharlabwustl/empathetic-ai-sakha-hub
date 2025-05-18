@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, AlertCircle, ChevronRight, Package } from "lucide-react";
+import { Sparkles, Calendar, AlertCircle, ChevronRight, Package, Heart } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { SubscriptionType } from '@/types/user/base';
 
@@ -75,7 +75,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
   const planDetails = getPlanDetails();
   
   const handleUpgradeClick = () => {
-    navigate('/pricing');
+    navigate('/dashboard/student/subscription');
   };
   
   const handleManageClick = () => {
@@ -181,6 +181,14 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
                   <span className="text-xs text-gray-500">
                     Valid until {expiryDate.toLocaleDateString()}
                   </span>
+                )}
+                
+                {/* Donation message for premium plans */}
+                {isActive && !planType.toLowerCase().includes('free') && (
+                  <div className="flex items-center mt-1 text-xs text-emerald-600">
+                    <Heart className="h-3 w-3 mr-1 text-pink-500 fill-pink-200" />
+                    <span>5% of your subscription helps fund education for underprivileged students</span>
+                  </div>
                 )}
               </div>
             </div>

@@ -54,6 +54,13 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
   const [notes, setNotes] = useState("");
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [isAiResponding, setIsAiResponding] = useState(false);
+  const [practiceQuestions, setPracticeQuestions] = useState<Array<{question: string, options: string[], correct: number}>>([]);
+  const [showPracticeQuestions, setShowPracticeQuestions] = useState(false);
+  const [practiceAnswers, setPracticeAnswers] = useState<Record<number, number>>({});
+  const [practiceSubmitted, setPracticeSubmitted] = useState(false);
+  
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   // Read aloud functionality
@@ -124,24 +131,90 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
       return;
     }
     
-    // In a real app, this would send the question to an AI service
-    toast({
-      title: "Question sent to AI Tutor",
-      description: "You'll receive a response shortly."
-    });
+    setIsAiResponding(true);
     
-    // Reset the question field
-    setCurrentQuestion("");
+    // Simulate AI response
+    setTimeout(() => {
+      setAiResponse(`Based on "${conceptTitle}", I can explain that: ${conceptContent.substring(0, 150)}... 
+      
+To answer your question specifically: "${currentQuestion}" 
+
+The key principle here is that ${conceptContent.substring(50, 150)}... Does that help clarify things? Feel free to ask follow-up questions!`);
+      setIsAiResponding(false);
+    }, 1500);
   };
   
   // Start quick recall practice
   const handleStartQuickRecall = () => {
+    // In a real app, this would generate questions based on the concept content
+    // Here we'll simulate some sample practice questions
+    const sampleQuestions = [
+      {
+        question: `Which of the following best describes ${conceptTitle}?`,
+        options: [
+          "The relationship between force and acceleration",
+          "The conservation of energy in closed systems",
+          "The relationship between mass and gravity",
+          "The effects of friction on moving objects"
+        ],
+        correct: 0
+      },
+      {
+        question: `What is the primary application of ${conceptTitle} in real-world scenarios?`,
+        options: [
+          "Predicting weather patterns",
+          "Designing efficient engines",
+          "Building stable structures",
+          "Understanding planetary motion"
+        ],
+        correct: 3
+      },
+      {
+        question: "Which scientist is most closely associated with this concept?",
+        options: [
+          "Albert Einstein",
+          "Isaac Newton",
+          "Niels Bohr",
+          "Galileo Galilei"
+        ],
+        correct: 1
+      }
+    ];
+    
+    setPracticeQuestions(sampleQuestions);
+    setShowPracticeQuestions(true);
+    setPracticeSubmitted(false);
+    setPracticeAnswers({});
+    
     toast({
       title: "Quick Recall Started",
-      description: "Preparing questions based on this concept..."
+      description: "Answer the questions to test your understanding of this concept."
+    });
+  };
+  
+  const handleSelectAnswer = (questionIndex: number, answerIndex: number) => {
+    if (practiceSubmitted) return;
+    setPracticeAnswers({
+      ...practiceAnswers,
+      [questionIndex]: answerIndex
+    });
+  };
+  
+  const handleSubmitQuiz = () => {
+    setPracticeSubmitted(true);
+    
+    // Calculate score
+    let correct = 0;
+    practiceQuestions.forEach((q, i) => {
+      if (practiceAnswers[i] === q.correct) {
+        correct++;
+      }
     });
     
-    // In a real app, this would navigate to a quick recall session
+    toast({
+      title: "Quiz Submitted",
+      description: `You got ${correct} out of ${practiceQuestions.length} correct.`
+    });
   };
   
   return (
@@ -223,7 +296,7 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
           <Card>
             <CardContent className="pt-6">
               <div className="prose dark:prose-invert max-w-none">
-                {conceptContent.split('\n').map((paragraph, idx) => (
+                {typeof conceptContent === 'string' && conceptContent.split('\n').map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
               </div>
@@ -251,18 +324,74 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
               <CardTitle className="text-lg">Quick Recall Practice</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-center p-4">
-                <Brain className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="font-medium text-lg">Test your understanding</h3>
-                <p className="text-muted-foreground mb-4">
-                  Generate practice questions based on this concept to reinforce your learning.
-                </p>
-                <Button onClick={handleStartQuickRecall}>
-                  <Zap className="h-4 w-4 mr-2" /> Start Practice
-                </Button>
-              </div>
+              {!showPracticeQuestions ? (
+                <div className="text-center p-4">
+                  <Brain className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-medium text-lg">Test your understanding</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Generate practice questions based on this concept to reinforce your learning.
+                  </p>
+                  <Button onClick={handleStartQuickRecall}>
+                    <Zap className="h-4 w-4 mr-2" /> Start Practice
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {practiceQuestions.map((question, qIndex) => (
+                    <div key={qIndex} className={`border rounded-md p-4 ${
+                      practiceSubmitted && practiceAnswers[qIndex] === question.correct ? 'border-green-500 bg-green-50' : 
+                      practiceSubmitted && practiceAnswers[qIndex] !== undefined ? 'border-red-500 bg-red-50' : 
+                      'border-gray-200'
+                    }`}>
+                      <p className="font-medium mb-3">{qIndex + 1}. {question.question}</p>
+                      <div className="space-y-2">
+                        {question.options.map((option, oIndex) => (
+                          <div 
+                            key={oIndex}
+                            onClick={() => handleSelectAnswer(qIndex, oIndex)}
+                            className={`p-2 rounded-md cursor-pointer ${
+                              practiceAnswers[qIndex] === oIndex && !practiceSubmitted ? 'bg-blue-100 border border-blue-300' :
+                              practiceSubmitted && oIndex === question.correct ? 'bg-green-100 border border-green-300' :
+                              practiceSubmitted && practiceAnswers[qIndex] === oIndex ? 'bg-red-100 border border-red-300' :
+                              'hover:bg-gray-100 border border-gray-200'
+                            }`}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                      {practiceSubmitted && practiceAnswers[qIndex] !== question.correct && (
+                        <p className="text-sm text-green-600 mt-2">
+                          The correct answer is: {question.options[question.correct]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {!practiceSubmitted && (
+                    <Button 
+                      onClick={handleSubmitQuiz}
+                      disabled={Object.keys(practiceAnswers).length !== practiceQuestions.length}
+                      className="w-full"
+                    >
+                      Submit Answers
+                    </Button>
+                  )}
+                  
+                  {practiceSubmitted && (
+                    <div className="flex space-x-4">
+                      <Button onClick={() => setShowPracticeQuestions(false)} variant="outline" className="flex-1">
+                        Close
+                      </Button>
+                      <Button onClick={handleStartQuickRecall} className="flex-1">
+                        Try Again
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
               
-              <Separator />
+              <Separator className="my-4" />
               
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 <GraduationCap className="h-4 w-4" />
@@ -354,9 +483,29 @@ const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
                 onChange={(e) => setCurrentQuestion(e.target.value)}
                 className="min-h-[100px]"
               />
-              <Button onClick={handleAskTutor}>
-                <MessageSquare className="h-4 w-4 mr-2" /> Send Question
+              <Button onClick={handleAskTutor} disabled={isAiResponding}>
+                {isAiResponding ? (
+                  <>
+                    <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    Thinking...
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare className="h-4 w-4 mr-2" /> Send Question
+                  </>
+                )}
               </Button>
+              
+              {aiResponse && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-2">AI Tutor Response:</h3>
+                  <div className="bg-muted p-4 rounded-md">
+                    {aiResponse.split('\n').map((line, idx) => (
+                      <p key={idx} className={idx > 0 ? "mt-2" : ""}>{line}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

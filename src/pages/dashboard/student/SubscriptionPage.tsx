@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,9 @@ const SubscriptionPage: React.FC = () => {
   const [isGroup, setIsGroup] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
+  
+  // Get the current plan type from user profile
+  const currentPlanId = user?.subscription?.planType?.toString() || 'free';
   
   const handleSelectPlan = (plan: SubscriptionPlan, isGroupPlan: boolean) => {
     setSelectedPlan(plan);
@@ -66,9 +69,9 @@ const SubscriptionPage: React.FC = () => {
       });
     }
     
-    // Redirect to dashboard
+    // Redirect to profile billing section
     setTimeout(() => {
-      navigate('/dashboard/student');
+      navigate('/dashboard/student/profile', { state: { activeTab: 'billing' } });
     }, 1500);
   };
   
@@ -129,7 +132,14 @@ const SubscriptionPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                        onClick={() => handleSelectPlan({
+                          id: 'trial',
+                          name: 'Premium Trial',
+                          price: 0,
+                          features: ['7-day full access to premium features', 'No payment required', 'Cancel anytime'],
+                          type: 'trial'
+                        }, false)}>
                   Start Free Trial
                 </Button>
               </div>
@@ -137,7 +147,7 @@ const SubscriptionPage: React.FC = () => {
           </Card>
           
           <SubscriptionPlans
-            currentPlanId={user?.subscription?.planType?.toString() || 'free'}
+            currentPlanId={currentPlanId}
             onSelectPlan={handleSelectPlan}
           />
         </div>
