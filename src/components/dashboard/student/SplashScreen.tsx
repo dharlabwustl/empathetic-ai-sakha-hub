@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { MoodType } from "@/types/user/base";
 
 interface SplashScreenProps {
@@ -51,27 +51,27 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
     const defaultMessage = "Let's achieve something great today!";
     
     const moodContent = {
-      motivated: {
+      [MoodType.MOTIVATED]: {
         quote: "Success is the sum of small efforts, repeated day in and day out.",
         message: "You're motivated! Let's channel that energy into focused study."
       },
-      happy: {
+      [MoodType.HAPPY]: {
         quote: "A positive mindset brings positive results.",
         message: "Great to see you happy! Ready to learn something new?"
       },
-      focused: {
+      [MoodType.FOCUSED]: {
         quote: "Discipline is the bridge between goals and accomplishment.",
         message: "You're in the zone! Let's make progress on important concepts."
       },
-      neutral: {
+      [MoodType.OKAY]: {
         quote: "Small progress is still progress.",
         message: "Let's build some momentum with your studies today."
       },
-      stressed: {
+      [MoodType.STRESSED]: {
         quote: "Take a deep breath. You've got this.",
         message: "Let's break down your work into manageable chunks."
       },
-      tired: {
+      [MoodType.TIRED]: {
         quote: "Rest if you must, but don't quit.",
         message: "Let's focus on review and light learning today."
       }
@@ -135,20 +135,27 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
             </motion.div>
           )}
           
-          {showButton && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showButton ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col gap-3"
+          >
+            <Button 
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              onClick={onComplete}
             >
-              <Button 
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                onClick={onComplete}
-              >
-                Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </motion.div>
-          )}
+              Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            
+            <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md text-xs text-amber-800 dark:text-amber-300">
+              <div className="flex items-center gap-1 justify-center mb-1">
+                <Heart className="h-3 w-3 text-red-500 fill-red-500" />
+                <span className="font-medium">Support PREPZR</span>
+              </div>
+              <p>PREPZR is free for students. Consider a donation to help us keep improving and supporting students worldwide.</p>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
     </div>

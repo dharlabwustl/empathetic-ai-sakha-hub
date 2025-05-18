@@ -12,14 +12,14 @@ interface VoiceGreetingProps {
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
   isFirstTimeUser, 
   userName = 'Student',
-  language = 'hi' // Changed default to Hindi
+  language = 'en'
 }) => {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
   const location = useLocation();
   
-  // Check if this is a concept detail page
+  // Check if this is a concept detail page or welcome flow page
   const isConceptPage = location.pathname.includes('/concepts/') && !location.pathname.includes('/concepts/formula-lab');
   const isWelcomePage = location.pathname.includes('/welcome-flow');
   
@@ -53,21 +53,21 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
               if (language === 'en') {
                 welcomeText = `I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
               } else if (language === 'hi') {
-                welcomeText = `मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं। क्या आप चाहेंगे कि मैं इस अवधारणा के किसी भी हिस्से को समझाने में मदद करूं?`;
+                welcomeText = `मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
               }
             } else if (isWelcomePage) {
               if (language === 'en') {
-                // Welcome flow specific greeting - faster voice
-                welcomeText = `Welcome to Prep zer! I'm your voice assistant and I'll guide you through your personalized learning journey. Let's get started!`;
+                // More detailed welcome flow specific greeting
+                welcomeText = `Welcome to PREPZR! I'm your voice assistant and I'll guide you through your personalized learning journey. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics tailored to your NEET exam preparation. You've made an excellent choice for your exam preparation. Let's begin by exploring the features that will help you succeed!`;
               } else if (language === 'hi') {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है! मैं आपका वॉइस असिस्टेंट हूं और मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। आइए शुरू करें!`;
+                welcomeText = `प्रेप ज़र में आपका स्वागत है! मैं आपका वॉइस असिस्टेंट हूं और मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा तैयारी के लिए व्यक्तिगत अध्ययन योजनाएं, अनुकूली शिक्षण और प्रदर्शन विश्लेषण प्रदान करता है। आपने अपनी परीक्षा तैयारी के लिए एक उत्कृष्ट विकल्प चुना है। आइए उन सुविधाओं का अन्वेषण करके शुरू करें जो आपको सफल होने में मदद करेंगी!`;
               }
             } else if (isFirstTimeUser) {
               if (language === 'en') {
-                // Use phonetic spelling with a pause between Prep and zer
-                welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations.`;
+                // More comprehensive and helpful first-time greeting
+                welcomeText = `Welcome to PREPZR, ${userName}! You've made an excellent choice for your NEET exam preparation. Our AI-powered platform will create a personalized study plan based on your learning style and goals. You'll find interactive concept lessons, smart flashcards, and practice exams designed to maximize your performance. Use the dashboard to track your progress and receive personalized recommendations. If you need any assistance, I'm here to help!`;
               } else if (language === 'hi') {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें।`;
+                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपने अपनी NEET परीक्षा की तैयारी के लिए एक उत्कृष्ट विकल्प चुना है। हमारा AI-संचालित प्लेटफॉर्म आपकी सीखने की शैली और लक्ष्यों के आधार पर एक व्यक्तिगत अध्ययन योजना बनाएगा। आपको इंटरएक्टिव कॉन्सेप्ट पाठ, स्मार्ट फ्लैशकार्ड और प्रैक्टिस एग्जाम मिलेंगे जो आपके प्रदर्शन को अधिकतम करने के लिए डिज़ाइन किए गए हैं। अपनी प्रगति को ट्रैक करने और व्यक्तिगत सिफारिशें प्राप्त करने के लिए डैशबोर्ड का उपयोग करें। यदि आपको किसी भी सहायता की आवश्यकता है, तो मैं मदद के लिए यहां हूं!`;
               }
             } else {
               if (language === 'en') {
@@ -85,7 +85,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Create speech synthesis utterance
             const speech = new SpeechSynthesisUtterance(welcomeText);
             speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
-            speech.rate = isWelcomePage ? 1.1 : 1.0; // Slightly faster for welcome flow
+            speech.rate = isWelcomePage ? 1.0 : 0.95; // Slightly slower for clarity
             speech.volume = 0.8;
             
             // Find an Indian voice based on comprehensive list of possible voices
@@ -216,7 +216,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         case 'analytics':
           return `These analytics show your progress over time. Let's see which areas you're excelling in and where you might need more focus.`;
         case 'home':
-          return `Welcome to Prep zer, ${user}! How can I assist you with your exam preparation today?`;
+          return `Welcome to PREPZR, ${user}! How can I assist you with your exam preparation today?`;
         default:
           return '';
       }
@@ -238,7 +238,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     }
   };
   
-  // Don't render anything if already played or not a first-time user and not on concept page
+  // Don't render anything if already played or not a first-time user and not on concept page/welcome page
   if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage) || audioPlayed) return null;
   
   return (

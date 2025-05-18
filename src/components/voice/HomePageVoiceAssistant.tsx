@@ -8,7 +8,7 @@ interface HomePageVoiceAssistantProps {
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'hi-IN' // Setting Hindi as default
+  language = 'en-IN' // Setting English as default, with India accent
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const location = useLocation();
@@ -17,7 +17,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Only play greeting on specific pages, not on concept pages or dashboard pages
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome-back');
+                            location.pathname.includes('/welcome-back') ||
+                            location.pathname.includes('/welcome-flow');
   
   // If this is the homepage, use a 4-second delay to allow for page load
   // If this is another page, use a shorter delay
@@ -29,6 +30,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       const timer = setTimeout(() => {
         let message = '';
         const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
+        const isWelcomeFlow = location.pathname.includes('/welcome-flow');
         
         // Determine appropriate welcome message based on page and user status
         if (location.pathname === '/') {
@@ -36,20 +38,20 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             if (language === 'hi-IN') {
               message = `प्रेप-ज़र पर वापस आने के लिए स्वागत है। क्या आप अपनी NEET परीक्षा की तैयारी जारी रखना चाहेंगे?`;
             } else {
-              message = `Welcome back to Prep-zer. Would you like to continue your NEET exam preparation journey?`;
+              message = `Welcome back to PREPZR. Would you like to continue your NEET exam preparation journey?`;
             }
           } else {
             if (language === 'hi-IN') {
               message = `प्रेप-ज़र में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। क्या आप NEET के लिए हमारा मुफ्त परीक्षा तैयारी परीक्षण आज़माना चाहेंगे?`;
             } else {
-              message = `Welcome to Prep-zer, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
+              message = `Welcome to PREPZR, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
             }
           }
         } else if (location.pathname.includes('/signup')) {
           if (language === 'hi-IN') {
             message = `प्रेप-ज़र के नि:शुल्क परीक्षण साइनअप में आपका स्वागत है। 7 दिनों के लिए हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
           } else {
-            message = `Welcome to Prep-zer's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started.`;
+            message = `Welcome to PREPZR's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started. Our platform features personalized study plans, adaptive learning, and practice tests to maximize your exam performance.`;
           }
           
           // If this is a Google signup, store this information for later use in the onboarding flow
@@ -60,7 +62,13 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           if (language === 'hi-IN') {
             message = `प्रेप-ज़र पर वापस स्वागत है। बस अपने ईमेल और पासवर्ड के साथ लॉगिन करें और हम आपके पढ़ाई के यात्रा को जारी रख सकते हैं।`;
           } else {
-            message = `Welcome back to Prep-zer. Simply log in with your email and password, and we can continue your study journey.`;
+            message = `Welcome back to PREPZR. Simply log in with your email and password, and we can continue your study journey. Your personal AI tutor is ready to help you improve your exam readiness score.`;
+          }
+        } else if (isWelcomeFlow) {
+          if (language === 'hi-IN') {
+            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। `;
+          } else {
+            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your NEET exam preparation. You've made an excellent choice for your exam success.`;
           }
         }
         

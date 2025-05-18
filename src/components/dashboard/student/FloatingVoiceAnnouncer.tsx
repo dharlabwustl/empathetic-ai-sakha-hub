@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Volume2, VolumeX, Volume } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { MoodType } from '@/types/user/base';
+import { useLocation } from 'react-router-dom';
 
 const moodMap = {
   "happy": MoodType.HAPPY,
@@ -23,11 +25,35 @@ const moodMap = {
   "unsure": MoodType.CONFUSED
 };
 
+// Helper function to get context-specific responses
+const getContextResponse = (pathname: string) => {
+  if (pathname.includes('/welcome-flow')) {
+    return "Welcome to PREPZR! We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
+  } else if (pathname.includes('/dashboard/student/today')) {
+    return "This is your daily study plan. It shows concepts, flashcards, and practice tests scheduled for today. I've organized them based on your learning priorities and past performance.";
+  } else if (pathname.includes('/dashboard/student/overview')) {
+    return "This overview shows your study progress and key metrics. Your Exam Readiness score represents how prepared you are for your upcoming exams based on your performance and engagement.";
+  } else if (pathname.includes('/dashboard/student/concepts')) {
+    return "Here you can explore all the concepts you need to master. You can read detailed explanations, listen to audio guides, take notes, and practice with related flashcards.";
+  } else if (pathname.includes('/dashboard/student/flashcards')) {
+    return "These flashcards help you memorize key facts and formulas. They use spaced repetition algorithms to show you cards at optimal intervals for better retention.";
+  } else if (pathname.includes('/dashboard/student/practice-exam')) {
+    return "Practice exams help you prepare for the real thing. They simulate exam conditions and provide detailed analytics on your performance to identify areas for improvement.";
+  } else if (pathname.includes('/dashboard/student/analytics')) {
+    return "These analytics show your learning progress over time. You can track improvements in your scores, time spent studying, and concept mastery.";
+  } else if (pathname.includes('/dashboard/student/create-study-plan')) {
+    return "Let's create a personalized study plan based on your exam date, available study time, and topic preferences. Our AI will optimize your schedule for maximum learning efficiency.";
+  }
+  
+  return "I'm your voice assistant. Ask me questions about your studies, and I'll guide you through PREPZR's features to help you prepare for your exams.";
+};
+
 const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { toast } = useToast();
   const [command, setCommand] = useState<string>('');
   const [mood, setMood] = useState<MoodType | null>(null);
   const [isListeningMode, setIsListeningMode] = useState<boolean>(false);
+  const location = useLocation();
   
   const { 
     voiceSettings, 
@@ -38,7 +64,8 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
     startListening, 
     stopListening, 
     transcript, 
-    processVoiceCommand 
+    processVoiceCommand,
+    speak
   } = useVoiceAnnouncer();
   
   const handleClose = () => {
@@ -58,6 +85,16 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
     stopListening();
     setIsListeningMode(false);
   };
+
+  // Speak context-specific information when the announcer is opened
+  useEffect(() => {
+    if (isOpen && !isSpeaking && voiceSettings && !voiceSettings.muted) {
+      const contextResponse = getContextResponse(location.pathname);
+      if (contextResponse && speak) {
+        speak(contextResponse);
+      }
+    }
+  }, [isOpen, location.pathname, speak, isSpeaking, voiceSettings]);
   
   // Process transcript when it changes and listening mode is active
   useEffect(() => {
@@ -142,6 +179,10 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
           </p>
         </div>
       )}
+      
+      <div className="text-xs text-gray-500 dark:text-gray-400 border-t pt-2 mt-2">
+        <p>Try saying: "Tell me about today's plan" or "I'm feeling tired"</p>
+      </div>
     </div>
   );
 };

@@ -1,227 +1,153 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import { formatDistanceToNow } from 'date-fns';
 import { Button } from "@/components/ui/button";
-import { ChartLineUp, BookOpen, Brain, FileText, Info, ArrowUp, ArrowDown, Minus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ChartLine, TrendingUp, AlertCircle, CheckCircle2, BookOpen } from 'lucide-react';
 
-interface ReadinessData {
-  conceptCompletion: number;
-  flashcardAccuracy: number;
-  examScores: {
-    physics: number;
-    chemistry: number;
-    mathematics: number;
-  };
-  overallReadiness: number;
-  timestamp: string;
-  trends?: {
-    weekly: {
-      direction: 'up' | 'down' | 'stable';
-      change: number;
-    };
-    monthly: {
-      direction: 'up' | 'down' | 'stable';
-      change: number;
-    };
-  };
+interface ExamReadinessProps {
+  score: number;
+  weeklyTrend?: Array<{ week: string; score: number }>;
+  section?: string;
 }
 
-interface ExamReadinessMeterProps {
-  readinessData: ReadinessData;
-}
-
-const ExamReadinessMeter: React.FC<ExamReadinessMeterProps> = ({ readinessData }) => {
-  const { conceptCompletion, flashcardAccuracy, examScores, overallReadiness, timestamp, trends } = readinessData;
-  const [showTips, setShowTips] = useState(false);
-
-  const getColorClass = (value: number) => {
-    if (value >= 80) return "text-green-600 dark:text-green-400";
-    if (value >= 60) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
+const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({ 
+  score, 
+  weeklyTrend = [],
+  section = "overall" 
+}) => {
+  const getColorByScore = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    if (score >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
   };
   
-  const getProgressColorClass = (value: number) => {
-    if (value >= 80) return "bg-green-600 dark:bg-green-500";
-    if (value >= 60) return "bg-amber-500 dark:bg-amber-400";
-    return "bg-red-500 dark:bg-red-500";
+  const getTrendDirection = () => {
+    if (weeklyTrend.length < 2) return "stable";
+    
+    const lastWeek = weeklyTrend[weeklyTrend.length - 1].score;
+    const previousWeek = weeklyTrend[weeklyTrend.length - 2].score;
+    
+    if (lastWeek > previousWeek) return "up";
+    if (lastWeek < previousWeek) return "down";
+    return "stable";
   };
   
-  const getTrendIcon = (direction: string) => {
-    switch(direction) {
-      case 'up':
-        return <ArrowUp className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <ArrowDown className="h-4 w-4 text-red-500" />;
-      default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  // Improvement tips based on scores
+  const trendDirection = getTrendDirection();
+  
   const getImprovementTips = () => {
-    const tips = [];
-    
-    if (conceptCompletion < 70) {
-      tips.push("Focus on completing more concept cards to build your foundational knowledge");
+    if (score >= 80) {
+      return [
+        "Keep reviewing high-yield topics regularly",
+        "Focus on advanced practice tests",
+        "Try teaching concepts to others to reinforce learning"
+      ];
+    } else if (score >= 60) {
+      return [
+        "Increase practice test frequency",
+        "Create concise summary sheets for key concepts",
+        "Form study groups for challenging topics"
+      ];
+    } else if (score >= 40) {
+      return [
+        "Establish a regular daily study schedule",
+        "Focus on core concepts before advanced topics",
+        "Use flashcards for active recall practice"
+      ];
+    } else {
+      return [
+        "Build strong foundational knowledge first",
+        "Break down complex topics into smaller chunks",
+        "Schedule focused study sessions without distractions"
+      ];
     }
-    
-    if (flashcardAccuracy < 70) {
-      tips.push("Review your flashcards more frequently to improve recall accuracy");
-    }
-    
-    const avgExamScore = (examScores.physics + examScores.chemistry + examScores.mathematics) / 3;
-    if (avgExamScore < 70) {
-      tips.push("Take more practice tests to identify and address weak areas");
-    }
-    
-    if (tips.length === 0) {
-      tips.push("You're doing well! Keep up your current study routine to maintain momentum");
-    }
-    
-    return tips;
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className={`text-xl font-bold ${getColorClass(overallReadiness)}`}>
-              {overallReadiness}%
-            </div>
-            <span className="text-sm text-muted-foreground">Exam Readiness</span>
-            {trends && (
-              <div className="flex items-center gap-1 bg-muted/40 px-1.5 py-0.5 rounded text-xs">
-                {getTrendIcon(trends.weekly.direction)}
-                <span className={trends.weekly.direction === 'up' ? 'text-green-600' : trends.weekly.direction === 'down' ? 'text-red-600' : 'text-gray-600'}>
-                  {trends.weekly.change}% this week
-                </span>
-              </div>
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-lg">Exam Readiness</CardTitle>
+            <CardDescription>{section === "overall" ? "Your overall preparation level" : `${section} readiness`}</CardDescription>
+          </div>
+          <div className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 
+            ${trendDirection === "up" ? "text-green-700 bg-green-50" : 
+              trendDirection === "down" ? "text-red-700 bg-red-50" : 
+              "text-gray-700 bg-gray-50"}`}>
+            {trendDirection === "up" ? (
+              <TrendingUp className="h-3 w-3" />
+            ) : trendDirection === "down" ? (
+              <TrendingUp className="h-3 w-3 rotate-180" />
+            ) : (
+              <ChartLine className="h-3 w-3" />
             )}
+            {trendDirection === "up" ? "Improving" : 
+              trendDirection === "down" ? "Declining" : 
+              "Stable"}
           </div>
         </div>
-        <span className="text-xs text-muted-foreground">
-          Updated {formatDistanceToNow(new Date(timestamp))} ago
-        </span>
-      </div>
-
-      <Progress 
-        value={overallReadiness} 
-        className={`h-2 ${getProgressColorClass(overallReadiness)}`} 
-      />
-
-      <div className="grid grid-cols-3 gap-4 pt-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="p-2 bg-background rounded border text-center">
-                <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                  <BookOpen className="h-3 w-3" /> Concepts
-                </div>
-                <div className={`font-medium ${getColorClass(conceptCompletion)}`}>{conceptCompletion}%</div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Concept mastery level</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="p-2 bg-background rounded border text-center">
-                <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                  <Brain className="h-3 w-3" /> Flashcards
-                </div>
-                <div className={`font-medium ${getColorClass(flashcardAccuracy)}`}>{flashcardAccuracy}%</div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Flashcard recall accuracy</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="p-2 bg-background rounded border text-center">
-                <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                  <FileText className="h-3 w-3" /> Practice
-                </div>
-                <div className={`font-medium ${getColorClass((examScores.physics + examScores.chemistry + examScores.mathematics) / 3)}`}>
-                  {Math.round((examScores.physics + examScores.chemistry + examScores.mathematics) / 3)}%
-                </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="text-xs space-y-1">
-                <p>Practice exam performance</p>
-                <p>Physics: {examScores.physics}%</p>
-                <p>Chemistry: {examScores.chemistry}%</p>
-                <p>Mathematics: {examScores.mathematics}%</p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-      
-      {/* Weekly trend chart summary */}
-      {trends && (
-        <div className="text-xs text-center pt-1">
-          <div className="flex justify-between items-center border-t pt-2">
-            <span>Monthly trend: </span>
-            <div className="flex items-center gap-1">
-              {getTrendIcon(trends.monthly.direction)}
-              <span className={trends.monthly.direction === 'up' ? 'text-green-600' : trends.monthly.direction === 'down' ? 'text-red-600' : 'text-gray-600'}>
-                {trends.monthly.change}%
-              </span>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Current Score</span>
+              <span className="font-bold text-lg">{score}%</span>
             </div>
+            <Progress value={score} className={`h-2 ${getColorByScore(score)}`} />
           </div>
+          
+          {weeklyTrend.length > 0 && (
+            <div className="pt-2">
+              <h4 className="text-sm font-medium mb-2">Weekly Progress</h4>
+              <div className="h-32 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={weeklyTrend}
+                    margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                    <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="score" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      dot={{ stroke: '#3b82f6', strokeWidth: 2, fill: 'white', r: 3 }}
+                      activeDot={{ stroke: '#3b82f6', strokeWidth: 2, fill: '#3b82f6', r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+          
+          <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+            <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" /> Tips to Improve
+            </h4>
+            <ul className="space-y-1">
+              {getImprovementTips().map((tip, index) => (
+                <li key={index} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
+                  <CheckCircle2 className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <Button size="sm" variant="outline" className="w-full mt-2 text-xs flex items-center gap-1">
+            <BookOpen className="h-3 w-3" />
+            View Detailed Analytics
+          </Button>
         </div>
-      )}
-      
-      {/* Improvement tips toggle */}
-      <div className="pt-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full flex items-center justify-center gap-1"
-          onClick={() => setShowTips(!showTips)}
-        >
-          <Info className="h-4 w-4" />
-          {showTips ? 'Hide improvement tips' : 'Show improvement tips'}
-        </Button>
-        
-        {showTips && (
-          <Card className="mt-2">
-            <CardContent className="p-3">
-              <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-                <ChartLineUp className="h-4 w-4 text-blue-500" />
-                Improvement Tips
-              </h4>
-              <ul className="space-y-1">
-                {getImprovementTips().map((tip, index) => (
-                  <li key={index} className="text-xs flex items-start gap-1">
-                    <span className="font-bold text-blue-500 mt-0.5">•</span>
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
