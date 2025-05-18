@@ -8,6 +8,7 @@ import ConceptTestSection from './concept-test/ConceptTestSection';
 import ReportSection from './ReportSection';
 import ProgressIndicator from './ProgressIndicator';
 import { UserAnswer } from './types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TestContainerProps {
   currentTest: TestType;
@@ -44,11 +45,13 @@ const TestContainer: React.FC<TestContainerProps> = ({
   handleConceptTestComplete,
   handleNavigation,
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="my-4 space-y-6">
+    <div className={`${isMobile ? 'my-2 space-y-4' : 'my-4 space-y-6'}`}>
       <ProgressIndicator progress={progress} currentTest={currentTest} />
       
-      <div className="min-h-[50vh]">
+      <div className={`${isMobile ? 'min-h-[40vh]' : 'min-h-[50vh]'}`}>
         {currentTest === 'intro' && (
           <IntroSection 
             examTypes={examTypes} 
