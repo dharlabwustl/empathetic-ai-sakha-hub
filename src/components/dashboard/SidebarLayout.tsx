@@ -42,7 +42,14 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       {/* Universal Sidebar - Always shown on desktop, conditionally on mobile */}
       {(!isMobile || showMobileSidebar) && (
-        <div id="universal-sidebar" className={`${isMobile ? 'fixed z-50 h-full' : 'relative'}`}>
+        <div 
+          id="universal-sidebar" 
+          className={`${isMobile ? 'fixed z-50 h-full shadow-lg' : 'relative'}`}
+          style={{
+            width: isMobile ? '230px' : 'auto', // Fixed width on mobile
+            maxWidth: '80vw' // Prevent from being too wide on small screens
+          }}
+        >
           <UniversalSidebar collapsed={false} />
           
           {/* Close button only shown on mobile */}
@@ -71,7 +78,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
         </Button>
       )}
       
-      <div className="flex-1 pb-16 md:pb-0">
+      <div className="flex-1 pb-16 md:pb-0 pt-10 md:pt-0">
         {children}
       </div>
     </div>

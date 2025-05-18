@@ -26,7 +26,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
   
   return (
     <motion.div 
-      className="space-y-4 sm:space-y-6 px-2 sm:px-0"
+      className="space-y-4 sm:space-y-6 px-2 sm:px-4 md:px-6"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -39,6 +39,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
             initial={{ x: -10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.3 }}
+            className={isMobile ? "mb-2" : ""}
           >
             <Link to="/dashboard/student/concepts">
               <Button 
@@ -63,12 +64,13 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
             <SectionHeader 
               title={title} 
               subtitle={subtitle}
+              className={isMobile ? "mb-2" : ""}
             />
           </motion.div>
         )}
       </div>
       
-      <Card className={`${isMobile ? 'p-3' : 'p-6'} border border-gray-200 dark:border-gray-800 shadow-md rounded-xl bg-white dark:bg-gray-950`}>
+      <Card className={`${isMobile ? 'p-3' : 'p-6'} border border-gray-200 dark:border-gray-800 shadow-md rounded-xl bg-white dark:bg-gray-950 overflow-auto max-w-[100vw]`}>
         {children}
       </Card>
     </motion.div>

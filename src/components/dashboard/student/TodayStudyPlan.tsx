@@ -28,11 +28,11 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const getTaskIcon = (type: string) => {
     switch (type) {
       case 'exam':
-        return <FileCheck className="h-4 w-4" />;
+        return <FileCheck className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />;
       case 'concept':
-        return <BookOpen className="h-4 w-4" />;
+        return <BookOpen className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />;
       default:
-        return <Clock className="h-4 w-4" />;
+        return <Clock className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />;
     }
   };
   

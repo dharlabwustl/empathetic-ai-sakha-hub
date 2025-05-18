@@ -5,8 +5,13 @@ export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    // Handle server-side rendering or test environments
+    // Initial check for SSR or test environments
     if (typeof window === 'undefined' || !window.matchMedia) {
+      // Set a default value based on common mobile breakpoints
+      const isMobileByDefault = typeof window !== 'undefined' && 
+        window.innerWidth !== undefined && 
+        window.innerWidth < 768;
+      setMatches(isMobileByDefault);
       return;
     }
     
@@ -33,3 +38,6 @@ export function useMediaQuery(query: string): boolean {
 export const useIsMobile = () => useMediaQuery('(max-width: 767px)');
 export const useIsTablet = () => useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
 export const useIsDesktop = () => useMediaQuery('(min-width: 1024px)');
+
+// Additional helper for really small screens
+export const useIsSmallMobile = () => useMediaQuery('(max-width: 375px)');

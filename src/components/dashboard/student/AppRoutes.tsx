@@ -19,6 +19,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
 import { useIsMobile } from "@/hooks/use-mobile";
+import RedesignedTodaysPlan from "./todays-plan/RedesignedTodaysPlan";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -31,7 +32,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
-      <Route path="/today" element={<TodaysPlanView />} />
+      <Route path="/today" element={<RedesignedTodaysPlan />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
