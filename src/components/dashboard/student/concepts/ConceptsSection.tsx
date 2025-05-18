@@ -41,7 +41,7 @@ const ConceptsSection = () => {
   
   const handleCardClick = (cardId: string) => {
     // Navigate to the concept detail page with the updated path
-    navigate(`/dashboard/student/concept-study/${cardId}`);
+    navigate(`/dashboard/student/concepts/${cardId}`);
   };
   
   return (

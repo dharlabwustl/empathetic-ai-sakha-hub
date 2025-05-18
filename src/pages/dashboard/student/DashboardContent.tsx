@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { UserProfileBase, MoodType } from '@/types/user/base';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { UserProfileType } from "@/types/user";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import ExamReadinessSection from '@/components/dashboard/student/dashboard-sections/ExamReadinessSection';
+import PersonalizedQuickAccess from '@/components/dashboard/student/PersonalizedQuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -16,7 +16,7 @@ interface DashboardTabsProps {
 interface DashboardContentProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  userProfile: UserProfileBase;
+  userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
@@ -28,8 +28,6 @@ interface DashboardContentProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   children?: React.ReactNode;
-  currentMood?: MoodType;
-  removeQuickAccess?: boolean;
 }
 
 const DashboardContent = ({
@@ -46,44 +44,13 @@ const DashboardContent = ({
   hideTabsNav,
   lastActivity,
   suggestedNextAction,
-  children,
-  currentMood,
-  removeQuickAccess
+  children
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = useState(
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
-  
-  // Handle closing the recap
-  const handleCloseRecap = () => {
-    setShowReturnRecap(false);
-  };
-  
-  // Example weekly trends data for the exam readiness score
-  const weeklyTrendsData = [
-    { week: '1', score: 30 },
-    { week: '2', score: 35 },
-    { week: '3', score: 40 },
-    { week: '4', score: 38 },
-    { week: '5', score: 45 },
-    { week: '6', score: 52 },
-    { week: '7', score: 58 }
-  ];
-  
-  // Example weak and strong areas
-  const weakAreas = ['Organic Chemistry', 'Thermodynamics', 'Vectors'];
-  const strongAreas = ['Algebra', 'Mechanics', 'Biology'];
 
-  // Tips and suggestions for exam readiness
-  const examReadinessTips = [
-    "Focus on weak areas first to see the most improvement",
-    "Review previously wrong answers to avoid repeating mistakes",
-    "Use spaced repetition for better long-term retention",
-    "Take regular practice tests to simulate exam conditions",
-    "Ensure you understand concepts before memorizing formulas"
-  ];
-  
   // Generate tab contents once
   const tabContents = generateTabContents({
     userProfile,
@@ -95,11 +62,39 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction,
-    removeQuickAccess
+    suggestedNextAction
   });
   
-  // Common layout structure for all tabs
+  // Handle closing the recap
+  const handleCloseRecap = () => {
+    setShowReturnRecap(false);
+  };
+
+  // Tab metadata for titles and subtitles
+  const tabTitles = {
+    "overview": "Dashboard Overview",
+    "today": "Today's Plan",
+    "academic": "Academic Advisor",
+    "tutor": "24/7 AI Tutor",
+    "concepts": "Concept Cards",
+    "flashcards": "Flashcards",
+    "practice-exam": "Practice Exams",
+    "feel-good-corner": "Feel Good Corner",
+    "notifications": "Notifications"
+  };
+
+  const tabSubtitles = {
+    "overview": "Your personalized learning dashboard",
+    "today": "Your personalized daily study schedule",
+    "academic": "Get guidance for your academic journey",
+    "tutor": "Get 24/7 help with your studies from our AI tutor",
+    "concepts": "Master key concepts and fundamentals",
+    "flashcards": "Review and memorize with smart flashcards",
+    "practice-exam": "Test your knowledge and track progress",
+    "feel-good-corner": "Take a break and boost your motivation",
+    "notifications": "Stay updated with important alerts"
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Returning User Recap - Show for users with login count > 1 */}
@@ -113,18 +108,24 @@ const DashboardContent = ({
         />
       )}
       
-      {/* Content area - Using custom content if provided, otherwise the generated tab content */}
+      {/* Personalized Quick Access */}
+      <PersonalizedQuickAccess userName={userProfile.name} />
+      
+      {/* Content area */}
       <div className="mt-4">
-        {children || tabContents[activeTab] || (
+        {children || (
           <SharedPageLayout
-            title="Coming Soon"
-            subtitle="This feature is under development. Check back later."
+            title={tabTitles[activeTab as keyof typeof tabTitles] || "Coming Soon"}
+            subtitle={tabSubtitles[activeTab as keyof typeof tabSubtitles] || "This feature is under development"}
           >
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                This feature is currently being developed and will be available soon.
-              </p>
-            </div>
+            {tabContents[activeTab] || (
+              <div className="text-center py-8">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  This feature is under development. Check back later.
+                </p>
+              </div>
+            )}
           </SharedPageLayout>
         )}
       </div>

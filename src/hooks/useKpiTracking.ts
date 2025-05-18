@@ -1,127 +1,163 @@
 
 import { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { UserRole } from '@/types/user/base';
 
 export interface KpiData {
   id: string;
-  label: string;
-  value: string | number;
-  change?: string;
-  trend?: 'up' | 'down' | 'neutral';
-  since?: string;
+  title: string;
+  value: number;
+  unit?: string;
+  icon: string;
+  change: number;
+  changeType: 'positive' | 'negative' | 'neutral';
 }
 
 export interface NudgeData {
   id: string;
   title: string;
-  message: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  actionLabel?: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  read?: boolean;
   actionUrl?: string;
-  isRead: boolean;
-  timestamp: Date;
+  actionText?: string;
 }
 
-export const useKpiTracking = (userId?: string) => {
-  const [kpis, setKpis] = useState<KpiData[]>([
-    {
-      id: uuidv4(),
-      label: 'Study Hours',
-      value: '12',
-      change: '+2.5',
-      trend: 'up',
-      since: 'last week'
-    },
-    {
-      id: uuidv4(),
-      label: 'Practice Tests',
-      value: '8',
-      change: '+3',
-      trend: 'up',
-      since: 'last week'
-    },
-    {
-      id: uuidv4(),
-      label: 'Concept Mastery',
-      value: '68%',
-      change: '+5%',
-      trend: 'up',
-      since: 'last month'
-    },
-    {
-      id: uuidv4(),
-      label: 'Study Streak',
-      value: '5',
-      change: '-1',
-      trend: 'down',
-      since: 'days'
-    }
-  ]);
+export function useKpiTracking(userRole: UserRole) {
+  const [kpis, setKpis] = useState<KpiData[]>([]);
+  const [nudges, setNudges] = useState<NudgeData[]>([]);
   
-  const [nudges, setNudges] = useState<NudgeData[]>([
-    {
-      id: uuidv4(),
-      title: 'Complete your profile',
-      message: 'Add your exam date and preferred study times to get a personalized study plan.',
-      type: 'info',
-      actionLabel: 'Complete Profile',
-      actionUrl: '/dashboard/student/profile',
-      isRead: false,
-      timestamp: new Date()
-    },
-    {
-      id: uuidv4(),
-      title: 'Take concept test',
-      message: 'Test your understanding of key concepts to improve your study plan.',
-      type: 'info',
-      actionLabel: 'Take Test',
-      actionUrl: '/dashboard/student/tests',
-      isRead: false,
-      timestamp: new Date()
-    }
-  ]);
-  
-  // In a real app, you would fetch KPIs and nudges from an API based on the userId
   useEffect(() => {
-    if (userId) {
-      // Fetch KPIs and nudges from API
-      // For now, we'll just use the mock data
-    }
-  }, [userId]);
+    // Simulate fetching KPI data
+    setTimeout(() => {
+      if (userRole === UserRole.Student) {
+        setKpis([
+          {
+            id: '1',
+            title: 'Study Streak',
+            value: 7,
+            unit: 'days',
+            icon: '🔥',
+            change: 2,
+            changeType: 'positive'
+          },
+          {
+            id: '2',
+            title: 'Weekly Progress',
+            value: 75,
+            unit: '%',
+            icon: '📊',
+            change: 5,
+            changeType: 'positive'
+          },
+          {
+            id: '3',
+            title: 'Concepts Mastered',
+            value: 42,
+            icon: '🧠',
+            change: 3,
+            changeType: 'positive'
+          },
+          {
+            id: '4',
+            title: 'Avg. Score',
+            value: 85,
+            unit: '%',
+            icon: '📝',
+            change: 2,
+            changeType: 'negative'
+          }
+        ]);
+        
+        setNudges([
+          {
+            id: '1',
+            title: 'Physics Test Tomorrow',
+            description: 'Don\'t forget to review your notes for tomorrow\'s test',
+            priority: 'high',
+            createdAt: new Date().toISOString(),
+            actionUrl: '/dashboard/student/concepts',
+            actionText: 'Review Concepts'
+          },
+          {
+            id: '2',
+            title: 'New Recommended Resources',
+            description: 'Check out these new study materials based on your performance',
+            priority: 'medium',
+            createdAt: new Date().toISOString()
+          }
+        ]);
+      } else if (userRole === UserRole.Admin) {
+        setKpis([
+          {
+            id: '1',
+            title: 'Total Users',
+            value: 2450,
+            icon: '👥',
+            change: 12,
+            changeType: 'positive'
+          },
+          {
+            id: '2',
+            title: 'Weekly Active',
+            value: 1280,
+            icon: '📊',
+            change: 5,
+            changeType: 'positive'
+          },
+          {
+            id: '3',
+            title: 'Revenue',
+            value: 15800,
+            unit: '$',
+            icon: '💰',
+            change: 8,
+            changeType: 'positive'
+          },
+          {
+            id: '4',
+            title: 'Conversion',
+            value: 12.5,
+            unit: '%',
+            icon: '📈',
+            change: 2,
+            changeType: 'negative'
+          }
+        ]);
+        
+        setNudges([
+          {
+            id: '1',
+            title: 'New Support Tickets',
+            description: '3 new tickets require your attention',
+            priority: 'high',
+            createdAt: new Date().toISOString(),
+            actionUrl: '/admin/support',
+            actionText: 'View Tickets'
+          },
+          {
+            id: '2',
+            title: 'System Update',
+            description: 'New system update available for deployment',
+            priority: 'medium',
+            createdAt: new Date().toISOString()
+          }
+        ]);
+      }
+    }, 1000);
+  }, [userRole]);
   
-  const markNudgeAsRead = (nudgeId: string) => {
-    setNudges(prev => 
-      prev.map(nudge => 
-        nudge.id === nudgeId ? { ...nudge, isRead: true } : nudge
+  const markNudgeAsRead = (id: string) => {
+    setNudges(prevNudges => 
+      prevNudges.map(nudge => 
+        nudge.id === id ? { ...nudge, read: true } : nudge
       )
     );
-  };
-  
-  const updateKpiValue = (kpiId: string, value: string | number, change?: string, trend?: 'up' | 'down' | 'neutral') => {
-    setKpis(prev => 
-      prev.map(kpi => 
-        kpi.id === kpiId ? { ...kpi, value, change, trend } : kpi
-      )
-    );
-  };
-  
-  const addNudge = (nudge: Omit<NudgeData, 'id' | 'timestamp'>) => {
-    const newNudge: NudgeData = {
-      ...nudge,
-      id: uuidv4(),
-      timestamp: new Date(),
-    };
-    
-    setNudges(prev => [newNudge, ...prev]);
   };
   
   return {
     kpis,
     nudges,
-    markNudgeAsRead,
-    updateKpiValue,
-    addNudge
+    markNudgeAsRead
   };
-};
-
-export default useKpiTracking;
+}

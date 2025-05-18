@@ -13,28 +13,30 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { isAdminAuthenticated, adminLoading } = useAdminAuth();
   const navigate = useNavigate();
   
-  // Force authentication to ensure routing to admin dashboard always works
   useEffect(() => {
-    console.log("AdminRouteGuard: Admin authentication status:", isAdminAuthenticated);
-    
-    // Force authentication for demo purposes - always return true
-    localStorage.setItem('admin_logged_in', 'true');
-    
-    // Clear any conflicting auth flags
-    localStorage.removeItem('new_user_signup');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('google_signup');
-    
-    // Show authentication success toast
-    toast({
-      title: "Admin access granted",
-      description: "Welcome to the administration dashboard",
-    });
-    
-  }, [isAdminAuthenticated, toast]);
+    if (!adminLoading && !isAdminAuthenticated) {
+      console.log("Admin authentication failed in AdminRouteGuard, redirecting to login");
+      toast({
+        title: "Authentication required",
+        description: "Please log in to access the admin area",
+        variant: "destructive",
+      });
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isAdminAuthenticated, adminLoading, toast, navigate]);
 
-  // Always return children for admin routes - bypassing authentication checks
-  return <>{children}</>;
+  if (adminLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-pulse text-center">
+          <p className="text-xl">Verifying admin credentials...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render children if authenticated
+  return isAdminAuthenticated ? <>{children}</> : null;
 };
 
 export default AdminRouteGuard;

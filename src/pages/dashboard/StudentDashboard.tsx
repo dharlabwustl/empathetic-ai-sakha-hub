@@ -5,16 +5,22 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
-import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
+import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [showTourModal, setShowTourModal] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -31,6 +37,7 @@ const StudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
+    upcomingEvents,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -42,105 +49,99 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Voice announcer hook
-  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
-    userName: userProfile?.name,
-    initialSettings: {
-      enabled: true,
-      muted: false,
-      language: 'en-IN',
-      pitch: 1.1, // Higher pitch for female voice
-      rate: 0.95  // Slightly faster for more energy
-    }
-  });
-
-  // Important: Force disable welcome tour completely
-  const [shouldShowTour, setShouldShowTour] = useState(false);
-
+  // Load profile image from localStorage
   useEffect(() => {
-    // Explicitly mark tour as seen to prevent it from appearing
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
+    const savedImage = localStorage.getItem('user_profile_image');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
+
+  // Check URL parameters and localStorage for first-time user status
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // Don't show splash screen for now
-    setShowSplash(false);
+    // For new users who haven't seen the tour
+    if (isNew && !hasSeenTour) {
+      setShowSplash(false);
+      setShowTourModal(true);
+      setIsFirstTimeUser(true);
+      console.log("New user detected, showing welcome tour");
+    } 
+    // For returning users
+    else {
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+      
+      // Make sure we don't show the tour for returning users who have seen it
+      setShowTourModal(false);
+      setIsFirstTimeUser(false);
+      console.log("Returning user detected, not showing welcome tour");
+    }
     
     // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      try {
-        const parsedData = JSON.parse(savedUserData);
-        if (parsedData.mood) {
-          setCurrentMood(parsedData.mood);
-        }
-      } catch (err) {
-        console.error("Error parsing user data from localStorage:", err);
-      }
+    const savedMood = getCurrentMoodFromLocalStorage();
+    if (savedMood) {
+      setCurrentMood(savedMood);
     }
-
-    // Ensure profile image is available
-    if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
-      localStorage.setItem('user_profile_image', userProfile.avatar);
-    }
-
-    // Auto-start voice greeting after 3 seconds
-    if (userProfile?.name) {
-      const timer = setTimeout(() => {
-        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
-        speakMessage(greeting);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location, userProfile, speakMessage, currentMood]);
+  }, [location]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
+    // For new users, show the tour after splash
+    const isNew = localStorage.getItem('new_user_signup') === 'true';
+    if (isNew) {
+      setShowTourModal(true);
+      setIsFirstTimeUser(true);
+    }
+    
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        try {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
-          localStorage.setItem("userData", JSON.stringify(parsedData));
-        } catch (err) {
-          console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
-        }
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
-      }
+      const defaultMood = MoodType.MOTIVATED;
+      setCurrentMood(defaultMood);
+      storeMoodInLocalStorage(defaultMood);
     }
   };
 
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } catch (err) {
-        console.error("Error updating user data in localStorage:", err);
-        localStorage.setItem("userData", JSON.stringify({ mood }));
-      }
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
+    storeMoodInLocalStorage(mood);
   };
 
   const handleProfileImageUpdate = (imageUrl: string) => {
+    setProfileImage(imageUrl);
     localStorage.setItem('user_profile_image', imageUrl);
     
     // If user profile exists, update its avatar property
     if (userProfile) {
       userProfile.avatar = imageUrl;
     }
+  };
+
+  const handleSkipTourWrapper = () => {
+    handleSkipTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    // Don't remove new_user_signup flag to ensure welcome voice plays
+    console.log("Tour skipped and marked as seen");
+  };
+
+  const handleCompleteTourWrapper = () => {
+    handleCompleteTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    // Don't remove new_user_signup flag to ensure welcome voice plays
+    console.log("Tour completed and marked as seen");
+  };
+
+  const handleCompleteOnboardingWrapper = () => {
+    handleCompleteOnboarding();
+    // Set the new user flag to show tour after onboarding
+    localStorage.setItem('new_user_signup', 'true');
+    navigate('/dashboard/student?new=true');
   };
 
   if (showSplash) {
@@ -160,13 +161,12 @@ const StudentDashboard = () => {
       <OnboardingFlow 
         userProfile={userProfile} 
         goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
+        onComplete={handleCompleteOnboardingWrapper}
       />
     );
   }
 
   // Update user profile with the profile image from localStorage
-  const profileImage = localStorage.getItem('user_profile_image');
   const enhancedUserProfile = {
     ...userProfile,
     avatar: profileImage || userProfile.avatar || userProfile.photoURL
@@ -181,36 +181,61 @@ const StudentDashboard = () => {
   };
 
   return (
-    <DashboardLayout
-      userProfile={enhancedUserProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav} // Always hide tabs nav to prevent double sidebar
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={shouldShowTour} 
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodChange={handleMoodChange}
-      onProfileImageUpdate={handleProfileImageUpdate}
-      upcomingEvents={[
-        { title: "Physics Quiz", time: "10:00 AM", type: "exam" },
-        { title: "Study Newton's Laws", time: "2:00 PM", type: "task" },
-        { title: "Chemistry Revision", time: "4:30 PM", type: "revision" }
-      ]}
-    >
-      {getTabContent()}
-    </DashboardLayout>
+    <>
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav} // Always hide tabs nav to prevent double sidebar
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={showTourModal} // Pass the tour modal state
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+        onProfileImageUpdate={handleProfileImageUpdate}
+        upcomingEvents={upcomingEvents}
+      >
+        {getTabContent()}
+      </DashboardLayout>
+      
+      {/* Welcome Tour Modal - will show once for new users */}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={isFirstTimeUser}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+      />
+
+      {/* Voice Greeting - will play for first time users */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        language="en"
+      />
+      
+      {/* Dashboard Voice Assistant with mood integration */}
+      <DashboardVoiceAssistant 
+        userName={userProfile.name || userProfile.firstName || 'Student'} 
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+        isFirstTimeUser={isFirstTimeUser}
+      />
+    </>
   );
 };
 

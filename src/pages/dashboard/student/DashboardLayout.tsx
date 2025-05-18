@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
@@ -43,7 +44,6 @@ interface DashboardLayoutProps {
     time: string;
     type: "exam" | "task" | "revision";
   }>;
-  removeQuickAccess?: boolean;
 }
 
 const DashboardLayout = ({
@@ -69,9 +69,8 @@ const DashboardLayout = ({
   onMoodChange,
   children,
   onProfileImageUpdate,
-  upcomingEvents = [],
-  removeQuickAccess
-}) => {
+  upcomingEvents = []
+}: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -199,15 +198,13 @@ const DashboardLayout = ({
                 hideTabsNav={hideTabsNav || isMobile}
                 lastActivity={lastActivity}
                 suggestedNextAction={suggestedNextAction}
-                currentMood={currentMood}
-                removeQuickAccess={removeQuickAccess}
               />
             </div>
           )}
         </main>
       </div>
       
-      {/* Chat assistant removed */}
+      <ChatAssistant userType="student" />
       
       {showStudyPlan && (
         <StudyPlanDialog 

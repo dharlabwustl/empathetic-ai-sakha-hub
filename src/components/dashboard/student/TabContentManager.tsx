@@ -1,14 +1,31 @@
 
 import React from 'react';
-import DashboardOverview from './DashboardOverview';
-import { SharedPageLayout } from './SharedPageLayout';
-import { Button } from '@/components/ui/button';
-import { UserProfileBase } from '@/types/user/base';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { QuickAccess } from './QuickAccess';
-import RedesignedDashboardOverview from './RedesignedDashboardOverview';
+import { UserProfileBase } from "@/types/user/base";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { useNavigate } from 'react-router-dom';
 
-interface GenerateTabContentsProps {
+import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
+import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+
+interface RedesignedTodaysPlanProps {
+  userProfile: UserProfileBase;
+}
+
+const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile }) => {
+  // Simplified component that renders the redesigned Today's Plan
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
+      <p>Your personalized study schedule is ready!</p>
+    </div>
+  );
+};
+
+interface TabContentGeneratorProps {
   userProfile: UserProfileBase;
   kpis: KpiData[];
   nudges: NudgeData[];
@@ -19,7 +36,6 @@ interface GenerateTabContentsProps {
   handleCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  removeQuickAccess?: boolean;
 }
 
 export const generateTabContents = ({
@@ -32,116 +48,69 @@ export const generateTabContents = ({
   handleSkipTour,
   handleCompleteTour,
   lastActivity,
-  suggestedNextAction,
-  removeQuickAccess = false
-}: GenerateTabContentsProps): Record<string, React.ReactNode> => {
-  const tabContents: Record<string, React.ReactNode> = {
-    overview: (
-      <>
-        {/* Don't show quick access buttons if removeQuickAccess is true */}
-        {!removeQuickAccess && <QuickAccess />}
-        
-        <RedesignedDashboardOverview 
-          userProfile={userProfile} 
-          kpis={kpis} 
-        />
-      </>
-    ),
-    practice: (
-      <SharedPageLayout
-        title="Practice & Review"
-        subtitle="Refine your knowledge through targeted practice"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="min-h-[300px] bg-white dark:bg-slate-800 rounded-md shadow-sm p-4">
-            <h3 className="text-lg font-medium mb-4">Recent Practice</h3>
-            <p className="text-muted-foreground text-sm">
-              No recent practice sessions found.
-            </p>
-            <Button className="mt-4" variant="outline">
-              Start New Practice
-            </Button>
-          </div>
-          <div className="min-h-[300px] bg-white dark:bg-slate-800 rounded-md shadow-sm p-4">
-            <h3 className="text-lg font-medium mb-4">Available Topics</h3>
-            <p className="text-muted-foreground text-sm">
-              Select a topic to practice.
-            </p>
-            <div className="mt-4 space-y-2">
-              {/* Sample topics - replace with dynamic content */}
-              <Button variant="outline" className="w-full justify-start">
-                {userProfile?.goals?.[0]?.title || 'IIT JEE'} Practice Set
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Mock Test #1
-              </Button>
-            </div>
-          </div>
-        </div>
-      </SharedPageLayout>
-    ),
-    analytics: (
-      <SharedPageLayout
-        title="Analytics & Insights"
-        subtitle="Visualize your progress and identify growth areas"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-          {kpis.map((kpi) => (
-            <div
-              key={kpi.id}
-              className="bg-white dark:bg-slate-800 rounded-md shadow-sm p-4"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                  <div className="flex items-baseline">
-                    <h3 className="text-2xl font-bold">{kpi.value}</h3>
-                    {kpi.unit && (
-                      <span className="text-muted-foreground ml-1 text-sm">
-                        {kpi.unit}
-                      </span>
-                    )}
-                  </div>
-                  {kpi.change && (
-                    <p
-                      className={
-                        kpi.changeType === "positive"
-                          ? "text-green-600 dark:text-green-400 text-xs"
-                          : "text-red-600 dark:text-red-400 text-xs"
-                      }
-                    >
-                      {kpi.changeType === "positive" ? "+" : ""}
-                      {kpi.change}% from last week
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+  suggestedNextAction
+}: TabContentGeneratorProps) => {
+  const navigate = useNavigate();
 
-        <div className="bg-white dark:bg-slate-800 rounded-md shadow-sm p-4">
-          <h3 className="text-lg font-medium mb-4">Learning Insights</h3>
-          <p className="text-muted-foreground text-sm">
-            Your detailed analytics will appear here as you use the platform.
-          </p>
-        </div>
-      </SharedPageLayout>
-    ),
-    settings: (
-      <SharedPageLayout
-        title="Settings"
-        subtitle="Customize your learning experience"
-      >
-        <div className="bg-white dark:bg-slate-800 rounded-md shadow-sm p-4">
-          <h3 className="text-lg font-medium mb-4">Preferences</h3>
-          <p className="text-muted-foreground text-sm">
-            Settings options are coming soon.
-          </p>
-        </div>
-      </SharedPageLayout>
-    ),
+  // Handler for navigating to concept cards section
+  const handleViewConcepts = () => {
+    navigate('/dashboard/student/concepts');
   };
 
-  return tabContents;
+  // Handler for navigating to flashcards section
+  const handleViewFlashcards = () => {
+    navigate('/dashboard/student/flashcards');
+  };
+
+  // Handler for navigating to practice exam section
+  const handleViewPracticeExams = () => {
+    navigate('/dashboard/student/practice-exam');
+  };
+
+  // Pre-generated tab contents that will be used in different parts of the app
+  return {
+    // Home/Overview tab
+    "overview": (
+      <>
+        {showWelcomeTour && (
+          <WelcomeTourReminderBanner 
+            onSkipTour={handleSkipTour} 
+            onStartTour={handleCompleteTour} 
+          />
+        )}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+          <p>Welcome back, {userProfile.name}!</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {kpis.filter(kpi => 
+              !['Weekly Study Time', 'Practice Questions', 'Target Exams Covered', 'Users Log Weekly Moods'].includes(kpi.title)
+            ).map(kpi => (
+              <div key={kpi.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h3 className="font-medium">{kpi.title}</h3>
+                <p className="text-2xl">{kpi.value} {kpi.unit}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    ),
+    
+    // Today's Plan tab
+    "today": <RedesignedTodaysPlan userProfile={userProfile} />,
+    
+    // Academic Advisor tab
+    "academic": <AcademicAdvisorView />,
+    
+    // Concept Cards tab
+    "concepts": <ConceptsLandingPage />,
+    
+    // Flashcards tab
+    "flashcards": <FlashcardsLandingPage />,
+    
+    // Practice Exams tab
+    "practice-exam": <PracticeExamLandingPage />,
+    
+    // Notifications tab
+    "notifications": <NotificationsPage />
+  };
 };

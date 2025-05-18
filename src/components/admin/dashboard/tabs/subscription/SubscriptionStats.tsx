@@ -1,129 +1,103 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { ArrowUp, ArrowDown, Users, CreditCard, Timer, LineChart } from "lucide-react";
+import { motion } from "framer-motion";
 
-const SubscriptionStats: React.FC = () => {
-  // Mock data for subscription growth
-  const subscriptionGrowthData = [
-    { month: 'Jan', subscriptions: 85 },
-    { month: 'Feb', subscriptions: 102 },
-    { month: 'Mar', subscriptions: 123 },
-    { month: 'Apr', subscriptions: 131 },
-    { month: 'May', subscriptions: 142 },
-    { month: 'Jun', subscriptions: 148 },
-  ];
-  
-  // Mock data for revenue growth
-  const revenueGrowthData = [
-    { month: 'Jan', revenue: 2950 },
-    { month: 'Feb', revenue: 3520 },
-    { month: 'Mar', revenue: 4230 },
-    { month: 'Apr', revenue: 4540 },
-    { month: 'May', revenue: 5100 },
-    { month: 'Jun', revenue: 5500 },
-  ];
-  
+const stats = [
+  {
+    title: "Total Revenue",
+    value: "₹12,45,750",
+    description: "Last month: ₹11,32,500",
+    changeValue: "+10%",
+    changeType: "positive",
+    icon: <CreditCard className="h-5 w-5" />,
+  },
+  {
+    title: "Paid Subscribers",
+    value: "449",
+    description: "Last month: 425",
+    changeValue: "+5.6%",
+    changeType: "positive",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Average Subscription Value",
+    value: "₹2,775",
+    description: "Last month: ₹2,665",
+    changeValue: "+4.1%",
+    changeType: "positive", 
+    icon: <LineChart className="h-5 w-5" />,
+  },
+  {
+    title: "Average Subscription Length",
+    value: "4.2 months",
+    description: "Last month: 3.9 months",
+    changeValue: "+7.7%",
+    changeType: "positive",
+    icon: <Timer className="h-5 w-5" />,
+  },
+];
+
+const SubscriptionStats = () => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Subscription Growth</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={subscriptionGrowthData}>
-                  <defs>
-                    <linearGradient id="colorSubs" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area 
-                    type="monotone" 
-                    dataKey="subscriptions" 
-                    stroke="#8884d8" 
-                    fillOpacity={1} 
-                    fill="url(#colorSubs)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Monthly Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueGrowthData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) => [`$${value}`, 'Revenue']}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#82ca9d"
-                    strokeWidth={2}
-                    dot={{ stroke: '#82ca9d', strokeWidth: 2, r: 4, fill: 'white' }}
-                    activeDot={{ r: 6, stroke: '#82ca9d', strokeWidth: 2, fill: '#82ca9d' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      <h3 className="text-xl font-bold">Subscription Overview</h3>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className={`rounded-full p-1.5 ${
+                  stat.changeType === "positive" 
+                    ? "bg-green-100 text-green-600" 
+                    : "bg-red-100 text-red-600"
+                }`}>
+                  {stat.icon}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <div className="flex items-center mr-2">
+                    {stat.changeType === "positive" ? (
+                      <ArrowUp className="mr-1 h-4 w-4 text-green-600" />
+                    ) : (
+                      <ArrowDown className="mr-1 h-4 w-4 text-red-600" />
+                    )}
+                    <span className={stat.changeType === "positive" ? "text-green-600" : "text-red-600"}>
+                      {stat.changeValue}
+                    </span>
+                  </div>
+                  <span>{stat.description}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">148</div>
-              <p className="text-xs text-muted-foreground">Active Subscriptions</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">$7,250</div>
-              <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">3.2%</div>
-              <p className="text-xs text-muted-foreground">Churn Rate</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">$49.00</div>
-              <p className="text-xs text-muted-foreground">Average Revenue Per User</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Revenue Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="h-[300px] flex items-center justify-center">
+            <p className="text-muted-foreground">
+              Revenue chart visualization will be available in the next update.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,501 +1,347 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Check, X, ArrowUp, ArrowDown } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus, Edit, Trash2, Users, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
-interface PlanFeature {
-  id: string;
-  name: string;
-  included: boolean;
-}
+const plans = [
+  { 
+    id: "free", 
+    name: "Free Plan (7 Days)", 
+    price: 0, 
+    billingCycle: "N/A", 
+    users: 564, 
+    features: [
+      "5 Concept Cards",
+      "5 Flashcards",
+      "5 Practice Exams",
+      "1 Academic Advisor plan",
+      "Basic Smart Study Plan",
+      "10 AI Tutor requests",
+      "Feel Good Corner"
+    ],
+    isActive: true,
+    maxUsers: 1
+  },
+  { 
+    id: "pro_monthly", 
+    name: "Pro Plan (Monthly)", 
+    price: 999, 
+    billingCycle: "Monthly", 
+    users: 284, 
+    features: [
+      "Unlimited Concept Cards",
+      "Unlimited Flashcards",
+      "Unlimited Practice Exams",
+      "Custom Cards (via credits)",
+      "2 Academic Advisor plans/month",
+      "Full + Mood-Based Study Plan",
+      "Unlimited AI Tutor",
+      "Surrounding Influence",
+      "Feel Good Corner"
+    ],
+    isActive: true,
+    maxUsers: 1
+  },
+  { 
+    id: "pro_annual", 
+    name: "Pro Plan (Annual)", 
+    price: 9999, 
+    billingCycle: "Annual", 
+    users: 103, 
+    features: [
+      "All Monthly Pro Plan features",
+      "₹2,000 savings compared to monthly",
+      "Priority support",
+      "Early access to new features"
+    ],
+    isActive: true,
+    maxUsers: 1
+  },
+  { 
+    id: "group_small", 
+    name: "Group Plan (5 Users)", 
+    price: 3999, 
+    billingCycle: "Monthly", 
+    users: 45, 
+    features: [
+      "5 Users included",
+      "Unlimited Concept Cards",
+      "Unlimited Flashcards",
+      "Unlimited Practice Exams",
+      "Shared credit pool",
+      "4 Academic Advisor plans/month",
+      "Study Groups",
+      "Admin Dashboard",
+      "Batch Manager"
+    ],
+    isActive: true,
+    maxUsers: 5
+  },
+  { 
+    id: "group_annual", 
+    name: "Group Plan (Annual)", 
+    price: 39999, 
+    billingCycle: "Annual", 
+    users: 17, 
+    features: [
+      "All Monthly Group Plan features",
+      "₹8,000 savings compared to monthly",
+      "Priority group support",
+      "Enhanced analytics",
+      "Customized onboarding session"
+    ],
+    isActive: true,
+    maxUsers: 5
+  },
+];
 
-interface Plan {
-  id: number;
-  name: string;
-  price: number | "Custom";
-  billingCycle: "Monthly" | "Annual" | "N/A";
-  users: number;
-  features: string[];
-  isActive: boolean;
-  featureDetails?: PlanFeature[];
-}
-
-const PlansManagement: React.FC = () => {
+const PlansManagement = () => {
   const { toast } = useToast();
+  const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
   
-  const [plans, setPlans] = useState<Plan[]>([
-    { 
-      id: 1, 
-      name: "Free", 
-      price: 0, 
-      billingCycle: "N/A", 
-      users: 120, 
-      features: ["Basic Content Access", "Limited Practice Tests", "Community Access"],
-      isActive: true,
-      featureDetails: [
-        { id: "f1", name: "Basic Content Access", included: true },
-        { id: "f2", name: "Limited Practice Tests", included: true },
-        { id: "f3", name: "Community Access", included: true },
-        { id: "f4", name: "Personalized Study Plan", included: false },
-        { id: "f5", name: "Progress Tracking", included: false },
-        { id: "f6", name: "1-on-1 Tutoring", included: false },
-      ]
-    },
-    { 
-      id: 2, 
-      name: "Basic", 
-      price: 9.99, 
-      billingCycle: "Monthly", 
-      users: 78, 
-      features: ["All Free Features", "Unlimited Practice Tests", "Personalized Study Plan", "Progress Tracking"],
-      isActive: true,
-      featureDetails: [
-        { id: "f1", name: "Basic Content Access", included: true },
-        { id: "f2", name: "Unlimited Practice Tests", included: true },
-        { id: "f3", name: "Community Access", included: true },
-        { id: "f4", name: "Personalized Study Plan", included: true },
-        { id: "f5", name: "Progress Tracking", included: true },
-        { id: "f6", name: "1-on-1 Tutoring", included: false },
-      ]
-    },
-    { 
-      id: 3, 
-      name: "Premium", 
-      price: 19.99, 
-      billingCycle: "Monthly", 
-      users: 45, 
-      features: ["All Basic Features", "1-on-1 Tutoring", "Advanced Analytics", "Exam Simulations"],
-      isActive: true,
-      featureDetails: [
-        { id: "f1", name: "Basic Content Access", included: true },
-        { id: "f2", name: "Unlimited Practice Tests", included: true },
-        { id: "f3", name: "Community Access", included: true },
-        { id: "f4", name: "Personalized Study Plan", included: true },
-        { id: "f5", name: "Progress Tracking", included: true },
-        { id: "f6", name: "1-on-1 Tutoring", included: true },
-        { id: "f7", name: "Advanced Analytics", included: true },
-        { id: "f8", name: "Exam Simulations", included: true },
-      ]
-    },
-    { 
-      id: 4, 
-      name: "Ultimate", 
-      price: 29.99, 
-      billingCycle: "Monthly", 
-      users: 23, 
-      features: ["All Premium Features", "Priority Support", "Personalized AI Tutor", "Unlimited Resources"],
-      isActive: true,
-      featureDetails: [
-        { id: "f1", name: "Basic Content Access", included: true },
-        { id: "f2", name: "Unlimited Practice Tests", included: true },
-        { id: "f3", name: "Community Access", included: true },
-        { id: "f4", name: "Personalized Study Plan", included: true },
-        { id: "f5", name: "Progress Tracking", included: true },
-        { id: "f6", name: "1-on-1 Tutoring", included: true },
-        { id: "f7", name: "Advanced Analytics", included: true },
-        { id: "f8", name: "Exam Simulations", included: true },
-        { id: "f9", name: "Priority Support", included: true },
-        { id: "f10", name: "Personalized AI Tutor", included: true },
-        { id: "f11", name: "Unlimited Resources", included: true },
-      ]
-    },
-    { 
-      id: 5, 
-      name: "Enterprise", 
-      price: "Custom", 
-      billingCycle: "Annual", 
-      users: 2, 
-      features: ["All Ultimate Features", "Dedicated Support Manager", "Custom Content", "API Access"],
-      isActive: false,
-      featureDetails: [
-        { id: "f1", name: "Basic Content Access", included: true },
-        { id: "f2", name: "Unlimited Practice Tests", included: true },
-        { id: "f3", name: "Community Access", included: true },
-        { id: "f4", name: "Personalized Study Plan", included: true },
-        { id: "f5", name: "Progress Tracking", included: true },
-        { id: "f6", name: "1-on-1 Tutoring", included: true },
-        { id: "f7", name: "Advanced Analytics", included: true },
-        { id: "f8", name: "Exam Simulations", included: true },
-        { id: "f9", name: "Priority Support", included: true },
-        { id: "f10", name: "Personalized AI Tutor", included: true },
-        { id: "f11", name: "Unlimited Resources", included: true },
-        { id: "f12", name: "Dedicated Support Manager", included: true },
-        { id: "f13", name: "Custom Content", included: true },
-        { id: "f14", name: "API Access", included: true },
-      ]
-    }
-  ]);
-  
-  const [editPlanId, setEditPlanId] = useState<number | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAddPlanDialogOpen, setIsAddPlanDialogOpen] = useState(false);
-  const [isFeatureDialogOpen, setIsFeatureDialogOpen] = useState(false);
-  
-  const handleTogglePlanStatus = (planId: number) => {
-    setPlans(plans.map(plan => 
-      plan.id === planId ? { ...plan, isActive: !plan.isActive } : plan
-    ));
-    
+  const handlePlanAction = () => {
     toast({
-      title: "Plan status updated",
-      description: `Plan has been ${plans.find(p => p.id === planId)?.isActive ? 'disabled' : 'activated'}.`
+      title: "Feature Coming Soon",
+      description: "Plan management functionality will be available in the next update.",
     });
   };
   
-  const handleEditPlan = (planId: number) => {
-    setEditPlanId(planId);
-    setIsEditDialogOpen(true);
+  const formatPrice = (price: number, cycle?: string) => {
+    if (price === 0) return "Free";
+    const formattedPrice = `₹${price.toLocaleString()}`;
+    if (cycle === "Monthly") return `${formattedPrice}/month`;
+    if (cycle === "Annual") return `${formattedPrice}/year`;
+    return formattedPrice;
   };
   
-  const handleSavePlan = () => {
-    setIsEditDialogOpen(false);
-    setIsAddPlanDialogOpen(false);
-    
-    toast({
-      title: "Plan saved",
-      description: "The subscription plan has been updated successfully."
-    });
+  // Calculate total revenue
+  const calculateMonthlyRevenue = () => {
+    return plans.reduce((sum, plan) => {
+      if (plan.billingCycle === "Monthly") {
+        return sum + (plan.price * plan.users);
+      } else if (plan.billingCycle === "Annual") {
+        return sum + ((plan.price / 12) * plan.users);
+      }
+      return sum;
+    }, 0);
   };
   
-  const handleDeletePlan = (planId: number) => {
-    // In a real app, show a confirmation dialog and delete
-    setPlans(plans.filter(plan => plan.id !== planId));
-    
-    toast({
-      title: "Plan deleted",
-      description: "The subscription plan has been deleted successfully.",
-      variant: "destructive"
-    });
-  };
-
+  const monthlyRevenue = calculateMonthlyRevenue();
+  const totalUsers = plans.reduce((sum, plan) => sum + plan.users, 0);
+  const groupUsers = plans
+    .filter(p => p.id.startsWith('group'))
+    .reduce((sum, plan) => sum + plan.users, 0);
+  
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold">Subscription Plans</h3>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => setIsFeatureDialogOpen(true)}
-          >
-            Manage Features
-          </Button>
-          <Button className="flex items-center gap-2" onClick={() => setIsAddPlanDialogOpen(true)}>
-            <Plus size={16} />
-            <span>Add New Plan</span>
-          </Button>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h3 className="text-xl font-bold">Plan Management</h3>
+        <Button className="flex items-center gap-2" onClick={handlePlanAction}>
+          <Plus size={16} />
+          <span>Create New Plan</span>
+        </Button>
       </div>
       
-      <Card>
-        <CardContent className="p-0 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Billing Cycle</TableHead>
-                <TableHead>Users</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Features</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {plans.map((plan) => (
-                <TableRow key={plan.id}>
-                  <TableCell className="font-medium">{plan.name}</TableCell>
-                  <TableCell>
-                    {typeof plan.price === 'number' ? 
-                      plan.price === 0 ? 'Free' : `$${plan.price.toFixed(2)}` : 
-                      plan.price}
-                  </TableCell>
-                  <TableCell>{plan.billingCycle}</TableCell>
-                  <TableCell>{plan.users}</TableCell>
-                  <TableCell>
-                    {plan.isActive ? (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                        Active
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-                        Inactive
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalUsers.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₹{monthlyRevenue.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Paid Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{(totalUsers - plans[0].users).toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Group Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{groupUsers.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="rounded-md border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Billing</TableHead>
+              <TableHead>Users</TableHead>
+              <TableHead>Max Users</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {plans.map((plan) => (
+              <TableRow key={plan.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {plan.name}
+                    {plan.id.startsWith('group') && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
+                        <Users size={12} className="mr-1" /> Group
                       </Badge>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-[200px] truncate">
-                      {plan.features.join(", ")}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleTogglePlanStatus(plan.id)}>
-                        {plan.isActive ? (
-                          <X className="h-4 w-4 text-red-500" />
-                        ) : (
-                          <Check className="h-4 w-4 text-green-500" />
-                        )}
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEditPlan(plan.id)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleDeletePlan(plan.id)}
-                        className="text-red-500"
-                        disabled={plan.id === 1} // Can't delete Free plan
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      
-      {/* Edit Plan Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Subscription Plan</DialogTitle>
-            <DialogDescription>
-              Update the details of the subscription plan.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Plan Name</Label>
-              <Input
-                id="name"
-                placeholder="Enter plan name"
-                defaultValue={editPlanId ? plans.find(p => p.id === editPlanId)?.name : ''}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  placeholder="0.00"
-                  type="number"
-                  defaultValue={
-                    editPlanId ? 
-                    (typeof plans.find(p => p.id === editPlanId)?.price === 'number' ? 
-                    plans.find(p => p.id === editPlanId)?.price : '') : ''
-                  }
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="billing">Billing Cycle</Label>
-                <select 
-                  id="billing" 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                  defaultValue={editPlanId ? plans.find(p => p.id === editPlanId)?.billingCycle : 'Monthly'}
-                >
-                  <option>Monthly</option>
-                  <option>Annual</option>
-                  <option>N/A</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label>Features</Label>
-              <div className="space-y-2 max-h-[200px] overflow-y-auto border rounded-md p-2">
-                {editPlanId && plans.find(p => p.id === editPlanId)?.featureDetails?.map(feature => (
-                  <div key={feature.id} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`feature-${feature.id}`} 
-                      defaultChecked={feature.included}
-                    />
-                    <Label htmlFor={`feature-${feature.id}`} className="text-sm">
-                      {feature.name}
-                    </Label>
+                    {plan.id === 'pro_monthly' && (
+                      <Badge variant="outline" className="bg-purple-50 text-purple-800 border-purple-200">
+                        Popular
+                      </Badge>
+                    )}
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="active" 
-                defaultChecked={editPlanId ? plans.find(p => p.id === editPlanId)?.isActive : true}
-              />
-              <Label htmlFor="active">Active</Label>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSavePlan}>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Add Plan Dialog */}
-      <Dialog open={isAddPlanDialogOpen} onOpenChange={setIsAddPlanDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Subscription Plan</DialogTitle>
-            <DialogDescription>
-              Create a new subscription plan for your users.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="new-name">Plan Name</Label>
-              <Input id="new-name" placeholder="Enter plan name" />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="new-price">Price</Label>
-                <Input id="new-price" placeholder="0.00" type="number" />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="new-billing">Billing Cycle</Label>
-                <select 
-                  id="new-billing" 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                  defaultValue="Monthly"
-                >
-                  <option>Monthly</option>
-                  <option>Annual</option>
-                  <option>N/A</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label>Features</Label>
-              <div className="space-y-2 max-h-[200px] overflow-y-auto border rounded-md p-2">
-                {[
-                  "Basic Content Access",
-                  "Practice Tests",
-                  "Community Access",
-                  "Personalized Study Plan",
-                  "Progress Tracking",
-                  "1-on-1 Tutoring",
-                  "Advanced Analytics",
-                  "Exam Simulations",
-                  "Priority Support",
-                  "Personalized AI Tutor",
-                  "Unlimited Resources"
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center space-x-2">
-                    <Checkbox id={`new-feature-${idx}`} />
-                    <Label htmlFor={`new-feature-${idx}`} className="text-sm">
-                      {feature}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch id="new-active" defaultChecked />
-              <Label htmlFor="new-active">Active</Label>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddPlanDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSavePlan}>
-              Create Plan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Manage Features Dialog */}
-      <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Manage Plan Features</DialogTitle>
-            <DialogDescription>
-              Add or edit features that can be included in subscription plans.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label>Features List</Label>
-              <div className="space-y-2 max-h-[300px] overflow-y-auto border rounded-md p-2">
-                {[
-                  "Basic Content Access",
-                  "Limited Practice Tests",
-                  "Community Access",
-                  "Personalized Study Plan",
-                  "Progress Tracking",
-                  "1-on-1 Tutoring",
-                  "Advanced Analytics",
-                  "Exam Simulations",
-                  "Priority Support",
-                  "Personalized AI Tutor",
-                  "Unlimited Resources",
-                  "Dedicated Support Manager",
-                  "Custom Content",
-                  "API Access"
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-1 border-b last:border-0">
-                    <span className="text-sm">{feature}</span>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <ArrowUp className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <ArrowDown className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                </TableCell>
+                <TableCell>{formatPrice(plan.price, plan.billingCycle)}</TableCell>
+                <TableCell>{plan.billingCycle}</TableCell>
+                <TableCell>{plan.users.toLocaleString()}</TableCell>
+                <TableCell>{plan.maxUsers === 1 ? "1" : `${plan.maxUsers} ${plan.id.startsWith('group') ? "(₹799/user extra)" : ""}`}</TableCell>
+                <TableCell>
+                  {plan.isActive ? (
+                    <div className="flex items-center text-green-600">
+                      <Check size={16} className="mr-1" />
+                      <span>Active</span>
                     </div>
+                  ) : (
+                    <div className="flex items-center text-red-600">
+                      <X size={16} className="mr-1" />
+                      <span>Inactive</span>
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedPlan(plan)}>
+                          <Edit size={16} />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Plan: {plan.name}</DialogTitle>
+                          <DialogDescription>
+                            This feature is coming soon. You'll be able to edit plan details here.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <h4 className="font-medium mb-2">Features:</h4>
+                          <ul className="space-y-1">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="text-sm flex items-start gap-2">
+                                <Check size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <DialogFooter>
+                          <Button type="button" variant="outline" onClick={() => setSelectedPlan(null)}>
+                            Cancel
+                          </Button>
+                          <Button type="button" onClick={handlePlanAction}>
+                            Save Changes
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    
+                    <Button variant="ghost" size="icon" className="text-red-500" onClick={handlePlanAction}>
+                      <Trash2 size={16} />
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <Input placeholder="New feature name" />
-              <Button>Add</Button>
-            </div>
-          </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Card Credit Packs section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold mb-4">Card Credit Packs</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">50 Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹99</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 50 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
           
-          <DialogFooter>
-            <Button onClick={() => setIsFeatureDialogOpen(false)}>
-              Done
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">100 Credits</CardTitle>
+              <Badge className="bg-green-100 text-green-800">Best Value</Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹179</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 100 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">250 Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹399</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 250 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">100 Exam Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹499</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 100 exam cards</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
