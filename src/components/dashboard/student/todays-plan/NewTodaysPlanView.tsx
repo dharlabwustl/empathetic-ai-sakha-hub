@@ -44,6 +44,11 @@ const NewTodaysPlanView = ({ planData, onConceptClick, isMobile = false }: NewTo
     }
   };
 
+  // Handle concept click to navigate to concept detail page
+  const handleConceptCardClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
   return (
     <div className="space-y-5">
       {/* Tasks section */}
@@ -57,7 +62,10 @@ const NewTodaysPlanView = ({ planData, onConceptClick, isMobile = false }: NewTo
                     {getTaskIcon('concept')}
                   </div>
                   <div>
-                    <h4 className="font-medium text-base" onClick={() => onConceptClick(card.id || 'concept-1')} style={{cursor: 'pointer'}}>
+                    <h4 
+                      className="font-medium text-base cursor-pointer hover:text-blue-600 transition-colors" 
+                      onClick={() => handleConceptCardClick(card.id || 'concept-1')}
+                    >
                       {card.title}
                     </h4>
                     <div className="flex items-center text-xs text-muted-foreground mt-1">

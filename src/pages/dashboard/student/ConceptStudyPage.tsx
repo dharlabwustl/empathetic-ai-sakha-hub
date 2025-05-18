@@ -45,6 +45,7 @@ const ConceptStudyPage: React.FC = () => {
     );
   }
   
+  // Use the EnhancedConceptDetail component
   return <EnhancedConceptDetail conceptId={conceptId || 'concept-1'} />;
 };
 
