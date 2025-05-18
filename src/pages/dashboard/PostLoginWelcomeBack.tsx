@@ -38,18 +38,13 @@ const PostLoginWelcomeBack = () => {
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
+    const needsStudyPlanCreation = localStorage.getItem('needs_study_plan_creation') === 'true';
     
     if (isNewUser || isGoogleSignup) {
       // For new users, show tour immediately after welcome slider
       if (sawWelcomeSlider) {
         setShowSlider(false);
         setShowTour(true);
-        
-        // Check if study plan creation is needed
-        if (localStorage.getItem('needs_study_plan_creation') === 'true') {
-          // We'll show the dialog after the tour completes
-          localStorage.removeItem('needs_study_plan_creation');
-        }
       }
       
       // Ensure we've set the login flag
@@ -61,7 +56,13 @@ const PostLoginWelcomeBack = () => {
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
     if (sawWelcomeSlider && sawWelcomeTour) {
-      navigate('/dashboard/student');
+      // Check if study plan creation is needed
+      if (needsStudyPlanCreation) {
+        setShowStudyPlanDialog(true);
+        localStorage.removeItem('needs_study_plan_creation');
+      } else {
+        navigate('/dashboard/student');
+      }
       return;
     }
     

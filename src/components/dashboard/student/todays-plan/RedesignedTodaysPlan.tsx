@@ -68,6 +68,10 @@ const RedesignedTodaysPlan: React.FC = () => {
         
         <NewTodaysPlanView 
           planData={planData}
+          onConceptClick={(conceptId) => {
+            // Directly navigate to the concept detail page with the right URL format
+            window.location.href = `/dashboard/student/concepts/${conceptId}`;
+          }}
         />
       </div>
     </SharedPageLayout>
