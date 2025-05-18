@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -214,6 +213,7 @@ const PostLoginWelcome = () => {
           </motion.p>
         </div>
         
+        {/* Motion card component with various buttons */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -235,6 +235,7 @@ const PostLoginWelcome = () => {
               </CardHeader>
             </motion.div>
             
+            {/* Rest of the card content */}
             <CardContent className="space-y-4">
               <motion.div variants={itemVariants}>
                 <Button 

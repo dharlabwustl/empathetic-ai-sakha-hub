@@ -32,8 +32,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Create text for speech with better pronunciation for PREPZR
             let welcomeText = '';
             if (language === 'en') {
-              // Use phonetic spelling with a pause between Prep and zer
-              welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students. If you need any assistance, click the chat button to interact with your AI tutor.`;
+              // Use phonetic pronunciation with a clear syllable break between Prep and zer
+              welcomeText = `Welcome to Prep-zer, ${userName}! Your personalized learning journey begins now. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students. If you need any assistance, click the chat button to interact with your AI tutor.`;
             } else if (language === 'hi') {
               welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। हमारा प्रीमियम प्लेटफ़ॉर्म AI-संचालित अध्ययन योजनाएँ, अभ्यास परीक्षण, और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। हम सदस्यता राजस्व का 5% वंचित छात्रों का समर्थन करने के लिए आवंटित करते हैं। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
             }
@@ -44,8 +44,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Create speech synthesis utterance
             const speech = new SpeechSynthesisUtterance(welcomeText);
             speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
-            speech.rate = 0.9; // Slightly slower for clarity
-            speech.volume = 0.8;
+            speech.rate = 0.95; // Slightly slower for clarity
+            speech.volume = 0.85;
+            speech.pitch = 1.05; // Slightly higher for a more pleasant tone
             
             // Find an Indian voice based on comprehensive list of possible voices
             const preferredVoiceNames = [

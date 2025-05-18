@@ -109,7 +109,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
           </h3>
           
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Thank you! 5% of your subscription helps fund education for underprivileged students.
+            Thank you for your subscription! 5% of your subscription helps fund education for underprivileged students.
           </p>
           
           {expiryDate && (

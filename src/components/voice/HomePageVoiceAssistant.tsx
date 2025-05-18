@@ -14,6 +14,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const [hasVisitorInteracted, setHasVisitorInteracted] = useState(false);
   const [speechCount, setSpeechCount] = useState(0);
+  const [lastPagePath, setLastPagePath] = useState<string | null>(null);
   const location = useLocation();
   const { user } = useAuth();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -35,6 +36,19 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     };
   }, []);
   
+  // Check for page changes and cancel ongoing speech
+  useEffect(() => {
+    const path = location.pathname;
+    // If page has changed, cancel any ongoing speech
+    if (path !== lastPagePath) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setLastPagePath(path);
+      setGreetingPlayed(false);
+    }
+  }, [location.pathname, lastPagePath]);
+  
   // Only play greeting on specific pages, not on concept pages or dashboard pages
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
@@ -51,7 +65,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Enhanced messages for the home page visitor experience
   const homePageMessages = {
     initial: {
-      en: "Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
+      en: "Welcome to Prep-zer, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
       hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
     },
     signup: {
@@ -59,7 +73,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       hi: "अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
     },
     features: {
-      en: "Unlike coaching institutes, PREPZR offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
+      en: "Unlike coaching institutes, Prep-zer offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
       hi: "कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
     },
     donation: {
@@ -67,7 +81,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       hi: "हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
     },
     welcome_back: {
-      en: "Welcome back to PREPZR. Simply log in to continue your personalized study journey.",
+      en: "Welcome back to Prep-zer. Simply log in to continue your personalized study journey.",
       hi: "प्रेप-ज़र पर वापस स्वागत है। बस लॉग इन करें और अपनी अध्ययन यात्रा जारी रखें।"
     }
   };
@@ -146,7 +160,12 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       window.speechSynthesis.cancel();
       
       // Create utterance with proper PREPZR pronunciation (Prep-zer) with a pause between syllables
-      const correctedText = text.replace(/PREPZR/gi, 'Prep-zer').replace(/prepzr/gi, 'Prep-zer').replace(/Prepzr/g, 'Prep-zer');
+      // Using phonetic spelling for better pronunciation: "Prep" (as in preparation) + "zer" (as in laser)
+      const correctedText = text
+        .replace(/PREPZR/gi, 'Prep-zer')
+        .replace(/prepzr/gi, 'Prep-zer')
+        .replace(/Prepzr/g, 'Prep-zer');
+      
       const utterance = new SpeechSynthesisUtterance(correctedText);
       
       // Use voices API to find an appropriate voice based on language
@@ -177,9 +196,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         utterance.voice = selectedVoice;
       }
       
-      // Set properties
+      // Set properties for a pleasant, enthusiastic voice
       utterance.lang = language;
-      utterance.rate = 1.0; // Normal speed for better comprehension
+      utterance.rate = 0.95; // Slightly slower for better comprehension
       utterance.pitch = 1.1; // Slightly higher pitch for female voice
       utterance.volume = 0.8;
       

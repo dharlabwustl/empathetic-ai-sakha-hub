@@ -18,6 +18,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
+  const [lastPagePath, setLastPagePath] = useState<string | null>(null);
   const location = useLocation();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [pageContext, setPageContext] = useState('');
@@ -52,7 +53,23 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     else if (path.includes('/dashboard/student/practice')) setPageContext('practice');
     else if (path.includes('/dashboard/student/analytics')) setPageContext('analytics');
     else setPageContext('dashboard');
-  }, [location.pathname]);
+    
+    // Check if we've moved to a new page
+    if (path !== lastPagePath) {
+      // Cancel any ongoing speech when changing pages
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Save this path so we can detect page changes
+      setLastPagePath(path);
+      
+      // Reset greeting flag if changing pages
+      if (lastPagePath) {
+        setGreetingPlayed(false);
+      }
+    }
+  }, [location.pathname, lastPagePath]);
   
   useEffect(() => {
     // Only play welcome message once per session, and only on dashboard
@@ -67,11 +84,11 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         let message = '';
         
         if (isFirstTimeUser) {
-          // First-time user welcome
-          message = `Congratulations ${userName} for joining Prep-zer! You've made an excellent decision in choosing us for your exam preparation journey. Our personalized dashboard adapts to your learning style and progress to help you achieve your goals efficiently. I'm your AI study assistant and will guide you through our powerful features including your Exam Readiness Score, personalized study plan, and adaptive practice tests.`;
+          // First-time user welcome - improved with proper PREPZR pronunciation
+          message = `Congratulations ${userName} for joining Prep-zer! You've made an excellent decision in choosing us for your exam preparation journey. Our personalized dashboard adapts to your learning style and progress to help you achieve your goals efficiently. I'm your AI study assistant and will guide you through our powerful features including your Exam Readiness Score, personalized study plan, and adaptive practice tests. You can take a tour of the dashboard to learn more about all our features.`;
         } else {
-          // Returning user welcome
-          message = `Welcome back to your dashboard, ${userName}. Your study plan has been updated based on your recent activity and progress. Let's continue your exam preparation journey.`;
+          // Returning user welcome - confident and enthusiastic tone
+          message = `Welcome back to your Prep-zer dashboard, ${userName}. Your study plan has been updated based on your recent activity and progress. Let's continue your exam preparation journey with confidence!`;
         }
         
         if (message) {
@@ -142,7 +159,8 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       // Cancel any ongoing speech
       window.speechSynthesis.cancel();
       
-      // Create utterance with proper PREPZR pronunciation (Prep-zer)
+      // Create utterance with proper PREPZR pronunciation
+      // Use phonetic syllable breaks for better pronunciation: "Prep" + "zer"
       const correctedText = text
         .replace(/PREPZR/gi, 'Prep-zer')
         .replace(/prepzr/gi, 'Prep-zer')
@@ -153,7 +171,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       // Use voices API to find an appropriate voice
       const voices = window.speechSynthesis.getVoices();
       
-      // Try to find an Indian English female voice first
+      // Try to find an Indian English female voice first (for consistency)
       let selectedVoice = voices.find(v => 
         (v.lang === 'en-IN' || v.name.includes('Indian')) && 
         (v.name.toLowerCase().includes('female') || v.name.includes('Kalpana') || v.name.includes('Kajal'))
@@ -171,10 +189,10 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         utterance.voice = selectedVoice;
       }
       
-      // Set properties
+      // Set properties for a confident, pleasant voice
       utterance.lang = 'en-IN';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.1; 
+      utterance.rate = 0.95; // Slightly slower for better clarity
+      utterance.pitch = 1.1; // Slightly higher for female voice
       utterance.volume = 0.8;
       
       // Speak the message
