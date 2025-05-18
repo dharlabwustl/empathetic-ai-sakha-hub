@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Info, BookOpen, ArrowRight, LightbulbIcon, BrainIcon, Clock } from 'lucide-react';
+import { TrendingUp, Info, BookOpen, ArrowRight, LightbulbIcon, BrainIcon, Clock, Star, Calendar, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -95,6 +95,11 @@ const ExamReadinessSection = ({
     } else {
       recommendations.push("Your high engagement is paying off! Maintain your study schedule and add more advanced practice problems.");
     }
+    
+    // Add advanced study technique recommendations
+    recommendations.push("Try using the Feynman Technique: Explain complex concepts in simple terms to identify knowledge gaps");
+    recommendations.push("Schedule shorter, more frequent study sessions rather than long, infrequent ones for better retention");
+    recommendations.push("Create mind maps connecting related concepts across different subjects to strengthen neural pathways");
     
     return recommendations.length > 0 ? recommendations : ["Continue with your current study pattern while focusing on weak areas"];
   };
@@ -264,6 +269,36 @@ const ExamReadinessSection = ({
                   </div>
                   <Badge variant="outline" className="text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300">
                     45 min with 10 min breaks
+                  </Badge>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Star className="h-3 w-3 text-amber-500 mr-1" />
+                    <span className="text-xs font-medium">Recommended resources:</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300">
+                    Practice tests & flashcards
+                  </Badge>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 text-emerald-500 mr-1" />
+                    <span className="text-xs font-medium">Optimal study days:</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300">
+                    Tuesday, Thursday, Saturday
+                  </Badge>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Target className="h-3 w-3 text-red-500 mr-1" />
+                    <span className="text-xs font-medium">Target score increase:</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300">
+                    +8% in 2 weeks
                   </Badge>
                 </div>
               </div>

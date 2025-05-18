@@ -2,7 +2,6 @@
 import React from 'react';
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
@@ -93,9 +92,6 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
       />
-      
-      {/* Chat assistant */}
-      <ChatAssistant userType="student" />
       
       {/* Study Plan Dialog */}
       {showStudyPlan && (

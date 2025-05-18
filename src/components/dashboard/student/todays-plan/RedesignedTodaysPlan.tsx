@@ -55,7 +55,7 @@ const RedesignedTodaysPlan: React.FC = () => {
   // Handle concept click to navigate to concept detail page
   const handleConceptClick = (conceptId: string) => {
     console.log("Navigating to concept detail page:", conceptId);
-    navigate(`/dashboard/student/concept-study/${conceptId}`);
+    navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 
   return (

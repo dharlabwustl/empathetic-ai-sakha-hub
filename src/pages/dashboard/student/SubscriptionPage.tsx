@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import PaymentFlow from '@/components/subscription/PaymentFlow';
 import { SubscriptionPlan } from '@/types/user/base';
-import { Heart } from 'lucide-react';
+import { Heart, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -67,6 +68,20 @@ const SubscriptionPage: React.FC = () => {
     // Redirect to profile billing section
     navigate('/dashboard/student/profile', { state: { activeTab: 'billing' } });
   };
+
+  // Define feature comparisons for different plans
+  const featureComparison = [
+    { name: "Access to all study materials", free: true, basic: true, premium: true, pro: true },
+    { name: "Personalized study plan", free: false, basic: true, premium: true, pro: true },
+    { name: "Unlimited practice tests", free: false, basic: true, premium: true, pro: true },
+    { name: "Progress tracking", free: true, basic: true, premium: true, pro: true },
+    { name: "AI-powered concept explanations", free: false, basic: false, premium: true, pro: true },
+    { name: "24/7 AI tutor assistance", free: false, basic: false, premium: true, pro: true },
+    { name: "Mock exams with detailed analysis", free: false, basic: false, premium: true, pro: true },
+    { name: "Personalized weak area focus", free: false, basic: false, premium: false, pro: true },
+    { name: "1-on-1 expert tutoring sessions", free: false, basic: false, premium: false, pro: true },
+    { name: "Priority support", free: false, basic: false, premium: false, pro: true },
+  ];
   
   return (
     <MainLayout>
@@ -101,12 +116,6 @@ const SubscriptionPage: React.FC = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     Experience all premium features with no commitment. Cancel anytime.
                   </p>
-                  <div className="flex items-center gap-1 mt-2">
-                    <Heart className="h-4 w-4 text-pink-500 fill-pink-200 dark:fill-pink-900" />
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      <span className="font-medium">Making a difference:</span> 5% of subscriptions fund free access for underprivileged students.
-                    </p>
-                  </div>
                 </div>
                 <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                         onClick={() => handleSelectPlan({
@@ -126,6 +135,62 @@ const SubscriptionPage: React.FC = () => {
             currentPlanId={currentPlanId}
             onSelectPlan={handleSelectPlan}
           />
+
+          {/* Feature Comparison Table */}
+          <Card className="mt-10">
+            <CardHeader>
+              <CardTitle>Feature Comparison</CardTitle>
+              <CardDescription>Compare features across different subscription plans</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-4 px-6 text-left">Feature</th>
+                      <th className="py-4 px-6 text-center">Free</th>
+                      <th className="py-4 px-6 text-center">Basic</th>
+                      <th className="py-4 px-6 text-center">
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                          Popular
+                        </Badge>
+                        <div className="mt-1">Premium</div>
+                      </th>
+                      <th className="py-4 px-6 text-center">Pro</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {featureComparison.map((feature, index) => (
+                      <tr key={index} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900/20' : ''}>
+                        <td className="py-2 px-6">{feature.name}</td>
+                        <td className="py-2 px-6 text-center">
+                          {feature.free ? <Check className="mx-auto h-4 w-4 text-green-500" /> : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="py-2 px-6 text-center">
+                          {feature.basic ? <Check className="mx-auto h-4 w-4 text-green-500" /> : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="py-2 px-6 text-center">
+                          {feature.premium ? <Check className="mx-auto h-4 w-4 text-green-500" /> : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="py-2 px-6 text-center">
+                          {feature.pro ? <Check className="mx-auto h-4 w-4 text-green-500" /> : <span className="text-gray-400">-</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4">
+              <p className="text-sm text-muted-foreground">
+                All plans include access to our mobile app, regular updates, and email support.
+              </p>
+              <p className="text-sm flex items-center text-pink-600 dark:text-pink-400">
+                <Heart className="h-4 w-4 mr-1 fill-pink-200 dark:fill-pink-900" />
+                We donate 5% of all subscriptions to provide free access for underprivileged students.
+              </p>
+            </CardFooter>
+          </Card>
         </div>
       )}
     </MainLayout>
