@@ -12,6 +12,8 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 import { useState } from 'react';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Heart } from 'lucide-react';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -36,6 +38,25 @@ const Home = () => {
       
       {/* Page content */}
       <HeroSection />
+      
+      {/* Donation Message Banner for Subscription Section */}
+      <div className="container mx-auto px-4 my-8">
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+          <CardContent className="flex items-center gap-4 p-4">
+            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
+              <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                We donate 5% of monthly subscription revenue to fund underprivileged students,
+                providing them free access to our platform.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
       <FeatureSection />
       <StatisticsSection />
       <ChampionMethodologySection />

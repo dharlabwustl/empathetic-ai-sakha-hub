@@ -5,7 +5,8 @@ import MainLayout from '@/components/layouts/MainLayout';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
 import { SubscriptionPlan } from '@/types/user/base';
-import { HeartIcon } from 'lucide-react';
+import { Heart } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,20 +39,53 @@ const SubscriptionPage: React.FC = () => {
           </button>
         </div>
         
-        {/* Donation Note */}
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 mb-8 flex items-center">
-          <HeartIcon className="text-pink-500 mr-3 h-6 w-6 flex-shrink-0" />
-          <p className="text-sm">
-            <span className="font-semibold">Making a difference together:</span>{" "}
-            We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
-          </p>
-        </div>
+        {/* Donation Message Banner */}
+        <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+          <CardContent className="flex items-center gap-4 p-4">
+            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
+              <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                We donate 5% of monthly subscription revenue to fund underprivileged students,
+                providing them free access to our platform.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* 7 Days Free Trial Banner */}
+        <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  Experience all premium features with no commitment. Cancel anytime.
+                </p>
+                <div className="flex items-center gap-1 mt-2">
+                  <Heart className="h-4 w-4 text-pink-500 fill-pink-200 dark:fill-pink-900" />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="font-medium">Making a difference:</span> 5% of subscriptions fund free access for underprivileged students.
+                  </p>
+                </div>
+              </div>
+              <button 
+                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-md transition-colors"
+              >
+                Start Free Trial
+              </button>
+            </div>
+          </CardContent>
+        </Card>
         
         <SubscriptionPlans 
           currentPlanId={currentPlanId}
           onSelectPlan={handleSelectPlan}
         />
         
+        {/* Credit Points Section */}
         <div className="mt-12 bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-100 dark:border-blue-800">
           <h2 className="text-2xl font-bold mb-4">Credit Points Top-up</h2>
           <p className="mb-4">Purchase credit points to use for premium features without subscribing to a plan.</p>
