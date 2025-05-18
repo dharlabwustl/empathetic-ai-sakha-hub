@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ShareIcon, BookOpen, Video, FileText, Brain, Bookmark, BookmarkPlus, Volume, MessageCircle } from 'lucide-react';
+import { ShareIcon, BookOpen, Video, FileText, Brain, Bookmark, BookmarkPlus, VolumeUp, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConceptCard } from '@/types/user/conceptCard';
 import VideoLessonsTab from './VideoLessonsTab';
@@ -143,7 +143,7 @@ const ConceptCardDetailPage = () => {
                   onClick={handleReadAloud}
                   title={isReading ? "Stop reading" : "Read aloud"}
                 >
-                  <Volume className={isReading ? "text-green-500" : ""} />
+                  <VolumeUp className={isReading ? "text-green-500" : ""} />
                 </Button>
                 <Button 
                   variant="ghost" 
