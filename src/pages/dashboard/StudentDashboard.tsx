@@ -10,6 +10,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -143,6 +144,21 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleVoiceCommand = (command: string) => {
+    // Process voice commands here
+    console.log("Voice command received:", command);
+    
+    // Example command handling
+    const lowerCommand = command.toLowerCase();
+    if (lowerCommand.includes('exam') && lowerCommand.includes('readiness')) {
+      // Could scroll to exam readiness section
+      const section = document.getElementById('exam-readiness-section');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -210,6 +226,7 @@ const StudentDashboard = () => {
       ]}
     >
       {getTabContent()}
+      <FloatingVoiceAssistant onCommand={handleVoiceCommand} />
     </DashboardLayout>
   );
 };
