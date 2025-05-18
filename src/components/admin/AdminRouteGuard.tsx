@@ -14,7 +14,12 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!adminLoading && !isAdminAuthenticated) {
+    // Check direct localStorage values in case Context hasn't updated yet
+    const adminToken = localStorage.getItem('adminToken');
+    const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    
+    // If admin is not authenticated through context but has token/flag in localStorage
+    if (!adminLoading && !isAdminAuthenticated && !adminToken && !isAdminLoggedIn) {
       console.log("Admin authentication failed in AdminRouteGuard, redirecting to login");
       toast({
         title: "Authentication required",
@@ -25,6 +30,7 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     }
   }, [isAdminAuthenticated, adminLoading, toast, navigate]);
 
+  // Show loading state only briefly
   if (adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -35,8 +41,12 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     );
   }
 
-  // Only render children if authenticated
-  return isAdminAuthenticated ? <>{children}</> : null;
+  // Allow access if authenticated or has valid localStorage flags
+  const adminToken = localStorage.getItem('adminToken');
+  const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+  
+  // Provide children if authenticated through context OR localStorage
+  return (isAdminAuthenticated || adminToken || isAdminLoggedIn) ? <>{children}</> : null;
 };
 
 export default AdminRouteGuard;
