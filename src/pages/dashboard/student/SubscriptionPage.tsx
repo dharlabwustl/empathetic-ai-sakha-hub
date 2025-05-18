@@ -86,9 +86,9 @@ const SubscriptionPage: React.FC = () => {
             </div>
             <Button 
               variant="outline" 
-              onClick={() => navigate('/dashboard/student/profile')}
+              onClick={() => navigate('/dashboard/student')}
             >
-              Back to Profile
+              Back to Dashboard
             </Button>
           </div>
           
