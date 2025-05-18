@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { X } from 'lucide-react';
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DialogHeaderProps {
   title: string;
@@ -12,6 +13,8 @@ interface DialogHeaderProps {
 }
 
 const ExamDialogHeader: React.FC<DialogHeaderProps> = ({ title, description, onClose }) => {
+  const isMobile = useIsMobile();
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -19,11 +22,15 @@ const ExamDialogHeader: React.FC<DialogHeaderProps> = ({ title, description, onC
       transition={{ duration: 0.3 }}
       className="relative"
     >
-      <DialogHeader className="pb-6">
-        <DialogTitle className="text-2xl bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500 font-display">
+      <DialogHeader className={`pb-4 ${isMobile ? 'pr-8' : 'pb-6'}`}>
+        <DialogTitle className={`${isMobile ? 'text-xl' : 'text-2xl'} bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500 font-display`}>
           {title}
         </DialogTitle>
-        {description && <DialogDescription className="text-base mt-2">{description}</DialogDescription>}
+        {description && 
+          <DialogDescription className={`${isMobile ? 'text-sm mt-1' : 'text-base mt-2'}`}>
+            {description}
+          </DialogDescription>
+        }
       </DialogHeader>
       <Button
         onClick={onClose}

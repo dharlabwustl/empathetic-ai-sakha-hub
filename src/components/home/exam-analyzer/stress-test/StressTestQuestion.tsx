@@ -42,7 +42,7 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
   const latestAnswer = userAnswers.length > 0 ? userAnswers[userAnswers.length - 1] : null;
 
   return (
-    <div className={`space-y-3 sm:space-y-6 ${questionTypeClass} rounded-lg p-1`}>
+    <div className={`space-y-3 ${isMobile ? '' : 'sm:space-y-6'} ${questionTypeClass} rounded-lg p-1`}>
       <QuestionHeader
         currentQuestionIndex={currentQuestionIndex}
         questionsLength={questionsLength}

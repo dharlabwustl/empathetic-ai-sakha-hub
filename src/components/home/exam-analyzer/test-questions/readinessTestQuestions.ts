@@ -1,39 +1,41 @@
 
 import { TestQuestion } from '../types';
 
-// NEET-specific readiness assessment questions following NTA standards
+// NEET-specific readiness assessment questions based on 2023-2024 NEET exam topics
 const neetReadinessQuestions: TestQuestion[] = [
   {
     id: 'rt-neet1',
-    question: 'How thoroughly have you studied NCERT Biology textbooks (Class 11 & 12)?',
+    question: 'How well can you answer 2023/2024 NEET questions on Molecular Biology including DNA replication, transcription, and translation?',
     options: [
-      'Not started yet', 
-      'Completed less than 50% of chapters', 
-      'Completed once but need revision', 
-      'Multiple revisions with practice questions completed'
+      'Cannot recall basic concepts', 
+      'Understand basic processes but struggle with details', 
+      'Can solve moderate difficulty questions', 
+      'Can solve complex molecular biology problems including mutations and regulation'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Concept Completion',
     subject: 'Biology',
+    year: 2024
   },
   {
     id: 'rt-neet2',
-    question: 'How well can you solve numerical problems in Physics section (mechanics, thermodynamics, etc.)?',
+    question: 'Rate your ability to solve numerical problems from Thermodynamics and Thermochemistry sections that appeared in 2023 NEET:',
     options: [
-      'Struggle with basic formulas', 
+      'Struggle with basic equations', 
       'Can solve direct application problems', 
-      'Can solve moderate complexity problems', 
-      'Can solve complex multi-concept problems'
+      'Can handle moderate calculations with multiple concepts', 
+      'Can solve complex problems involving Hess\'s law and Born-Haber cycle'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Practice Performance',
-    subject: 'Physics',
+    subject: 'Chemistry',
+    year: 2023
   },
   {
     id: 'rt-neet3',
-    question: 'How many full-length NEET mock tests have you completed so far?',
+    question: 'How many full-length NEET mock tests based on the 2024 pattern have you completed?',
     options: [
       'None', 
       '1-3 tests', 
@@ -44,24 +46,26 @@ const neetReadinessQuestions: TestQuestion[] = [
     type: 'self-assessment',
     category: 'Practice Performance',
     subject: 'General',
+    year: 2024
   },
   {
     id: 'rt-neet4',
-    question: 'How consistent is your daily study schedule for NEET preparation?',
+    question: 'How well can you solve questions on Modern Physics (including photoelectric effect and dual nature) from recent 2023-24 NEET papers?',
     options: [
-      'Irregular/occasional study sessions', 
-      '2-3 hours on most days', 
-      '4-6 hours daily with breaks', 
-      '6+ hours daily with structured time blocks per subject'
+      'Cannot apply basic formulas', 
+      'Can solve basic numerical problems', 
+      'Can solve moderate problems with multiple concepts', 
+      'Can solve all complex problems including those with experimental setups'
     ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management',
-    subject: 'General',
+    category: 'Concept Completion',
+    subject: 'Physics',
+    year: 2023
   },
   {
     id: 'rt-neet5',
-    question: 'How comfortable are you with organic reaction mechanisms in Chemistry?',
+    question: 'Rate your preparation for Organic Chemistry reaction mechanisms as tested in the 2023-2024 NEET exams:',
     options: [
       'Cannot recall basic reactions', 
       'Know common named reactions but struggle with mechanisms', 
@@ -72,76 +76,82 @@ const neetReadinessQuestions: TestQuestion[] = [
     type: 'self-assessment',
     category: 'Concept Completion',
     subject: 'Chemistry',
+    year: 2024
   },
   {
     id: 'rt-neet6',
-    question: 'How well can you recall and apply Human Physiology concepts?',
+    question: 'How well can you answer questions on Human Physiology (including neural control, excretion, and reproduction) from the last two years of NEET?',
     options: [
-      'Struggle with basic structures', 
-      'Know major organs but not detailed functions', 
-      'Understand systems with some molecular details', 
-      'Can explain integrated functions and pathophysiology'
+      'Struggle with basic concepts', 
+      'Understand organ systems but not molecular mechanisms', 
+      'Can solve most standard questions', 
+      'Can solve all complex physiology questions with clinical correlations'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Concept Completion',
     subject: 'Biology',
+    year: 2023
   },
   {
     id: 'rt-neet7',
-    question: 'How do you approach difficult Physics concepts like Optics or Electrodynamics?',
+    question: 'How do you approach difficult Electrochemistry and Chemical Kinetics questions from 2023-2024 NEET papers?',
     options: [
       'Skip them entirely', 
-      'Read theory but avoid numerical problems', 
-      'Practice until basic understanding is achieved', 
-      'Master with conceptual clarity and varied problem-solving'
-    ],
-    timeLimit: 30,
-    type: 'self-assessment',
-    category: 'Time Management',
-    subject: 'Physics',
-  },
-  {
-    id: 'rt-neet8',
-    question: 'How familiar are you with the latest NEET exam pattern, marking scheme, and negative marking?',
-    options: [
-      'Not familiar with current pattern', 
-      'Know basic structure but not details', 
-      'Understand all aspects of the exam pattern', 
-      'Fully prepared with exam strategy tailored to current pattern'
+      'Attempt basic problems but avoid complex calculations', 
+      'Can solve most problems with standard approaches', 
+      'Can solve all types including graphical interpretation and complex numerical problems'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Practice Performance',
+    subject: 'Chemistry',
+    year: 2024
+  },
+  {
+    id: 'rt-neet8',
+    question: 'How familiar are you with the 2024 NEET exam pattern, including new question types and weightage changes?',
+    options: [
+      'Not familiar with current pattern', 
+      'Know basic structure but not detailed changes', 
+      'Understand most aspects of the new pattern', 
+      'Fully prepared with specific strategies for all sections and question types'
+    ],
+    timeLimit: 30,
+    type: 'self-assessment',
+    category: 'Test Strategy',
     subject: 'General',
+    year: 2024
   },
   {
     id: 'rt-neet9',
-    question: 'How effective is your method for revising previously studied Biology topics?',
+    question: 'How effective is your revision strategy for Genetics and Biotechnology topics from recent NEET exams?',
     options: [
       'No structured revision plan', 
       'Occasional rereading of notes', 
-      'Regular revision with flashcards/diagrams', 
-      'Spaced repetition system with active recall testing'
+      'Regular practice with previous years\' questions', 
+      'Spaced repetition with concept mapping and regular mock tests'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Time Management',
     subject: 'Biology',
+    year: 2023
   },
   {
     id: 'rt-neet10',
-    question: 'How confident do you feel about the Inorganic Chemistry portion of NEET?',
+    question: 'Rate your confidence on Mechanics problems from the 2023 and 2024 NEET papers:',
     options: [
       'Very low confidence, many gaps', 
-      'Moderate confidence in basic concepts', 
-      'Good grasp of most topics with few weak areas', 
-      'Highly confident across all periodic trends and properties'
+      'Can solve basic problems but struggle with complex ones', 
+      'Can solve most problems with some difficulty', 
+      'Highly confident across all types of mechanics problems'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Overall Confidence',
-    subject: 'Chemistry',
+    subject: 'Physics',
+    year: 2024
   }
 ];
 
