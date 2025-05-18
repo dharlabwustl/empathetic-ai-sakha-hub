@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LayoutDashboard, FileCheck, BookOpen, Clock } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface Task {
   id: string;
@@ -22,7 +22,7 @@ interface TodayStudyPlanProps {
 
 const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   
   // Get appropriate icon for each task type
   const getTaskIcon = (type: string) => {
@@ -38,7 +38,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
-    // For concept type, always navigate to concept detail page
+    // For concept type, always navigate to concept detail page with the correct path
     if (task.type === 'concept') {
       console.log("TodayStudyPlan - Navigating to concept detail page:", task.id);
       navigate(`/dashboard/student/concepts/${task.id}`);

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
 import { SectionHeader } from '@/components/ui/section-header';
 import { motion } from 'framer-motion';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface ConceptsPageLayoutProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
   title,
   subtitle
 }) => {
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   
   return (
     <motion.div 
@@ -64,7 +64,6 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
             <SectionHeader 
               title={title} 
               subtitle={subtitle}
-              className={isMobile ? "mb-2" : ""}
             />
           </motion.div>
         )}

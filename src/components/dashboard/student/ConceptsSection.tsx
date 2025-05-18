@@ -5,12 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Book, BookOpen, Clock } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const ConceptsSection = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   
   // Filter to show only today's concepts
   const todaysCards = conceptCards

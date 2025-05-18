@@ -18,12 +18,12 @@ import AnalyticsDashboard from "@/components/dashboard/student/analytics/Analyti
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import RedesignedTodaysPlan from "./todays-plan/RedesignedTodaysPlan";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const kpis = []; // Define your KPIs here or fetch them
   
   // Log routing information for debugging
