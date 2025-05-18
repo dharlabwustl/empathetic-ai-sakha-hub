@@ -45,9 +45,6 @@ const WelcomeFlow = () => {
       localStorage.setItem('sawWelcomeTour', 'false');
       localStorage.setItem('isLoggedIn', 'true');
       
-      // Make sure study plan creation dialog appears after tour
-      localStorage.setItem('needs_study_plan_creation', 'true');
-      
       // On completion, navigate to dashboard with tour flag
       window.location.href = '/dashboard/student?new=true&completedOnboarding=true';
     }

@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const Signup = () => {
@@ -26,8 +26,8 @@ const Signup = () => {
     // Store it in localStorage for downstream components
     localStorage.setItem('userData', JSON.stringify(userData));
     
-    // First navigate directly to welcome flow - skip login screen
-    navigate('/welcome-flow', { replace: true });
+    // First navigate to welcome flow and then it will handle redirection
+    window.location.href = '/welcome-flow';
   }, [navigate]);
 
   return (

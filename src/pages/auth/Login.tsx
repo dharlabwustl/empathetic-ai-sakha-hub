@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,14 +33,16 @@ const Login = () => {
     
     if ((newUserSignup || isGoogleSignup) && isLoggedIn) {
       // Set flag for study plan creation dialog after tour
-      localStorage.setItem('needs_study_plan_creation', 'true');
-      
-      // Clear the signup flags to avoid loops
-      if (newUserSignup) {
-        localStorage.removeItem('new_user_signup');
+      if (isGoogleSignup) {
+        localStorage.setItem('needs_study_plan_creation', 'true');
       }
       
-      // Redirect directly to welcome flow, skipping login
+      // Clear the signup flags
+      localStorage.removeItem('new_user_signup');
+      
+      // Keep the google_signup flag for welcome flow to detect
+      
+      // Redirect to welcome flow
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
         navigate('/welcome-flow', { replace: true });

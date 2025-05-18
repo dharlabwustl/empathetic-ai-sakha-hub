@@ -31,9 +31,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       setCredentials(prev => ({ ...prev, emailOrPhone: savedEmailOrPhone }));
       setRememberMe(true);
     }
-
-    // Clear any admin login attempt flag when in student login
-    localStorage.removeItem('admin_login_attempt');
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
