@@ -138,7 +138,9 @@ const WelcomeFlow = () => {
                   Your journey with PREPZR begins now. We're excited to help you excel in your exams and become the best version of yourself.
                 </p>
                 <div className="pt-4">
-                  <p className="font-medium">Ready to transform your study experience?</p>
+                  <p className="text-sm text-muted-foreground">
+                    We allocate 5% of our monthly subscription revenue to provide free access for underprivileged students.
+                  </p>
                 </div>
               </div>
             </CardContent>

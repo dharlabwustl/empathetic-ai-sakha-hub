@@ -42,16 +42,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             }
           } else {
             if (language === 'hi-IN') {
-              message = `प्रेप-ज़र में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। क्या आप NEET के लिए हमारा मुफ्त परीक्षा तैयारी परीक्षण आज़माना चाहेंगे?`;
+              message = `प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है। हमारी प्रीमियम सदस्यता से आपको व्यक्तिगत मार्गदर्शन मिलेगा।`;
             } else {
-              message = `Welcome to PREPZR, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
+              message = `Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription provides personalized guidance to maximize your exam performance. The best part? We donate 5% of subscription revenue to provide access for underprivileged students.`;
             }
           }
         } else if (location.pathname.includes('/signup')) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र के नि:शुल्क परीक्षण साइनअप में आपका स्वागत है। 7 दिनों के लिए हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
+            message = `प्रेप-ज़र के प्रीमियम परीक्षण साइनअप में आपका स्वागत है। हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
           } else {
-            message = `Welcome to PREPZR's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started. Our platform features personalized study plans, adaptive learning, and practice tests to maximize your exam performance.`;
+            message = `Welcome to PREPZR's premium signup. Get access to our AI-powered exam preparation tools for personalized study plans, adaptive learning, and practice tests. 5% of your subscription helps provide access to underprivileged students.`;
           }
           
           // If this is a Google signup, store this information for later use in the onboarding flow
@@ -66,9 +66,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           }
         } else if (isWelcomeFlow) {
           if (language === 'hi-IN') {
-            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है। `;
+            message = `प्रेप-ज़र में आपका स्वागत है! हम आपको एक व्यक्तिगत अध्ययन योजना बनाने में मदद करेंगे जो आपकी सीखने की शैली और आपके लक्ष्यों के अनुकूल है। हमारा AI-संचालित प्लेटफॉर्म आपकी NEET परीक्षा की तैयारी के लिए व्यक्तिगत अध्ययन योजनाओं, अनुकूली लर्निंग और प्रदर्शन विश्लेषण प्रदान करता है।`;
           } else {
-            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your NEET exam preparation. You've made an excellent choice for your exam success.`;
+            message = `Welcome to PREPZR! We'll help you create a personalized study plan tailored to your learning style and goals. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics for your exam preparation. With our premium features, you'll be fully prepared for your exams. Remember, 5% of your subscription supports underprivileged students.`;
           }
         }
         

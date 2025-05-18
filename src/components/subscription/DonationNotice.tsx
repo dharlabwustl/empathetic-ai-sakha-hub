@@ -19,13 +19,13 @@ const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => 
       <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md text-sm border border-amber-100 dark:border-amber-800/30">
         <div className="flex items-center gap-1 mb-1">
           <Heart className="h-4 w-4 text-red-500 fill-red-500" />
-          <span className="font-medium text-amber-800 dark:text-amber-300">Support PREPZR</span>
+          <span className="font-medium text-amber-800 dark:text-amber-300">Impact with PREPZR</span>
         </div>
         <p className="text-amber-700 dark:text-amber-300/80 text-xs mb-2">
-          Your donation helps us provide free education tools to students worldwide.
+          We allocate 5% of monthly subscription revenue to provide access for underprivileged students.
         </p>
         <Button size="sm" variant="outline" className="w-full text-xs bg-white dark:bg-gray-900" onClick={handleDonate}>
-          Donate Now
+          Learn More
         </Button>
       </div>
     );
@@ -36,15 +36,15 @@ const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => 
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-          Support Our Mission
+          Making Education Accessible
         </CardTitle>
         <CardDescription>
-          Help us make quality education accessible to all
+          5% of subscription revenue supports underprivileged students
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-2">
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          PREPZR is committed to providing free exam preparation tools to students worldwide. Your donation helps us:
+          At PREPZR, we're committed to making quality education accessible. We allocate 5% of our monthly subscription revenue to:
         </p>
         
         <div className="space-y-3 mb-4">
@@ -53,8 +53,8 @@ const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => 
               <School className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h4 className="text-sm font-medium">Support Education</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Provide free access to students who can't afford paid resources</p>
+              <h4 className="text-sm font-medium">Provide Free Access</h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Fund accounts for underprivileged students who cannot afford premium subscriptions</p>
             </div>
           </div>
           
@@ -63,8 +63,8 @@ const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => 
               <BookOpen className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h4 className="text-sm font-medium">Develop Content</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Create high-quality educational content and resources</p>
+              <h4 className="text-sm font-medium">Create Localized Content</h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Develop educational materials in regional languages for broader accessibility</p>
             </div>
           </div>
           
@@ -73,15 +73,15 @@ const DonationNotice: React.FC<DonationNoticeProps> = ({ variant = 'full' }) => 
               <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h4 className="text-sm font-medium">Reach More Students</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Expand our reach to underserved communities</p>
+              <h4 className="text-sm font-medium">Support Learning Centers</h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Partner with community learning centers in underserved areas</p>
             </div>
           </div>
         </div>
       </CardContent>
       <CardFooter>
         <Button className="w-full" onClick={handleDonate}>
-          <Heart className="h-4 w-4 mr-2" /> Donate Now
+          <Heart className="h-4 w-4 mr-2" /> Learn More About Our Impact
         </Button>
       </CardFooter>
     </Card>

@@ -1,827 +1,671 @@
 
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { 
   BookOpen, 
-  Video, 
+  Volume2, VolumeX, 
+  MessageSquare, 
+  Brain, 
   FileText, 
-  Lightbulb, 
-  Flag, 
-  MessageSquarePlus, 
-  Download, 
-  Share2, 
-  CheckCircle, 
-  Star, 
-  VolumeIcon, 
-  ExternalLink, 
-  PlayCircle,
-  Brain,
-  HelpCircle,
-  MessageSquare,
-  Link,
-  ArrowUpRight
+  Bookmark, 
+  BookmarkPlus, 
+  Pencil,
+  PenTool,
+  Clock,
+  CheckCircle,
+  ArrowLeft,
+  Flag
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EnhancedConceptDetailProps {
   conceptId: string;
 }
 
-// Mock concept data
-const mockConcept = {
-  id: "concept-1",
-  title: "Newton's Laws of Motion",
-  description: "An exploration of Newton's three laws of motion which form the foundation of classical mechanics.",
-  coverImage: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb",
-  progress: 65,
-  estimatedTime: "25 mins",
-  difficulty: "intermediate",
-  lastStudied: "2 days ago",
-  isFlagged: false,
-  learningOutcomes: [
-    "Understand and explain Newton's First Law (Law of Inertia)",
-    "Apply Newton's Second Law (F = ma) to solve problems",
-    "Recognize action-reaction pairs using Newton's Third Law",
-    "Analyze real-world examples of Newton's Laws"
+interface Concept {
+  id: string;
+  title: string;
+  subject: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  content: string;
+  timeToRead: number;
+  relatedTopics: string[];
+  keywords: string[];
+  formulas?: string[];
+  diagrams?: string[];
+  exampleQuestions?: {
+    question: string;
+    answer: string;
+    explanation?: string;
+  }[];
+}
+
+interface ConceptNote {
+  id: string;
+  conceptId: string;
+  content: string;
+  createdAt: Date;
+}
+
+const mockConcept: Concept = {
+  id: 'concept-1',
+  title: 'Atomic Structure and Nuclear Physics',
+  subject: 'Physics',
+  difficulty: 'advanced',
+  content: `
+# Atomic Structure and Nuclear Physics
+
+Atomic structure refers to the structure of an atom, which consists of a central nucleus containing protons and neutrons, with electrons orbiting around it.
+
+## Rutherford's Model
+Ernest Rutherford conducted the famous gold foil experiment which led to the discovery of the nucleus. He bombarded a thin gold foil with alpha particles and observed that:
+1. Most of the alpha particles passed straight through the foil
+2. Some were deflected at small angles
+3. A few were deflected back almost the way they came
+
+This suggested that most of the atom is empty space, with a small, dense, positively-charged nucleus at the center.
+
+## Bohr's Model
+Niels Bohr improved on Rutherford's model by proposing that:
+- Electrons orbit the nucleus in specific energy levels (shells)
+- Electrons can only occupy certain allowed energy states
+- When electrons transition between states, they absorb or emit electromagnetic radiation of specific frequencies
+
+## Quantum Mechanical Model
+The modern quantum mechanical model describes electrons as standing waves or probability distributions rather than particles with defined orbits. This model introduces four quantum numbers:
+- Principal quantum number (n)
+- Angular momentum quantum number (l)
+- Magnetic quantum number (m)
+- Spin quantum number (s)
+
+## Nuclear Physics
+
+The nucleus consists of protons and neutrons, collectively called nucleons. Key concepts include:
+
+### Nuclear Binding Energy
+The energy required to separate a nucleus into its constituent nucleons. It is given by the mass defect multiplied by c² (E = Δmc²).
+
+### Radioactive Decay
+Radioactive nuclei can undergo various types of decay:
+- Alpha decay: Emission of a helium nucleus (²₄He)
+- Beta decay: Conversion of a neutron to a proton with emission of an electron and an antineutrino
+- Gamma decay: Emission of high-energy photons
+
+### Nuclear Reactions
+Nuclear reactions include fusion (light nuclei combining to form heavier nuclei) and fission (heavy nuclei splitting into lighter nuclei). Both processes release enormous amounts of energy.
+
+### Half-Life
+The time taken for half of the radioactive nuclei in a sample to decay. It is a measure of the stability of a radioactive isotope.
+  `,
+  timeToRead: 15,
+  relatedTopics: ['Quantum Mechanics', 'Electromagnetic Radiation', 'Particle Physics'],
+  keywords: ['atom', 'nucleus', 'electron', 'proton', 'neutron', 'radioactivity', 'half-life', 'nuclear energy'],
+  formulas: [
+    'E = mc²',
+    'E = hf',
+    'λ = h/p',
+    'N(t) = N₀(1/2)^(t/t₁/₂)'
   ],
-  videoLessons: [
+  exampleQuestions: [
     {
-      id: "v1",
-      title: "Newton's First Law Explained",
-      duration: "8:24",
-      thumbnail: "https://images.unsplash.com/photo-1581500947882-709458c363e6"
+      question: 'Calculate the binding energy of a helium nucleus if the mass defect is 0.03 u.',
+      answer: '27.93 MeV',
+      explanation: 'Using E = Δmc², where Δm = 0.03 u = 0.03 × 931.494 MeV/c². Therefore, E = 0.03 × 931.494 MeV = 27.93 MeV'
     },
     {
-      id: "v2",
-      title: "Force and Acceleration: Newton's Second Law",
-      duration: "9:12",
-      thumbnail: "https://images.unsplash.com/photo-1523726491678-bf852e717f6a"
-    },
-    {
-      id: "v3",
-      title: "Action and Reaction: The Third Law",
-      duration: "7:16",
-      thumbnail: "https://images.unsplash.com/photo-1607893469067-5ee0868b7e83"
+      question: 'If a radioactive sample has a half-life of 10 days, what fraction of the original sample will remain after 30 days?',
+      answer: '1/8',
+      explanation: 'After 30 days (3 half-lives), the fraction remaining is (1/2)³ = 1/8'
     }
-  ],
-  notes: "Remember that Newton's First Law is often called the Law of Inertia. An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.",
-  practiceQuestions: [
-    {
-      id: "q1",
-      question: "What happens to an object's motion when no net external force acts upon it?",
-      options: [
-        "It accelerates in the direction of the largest force",
-        "It maintains constant velocity (or remains at rest)",
-        "It always comes to a stop",
-        "Its velocity increases at a constant rate"
-      ],
-      correctAnswer: 1
-    },
-    {
-      id: "q2",
-      question: "Newton's Second Law states that force equals:",
-      options: [
-        "Mass times velocity",
-        "Mass divided by acceleration",
-        "Mass times acceleration",
-        "Momentum times velocity"
-      ],
-      correctAnswer: 2
-    },
-    {
-      id: "q3",
-      question: "According to Newton's Third Law, when one object exerts a force on another object:",
-      options: [
-        "The second object exerts an equal and opposite force on the first",
-        "The second object moves in the opposite direction",
-        "The first object experiences twice the force",
-        "Both objects accelerate at the same rate"
-      ],
-      correctAnswer: 0
-    }
-  ],
-  resources: [
-    {
-      title: "Interactive Forces Simulation",
-      type: "simulation",
-      url: "https://example.com/force-simulation"
-    },
-    {
-      title: "Newton's Laws of Motion Fact Sheet",
-      type: "pdf",
-      url: "https://example.com/newton-laws-pdf"
-    },
-    {
-      title: "Historical Context: Isaac Newton Biography",
-      type: "article",
-      url: "https://example.com/newton-bio"
-    }
-  ],
-  relatedConcepts: [
-    { id: "concept-2", title: "Conservation of Momentum" },
-    { id: "concept-3", title: "Force and Friction" },
-    { id: "concept-4", title: "Circular Motion" }
-  ],
-  keyFormulas: [
-    { id: "f1", formula: "F = ma", description: "Force equals mass times acceleration" },
-    { id: "f2", formula: "p = mv", description: "Momentum equals mass times velocity" },
-    { id: "f3", formula: "Fg = G(m₁m₂)/r²", description: "Gravitational force" }
-  ],
-  flashcards: [
-    { id: "fc1", front: "Newton's First Law", back: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force." },
-    { id: "fc2", front: "Newton's Second Law", back: "Force is equal to the mass of an object multiplied by its acceleration (F = ma)." },
-    { id: "fc3", front: "Newton's Third Law", back: "For every action, there is an equal and opposite reaction." }
-  ],
-  relatedExams: [
-    { id: "exam1", title: "Physics Mid-term: Classical Mechanics", questions: 45, duration: "90 min" },
-    { id: "exam2", title: "NEET Physics: Forces and Motion", questions: 30, duration: "60 min" }
   ]
 };
 
 const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({ conceptId }) => {
-  const [concept, setConcept] = useState(mockConcept);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [isFlagged, setIsFlagged] = useState(concept.isFlagged);
-  const [userNotes, setUserNotes] = useState(concept.notes || "");
-  const [isReading, setIsReading] = useState(false);
-  const [showDoubtModal, setShowDoubtModal] = useState(false);
-  const [userDoubt, setUserDoubt] = useState("");
-  const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  // Load data effect
+  
+  const [concept, setConcept] = useState<Concept | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isReading, setIsReading] = useState(false);
+  const [notes, setNotes] = useState<string>('');
+  const [savedNotes, setSavedNotes] = useState<ConceptNote[]>([]);
+  const [isFlagged, setIsFlagged] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [completionPercent, setCompletionPercent] = useState(0);
+  
+  // Speech synthesis
+  const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  
   useEffect(() => {
-    // In a real app, we would fetch concept data based on conceptId
-    console.log(`Loading concept data for ID: ${conceptId}`);
-    // For demo, we'll use mock data
+    // Simulate API call to get concept
+    setLoading(true);
+    
+    setTimeout(() => {
+      setConcept(mockConcept);
+      
+      // Simulate loading saved notes from local storage
+      const storedNotes = localStorage.getItem(`concept_notes_${conceptId}`);
+      if (storedNotes) {
+        try {
+          const parsedNotes = JSON.parse(storedNotes);
+          setNotes(parsedNotes[0]?.content || '');
+          setSavedNotes(parsedNotes);
+        } catch (e) {
+          console.error('Error parsing stored notes', e);
+        }
+      }
+      
+      // Simulate loading saved state
+      const isSavedStored = localStorage.getItem(`concept_saved_${conceptId}`) === 'true';
+      const isFlaggedStored = localStorage.getItem(`concept_flagged_${conceptId}`) === 'true';
+      const completionPercentStored = localStorage.getItem(`concept_completion_${conceptId}`);
+      
+      setIsSaved(isSavedStored);
+      setIsFlagged(isFlaggedStored);
+      setCompletionPercent(completionPercentStored ? parseInt(completionPercentStored, 10) : 0);
+      
+      setLoading(false);
+    }, 1000);
+    
+    // Speech synthesis cleanup
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [conceptId]);
-
-  const handleFlagToggle = () => {
+  
+  const toggleReading = () => {
+    if (!concept) return;
+    
+    if (isReading) {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsReading(false);
+      toast({
+        title: "Reading stopped",
+        description: "Text-to-speech has been stopped"
+      });
+    } else {
+      if (!window.speechSynthesis) {
+        toast({
+          title: "Not supported",
+          description: "Text-to-speech is not supported in your browser",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const speechText = concept.content.replace(/[#*_]/g, ''); // Remove markdown formatting
+      const newUtterance = new SpeechSynthesisUtterance(speechText);
+      
+      // Try to find a good voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(v => 
+        v.name.includes('English') || 
+        v.lang.includes('en-US') || 
+        v.lang.includes('en-GB')
+      );
+      
+      if (preferredVoice) {
+        newUtterance.voice = preferredVoice;
+      }
+      
+      newUtterance.rate = 1.0;
+      newUtterance.pitch = 1.0;
+      
+      newUtterance.onend = () => {
+        setIsReading(false);
+        // Increase completion percentage when finished reading
+        const newCompletion = Math.min(completionPercent + 25, 100);
+        setCompletionPercent(newCompletion);
+        localStorage.setItem(`concept_completion_${conceptId}`, newCompletion.toString());
+        
+        toast({
+          title: "Reading completed",
+          description: "Text-to-speech has finished reading the content"
+        });
+      };
+      
+      newUtterance.onerror = (event) => {
+        console.error('Speech synthesis error', event);
+        setIsReading(false);
+        toast({
+          title: "Error",
+          description: "There was an error with text-to-speech",
+          variant: "destructive"
+        });
+      };
+      
+      setUtterance(newUtterance);
+      window.speechSynthesis.speak(newUtterance);
+      setIsReading(true);
+      
+      toast({
+        title: "Reading started",
+        description: "Text-to-speech is now reading the content"
+      });
+    }
+  };
+  
+  const saveNotes = () => {
+    if (!notes.trim()) {
+      toast({
+        title: "Empty notes",
+        description: "Please enter some notes to save",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newNote: ConceptNote = {
+      id: `note-${Date.now()}`,
+      conceptId,
+      content: notes,
+      createdAt: new Date()
+    };
+    
+    const updatedNotes = [newNote, ...savedNotes];
+    setSavedNotes(updatedNotes);
+    
+    // Store in localStorage
+    localStorage.setItem(`concept_notes_${conceptId}`, JSON.stringify(updatedNotes));
+    
+    // Increase completion percentage
+    const newCompletion = Math.min(completionPercent + 15, 100);
+    setCompletionPercent(newCompletion);
+    localStorage.setItem(`concept_completion_${conceptId}`, newCompletion.toString());
+    
+    toast({
+      title: "Notes saved",
+      description: "Your notes have been saved successfully"
+    });
+  };
+  
+  const toggleSave = () => {
+    setIsSaved(!isSaved);
+    localStorage.setItem(`concept_saved_${conceptId}`, (!isSaved).toString());
+    
+    toast({
+      title: isSaved ? "Removed from saved" : "Added to saved",
+      description: isSaved ? "The concept has been removed from your saved items" : "The concept has been added to your saved items"
+    });
+  };
+  
+  const toggleFlag = () => {
     setIsFlagged(!isFlagged);
-    toast({
-      title: !isFlagged ? "Concept flagged for revision" : "Flag removed",
-      description: !isFlagged 
-        ? "This concept will appear in your revision list" 
-        : "This concept has been removed from your revision list",
-    });
-  };
-
-  const handleAddNote = () => {
-    // In a real app, save the note to the backend
-    toast({
-      title: "Note saved",
-      description: "Your notes for this concept have been saved",
-    });
-  };
-
-  const handleShareConcept = () => {
-    // In a real app, generate a shareable link
-    navigator.clipboard.writeText(`https://yourapp.com/concepts/${concept.id}`);
-    toast({
-      title: "Link copied to clipboard",
-      description: "You can now share this concept with others",
-    });
-  };
-
-  const handleDownloadResources = () => {
-    // In a real app, generate a downloadable package
-    toast({
-      title: "Downloading resources",
-      description: "Your study materials are being prepared for download",
-    });
-  };
-
-  const handleTextToSpeech = () => {
-    setIsReading(!isReading);
+    localStorage.setItem(`concept_flagged_${conceptId}`, (!isFlagged).toString());
     
-    if (!isReading) {
-      const textToRead = `${concept.title}. ${concept.description}. ${concept.notes}`;
-      
-      // Use browser's text-to-speech API
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.onend = () => setIsReading(false);
-      speechSynthesis.speak(utterance);
-      
-      toast({
-        title: "Reading content aloud",
-        description: "Text-to-speech activated",
-      });
-    } else {
-      speechSynthesis.cancel();
-    }
-  };
-
-  const handleAnswerSelect = (answerIndex: number) => {
-    setSelectedAnswer(answerIndex);
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestion < concept.practiceQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-    } else {
-      toast({
-        title: "Practice completed",
-        description: "You've completed all practice questions for this concept",
-      });
-    }
-  };
-
-  const handlePlayVideo = (videoId: string) => {
-    setIsPlaying(true);
     toast({
-      title: "Playing video",
-      description: `Starting video: ${concept.videoLessons.find(v => v.id === videoId)?.title}`,
+      title: isFlagged ? "Unflagged" : "Flagged for revision",
+      description: isFlagged ? "The concept has been unflagged" : "The concept has been flagged for revision"
     });
   };
   
-  const handleSubmitDoubt = () => {
-    if (userDoubt.trim()) {
-      toast({
-        title: "Doubt submitted",
-        description: "Your doubt has been sent to the AI tutor. Check the chat for a response.",
-      });
-      setShowDoubtModal(false);
-      setUserDoubt("");
-    }
-  };
-  
-  const handleFlashcardFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-  
-  const handleNextFlashcard = () => {
-    if (currentFlashcardIndex < concept.flashcards.length - 1) {
-      setCurrentFlashcardIndex(currentFlashcardIndex + 1);
-      setIsFlipped(false);
-    } else {
-      setCurrentFlashcardIndex(0);
-      setIsFlipped(false);
-      toast({
-        title: "Flashcard deck completed",
-        description: "You've gone through all flashcards for this concept",
-      });
-    }
-  };
-  
-  const handleRelatedConceptClick = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}`);
-  };
-  
-  const handleExamClick = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}`);
-    toast({
-      title: "Opening practice exam",
-      description: "Loading your practice exam..."
-    });
-  };
-  
-  const handleNavigateToFlashcards = () => {
+  const goToFlashcards = () => {
+    // Increase completion percentage
+    const newCompletion = Math.min(completionPercent + 10, 100);
+    setCompletionPercent(newCompletion);
+    localStorage.setItem(`concept_completion_${conceptId}`, newCompletion.toString());
+    
     navigate('/dashboard/student/flashcards');
-    toast({
-      title: "Navigating to flashcards",
-      description: "Explore all your flashcard decks"
-    });
   };
-
-  // Function to read specific content aloud
-  const readContentAloud = (text: string) => {
-    speechSynthesis.cancel(); // Stop any current speech
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onend = () => setIsReading(false);
-    speechSynthesis.speak(utterance);
-    setIsReading(true);
+  
+  const goToPracticeQuestions = () => {
+    // Increase completion percentage
+    const newCompletion = Math.min(completionPercent + 20, 100);
+    setCompletionPercent(newCompletion);
+    localStorage.setItem(`concept_completion_${conceptId}`, newCompletion.toString());
+    
+    navigate('/dashboard/student/practice-exam');
+  };
+  
+  const askAI = () => {
+    toast({
+      title: "AI Tutor",
+      description: "Opening AI tutor chat with this concept context..."
+    });
+    
+    // In a real implementation, this would open the AI tutor chat with context
+    // For now, just simulate it
+    setTimeout(() => {
+      toast({
+        title: "AI Tutor Ready",
+        description: "Ask any questions about Atomic Structure and Nuclear Physics"
+      });
+    }, 1000);
+  };
+  
+  const formatMarkdown = (text: string) => {
+    // Very simple markdown formatter for the demo
+    // In a real app, use a full markdown parser
+    const formattedText = text
+      .replace(/^### (.*$)/gm, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold my-4">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/- (.*$)/gm, '<li class="ml-4">$1</li>')
+      .replace(/\n{2,}/g, '<br /><br />');
+    
+    return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
+  };
+  
+  const markAsCompleted = () => {
+    setCompletionPercent(100);
+    localStorage.setItem(`concept_completion_${conceptId}`, '100');
     
     toast({
-      title: "Reading content aloud",
-      description: "Text-to-speech activated",
+      title: "Concept Completed",
+      description: "This concept has been marked as completed. Well done!"
     });
   };
-
+  
+  if (loading || !concept) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Header Section with Progress and Actions */}
-      <div className="mb-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">{concept.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                Physics
-              </Badge>
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                {concept.difficulty}
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                Last studied {concept.lastStudied}
-              </span>
-            </div>
+    <div className="container mx-auto px-4 py-6 max-w-5xl">
+      <div className="mb-6 flex items-center justify-between">
+        <Button 
+          variant="ghost" 
+          className="flex items-center gap-2"
+          onClick={() => navigate('/dashboard/student/concepts')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Concepts</span>
+        </Button>
+        
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-muted-foreground flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            <span>{concept.timeToRead} min read</span>
           </div>
           
-          <div className="flex items-center gap-2 mt-4 lg:mt-0">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={handleTextToSpeech}
-              className={isReading ? "bg-blue-100" : ""}
-            >
-              <VolumeIcon className="h-4 w-4 mr-1" />
-              {isReading ? "Stop Reading" : "Read Aloud"}
-            </Button>
-            
-            <Button 
-              size="sm" 
-              variant={isFlagged ? "destructive" : "outline"} 
-              onClick={handleFlagToggle}
-            >
-              <Flag className="h-4 w-4 mr-1" />
-              {isFlagged ? "Unflag" : "Flag for Revision"}
-            </Button>
-            
-            <Button size="sm" variant="outline" onClick={handleShareConcept}>
-              <Share2 className="h-4 w-4 mr-1" />
-              Share
-            </Button>
-            
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => setShowDoubtModal(true)}
-            >
-              <HelpCircle className="h-4 w-4 mr-1" />
-              Ask Doubt
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={isFlagged ? "text-red-600 border-red-200 hover:border-red-300" : "text-gray-500"}
+            onClick={toggleFlag}
+          >
+            <Flag className={`h-4 w-4 mr-1 ${isFlagged ? "fill-red-100" : ""}`} />
+            {isFlagged ? "Flagged" : "Flag"}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={isSaved ? "text-blue-600 border-blue-200 hover:border-blue-300" : "text-gray-500"}
+            onClick={toggleSave}
+          >
+            {isSaved ? (
+              <>
+                <Bookmark className="h-4 w-4 mr-1 fill-blue-100" />
+                Saved
+              </>
+            ) : (
+              <>
+                <BookmarkPlus className="h-4 w-4 mr-1" />
+                Save
+              </>
+            )}
+          </Button>
         </div>
-        
-        {/* Progress Bar */}
-        <div className="mb-2">
-          <div className="flex justify-between items-center mb-1 text-sm">
-            <span className="font-medium">Mastery Progress</span>
-            <span>{concept.progress}%</span>
-          </div>
-          <Progress value={concept.progress} className="h-2" />
-        </div>
-        
-        <p className="text-muted-foreground mt-4">
-          {concept.description}
-        </p>
       </div>
       
-      {/* Main Content with Tabs */}
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 w-full">
-          <TabsTrigger value="overview">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="videos">
-            <Video className="h-4 w-4 mr-2" />
-            Videos
-          </TabsTrigger>
-          <TabsTrigger value="practice">
-            <Lightbulb className="h-4 w-4 mr-2" />
-            Practice
-          </TabsTrigger>
-          <TabsTrigger value="notes">
-            <MessageSquarePlus className="h-4 w-4 mr-2" />
-            Notes
-          </TabsTrigger>
-          <TabsTrigger value="resources">
-            <FileText className="h-4 w-4 mr-2" />
-            Resources
-          </TabsTrigger>
-          <TabsTrigger value="flashcards">
-            <Brain className="h-4 w-4 mr-2" />
-            Recall
-          </TabsTrigger>
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{concept.title}</h1>
+        <div className="flex items-center flex-wrap gap-2">
+          <Badge variant="secondary">{concept.subject}</Badge>
+          <Badge variant="outline" className={
+            concept.difficulty === 'beginner' ? 'border-green-200 text-green-700 dark:border-green-800 dark:text-green-400' : 
+            concept.difficulty === 'intermediate' ? 'border-blue-200 text-blue-700 dark:border-blue-800 dark:text-blue-400' : 
+            concept.difficulty === 'advanced' ? 'border-orange-200 text-orange-700 dark:border-orange-800 dark:text-orange-400' : 
+            'border-red-200 text-red-700 dark:border-red-800 dark:text-red-400'
+          }>
+            {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
+          </Badge>
+          
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Completion:</span>
+            <div className="w-32 flex items-center gap-2">
+              <Progress value={completionPercent} className="h-2" />
+              <span className="text-sm text-muted-foreground">{completionPercent}%</span>
+            </div>
+            {completionPercent === 100 && (
+              <CheckCircle className="h-5 w-5 text-green-500" />
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <Tabs defaultValue="content" className="w-full">
+        <TabsList className="grid grid-cols-4 mb-4">
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+          <TabsTrigger value="practice">Practice</TabsTrigger>
         </TabsList>
         
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="content">
           <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                {/* Learning Outcomes */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center">
-                    Learning Outcomes
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => readContentAloud("Learning Outcomes. " + concept.learningOutcomes.join(". "))}
-                      className="ml-2"
-                    >
-                      <VolumeIcon className="h-3 w-3" />
-                    </Button>
-                  </h3>
-                  <ul className="space-y-2">
-                    {concept.learningOutcomes.map((outcome, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
-                        <span>{outcome}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex justify-between items-center">
+                <span>Study Material</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={toggleReading} 
+                  className="flex items-center gap-2"
+                >
+                  {isReading ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  {isReading ? "Stop Reading" : "Read Aloud"}
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                Read through the material carefully. Use the Read Aloud feature if you prefer auditory learning.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+              <ScrollArea className="h-[60vh] pr-4">
+                {formatMarkdown(concept.content)}
                 
-                {/* Key Formulas */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center">
-                    Key Formulas
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => readContentAloud("Key Formulas. " + concept.keyFormulas.map(f => `${f.formula}: ${f.description}`).join(". "))}
-                      className="ml-2"
-                    >
-                      <VolumeIcon className="h-3 w-3" />
-                    </Button>
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {concept.keyFormulas.map((formula, index) => (
-                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                        <div className="text-lg font-mono font-semibold">{formula.formula}</div>
-                        <p className="text-sm text-muted-foreground">{formula.description}</p>
-                      </div>
-                    ))}
+                {concept.formulas && concept.formulas.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-bold mb-2">Key Formulas</h3>
+                    <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-md">
+                      {concept.formulas.map((formula, idx) => (
+                        <div key={idx} className="my-2 font-mono">{formula}</div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                
-                {/* Related Concepts */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Related Concepts</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {concept.relatedConcepts.map((related, index) => (
-                      <Badge 
-                        key={index} 
-                        variant="secondary" 
-                        className="p-2 cursor-pointer hover:bg-secondary/80"
-                        onClick={() => handleRelatedConceptClick(related.id)}
-                      >
-                        {related.title}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Related Exams */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Practice Exams</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {concept.relatedExams.map((exam, index) => (
-                      <div 
-                        key={index} 
-                        className="border p-3 rounded-lg hover:bg-secondary/10 cursor-pointer"
-                        onClick={() => handleExamClick(exam.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <FileText className="h-4 w-4 text-indigo-500 mr-2" />
-                            <h4 className="font-medium text-sm">{exam.title}</h4>
-                          </div>
-                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                          <span>{exam.questions} questions</span>
-                          <span>{exam.duration}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Quick Access */}
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex items-center">
-                    <Button variant="ghost" size="sm" className="text-blue-600 px-0">
-                      <Star className="h-4 w-4 mr-1" fill="currentColor" />
-                      Add to Favorites
-                    </Button>
-                  </div>
-                  
-                  <div>
-                    <Button variant="outline" size="sm" onClick={handleDownloadResources}>
-                      <Download className="h-4 w-4 mr-1" />
-                      Download Materials
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                )}
+              </ScrollArea>
             </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Videos Tab */}
-        <TabsContent value="videos" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {concept.videoLessons.map((video) => (
-              <Card key={video.id} className="overflow-hidden">
-                <div className="relative aspect-video bg-gray-100">
-                  <img 
-                    src={video.thumbnail} 
-                    alt={video.title}
-                    className="w-full h-full object-cover" 
-                  />
-                  <Button 
-                    variant="default"
-                    size="icon"
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 h-12 w-12 rounded-full"
-                    onClick={() => handlePlayVideo(video.id)}
-                  >
-                    <PlayCircle className="h-8 w-8" />
-                  </Button>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold">{video.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Duration: {video.duration}</p>
-                  <div className="flex justify-end mt-3">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => readContentAloud(`Video: ${video.title}. Duration: ${video.duration}`)}
-                    >
-                      <VolumeIcon className="h-4 w-4 mr-1" />
-                      Listen Description
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="border-t pt-4">
-            <h3 className="font-semibold mb-3">Video Notes</h3>
-            <p>
-              When watching the videos, pay special attention to the demonstrations of Newton's laws in action. 
-              Try to identify real-world examples where you observe these laws in your daily life.
-            </p>
-            <Button 
-              variant="ghost" 
-              className="mt-2"
-              onClick={() => readContentAloud("Video Notes. When watching the videos, pay special attention to the demonstrations of Newton's laws in action. Try to identify real-world examples where you observe these laws in your daily life.")}
-            >
-              <VolumeIcon className="h-4 w-4 mr-1" />
-              Read Notes Aloud
-            </Button>
-          </div>
-        </TabsContent>
-        
-        {/* Practice Tab */}
-        <TabsContent value="practice" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Practice Questions</h3>
-                  <Badge variant="outline">
-                    {currentQuestion + 1}/{concept.practiceQuestions.length}
+            <CardFooter className="flex justify-between">
+              <div className="flex flex-wrap gap-2">
+                {concept.keywords.map((keyword, idx) => (
+                  <Badge key={idx} variant="secondary" className="bg-slate-100 hover:bg-slate-200 text-slate-800 cursor-pointer">
+                    {keyword}
                   </Badge>
-                </div>
-                
-                <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
-                  <p className="font-medium mb-4">
-                    {concept.practiceQuestions[currentQuestion].question}
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="ml-2"
-                      onClick={() => readContentAloud(concept.practiceQuestions[currentQuestion].question)}
-                    >
-                      <VolumeIcon className="h-3 w-3" />
-                    </Button>
-                  </p>
-                  
-                  <div className="space-y-3 mb-6">
-                    {concept.practiceQuestions[currentQuestion].options.map((option, index) => (
-                      <div 
-                        key={index} 
-                        className={`p-3 border rounded-md cursor-pointer transition-all ${
-                          selectedAnswer === index 
-                            ? selectedAnswer === concept.practiceQuestions[currentQuestion].correctAnswer
-                              ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                              : "border-red-500 bg-red-50 dark:bg-red-900/20"
-                            : "border-gray-200 dark:border-gray-700 hover:border-primary"
-                        }`}
-                        onClick={() => handleAnswerSelect(index)}
-                      >
-                        <div className="flex items-center">
-                          <div className="h-5 w-5 mr-2 rounded-full border flex items-center justify-center">
-                            {String.fromCharCode(65 + index)}
-                          </div>
-                          <span>{option}</span>
+                ))}
+              </div>
+              <Button variant="default" onClick={markAsCompleted}>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Mark as Complete
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Notes</CardTitle>
+              <CardDescription>
+                Take notes as you study to help remember key concepts.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Textarea 
+                placeholder="Type your notes here..." 
+                className="min-h-[200px]"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+              
+              {savedNotes.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="font-medium mb-2">Previously Saved Notes</h4>
+                  <div className="space-y-3">
+                    {savedNotes.map((note, idx) => (
+                      <div key={idx} className="bg-slate-50 dark:bg-slate-900 p-3 rounded border">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          {new Date(note.createdAt).toLocaleDateString()}
                         </div>
+                        <p className="whitespace-pre-wrap">{note.content}</p>
                       </div>
                     ))}
                   </div>
-                  
-                  <Button 
-                    onClick={handleNextQuestion} 
-                    disabled={selectedAnswer === null}
-                    className="w-full md:w-auto"
-                  >
-                    {currentQuestion < concept.practiceQuestions.length - 1 
-                      ? "Next Question" 
-                      : "Complete Practice"}
-                  </Button>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={saveNotes}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Save Notes
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="flashcards">
+          <Card>
+            <CardHeader>
+              <CardTitle>Related Flashcards</CardTitle>
+              <CardDescription>
+                Practice key concepts and formulas with these flashcards.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="aspect-video bg-slate-50 dark:bg-slate-900 rounded-lg border p-4 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <Brain className="h-10 w-10 mx-auto text-primary opacity-70" />
+                  <h3 className="text-lg font-medium">Atomic Structure Flashcards</h3>
+                  <p className="text-sm text-muted-foreground">15 cards • Last reviewed 3 days ago</p>
+                  <Button onClick={goToFlashcards}>Start Review</Button>
+                </div>
+              </div>
+              
+              <div className="aspect-video bg-slate-50 dark:bg-slate-900 rounded-lg border p-4 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <Brain className="h-10 w-10 mx-auto text-primary opacity-70" />
+                  <h3 className="text-lg font-medium">Nuclear Physics Formulas</h3>
+                  <p className="text-sm text-muted-foreground">8 cards • New set</p>
+                  <Button onClick={goToFlashcards}>Start Review</Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
         
-        {/* Notes Tab */}
-        <TabsContent value="notes" className="space-y-6">
+        <TabsContent value="practice">
           <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Your Notes</h3>
-                <textarea 
-                  className="w-full min-h-[200px] p-3 border rounded-md"
-                  value={userNotes}
-                  onChange={(e) => setUserNotes(e.target.value)}
-                  placeholder="Add your notes about this concept here..."
-                />
-                <div className="flex justify-between">
-                  <Button 
-                    variant="outline"
-                    onClick={() => readContentAloud(userNotes)}
-                  >
-                    <VolumeIcon className="h-4 w-4 mr-1" />
-                    Read Notes
-                  </Button>
-                  <Button onClick={handleAddNote}>Save Notes</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Resources Tab */}
-        <TabsContent value="resources" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Study Resources</h3>
-                
-                <div className="space-y-4">
-                  {concept.resources.map((resource, index) => (
-                    <div key={index} className="flex items-start border-b pb-4 last:border-0 last:pb-0">
-                      <div className={`h-10 w-10 rounded-md flex items-center justify-center mr-3 ${
-                        resource.type === 'simulation' 
-                          ? 'bg-blue-100 text-blue-600' 
-                          : resource.type === 'pdf'
-                          ? 'bg-red-100 text-red-600'
-                          : 'bg-green-100 text-green-600'
-                      }`}>
-                        {resource.type === 'simulation' && (
-                          <PlayCircle className="h-5 w-5" />
-                        )}
-                        {resource.type === 'pdf' && (
-                          <FileText className="h-5 w-5" />
-                        )}
-                        {resource.type === 'article' && (
-                          <BookOpen className="h-5 w-5" />
-                        )}
+            <CardHeader>
+              <CardTitle>Practice Questions</CardTitle>
+              <CardDescription>
+                Test your understanding with these practice questions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {concept.exampleQuestions && concept.exampleQuestions.length > 0 ? (
+                <div className="space-y-6">
+                  {concept.exampleQuestions.map((q, idx) => (
+                    <div key={idx} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 border">
+                      <h4 className="font-medium mb-2">Question {idx + 1}:</h4>
+                      <p className="mb-4">{q.question}</p>
+                      
+                      <div className="mb-2">
+                        <Button variant="outline" size="sm" className="mr-2">
+                          Show Answer
+                        </Button>
+                        
+                        <Button variant="outline" size="sm">
+                          Show Explanation
+                        </Button>
                       </div>
                       
-                      <div className="flex-1">
-                        <h4 className="font-medium">{resource.title}</h4>
-                        <p className="text-sm text-muted-foreground capitalize">{resource.type}</p>
-                        <a 
-                          href={resource.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-sm flex items-center mt-1"
-                        >
-                          Open Resource
-                          <ExternalLink className="h-3 w-3 ml-1" />
-                        </a>
+                      <div className="mt-4 text-sm border-t pt-3">
+                        <strong>Answer:</strong> {q.answer}
+                        {q.explanation && (
+                          <div className="mt-2">
+                            <strong>Explanation:</strong> {q.explanation}
+                          </div>
+                        )}
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => readContentAloud(`Resource: ${resource.title}. Type: ${resource.type}`)}
-                      >
-                        <VolumeIcon className="h-3 w-3" />
-                      </Button>
                     </div>
                   ))}
                 </div>
-                
-                <div className="pt-4 border-t flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Download all resources as a package
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleDownloadResources}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download All
+              ) : (
+                <div className="text-center py-10">
+                  <FileText className="h-10 w-10 mx-auto text-muted-foreground opacity-70" />
+                  <h3 className="mt-4 font-medium">Practice Questions</h3>
+                  <p className="text-sm text-muted-foreground mt-1 mb-4">
+                    Test your knowledge with a set of questions based on this concept
+                  </p>
+                  <Button onClick={goToPracticeQuestions}>
+                    Go to Practice Questions
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Flashcards Tab */}
-        <TabsContent value="flashcards" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Quick Recall</h3>
-                  <Badge variant="outline">
-                    {currentFlashcardIndex + 1}/{concept.flashcards.length}
-                  </Badge>
-                </div>
-                
-                {/* Flashcard */}
-                <div 
-                  className="min-h-[200px] border rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer"
-                  onClick={handleFlashcardFlip}
-                  style={{
-                    perspective: "1000px",
-                    transition: "transform 0.6s",
-                    transformStyle: "preserve-3d"
-                  }}
-                >
-                  <div className="text-center">
-                    {!isFlipped ? (
-                      <>
-                        <h4 className="text-xl mb-6">{concept.flashcards[currentFlashcardIndex].front}</h4>
-                        <p className="text-sm text-muted-foreground">Click to reveal answer</p>
-                      </>
-                    ) : (
-                      <>
-                        <h4 className="text-lg font-medium mb-2">Answer:</h4>
-                        <p className="text-base">{concept.flashcards[currentFlashcardIndex].back}</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => readContentAloud(
-                      isFlipped 
-                        ? concept.flashcards[currentFlashcardIndex].back 
-                        : concept.flashcards[currentFlashcardIndex].front
-                    )}
-                  >
-                    <VolumeIcon className="h-4 w-4 mr-1" />
-                    Read Aloud
-                  </Button>
-                  
-                  <Button onClick={handleNextFlashcard}>
-                    {currentFlashcardIndex < concept.flashcards.length - 1 ? "Next Flashcard" : "Restart Deck"}
-                  </Button>
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={handleNavigateToFlashcards}
-                  >
-                    <Brain className="h-4 w-4 mr-1" />
-                    View All Flashcards
-                  </Button>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
       
-      {/* Ask Doubt Modal - In a real implementation, this would be a proper dialog component */}
-      {showDoubtModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
-            <h3 className="font-semibold text-lg mb-4">Ask a Doubt to AI Tutor</h3>
-            <textarea
-              className="w-full min-h-[120px] p-3 border rounded-md mb-4"
-              value={userDoubt}
-              onChange={(e) => setUserDoubt(e.target.value)}
-              placeholder="Type your doubt or question here..."
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowDoubtModal(false)}>Cancel</Button>
-              <Button onClick={handleSubmitDoubt}>Submit</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Related Topics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside space-y-1">
+              {concept.relatedTopics.map((topic, idx) => (
+                <li key={idx} className="text-sm hover:text-primary cursor-pointer">{topic}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Need Help?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Having trouble understanding this concept? Chat with our AI tutor for personalized explanations.
+            </p>
+            <Button onClick={askAI} className="w-full">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Ask AI Tutor
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
