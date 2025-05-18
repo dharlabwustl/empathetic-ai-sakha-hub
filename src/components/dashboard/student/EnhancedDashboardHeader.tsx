@@ -1,219 +1,195 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { UserProfileType, MoodType } from '@/types/user/base';
-import MoodLogButton from './MoodLogButton';
-import { CalendarCheck, Clock, TrendingUp, Award, ChartBar, PlusCircle, RefreshCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-interface UpcomingEvent {
-  title: string;
-  time: string;
-  type: 'exam' | 'task' | 'meeting' | 'concept' | 'practice';
-  url?: string;
-}
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { MoodType, UserProfileType } from "@/types/user/base";
+import { Bell, Calendar, CheckCircle, AlertCircle, BookOpen } from "lucide-react";
+import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 interface EnhancedDashboardHeaderProps {
   userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
-  onViewStudyPlan?: () => void;
+  onViewStudyPlan: () => void;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
-  upcomingEvents?: UpcomingEvent[];
+  upcomingEvents?: {
+    title: string;
+    time: string;
+    type: "exam" | "task" | "revision";
+  }[];
 }
 
 const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   userProfile,
   formattedTime,
   formattedDate,
+  onViewStudyPlan,
   currentMood,
   onMoodChange,
   upcomingEvents = []
 }) => {
-  // Add streak and exam readiness to the user profile type
-  const streak = userProfile?.streak || { current: 12, longest: 24, lastStudyDate: new Date() };
-  const examReadiness = userProfile?.examReadiness || { percentage: 72, lastUpdated: new Date() };
-  const navigate = useNavigate();
-
-  // Define default upcoming events if none provided
-  const defaultEvents: UpcomingEvent[] = [
-    { 
-      title: "Physics: Kinematics", 
-      time: "Today, 4:00 PM", 
-      type: "concept",
-      url: "/dashboard/student/concepts/card/physics-kinematics"
-    },
-    { 
-      title: "Chemistry Practice Quiz", 
-      time: "Today, 6:00 PM", 
-      type: "practice",
-      url: "/dashboard/student/practice-exam/chemistry"
-    },
-    { 
-      title: "Mathematics: Calculus", 
-      time: "Tomorrow, 10:00 AM", 
-      type: "concept",
-      url: "/dashboard/student/concepts/card/mathematics-calculus"
-    }
-  ];
-
-  // Use provided events or fall back to defaults
-  const displayEvents = upcomingEvents.length > 0 ? upcomingEvents : defaultEvents;
-
-  // Get the first event for the Next Session card
-  const nextSessionEvent = displayEvents.length > 0 ? displayEvents[0] : null;
-
-  // Navigate to create new study plan
-  const handleCreateNewPlan = () => {
-    navigate('/dashboard/student/academic');
-  };
-
-  // Navigate to switch exam
-  const handleSwitchExam = () => {
-    navigate('/dashboard/student/academic');
+  // Get the greeting based on the time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
   };
   
-  // Function to get the correct URL based on event type
-  const getEventUrl = (event: UpcomingEvent) => {
-    // If event has a specific URL defined, use it
-    if (event.url) {
-      return event.url;
+  const greetingText = getGreeting();
+  const userName = userProfile?.name || "Student";
+  const avatar = userProfile?.avatar || userProfile?.photoURL;
+  
+  const handleMoodChange = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
+    }
+  };
+
+  // Get initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return '';
+    
+    const names = name.trim().split(' ');
+    
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
     }
     
-    // Otherwise generate URL based on type
-    switch(event.type) {
-      case 'concept':
-        return `/dashboard/student/concepts/card/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-      case 'practice':
-        return `/dashboard/student/practice-exam/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-      case 'exam':
-        return `/dashboard/student/practice-exam/${event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-      case 'meeting':
-        return `/dashboard/student/tutor`;
-      default:
-        return `/dashboard/student/today`;
-    }
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Section with Greeting and Mood Tracking */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Hello, {userProfile?.name?.split(' ')[0] || 'Student'}
-          </h1>
-          <p className="text-muted-foreground">
-            {formattedDate} • {formattedTime}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <MoodLogButton 
-            currentMood={currentMood} 
-            onMoodChange={onMoodChange}
-          />
-          {/* Study plan button removed as requested */}
-        </div>
-      </div>
-
-      {/* Main Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Exam Goal Card with new options */}
-        <Card className="overflow-hidden border-blue-200 dark:border-blue-800">
-          <div className="bg-gradient-to-r from-blue-500 to-violet-500 p-3">
-            <h3 className="font-medium text-white">Exam Goal</h3>
+    <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/30 dark:via-purple-950/30 dark:to-pink-950/30 rounded-xl p-4 shadow-sm mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* User profile section with avatar */}
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16 border-4 border-white dark:border-gray-800 shadow-md">
+            {avatar ? (
+              <AvatarImage src={avatar} alt={userName} />
+            ) : (
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-xl">
+                {getInitials(userName)}
+              </AvatarFallback>
+            )}
+          </Avatar>
+          
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {greetingText}, {userName}!
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {formattedDate} • {formattedTime}
+            </p>
+            
+            {userProfile.subscription && (
+              <Badge className="mt-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0">
+                {typeof userProfile.subscription === 'string' 
+                  ? userProfile.subscription.toUpperCase() 
+                  : userProfile.subscription.planType?.toUpperCase() || 'FREE'} Plan
+              </Badge>
+            )}
           </div>
-          <CardContent className="p-4">
-            <h2 className="text-2xl font-bold">{userProfile?.goals?.[0]?.title || 'NEET'}</h2>
-            <div className="flex justify-between items-center mt-2">
-              <div className="text-sm text-muted-foreground">Target Date</div>
-              <div className="text-sm font-medium">
-                {userProfile?.goals?.[0]?.targetDate 
-                  ? new Date(userProfile.goals[0].targetDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : 'May 15, 2025'}
-              </div>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <Button size="sm" variant="outline" className="w-1/2 flex items-center gap-1" onClick={handleSwitchExam}>
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span>Switch Exam</span>
-              </Button>
-              <Button size="sm" variant="outline" className="w-1/2 flex items-center gap-1" onClick={handleCreateNewPlan}>
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span>New Plan</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        </div>
 
-        {/* Study Streak Card */}
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-12 w-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center rounded-full">
-              <Award className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-sm text-muted-foreground">Study Streak</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">{streak.current} days</span>
-                <span className="text-xs text-muted-foreground">(Longest: {streak.longest})</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Exam Readiness Card */}
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center rounded-full">
-              <ChartBar className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-sm text-muted-foreground">Exam Readiness</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">{examReadiness.percentage}%</span>
-                <span className="text-xs text-emerald-600">+5% this week</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Next Study Session Card - Updated with direct links to specific tasks */}
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-12 w-12 bg-violet-100 dark:bg-violet-900/30 text-violet-600 flex items-center justify-center rounded-full">
-              <Clock className="h-6 w-6" />
-            </div>
-            <div className="w-full">
-              <h3 className="text-sm text-muted-foreground">Next Session</h3>
-              {nextSessionEvent ? (
-                <div className="flex flex-col">
-                  <a 
-                    href={getEventUrl(nextSessionEvent)} 
-                    className="text-lg font-bold hover:text-primary transition-colors"
-                  >
-                    {nextSessionEvent.title}
+        {/* Action buttons and mood */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Mood button */}
+          {onMoodChange && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <MoodLogButton
+                      currentMood={currentMood}
+                      onMoodChange={handleMoodChange}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Log how you're feeling today</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          
+          {/* View study plan button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onViewStudyPlan}
+                  className="gap-1"
+                >
+                  <Calendar className="h-4 w-4" />
+                  <span className="hidden sm:inline">Study Plan</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>View your personalized study plan</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {/* Notifications button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="relative"
+                  asChild
+                >
+                  <a href="/dashboard/student/notifications">
+                    <Bell className="h-4 w-4" />
+                    <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                   </a>
-                  <span className="text-xs text-muted-foreground">{nextSessionEvent.time}</span>
-                </div>
-              ) : (
-                <div className="flex flex-col">
-                  <a 
-                    href="/dashboard/student/today" 
-                    className="text-lg font-bold hover:text-primary transition-colors"
-                  >
-                    No upcoming sessions
-                  </a>
-                  <span className="text-xs text-muted-foreground">Check your study plan</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>View your notifications</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
-
-      {/* KPI Statistics removed as requested */}
+      
+      {/* Today's upcoming events */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {upcomingEvents.map((event, i) => (
+            <Card key={i} className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm">
+              <CardContent className="p-3 flex items-center gap-3">
+                <div className={`p-2 rounded-full ${
+                  event.type === 'exam' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 
+                  event.type === 'revision' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                }`}>
+                  {event.type === 'exam' ? <AlertCircle className="h-4 w-4" /> : 
+                   event.type === 'revision' ? <BookOpen className="h-4 w-4" /> : 
+                   <CheckCircle className="h-4 w-4" />}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{event.title}</p>
+                  <p className="text-xs text-gray-500">{event.time}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
