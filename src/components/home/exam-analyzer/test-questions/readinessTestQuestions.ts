@@ -89,7 +89,7 @@ const neetReadinessQuestions: TestQuestion[] = [
   },
   {
     id: 'rt-neet7',
-    question: 'How do you approach difficult Physics concepts like Optics or Electrodynamics?',
+    question: 'How do you approach difficult Physics concepts like Modern Physics or Electrodynamics?',
     options: [
       'Skip them entirely', 
       'Read theory but avoid numerical problems', 
@@ -98,12 +98,12 @@ const neetReadinessQuestions: TestQuestion[] = [
     ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management',
+    category: 'Study Strategy',
     subject: 'Physics',
   },
   {
     id: 'rt-neet8',
-    question: 'How familiar are you with the latest NEET exam pattern, marking scheme, and negative marking?',
+    question: 'How familiar are you with the latest NEET 2024 exam pattern, marking scheme, and negative marking?',
     options: [
       'Not familiar with current pattern', 
       'Know basic structure but not details', 
@@ -117,31 +117,31 @@ const neetReadinessQuestions: TestQuestion[] = [
   },
   {
     id: 'rt-neet9',
-    question: 'How effective is your method for revising previously studied Biology topics?',
+    question: 'How effectively do you use NEET previous year question papers (2023-2024) in your preparation?',
     options: [
-      'No structured revision plan', 
-      'Occasional rereading of notes', 
-      'Regular revision with flashcards/diagrams', 
-      'Spaced repetition system with active recall testing'
+      'Have not used them yet', 
+      'Solved a few but without analysis', 
+      'Solved most and identified weak areas', 
+      'Systematically analyzed all recent papers and targeted preparation accordingly'
     ],
     timeLimit: 30,
     type: 'self-assessment',
-    category: 'Time Management',
-    subject: 'Biology',
+    category: 'Practice Strategy',
+    subject: 'General',
   },
   {
     id: 'rt-neet10',
-    question: 'How confident do you feel about the Inorganic Chemistry portion of NEET?',
+    question: 'How confident do you feel about your understanding of Genetics and Biotechnology for NEET 2024?',
     options: [
       'Very low confidence, many gaps', 
       'Moderate confidence in basic concepts', 
       'Good grasp of most topics with few weak areas', 
-      'Highly confident across all periodic trends and properties'
+      'Highly confident across all topics including molecular techniques'
     ],
     timeLimit: 30,
     type: 'self-assessment',
     category: 'Overall Confidence',
-    subject: 'Chemistry',
+    subject: 'Biology',
   }
 ];
 
