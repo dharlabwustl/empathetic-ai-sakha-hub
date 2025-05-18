@@ -51,6 +51,9 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
+        // Set admin login flag explicitly
+        localStorage.setItem("admin_logged_in", "true");
+        
         // Use setTimeout to ensure state updates have propagated
         setTimeout(() => {
           navigate('/admin/dashboard', { replace: true });

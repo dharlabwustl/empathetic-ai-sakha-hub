@@ -33,16 +33,14 @@ const Login = () => {
     
     if ((newUserSignup || isGoogleSignup) && isLoggedIn) {
       // Set flag for study plan creation dialog after tour
-      if (isGoogleSignup) {
-        localStorage.setItem('needs_study_plan_creation', 'true');
-      }
+      localStorage.setItem('needs_study_plan_creation', 'true');
       
       // Clear the signup flags
       localStorage.removeItem('new_user_signup');
       
       // Keep the google_signup flag for welcome flow to detect
       
-      // Redirect to welcome flow
+      // Redirect to welcome flow without showing login page in between
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
         navigate('/welcome-flow', { replace: true });
@@ -76,7 +74,7 @@ const Login = () => {
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
-        language="en"
+        language="hi" // Changed to Hindi as default
       />
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

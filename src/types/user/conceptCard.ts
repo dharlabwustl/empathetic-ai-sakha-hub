@@ -22,6 +22,9 @@ export interface ConceptCard {
   flashcardsCompleted?: number;
   examReady?: boolean;
   bookmarked?: boolean;
+  notes?: string; // Added notes property
+  estimatedTime?: string | number; // Added for display in cards
+  scheduledFor?: string; // Added for scheduling (today, tomorrow, etc.)
 }
 
 export interface MasteryLevel {

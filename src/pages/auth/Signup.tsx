@@ -14,11 +14,14 @@ const Signup = () => {
     // Flag to indicate we need to show the study plan creation dialog after tour
     localStorage.setItem('needs_study_plan_creation', 'true');
     
+    // Check if this is a Google signup
+    const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
+    
     // Create a minimal user data object to avoid errors
     const userData = {
       id: `user_${Date.now()}`,
-      name: "New User",
-      email: `user${Date.now()}@example.com`,
+      name: isGoogleSignup ? "Google User" : "New User",
+      email: isGoogleSignup ? `google${Date.now()}@example.com` : `user${Date.now()}@example.com`,
       role: 'student',
       isFirstTimeUser: true
     };
@@ -35,7 +38,7 @@ const Signup = () => {
       <VoiceGreeting 
         isFirstTimeUser={true}
         userName="New User"
-        language="hi"
+        language="hi" // Changed to Hindi as default
       />
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-center">
