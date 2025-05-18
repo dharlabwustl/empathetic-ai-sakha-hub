@@ -62,7 +62,7 @@ import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 import AdminLogin from '@/pages/admin/AdminLogin';
 // Import auth pages
-import auth from '@/pages/auth/AdminLogin';
+import AdminLoginPage from '@/pages/auth/AdminLogin';
 import Signup from '@/pages/auth/Signup';
 import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
@@ -100,7 +100,7 @@ function App() {
               {/* Auth-specific routes */}
               <Route path="/auth/signup" element={<Signup />} />
               <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/admin-login" element={<auth />} />
+              <Route path="/auth/admin-login" element={<AdminLoginPage />} />
               
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
