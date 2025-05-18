@@ -1,303 +1,232 @@
+
 import React, { useState } from 'react';
-import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
-import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
-import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
-import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
-import { useToast } from '@/hooks/use-toast';
-import { v4 as uuidv4 } from 'uuid';
-import { format, differenceInCalendarDays } from 'date-fns';
-import type { StudyPlan, NewStudyPlan, StudyPlanSubject, StudyPlanTopic } from '@/types/user/studyPlan';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Check, CheckCircle2, ChevronRight, GraduationCap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { StudyPlanTopic } from '@/types/student/StudyPlan';
+import { useNavigate } from 'react-router-dom';
 
 interface AcademicAdvisorProps {
-  userProfile: {
-    examPreparation?: string;
-  };
+  userName?: string;
 }
 
-const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
-  const { toast } = useToast();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
-
-  // State for plans
-  const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
-    id: "plan-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: userProfile?.examPreparation || "NEET",
-    examDate: "2024-12-15",
-    createdAt: "2024-04-10T12:00:00Z",
-    updatedAt: "2024-04-10T12:00:00Z",
-    status: 'active',
-    weeklyHours: 42,
-    progressPercentage: 35,
-    daysLeft: 240,
+const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userName = "Student" }) => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('progress');
+  
+  // Mock study plan data
+  const studyPlan = {
+    overallProgress: 68,
     subjects: [
+      { name: "Physics", progress: 75, color: "bg-blue-500" },
+      { name: "Chemistry", progress: 60, color: "bg-green-500" },
+      { name: "Biology", progress: 65, color: "bg-purple-500" }
+    ],
+    weakTopics: [
       {
-        id: "physics-1",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 14,
+        id: "topic-1",
+        name: "Electromagnetic Induction",
+        difficulty: "hard",
+        subject: "Physics",
+        status: "needs-review",
         priority: "high",
-        proficiency: "medium",
-        completed: false,
-        topics: [
-          { id: "mech-1", name: "Mechanics", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'high' },
-          { id: "thermo-1", name: "Thermodynamics", difficulty: 'hard', completed: false, status: 'pending', priority: 'medium' },
-          { id: "electro-1", name: "Electrostatics", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' }
-        ]
+        lastReviewed: "2 weeks ago"
       },
       {
-        id: "chem-1",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
+        id: "topic-2",
+        name: "Organic Chemistry Mechanisms",
+        difficulty: "medium",
+        subject: "Chemistry",
+        status: "needs-practice",
         priority: "medium",
-        proficiency: "weak",
-        completed: false,
-        topics: [
-          { id: "org-1", name: "Organic Chemistry", difficulty: 'hard', completed: false, status: 'pending', priority: 'high' },
-          { id: "bond-1", name: "Chemical Bonding", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' },
-          { id: "equil-1", name: "Equilibrium", difficulty: 'easy', completed: false, status: 'pending', priority: 'low' }
-        ]
+        lastReviewed: "1 week ago"
       },
       {
-        id: "math-1",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 16,
+        id: "topic-3",
+        name: "Cell Respiration",
+        difficulty: "medium",
+        subject: "Biology",
+        status: "started",
         priority: "high",
-        proficiency: "strong",
-        completed: false,
-        topics: [
-          { id: "calc-1", name: "Calculus", difficulty: 'hard', completed: true, status: 'completed', priority: 'high' },
-          { id: "coord-1", name: "Coordinate Geometry", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "prob-1", name: "Probability", difficulty: 'medium', completed: false, status: 'in-progress', priority: 'medium' }
-        ]
+        lastReviewed: "3 days ago"
       }
     ],
-    studyHoursPerDay: 6,
-    preferredStudyTime: 'evening',
-    learningPace: 'moderate'
-  }]);
-
-  // State for completed plans
-  const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
-    id: "plan-old-1",
-    userId: "user-1",
-    goal: "NEET Preparation",
-    examGoal: "NEET",
-    examDate: "2024-03-15",
-    createdAt: "2024-01-01T12:00:00Z",
-    updatedAt: "2024-03-15T12:00:00Z",
-    status: 'completed',
-    weeklyHours: 35,
-    progressPercentage: 100,
-    daysLeft: 0,
-    subjects: [
+    strongTopics: [
       {
-        id: "physics-old",
-        name: "Physics",
-        color: "#3b82f6",
-        hoursPerWeek: 10,
-        priority: "medium",
-        proficiency: "weak",
+        id: "strong-1",
+        name: "Newton's Laws",
+        difficulty: "medium",
+        subject: "Physics",
+        status: "completed",
         completed: true,
-        topics: [
-          { id: "mech-old", name: "Mechanics", difficulty: 'medium', completed: true, status: 'completed', priority: 'high' },
-          { id: "waves-old", name: "Waves", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
+        priority: "medium"
       },
       {
-        id: "chem-old",
-        name: "Chemistry",
-        color: "#10b981",
-        hoursPerWeek: 12,
-        priority: "low",
-        proficiency: "weak",
+        id: "strong-2",
+        name: "Periodic Table",
+        difficulty: "medium",
+        subject: "Chemistry",
+        status: "completed",
         completed: true,
-        topics: [
-          { id: "period-old", name: "Periodic Table", difficulty: 'medium', completed: true, status: 'completed' }
-        ]
+        priority: "medium"
       },
       {
-        id: "math-old",
-        name: "Mathematics",
-        color: "#8b5cf6",
-        hoursPerWeek: 13,
-        priority: "high",
-        proficiency: "medium",
+        id: "strong-3",
+        name: "Human Anatomy",
+        difficulty: "hard",
+        subject: "Biology",
+        status: "completed",
         completed: true,
-        topics: [
-          { id: "alg-old", name: "Algebra", difficulty: 'hard', completed: true, status: 'completed' }
-        ]
+        priority: "high"
       }
-    ],
-    studyHoursPerDay: 5,
-    preferredStudyTime: 'morning',
-    learningPace: 'slow'
-  }]);
-
-  const handleCreatePlan = () => {
-    setShowCreateDialog(true);
+    ]
   };
-
-  const handleViewPlanDetails = (planId: string) => {
-    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
-    if (plan) {
-      setSelectedPlan(plan);
-    }
+  
+  const handleSubjectClick = (subject: string) => {
+    // Navigate to subject view
+    console.log("Navigate to subject:", subject);
   };
-
-  // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
-    let topics = [];
-    const priorities = ['high', 'medium', 'low'];
-    const statuses = ['pending', 'in-progress'];
-    
-    // Generate topics based on subject
-    switch(subject.toLowerCase()) {
-      case 'physics':
-        topics = [
-          { id: `phys-${Date.now()}-1`, name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `phys-${Date.now()}-2`, name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `phys-${Date.now()}-3`, name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      case 'chemistry':
-        topics = [
-          { id: `chem-${Date.now()}-1`, name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `chem-${Date.now()}-2`, name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `chem-${Date.now()}-3`, name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'easy' as const, completed: false }
-        ];
-        break;
-      case 'mathematics':
-        topics = [
-          { id: `math-${Date.now()}-1`, name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
-          { id: `math-${Date.now()}-2`, name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `math-${Date.now()}-3`, name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
-        ];
-        break;
-      default:
-        topics = [
-          { id: `gen-${Date.now()}-1`, name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
-          { id: `gen-${Date.now()}-2`, name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false }
-        ];
-    }
-    
-    return topics;
+  
+  const handleTopicClick = (topicId: string) => {
+    // Navigate to topic details
+    navigate(`/dashboard/student/concepts/${topicId}`);
   };
-
-  const mockTopics: StudyPlanTopic[] = [
-    {
-      id: "topic1",
-      name: "Kinematics",
-      difficulty: "medium",
-      completed: true, 
-      status: "completed",
-      priority: "high"
-    },
-    {
-      id: "topic2",
-      name: "Newton's Laws of Motion",
-      difficulty: "medium",
-      completed: true, 
-      status: "completed",
-      priority: "high"
-    },
-    {
-      id: "topic3",
-      name: "Electromagnetic Theory",
-      difficulty: "hard",
-      completed: true, 
-      status: "completed",
-      priority: "medium"
-    }
-  ];
-
-  const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object
-    const newPlan: StudyPlan = {
-      id: uuidv4(),
-      userId: "user-1",
-      goal: "NEET Preparation",
-      examGoal: plan.examGoal,
-      examDate: typeof plan.examDate === 'string' ? plan.examDate : format(plan.examDate as Date, 'yyyy-MM-dd'),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      weeklyHours: plan.weeklyHours || 20,
-      progressPercentage: 0,
-      daysLeft: typeof plan.examDate === 'string' 
-        ? differenceInCalendarDays(new Date(plan.examDate), new Date())
-        : differenceInCalendarDays(plan.examDate as Date, new Date()),
-      subjects: plan.subjects.map(subject => {
-        // Ensure each subject has the required properties with proper types
-        const studyPlanSubject: StudyPlanSubject = {
-          id: subject.id || `subject-${uuidv4()}`,
-          name: subject.name,
-          color: subject.color || "#3b82f6",
-          hoursPerWeek: subject.hoursPerWeek || 10,
-          priority: subject.priority || "medium",
-          proficiency: subject.proficiency || "medium",
-          completed: false,
-          topics: generateTopicsForSubject(subject.name, subject.proficiency || "medium")
-        };
-        return studyPlanSubject;
-      }),
-      studyHoursPerDay: plan.studyHoursPerDay,
-      preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
-    };
-    
-    // Move previous active plans to completed
-    const updatedCompletedPlans = [...completedPlans];
-    if (activePlans.length > 0) {
-      const oldActivePlans = activePlans.map(plan => ({
-        ...plan,
-        status: 'completed' as 'completed'
-      }));
-      updatedCompletedPlans.push(...oldActivePlans);
-    }
-    
-    // Add the new plan as the active one
-    setActivePlans([newPlan]);
-    setCompletedPlans(updatedCompletedPlans);
-    
-    // Show toast
-    toast({
-      title: "Success",
-      description: "Your new study plan has been created and is now active!",
-    });
-    
-    setShowCreateDialog(false);
-  };
-
+  
   return (
-    <div className="space-y-12">
-      <AcademicHeader examGoal={userProfile?.examPreparation} />
+    <div className="space-y-6">
+      {/* Personal greeting */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-none">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+              <GraduationCap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Hello, {userName}</h2>
+              <p className="text-muted-foreground">Here's your academic progress overview</p>
+            </div>
+          </div>
+          
+          <div className="space-y-4 mt-6">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium">Overall Exam Preparation</span>
+                <span>{studyPlan.overallProgress}%</span>
+              </div>
+              <Progress value={studyPlan.overallProgress} className="h-2" />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {studyPlan.subjects.map((subject) => (
+                <div 
+                  key={subject.name} 
+                  className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => handleSubjectClick(subject.name)}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium">{subject.name}</h3>
+                    <span className="text-sm">{subject.progress}%</span>
+                  </div>
+                  <Progress value={subject.progress} className={`h-1.5 ${subject.color}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
-      <StudyPlansList
-        activePlans={activePlans}
-        completedPlans={completedPlans}
-        onCreatePlan={handleCreatePlan}
-        onViewPlanDetails={handleViewPlanDetails}
-      />
-
-      <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        examGoal={userProfile?.examPreparation}
-        onCreatePlan={handleNewPlanCreated}
-      />
-
-      {selectedPlan && (
-        <StudyPlanDetail
-          plan={selectedPlan}
-          isOpen={!!selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-        />
-      )}
+      {/* Detailed analysis tabs */}
+      <Tabs defaultValue="progress" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2">
+          <TabsTrigger value="progress">Areas to Focus</TabsTrigger>
+          <TabsTrigger value="strengths">Your Strengths</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="progress" className="mt-6 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Topics Needing Attention</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {studyPlan.weakTopics.map((topic) => (
+                <div 
+                  key={topic.id}
+                  className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => handleTopicClick(topic.id)}
+                >
+                  <div>
+                    <div className="font-medium">{topic.name}</div>
+                    <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                      <span>{topic.subject}</span>
+                      <span className="h-1 w-1 rounded-full bg-gray-300"></span>
+                      <span>
+                        Last reviewed: {topic.lastReviewed}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <Badge variant={
+                      topic.difficulty === "hard" ? "destructive" : 
+                      topic.difficulty === "medium" ? "secondary" : 
+                      "outline"
+                    }>
+                      {topic.difficulty}
+                    </Badge>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </div>
+              ))}
+              
+              <Button className="w-full mt-4" variant="outline">
+                View All Focus Areas
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="strengths" className="mt-6 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Strong Performance Areas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {studyPlan.strongTopics.map((topic) => (
+                <div 
+                  key={topic.id}
+                  className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30"
+                  onClick={() => handleTopicClick(topic.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">{topic.name}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {topic.subject}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                      <Check className="h-3 w-3 mr-1" />
+                      Mastered
+                    </Badge>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </div>
+              ))}
+              
+              <Button className="w-full mt-4" variant="outline">
+                View All Strengths
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

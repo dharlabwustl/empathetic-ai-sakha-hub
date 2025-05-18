@@ -6,12 +6,10 @@ import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
-import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 
 interface DashboardContainerProps {
-  userProfile: any; // Changed from UserProfileBase to any to avoid type errors
+  userProfile: any; 
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;
@@ -55,7 +53,6 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   lastActivity,
   suggestedNextAction
 }) => {
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleNavigationCommand = (route: string) => {
@@ -63,15 +60,13 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   };
   
   const handleMoodCommand = (mood: string) => {
-    // Handle mood command - would update user mood
     console.log("Mood command received:", mood);
-    // Here we would implement the actual mood update logic
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       {/* Universal sidebar */}
-      {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
+      <UniversalSidebar collapsed={hideSidebar} />
       
       {/* Main dashboard content */}
       <DashboardWrapper 
@@ -93,15 +88,6 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         onCompleteTour={onCompleteTour}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-      />
-      
-      {/* Enhanced Floating Voice Assistant */}
-      <FloatingVoiceAssistant 
-        userName={userProfile?.name}
-        currentMood={userProfile?.mood}
-        onMoodCommand={handleMoodCommand}
-        onNavigationCommand={handleNavigationCommand}
-        pronouncePrepzr={true}
       />
       
       {/* Chat assistant */}

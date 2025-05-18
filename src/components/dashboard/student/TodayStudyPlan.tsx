@@ -54,7 +54,6 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
     const route = getDefaultRoute(task);
-    console.log("TodayStudyPlan - Navigating to task route:", route);
     navigate(route);
   };
 
