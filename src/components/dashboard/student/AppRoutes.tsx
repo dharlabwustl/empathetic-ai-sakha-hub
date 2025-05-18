@@ -20,6 +20,7 @@ import { UserRole } from "@/types/user/base";
 import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import RedesignedTodaysPlan from "./todays-plan/RedesignedTodaysPlan";
+import SubscriptionPage from "@/pages/dashboard/student/SubscriptionPage";
 
 const AppRoutes: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -48,6 +49,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/formula-practice" element={<FormulaPracticePage />} />
       <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
       <Route path="/analytics" element={<AnalyticsDashboard />} />
+      <Route path="/subscription" element={<SubscriptionPage />} />
     </Routes>
   );
 };

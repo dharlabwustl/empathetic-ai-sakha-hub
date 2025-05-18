@@ -1,37 +1,50 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Copy, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface InvitationCodeDisplayProps {
   inviteCode: string;
 }
 
-const InvitationCodeDisplay = ({ inviteCode }: InvitationCodeDisplayProps) => {
+const InvitationCodeDisplay: React.FC<InvitationCodeDisplayProps> = ({ inviteCode }) => {
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(inviteCode)
+      .then(() => {
+        setCopied(true);
+        toast({
+          title: "Copied!",
+          description: "Invitation code copied to clipboard"
+        });
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to copy",
+          description: "Please try manually selecting the code",
+          variant: "destructive"
+        });
+      });
+  };
+
   return (
-    <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-900/20 p-3">
-      <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
-        Invitation Code
-      </p>
-      <div className="flex items-center">
-        <code className="bg-blue-100 dark:bg-blue-800 rounded px-2 py-1 text-sm">
+    <div className="space-y-2">
+      <div className="text-sm text-muted-foreground">Invitation Code</div>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-gray-50 dark:bg-gray-800 border rounded-md px-3 py-2 font-mono">
           {inviteCode}
-        </code>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-2"
-          onClick={() => {
-            navigator.clipboard.writeText(inviteCode);
-            toast({
-              title: "Copied to clipboard",
-              description: "The invitation code has been copied to your clipboard",
-            });
-          }}
+        </div>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={handleCopyCode}
+          className={copied ? "text-green-600" : ""}
         >
-          Copy
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
         </Button>
       </div>
     </div>

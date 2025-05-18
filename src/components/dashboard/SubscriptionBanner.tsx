@@ -29,7 +29,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
   };
   
   const handleManageSubscription = () => {
-    // Correctly navigate to the subscription page
+    // Navigate to the student subscription page
     navigate('/dashboard/student/subscription');
   };
 
