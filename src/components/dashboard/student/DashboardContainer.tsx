@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UserProfileBase, MoodType } from "@/types/user/base";
+import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
@@ -31,7 +31,6 @@ interface DashboardContainerProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({
@@ -54,8 +53,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   onCompleteTour,
   onCloseStudyPlan,
   lastActivity,
-  suggestedNextAction,
-  currentMood
+  suggestedNextAction
 }) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -98,7 +96,9 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
       />
       
       {/* Enhanced Floating Voice Assistant */}
-      <FloatingVoiceAssistant
+      <FloatingVoiceAssistant 
+        userName={userProfile?.name || "Student"}
+        currentMood={userProfile?.mood || "MOTIVATED"}
         onMoodCommand={handleMoodCommand}
         onNavigationCommand={handleNavigationCommand}
         pronouncePrepzr={true}

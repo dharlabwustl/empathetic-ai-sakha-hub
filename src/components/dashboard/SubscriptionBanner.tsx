@@ -4,7 +4,7 @@ import { SubscriptionType } from '@/types/user/base';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { ArrowUp, HeartIcon } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionBannerProps {
@@ -44,23 +44,17 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'fre
   // Show upgrade message for free/basic users
   return (
     <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-800/30">
-      <AlertDescription className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div className="flex-1">
-          <span>
-            {planType === 'free' ? (
-              'Upgrade to Premium for advanced features, personalized feedback, and unlimited practice tests.'
-            ) : (
-              'Upgrade to Premium for AI tutoring and advanced analytics to boost your exam performance.'
-            )}
-          </span>
-          <div className="flex items-center text-sm mt-2 text-blue-600 dark:text-blue-300">
-            <HeartIcon className="h-4 w-4 mr-1" />
-            <span>Making a difference together: We donate 5% to fund underprivileged students.</span>
-          </div>
-        </div>
+      <AlertDescription className="flex justify-between items-center">
+        <span>
+          {planType === 'free' ? (
+            'Upgrade to Premium for advanced features, personalized feedback, and unlimited practice tests.'
+          ) : (
+            'Upgrade to Premium for AI tutoring and advanced analytics to boost your exam performance.'
+          )}
+        </span>
         <Button 
           variant="default" 
-          className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
           onClick={handleUpgradeClick}
         >
           <ArrowUp className="h-4 w-4 mr-2" /> Upgrade

@@ -38,15 +38,13 @@ const SubscriptionPage: React.FC = () => {
           </button>
         </div>
         
-        {/* Donation Note - Enhanced prominence */}
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-6 rounded-lg border border-purple-100 dark:border-purple-800 mb-8 flex items-center">
-          <HeartIcon className="text-pink-500 mr-4 h-8 w-8 flex-shrink-0" />
-          <div>
-            <h3 className="font-semibold text-lg mb-1">Making a difference together</h3>
-            <p className="text-md">
-              We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
-            </p>
-          </div>
+        {/* Donation Note */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 mb-8 flex items-center">
+          <HeartIcon className="text-pink-500 mr-3 h-6 w-6 flex-shrink-0" />
+          <p className="text-sm">
+            <span className="font-semibold">Making a difference together:</span>{" "}
+            We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
+          </p>
         </div>
         
         <SubscriptionPlans 
@@ -114,8 +112,7 @@ const SubscriptionPage: React.FC = () => {
           </div>
           
           {/* Reminder about donation */}
-          <div className="mt-6 text-center flex items-center justify-center text-gray-600 dark:text-gray-400">
-            <HeartIcon className="h-5 w-5 text-pink-500 mr-2" />
+          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             <p>5% of all purchases helps fund free access for underprivileged students.</p>
           </div>
         </div>

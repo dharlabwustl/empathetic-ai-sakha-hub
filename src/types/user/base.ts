@@ -1,3 +1,4 @@
+
 export enum MoodType {
   HAPPY = 'happy',
   FOCUSED = 'focused',
@@ -78,7 +79,6 @@ export interface StudyStreak {
 export interface ExamReadiness {
   percentage: number;
   lastUpdated: Date | string;
-  daysUntilExam?: number;
 }
 
 export interface UserProfileBase {
