@@ -31,19 +31,14 @@ const Login = () => {
       return;
     }
     
-    if ((newUserSignup || isGoogleSignup) && isLoggedIn) {
-      // Set flag for study plan creation dialog after tour
-      if (isGoogleSignup) {
-        localStorage.setItem('needs_study_plan_creation', 'true');
-      }
+    // For Google signup or new user, skip the login page entirely
+    if (isGoogleSignup || newUserSignup) {
+      // Set flag for showing study plan creation dialog after tour
+      localStorage.setItem('needs_study_plan_creation', 'true');
+      localStorage.setItem('isLoggedIn', 'true');
       
-      // Clear the signup flags
-      localStorage.removeItem('new_user_signup');
-      
-      // Keep the google_signup flag for welcome flow to detect
-      
-      // Redirect to welcome flow
-      console.log("New user or Google signup detected, redirecting to welcome flow");
+      // Keep the signup flags for the welcome flow
+      console.log("Google signup or new user detected, redirecting to welcome flow");
       setTimeout(() => {
         navigate('/welcome-flow', { replace: true });
       }, 100);

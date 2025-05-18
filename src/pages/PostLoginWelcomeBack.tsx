@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WelcomeSlider from '@/components/welcome/WelcomeSlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
+import StudyPlanDialog from '@/pages/dashboard/student/StudyPlanDialog';
 import { useToast } from "@/hooks/use-toast";
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
@@ -11,12 +13,16 @@ const PostLoginWelcomeBack = () => {
   const [userData, setUserData] = useState<any>({});
   const [showSlider, setShowSlider] = useState(true);
   const [showTour, setShowTour] = useState(false);
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [userName, setUserName] = useState("Student");
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [isGoogleSignup, setIsGoogleSignup] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
     const storedData = localStorage.getItem('userData');
+    const googleSignup = localStorage.getItem('google_signup') === 'true';
+    setIsGoogleSignup(googleSignup);
     
     if (storedData) {
       try {
@@ -95,22 +101,42 @@ const PostLoginWelcomeBack = () => {
   const handleTourSkip = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
-    // Use direct location change to ensure we go to the dashboard
-    window.location.href = '/dashboard/student';
-    toast({
-      title: "Welcome to your dashboard!",
-      description: "You can always access the tour again from the help menu."
-    });
+    
+    if (isGoogleSignup || isFirstTimeUser) {
+      setShowStudyPlan(true);
+    } else {
+      // Use direct location change to ensure we go to the dashboard
+      window.location.href = '/dashboard/student';
+      toast({
+        title: "Welcome to your dashboard!",
+        description: "You can always access the tour again from the help menu."
+      });
+    }
   };
   
   const handleTourComplete = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    
+    if (isGoogleSignup || isFirstTimeUser) {
+      setShowStudyPlan(true);
+    } else {
+      // Use direct location change to ensure we go to the dashboard
+      window.location.href = '/dashboard/student';
+      toast({
+        title: "Tour Completed!",
+        description: "You're all set to start using PREPZR. Happy studying!"
+      });
+    }
+  };
+  
+  const handleStudyPlanClose = () => {
+    setShowStudyPlan(false);
     // Use direct location change to ensure we go to the dashboard
     window.location.href = '/dashboard/student';
     toast({
-      title: "Tour Completed!",
-      description: "You're all set to start using PREPZR. Happy studying!"
+      title: "Study Plan Created!",
+      description: "Your personalized study plan is now ready."
     });
   };
 
@@ -138,8 +164,16 @@ const PostLoginWelcomeBack = () => {
         </div>
       )}
       
+      {/* Show study plan dialog for Google signup and new users */}
+      {showStudyPlan && (
+        <StudyPlanDialog
+          userProfile={userData}
+          onClose={handleStudyPlanClose}
+        />
+      )}
+      
       {/* Default loading state */}
-      {!showSlider && !showTour && (
+      {!showSlider && !showTour && !showStudyPlan && (
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-pulse text-center">
             <p className="text-xl">Loading your personalized dashboard...</p>

@@ -1,612 +1,421 @@
 
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Tabs, 
-  TabsList, 
-  TabsTrigger, 
-  TabsContent 
-} from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from '@/components/ui/progress';
-import { 
-  BookOpen, 
-  Brain, 
-  ArrowLeft, 
-  Bookmark, 
-  Volume2, 
-  Edit, 
-  CheckCircle, 
-  Info, 
-  Calculator, 
-  Lightbulb,
-  Pencil,
-  Video,
-  FileCheck,
-  Star,
-  MessageSquare
-} from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { BookOpen, Award, FileCheck, Video, BookText, FlaskConical, Brain, FileText, PlayCircle, ExternalLink, ArrowLeft } from 'lucide-react';
+import LoadingState from '@/components/common/LoadingState';
 import { useToast } from '@/hooks/use-toast';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-// Mock data for testing
-const mockConceptData = {
-  id: 'concept-1',
-  title: 'Cell Structure and Functions',
-  subject: 'Biology',
-  chapter: 'Cell Biology',
-  topic: 'Cell Organelles',
-  description: 'Fundamental understanding of cells, their structures and functions',
-  difficulty: 'medium',
-  content: `<p>The cell is the basic structural and functional unit of life. All living organisms are made up of cells. Cells are the building blocks of life.</p>
-  <p>Cell theory states that:</p>
-  <ul>
-    <li>All living organisms are composed of cells and their products</li>
-    <li>All cells arise from pre-existing cells</li>
-    <li>The cell is the basic unit of structure, function, and organization in all organisms</li>
-  </ul>`,
-  keyPoints: [
-    'Cells are the basic structural and functional units of life',
-    'All living organisms are composed of cells',
-    'Cell membrane regulates what enters and leaves the cell',
-    'Nucleus contains genetic material and controls cellular activities',
-    'Mitochondria are the powerhouse of the cell, generating energy through ATP'
-  ],
-  formulas: [
-    { 
-      name: 'Surface Area to Volume Ratio', 
-      formula: 'SA:V = Surface Area ÷ Volume', 
-      explanation: 'As cells grow, their volume increases faster than their surface area, limiting diffusion efficiency.'
-    }
-  ],
-  exampleQuestions: [
-    {
-      question: 'Which organelle is responsible for protein synthesis in a cell?',
-      options: ['Nucleus', 'Mitochondria', 'Ribosomes', 'Golgi Apparatus'],
-      answer: 'Ribosomes',
-      explanation: 'Ribosomes are cellular structures that translate mRNA into proteins, making them responsible for protein synthesis.'
-    },
-    {
-      question: 'Which of the following statements about mitochondria is INCORRECT?',
-      options: [
-        'They contain their own DNA',
-        'They are involved in ATP production',
-        'They are found only in plant cells',
-        'They are often referred to as the powerhouse of the cell'
-      ],
-      answer: 'They are found only in plant cells',
-      explanation: 'Mitochondria are found in most eukaryotic cells, including animal cells, not just plant cells.'
-    }
-  ],
-  commonMistakes: [
-    'Confusing prokaryotic and eukaryotic cell structures',
-    'Mixing up the functions of different cellular organelles',
-    'Forgetting that plant cells have both cell wall and cell membrane',
-    'Misunderstanding the process of osmosis and diffusion in cells'
-  ],
-  examRelevance: 'High - appears frequently in NEET exams, particularly questions about organelle functions',
-  neetReferences: {
-    previousYearQuestions: 3,
-    importanceLevel: 'High',
-    conceptWeight: 8
+// Sample concept data - replace with actual API fetch
+const CONCEPT_DATA = {
+  'concept-1': {
+    id: 'concept-1',
+    title: 'Cell Structure and Functions',
+    description: 'Understanding the fundamental unit of life, its structure and key functions',
+    subject: 'Biology',
+    chapter: 'Cell Biology',
+    topic: 'Eukaryotic Cells',
+    difficulty: 'medium',
+    progress: 65,
+    keyPoints: [
+      'Cell is the structural and functional unit of life',
+      'Robert Hooke discovered cells in 1665',
+      'Cell theory was proposed by Schleiden and Schwann',
+      'All cells arise from pre-existing cells',
+      'Eukaryotic cells contain membrane-bound organelles'
+    ],
+    formulas: [
+      { id: 'f1', name: 'Cell Magnification', formula: 'M = Image Size / Object Size', explanation: 'Used to calculate how much larger an object appears under a microscope than its actual size' },
+      { id: 'f2', name: 'Surface Area to Volume Ratio', formula: 'SA/V = Surface Area / Volume', explanation: 'Explains why cells are small - as a cell grows, its volume increases faster than its surface area' }
+    ],
+    examRelevance: 'High priority for NEET. Frequently tested with 3-5 questions per exam.',
+    recallAccuracy: 72,
+    videoResources: [
+      { id: 'v1', title: 'Cell Structure and Function', url: 'https://example.com/video1', duration: '10:25' },
+      { id: 'v2', title: 'Cell Organelles in Detail', url: 'https://example.com/video2', duration: '15:37' }
+    ],
+    questions: [
+      { 
+        id: 'q1', 
+        question: 'Which of the following organelles is known as the powerhouse of the cell?',
+        options: ['Mitochondria', 'Golgi apparatus', 'Lysosome', 'Endoplasmic reticulum'],
+        correctAnswer: 'Mitochondria',
+        explanation: 'Mitochondria generate most of the cell\'s supply of ATP, used as an energy source for cellular processes.'
+      },
+      { 
+        id: 'q2', 
+        question: 'Which of these is NOT a function of the cell membrane?',
+        options: ['Protection', 'Selective permeability', 'Energy production', 'Cell recognition'],
+        correctAnswer: 'Energy production',
+        explanation: 'Energy production primarily occurs in the mitochondria, not in the cell membrane.'
+      }
+    ],
+    notes: [
+      { id: 'n1', content: 'Remember the differences between animal and plant cells', timestamp: '2023-10-15' },
+      { id: 'n2', content: 'Review the functions of lysosomes before the test', timestamp: '2023-10-16' }
+    ]
   },
-  videos: [
-    {
-      title: 'Cell Structure and Function',
-      url: 'https://www.youtube.com/watch?v=URUJD5NEXC8',
-      duration: '12:30',
-      source: 'Khan Academy'
-    },
-    {
-      title: 'Cell Organelles and their Functions',
-      url: 'https://www.youtube.com/watch?v=8IlzKri08kk',
-      duration: '15:45',
-      source: 'Bozeman Science'
-    }
-  ],
-  recallAccuracy: 65,
-  quizScore: 72,
-  masteryLevel: 'Intermediate',
-  progress: 70,
-  notes: [
-    {
-      id: 'note-1',
-      text: 'Remember that mitochondria have their own DNA',
-      date: '2023-04-15'
-    },
-    {
-      id: 'note-2',
-      text: 'Review the difference between smooth and rough endoplasmic reticulum',
-      date: '2023-04-16'
-    }
-  ],
-  relatedConcepts: [
-    {
-      id: 'concept-2',
-      title: 'Cell Division',
-      subject: 'Biology'
-    },
-    {
-      id: 'concept-3',
-      title: 'Transport Across Cell Membrane',
-      subject: 'Biology'
-    }
-  ]
+  'concept-2': {
+    id: 'concept-2',
+    title: 'Cellular Respiration',
+    description: 'The process of breaking down glucose to release energy in the form of ATP',
+    subject: 'Biology',
+    chapter: 'Cell Biology',
+    topic: 'Cell Metabolism',
+    difficulty: 'hard',
+    progress: 45,
+    keyPoints: [
+      'Cellular respiration is the process of breaking down glucose to release energy',
+      'The complete breakdown of glucose yields 38 ATP molecules',
+      'The process occurs in three main stages: glycolysis, Krebs cycle, and electron transport chain',
+      'Aerobic respiration requires oxygen, while anaerobic does not',
+      'The final electron acceptor in aerobic respiration is oxygen'
+    ],
+    formulas: [
+      { id: 'f1', name: 'Net ATP Production', formula: 'C6H12O6 + 6O2 → 6CO2 + 6H2O + 38 ATP', explanation: 'The complete balanced equation for aerobic respiration of glucose' },
+      { id: 'f2', name: 'Anaerobic Respiration', formula: 'C6H12O6 → 2C3H6O3 + 2 ATP', explanation: 'The equation for anaerobic respiration (lactic acid fermentation)' }
+    ],
+    examRelevance: 'Very high priority for NEET. A favorite topic for numerical problems and MCQs.',
+    recallAccuracy: 58,
+    videoResources: [
+      { id: 'v1', title: 'Overview of Cellular Respiration', url: 'https://example.com/video3', duration: '12:15' },
+      { id: 'v2', title: 'Glycolysis Explained', url: 'https://example.com/video4', duration: '08:42' }
+    ],
+    questions: [
+      { 
+        id: 'q1', 
+        question: 'Where does glycolysis take place in the cell?',
+        options: ['Cytoplasm', 'Mitochondria', 'Chloroplast', 'Nucleus'],
+        correctAnswer: 'Cytoplasm',
+        explanation: 'Glycolysis, the first stage of cellular respiration, occurs in the cytoplasm of all cells.'
+      },
+      { 
+        id: 'q2', 
+        question: 'What is the net ATP production from glycolysis alone?',
+        options: ['2 ATP', '4 ATP', '32 ATP', '38 ATP'],
+        correctAnswer: '2 ATP',
+        explanation: 'Glycolysis produces a net gain of 2 ATP molecules per glucose molecule.'
+      }
+    ],
+    notes: [
+      { id: 'n1', content: 'Focus on understanding the electron transport chain', timestamp: '2023-11-01' }
+    ]
+  }
 };
 
 interface ConceptDetailViewProps {
   conceptId?: string;
 }
 
-const ConceptDetailView: React.FC<ConceptDetailViewProps> = ({ conceptId: propConceptId }) => {
-  const params = useParams();
+const ConceptDetailView: React.FC<ConceptDetailViewProps> = ({ conceptId }) => {
+  const [concept, setConcept] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [speaking, setSpeaking] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Use passed conceptId or get from URL params
-  const conceptId = propConceptId || params.conceptId || 'concept-1';
-  
-  // In a real app, you'd fetch this data based on the conceptId
-  const conceptData = mockConceptData;
-  
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isReadingAloud, setIsReadingAloud] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-  
-  const handleBookmark = () => {
-    setIsSaved(!isSaved);
-    toast({
-      title: isSaved ? "Bookmark removed" : "Bookmark added",
-      description: isSaved ? "Concept removed from your saved items" : "Concept saved for later review",
-    });
-  };
+  useEffect(() => {
+    // In a real app, fetch the concept data from an API
+    setLoading(true);
+    
+    setTimeout(() => {
+      if (conceptId && CONCEPT_DATA[conceptId]) {
+        setConcept(CONCEPT_DATA[conceptId]);
+      } else {
+        setConcept(CONCEPT_DATA['concept-1']); // Default to first concept if not found
+      }
+      setLoading(false);
+    }, 500);
+  }, [conceptId]);
   
   const handleReadAloud = () => {
-    if (!isReadingAloud) {
-      // Start reading
-      setIsReadingAloud(true);
-      const utterance = new SpeechSynthesisUtterance(
-        `${conceptData.title}. ${stripHtmlTags(conceptData.content)}`
-      );
-      utterance.onend = () => setIsReadingAloud(false);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      // Stop reading
+    if (!concept) return;
+    
+    if (speaking) {
       window.speechSynthesis.cancel();
-      setIsReadingAloud(false);
+      setSpeaking(false);
+      return;
     }
+    
+    let speech = new SpeechSynthesisUtterance();
+    speech.text = `${concept.title}. ${concept.description}. Key points: ${concept.keyPoints.join('. ')}`;
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+    
+    speech.onend = () => {
+      setSpeaking(false);
+    };
+    
+    window.speechSynthesis.speak(speech);
+    setSpeaking(true);
+    
+    toast({
+      title: "Reading concept aloud",
+      description: "Adjust volume as needed",
+    });
   };
   
   const handleAddNote = () => {
     toast({
       title: "Note added",
-      description: "Your note has been saved to this concept",
+      description: "Your note has been saved successfully",
     });
   };
   
-  const stripHtmlTags = (html: string) => {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || "";
+  const handleOpenFormulaLab = (formulaId: string) => {
+    if (conceptId) {
+      navigate(`/dashboard/student/concepts/${conceptId}/formula-lab?formula=${formulaId}`);
+    }
+  };
+  
+  if (loading) {
+    return <LoadingState message="Loading concept details..." />;
+  }
+  
+  if (!concept) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-semibold">Concept not found</h2>
+        <p className="mt-2 text-gray-500">The concept you're looking for doesn't exist</p>
+        <Button className="mt-4" onClick={() => navigate('/dashboard/student/concepts')}>
+          Go Back to Concepts
+        </Button>
+      </div>
+    );
+  }
+  
+  const difficultyColor = (difficulty: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'easy': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'medium': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'hard': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      default: return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+    }
   };
 
   return (
-    <SharedPageLayout
-      title={conceptData.title}
-      subtitle={`${conceptData.subject} > ${conceptData.chapter} > ${conceptData.topic}`}
-      showBackButton={true}
-      onBackButtonClick={handleGoBack}
-    >
-      <div className="space-y-6">
-        {/* Top card with concept overview and controls */}
-        <Card>
-          <CardHeader className="pb-0">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <CardTitle>{conceptData.title}</CardTitle>
-                  <Badge className={
-                    conceptData.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                    conceptData.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
-                    'bg-red-100 text-red-800'
-                  }>
-                    {conceptData.difficulty.charAt(0).toUpperCase() + conceptData.difficulty.slice(1)}
-                  </Badge>
-                </div>
-                <CardDescription>
-                  {conceptData.description}
-                </CardDescription>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                    {conceptData.subject}
-                  </Badge>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                    {conceptData.chapter}
-                  </Badge>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                    {conceptData.topic}
-                  </Badge>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleReadAloud}
-                  className={isReadingAloud ? "bg-blue-50 text-blue-700 border-blue-200" : ""}
-                >
-                  <Volume2 className="h-4 w-4 mr-1" />
-                  {isReadingAloud ? "Stop" : "Read Aloud"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={isSaved ? "default" : "outline"}
-                  onClick={handleBookmark}
-                >
-                  <Bookmark className={`h-4 w-4 ${isSaved ? "" : "mr-1"}`} />
-                  {!isSaved && "Save"}
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-1">
-            <div className="flex justify-between items-center py-2">
-              <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                <span className="font-medium">Mastery Level:</span>
-                <span>{conceptData.masteryLevel}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>{conceptData.progress}%</span>
-                <Progress value={conceptData.progress} className="w-20" />
-              </div>
-            </div>
-          </CardContent>
-          <CardContent className="pb-4 pt-0">
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span>Quiz Score: {conceptData.quizScore}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4 text-blue-500" />
-                <span>Recall Accuracy: {conceptData.recallAccuracy}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-amber-500" />
-                <span>NEET Importance: {conceptData.neetReferences.importanceLevel}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Main content tabs */}
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="key-points">Key Points</TabsTrigger>
-            <TabsTrigger value="formulas">Formulas</TabsTrigger>
-            <TabsTrigger value="practice">Practice</TabsTrigger>
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-          </TabsList>
-          
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Info className="h-5 w-5 mr-2" />
-                  Content
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div dangerouslySetInnerHTML={{ __html: conceptData.content }} />
-                
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="font-medium flex items-center">
-                    <FileCheck className="h-4 w-4 mr-2" />
-                    NEET Exam Relevance
-                  </h4>
-                  <p className="mt-2 text-gray-700 dark:text-gray-300">
-                    {conceptData.examRelevance}
-                  </p>
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded p-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Previous Year Questions</p>
-                      <p className="text-lg font-medium">{conceptData.neetReferences.previousYearQuestions}</p>
-                    </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded p-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Importance Level</p>
-                      <p className="text-lg font-medium">{conceptData.neetReferences.importanceLevel}</p>
-                    </div>
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded p-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Concept Weight</p>
-                      <p className="text-lg font-medium">{conceptData.neetReferences.conceptWeight}/10</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Notes section */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Pencil className="h-5 w-5 mr-2" />
-                    Your Notes
-                  </div>
-                  <Button size="sm" variant="outline" onClick={handleAddNote}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Add Note
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {conceptData.notes && conceptData.notes.length > 0 ? (
-                  <div className="space-y-3">
-                    {conceptData.notes.map(note => (
-                      <div key={note.id} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                        <p className="text-gray-700 dark:text-gray-300">{note.text}</p>
-                        <p className="text-xs text-gray-500 mt-1">Added on {note.date}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                    You haven't added any notes yet. Click "Add Note" to get started.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-            
-            {/* Common mistakes */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Lightbulb className="h-5 w-5 mr-2 text-amber-500" />
-                  Common Mistakes to Avoid
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {conceptData.commonMistakes.map((mistake, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="inline-flex items-center justify-center bg-red-100 text-red-600 rounded-full h-5 w-5 text-xs mr-2 mt-0.5">
-                        !
-                      </span>
-                      <span>{mistake}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Key Points Tab */}
-          <TabsContent value="key-points">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  Key Points to Remember
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {conceptData.keyPoints.map((point, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="inline-flex items-center justify-center bg-green-100 text-green-600 rounded-full h-5 w-5 text-xs mr-2 mt-0.5">
-                        {index + 1}
-                      </span>
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <div className="mt-6">
-                  <Button className="w-full">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Create Flashcards from Key Points
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Formulas Tab */}
-          <TabsContent value="formulas">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calculator className="h-5 w-5 mr-2" />
-                    Important Formulas
-                  </div>
-                  <Button size="sm">
-                    Practice Formulas
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {conceptData.formulas && conceptData.formulas.length > 0 ? (
-                  <div className="space-y-4">
-                    {conceptData.formulas.map((formula, index) => (
-                      <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h3 className="font-medium text-blue-600 dark:text-blue-400">{formula.name}</h3>
-                        <div className="bg-gray-50 dark:bg-gray-800 p-3 my-2 font-mono text-center">
-                          {formula.formula}
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{formula.explanation}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-gray-500 py-4">
-                    No formulas available for this concept.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Practice Tab */}
-          <TabsContent value="practice">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <FileCheck className="h-5 w-5 mr-2" />
-                  NEET-Style Practice Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {conceptData.exampleQuestions.map((q, index) => (
-                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="font-medium mb-3">
-                        Question {index + 1}: {q.question}
-                      </p>
-                      <div className="space-y-2 ml-2">
-                        {q.options.map((option, optIndex) => (
-                          <div key={optIndex} className="flex items-center">
-                            <div className={`h-5 w-5 rounded-full border mr-2 flex items-center justify-center
-                              ${option === q.answer ? 'bg-green-100 border-green-500 text-green-700' : 'border-gray-300'}`}>
-                              {option === q.answer && <CheckCircle className="h-3 w-3" />}
-                            </div>
-                            <span>{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Explanation:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{q.explanation}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-6 space-y-2">
-                  <Button className="w-full">
-                    Practice More Questions
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Take a Quiz on this Concept
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Resources Tab */}
-          <TabsContent value="resources">
-            <div className="space-y-4">
-              {/* Video Resources */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <Video className="h-5 w-5 mr-2" />
-                    Video Resources
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {conceptData.videos && conceptData.videos.map((video, index) => (
-                      <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <div className="flex justify-between">
-                          <h3 className="font-medium">{video.title}</h3>
-                          <Badge variant="outline">{video.duration}</Badge>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">Source: {video.source}</p>
-                        <div className="mt-3">
-                          <Button size="sm" variant="outline" asChild className="w-full">
-                            <a href={video.url} target="_blank" rel="noopener noreferrer">
-                              Watch Video
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Related Concepts */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Related Concepts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {conceptData.relatedConcepts.map((concept) => (
-                      <Button 
-                        key={concept.id} 
-                        variant="outline" 
-                        className="justify-start h-auto py-3"
-                        onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
-                      >
-                        <div className="text-left">
-                          <p className="font-medium">{concept.title}</p>
-                          <p className="text-xs text-gray-500">{concept.subject}</p>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Community Discussion */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    <div className="flex items-center">
-                      <MessageSquare className="h-5 w-5 mr-2" />
-                      Community Discussion
-                    </div>
-                    <Button size="sm">
-                      Ask a Question
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-gray-500 py-8">
-                    Join the discussion about this concept with other students preparing for NEET.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        {/* Bottom action buttons */}
-        <div className="flex flex-wrap gap-2 justify-between">
-          <Button variant="outline" onClick={handleGoBack} className="flex-shrink-0">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Study with Flashcards
-            </Button>
-            
-            <Button>
-              <FileCheck className="h-4 w-4 mr-2" />
-              Test Your Knowledge
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <div>
+            <h1 className="text-2xl font-bold">{concept.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{concept.description}</p>
+          </div>
+          <div className="mt-4 md:mt-0 flex items-center space-x-2">
+            <Badge className={difficultyColor(concept.difficulty)}>
+              {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
+            </Badge>
+            <Button variant="outline" size="sm" onClick={handleReadAloud}>
+              {speaking ? 'Stop Reading' : 'Read Aloud'}
             </Button>
           </div>
         </div>
+        
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge variant="outline" className="border-blue-300 text-blue-700 dark:text-blue-400">
+            {concept.subject}
+          </Badge>
+          {concept.chapter && (
+            <Badge variant="outline" className="border-purple-300 text-purple-700 dark:text-purple-400">
+              {concept.chapter}
+            </Badge>
+          )}
+          {concept.topic && (
+            <Badge variant="outline" className="border-green-300 text-green-700 dark:text-green-400">
+              {concept.topic}
+            </Badge>
+          )}
+        </div>
+        
+        <div className="mb-2">
+          <div className="flex justify-between mb-1">
+            <div className="flex items-center">
+              <BookOpen className="w-4 h-4 mr-1 text-blue-600" />
+              <span className="text-sm font-medium">Mastery Progress</span>
+            </div>
+            <span className="text-sm font-medium">{concept.progress}%</span>
+          </div>
+          <Progress value={concept.progress} className="h-2" />
+        </div>
+        
+        <div className="text-sm text-blue-600 dark:text-blue-400 mt-4">
+          <span className="font-medium">{concept.examRelevance}</span>
+        </div>
       </div>
-    </SharedPageLayout>
+      
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="formulas">Formulas</TabsTrigger>
+          <TabsTrigger value="practice">Practice</TabsTrigger>
+          <TabsTrigger value="videos">Videos</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="flex items-center text-lg font-medium mb-3">
+                    <Brain className="mr-2 h-5 w-5 text-blue-600" /> Key Points
+                  </h3>
+                  <ul className="space-y-2">
+                    {concept.keyPoints?.map((point: string, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-medium mr-2 mt-0.5">
+                          {index + 1}
+                        </span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="flex items-center text-lg font-medium mb-3">
+                    <Award className="mr-2 h-5 w-5 text-amber-600" /> Exam Relevance
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">{concept.examRelevance}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="formulas" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <h3 className="flex items-center text-lg font-medium mb-3">
+                  <FlaskConical className="mr-2 h-5 w-5 text-purple-600" /> Important Formulas
+                </h3>
+                
+                {concept.formulas?.map((formula: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                    <div className="flex justify-between">
+                      <h4 className="font-medium">{formula.name}</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleOpenFormulaLab(formula.id)}
+                      >
+                        Try in Formula Lab
+                      </Button>
+                    </div>
+                    <div className="mt-2 bg-white dark:bg-gray-900 border p-3 rounded-md font-mono text-center">
+                      {formula.formula}
+                    </div>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{formula.explanation}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="practice" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <h3 className="flex items-center text-lg font-medium mb-3">
+                  <FileCheck className="mr-2 h-5 w-5 text-green-600" /> NEET-Style Questions
+                </h3>
+                
+                {concept.questions?.map((question: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4 mb-4">
+                    <p className="font-medium mb-3">{index + 1}. {question.question}</p>
+                    <div className="space-y-2 ml-4 mb-4">
+                      {question.options.map((option: string, optIndex: number) => (
+                        <div key={optIndex} className="flex items-center space-x-2">
+                          <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${
+                            option === question.correctAnswer ? 'bg-green-100 border-green-500 text-green-700' : 'border-gray-300'
+                          }`}>
+                            {option === question.correctAnswer && <span className="text-xs">✓</span>}
+                          </div>
+                          <span>{option}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm">
+                      <strong>Explanation:</strong> {question.explanation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="videos" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <h3 className="flex items-center text-lg font-medium mb-3">
+                  <Video className="mr-2 h-5 w-5 text-red-600" /> Video Resources
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {concept.videoResources?.map((video: any, index: number) => (
+                    <div key={index} className="border rounded-lg p-4 flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="bg-red-100 dark:bg-red-900/20 p-2 rounded-full mr-3">
+                          <PlayCircle className="h-6 w-6 text-red-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{video.title}</p>
+                          <p className="text-sm text-gray-500">{video.duration}</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notes" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="flex items-center text-lg font-medium">
+                    <FileText className="mr-2 h-5 w-5 text-gray-600" /> Your Notes
+                  </h3>
+                  <Button size="sm" onClick={handleAddNote}>Add Note</Button>
+                </div>
+                
+                {concept.notes && concept.notes.length > 0 ? (
+                  <div className="space-y-3">
+                    {concept.notes?.map((note: any, index: number) => (
+                      <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                        <p>{note.content}</p>
+                        <p className="text-xs text-gray-500 mt-2">{note.timestamp}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border border-dashed rounded-lg">
+                    <FileText className="h-10 w-10 mx-auto text-gray-400" />
+                    <p className="mt-2 text-gray-500">No notes yet. Add your first note!</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

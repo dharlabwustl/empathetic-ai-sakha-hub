@@ -5,7 +5,7 @@ import DashboardOverview from "./DashboardOverview";
 import TodaysPlanView from "./todays-plan/TodaysPlanView";
 import StudyPlanView from "./studyplan/StudyPlanView";
 import ConceptsView from "./concepts/ConceptsView";
-import ConceptCardDetailPage from "@/components/dashboard/student/concepts/ConceptCardDetailPage";
+import ConceptDetailPage from "@/pages/dashboard/student/ConceptDetailPage";
 import FlashcardsView from "./flashcards/FlashcardsView";
 import NotificationsView from "./notifications/NotificationsView";
 import PracticeExamsView from "./practice-exam/PracticeExamsView";
@@ -29,7 +29,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/plan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
-      <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
