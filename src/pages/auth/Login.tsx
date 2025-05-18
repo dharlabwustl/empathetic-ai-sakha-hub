@@ -18,6 +18,7 @@ const Login = () => {
 
     // Check if user coming from signup flow
     const newUserSignup = localStorage.getItem('new_user_signup') === 'true';
+    const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
     // Handle any leftover admin login attempts
@@ -31,12 +32,13 @@ const Login = () => {
       return;
     }
     
-    if (newUserSignup && isLoggedIn) {
-      // Clear the signup flag
+    if ((newUserSignup || isGoogleSignup) && isLoggedIn) {
+      // Clear the signup flags
       localStorage.removeItem('new_user_signup');
+      localStorage.removeItem('google_signup');
       
       // Redirect to welcome flow
-      console.log("New user signup detected, redirecting to welcome flow");
+      console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
         navigate('/welcome-flow', { replace: true });
       }, 100);

@@ -14,13 +14,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const location = useLocation();
   const { user } = useAuth();
   
+  // Only play greeting on specific pages, not on concept pages or dashboard pages
+  const shouldPlayGreeting = location.pathname === '/' || 
+                            location.pathname.includes('/signup') ||
+                            location.pathname.includes('/welcome-back');
+  
   // If this is the homepage, use a 4-second delay to allow for page load
   // If this is another page, use a shorter delay
   const delayTime = location.pathname === '/' ? 4000 : 2000;
   
   useEffect(() => {
-    // Only play the greeting if speech synthesis is supported
-    if ('speechSynthesis' in window && !greetingPlayed) {
+    // Only play the greeting if speech synthesis is supported and we're on the right page
+    if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting) {
       const timer = setTimeout(() => {
         let message = '';
         const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
@@ -29,20 +34,20 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         if (location.pathname === '/') {
           if (user) {
             if (language === 'hi-IN') {
-              message = `Prep-zer पर वापस आने के लिए स्वागत है। क्या आप अपनी NEET परीक्षा की तैयारी जारी रखना चाहेंगे?`;
+              message = `प्रेप-ज़र पर वापस आने के लिए स्वागत है। क्या आप अपनी NEET परीक्षा की तैयारी जारी रखना चाहेंगे?`;
             } else {
               message = `Welcome back to Prep-zer. Would you like to continue your NEET exam preparation journey?`;
             }
           } else {
             if (language === 'hi-IN') {
-              message = `Prep-zer में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। क्या आप NEET के लिए हमारा मुफ्त परीक्षा तैयारी परीक्षण आज़माना चाहेंगे?`;
+              message = `प्रेप-ज़र में आपका स्वागत है, आपका AI-संचालित परीक्षा तैयारी प्लेटफॉर्म। मैं आपका आवाज सहायक हूँ और मैं आपको हमारी सुविधाओं के बारे में मार्गदर्शन कर सकता हूँ। क्या आप NEET के लिए हमारा मुफ्त परीक्षा तैयारी परीक्षण आज़माना चाहेंगे?`;
             } else {
               message = `Welcome to Prep-zer, your AI-powered exam preparation platform. I'm your voice assistant and I can guide you through our features. Would you like to try our free exam readiness test for NEET?`;
             }
           }
         } else if (location.pathname.includes('/signup')) {
           if (language === 'hi-IN') {
-            message = `Prep-zer के नि:शुल्क परीक्षण साइनअप में आपका स्वागत है। 7 दिनों के लिए हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
+            message = `प्रेप-ज़र के नि:शुल्क परीक्षण साइनअप में आपका स्वागत है। 7 दिनों के लिए हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ।`;
           } else {
             message = `Welcome to Prep-zer's free trial signup. Get access to our AI-powered exam preparation tools for 7 days. I'm here to help you get started.`;
           }
@@ -50,6 +55,12 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // If this is a Google signup, store this information for later use in the onboarding flow
           if (isGoogleSignup) {
             localStorage.setItem('needs_study_plan_creation', 'true');
+          }
+        } else if (location.pathname.includes('/welcome-back')) {
+          if (language === 'hi-IN') {
+            message = `प्रेप-ज़र पर वापस स्वागत है। बस अपने ईमेल और पासवर्ड के साथ लॉगिन करें और हम आपके पढ़ाई के यात्रा को जारी रख सकते हैं।`;
+          } else {
+            message = `Welcome back to Prep-zer. Simply log in with your email and password, and we can continue your study journey.`;
           }
         }
         
@@ -61,7 +72,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [location.pathname, user, greetingPlayed, delayTime, language]);
+    
+    // Reset the played state when navigating to a different page
+    return () => {
+      if (location.pathname) {
+        setGreetingPlayed(false);
+      }
+    };
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting]);
 
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -102,7 +120,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       // Set properties
       utterance.lang = language;
-      utterance.rate = 0.9; // Slightly slower for better comprehension
+      utterance.rate = 1.0; // Normal speed for better comprehension
       utterance.pitch = 1.1; // Slightly higher pitch for female voice
       utterance.volume = 0.8;
       

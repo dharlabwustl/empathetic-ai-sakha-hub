@@ -78,10 +78,19 @@ const ConceptCardDetailPage = () => {
       const contentToRead = `${conceptCard.title}. ${conceptCard.content}`;
       const utterance = new SpeechSynthesisUtterance(contentToRead);
       
-      // Try to find an English voice
-      const englishVoice = voices.find(voice => voice.lang.includes('en-'));
-      if (englishVoice) {
-        utterance.voice = englishVoice;
+      // Try to find an Indian English or Hindi voice
+      const indianVoice = voices.find(voice => 
+        voice.lang.includes('en-IN') || voice.lang.includes('hi-IN')
+      );
+      
+      if (indianVoice) {
+        utterance.voice = indianVoice;
+      } else {
+        // Fallback to any English voice
+        const englishVoice = voices.find(voice => voice.lang.includes('en-'));
+        if (englishVoice) {
+          utterance.voice = englishVoice;
+        }
       }
       
       utterance.rate = 0.9; // Slightly slower rate for better comprehension
@@ -115,9 +124,9 @@ const ConceptCardDetailPage = () => {
   
   // Mock data for related concepts
   const relatedConcepts = [
-    { id: 'c1', title: "Newton's Laws of Motion", subject: "Physics", difficulty: "Medium" },
-    { id: 'c4', title: "Conservation of Energy", subject: "Physics", difficulty: "Hard" },
-    { id: 'c7', title: "Momentum", subject: "Physics", difficulty: "Medium" }
+    { id: 'concept-2', title: "Newton's Laws of Motion", subject: "Physics", difficulty: "Medium" },
+    { id: 'concept-3', title: "Conservation of Energy", subject: "Physics", difficulty: "Hard" },
+    { id: 'concept-4', title: "Momentum", subject: "Physics", difficulty: "Medium" }
   ];
   
   // Mock attempt history data
