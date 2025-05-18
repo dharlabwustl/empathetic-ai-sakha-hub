@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
 
@@ -7,95 +7,90 @@ interface DashboardVoiceAssistantProps {
   userName?: string;
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
+  isFirstTimeUser?: boolean;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
-  userName = 'Student', 
+  userName = 'Student',
   currentMood,
-  onMoodChange
+  onMoodChange,
+  isFirstTimeUser = false
 }) => {
-  const [lastSpokenContext, setLastSpokenContext] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState<string>('');
+  const [alreadySpoke, setAlreadySpoke] = useState<boolean>(false);
   const location = useLocation();
+  const timerId = useRef<NodeJS.Timeout | null>(null);
   
-  // Only play context-specific messages when the page changes
-  useEffect(() => {
-    const currentPath = location.pathname;
-    
-    // Only speak if this is a different context than what was last spoken
-    if (currentPath !== lastSpokenContext) {
-      const contextInfo = getContextInfo(currentPath);
-      
-      if (contextInfo) {
-        // Add a short delay to allow page rendering
-        setTimeout(() => {
-          speakMessage(contextInfo);
-          setLastSpokenContext(currentPath);
-        }, 1200);
-      }
+  // A function to determine appropriate greeting based on pathname
+  const getContextGreeting = (pathname: string): string => {
+    if (isFirstTimeUser) {
+      return `Welcome to your personalized dashboard, ${userName}! This is where your learning journey begins. You'll find your study plan, concepts to learn, flashcards for practice, and more. I'm your voice assistant and I'll help you navigate through the platform. Let's start by exploring your dashboard!`;
     }
     
-    // Reset last spoken context when component unmounts
-    return () => {
-      window.speechSynthesis?.cancel();
-    };
-  }, [location.pathname, lastSpokenContext]);
-
-  const getContextInfo = (pathname: string): string | null => {
-    // Don't speak on these pages (they have their own greeting)
-    if (pathname.includes('/welcome-flow') || pathname === '/') {
-      return null;
+    // Different greetings for different dashboard sections
+    if (pathname.includes('/today')) {
+      return `Welcome to your daily plan, ${userName}. Here you'll find a personalized schedule of concepts, flashcards, and practice tests for today. Your Exam Readiness Score is being tracked as you complete each task.`;
+    } else if (pathname.includes('/concepts')) {
+      return `This is your concepts section. All the subjects and topics you need to master are organized here. You can read concept cards, listen to audio explanations, and test your knowledge.`;
+    } else if (pathname.includes('/flashcards')) {
+      return `Welcome to the flashcards section. This is where you can review key facts and formulas using our spaced repetition system for better memory retention.`;
+    } else if (pathname.includes('/practice-exam')) {
+      return `In the practice exam section, you can take full and partial practice tests that simulate your actual exam experience. Detailed analytics will show your strengths and areas for improvement.`;
+    } else if (pathname.includes('/analytics')) {
+      return `Your analytics dashboard shows your Exam Readiness Score and other key performance indicators. Use this data to adjust your study plan and focus on areas that need improvement.`;
+    } else {
+      // Default greeting for main dashboard
+      return `Welcome back to your dashboard, ${userName}! Your personalized study journey continues. Let me know if you need help with any of our platform features or have questions about your study plan.`;
     }
-    
-    if (pathname.includes('/dashboard/student/today')) {
-      return `Here's today's personalized study plan, ${userName}. I've prioritized your most important topics based on your progress and goals. Click on any concept or task to begin.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/overview')) {
-      return `Welcome to your dashboard overview, ${userName}. Here you can track your exam readiness score, weekly progress, and upcoming tasks.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/concepts/study')) {
-      return `I've loaded the concept details for you. You can read the material, take notes, and use the read aloud feature if you prefer listening. Links to related flashcards and practice questions are available below.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/concepts')) {
-      return `Here are all your study concepts, organized by subject. Click on any concept to study in detail or mark it for revision.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/flashcards')) {
-      return `These flashcards are designed to help you memorize key facts and formulas. Use the spaced repetition system for better retention.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/practice-exam')) {
-      return `Practice exams simulate real test conditions and help identify your weak areas. Complete these regularly to track your exam readiness.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/analytics')) {
-      return `Your analytics dashboard shows your progress over time. I've highlighted areas where you're excelling and where you might need more focus.`;
-    }
-    
-    if (pathname.includes('/dashboard/student/profile')) {
-      return `This is your profile page where you can update your personal information, preferences, and subscription details.`;
-    }
-    
-    // Default message for other dashboard pages
-    if (pathname.includes('/dashboard')) {
-      return `Welcome to your PREPZR dashboard, ${userName}. I'm here to help with your exam preparation.`;
-    }
-    
-    return null;
   };
-  
+
+  useEffect(() => {
+    // Don't speak if we've already spoken on this page visit or if we're in certain paths
+    if (alreadySpoke || location.pathname.includes('/settings') || location.pathname.includes('/profile')) {
+      return;
+    }
+    
+    // Clear any existing timers
+    if (timerId.current) {
+      clearTimeout(timerId.current);
+    }
+    
+    // Set a delay before speaking to avoid interrupting other components
+    timerId.current = setTimeout(() => {
+      const newGreeting = getContextGreeting(location.pathname);
+      setGreeting(newGreeting);
+      
+      // Only speak if we have a greeting and haven't spoken yet
+      if (newGreeting && !alreadySpoke) {
+        speakMessage(newGreeting);
+        setAlreadySpoke(true);
+        
+        // Reset the spoken flag after a navigation
+        setTimeout(() => {
+          setAlreadySpoke(false);
+        }, 60000); // Reset after 1 minute, so navigation within that time won't trigger voice again
+      }
+    }, 1500);
+    
+    // Clear timeout on unmount or route change
+    return () => {
+      if (timerId.current) {
+        clearTimeout(timerId.current);
+      }
+    };
+  }, [location.pathname, userName, isFirstTimeUser, alreadySpoke]);
+
   const speakMessage = (text: string) => {
-    if (!('speechSynthesis' in window)) return;
+    if (!text || !('speechSynthesis' in window)) return;
     
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Create a new utterance
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Create utterance
+    const correctedText = text.replace(/PREPZR/gi, 'Prep-zer');
+    const utterance = new SpeechSynthesisUtterance(correctedText);
     
-    // Load voices
+    // Get voices
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
@@ -134,16 +129,16 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
     
     // Set properties
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
     utterance.lang = 'en-IN';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.1; // Slightly higher for female voice
+    utterance.volume = 0.8;
     
-    // Speak the message
+    // Speak
     window.speechSynthesis.speak(utterance);
   };
 
-  // This component doesn't render anything visible
+  // Invisible component
   return null;
 };
 

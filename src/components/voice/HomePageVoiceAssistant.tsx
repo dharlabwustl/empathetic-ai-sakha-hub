@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
 
@@ -12,8 +12,26 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const location = useLocation();
   const { user } = useAuth();
+  const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Track user interaction to avoid annoying users with too many messages
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setLastInteractionTime(Date.now());
+    };
+    
+    // Track user interactions
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('scroll', handleUserInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('scroll', handleUserInteraction);
+    };
+  }, []);
   
   // Only play greeting on specific pages, not on concept pages or dashboard pages
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -24,6 +42,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // If this is the homepage, use a 4-second delay to allow for page load
   // If this is another page, use a shorter delay
   const delayTime = location.pathname === '/' ? 4000 : 2000;
+  
+  // Check if user has seen the homepage before to avoid repeating for returning visitors
+  const isReturningVisitor = localStorage.getItem('has_visited_homepage') === 'true';
   
   // Enhanced messages for the home page visitor experience
   const homePageMessages = [
@@ -67,6 +88,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   useEffect(() => {
     // Only play the greeting if speech synthesis is supported and we're on the right page
     if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting) {
+      // Skip initial greeting for returning visitors or show reduced greeting
+      if (isReturningVisitor && location.pathname === '/') {
+        // Mark as played and skip for returning visitor on homepage
+        setGreetingPlayed(true);
+        localStorage.setItem('has_visited_homepage', 'true');
+        return;
+      }
+      
       const timer = setTimeout(() => {
         let message = '';
         const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
@@ -78,8 +107,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           const messageObj = homePageMessages[currentMessageIndex];
           message = language.includes('hi') ? messageObj.hi : messageObj.en;
           
-          // Set up the next message to play after this one finishes
-          setCurrentMessageIndex((prevIndex) => (prevIndex + 1) % homePageMessages.length);
+          // Set flag to remember this visitor has been to the homepage
+          localStorage.setItem('has_visited_homepage', 'true');
+          
+          // Only schedule next message if user is actively engaged (hasn't clicked away or scrolled)
+          const timeSinceLastInteraction = Date.now() - lastInteractionTime;
+          if (timeSinceLastInteraction < 10000) { // 10 seconds threshold
+            // Set up the next message to play after this one finishes
+            setCurrentMessageIndex((prevIndex) => (prevIndex + 1) % homePageMessages.length);
+          } else {
+            // User seems disinterested, don't play more messages
+            setGreetingPlayed(true);
+          }
         } else if (location.pathname.includes('/signup')) {
           if (language === 'hi-IN') {
             message = `प्रेप-ज़र के प्रीमियम परीक्षण साइनअप में आपका स्वागत है। हमारे AI-संचालित परीक्षा तैयारी उपकरणों तक पहुंच प्राप्त करें। मैं आपको शुरू करने में मदद करने के लिए यहां हूँ। हमारी प्रीमियम सदस्यता के साथ आप परीक्षा की पूरी तैयारी कर सकते हैं। हम आपकी सदस्यता राजस्व का 5% वंचित छात्रों को शिक्षा देने के लिए उपयोग करते हैं।`;
@@ -110,27 +149,44 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           setGreetingPlayed(true);
           
           // For homepage, set a timer to play the next message after this one finishes
+          // but only if we're still on the homepage and this isn't the last message
           if (location.pathname === '/' && currentMessageIndex < homePageMessages.length - 1) {
             // Estimate speaking time based on message length (approx. 100 chars spoken per 5 seconds)
             const speakingTimeEstimate = Math.max(6000, message.length * 50);
             
-            setTimeout(() => {
-              setGreetingPlayed(false); // Reset so next message will play
+            if (messageTimerRef.current) {
+              clearTimeout(messageTimerRef.current);
+            }
+            
+            messageTimerRef.current = setTimeout(() => {
+              // Check if user is still engaged before playing next message
+              const timeSinceInteraction = Date.now() - lastInteractionTime;
+              if (timeSinceInteraction < 15000) { // Only continue if user interacted in last 15 seconds
+                setGreetingPlayed(false); // Reset so next message will play
+              }
+              messageTimerRef.current = null;
             }, speakingTimeEstimate);
           }
         }
       }, delayTime);
       
-      return () => clearTimeout(timer);
+      return () => {
+        if (timer) clearTimeout(timer);
+        if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+      };
     }
     
     // Reset the played state when navigating to a different page
     return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
+      
       if (location.pathname) {
         setGreetingPlayed(false);
       }
     };
-  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, currentMessageIndex]);
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, currentMessageIndex, isReturningVisitor, lastInteractionTime]);
 
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -187,10 +243,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         document.dispatchEvent(new Event('voice-speaking-ended'));
         
         // For home page, after utterance ends, trigger the next message if we haven't gone through all
+        // and if user is still engaged
         if (location.pathname === '/' && currentMessageIndex < homePageMessages.length - 1) {
-          setTimeout(() => {
-            setGreetingPlayed(false); // Reset to allow next message to play
-          }, 2000); // Short pause between messages
+          const timeSinceInteraction = Date.now() - lastInteractionTime;
+          if (timeSinceInteraction < 15000) { // Only continue if user interacted in last 15 seconds
+            setTimeout(() => {
+              setGreetingPlayed(false); // Reset to allow next message to play
+            }, 2000); // Short pause between messages
+          }
         }
       };
     }
