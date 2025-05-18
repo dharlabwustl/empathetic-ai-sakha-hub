@@ -1,23 +1,5 @@
 import { useState, useEffect } from 'react';
-
-export interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  subject: string;
-  chapter: string;
-  difficulty: string;
-  estimatedTime: number;
-  completed: boolean;
-  progress: number;
-  scheduledFor: 'today' | 'week' | 'month';
-  examples?: string[];
-  commonMistakes?: string[];
-  examRelevance?: string;
-  relatedConcepts?: string[];
-  notes?: string; // Added notes property
-}
+import { ConceptCard } from '@/types/user/conceptCard';
 
 export const useUserStudyPlan = () => {
   const [loading, setLoading] = useState(true);
@@ -53,7 +35,66 @@ export const useUserStudyPlan = () => {
             ],
             examRelevance: "Newton's Second Law is a critical concept in physics and frequently appears in IIT-JEE exams. You may encounter problems involving multiple forces, inclined planes, pulleys, or connected objects where you'll need to apply this law.",
             relatedConcepts: ["c4", "c7", "c12"],
-            notes: "" // Initialize empty notes
+            keyPoints: [
+              "The acceleration of an object is directly proportional to the net force acting on it",
+              "The acceleration is inversely proportional to the object's mass",
+              "The direction of acceleration is the same as the direction of the net force",
+              "Force and acceleration are vector quantities with both magnitude and direction"
+            ],
+            formulas: [
+              "F = ma",
+              "a = F/m",
+              "F = dp/dt (where p is momentum)",
+              "F = m(v₂-v₁)/t (for constant acceleration)"
+            ],
+            videos: [
+              {
+                id: "v1",
+                title: "Understanding Newton's Second Law",
+                url: "https://example.com/video1",
+                duration: "8:24",
+                thumbnail: "https://picsum.photos/seed/newton2/400/225"
+              },
+              {
+                id: "v2",
+                title: "Problem Solving with Newton's Second Law",
+                url: "https://example.com/video2",
+                duration: "12:10",
+                thumbnail: "https://picsum.photos/seed/newton2problems/400/225"
+              }
+            ],
+            resources: [
+              {
+                id: "r1",
+                title: "Newton's Laws Practice Problems",
+                type: "PDF Worksheet",
+                url: "https://example.com/newton_worksheet"
+              },
+              {
+                id: "r2",
+                title: "Interactive Force Simulator",
+                type: "Online Tool",
+                url: "https://example.com/force_simulator"
+              }
+            ],
+            practiceQuestions: [
+              {
+                id: "q1",
+                question: "A 5 kg object experiences a net force of 20 N. What is its acceleration?",
+                options: ["2 m/s²", "4 m/s²", "5 m/s²", "10 m/s²"],
+                correctAnswer: "4 m/s²",
+                explanation: "Using F = ma, we get a = F/m = 20N/5kg = 4 m/s²",
+                difficulty: "easy"
+              },
+              {
+                id: "q2",
+                question: "If the mass of an object is doubled while the net force remains constant, how does its acceleration change?",
+                options: ["Doubles", "Remains the same", "Reduces by half", "Quadruples"],
+                correctAnswer: "Reduces by half",
+                explanation: "From F = ma, if m doubles and F remains constant, a must be halved",
+                difficulty: "medium"
+              }
+            ]
           },
           {
             id: 'c2',
@@ -79,7 +120,21 @@ export const useUserStudyPlan = () => {
             ],
             examRelevance: "Cell biology is fundamental to understanding more complex biological processes. In NEET/IIT-JEE, you'll encounter questions on organelles, cellular processes, and differences between plant and animal cells.",
             relatedConcepts: ["c3", "c5", "c8"],
-            notes: "" // Initialize empty notes
+            keyPoints: [
+              "Cells are the fundamental units of life",
+              "Prokaryotic cells lack membrane-bound organelles",
+              "Eukaryotic cells contain specialized organelles with specific functions",
+              "Cell membrane regulates what enters and leaves the cell"
+            ],
+            videos: [
+              {
+                id: "v3",
+                title: "Cell Structure and Organelles",
+                url: "https://example.com/video3",
+                duration: "10:15",
+                thumbnail: "https://picsum.photos/seed/cellstructure/400/225"
+              }
+            ]
           },
           {
             id: 'c3',
@@ -289,6 +344,66 @@ export const useConceptCardDetails = (conceptId: string) => {
           ],
           examRelevance: "Newton's Second Law is a critical concept in physics and frequently appears in IIT-JEE exams. You may encounter problems involving multiple forces, inclined planes, pulleys, or connected objects where you'll need to apply this law.",
           relatedConcepts: ["c4", "c7", "c12"],
+          keyPoints: [
+            "The acceleration of an object is directly proportional to the net force acting on it",
+            "The acceleration is inversely proportional to the object's mass",
+            "The direction of acceleration is the same as the direction of the net force",
+            "Force and acceleration are vector quantities with both magnitude and direction"
+          ],
+          formulas: [
+            "F = ma",
+            "a = F/m",
+            "F = dp/dt (where p is momentum)",
+            "F = m(v₂-v₁)/t (for constant acceleration)"
+          ],
+          videos: [
+            {
+              id: "v1",
+              title: "Understanding Newton's Second Law",
+              url: "https://example.com/video1",
+              duration: "8:24",
+              thumbnail: "https://picsum.photos/seed/newton2/400/225"
+            },
+            {
+              id: "v2",
+              title: "Problem Solving with Newton's Second Law",
+              url: "https://example.com/video2",
+              duration: "12:10",
+              thumbnail: "https://picsum.photos/seed/newton2problems/400/225"
+            }
+          ],
+          resources: [
+            {
+              id: "r1",
+              title: "Newton's Laws Practice Problems",
+              type: "PDF Worksheet",
+              url: "https://example.com/newton_worksheet"
+            },
+            {
+              id: "r2",
+              title: "Interactive Force Simulator",
+              type: "Online Tool",
+              url: "https://example.com/force_simulator"
+            }
+          ],
+          practiceQuestions: [
+            {
+              id: "q1",
+              question: "A 5 kg object experiences a net force of 20 N. What is its acceleration?",
+              options: ["2 m/s²", "4 m/s²", "5 m/s²", "10 m/s²"],
+              correctAnswer: "4 m/s²",
+              explanation: "Using F = ma, we get a = F/m = 20N/5kg = 4 m/s²",
+              difficulty: "easy"
+            },
+            {
+              id: "q2",
+              question: "If the mass of an object is doubled while the net force remains constant, how does its acceleration change?",
+              options: ["Doubles", "Remains the same", "Reduces by half", "Quadruples"],
+              correctAnswer: "Reduces by half",
+              explanation: "From F = ma, if m doubles and F remains constant, a must be halved",
+              difficulty: "medium"
+            }
+          ],
           notes: localStorage.getItem(`concept-notes-${conceptId}`) || "" // Load saved notes if they exist
         };
         

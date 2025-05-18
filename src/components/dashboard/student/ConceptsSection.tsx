@@ -42,7 +42,7 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Ensure we always use the consistent routing pattern
+    // Update to use consistent routing pattern
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
@@ -79,7 +79,7 @@ const ConceptsSection = () => {
                 
                 <div className="flex items-center gap-1">
                   <BookOpen size={isMobile ? 12 : 14} />
-                  <span className="truncate">{card.chapter}</span>
+                  <span className="truncate">{card.chapter || 'General'}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">

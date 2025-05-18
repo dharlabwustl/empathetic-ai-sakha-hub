@@ -22,6 +22,8 @@ export interface ConceptCard {
   flashcardsCompleted?: number;
   examReady?: boolean;
   bookmarked?: boolean;
+  estimatedTime: number;
+  scheduledFor?: 'today' | 'week' | 'month';
   
   // Added fields for concept detail page
   keyPoints?: string[];
