@@ -2,184 +2,257 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BadgeCheck, Brain, Calendar, Clock, ListTodo, ArrowRight } from 'lucide-react';
-import { MoodType } from '@/types/user/base';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Calendar, Clock, BookOpen, Brain, FileText } from 'lucide-react';
+import { MoodType } from '@/types/user/base';
+
+interface StudyPlan {
+  date: string;
+  dailyGoal: string;
+  progress: number;
+  tasks: StudyTask[];
+}
+
+interface StudyTask {
+  id: string;
+  title: string;
+  type: 'concept' | 'flashcard' | 'quiz' | 'revision';
+  difficulty: 'easy' | 'medium' | 'hard';
+  timeEstimate: number;
+  completed: boolean;
+}
 
 interface TodaysPlanSectionProps {
-  studyPlan: any;
+  studyPlan?: any;
   currentMood?: MoodType;
 }
 
-const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ 
-  studyPlan,
-  currentMood 
-}) => {
+const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, currentMood }) => {
   const navigate = useNavigate();
   
-  // Render appropriate message based on mood
-  const getMoodBasedMessage = () => {
-    switch(currentMood) {
-      case MoodType.TIRED:
-      case MoodType.STRESSED:
-        return "Your plan has been adjusted for today based on your mood. Focus on lighter review tasks.";
-      case MoodType.FOCUSED:
-      case MoodType.MOTIVATED:
-        return "Great energy today! Your plan includes some challenging concepts to leverage your focus.";
-      default:
-        return "Your personalized study plan for today is ready.";
+  // Create mood-based study plans
+  const getMoodBasedStudyPlan = (mood?: MoodType): StudyPlan => {
+    const basePlan: StudyPlan = {
+      date: new Date().toLocaleDateString(),
+      dailyGoal: '4 hours',
+      progress: 35,
+      tasks: [
+        {
+          id: 'concept-1',
+          title: "Newton's Laws of Motion",
+          type: 'concept',
+          difficulty: 'medium',
+          timeEstimate: 30,
+          completed: false
+        },
+        {
+          id: 'flashcard-1',
+          title: "Chemical Bonds Flashcards",
+          type: 'flashcard',
+          difficulty: 'medium',
+          timeEstimate: 20,
+          completed: false
+        },
+        {
+          id: 'quiz-1',
+          title: "Algebra Practice Problems",
+          type: 'quiz',
+          difficulty: 'medium',
+          timeEstimate: 25,
+          completed: false
+        }
+      ]
+    };
+
+    // Adjust plan based on mood
+    if (mood) {
+      switch (mood) {
+        case MoodType.MOTIVATED:
+          return {
+            ...basePlan,
+            dailyGoal: '5 hours',
+            tasks: [
+              ...basePlan.tasks,
+              {
+                id: 'revision-1',
+                title: "Full Physics Revision",
+                type: 'revision',
+                difficulty: 'hard',
+                timeEstimate: 45,
+                completed: false
+              }
+            ]
+          };
+        case MoodType.FOCUSED:
+          return {
+            ...basePlan,
+            dailyGoal: '4.5 hours',
+            tasks: basePlan.tasks.map(task => ({
+              ...task,
+              difficulty: 'hard' as const
+            }))
+          };
+        case MoodType.TIRED:
+          return {
+            ...basePlan,
+            dailyGoal: '2.5 hours',
+            tasks: basePlan.tasks.slice(0, 2).map(task => ({
+              ...task,
+              difficulty: 'easy' as const,
+              timeEstimate: Math.max(15, task.timeEstimate - 10)
+            }))
+          };
+        case MoodType.ANXIOUS:
+          return {
+            ...basePlan,
+            dailyGoal: '3 hours',
+            tasks: basePlan.tasks.map(task => ({
+              ...task,
+              difficulty: 'easy' as const
+            }))
+          };
+        case MoodType.STRESSED:
+          return {
+            ...basePlan,
+            dailyGoal: '2 hours',
+            tasks: [
+              {
+                id: 'revision-2',
+                title: "Quick Recap of Key Concepts",
+                type: 'revision',
+                difficulty: 'easy',
+                timeEstimate: 20,
+                completed: false
+              },
+              {
+                id: 'flashcard-2',
+                title: "Basic Formula Review",
+                type: 'flashcard',
+                difficulty: 'easy',
+                timeEstimate: 15,
+                completed: false
+              }
+            ]
+          };
+        default:
+          return basePlan;
+      }
     }
+    
+    return basePlan;
   };
 
-  // Mood-based tasks modification
-  const getMoodBasedTasks = () => {
-    let taskCount = 5;
-    let focusArea = "Mixed subjects";
-    let difficulty = "Medium";
-    
-    switch(currentMood) {
-      case MoodType.TIRED:
-        taskCount = 3;
-        focusArea = "Review only";
-        difficulty = "Easy";
-        break;
-      case MoodType.STRESSED:
-        taskCount = 4;
-        focusArea = "Familiar concepts";
-        difficulty = "Easy to Medium";
-        break;
-      case MoodType.FOCUSED:
-        taskCount = 6;
-        focusArea = "Key concepts";
-        difficulty = "Medium to Hard";
-        break;
-      case MoodType.MOTIVATED:
-        taskCount = 7;
-        focusArea = "Advanced topics";
-        difficulty = "Hard";
-        break;
+  const plan = getMoodBasedStudyPlan(currentMood);
+
+  const getTaskIcon = (type: string) => {
+    switch (type) {
+      case 'concept':
+        return <BookOpen className="h-4 w-4" />;
+      case 'flashcard':
+        return <Brain className="h-4 w-4" />;
+      case 'quiz':
+      case 'revision':
+        return <FileText className="h-4 w-4" />;
       default:
-        break;
+        return null;
     }
-    
-    return {
-      taskCount,
-      focusArea,
-      difficulty
-    };
   };
   
-  const moodBasedTasks = getMoodBasedTasks();
-
-  // Navigate to concept detail when requested
-  const handleGoToConceptDetail = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}`);
+  const getDifficultyBadge = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Easy</Badge>;
+      case 'medium':
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Medium</Badge>;
+      case 'hard':
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Hard</Badge>;
+      default:
+        return null;
+    }
+  };
+  
+  const getTotalTime = (tasks: StudyTask[]) => {
+    return tasks.reduce((total, task) => total + task.timeEstimate, 0);
   };
 
-  // Upcoming tasks for today
-  const upcomingTasks = [
-    { id: "t1", title: "Chemical Bonding", type: "concept", time: "2:00 PM" },
-    { id: "t2", title: "Physics Flashcards", type: "flashcard", time: "4:30 PM" },
-    { id: "t3", title: "Biology Practice Quiz", type: "practice", time: "6:15 PM" }
-  ];
+  const handleTaskClick = (task: StudyTask) => {
+    if (task.type === 'concept') {
+      navigate(`/dashboard/student/concepts/${task.id}`);
+    } else if (task.type === 'flashcard') {
+      navigate('/dashboard/student/flashcards');
+    } else if (task.type === 'quiz') {
+      navigate('/dashboard/student/practice-exam');
+    }
+  };
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-violet-600" />
-            Today's Study Plan
-          </CardTitle>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <BadgeCheck className="h-3 w-3 mr-1" />
-            Personalized
-          </Badge>
+          <CardTitle>Today's Study Plan</CardTitle>
+          {currentMood && (
+            <Badge variant="outline" className="capitalize">
+              {currentMood.toLowerCase()} mood
+            </Badge>
+          )}
         </div>
       </CardHeader>
-      
       <CardContent>
         <div className="space-y-4">
-          <div className="text-sm text-muted-foreground border-l-4 border-violet-400 pl-3 py-1 bg-violet-50 dark:bg-violet-900/20 rounded-r-lg">
-            {getMoodBasedMessage()}
-          </div>
-          
-          <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-800/50">
-            <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Today's Plan</h4>
-            <ul className="space-y-1 text-sm">
-              <li className="flex justify-between">
-                <span>Tasks for today:</span>
-                <span className="font-medium">{moodBasedTasks.taskCount}</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Focus area:</span>
-                <span className="font-medium">{moodBasedTasks.focusArea}</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Difficulty level:</span>
-                <span className="font-medium">{moodBasedTasks.difficulty}</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Estimated time:</span>
-                <span className="font-medium">2h 15m</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Priority subject:</span>
-                <span className="font-medium">Physics</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-violet-500" />
-              Upcoming Tasks
-            </h4>
-            
-            <div className="space-y-2">
-              {upcomingTasks.map(task => (
-                <div 
-                  key={task.id} 
-                  className="border border-gray-200 dark:border-gray-800 rounded-lg p-2 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-900/30 cursor-pointer"
-                  onClick={() => {
-                    if (task.type === "concept") {
-                      navigate(`/dashboard/student/concepts/concept-1`);
-                    } else if (task.type === "flashcard") {
-                      navigate(`/dashboard/student/flashcards`);
-                    } else {
-                      navigate(`/dashboard/student/practice-exam`);
-                    }
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <ListTodo className="h-4 w-4 text-violet-500" />
-                    <span className="text-sm">{task.title}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">{task.time}</span>
-                    <ArrowRight className="h-3 w-3 text-gray-500" />
-                  </div>
-                </div>
-              ))}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>{plan.date}</span>
+            </div>
+            <div className="text-sm">
+              Goal: <span className="font-medium">{plan.dailyGoal}</span>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-2">
-            <Button 
-              onClick={() => navigate('/dashboard/student/today')}
-              variant="default"
-              className="w-full bg-violet-600 hover:bg-violet-700"
-            >
+          <div>
+            <div className="flex justify-between text-sm mb-1">
+              <span>Daily progress</span>
+              <span>{plan.progress}%</span>
+            </div>
+            <Progress value={plan.progress} className="h-2" />
+          </div>
+          
+          <div className="space-y-3 pt-2">
+            {plan.tasks.map((task, idx) => (
+              <div 
+                key={idx}
+                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                onClick={() => handleTaskClick(task)}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center gap-2">
+                    <div className={`p-1.5 rounded-full ${
+                      task.type === 'concept' ? 'bg-blue-100 text-blue-600' :
+                      task.type === 'flashcard' ? 'bg-purple-100 text-purple-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {getTaskIcon(task.type)}
+                    </div>
+                    <span className="font-medium">{task.title}</span>
+                  </div>
+                  {getDifficultyBadge(task.difficulty)}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3 mr-1" />
+                  <span>{task.timeEstimate} min</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex items-center justify-between text-sm pt-1">
+            <div>
+              Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
+            </div>
+            <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
               View Full Plan
-            </Button>
-            
-            <Button 
-              onClick={() => navigate('/dashboard/student/today')}
-              variant="outline"
-              className="w-full border-violet-200 text-violet-700 hover:bg-violet-50"
-            >
-              Upcoming Tasks
             </Button>
           </div>
         </div>

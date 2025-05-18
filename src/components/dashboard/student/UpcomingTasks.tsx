@@ -40,7 +40,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   const getTaskRoute = (task: Task) => {
     switch (task.type) {
       case 'concept':
-        return `/dashboard/student/concepts`;
+        return `/dashboard/student/concepts/${task.id}`;
       case 'flashcard':
         return `/dashboard/student/flashcards`;
       case 'exam':
