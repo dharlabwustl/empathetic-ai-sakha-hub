@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileType } from "@/types/user";
-import { Check, HeartIcon } from "lucide-react";
+import { Check, Heart } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 interface SubscriptionDetailsProps {
@@ -41,7 +41,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
                  (subscription.planType || "").charAt(0).toUpperCase() + (subscription.planType || "").slice(1) + " Plan";
       
       features = subscription.features || [];
-      expiryDate = subscription.endDate;
+      expiryDate = subscription.endDate || subscription.expiryDate;
       isActive = subscription.isActive || false;
     }
     
@@ -54,8 +54,13 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
     if (onUpgrade) {
       onUpgrade();
     } else {
+      // Correctly navigate to the subscription page
       navigate('/dashboard/student/subscription');
     }
+  };
+  
+  const handleManageSubscription = () => {
+    navigate('/dashboard/student/subscription');
   };
   
   // Default features for the free plan
@@ -94,7 +99,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
                     <p className="text-sm text-gray-500">Expires: {new Date(planDetails.expiryDate).toLocaleDateString()}</p>
                   )}
                 </div>
-                <Button onClick={handleUpgrade}>
+                <Button onClick={planDetails.isActive ? handleManageSubscription : handleUpgrade}>
                   {planDetails.isActive ? "Manage Plan" : "Upgrade"}
                 </Button>
               </div>
@@ -102,7 +107,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
             
             {/* Donation note */}
             <div className="bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 p-4 rounded-lg border border-pink-100 dark:border-pink-800/30 flex items-center gap-2">
-              <HeartIcon className="text-pink-500 h-5 w-5 flex-shrink-0" />
+              <Heart className="text-pink-500 h-5 w-5 flex-shrink-0" />
               <p className="text-sm">
                 <span className="font-medium">Making a difference together:</span>{" "}
                 We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
@@ -164,7 +169,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
               ) : (
                 <div className="text-center py-4 border rounded-md">
                   <p className="text-gray-500">No payment methods added</p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button variant="outline" size="sm" className="mt-2" onClick={handleManageSubscription}>
                     Add Payment Method
                   </Button>
                 </div>

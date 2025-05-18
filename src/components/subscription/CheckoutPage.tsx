@@ -1,10 +1,13 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, CheckCircle, CreditCard, Wallet } from 'lucide-react';
+import PaymentMethodSelector from './payment/PaymentMethodSelector';
+import CreditCardForm from './payment/CreditCardForm';
+import UPIPayment from './payment/UPIPayment';
+import NetBankingPayment from './payment/NetBankingPayment';
 import { SubscriptionPlan } from '@/types/user/base';
 
 interface CheckoutPageProps {
@@ -24,34 +27,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi'>('card');
-  const [cardDetails, setCardDetails] = useState({
-    number: '',
-    name: '',
-    expiry: '',
-    cvv: ''
-  });
-  const [upiId, setUpiId] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'upi' | 'net_banking' | 'wallet'>('credit_card');
   const [emails, setEmails] = useState<string[]>(invitedEmails);
-  const [newEmail, setNewEmail] = useState('');
 
-  const handleAddEmail = () => {
-    if (newEmail && !emails.includes(newEmail) && emails.length < 4) {
-      setEmails([...emails, newEmail]);
-      setNewEmail('');
-    }
-  };
-
-  const handleRemoveEmail = (email: string) => {
-    setEmails(emails.filter(e => e !== email));
-  };
-
-  const handlePaymentMethodChange = (method: 'card' | 'upi') => {
-    setPaymentMethod(method);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePaymentSubmit = async () => {
     setIsProcessing(true);
     
     // Simulate payment processing
@@ -67,6 +46,33 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
     }, 1500);
   };
 
+  // Render payment form based on selected method
+  const renderPaymentForm = () => {
+    switch(paymentMethod) {
+      case 'credit_card':
+        return <CreditCardForm onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'upi':
+        return <UPIPayment onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'net_banking':
+        return <NetBankingPayment onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'wallet':
+        return (
+          <div className="text-center py-8">
+            <p className="mb-4">Wallet payment options coming soon!</p>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setPaymentMethod('credit_card')}
+            >
+              Try another payment method
+            </Button>
+          </div>
+        );
+      default:
+        return <CreditCardForm onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+    }
+  };
+
   if (isComplete) {
     return (
       <div className="max-w-md mx-auto">
@@ -80,6 +86,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
             <p className="text-gray-600 mb-6">
               Your {selectedPlan.name} subscription has been activated.
+              <br />
+              <span className="text-sm text-green-600">
+                5% of your subscription helps fund education for underprivileged students.
+              </span>
             </p>
             <Button
               className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
@@ -104,7 +114,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             </CardHeader>
             <CardContent>
               <p className="font-bold text-lg">{selectedPlan.name} Plan</p>
-              <p className="text-gray-500">{selectedPlan.description}</p>
+              <p className="text-gray-500">{selectedPlan.description || 'Complete AI-powered learning companion'}</p>
               
               <div className="mt-4 border-t pt-4">
                 <div className="flex justify-between mb-2">
@@ -133,45 +143,22 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
             </CardContent>
           </Card>
           
-          {isGroupPlan && (
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle>Team Members</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500 mb-4">Invite up to 4 team members to join your group plan.</p>
-                
-                <div className="space-y-2 mb-4">
-                  {emails.map((email, index) => (
-                    <div key={index} className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                      <span className="flex-1 text-sm truncate">{email}</span>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="h-6 w-6 p-0"
-                        onClick={() => handleRemoveEmail(email)}
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  ))}
+          {/* Show donation information */}
+          <Card className="mt-4 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-purple-100 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 text-purple-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
                 </div>
-                
-                {emails.length < 4 && (
-                  <div className="flex gap-2">
-                    <Input 
-                      type="email" 
-                      placeholder="Enter email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button onClick={handleAddEmail}>Add</Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                <span className="font-medium">Making a difference</span>
+              </div>
+              <p className="text-xs text-gray-600">
+                5% of your subscription will help fund free access to our platform for underprivileged students.
+              </p>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Payment form */}
@@ -181,109 +168,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <CardTitle>Payment Method</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-4 mb-6">
-                <Button 
-                  type="button"
-                  variant={paymentMethod === 'card' ? 'default' : 'outline'}
-                  className={`flex-1 ${paymentMethod === 'card' ? 'bg-blue-600' : ''}`}
-                  onClick={() => handlePaymentMethodChange('card')}
-                >
-                  Credit/Debit Card
-                </Button>
-                <Button 
-                  type="button"
-                  variant={paymentMethod === 'upi' ? 'default' : 'outline'}
-                  className={`flex-1 ${paymentMethod === 'upi' ? 'bg-blue-600' : ''}`}
-                  onClick={() => handlePaymentMethodChange('upi')}
-                >
-                  UPI
-                </Button>
-              </div>
+              <PaymentMethodSelector 
+                selectedMethod={paymentMethod}
+                onSelectPaymentMethod={(method) => setPaymentMethod(method as 'credit_card' | 'upi' | 'net_banking' | 'wallet')}
+              />
               
-              <form onSubmit={handleSubmit}>
-                {paymentMethod === 'card' ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="card-number">Card Number</Label>
-                      <Input 
-                        id="card-number" 
-                        placeholder="1234 5678 9012 3456"
-                        value={cardDetails.number}
-                        onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
-                        required={paymentMethod === 'card'}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="card-name">Name on Card</Label>
-                      <Input 
-                        id="card-name" 
-                        placeholder="John Doe"
-                        value={cardDetails.name}
-                        onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
-                        required={paymentMethod === 'card'}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="expiry">Expiry Date</Label>
-                        <Input 
-                          id="expiry" 
-                          placeholder="MM/YY"
-                          value={cardDetails.expiry}
-                          onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
-                          required={paymentMethod === 'card'}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input 
-                          id="cvv" 
-                          placeholder="123"
-                          value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
-                          required={paymentMethod === 'card'}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="upi-id">UPI ID</Label>
-                      <Input 
-                        id="upi-id" 
-                        placeholder="your-upi-id@bank"
-                        value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
-                        required={paymentMethod === 'upi'}
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                <div className="mt-6">
-                  <Button 
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      `Pay ₹${selectedPlan.price}.00`
-                    )}
-                  </Button>
-                  
-                  <p className="text-xs text-center mt-4 text-gray-500">
-                    Your payment is secure and encrypted. By proceeding, you agree to our Terms of Service.
-                  </p>
-                </div>
-              </form>
+              <div className="mt-6">
+                {renderPaymentForm()}
+              </div>
             </CardContent>
           </Card>
         </div>

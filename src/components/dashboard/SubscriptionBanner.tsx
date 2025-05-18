@@ -2,7 +2,7 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { X, Crown, Calendar } from 'lucide-react';
+import { X, Crown, Calendar, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionBannerProps {
@@ -29,6 +29,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
   };
   
   const handleManageSubscription = () => {
+    // Correctly navigate to the subscription page
     navigate('/dashboard/student/subscription');
   };
 
@@ -120,6 +121,11 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({
               )}
             </p>
           )}
+          
+          <div className="flex items-center mt-1 text-xs text-pink-600">
+            <Heart className="w-3.5 h-3.5 mr-1 fill-pink-100" />
+            <span>Your contribution is making a difference!</span>
+          </div>
         </div>
         
         <Button variant="outline" size="sm" onClick={handleManageSubscription}>

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
-import CheckoutPage from '@/components/subscription/CheckoutPage';
+import PaymentFlow from '@/components/subscription/PaymentFlow';
 import { SubscriptionPlan } from '@/types/user/base';
 import { Heart } from 'lucide-react';
 
@@ -18,8 +18,7 @@ const SubscriptionPage: React.FC = () => {
   
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [isGroup, setIsGroup] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
+  const [showPayment, setShowPayment] = useState(false);
   
   // Get the current plan type from user profile
   const currentPlanId = user?.subscription?.planType?.toString() || 'free';
@@ -27,6 +26,7 @@ const SubscriptionPage: React.FC = () => {
   const handleSelectPlan = (plan: SubscriptionPlan, isGroupPlan: boolean) => {
     setSelectedPlan(plan);
     setIsGroup(isGroupPlan);
+    setShowPayment(true);
     
     if (isGroupPlan) {
       toast({
@@ -34,11 +34,14 @@ const SubscriptionPage: React.FC = () => {
         description: "You can invite team members after checkout"
       });
     }
-    
-    setShowCheckout(true);
   };
   
-  const handlePurchaseComplete = (plan: SubscriptionPlan, inviteCodes?: string[], emails?: string[]) => {
+  const handleCancelPayment = () => {
+    setShowPayment(false);
+    setSelectedPlan(null);
+  };
+  
+  const handlePurchaseComplete = (plan: SubscriptionPlan) => {
     // In a real app, this would typically happen via webhook
     // For demo purposes, we'll simulate updating the user profile
     
@@ -60,30 +63,17 @@ const SubscriptionPage: React.FC = () => {
       description: `You are now subscribed to the ${plan.name} plan`
     });
     
-    // For group plans, show invite codes
-    if (isGroup && inviteCodes && emails) {
-      // In a real app, you would email these
-      toast({
-        title: "Invite Codes Generated",
-        description: "Invite codes have been generated for your team members"
-      });
-    }
-    
     // Redirect to profile billing section
-    setTimeout(() => {
-      navigate('/dashboard/student/profile', { state: { activeTab: 'billing' } });
-    }, 1500);
+    navigate('/dashboard/student/profile', { state: { activeTab: 'billing' } });
   };
   
   return (
     <MainLayout>
-      {showCheckout && selectedPlan ? (
-        <CheckoutPage 
+      {showPayment && selectedPlan ? (
+        <PaymentFlow 
           selectedPlan={selectedPlan}
-          onCancel={() => setShowCheckout(false)}
+          onCancel={handleCancelPayment}
           onSuccess={handlePurchaseComplete}
-          isGroupPlan={isGroup}
-          invitedEmails={invitedEmails}
         />
       ) : (
         <div className="container py-8">
