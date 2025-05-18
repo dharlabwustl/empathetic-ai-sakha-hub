@@ -14,11 +14,22 @@ export interface MoodTheme {
 }
 
 export interface MoodThemesType {
-  [key: string]: MoodTheme;
+  [MoodType.Happy]: MoodTheme;
+  [MoodType.Focused]: MoodTheme;
+  [MoodType.Tired]: MoodTheme;
+  [MoodType.Stressed]: MoodTheme;
+  [MoodType.Curious]: MoodTheme;
+  [MoodType.Okay]: MoodTheme;
+  [MoodType.Overwhelmed]: MoodTheme;
+  [MoodType.Anxious]: MoodTheme;
+  [MoodType.Motivated]: MoodTheme;
+  [MoodType.Confused]: MoodTheme;
+  [MoodType.Neutral]: MoodTheme;
+  [MoodType.Sad]: MoodTheme;
 }
 
 export const MoodThemes: MoodThemesType = {
-  [MoodType.HAPPY]: {
+  [MoodType.Happy]: {
     backgroundColor: 'bg-amber-50',
     textColor: 'text-amber-800',
     borderColor: 'border-amber-200',
@@ -29,7 +40,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're in a great mood! Perfect time for challenging material.",
     studyTip: "Take advantage of your positive energy by tackling difficult concepts."
   },
-  [MoodType.FOCUSED]: {
+  [MoodType.Focused]: {
     backgroundColor: 'bg-blue-50',
     textColor: 'text-blue-800',
     borderColor: 'border-blue-200',
@@ -40,7 +51,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're highly focused today - perfect for deep work.",
     studyTip: "Use this focus for complex problem-solving or detailed note-taking."
   },
-  [MoodType.TIRED]: {
+  [MoodType.Tired]: {
     backgroundColor: 'bg-gray-50',
     textColor: 'text-gray-800',
     borderColor: 'border-gray-200',
@@ -51,7 +62,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're feeling tired - take it easy today.",
     studyTip: "Focus on review rather than new material, and take more frequent breaks."
   },
-  [MoodType.STRESSED]: {
+  [MoodType.Stressed]: {
     backgroundColor: 'bg-red-50',
     textColor: 'text-red-800',
     borderColor: 'border-red-200',
@@ -62,7 +73,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're feeling stressed - let's adjust your plan.",
     studyTip: "Try shorter study sessions with relaxation breaks in between."
   },
-  [MoodType.CURIOUS]: {
+  [MoodType.Curious]: {
     backgroundColor: 'bg-indigo-50',
     textColor: 'text-indigo-800',
     borderColor: 'border-indigo-200',
@@ -73,7 +84,7 @@ export const MoodThemes: MoodThemesType = {
     message: "Your curiosity is piqued - follow your interests!",
     studyTip: "Great time to explore new concepts or dive deeper into topics you enjoy."
   },
-  [MoodType.OKAY]: {
+  [MoodType.Okay]: {
     backgroundColor: 'bg-green-50',
     textColor: 'text-green-800',
     borderColor: 'border-green-200',
@@ -84,7 +95,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're feeling balanced - steady progress ahead.",
     studyTip: "Good day for a mix of review and new material."
   },
-  [MoodType.OVERWHELMED]: {
+  [MoodType.Overwhelmed]: {
     backgroundColor: 'bg-purple-50',
     textColor: 'text-purple-800',
     borderColor: 'border-purple-200',
@@ -95,7 +106,7 @@ export const MoodThemes: MoodThemesType = {
     message: "Feeling overwhelmed? Let's break things down.",
     studyTip: "Focus on one small task at a time. Celebrate small wins."
   },
-  [MoodType.ANXIOUS]: {
+  [MoodType.Anxious]: {
     backgroundColor: 'bg-orange-50',
     textColor: 'text-orange-800',
     borderColor: 'border-orange-200',
@@ -106,7 +117,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're feeling anxious - let's find some calm.",
     studyTip: "Start with easy review to build confidence before tackling new material."
   },
-  [MoodType.MOTIVATED]: {
+  [MoodType.Motivated]: {
     backgroundColor: 'bg-emerald-50',
     textColor: 'text-emerald-800',
     borderColor: 'border-emerald-200',
@@ -117,7 +128,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're highly motivated - let's make the most of it!",
     studyTip: "Great time to tackle your most challenging subjects or assignments."
   },
-  [MoodType.CONFUSED]: {
+  [MoodType.Confused]: {
     backgroundColor: 'bg-cyan-50',
     textColor: 'text-cyan-800',
     borderColor: 'border-cyan-200',
@@ -128,7 +139,7 @@ export const MoodThemes: MoodThemesType = {
     message: "Feeling confused? Let's build clarity.",
     studyTip: "Go back to basics and focus on understanding fundamentals first."
   },
-  [MoodType.NEUTRAL]: {
+  [MoodType.Neutral]: {
     backgroundColor: 'bg-slate-50',
     textColor: 'text-slate-800',
     borderColor: 'border-slate-200',
@@ -139,7 +150,7 @@ export const MoodThemes: MoodThemesType = {
     message: "You're in a neutral mood - steady and balanced.",
     studyTip: "Follow your regular study plan - good day for consistent work."
   },
-  [MoodType.SAD]: {
+  [MoodType.Sad]: {
     backgroundColor: 'bg-sky-50',
     textColor: 'text-sky-800',
     borderColor: 'border-sky-200',
@@ -153,5 +164,5 @@ export const MoodThemes: MoodThemesType = {
 };
 
 export const getMoodTheme = (mood: MoodType): MoodTheme => {
-  return MoodThemes[mood] || MoodThemes[MoodType.NEUTRAL];
+  return MoodThemes[mood] || MoodThemes[MoodType.Neutral];
 };

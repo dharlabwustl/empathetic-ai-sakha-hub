@@ -1,203 +1,185 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from '@/hooks/use-toast';
-import { CreditCard, Check } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, CheckCircle, CreditCard, Wallet } from 'lucide-react';
+import PaymentMethodSelector from './payment/PaymentMethodSelector';
+import CreditCardForm from './payment/CreditCardForm';
+import UPIPayment from './payment/UPIPayment';
+import NetBankingPayment from './payment/NetBankingPayment';
 import { SubscriptionPlan } from '@/types/user/base';
 
 interface CheckoutPageProps {
   selectedPlan: SubscriptionPlan;
-  isGroupPlan?: boolean;
-  invitedEmails?: string[];
   onCancel: () => void;
   onSuccess: (plan: SubscriptionPlan, inviteCodes?: string[], emails?: string[]) => void;
+  isGroupPlan?: boolean;
+  invitedEmails?: string[];
 }
 
 const CheckoutPage: React.FC<CheckoutPageProps> = ({
   selectedPlan,
-  isGroupPlan = false,
-  invitedEmails = [],
   onCancel,
-  onSuccess
+  onSuccess,
+  isGroupPlan = false,
+  invitedEmails = []
 }) => {
-  const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Form state
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!cardNumber || !cardName || !expiryDate || !cvv) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all payment details",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  const [isComplete, setIsComplete] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'upi' | 'net_banking' | 'wallet'>('credit_card');
+  const [emails, setEmails] = useState<string[]>(invitedEmails);
+
+  const handlePaymentSubmit = async () => {
     setIsProcessing(true);
     
     // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setIsProcessing(false);
+    setIsComplete(true);
+    
+    // Simulate successful payment
     setTimeout(() => {
-      setIsProcessing(false);
-      
-      // Simulate success
-      toast({
-        title: "Payment Successful",
-        description: `You have successfully subscribed to the ${selectedPlan.name} plan!`,
-      });
-      
-      // Pass back to parent component
-      onSuccess(selectedPlan, undefined, invitedEmails);
-    }, 2000);
+      const mockInviteCodes = isGroupPlan ? emails.map(() => `PREP-${Math.random().toString(36).substring(2, 8).toUpperCase()}`) : undefined;
+      onSuccess(selectedPlan, mockInviteCodes, isGroupPlan ? emails : undefined);
+    }, 1500);
   };
-  
-  const formatCardNumber = (value: string) => {
-    // Remove any non-digit characters
-    const digits = value.replace(/\D/g, '');
-    
-    // Limit to 16 digits
-    const truncated = digits.slice(0, 16);
-    
-    // Add spaces every 4 digits
-    const formatted = truncated.replace(/(\d{4})(?=\d)/g, '$1 ');
-    
-    setCardNumber(formatted);
-  };
-  
-  const formatExpiryDate = (value: string) => {
-    // Remove any non-digit characters
-    const digits = value.replace(/\D/g, '');
-    
-    // Format as MM/YY
-    if (digits.length >= 3) {
-      setExpiryDate(`${digits.slice(0, 2)}/${digits.slice(2, 4)}`);
-    } else {
-      setExpiryDate(digits);
+
+  // Render payment form based on selected method
+  const renderPaymentForm = () => {
+    switch(paymentMethod) {
+      case 'credit_card':
+        return <CreditCardForm onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'upi':
+        return <UPIPayment onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'net_banking':
+        return <NetBankingPayment onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
+      case 'wallet':
+        return (
+          <div className="text-center py-8">
+            <p className="mb-4">Wallet payment options coming soon!</p>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setPaymentMethod('credit_card')}
+            >
+              Try another payment method
+            </Button>
+          </div>
+        );
+      default:
+        return <CreditCardForm onSubmit={handlePaymentSubmit} isProcessing={isProcessing} />;
     }
   };
 
+  if (isComplete) {
+    return (
+      <div className="max-w-md mx-auto">
+        <Card className="border-green-200">
+          <CardContent className="pt-6 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-green-100 p-3">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-6">
+              Your {selectedPlan.name} subscription has been activated.
+              <br />
+              <span className="text-sm text-green-600">
+                5% of your subscription helps fund education for underprivileged students.
+              </span>
+            </p>
+            <Button
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+              onClick={() => onSuccess(selectedPlan)}
+            >
+              Continue to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Payment Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Order Summary */}
-          <div className="bg-muted/50 p-4 rounded-lg mb-6">
-            <h3 className="font-medium mb-2">Order Summary</h3>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Plan</span>
-              <span className="font-medium">{selectedPlan.name} {isGroupPlan ? '(Group)' : '(Individual)'}</span>
-            </div>
-            
-            {isGroupPlan && (
-              <div className="flex justify-between text-sm mb-1">
-                <span>Members</span>
-                <span className="font-medium">{invitedEmails.length + 1} (You + {invitedEmails.length} invites)</span>
+    <div className="container max-w-4xl mx-auto">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Order summary */}
+        <div className="w-full md:w-1/3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-bold text-lg">{selectedPlan.name} Plan</p>
+              <p className="text-gray-500">{selectedPlan.description || 'Complete AI-powered learning companion'}</p>
+              
+              <div className="mt-4 border-t pt-4">
+                <div className="flex justify-between mb-2">
+                  <span>Subscription</span>
+                  <span>₹{selectedPlan.price}.00</span>
+                </div>
+                {selectedPlan.id.includes('annual') && (
+                  <div className="flex justify-between mb-2 text-green-600">
+                    <span>Savings (2 months)</span>
+                    <span>-₹{Math.round(selectedPlan.price / 6)}.00</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-lg border-t border-dashed mt-2 pt-2">
+                  <span>Total</span>
+                  <span>₹{selectedPlan.price}.00</span>
+                </div>
               </div>
-            )}
-            
-            <div className="flex justify-between text-sm mb-1">
-              <span>Duration</span>
-              <span className="font-medium">{selectedPlan.id.includes('annual') ? 'Annual' : 'Monthly'}</span>
-            </div>
-            
-            <Separator className="my-2" />
-            
-            <div className="flex justify-between font-medium">
-              <span>Total</span>
-              <span>${selectedPlan.price.toFixed(2)} {selectedPlan.id.includes('annual') ? '/year' : '/month'}</span>
-            </div>
-          </div>
+              
+              <Button
+                variant="outline"
+                className="w-full mt-6"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+            </CardContent>
+          </Card>
           
-          {/* Payment Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Cardholder Name</Label>
-                <Input 
-                  id="name" 
-                  placeholder="Name on card" 
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="number">Card Number</Label>
-                <Input 
-                  id="number" 
-                  placeholder="XXXX XXXX XXXX XXXX" 
-                  value={cardNumber}
-                  onChange={(e) => formatCardNumber(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="expiry">Expiry Date</Label>
-                  <Input 
-                    id="expiry" 
-                    placeholder="MM/YY" 
-                    value={expiryDate}
-                    onChange={(e) => formatExpiryDate(e.target.value)}
-                    required
-                  />
+          {/* Show donation information */}
+          <Card className="mt-4 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-purple-100 p-1 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 text-purple-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="cvv">CVV</Label>
-                  <Input 
-                    id="cvv"
-                    placeholder="XXX"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                    required
-                    type="password"
-                  />
-                </div>
+                <span className="font-medium">Making a difference</span>
               </div>
-            </div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={onCancel} disabled={isProcessing}>
-            Back
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Complete Payment
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+              <p className="text-xs text-gray-600">
+                5% of your subscription will help fund free access to our platform for underprivileged students.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Payment form */}
+        <div className="w-full md:w-2/3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Method</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PaymentMethodSelector 
+                selectedMethod={paymentMethod}
+                onSelectPaymentMethod={(method) => setPaymentMethod(method as 'credit_card' | 'upi' | 'net_banking' | 'wallet')}
+              />
+              
+              <div className="mt-6">
+                {renderPaymentForm()}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
