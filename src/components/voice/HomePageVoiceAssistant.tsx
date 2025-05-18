@@ -44,7 +44,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             if (language === 'hi-IN') {
               message = `प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है। हमारी प्रीमियम सदस्यता से आपको व्यक्तिगत मार्गदर्शन मिलेगा।`;
             } else {
-              message = `Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription provides personalized guidance to maximize your exam performance. The best part? We donate 5% of subscription revenue to provide access for underprivileged students.`;
+              message = `Welcome to PREPZR, your AI-powered exam preparation platform. Our premium subscription provides personalized guidance to maximize your exam performance. We allocate 5% of subscription revenue to provide access for underprivileged students.`;
             }
           }
         } else if (location.pathname.includes('/signup')) {

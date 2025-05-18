@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Volume } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { MoodType } from '@/types/user/base';
 import { useLocation } from 'react-router-dom';
 
-const moodMap = {
+// Map of text terms to mood types
+const moodMap: Record<string, MoodType> = {
   "happy": MoodType.HAPPY,
   "motivated": MoodType.MOTIVATED,
   "focused": MoodType.FOCUSED,
@@ -48,62 +48,158 @@ const getContextResponse = (pathname: string) => {
   return "I'm your voice assistant. Ask me questions about your studies, and I'll guide you through PREPZR's features to help you prepare for your exams.";
 };
 
-const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+interface FloatingVoiceAnnouncerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen, onClose }) => {
   const { toast } = useToast();
   const [command, setCommand] = useState<string>('');
   const [mood, setMood] = useState<MoodType | null>(null);
   const [isListeningMode, setIsListeningMode] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const location = useLocation();
   
-  const { 
-    voiceSettings, 
-    toggleMute, 
-    isVoiceSupported, 
-    isSpeaking, 
-    isListening, 
-    startListening, 
-    stopListening, 
-    transcript, 
-    processVoiceCommand,
-    speak
-  } = useVoiceAnnouncer();
+  // Function to handle voice commands
+  const processVoiceCommand = (command: string) => {
+    // Implement processing of voice commands
+    console.log("Processing command:", command);
+    
+    // Simple response system
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
+      speakMessage("Hello! How can I help you with your studies today?");
+      return;
+    }
+    
+    if (lowerCommand.includes('today') || lowerCommand.includes('plan')) {
+      speakMessage("Your study plan for today includes reviewing biology concepts, practicing chemistry flashcards, and taking a short physics quiz. Would you like me to open your daily plan?");
+      return;
+    }
+    
+    if (lowerCommand.includes('exam') || lowerCommand.includes('test')) {
+      speakMessage("Based on your current progress, your exam readiness score is 72%. To improve, focus on the weak areas I've identified in your analytics.");
+      return;
+    }
+    
+    // Default response
+    speakMessage("I'm not sure how to help with that specific request. You can ask me about your study plan, exam readiness, or available learning resources.");
+  };
   
   const handleClose = () => {
     onClose();
   };
   
   const handleMuteToggle = () => {
-    toggleMute();
+    setIsMuted(!isMuted);
+    
+    if (!isMuted) {
+      // If currently not muted and about to be muted, stop any speech
+      window.speechSynthesis?.cancel();
+      setIsSpeaking(false);
+    }
   };
   
-  const handleStartListening = () => {
-    startListening();
+  const speakMessage = (text: string) => {
+    if (!('speechSynthesis' in window) || isMuted) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    setIsSpeaking(true);
+    
+    // Create a new utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Load voices
+    const voices = window.speechSynthesis.getVoices();
+    let selectedVoice = null;
+    
+    // Try to find an Indian English voice
+    const preferredVoiceNames = [
+      'Google English India', 'Microsoft Kajal', 'en-IN',
+      'Indian', 'India'
+    ];
+    
+    // Try to find a preferred voice
+    for (const name of preferredVoiceNames) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(name.toLowerCase()) || 
+        v.lang?.toLowerCase().includes(name.toLowerCase())
+      );
+      if (voice) {
+        selectedVoice = voice;
+        break;
+      }
+    }
+    
+    // If still no voice selected, try to find any female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        v.name?.toLowerCase().includes('female')
+      );
+    }
+    
+    // If still nothing, use any available voice
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices[0];
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    
+    // Set properties
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    utterance.lang = 'en-IN';
+    
+    // Event handlers
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+    };
+    
+    // Speak the message
+    window.speechSynthesis.speak(utterance);
+  };
+  
+  // Simulate speech recognition
+  const startListening = () => {
     setIsListeningMode(true);
+    toast({
+      title: "Listening...",
+      description: "Say something like 'Tell me about my study plan'",
+    });
+    
+    // Simulate recognition result after 3 seconds
+    setTimeout(() => {
+      setCommand("Tell me about today's plan");
+      processVoiceCommand("Tell me about today's plan");
+      setIsListeningMode(false);
+    }, 3000);
   };
   
-  const handleStopListening = () => {
-    stopListening();
+  const stopListening = () => {
     setIsListeningMode(false);
   };
 
   // Speak context-specific information when the announcer is opened
   useEffect(() => {
-    if (isOpen && !isSpeaking && voiceSettings && !voiceSettings.muted) {
+    if (isOpen && !isSpeaking && !isMuted) {
       const contextResponse = getContextResponse(location.pathname);
-      if (contextResponse && speak) {
-        speak(contextResponse);
+      if (contextResponse) {
+        speakMessage(contextResponse);
       }
     }
-  }, [isOpen, location.pathname, speak, isSpeaking, voiceSettings]);
-  
-  // Process transcript when it changes and listening mode is active
-  useEffect(() => {
-    if (transcript && isListeningMode) {
-      setCommand(transcript);
-      processVoiceCommand(transcript);
-      handleStopListening();
-    }
-  }, [transcript, isListeningMode, processVoiceCommand]);
+  }, [isOpen, location.pathname, isMuted]);
   
   // Mood detection logic
   useEffect(() => {
@@ -139,7 +235,7 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
       
       <div className="mb-3">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          {isVoiceSupported ? 'Voice commands are supported.' : 'Voice commands are not supported in this browser.'}
+          {'speechSynthesis' in window ? 'Voice commands are supported.' : 'Voice commands are not supported in this browser.'}
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {isSpeaking ? 'Currently speaking...' : 'Ready for your command.'}
@@ -151,16 +247,16 @@ const FloatingVoiceAnnouncer: React.FC<{ isOpen: boolean; onClose: () => void }>
           onClick={handleMuteToggle}
           className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm transition-colors"
         >
-          {voiceSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          {voiceSettings.muted ? 'Unmute' : 'Mute'}
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          {isMuted ? 'Unmute' : 'Mute'}
         </button>
         
         <button 
-          onClick={isListening ? handleStopListening : handleStartListening}
-          className={`px-4 py-2 rounded-md text-sm transition-colors ${isListening ? 'bg-red-500 hover:bg-red-700 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
-          disabled={!isVoiceSupported}
+          onClick={isListeningMode ? stopListening : startListening}
+          className={`px-4 py-2 rounded-md text-sm transition-colors ${isListeningMode ? 'bg-red-500 hover:bg-red-700 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
+          disabled={!('speechSynthesis' in window)}
         >
-          {isListening ? 'Stop Listening' : 'Start Listening'}
+          {isListeningMode ? 'Stop Listening' : 'Start Listening'}
         </button>
       </div>
       
