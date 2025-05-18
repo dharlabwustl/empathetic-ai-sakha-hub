@@ -42,6 +42,11 @@ const AdminLogin = () => {
     
     try {
       console.log("Submitting admin login form with email:", email);
+      
+      // Clear any existing student login data
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userData');
+      
       const success = await adminLogin(email, password);
       
       if (success) {
@@ -50,6 +55,9 @@ const AdminLogin = () => {
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
+        
+        // Mark admin as logged in
+        localStorage.setItem('admin_logged_in', 'true');
         
         // Use setTimeout to ensure state updates have propagated
         setTimeout(() => {

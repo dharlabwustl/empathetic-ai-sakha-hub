@@ -139,7 +139,7 @@ const PostLoginWelcomeBack = () => {
       
       {/* Study Plan Creation Dialog for Google signup users */}
       <Dialog open={showStudyPlanDialog} onOpenChange={setShowStudyPlanDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create Your Personalized Study Plan</DialogTitle>
             <DialogDescription>
@@ -157,7 +157,7 @@ const PostLoginWelcomeBack = () => {
             </ul>
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="sm:justify-between">
             <Button variant="outline" onClick={navigateToDashboard}>Skip for now</Button>
             <Button onClick={handleCreateStudyPlan}>Create Study Plan</Button>
           </DialogFooter>
