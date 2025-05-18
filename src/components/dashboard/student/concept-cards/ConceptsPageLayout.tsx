@@ -63,8 +63,6 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
             <SectionHeader 
               title={title} 
               subtitle={subtitle}
-              titleClassName={isMobile ? "text-lg" : ""}
-              subtitleClassName={isMobile ? "text-xs" : ""}
             />
           </motion.div>
         )}

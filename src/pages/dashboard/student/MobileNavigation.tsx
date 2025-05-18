@@ -36,7 +36,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
-    navigate(`/dashboard/student/${tab}`);
+    navigate(`/dashboard/student/${tab === 'overview' ? '' : tab}`);
   };
 
   if (!isMobile) {
@@ -46,13 +46,13 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   return (
     <TooltipProvider>
       <ScrollArea className="md:hidden mb-4 w-full">
-        <div className="flex gap-1 px-1 pb-2 overflow-x-auto">
+        <div className="flex gap-1 px-1 pb-2 overflow-x-auto snap-x snap-mandatory">
           {navItems.map((item) => (
             <Tooltip key={item.tab}>
               <TooltipTrigger asChild>
                 <Button
                   variant={activeTab === item.tab ? "default" : "outline"}
-                  className={`flex-shrink-0 shadow-sm px-2 ${
+                  className={`flex-shrink-0 shadow-sm px-2 snap-center min-w-[80px] ${
                     activeTab === item.tab 
                       ? "bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600" 
                       : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
@@ -61,7 +61,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                   onClick={() => handleTabChange(item.tab)}
                 >
                   {item.icon}
-                  <span className="ml-1 text-xs">{item.title}</span>
+                  <span className="ml-1 text-xs whitespace-nowrap">{item.title}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

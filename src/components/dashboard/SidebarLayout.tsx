@@ -2,7 +2,7 @@
 import React, { ReactNode, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UniversalSidebar from './UniversalSidebar';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SidebarLayoutProps {
@@ -25,10 +25,11 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
           {isMobile && (
             <Button 
               variant="ghost" 
-              className="absolute top-4 right-2"
+              size="sm"
+              className="absolute top-4 right-2 p-1"
               onClick={() => setShowMobileSidebar(false)}
             >
-              ✕
+              <X className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -38,11 +39,11 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
       {isMobile && !showMobileSidebar && (
         <Button
           variant="outline"
-          size="icon"
-          className="fixed left-4 top-4 z-40 md:hidden"
+          size="sm"
+          className="fixed left-4 top-4 z-40 md:hidden p-1"
           onClick={() => setShowMobileSidebar(true)}
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </Button>
       )}
       

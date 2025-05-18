@@ -3,7 +3,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashboardOverview from "./DashboardOverview";
 import TodaysPlanView from "./todays-plan/TodaysPlanView";
-import StudyPlanView from "./studyplan/StudyPlanView";
+import StudyPlanView from "./study-plan/StudyPlanView";
 import ConceptsView from "./concepts/ConceptsView";
 import ConceptCardDetailPage from "@/components/dashboard/student/concepts/ConceptCardDetailPage";
 import FlashcardsView from "./flashcards/FlashcardsView";

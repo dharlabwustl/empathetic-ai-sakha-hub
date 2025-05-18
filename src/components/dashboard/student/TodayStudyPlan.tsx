@@ -63,55 +63,55 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">Today's Plan</CardTitle>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => navigate('/dashboard/student/today')}>
-          <LayoutDashboard className="h-4 w-4" />
+        <CardTitle className={`${isMobile ? "text-sm" : "text-base"} font-medium`}>Today's Plan</CardTitle>
+        <Button 
+          variant="ghost" 
+          size={isMobile ? "sm" : "default"}
+          className={isMobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"} 
+          onClick={() => navigate('/dashboard/student/today')}
+        >
+          <LayoutDashboard className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />
         </Button>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {tasks.length === 0 ? (
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">No tasks for today</p>
-              <Button variant="outline" size="sm" className="mt-2">
-                Create Study Plan
-              </Button>
-            </div>
-          ) : (
-            tasks.map((task) => (
-              <div 
-                key={task.id}
-                onClick={() => handleTaskClick(task)}
-                className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md p-2 transition-colors"
-              >
-                <div className={`p-2 mr-2 sm:mr-4 rounded-full ${
-                  task.type === 'exam' ? 'bg-blue-100 dark:bg-blue-900/30' : 
-                  task.type === 'concept' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-purple-100 dark:bg-purple-900/30'
-                }`}>
+      <CardContent className="space-y-2">
+        {tasks.length === 0 ? (
+          <div className="text-center py-2">
+            <p className={`text-gray-500 ${isMobile ? "text-xs" : "text-sm"}`}>No tasks scheduled for today</p>
+          </div>
+        ) : (
+          tasks.map((task, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+              onClick={() => handleTaskClick(task)}
+            >
+              <div className="flex items-center gap-2">
+                <div className={`p-1 rounded-full bg-${task.completed ? 'gray' : 'blue'}-100 dark:bg-${task.completed ? 'gray' : 'blue'}-900/30`}>
                   {getTaskIcon(task.type)}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <p className={`font-medium ${isMobile ? 'text-xs' : 'text-sm'} truncate`}>{task.title}</p>
-                    <Badge variant={task.completed ? "outline" : "secondary"} className="ml-2 text-xs">
-                      {task.time}
-                    </Badge>
-                  </div>
-                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground capitalize mt-1`}>
-                    {task.type} {task.completed && " • Completed"}
-                  </p>
+                <div>
+                  <h4 className={`font-medium ${isMobile ? "text-xs" : "text-sm"} line-clamp-1`}>
+                    {task.title}
+                  </h4>
+                  <p className={`text-gray-500 ${isMobile ? "text-xs" : "text-sm"}`}>{task.time}</p>
                 </div>
               </div>
-            ))
-          )}
-          
-          {tasks.length > 0 && (
-            <div className="pt-2">
-              <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm" onClick={() => navigate('/dashboard/student/today')}>
-                View Full Schedule
-              </Button>
+              <Badge variant={task.completed ? 'outline' : 'default'} className={isMobile ? "text-xs px-1 py-0" : ""}>
+                {task.completed ? 'Done' : task.type.charAt(0).toUpperCase() + task.type.slice(1)}
+              </Badge>
             </div>
-          )}
+          ))
+        )}
+
+        <div className="pt-2 text-center">
+          <Button 
+            variant="link" 
+            size={isMobile ? "sm" : "default"}
+            onClick={() => navigate('/dashboard/student/today')}
+            className={`px-0 ${isMobile ? "text-xs" : "text-sm"}`}
+          >
+            View All Tasks
+          </Button>
         </div>
       </CardContent>
     </Card>
