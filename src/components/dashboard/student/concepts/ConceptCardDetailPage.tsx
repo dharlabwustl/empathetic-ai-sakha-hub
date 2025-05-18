@@ -6,11 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ShareIcon, BookOpen, Video, FileText, Brain, Bookmark, BookmarkPlus, Volume2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConceptCard } from '@/types/user/conceptCard';
 import { SharedPageLayout } from '../SharedPageLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  BookOpen, Video, FileText, Brain, 
+  Bookmark, BookmarkPlus, Volume2, MessageCircle, 
+  Flag, FlagTriangleRight, FileCheck, Share2, 
+  ExternalLink, Download
+} from 'lucide-react';
 
 // Placeholder for loading spinner component
 const LoadingSpinner = ({ message = "Loading..." }) => (
@@ -56,28 +61,33 @@ const ConceptMasteryCard = ({ mastery, onPractice }) => (
   </Card>
 );
 
-// Placeholder components for tabs
+// VideoLessonsTab component
 const VideoLessonsTab = ({ videos }) => (
   <div className="space-y-4">
-    {videos.map((video) => (
-      <Card key={video.id}>
-        <CardContent className="p-4">
-          <h3 className="mb-2 font-medium">{video.title}</h3>
-          <div className="aspect-video w-full">
-            <iframe 
-              src={video.url} 
-              className="w-full h-full rounded-md"
-              allowFullScreen
-              title={video.title}
-            />
-          </div>
-          <p className="text-sm mt-2 text-muted-foreground">Duration: {video.duration}</p>
-        </CardContent>
-      </Card>
-    ))}
+    {videos && videos.length > 0 ? (
+      videos.map((video) => (
+        <Card key={video.id}>
+          <CardContent className="p-4">
+            <h3 className="mb-2 font-medium">{video.title}</h3>
+            <div className="aspect-video w-full">
+              <iframe 
+                src={video.url} 
+                className="w-full h-full rounded-md"
+                allowFullScreen
+                title={video.title}
+              />
+            </div>
+            <p className="text-sm mt-2 text-muted-foreground">Duration: {video.duration}</p>
+          </CardContent>
+        </Card>
+      ))
+    ) : (
+      <p className="text-center text-muted-foreground">No video lessons available for this concept.</p>
+    )}
   </div>
 );
 
+// NotesTab component
 const NotesTab = ({ notes = [], onAddNote }) => {
   const [newNote, setNewNote] = useState('');
 
@@ -122,19 +132,20 @@ const NotesTab = ({ notes = [], onAddNote }) => {
   );
 };
 
+// PracticeTab component
 const PracticeTab = ({ conceptId, questions = [], onMasteryUpdate }) => (
   <div className="space-y-4">
     <h3 className="font-medium">Practice Questions</h3>
-    {questions.length > 0 ? (
+    {questions && questions.length > 0 ? (
       questions.map((question, index) => (
         <Card key={index}>
           <CardContent className="p-4">
             <div className="mb-4">
               <h4 className="font-medium">Question {index + 1}</h4>
-              <p>{question.text}</p>
+              <p>{question.question || question.text}</p>
             </div>
             <div className="space-y-2">
-              {question.options.map((option, optIndex) => (
+              {question.options && question.options.map((option, optIndex) => (
                 <div 
                   key={optIndex}
                   className="flex items-center gap-2 p-2 border rounded-md hover:bg-gray-50 cursor-pointer"
@@ -148,6 +159,8 @@ const PracticeTab = ({ conceptId, questions = [], onMasteryUpdate }) => (
                 </div>
               ))}
             </div>
+            
+            <Button className="mt-4 w-full" size="sm">Submit Answer</Button>
           </CardContent>
         </Card>
       ))
@@ -157,17 +170,20 @@ const PracticeTab = ({ conceptId, questions = [], onMasteryUpdate }) => (
   </div>
 );
 
+// ResourcesTab component
 const ResourcesTab = ({ resources = [], conceptId }) => (
   <div className="space-y-4">
     <h3 className="font-medium">Helpful Resources</h3>
-    {resources.length > 0 ? (
+    {resources && resources.length > 0 ? (
       resources.map((resource, index) => (
         <Card key={index}>
           <CardContent className="p-4">
             <h4 className="font-medium">{resource.title}</h4>
             <p className="text-sm text-muted-foreground mb-2">{resource.description}</p>
             <Button variant="outline" size="sm" asChild>
-              <a href={resource.url} target="_blank" rel="noopener noreferrer">Open Resource</a>
+              <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-1" /> Open Resource
+              </a>
             </Button>
           </CardContent>
         </Card>
@@ -186,12 +202,16 @@ const ConceptCardDetailPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isReading, setIsReading] = useState(false);
+  const [isFlagged, setIsFlagged] = useState(false);
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch concept details
   useEffect(() => {
+    // Log to confirm the component is being mounted with the right conceptId
+    console.log("ConceptCardDetailPage - Loading concept:", conceptId);
+    
     // Simulate fetching concept data
     setLoading(true);
     setTimeout(() => {
@@ -204,13 +224,8 @@ const ConceptCardDetailPage = () => {
           chapter: 'Cell Biology',
           description: 'Comprehensive understanding of cell structure, organelles and their functions',
           difficulty: 'medium',
-          estimatedTime: 30,
-          scheduledFor: 'today',
           completed: false,
-          mastery: {
-            level: 'Intermediate',
-            percentage: 60
-          },
+          progress: 35,
           content: `A cell is the smallest unit of life. Cells are often called the "building blocks of life". The study of cells is called cell biology, cellular biology, or cytology.
 
           Cells consist of cytoplasm enclosed within a membrane, which contains many biomolecules such as proteins and nucleic acids. Most plant and animal cells are only visible under a light microscope, with dimensions between 1 and 100 micrometres.
@@ -237,7 +252,82 @@ const ConceptCardDetailPage = () => {
             'Incorrectly describing the cell membrane as a solid barrier'
           ],
           notes: [],
-          examRelevance: 'Fundamental concept for biology sections in NEET exams. Questions about cell organelles and their functions appear frequently.'
+          examRelevance: 'Fundamental concept for biology sections in NEET exams. Questions about cell organelles and their functions appear frequently.',
+          mastery: {
+            level: 'Intermediate',
+            percentage: 60
+          },
+          videos: [
+            {
+              id: "vid-1",
+              title: "Introduction to Cell Structure",
+              url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              duration: "10:21",
+              thumbnail: "https://picsum.photos/640/360"
+            },
+            {
+              id: "vid-2",
+              title: "Cell Organelles and Functions",
+              url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              duration: "8:45",
+              thumbnail: "https://picsum.photos/640/360"
+            }
+          ],
+          resources: [
+            {
+              id: "res-1",
+              title: "Khan Academy: Cell Structure",
+              type: "website",
+              url: "https://www.khanacademy.org/science/biology/structure-of-a-cell"
+            },
+            {
+              id: "res-2",
+              title: "NCERT Biology Chapter 8",
+              type: "pdf",
+              url: "#"
+            }
+          ],
+          practiceQuestions: [
+            {
+              id: "q1",
+              question: "What is the primary function of mitochondria?",
+              options: [
+                "Protein synthesis",
+                "ATP production",
+                "Lipid metabolism",
+                "Waste removal"
+              ],
+              correctAnswer: "ATP production",
+              explanation: "Mitochondria are known as the powerhouse of the cell because they generate most of the cell's supply of ATP, which is used as a source of chemical energy.",
+              difficulty: "easy"
+            },
+            {
+              id: "q2",
+              question: "Which of the following is NOT a component of the cell membrane?",
+              options: [
+                "Phospholipids",
+                "Cholesterol",
+                "Glycoproteins",
+                "Ribosomes"
+              ],
+              correctAnswer: "Ribosomes",
+              explanation: "Ribosomes are not components of the cell membrane. They are cellular structures that synthesize proteins and are found either free in the cytoplasm or attached to the endoplasmic reticulum.",
+              difficulty: "medium"
+            },
+            {
+              id: "q3",
+              question: "In the NEET 2023 exam, a question about cell organelles asked: Which organelle is responsible for detoxification of drugs and poisons in liver cells?",
+              options: [
+                "Mitochondria",
+                "Smooth Endoplasmic Reticulum",
+                "Lysosomes",
+                "Peroxisomes"
+              ],
+              correctAnswer: "Smooth Endoplasmic Reticulum",
+              explanation: "The smooth endoplasmic reticulum is involved in the synthesis of lipids and steroids, and in drug detoxification, especially in liver cells.",
+              difficulty: "hard"
+            }
+          ]
         };
         
         setConcept(mockConcept);
@@ -268,6 +358,18 @@ const ConceptCardDetailPage = () => {
     });
   };
 
+  // Toggle flag for revision
+  const handleFlagToggle = () => {
+    setIsFlagged(!isFlagged);
+    
+    toast({
+      title: isFlagged ? "Removed from revision" : "Flagged for revision",
+      description: isFlagged 
+        ? "Removed from your revision list" 
+        : "Added to your revision list for later review",
+    });
+  };
+
   // Navigate to formula practice lab
   const handleOpenFormulaLab = () => {
     if (conceptId) {
@@ -280,6 +382,10 @@ const ConceptCardDetailPage = () => {
     if (isReading) {
       window.speechSynthesis.cancel();
       setIsReading(false);
+      toast({
+        title: "Read aloud stopped",
+        description: "Text-to-speech has been stopped"
+      });
       return;
     }
     
@@ -293,6 +399,11 @@ const ConceptCardDetailPage = () => {
       utterance.onend = () => setIsReading(false);
       window.speechSynthesis.speak(utterance);
       setIsReading(true);
+      
+      toast({
+        title: "Reading aloud",
+        description: "The content is being read aloud. Click again to stop."
+      });
     }
   };
 
@@ -307,6 +418,86 @@ const ConceptCardDetailPage = () => {
         description: "Your note has been saved to this concept"
       });
     }
+  };
+
+  // Navigate to flashcards related to this concept
+  const handleGoToFlashcards = () => {
+    if (conceptId) {
+      toast({
+        title: "Opening flashcards",
+        description: "Navigating to flashcards for this concept"
+      });
+      navigate(`/dashboard/student/flashcards?concept=${conceptId}`);
+    }
+  };
+
+  // Navigate to practice exam with this concept
+  const handleGoToExam = () => {
+    if (conceptId) {
+      toast({
+        title: "Opening practice exam",
+        description: "Creating practice exam with this concept"
+      });
+      navigate(`/dashboard/student/practice-exam?concept=${conceptId}`);
+    }
+  };
+
+  // Share concept
+  const handleShareConcept = () => {
+    if (navigator.share && conceptId) {
+      navigator.share({
+        title: concept?.title || 'Concept Study',
+        text: concept?.description || 'Check out this concept!',
+        url: window.location.href
+      }).then(() => {
+        toast({
+          title: "Concept shared",
+          description: "The concept has been shared"
+        });
+      }).catch((error) => {
+        console.log('Error sharing:', error);
+        // Fallback
+        handleCopyLink();
+      });
+    } else {
+      // Fallback for browsers that don't support navigator.share
+      handleCopyLink();
+    }
+  };
+
+  // Copy link to clipboard
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(
+      () => {
+        toast({
+          title: "Link copied",
+          description: "Concept link copied to clipboard"
+        });
+      },
+      () => {
+        toast({
+          title: "Failed to copy",
+          description: "Could not copy the link to clipboard",
+          variant: "destructive"
+        });
+      }
+    );
+  };
+
+  // Download concept as PDF
+  const handleDownloadPDF = () => {
+    toast({
+      title: "Downloading PDF",
+      description: "Your PDF is being generated"
+    });
+    
+    // This would be implemented with a proper PDF generation service
+    setTimeout(() => {
+      toast({
+        title: "Download ready",
+        description: "Your PDF has been downloaded"
+      });
+    }, 2000);
   };
 
   // If loading, show loading spinner
@@ -355,19 +546,35 @@ const ConceptCardDetailPage = () => {
                   size="icon" 
                   onClick={handleReadAloud}
                   title={isReading ? "Stop reading" : "Read aloud"}
+                  className={isReading ? "text-green-500" : ""}
                 >
-                  <Volume2 className={isReading ? "text-green-500" : ""} />
+                  <Volume2 />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleFlagToggle}
+                  title={isFlagged ? "Remove from revision" : "Flag for revision"}
+                  className={isFlagged ? "text-yellow-500" : ""}
+                >
+                  {isFlagged ? <Flag /> : <FlagTriangleRight />}
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   onClick={handleBookmarkToggle}
                   title={isBookmarked ? "Remove bookmark" : "Bookmark this concept"}
+                  className={isBookmarked ? "text-blue-500" : ""}
                 >
-                  {isBookmarked ? <Bookmark className="text-blue-500" /> : <BookmarkPlus />}
+                  {isBookmarked ? <Bookmark /> : <BookmarkPlus />}
                 </Button>
-                <Button variant="ghost" size="icon" title="Share concept">
-                  <ShareIcon />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleShareConcept}
+                  title="Share concept"
+                >
+                  <Share2 />
                 </Button>
               </div>
             </div>
@@ -430,6 +637,24 @@ const ConceptCardDetailPage = () => {
                       <Badge variant="secondary">High Importance</Badge>
                       <Badge variant="outline">10+ Questions/Year</Badge>
                     </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Quick action buttons */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button size="sm" className="w-full" variant="outline" onClick={handleGoToFlashcards}>
+                      Practice Flashcards
+                    </Button>
+                    <Button size="sm" className="w-full" variant="outline" onClick={handleGoToExam}>
+                      Take Practice Quiz
+                    </Button>
+                    <Button size="sm" className="w-full" variant="outline" onClick={handleDownloadPDF}>
+                      <Download className="h-4 w-4 mr-1" /> Download PDF
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -507,49 +732,54 @@ const ConceptCardDetailPage = () => {
                   )}
                 </div>
               </CardContent>
+              
+              {/* Sample NEET questions */}
+              <CardHeader className="pb-3 border-t">
+                <CardTitle className="text-sm font-medium">NEET Questions (2023-2024)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-md">
+                  <h4 className="font-medium mb-2">NEET 2023 Question</h4>
+                  <p className="mb-3">Which of the following organelles does not contain DNA?</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-2 border rounded-md">A. Mitochondria</div>
+                    <div className="p-2 border rounded-md">B. Chloroplast</div>
+                    <div className="p-2 border border-green-500 bg-green-50 dark:bg-green-950/30 rounded-md">C. Lysosome</div>
+                    <div className="p-2 border rounded-md">D. Nucleus</div>
+                  </div>
+                  <p className="mt-3 text-sm text-muted-foreground">Answer: C. Lysosome is the correct answer as it does not contain DNA, unlike mitochondria and chloroplasts which have their own DNA.</p>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-md mt-4">
+                  <h4 className="font-medium mb-2">NEET 2024 Question</h4>
+                  <p className="mb-3">Which of the following best describes the fluid mosaic model of plasma membrane?</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="p-2 border rounded-md">A. Fixed arrangement of phospholipids with embedded proteins</div>
+                    <div className="p-2 border rounded-md">B. Continuous layer of carbohydrates with scattered lipids</div>
+                    <div className="p-2 border border-green-500 bg-green-50 dark:bg-green-950/30 rounded-md">C. Dynamic phospholipid bilayer with floating proteins</div>
+                    <div className="p-2 border rounded-md">D. Static cholesterol layer with fixed protein channels</div>
+                  </div>
+                  <p className="mt-3 text-sm text-muted-foreground">Answer: C. The fluid mosaic model describes the plasma membrane as a dynamic phospholipid bilayer where proteins can move laterally, giving it a fluid-like character.</p>
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
           
           {/* Video lessons tab */}
           <TabsContent value="videos" className="mt-4">
-            <VideoLessonsTab 
-              videos={concept.videos || [
-                {
-                  id: "vid-1",
-                  title: "Introduction to " + concept.title,
-                  url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                  duration: "10:21",
-                  thumbnail: "https://picsum.photos/640/360"
-                }
-              ]} 
-            />
+            <VideoLessonsTab videos={concept.videos} />
           </TabsContent>
           
           {/* Notes tab */}
           <TabsContent value="notes" className="mt-4">
-            <NotesTab 
-              notes={concept.notes || []} 
-              onAddNote={handleAddNote}
-            />
+            <NotesTab notes={concept.notes} onAddNote={handleAddNote} />
           </TabsContent>
           
           {/* Practice tab */}
           <TabsContent value="practice" className="mt-4">
             <PracticeTab
               conceptId={concept.id}
-              questions={concept.practiceQuestions || [
-                {
-                  id: "q1",
-                  text: "What is the primary function of mitochondria?",
-                  options: [
-                    "Protein synthesis",
-                    "ATP production",
-                    "Lipid metabolism",
-                    "Waste removal"
-                  ],
-                  correctAnswer: 1
-                }
-              ]}
+              questions={concept.practiceQuestions}
               onMasteryUpdate={(percentage) => setConcept({
                 ...concept, 
                 mastery: { ...concept.mastery, percentage }
@@ -559,18 +789,35 @@ const ConceptCardDetailPage = () => {
           
           {/* Resources tab */}
           <TabsContent value="resources" className="mt-4">
-            <ResourcesTab 
-              resources={concept.resources || [
-                {
-                  title: "Khan Academy: Cell Structure",
-                  description: "Comprehensive tutorial on cell biology fundamentals",
-                  url: "https://www.khanacademy.org/science/biology/structure-of-a-cell"
-                }
-              ]}
-              conceptId={concept.id}
-            />
+            <ResourcesTab resources={concept.resources} conceptId={concept.id} />
           </TabsContent>
         </Tabs>
+        
+        {/* Fixed action bar for mobile */}
+        {isMobile && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t p-2 flex justify-around items-center z-40">
+            <Button variant="ghost" size="sm" onClick={handleReadAloud} className={isReading ? "text-green-500" : ""}>
+              <Volume2 className="h-4 w-4 mb-1" />
+              <span className="text-xs">Read</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleFlagToggle} className={isFlagged ? "text-yellow-500" : ""}>
+              {isFlagged ? <Flag className="h-4 w-4 mb-1" /> : <FlagTriangleRight className="h-4 w-4 mb-1" />}
+              <span className="text-xs">Flag</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleBookmarkToggle} className={isBookmarked ? "text-blue-500" : ""}>
+              {isBookmarked ? <Bookmark className="h-4 w-4 mb-1" /> : <BookmarkPlus className="h-4 w-4 mb-1" />}
+              <span className="text-xs">Save</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleGoToFlashcards}>
+              <FileCheck className="h-4 w-4 mb-1" />
+              <span className="text-xs">Cards</span>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleShareConcept}>
+              <Share2 className="h-4 w-4 mb-1" />
+              <span className="text-xs">Share</span>
+            </Button>
+          </div>
+        )}
       </div>
     </SharedPageLayout>
   );

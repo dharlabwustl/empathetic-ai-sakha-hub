@@ -5,6 +5,11 @@ export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {
+    // Handle server-side rendering or test environments
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+    
     // Create the media query
     const media = window.matchMedia(query);
     

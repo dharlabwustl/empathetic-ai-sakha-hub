@@ -24,23 +24,6 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // Map task types to routes if not provided
-  const getDefaultRoute = (task: Task) => {
-    if (task.route) return task.route;
-    
-    switch (task.type) {
-      case 'exam':
-        return '/dashboard/student/practice-exam';
-      case 'concept':
-        // Always use direct linking to concept detail pages
-        return `/dashboard/student/concepts/${task.id}`;
-      case 'revision':
-        return '/dashboard/student/flashcards';
-      default:
-        return '/dashboard/student/today';
-    }
-  };
-
   // Get appropriate icon for each task type
   const getTaskIcon = (type: string) => {
     switch (type) {
@@ -55,9 +38,29 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
-    const route = getDefaultRoute(task);
-    console.log("TodayStudyPlan - Navigating to task route:", route);
-    navigate(route);
+    // For concept type, always navigate to concept detail page
+    if (task.type === 'concept') {
+      console.log("TodayStudyPlan - Navigating to concept detail page:", task.id);
+      navigate(`/dashboard/student/concepts/${task.id}`);
+      return;
+    }
+    
+    // For other types, use provided route or fallback
+    if (task.route) {
+      navigate(task.route);
+    } else {
+      switch (task.type) {
+        case 'exam':
+          navigate('/dashboard/student/practice-exam');
+          break;
+        case 'revision':
+          navigate('/dashboard/student/flashcards');
+          break;
+        default:
+          navigate('/dashboard/student/today');
+          break;
+      }
+    }
   };
 
   return (
@@ -86,7 +89,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
               onClick={() => handleTaskClick(task)}
             >
               <div className="flex items-center gap-2">
-                <div className={`p-1 rounded-full bg-${task.completed ? 'gray' : 'blue'}-100 dark:bg-${task.completed ? 'gray' : 'blue'}-900/30`}>
+                <div className={`p-1 rounded-full ${task.completed ? 'bg-gray-100 dark:bg-gray-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
                   {getTaskIcon(task.type)}
                 </div>
                 <div>

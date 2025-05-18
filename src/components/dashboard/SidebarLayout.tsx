@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UniversalSidebar from './UniversalSidebar';
 import { Menu, X } from 'lucide-react';
@@ -14,11 +14,35 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   
+  // Close sidebar when switching between mobile and desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setShowMobileSidebar(false);
+    }
+  }, [isMobile]);
+  
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobile && showMobileSidebar) {
+        const sidebarElement = document.getElementById('universal-sidebar');
+        if (sidebarElement && !sidebarElement.contains(event.target as Node)) {
+          setShowMobileSidebar(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobile, showMobileSidebar]);
+  
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       {/* Universal Sidebar - Always shown on desktop, conditionally on mobile */}
       {(!isMobile || showMobileSidebar) && (
-        <div className={`${isMobile ? 'fixed z-50 h-full' : 'relative'}`}>
+        <div id="universal-sidebar" className={`${isMobile ? 'fixed z-50 h-full' : 'relative'}`}>
           <UniversalSidebar collapsed={false} />
           
           {/* Close button only shown on mobile */}
@@ -47,7 +71,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
         </Button>
       )}
       
-      <div className="flex-1">
+      <div className="flex-1 pb-16 md:pb-0">
         {children}
       </div>
     </div>

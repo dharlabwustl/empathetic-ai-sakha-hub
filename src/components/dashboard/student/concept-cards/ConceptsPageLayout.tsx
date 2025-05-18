@@ -26,7 +26,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
   
   return (
     <motion.div 
-      className="space-y-4 sm:space-y-6"
+      className="space-y-4 sm:space-y-6 px-2 sm:px-0"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

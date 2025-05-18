@@ -5,10 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Book, BookOpen, Clock } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ConceptsSection = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Filter to show only today's concepts
   const todaysCards = conceptCards
@@ -53,34 +55,35 @@ const ConceptsSection = () => {
           onClick={() => handleCardClick(card.id)}
           className="cursor-pointer"
         >
-          <Card className="h-full hover:shadow-md transition-shadow duration-200 hover:translate-y-[-2px] overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
-            <CardContent className="p-3 sm:p-4 h-full flex flex-col">
+          <Card className={`h-full hover:shadow-md transition-shadow duration-200 hover:translate-y-[-2px] overflow-hidden group border-l-4 ${isMobile ? 'p-0' : ''}`} 
+                style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
+            <CardContent className={`${isMobile ? 'p-3' : 'p-4'} h-full flex flex-col`}>
               <div className="flex items-start justify-between mb-2">
-                <Badge variant={card.completed ? "outline" : "default"} className="mb-2 text-xs">
+                <Badge variant={card.completed ? "outline" : "default"} className={`mb-2 ${isMobile ? 'text-[10px] px-1 py-0' : 'text-xs'}`}>
                   {card.completed ? "Completed" : "Pending"}
                 </Badge>
-                <Badge variant="outline" className={`${getDifficultyClass(card.difficulty)} text-xs`}>
+                <Badge variant="outline" className={`${getDifficultyClass(card.difficulty)} ${isMobile ? 'text-[10px] px-1 py-0' : 'text-xs'}`}>
                   {card.difficulty}
                 </Badge>
               </div>
               
-              <h3 className="font-semibold text-sm sm:text-lg mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+              <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm sm:text-lg'} mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200`}>
                 {card.title}
               </h3>
               
               <div className="mt-auto pt-2 space-y-1 text-xs sm:text-sm text-gray-500">
                 <div className="flex items-center gap-1">
-                  <Book size={14} />
+                  <Book size={isMobile ? 12 : 14} />
                   <span className="truncate">{card.subject}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <BookOpen size={14} />
+                  <BookOpen size={isMobile ? 12 : 14} />
                   <span className="truncate">{card.chapter}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <Clock size={14} />
+                  <Clock size={isMobile ? 12 : 14} />
                   <span>{card.estimatedTime} min</span>
                 </div>
               </div>
