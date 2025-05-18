@@ -106,6 +106,13 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
               >
                 Start Now
               </Button>
+              
+              {/* Donation message */}
+              {task.priority === 'high' && (
+                <div className="mt-2 text-xs text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                  <span className="font-medium">Making a difference together:</span> We donate 5% of monthly subscription revenue to fund underprivileged students.
+                </div>
+              )}
             </div>
           ))}
         </div>

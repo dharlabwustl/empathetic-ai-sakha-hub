@@ -93,6 +93,13 @@ const Index = () => {
             </h2>
           </div>
           <KpiStats />
+          
+          {/* Donation message */}
+          <div className="mt-8 text-center max-w-3xl mx-auto">
+            <div className="bg-purple-50 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 p-4 rounded-lg border border-purple-100 dark:border-purple-800/30">
+              <span className="font-medium">Making a difference together:</span> We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
+            </div>
+          </div>
         </motion.section>
         
         {/* Backed By Section with partner logos */}
@@ -123,6 +130,39 @@ const Index = () => {
         <FounderSection />
         
         <FoundingTeamSection />
+        
+        {/* Subscription section with donation message */}
+        <motion.section 
+          className="container mx-auto px-4 py-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              Choose the Plan That's Right for You
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Unlock your full potential with our flexible subscription plans designed to fit your needs.
+            </p>
+            <div className="mt-6 bg-purple-50 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 p-4 rounded-lg inline-block border border-purple-100 dark:border-purple-800/30">
+              <span className="font-semibold">Making a difference together:</span> We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
+            </div>
+          </div>
+          
+          {/* Add subscription plan content here or link to subscription page */}
+          <div className="flex justify-center mt-8">
+            <Button 
+              variant="default"
+              size="lg"
+              onClick={() => navigate('/subscription')}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
+            >
+              View All Plans
+            </Button>
+          </div>
+        </motion.section>
         
         <CallToAction />
       </main>
