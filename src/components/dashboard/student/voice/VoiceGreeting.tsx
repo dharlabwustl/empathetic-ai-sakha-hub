@@ -12,7 +12,7 @@ interface VoiceGreetingProps {
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
   isFirstTimeUser, 
   userName = 'Student',
-  language = 'hi' // Changed default to Hindi
+  language = 'en' // Default to English
 }) => {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
@@ -51,23 +51,23 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Different greetings based on page context
             if (isConceptPage) {
               if (language === 'en') {
-                welcomeText = `I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+                welcomeText = `I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept? You can also flag it for revision later or try the practice questions to test your understanding.`;
               } else if (language === 'hi') {
-                welcomeText = `मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं। क्या आप चाहेंगे कि मैं इस अवधारणा के किसी भी हिस्से को समझाने में मदद करूं?`;
+                welcomeText = `मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं। क्या आप चाहेंगे कि मैं इस अवधारणा के किसी भी हिस्से को समझाने में मदद करूं? आप इसे बाद में संशोधन के लिए चिह्नित कर सकते हैं या अपनी समझ का परीक्षण करने के लिए अभ्यास प्रश्नों का प्रयास कर सकते हैं।`;
               }
             } else if (isWelcomePage) {
               if (language === 'en') {
                 // Welcome flow specific greeting - faster voice
-                welcomeText = `Welcome to Prep zer! I'm your voice assistant and I'll guide you through your personalized learning journey. Let's get started!`;
+                welcomeText = `Welcome to Prep-zer! I'm your voice assistant and I'll guide you through your personalized learning journey. Our AI-powered platform analyzes your learning style and creates custom study plans just for you. You'll have access to interactive concept cards, smart flashcards, and adaptive practice tests that adjust to your progress. Let's get started with building your path to success!`;
               } else if (language === 'hi') {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है! मैं आपका वॉइस असिस्टेंट हूं और मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। आइए शुरू करें!`;
+                welcomeText = `प्रेप-ज़र में आपका स्वागत है! मैं आपका वॉइस असिस्टेंट हूं और मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। हमारा AI-संचालित प्लेटफॉर्म आपकी सीखने की शैली का विश्लेषण करता है और आपके लिए कस्टम अध्ययन योजनाएं बनाता है। आपको इंटरैक्टिव कॉन्सेप्ट कार्ड, स्मार्ट फ्लैशकार्ड और अनुकूली अभ्यास परीक्षणों तक पहुंच मिलेगी जो आपकी प्रगति के अनुसार समायोजित होते हैं। आइए आपकी सफलता का मार्ग बनाना शुरू करें!`;
               }
             } else if (isFirstTimeUser) {
               if (language === 'en') {
                 // Use phonetic spelling with a pause between Prep and zer
-                welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations.`;
+                welcomeText = `Welcome to Prep zer, ${userName}! Your personalized learning journey begins now. Explore your dashboard to see your study plans, practice tests, and personalized recommendations. Our AI tutor is available 24/7 to help with any concepts you find difficult, and our smart flashcards adapt to your learning style to maximize retention.`;
               } else if (language === 'hi') {
-                welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें।`;
+                welcomeText = `प्रेप-ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। अपने अध्ययन योजनाओं, अभ्यास परीक्षणों और व्यक्तिगत सिफारिशों को देखने के लिए अपने डैशबोर्ड का अन्वेषण करें। हमारा AI ट्यूटर आपको किसी भी कठिन अवधारणा में मदद करने के लिए 24/7 उपलब्ध है, और हमारे स्मार्ट फ्लैशकार्ड आपकी सीखने की शैली के अनुसार अनुकूलित होते हैं ताकि प्रतिधारण को अधिकतम किया जा सके।`;
               }
             } else {
               if (language === 'en') {
@@ -208,37 +208,37 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     if (lang === 'en') {
       switch(context) {
         case 'dashboard': 
-          return `Welcome back to your dashboard, ${user}. Here you can see your study progress and today's plan.`;
+          return `Welcome back to your dashboard, ${user}. Here you can see your study progress, exam readiness score, and today's learning tasks. Your readiness score has been updated based on your recent activity. Would you like me to guide you through any specific feature?`;
         case 'study-plan':
-          return `Here's your study plan, ${user}. I've organized your topics based on your learning needs.`;
+          return `Here's your study plan, ${user}. I've organized your topics based on your learning needs and current readiness score. Each task is prioritized to help you improve in areas where you need the most attention.`;
         case 'practice-exam':
-          return `Ready for a practice exam? This will help strengthen your knowledge and identify areas for improvement.`;
+          return `Ready for a practice exam? This will help strengthen your knowledge and identify areas for improvement. Your results will update your exam readiness score, which tracks your progress toward exam day.`;
         case 'analytics':
-          return `These analytics show your progress over time. Let's see which areas you're excelling in and where you might need more focus.`;
+          return `These analytics show your progress over time. You can see how your exam readiness has improved across different subjects. Your concept mastery and flashcard recall accuracy are key metrics to watch.`;
         case 'home':
-          return `Welcome to Prep zer, ${user}! How can I assist you with your exam preparation today?`;
+          return `Welcome to Prep-zer, ${user}! Our AI-powered platform personalizes your exam preparation. Would you like to check your current exam readiness score or start today's learning tasks?`;
         default:
           return '';
       }
     } else {
       switch(context) {
         case 'dashboard': 
-          return `${user}, आपके डैशबोर्ड पर आपका स्वागत है। यहां आप अपनी पढ़ाई की प्रगति और आज की योजना देख सकते हैं।`;
+          return `${user}, आपके डैशबोर्ड पर आपका स्वागत है। यहां आप अपनी पढ़ाई की प्रगति, परीक्षा तैयारी स्कोर और आज के सीखने के कार्यों को देख सकते हैं। आपका तैयारी स्कोर आपकी हाल की गतिविधि के आधार पर अपडेट किया गया है। क्या आप चाहेंगे कि मैं आपको किसी विशिष्ट सुविधा के बारे में बताऊं?`;
         case 'study-plan':
-          return `${user}, यह आपकी अध्ययन योजना है। मैंने आपके सीखने की जरूरतों के आधार पर आपके विषयों को व्यवस्थित किया है।`;
+          return `${user}, यह आपकी अध्ययन योजना है। मैंने आपके सीखने की जरूरतों और वर्तमान तैयारी स्कोर के आधार पर आपके विषयों को व्यवस्थित किया है। प्रत्येक कार्य को प्राथमिकता दी गई है ताकि आपको उन क्षेत्रों में सुधार करने में मदद मिल सके जहां आपको सबसे अधिक ध्यान देने की आवश्यकता है।`;
         case 'practice-exam':
-          return `अभ्यास परीक्षा के लिए तैयार हैं? यह आपके ज्ञान को मजबूत करने और सुधार के क्षेत्रों की पहचान करने में मदद करेगा।`;
+          return `अभ्यास परीक्षा के लिए तैयार हैं? यह आपके ज्ञान को मजबूत करने और सुधार के क्षेत्रों की पहचान करने में मदद करेगा। आपके परिणाम आपके परीक्षा तैयारी स्कोर को अपडेट करेंगे, जो परीक्षा दिवस की ओर आपकी प्रगति को ट्रैक करता है।`;
         case 'analytics':
-          return `ये विश्लेषण आपकी समय के साथ प्रगति दिखाते हैं। देखते हैं कि आप किन क्षेत्रों में उत्कृष्टता प्राप्त कर रहे हैं और कहां आपको अधिक ध्यान देने की आवश्यकता हो सकती है।`;
+          return `ये विश्लेषण आपकी समय के साथ प्रगति दिखाते हैं। आप देख सकते हैं कि विभिन्न विषयों में आपकी परीक्षा तैयारी कैसे सुधरी है। आपकी अवधारणा महारत और फ्लैशकार्ड स्मरण सटीकता देखने के लिए महत्वपूर्ण मेट्रिक्स हैं।`;
         case 'home':
-          return `प्रेप ज़र में आपका स्वागत है, ${user}! आज मैं आपकी परीक्षा की तैयारी में कैसे सहायता कर सकता हूं?`;
+          return `प्रेप-ज़र में आपका स्वागत है, ${user}! हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा तैयारी को व्यक्तिगत बनाता है। क्या आप अपना वर्तमान परीक्षा तैयारी स्कोर देखना चाहेंगे या आज के सीखने के कार्य शुरू करना चाहेंगे?`;
         default:
           return '';
       }
     }
   };
   
-  // Don't render anything if already played or not a first-time user and not on concept page
+  // Don't render anything if already played or not relevant
   if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage) || audioPlayed) return null;
   
   return (
