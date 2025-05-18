@@ -197,6 +197,7 @@ const DashboardLayout = ({
                 hideTabsNav={hideTabsNav || isMobile}
                 lastActivity={lastActivity}
                 suggestedNextAction={suggestedNextAction}
+                currentMood={currentMood}
               />
             </div>
           )}

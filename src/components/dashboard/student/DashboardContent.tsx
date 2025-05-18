@@ -5,9 +5,9 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
-import VoiceTestPanel from '@/components/dashboard/student/VoiceTestPanel';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
+import VoiceTestPanel from '@/components/dashboard/student/VoiceTestPanel';
+import FloatingVoiceAssistant from '@/components/dashboard/student/FloatingVoiceAssistant';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -75,6 +75,15 @@ const DashboardContent = ({
   const weakAreas = ['Organic Chemistry', 'Thermodynamics', 'Vectors'];
   const strongAreas = ['Algebra', 'Mechanics', 'Biology'];
 
+  // Tips and suggestions for exam readiness
+  const examReadinessTips = [
+    "Focus on weak areas first to see the most improvement",
+    "Review previously wrong answers to avoid repeating mistakes",
+    "Use spaced repetition for better long-term retention",
+    "Take regular practice tests to simulate exam conditions",
+    "Ensure you understand concepts before memorizing formulas"
+  ];
+
   // Generate tab contents once
   const tabContents = generateTabContents({
     userProfile,
@@ -124,12 +133,10 @@ const DashboardContent = ({
             weeklyTrends={weeklyTrendsData}
             weakAreas={weakAreas}
             strongAreas={strongAreas}
+            tips={examReadinessTips}
           />
         </div>
       )}
-      
-      {/* Quick Access Buttons for all pages */}
-      <QuickAccess />
       
       {/* Content area - Using custom content if provided, otherwise the generated tab content */}
       <div className="mt-4">
@@ -146,6 +153,9 @@ const DashboardContent = ({
           </SharedPageLayout>
         )}
       </div>
+      
+      {/* Floating Voice Assistant */}
+      <FloatingVoiceAssistant />
     </div>
   );
 };
