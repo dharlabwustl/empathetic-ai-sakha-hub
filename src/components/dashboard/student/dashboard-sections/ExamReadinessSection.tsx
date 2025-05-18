@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChevronDown, ChevronUp, Info, ArrowUp, ArrowDown, BarChart2, BookOpen, Check, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowUp, ArrowDown, BarChart2, BookOpen, Check, AlertCircle } from 'lucide-react';
 
 interface ExamReadinessSectionProps {
   score: number;
@@ -12,6 +12,7 @@ interface ExamReadinessSectionProps {
   weeklyTrends: Array<{ week: string; score: number }>;
   weakAreas: string[];
   strongAreas: string[];
+  tips?: string[];
 }
 
 const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({ 
@@ -19,7 +20,8 @@ const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({
   previousScore = 58,
   weeklyTrends = [],
   weakAreas = [],
-  strongAreas = []
+  strongAreas = [],
+  tips = []
 }) => {
   const [expanded, setExpanded] = useState(false);
   const scoreDifference = previousScore ? score - previousScore : 0;
@@ -40,6 +42,8 @@ const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({
   };
 
   const getTipsBasedOnScore = (score: number) => {
+    if (tips && tips.length > 0) return tips;
+    
     if (score >= 80) {
       return [
         "Continue focusing on high-yield topics for mastery",
@@ -71,7 +75,7 @@ const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({
     }
   };
 
-  const tips = getTipsBasedOnScore(score);
+  const examTips = getTipsBasedOnScore(score);
 
   return (
     <Card className="shadow-sm hover:shadow transition-shadow duration-300">
@@ -215,7 +219,7 @@ const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({
                 </div>
                 <div className="bg-blue-50/50 dark:bg-blue-900/5 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3">
                   <ul className="text-xs space-y-2">
-                    {tips.map((tip, idx) => (
+                    {examTips.map((tip, idx) => (
                       <li key={idx} className="flex items-start">
                         <div className="min-w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-800/40 text-blue-600 dark:text-blue-300 flex items-center justify-center text-xs mt-0.5 mr-2">
                           {idx + 1}

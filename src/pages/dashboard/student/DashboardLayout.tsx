@@ -43,6 +43,7 @@ interface DashboardLayoutProps {
     time: string;
     type: "exam" | "task" | "revision";
   }>;
+  removeQuickAccess?: boolean;
 }
 
 const DashboardLayout = ({
@@ -68,8 +69,9 @@ const DashboardLayout = ({
   onMoodChange,
   children,
   onProfileImageUpdate,
-  upcomingEvents = []
-}: DashboardLayoutProps) => {
+  upcomingEvents = [],
+  removeQuickAccess
+}) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -198,6 +200,7 @@ const DashboardLayout = ({
                 lastActivity={lastActivity}
                 suggestedNextAction={suggestedNextAction}
                 currentMood={currentMood}
+                removeQuickAccess={removeQuickAccess}
               />
             </div>
           )}

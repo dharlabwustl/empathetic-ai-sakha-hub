@@ -8,71 +8,49 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Volume2, Settings, Mic, MicOff, VolumeX } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { VoiceSettings } from '@/types/voice';
 
-interface FloatingVoiceAssistantProps {
-  onSettingsChange?: (settings: Partial<VoiceSettings>) => void;
-}
-
-const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ 
-  onSettingsChange 
-}) => {
+const FloatingVoiceAssistant: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   
-  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
+  const [voiceSettings, setVoiceSettings] = useState({
     volume: 0.8,
     rate: 1.0,
     pitch: 1.1,
     language: 'en-IN',
     enabled: true,
     muted: false,
-    voice: null,
     autoGreet: true
   });
   
   const handleVolumeChange = (value: number[]) => {
-    const newSettings = { ...voiceSettings, volume: value[0] };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, volume: value[0] });
   };
   
   const handleRateChange = (value: number[]) => {
-    const newSettings = { ...voiceSettings, rate: value[0] };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, rate: value[0] });
   };
   
   const handlePitchChange = (value: number[]) => {
-    const newSettings = { ...voiceSettings, pitch: value[0] };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, pitch: value[0] });
   };
   
   const handleLanguageChange = (value: string) => {
-    const newSettings = { ...voiceSettings, language: value };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, language: value });
   };
   
   const toggleEnabled = () => {
-    const newSettings = { ...voiceSettings, enabled: !voiceSettings.enabled };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, enabled: !voiceSettings.enabled });
   };
   
   const toggleMute = () => {
-    const newSettings = { ...voiceSettings, muted: !voiceSettings.muted };
-    setVoiceSettings(newSettings);
-    setIsMuted(newSettings.muted);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, muted: !voiceSettings.muted });
+    setIsMuted(!isMuted);
   };
   
   const toggleAutoGreet = () => {
-    const newSettings = { ...voiceSettings, autoGreet: !voiceSettings.autoGreet };
-    setVoiceSettings(newSettings);
-    if (onSettingsChange) onSettingsChange(newSettings);
+    setVoiceSettings({ ...voiceSettings, autoGreet: !voiceSettings.autoGreet });
   };
   
   const toggleListening = () => {
