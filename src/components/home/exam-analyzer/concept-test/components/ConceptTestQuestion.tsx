@@ -43,12 +43,6 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
             />
           </div>
         )}
-        
-        {question.diagram && (
-          <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-            <div dangerouslySetInnerHTML={{ __html: question.diagram }} className="text-center" />
-          </div>
-        )}
       </div>
       
       <RadioGroup className="space-y-3 mb-6">

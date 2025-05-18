@@ -26,8 +26,8 @@ const Signup = () => {
     // Store it in localStorage for downstream components
     localStorage.setItem('userData', JSON.stringify(userData));
     
-    // Directly navigate to welcome flow without going through login
-    navigate('/welcome-flow', { replace: true });
+    // First navigate to welcome flow and then it will handle redirection
+    window.location.href = '/welcome-flow';
   }, [navigate]);
 
   return (
