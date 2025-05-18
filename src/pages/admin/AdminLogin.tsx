@@ -21,17 +21,20 @@ const AdminLogin = () => {
   const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
-  // Force redirect if admin is already logged in
+  // Check if already authenticated
   useEffect(() => {
-    // Check for admin login flags
-    const adminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    // Check if this is an admin login attempt
+    const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
     
-    if (isAdminAuthenticated || adminLoggedIn) {
-      console.log("Already authenticated as admin, forcing redirect to dashboard");
-      // Short timeout to ensure rendering is complete
-      setTimeout(() => {
-        navigate('/admin/dashboard', { replace: true });
-      }, 0);
+    if (isAdminLoginAttempt) {
+      // Clear the flag so we don't loop
+      localStorage.removeItem('admin_login_attempt');
+      console.log("Admin login attempt detected");
+    }
+    
+    if (isAdminAuthenticated) {
+      console.log("Already authenticated as admin, redirecting to dashboard");
+      navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
 
@@ -53,30 +56,27 @@ const AdminLogin = () => {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userData');
       
-      // Force admin login flag set even before API call completes
-      // This helps bypass any potential loading issues
-      localStorage.setItem('admin_logged_in', 'true');
-      
       const success = await adminLogin(email, password);
       
       if (success) {
-        console.log("Admin login successful, forcing navigation");
+        console.log("Admin login successful, preparing to navigate");
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Force navigation without waiting
-        navigate('/admin/dashboard', { replace: true });
+        // Mark admin as logged in
+        localStorage.setItem('admin_logged_in', 'true');
+        
+        // Use setTimeout to ensure state updates have propagated
+        setTimeout(() => {
+          navigate('/admin/dashboard', { replace: true });
+        }, 100);
       } else {
-        // Only remove flag if login actually failed
-        localStorage.removeItem('admin_logged_in');
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
     } catch (error) {
       console.error("Admin login error:", error);
-      // Only remove flag if login error occurred
-      localStorage.removeItem('admin_logged_in');
       setLoginError("An error occurred during login");
     } finally {
       setIsLoading(false);
