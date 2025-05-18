@@ -1,97 +1,231 @@
 
 import React, { useState, useEffect } from "react";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
+import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
+import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { UserRole } from "@/types/user/base";
-import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
-import { handleNewUser } from "./student/utils/UserSessionManager";
-import WelcomeSlider from "@/components/dashboard/student/welcome/WelcomeSlider";
-import WelcomeTour from "@/components/dashboard/student/welcome/WelcomeTour";
-import StudyPlanCreationDialog from "@/components/dashboard/student/dialogs/StudyPlanCreationDialog";
+import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
+import { MoodType } from "@/types/user/base";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
+import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
-  const { userProfile, isLoading } = useUserProfile(UserRole.Student);
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [showTourModal, setShowTourModal] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
-  const [showWelcomeSlider, setShowWelcomeSlider] = useState(false);
-  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
   
+  const {
+    loading,
+    userProfile,
+    activeTab,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    hideTabsNav,
+    hideSidebar,
+    kpis,
+    nudges,
+    features,
+    lastActivity,
+    suggestedNextAction,
+    markNudgeAsRead,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
+    toggleSidebar,
+    toggleTabsNav
+  } = useStudentDashboard();
+
+  // Load profile image from localStorage
   useEffect(() => {
-    const userData = localStorage.getItem('userData');
-    const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
-    
-    // For Google signup users who've completed the welcome flow
-    const needsStudyPlanCreation = localStorage.getItem('needs_study_plan_creation') === 'true';
-    const welcomeFlowCompleted = localStorage.getItem('welcomeFlowCompleted') === 'true';
-    const googleSignup = localStorage.getItem('google_signup') === 'true';
-    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
-    
-    // Show different components based on user state
-    setShowWelcomeSlider(shouldShowOnboarding && !sawWelcomeTour);
-    setShowWelcomeTour(shouldShowWelcomeTour || (shouldShowOnboarding && sawWelcomeTour));
-    
-    // If user completed welcome tour and needs study plan creation
-    // (especially for Google signup users who skipped the detailed onboarding)
-    if (needsStudyPlanCreation && sawWelcomeTour && !shouldShowOnboarding) {
-      // Give a little delay to ensure tour is done
-      setTimeout(() => {
-        setShowStudyPlanDialog(true);
-      }, 1000);
+    const savedImage = localStorage.getItem('user_profile_image');
+    if (savedImage) {
+      setProfileImage(savedImage);
     }
-  }, [location, navigate]);
-  
-  // Function to handle when welcome slider/tour is completed
-  const handleWelcomeComplete = () => {
-    localStorage.setItem('sawWelcomeSlider', 'true');
-    setShowWelcomeSlider(false);
-    setShowWelcomeTour(true);
-  };
-  
-  // Function to handle when tour is completed
-  const handleTourComplete = () => {
-    localStorage.setItem('sawWelcomeTour', 'true');
-    setShowWelcomeTour(false);
+  }, []);
+
+  // Check URL parameters and localStorage for first-time user status
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // Check if we need to show the study plan dialog after the tour
-    const needsStudyPlanCreation = localStorage.getItem('needs_study_plan_creation') === 'true';
-    if (needsStudyPlanCreation) {
-      setShowStudyPlanDialog(true);
+    // For new users who haven't seen the tour
+    if (isNew && !hasSeenTour) {
+      setShowSplash(false);
+      setShowTourModal(true);
+      setIsFirstTimeUser(true);
+      console.log("New user detected, showing welcome tour");
+    } 
+    // For returning users
+    else {
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+      
+      // Make sure we don't show the tour for returning users who have seen it
+      setShowTourModal(false);
+      setIsFirstTimeUser(false);
+      console.log("Returning user detected, not showing welcome tour");
     }
-  };
+    
+    // Try to get saved mood from local storage
+    const savedMood = getCurrentMoodFromLocalStorage();
+    if (savedMood) {
+      setCurrentMood(savedMood);
+    }
+  }, [location]);
   
-  // Close study plan dialog
-  const handleCloseStudyPlan = () => {
-    setShowStudyPlanDialog(false);
-    localStorage.setItem('needs_study_plan_creation', 'false');
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    sessionStorage.setItem("hasSeenSplash", "true");
+    
+    // For new users, show the tour after splash
+    const isNew = localStorage.getItem('new_user_signup') === 'true';
+    if (isNew) {
+      setShowTourModal(true);
+      setIsFirstTimeUser(true);
+    }
+    
+    if (!currentMood) {
+      const defaultMood = MoodType.MOTIVATED;
+      setCurrentMood(defaultMood);
+      storeMoodInLocalStorage(defaultMood);
+    }
   };
 
-  if (isLoading) {
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    storeMoodInLocalStorage(mood);
+  };
+
+  const handleProfileImageUpdate = (imageUrl: string) => {
+    setProfileImage(imageUrl);
+    localStorage.setItem('user_profile_image', imageUrl);
+  };
+
+  const handleSkipTourWrapper = () => {
+    handleSkipTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    // Don't remove new_user_signup flag to ensure welcome voice plays
+    console.log("Tour skipped and marked as seen");
+  };
+
+  const handleCompleteTourWrapper = () => {
+    handleCompleteTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    // Don't remove new_user_signup flag to ensure welcome voice plays
+    console.log("Tour completed and marked as seen");
+  };
+
+  const handleCompleteOnboardingWrapper = () => {
+    handleCompleteOnboarding();
+    // Set the new user flag to show tour after onboarding
+    localStorage.setItem('new_user_signup', 'true');
+    navigate('/dashboard/student?new=true');
+  };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
+  }
+
+  if (loading || !userProfile) {
+    return <DashboardLoading />;
+  }
+
+  // Show onboarding flow only for users who haven't completed it
+  if (showOnboarding) {
+    const defaultGoal = "NEET";
+    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
+    
     return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <div className="w-16 h-16 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
-      </div>
+      <OnboardingFlow 
+        userProfile={userProfile} 
+        goalTitle={goalTitle}
+        onComplete={handleCompleteOnboardingWrapper}
+      />
     );
   }
 
-  // If welcome slider is active, show it
-  if (showWelcomeSlider) {
-    return <WelcomeSlider onComplete={handleWelcomeComplete} />;
-  }
+  // Update user profile with the profile image
+  const enhancedUserProfile = {
+    ...userProfile,
+    photoURL: profileImage || userProfile.photoURL
+  };
+
+  // Custom content based on active tab
+  const getTabContent = () => {
+    if (activeTab === "overview") {
+      return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
+    }
+    return null;
+  };
 
   return (
     <>
-      <DashboardOverview userProfile={userProfile} />
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={false}
+        hideTabsNav={true} // Always hide tabs nav to prevent double sidebar
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={showTourModal} // Pass the tour modal state
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+        onProfileImageUpdate={handleProfileImageUpdate}
+      >
+        {getTabContent()}
+      </DashboardLayout>
       
-      {/* Welcome Tour */}
-      {showWelcomeTour && (
-        <WelcomeTour onComplete={handleTourComplete} />
-      )}
+      {/* Welcome Tour Modal - will show once for new users */}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={isFirstTimeUser}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+      />
+
+      {/* Voice Greeting - will play for first time users */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        language="en"
+      />
       
-      {/* Study Plan Creation Dialog */}
-      <StudyPlanCreationDialog 
-        isOpen={showStudyPlanDialog}
-        onClose={handleCloseStudyPlan}
+      {/* Dashboard Voice Assistant with mood integration */}
+      <DashboardVoiceAssistant 
+        userName={userProfile.name || userProfile.firstName || 'Student'} 
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
       />
     </>
   );

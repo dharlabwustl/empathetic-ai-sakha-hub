@@ -1,22 +1,12 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  
+
   useEffect(() => {
-    // Check if this is a Google signup
-    const searchParams = new URLSearchParams(location.search);
-    const isGoogleSignup = searchParams.get('provider') === 'google';
-    
-    if (isGoogleSignup) {
-      // Set Google signup flag
-      localStorage.setItem('google_signup', 'true');
-    }
-    
     // Set the flag that this is a new user signup
     localStorage.setItem('new_user_signup', 'true');
     localStorage.setItem('isLoggedIn', 'true');
@@ -36,15 +26,9 @@ const Signup = () => {
     // Store it in localStorage for downstream components
     localStorage.setItem('userData', JSON.stringify(userData));
     
-    // For Google signup, navigate directly to welcome flow
-    // This ensures no login page is shown in between
-    if (isGoogleSignup) {
-      window.location.href = '/welcome-flow';
-    } else {
-      // For regular signup, follow the normal flow
-      window.location.href = '/welcome-flow';
-    }
-  }, [navigate, location.search]);
+    // First navigate to welcome flow and then it will handle redirection
+    window.location.href = '/welcome-flow';
+  }, [navigate]);
 
   return (
     <div>
