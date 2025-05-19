@@ -57,8 +57,8 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
       try {
         setIsSpeaking(true);
         
-        // Create welcome message
-        const welcomeText = `Welcome to your personalized dashboard, ${userName}! I'm Sakha AI, your adaptive learning companion. I've designed this dashboard based on your learning style and exam goals. Let me highlight some key features that will help you excel in your studies. The Today's Plan section shows your optimized study schedule. Your Analytics section tracks your progress over time. And our concept cards help you master difficult topics step by step. I'm here to support your learning journey - just click the voice assistant icon whenever you need help!`;
+        // Create enhanced welcome message with congratulations and PREPZR advantages
+        const welcomeText = `Congratulations ${userName} for choosing PREPZR! You've made an excellent decision that sets you apart from others. I'm Sakha AI, your adaptive learning companion. Unlike other platforms that only focus on content, PREPZR understands your unique learning style, emotional state, and cognitive patterns. We've designed your dashboard based on your specific exam goals and learning preferences. Our AI-powered system continually adapts to how you learn, making us better than any conventional study method. We focus on your mindset, not just the exam content. Your Analytics section tracks your progress with precision that other platforms simply can't match, and our concept cards use advanced cognitive science to help you master difficult topics more efficiently than ever before. Welcome to a revolutionary learning experience!`;
         
         // Get available voices
         const voices = window.speechSynthesis.getVoices();

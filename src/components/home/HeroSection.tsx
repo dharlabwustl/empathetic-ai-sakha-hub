@@ -35,19 +35,22 @@ const HeroSection: React.FC = () => {
       icon: <Brain size={48} className="text-indigo-500 drop-shadow-md" />,
       title: "Adaptive Learning",
       description: "Our AI engine analyzes your learning patterns and adapts to create personalized study resources",
-      image: "/assets/images/adaptive-learning-3d.webp"
+      image: "/assets/images/adaptive-learning-3d.webp",
+      animationDelay: 0
     },
     {
       icon: <User size={48} className="text-purple-500 drop-shadow-md" />,
       title: "Personalized Study Plan",
       description: "Get study plans designed specifically for your learning style and exam goals",
-      image: "/assets/images/student-avatar-3d.webp" 
+      image: "/assets/images/student-avatar-3d.webp",
+      animationDelay: 0.2
     },
     {
       icon: <Book size={48} className="text-blue-500 drop-shadow-md" />,
       title: "Performance Analytics",
       description: "Track your progress with detailed analytics and improve weak areas strategically",
-      image: "/assets/images/analytics-3d.webp"
+      image: "/assets/images/analytics-3d.webp",
+      animationDelay: 0.4
     }
   ];
 
@@ -120,8 +123,8 @@ const HeroSection: React.FC = () => {
                 >
                   <motion.div
                     animate={index === activeSlide ? 
-                      { y: [0, -10, 0], scale: [1, 1.02, 1] } : 
-                      { y: 0, scale: 1 }
+                      { y: [0, -10, 0], scale: [1, 1.02, 1], rotate: [0, 2, 0] } : 
+                      { y: 0, scale: 1, rotate: 0 }
                     }
                     transition={{ 
                       duration: 3, 
