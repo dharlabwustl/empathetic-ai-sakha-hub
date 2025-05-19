@@ -25,16 +25,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREPZR, where we understand your mindset, not just the exam. Our platform provides personalized learning experiences to help you succeed in your academic journey.";
+      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREPZR! We're excited to have you join us. Our AI will analyze your learning style to create a personalized study plan that adapts to your unique needs.";
-    } else if (path.includes('/welcome') || path.includes('/free-trial')) {
-      return "Welcome to your PREPZR experience. Our platform creates a personalized study path that evolves as you learn, helping you achieve your academic goals with confidence.";
+      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
+    } else if (path.includes('/free-trial')) {
+      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer. PREPZR will assess your current preparation level and provide targeted recommendations to help you excel in your upcoming exams.";
+      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
     }
     
-    return "Welcome to PREPZR. Our AI-powered platform personalizes your learning experience to help you achieve academic success. How can we help you succeed today?";
+    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion.";
   };
   
   useEffect(() => {
@@ -48,8 +48,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Create speech synthesis utterance
           const speech = new SpeechSynthesisUtterance();
           
-          // Set speech properties
-          speech.text = message;
+          // Correct PREPZR pronunciation by using proper spelling in the text
+          speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
           speech.lang = language;
           speech.rate = 1.0; // Normal rate for clarity
           speech.pitch = 1.1; // Slightly higher for a more vibrant tone
@@ -58,18 +58,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a clear, vibrant voice - preferring female voices which often sound better
+          // Try to find a clear, vibrant voice - preferring US English voices
           const preferredVoiceNames = [
-            'Samantha', 'Google UK English Female', 'Microsoft Zira',
-            'Google US English Female', 'Victoria', 'Alex'
+            'Google US English Female', 'Microsoft Zira', 'Samantha', 
+            'Alex', 'en-US', 'en-GB'
           ];
           
           // Try to find a preferred voice
           let selectedVoice = null;
           for (const name of preferredVoiceNames) {
             const voice = voices.find(v => 
-              v.name?.includes(name) || 
-              v.lang?.includes(language.split('-')[0])
+              v.name?.toLowerCase().includes(name.toLowerCase()) || 
+              v.lang?.toLowerCase().includes(name.toLowerCase())
             );
             if (voice) {
               selectedVoice = voice;
@@ -103,8 +103,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           
           // Show toast notification
           toast({
-            title: "Voice Assistant Activated",
-            description: "Welcome to PREPZR - We understand your mindset, not just the exam",
+            title: "Sakha AI Voice Assistant",
+            description: "Voice assistance is available on this page",
             duration: 3000,
           });
         } catch (error) {

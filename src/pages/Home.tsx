@@ -36,7 +36,7 @@ const Home = () => {
       {/* Voice assistance */}
       <HomePageVoiceAssistant language="en-IN" />
       
-      {/* Page content with updated hero section */}
+      {/* Page content */}
       <HeroSection />
       
       {/* UN Sustainability Goals Banner */}

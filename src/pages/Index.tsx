@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -71,7 +72,7 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced 3D hero section with animated avatar journey */}
+        {/* Enhanced 3D hero section with voice interaction */}
         <Hero3DSection />
         
         {/* Smart Data section with animation and KPI stats */}
@@ -84,7 +85,7 @@ const Index = () => {
         >
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              We Understand Your Mindset, Not Just The Exam
+              Smart Data. Real Impact. Humanizing exam prep.
             </h2>
           </div>
           <KpiStats />
@@ -168,7 +169,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-IN" 
+          language="en-IN"  // Default to Indian English
         />
       )}
     </div>
