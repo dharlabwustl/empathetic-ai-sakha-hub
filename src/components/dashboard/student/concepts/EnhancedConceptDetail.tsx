@@ -3,14 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BookOpen, FileCheck, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag, Brain, CheckCircle } from 'lucide-react';
+import { Book, BookOpen, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag, Brain, CheckCircle, FileText } from 'lucide-react';
 import useUserNotes from '@/hooks/useUserNotes';
 import ConceptContent from './concept-detail/ConceptContent';
-import NoteSection from './concept-detail/NoteSection';
 import FormulaTabContent from './FormulaTabContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
-import RevisionSection from './concept-detail/RevisionSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
 
 export interface ConceptDetailProps {

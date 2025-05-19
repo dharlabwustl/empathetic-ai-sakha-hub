@@ -1,184 +1,212 @@
 
 import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { 
-  BookOpen, 
-  Calendar, 
-  Clock, 
-  ListChecks, 
-  Star, 
-  Lightbulb, 
-  BarChart
-} from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { TodaysPlanData } from '@/types/student/todaysPlan';
+import { Clock, BookOpen, Brain, FileText, CheckCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 
 interface NewTodaysPlanViewProps {
-  planData: any; // Simplified for this example
-  onConceptClick?: (conceptId: string) => void;
-  isMobile?: boolean;
+  planData: TodaysPlanData | null;
+  onConceptClick: (conceptId: string) => void;
+  isMobile: boolean;
 }
 
-const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ 
-  planData, 
-  onConceptClick,
-  isMobile = false
-}) => {
-  const navigate = useNavigate();
+const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData, onConceptClick, isMobile }) => {
+  if (!planData) return null;
   
-  if (!planData) {
-    return <div>No plan data available</div>;
-  }
-
-  const getTimeOfDay = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "morning";
-    if (hour < 17) return "afternoon";
-    return "evening";
-  };
-  
-  // Handler to navigate to concept study page
-  const handleConceptClick = (conceptId: string) => {
-    if (onConceptClick) {
-      onConceptClick(conceptId);
-    } else {
-      navigate(`/dashboard/student/concept-study/${conceptId}`);
+  const getStatusIndicator = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'pending':
+        return <div className="h-3 w-3 rounded-full bg-amber-500" />;
+      default:
+        return <div className="h-3 w-3 rounded-full bg-gray-300" />;
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Cards: Study Time and Focus Areas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center">
-                <Clock className="mr-2 h-4 w-4 text-blue-500" />
-                Today's Study Time
-              </CardTitle>
-              <span className="text-2xl font-bold">
-                {planData.totalStudyHours || 2} hrs
-              </span>
-            </div>
-            <CardDescription>
-              Recommended time allocation
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {planData.timeAllocation ? (
-              <div className="space-y-2">
-                {planData.timeAllocation.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between items-center text-sm">
-                    <span>{item.subject}</span>
-                    <span className="font-medium">{item.minutes} min</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span>Physics</span>
-                  <span className="font-medium">45 min</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span>Chemistry</span>
-                  <span className="font-medium">30 min</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span>Biology</span>
-                  <span className="font-medium">45 min</span>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center">
-              <ListChecks className="mr-2 h-4 w-4 text-purple-500" />
-              Focus Areas
-            </CardTitle>
-            <CardDescription>
-              Based on your recent performance
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {planData.focusAreas ? planData.focusAreas.map((area: any, i: number) => (
-                <div key={i}>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span>{area.name}</span>
-                    <span className="text-muted-foreground">{area.progress}%</span>
-                  </div>
-                  <Progress value={area.progress} className="h-2" />
-                </div>
-              )) : (
-                <>
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <span>Organic Chemistry</span>
-                      <span className="text-muted-foreground">35%</span>
-                    </div>
-                    <Progress value={35} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1 text-sm">
-                      <span>Mechanics</span>
-                      <span className="text-muted-foreground">60%</span>
-                    </div>
-                    <Progress value={60} className="h-2" />
-                  </div>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Concept Cards Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium flex items-center">
-            <BookOpen className="mr-2 h-5 w-5 text-blue-600" />
-            Today's Concept Cards
-          </h3>
-          <span className="text-sm text-muted-foreground">
-            {planData.conceptCards ? planData.conceptCards.length : 6} cards
-          </span>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* Using ConceptsSection but with our custom click handler */}
-          <ConceptsSection onConceptClick={handleConceptClick} />
-        </div>
-      </div>
-      
-      {/* Study Tips */}
+      {/* Concepts Section */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center">
-            <Lightbulb className="mr-2 h-4 w-4 text-amber-500" />
-            Study Tip for {getTimeOfDay()}
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center">
+              <BookOpen className="h-5 w-5 text-blue-600 mr-2" /> 
+              Concept Study
+            </CardTitle>
+            <Badge variant="outline">
+              {planData?.concepts.length || 0} concepts
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm">
-            {getTimeOfDay() === "morning" 
-              ? "Start with your most challenging subjects while your mind is fresh. Take short breaks between study sessions to maintain focus."
-              : getTimeOfDay() === "afternoon"
-              ? "Review your notes from the morning and work on problem-solving to reinforce the concepts. Stay hydrated to maintain cognitive performance."
-              : "For evening study, focus on revision rather than new topics. Summarize what you've learned today before going to sleep to improve retention."
-            }
-          </p>
+        
+        <CardContent className="pt-2">
+          <div className="grid grid-cols-1 gap-3">
+            {planData?.concepts?.map((concept, index) => (
+              <motion.div
+                key={concept.id || index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`cursor-pointer group p-3 ${concept.status === 'completed' ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'} border rounded-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all`}
+                onClick={() => onConceptClick(concept.id)}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-2">
+                    <div className="mt-1">
+                      {getStatusIndicator(concept.status)}
+                    </div>
+                    <div>
+                      <h3 className="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {concept.title}
+                      </h3>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {concept.subject} • {concept.topic}
+                        </span>
+                        <Badge variant="outline" className={`text-xs ${
+                          concept.difficulty === 'Easy' ? 'border-green-200 text-green-700 bg-green-50' :
+                          concept.difficulty === 'Medium' ? 'border-yellow-200 text-yellow-700 bg-yellow-50' :
+                          'border-red-200 text-red-700 bg-red-50'
+                        }`}>
+                          {concept.difficulty}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs flex items-center">
+                      <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
+                      <span className="text-muted-foreground">{concept.duration} min</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            
+            {(!planData?.concepts || planData.concepts.length === 0) && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No concept study scheduled for today</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Flashcards Section */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center">
+              <Brain className="h-5 w-5 text-purple-600 mr-2" /> 
+              Flashcards Review
+            </CardTitle>
+            <Badge variant="outline">
+              {planData?.flashcards.length || 0} decks
+            </Badge>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="pt-2">
+          <div className="grid grid-cols-1 gap-3">
+            {planData?.flashcards?.map((flashcard, index) => (
+              <motion.div
+                key={flashcard.id || index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.2 }}
+                className={`p-3 ${flashcard.status === 'completed' ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'} border rounded-lg`}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-2">
+                    <div className="mt-1">
+                      {getStatusIndicator(flashcard.status)}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{flashcard.title}</h3>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {flashcard.subject} • {flashcard.cardCount} cards
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs flex items-center">
+                      <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
+                      <span className="text-muted-foreground">{flashcard.duration} min</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            
+            {(!planData?.flashcards || planData.flashcards.length === 0) && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No flashcard review scheduled for today</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Practice Exams Section */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center">
+              <FileText className="h-5 w-5 text-green-600 mr-2" /> 
+              Practice Exams
+            </CardTitle>
+            <Badge variant="outline">
+              {planData?.practiceExams.length || 0} exams
+            </Badge>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="pt-2">
+          <div className="grid grid-cols-1 gap-3">
+            {planData?.practiceExams?.map((exam, index) => (
+              <motion.div
+                key={exam.id || index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.4 }}
+                className={`p-3 ${exam.status === 'completed' ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'} border rounded-lg`}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-2">
+                    <div className="mt-1">
+                      {getStatusIndicator(exam.status)}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{exam.title}</h3>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {exam.subject} • {exam.questionCount} questions
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs flex items-center">
+                      <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
+                      <span className="text-muted-foreground">{exam.duration} min</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            
+            {(!planData?.practiceExams || planData.practiceExams.length === 0) && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No practice exams scheduled for today</p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

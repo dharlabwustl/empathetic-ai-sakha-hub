@@ -3,6 +3,7 @@ export interface SystemLog {
   id: string;
   event: string;
   timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'debug';
+  level: "error" | "info" | "warning" | "debug";
+  message: string;
   details: Record<string, any>;
 }

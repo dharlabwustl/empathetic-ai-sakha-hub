@@ -2,40 +2,44 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Outlet } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
-interface AdminLayoutProps {
-  children: React.ReactNode;
-}
-
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { adminUser, adminLogout } = useAdminAuth();
+const AdminLayout = () => {
   const navigate = useNavigate();
+  const { isAdminAuthenticated, adminLogout } = useAdminAuth();
 
-  const handleLogout = async () => {
-    await adminLogout();
-    navigate('/admin/login');
+  const handleLogout = () => {
+    if (adminLogout) {
+      adminLogout();
+      navigate('/admin/login', { replace: true });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Admin header with logout */}
       <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="font-bold text-xl">Admin Portal</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            {adminUser && (
-              <>
-                <span className="text-sm">{adminUser.name}</span>
-                <Button variant="ghost" size="sm" onClick={handleLogout}>Logout</Button>
-              </>
-            )}
-          </div>
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400">PREPZR Admin</h1>
+          {isAdminAuthenticated && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="flex items-center gap-1"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          )}
         </div>
       </header>
-      <main className="container mx-auto px-4 py-8">
-        {children}
+      
+      {/* Main content area */}
+      <main className="container mx-auto px-4 py-6">
+        <Outlet />
       </main>
     </div>
   );

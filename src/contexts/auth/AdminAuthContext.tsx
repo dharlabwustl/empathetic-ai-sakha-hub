@@ -1,206 +1,93 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import { AdminUser } from '@/types/user/base';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// Define the context type
-interface AdminAuthContextType {
-  adminUser: AdminUser | null;
+export interface AdminAuthContextType {
   isAdminAuthenticated: boolean;
   isLoading: boolean;
-  loginAdmin: (email: string, password: string) => Promise<boolean>;
-  logoutAdmin: () => void;
   error: string | null;
+  loginAdmin: (email: string, password: string) => Promise<boolean>;
+  adminLogout: () => void;
 }
 
-// Create context with default values
 const AdminAuthContext = createContext<AdminAuthContextType>({
-  adminUser: null,
   isAdminAuthenticated: false,
   isLoading: true,
+  error: null,
   loginAdmin: async () => false,
-  logoutAdmin: () => {},
-  error: null
+  adminLogout: () => {},
 });
 
-// Hook to use the admin auth context
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
-// Provider props type
-interface AdminAuthProviderProps {
-  children: ReactNode;
-}
-
-export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
-  // Check admin authentication on mount
+  // Check for existing admin session on component mount
   useEffect(() => {
     const checkAdminAuth = () => {
       setIsLoading(true);
       try {
-        // Get admin token from localStorage
+        // In a real app, this would verify the token with an API
         const adminToken = localStorage.getItem('adminToken');
-        const adminUserData = localStorage.getItem('adminUser');
-        
-        if (adminToken && adminUserData) {
-          // Parse admin user data
-          const parsedAdminUser = JSON.parse(adminUserData) as AdminUser;
-          setAdminUser(parsedAdminUser);
-          setIsAdminAuthenticated(true);
-        } else {
-          setAdminUser(null);
-          setIsAdminAuthenticated(false);
-        }
+        setIsAdminAuthenticated(!!adminToken);
       } catch (err) {
-        console.error('Error checking admin authentication:', err);
-        setAdminUser(null);
+        console.error('Admin auth check error:', err);
+        setError('Failed to verify authentication');
         setIsAdminAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     };
-    
-    // Initial check
+
     checkAdminAuth();
-    
-    // Listen for auth state changes
-    window.addEventListener('admin-auth-changed', checkAdminAuth);
-    
-    return () => {
-      window.removeEventListener('admin-auth-changed', checkAdminAuth);
-    };
   }, []);
 
-  // Admin login function
+  // Login function
   const loginAdmin = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Simple validation
-      if (!email || !password) {
-        setError('Email and password are required');
-        return false;
-      }
-      
-      // For demo purposes, accept admin@prepzr.com or any email with admin in it
-      if (email === 'admin@prepzr.com' || email.includes('admin')) {
-        // Create admin user object
-        const user: AdminUser = {
-          id: `admin_${Date.now()}`,
-          name: email.split('@')[0],
-          email: email,
-          role: 'admin',
-          permissions: ['all']
-        };
+      // In a real app, this would be an API request
+      if (email === 'admin@prepzr.com' && password === 'admin123') {
+        // Set token in localStorage (would be a JWT in real app)
+        localStorage.setItem('adminToken', 'mock-admin-auth-token');
+        localStorage.setItem('adminUser', JSON.stringify({ email }));
         
-        // Generate token
-        const token = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-        
-        // Clear any existing user data
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userData');
-        
-        // Set admin data in localStorage
-        localStorage.setItem('adminToken', token);
-        localStorage.setItem('adminUser', JSON.stringify(user));
-        localStorage.setItem('admin_logged_in', 'true');
-        
-        // Update state
-        setAdminUser(user);
         setIsAdminAuthenticated(true);
-        
-        // Show success toast
-        toast({
-          title: 'Login successful',
-          description: `Welcome back, ${user.name}!`,
-          variant: 'default'
-        });
-        
-        // Dispatch event
-        window.dispatchEvent(new Event('admin-auth-changed'));
-        
         return true;
       } else {
-        setError('Invalid admin credentials');
-        toast({
-          title: 'Login failed',
-          description: 'Invalid admin credentials',
-          variant: 'destructive'
-        });
+        setError('Invalid credentials');
         return false;
       }
     } catch (err) {
-      console.error('Admin login error:', err);
-      setError('An unexpected error occurred');
-      toast({
-        title: 'Login error',
-        description: 'An unexpected error occurred',
-        variant: 'destructive'
-      });
+      console.error('Login error:', err);
+      setError('Login failed');
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Admin logout function
-  const logoutAdmin = () => {
-    setIsLoading(true);
-    
-    try {
-      // Clear admin data
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      localStorage.removeItem('admin_logged_in');
-      
-      // Update state
-      setAdminUser(null);
-      setIsAdminAuthenticated(false);
-      
-      // Show toast
-      toast({
-        title: 'Logout successful',
-        description: 'You have been logged out of the admin portal',
-        variant: 'default'
-      });
-      
-      // Dispatch event
-      window.dispatchEvent(new Event('admin-auth-changed'));
-      
-      // Navigate to login page
-      navigate('/admin/login', { replace: true });
-    } catch (err) {
-      console.error('Admin logout error:', err);
-      toast({
-        title: 'Logout error',
-        description: 'An error occurred during logout',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  // Logout function
+  const adminLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    setIsAdminAuthenticated(false);
   };
 
-  // Provide context value
-  const contextValue: AdminAuthContextType = {
-    adminUser,
+  const value: AdminAuthContextType = {
     isAdminAuthenticated,
     isLoading,
+    error,
     loginAdmin,
-    logoutAdmin,
-    error
+    adminLogout,
   };
 
   return (
-    <AdminAuthContext.Provider value={contextValue}>
+    <AdminAuthContext.Provider value={value}>
       {children}
     </AdminAuthContext.Provider>
   );
