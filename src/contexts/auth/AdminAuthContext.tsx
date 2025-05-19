@@ -43,16 +43,21 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       try {
         setIsLoading(true);
         
-        // Add a small delay to ensure localStorage is properly accessed
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Explicitly check localStorage directly first
+        const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
         
-        // Check if admin is authenticated
-        const isAdmin = adminAuthService.isAuthenticated();
+        // Then check through the service
+        const isAdmin = adminAuthService.isAuthenticated() || isAdminLoggedIn;
         setIsAdminAuthenticated(isAdmin);
         
         if (isAdmin) {
           const user = await adminAuthService.getAdminUser();
           setAdminUser(user);
+          
+          // Ensure admin_logged_in is set in localStorage
+          if (!isAdminLoggedIn) {
+            localStorage.setItem('admin_logged_in', 'true');
+          }
         } else {
           setAdminUser(null);
         }
@@ -89,6 +94,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       if (response.success && response.data) {
         setIsAdminAuthenticated(true);
         setAdminUser(response.data);
+        
+        // Explicitly set admin logged in status
+        localStorage.setItem('admin_logged_in', 'true');
         
         // Dispatch event to notify components about auth state change
         window.dispatchEvent(new Event('auth-state-changed'));
@@ -128,6 +136,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     try {
       setIsLoading(true);
       await adminAuthService.adminLogout();
+      
+      // Explicitly clear admin logged in status
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('admin_login_attempt');
       
       setIsAdminAuthenticated(false);
       setAdminUser(null);

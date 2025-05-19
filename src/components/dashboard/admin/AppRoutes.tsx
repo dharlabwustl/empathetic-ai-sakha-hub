@@ -12,7 +12,8 @@ const AdminAppRoutes: React.FC = () => {
         activeUsers: 180,
         totalRevenue: 15780,
         newUsersToday: 12,
-        dailyActiveUsers: 120
+        dailyActiveUsers: 120,
+        dailyActiveUsers: [{date: "2025-05-01", count: 100}, {date: "2025-05-02", count: 120}]
       }} />} />
       <Route path="/subscriptions" element={<SubscriptionManager />} />
     </Routes>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { SystemLog } from '@/types/admin';
+import { SystemLog } from '@/types/admin/systemLog';
 
 interface SystemLogsProps {
   logs: SystemLog[];
@@ -47,19 +47,25 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ logs }) => {
               <TableRow>
                 <TableHead>Timestamp</TableHead>
                 <TableHead>Level</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>Source</TableHead>
+                <TableHead>Event</TableHead>
+                <TableHead>Details</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>{formatTimestamp(log.timestamp)}</TableCell>
-                  <TableCell>{getLogLevelBadge(log.level)}</TableCell>
-                  <TableCell className="font-medium">{log.message}</TableCell>
-                  <TableCell>{log.source}</TableCell>
+              {logs.length > 0 ? (
+                logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell>{formatTimestamp(log.timestamp)}</TableCell>
+                    <TableCell>{getLogLevelBadge(log.level)}</TableCell>
+                    <TableCell className="font-medium">{log.event}</TableCell>
+                    <TableCell>{log.details ? JSON.stringify(log.details).substring(0, 50) + '...' : 'N/A'}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-4">No logs available</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

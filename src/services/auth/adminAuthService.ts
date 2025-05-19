@@ -5,6 +5,7 @@ interface LoginResponse {
   success: boolean;
   data: AdminUser | null;
   message?: string;
+  error?: string;
 }
 
 interface LoginCredentials {
@@ -60,7 +61,8 @@ const adminAuthService = {
       return {
         success: false,
         data: null,
-        message: "An error occurred during login"
+        message: "An error occurred during login",
+        error: error instanceof Error ? error.message : "Unknown error"
       };
     }
   },

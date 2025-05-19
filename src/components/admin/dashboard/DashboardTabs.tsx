@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SystemLog } from '@/types/admin';
+import { SystemLog } from '@/types/admin/systemLog';
 
 // Import components
 import Overview from './Overview';
@@ -21,9 +21,27 @@ interface DashboardTabsProps {
 const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange }) => {
   // Mock system logs data
   const logs: SystemLog[] = [
-    { id: '1', timestamp: new Date().toISOString(), level: 'info', message: 'User login successful', source: 'auth' },
-    { id: '2', timestamp: new Date().toISOString(), level: 'error', message: 'Database connection failed', source: 'database' },
-    { id: '3', timestamp: new Date().toISOString(), level: 'warning', message: 'API rate limit exceeded', source: 'api' },
+    { 
+      id: '1', 
+      event: 'User login successful', 
+      timestamp: new Date().toISOString(), 
+      level: 'info', 
+      details: { userId: 'user123', ip: '192.168.1.1' } 
+    },
+    { 
+      id: '2', 
+      event: 'Database connection failed', 
+      timestamp: new Date().toISOString(), 
+      level: 'error', 
+      details: { database: 'users', error: 'Connection timeout' } 
+    },
+    { 
+      id: '3', 
+      event: 'API rate limit exceeded', 
+      timestamp: new Date().toISOString(), 
+      level: 'warning',
+      details: { endpoint: '/api/users', requestCount: 120, limit: 100 } 
+    },
   ];
 
   return (

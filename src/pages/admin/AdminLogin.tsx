@@ -23,19 +23,29 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    // Check if this is an admin login attempt
-    const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
+    const checkAdminAuth = () => {
+      // Check if this is an admin login attempt
+      const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
+      
+      if (isAdminLoginAttempt) {
+        // Clear the flag so we don't loop
+        localStorage.removeItem('admin_login_attempt');
+        console.log("Admin login attempt detected");
+      }
+      
+      const isAuthenticated = localStorage.getItem('admin_logged_in') === 'true';
+      
+      if (isAuthenticated || isAdminAuthenticated) {
+        console.log("Already authenticated as admin, redirecting to dashboard");
+        navigate('/admin/dashboard', { replace: true });
+      }
+    };
     
-    if (isAdminLoginAttempt) {
-      // Clear the flag so we don't loop
-      localStorage.removeItem('admin_login_attempt');
-      console.log("Admin login attempt detected");
-    }
+    // Check immediately and after a short delay to ensure auth state is properly loaded
+    checkAdminAuth();
+    const timer = setTimeout(checkAdminAuth, 500);
     
-    if (isAdminAuthenticated) {
-      console.log("Already authenticated as admin, redirecting to dashboard");
-      navigate('/admin/dashboard', { replace: true });
-    }
+    return () => clearTimeout(timer);
   }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,11 +75,11 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Mark admin as logged in
+        // Mark admin as logged in explicitly to guarantee it's set
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Navigate after login success - fixed the issue with vibrating after login
-        navigate('/admin/dashboard', { replace: true });
+        // Navigate after login success - force a hard redirect
+        window.location.href = '/admin/dashboard';
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
