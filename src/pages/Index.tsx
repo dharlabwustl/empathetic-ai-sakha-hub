@@ -20,8 +20,6 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import { Card, CardContent } from '@/components/ui/card';
-import { Globe } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -90,23 +88,6 @@ const Index = () => {
           </div>
           <KpiStats />
         </motion.section>
-        
-        {/* UN Sustainability Goals Banner */}
-        <div className="container mx-auto px-4 my-8">
-          <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 dark:from-blue-900/20 dark:to-green-900/20 dark:border-blue-800/30">
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
-                <Globe className="h-6 w-6 text-blue-500 dark:text-blue-300" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-1 text-blue-600 dark:text-blue-300">Supporting UN Sustainability Goals</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  We support UN Goal 4: Ensuring inclusive and equitable quality education and promoting lifelong learning opportunities for all.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
         
         {/* Backed By Section with partner logos */}
         <BackedBySection />

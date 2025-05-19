@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked, Sparkles, Globe } from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from "@/hooks/use-toast";
@@ -235,17 +236,8 @@ const PostLoginWelcome = () => {
               </CardHeader>
             </motion.div>
             
-            {/* UN Sustainability Goals message */}
+            {/* Rest of the card content */}
             <CardContent className="space-y-4">
-              <motion.div variants={itemVariants}>
-                <div className="mb-4 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm flex items-start">
-                  <Globe className="h-4 w-4 text-blue-700 dark:text-blue-300 mt-0.5 mr-2 flex-shrink-0" />
-                  <p className="text-blue-700 dark:text-blue-300">
-                    PREP-zer proudly supports UN Sustainability Goal 4: Ensuring inclusive and equitable quality education and promoting lifelong learning opportunities for all.
-                  </p>
-                </div>
-              </motion.div>
-              
               <motion.div variants={itemVariants}>
                 <Button 
                   variant="default" 

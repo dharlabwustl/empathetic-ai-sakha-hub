@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,25 +18,6 @@ const WelcomeToPrepr: React.FC<WelcomeToPreprProps> = ({
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showSpinner, setShowSpinner] = useState(false);
-
-  // Additional transition elements for 3D animation
-  const pathVariants = {
-    hidden: { pathLength: 0, opacity: 0 },
-    visible: {
-      pathLength: 1,
-      opacity: 1,
-      transition: { duration: 2, ease: "easeInOut" }
-    }
-  };
-
-  const avatarVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 1, delay: 0.5 }
-    }
-  };
 
   // Set the first-time user flag when this component mounts
   useEffect(() => {
@@ -77,19 +59,11 @@ const WelcomeToPrepr: React.FC<WelcomeToPreprProps> = ({
                 <CheckCircle className="h-10 w-10 text-green-600" />
               </motion.div>
             </div>
-            <CardTitle className="text-center text-2xl">Welcome to PREP-zer!</CardTitle>
+            <CardTitle className="text-center text-2xl">Welcome to PREPZR!</CardTitle>
             <CardDescription className="text-center text-lg">
               Congratulations, {userName}! Your account has been created successfully.
             </CardDescription>
             <CardContent className="space-y-4 pt-6">
-              <div className="text-center mb-4">
-                <div className="mb-4 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm">
-                  <p className="text-blue-700 dark:text-blue-300">
-                    PREP-zer proudly supports UN Sustainability Goal 4: Ensuring inclusive and equitable quality education for all.
-                  </p>
-                </div>
-              </div>
-            
               <p className="text-center">
                 You're all set to start your personalized learning journey. Our AI-powered platform
                 will help you prepare for your exams with customized study plans, interactive
@@ -156,83 +130,16 @@ const WelcomeToPrepr: React.FC<WelcomeToPreprProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="mb-6 flex justify-center">
-              {/* 3D Journey Animation */}
-              <div className="relative h-[200px] w-[300px]">
-                <svg className="w-full h-full" viewBox="0 0 300 200">
-                  <motion.path
-                    d="M20,100 C60,40 150,160 280,100"
-                    fill="none"
-                    stroke="#9b87f5"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    variants={pathVariants}
-                    initial="hidden"
-                    animate="visible"
-                  />
-                  
-                  {/* Student avatar journey along path */}
-                  <motion.circle
-                    cx="20"
-                    cy="100"
-                    r="15"
-                    fill="url(#avatarGradient)"
-                    variants={avatarVariants}
-                    initial="hidden"
-                    animate="visible"
-                    animate={{
-                      cx: [20, 80, 150, 220, 280],
-                      cy: [100, 50, 130, 70, 100],
-                      transition: {
-                        duration: 6,
-                        times: [0, 0.25, 0.5, 0.75, 1],
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }
-                    }}
-                  />
-                  
-                  <defs>
-                    <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#8b5cf6" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                
-                {/* Journey milestone labels */}
-                <div className="absolute left-[5%] top-[45%] transform -translate-y-1/2">
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded text-xs shadow-sm">
-                    Start
-                  </div>
-                </div>
-                
-                <div className="absolute left-[25%] top-[20%] transform -translate-y-1/2">
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded text-xs shadow-sm">
-                    Learn
-                  </div>
-                </div>
-                
-                <div className="absolute left-[50%] top-[60%] transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded text-xs shadow-sm">
-                    Practice
-                  </div>
-                </div>
-                
-                <div className="absolute left-[75%] top-[30%] transform -translate-y-1/2">
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded text-xs shadow-sm">
-                    Master
-                  </div>
-                </div>
-                
-                <div className="absolute right-[5%] top-[45%] transform -translate-y-1/2">
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded text-xs shadow-sm">
-                    Success!
-                  </div>
-                </div>
-              </div>
+            <div className="mb-2 flex justify-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="rounded-full bg-blue-100 p-3"
+              >
+                <BookOpen className="h-10 w-10 text-blue-600" />
+              </motion.div>
             </div>
-            
             <CardTitle className="text-center text-2xl">Creating Your Study Plan</CardTitle>
             <CardDescription className="text-center text-lg">
               Let's set up your personalized NEET study journey
