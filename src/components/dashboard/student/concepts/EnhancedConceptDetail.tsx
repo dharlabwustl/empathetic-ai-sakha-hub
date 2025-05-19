@@ -1,561 +1,550 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, 
-  Play, 
-  Pause, 
-  Link2 as LinkIcon, 
-  Flag, 
-  FlagOff,
-  Brain,
-  GraduationCap,
-  Zap,
-  ClipboardList,
-  CheckCircle,
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import {
+  BookOpen,
   MessageSquare,
-  Book,
+  FileText,
+  PenTool,
+  Volume2,
+  VolumeX,
+  BookmarkPlus,
+  BookmarkCheck,
+  Flag,
+  Brain,
+  Link,
+  CheckCircle,
+  AlertTriangle,
+  Lightbulb,
   ArrowLeft,
-  Bookmark,
-  BookmarkCheck
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Radio, RadioGroup } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+  ExternalLink
+} from 'lucide-react';
+
+// Mock data for concept
+const mockConceptData = {
+  id: '1',
+  title: 'Newton\'s Laws of Motion',
+  subject: 'Physics',
+  chapter: 'Classical Mechanics',
+  difficulty: 'Medium',
+  timeToComplete: '25 minutes',
+  masteryLevel: 72,
+  description: 'Newton\'s laws of motion are three physical laws that together laid the foundation for classical mechanics. They describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.',
+  content: `
+    <h2>First Law: Law of Inertia</h2>
+    <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+    
+    <h2>Second Law: F = ma</h2>
+    <p>The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. The direction of the acceleration is in the direction of the applied net force.</p>
+    
+    <h2>Third Law: Action and Reaction</h2>
+    <p>For every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body simultaneously exerts a force equal in magnitude and opposite in direction on the first body.</p>
+    
+    <h3>Applications</h3>
+    <ul>
+      <li>Rocket propulsion</li>
+      <li>Walking</li>
+      <li>Swimming</li>
+      <li>Car acceleration and braking</li>
+    </ul>
+  `,
+  formulas: [
+    {
+      id: 'f1',
+      name: 'Second Law of Motion',
+      formula: 'F = m × a',
+      variables: [
+        { symbol: 'F', name: 'Force', unit: 'N (Newtons)' },
+        { symbol: 'm', name: 'Mass', unit: 'kg (kilograms)' },
+        { symbol: 'a', name: 'Acceleration', unit: 'm/s² (meters per second squared)' }
+      ]
+    },
+    {
+      id: 'f2',
+      name: 'Weight Formula',
+      formula: 'W = m × g',
+      variables: [
+        { symbol: 'W', name: 'Weight', unit: 'N (Newtons)' },
+        { symbol: 'm', name: 'Mass', unit: 'kg (kilograms)' },
+        { symbol: 'g', name: 'Gravitational acceleration', unit: 'm/s² (meters per second squared)' }
+      ]
+    }
+  ],
+  practiceQuestions: [
+    {
+      id: 'q1',
+      question: 'A 2kg object experiences a net force of 10N. What is its acceleration?',
+      options: [
+        '2 m/s²',
+        '5 m/s²',
+        '10 m/s²',
+        '20 m/s²'
+      ],
+      answer: 1,
+      explanation: 'Using Newton\'s Second Law (F = ma), a = F/m = 10N/2kg = 5 m/s²'
+    },
+    {
+      id: 'q2',
+      question: 'Which of Newton\'s laws explains rocket propulsion?',
+      options: [
+        'First law',
+        'Second law',
+        'Third law',
+        'None of the above'
+      ],
+      answer: 2,
+      explanation: 'Newton\'s Third Law: The rocket pushes gas particles out the back, and the gas particles push the rocket forward with an equal and opposite force.'
+    }
+  ],
+  relatedConcepts: [
+    { id: '2', title: 'Momentum and Impulse', subject: 'Physics' },
+    { id: '3', title: 'Work and Energy', subject: 'Physics' },
+    { id: '4', title: 'Circular Motion', subject: 'Physics' }
+  ]
+};
 
 interface EnhancedConceptDetailProps {
   conceptId: string;
-  conceptTitle: string;
-  conceptContent: string;
-  subject: string;
-  chapter: string;
-  linkedConcepts?: Array<{id: string, title: string}>;
-  relatedFlashcards?: Array<{id: string, front: string, back: string}>;
-  relatedExams?: Array<{id: string, title: string}>;
 }
 
-const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({
-  conceptId,
-  conceptTitle,
-  conceptContent,
-  subject,
-  chapter,
-  linkedConcepts = [],
-  relatedFlashcards = [],
-  relatedExams = []
-}) => {
+const EnhancedConceptDetail: React.FC<EnhancedConceptDetailProps> = ({ conceptId }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("content");
-  const [isFlagged, setIsFlagged] = useState(false);
-  const [notes, setNotes] = useState("");
-  const [isReadingAloud, setIsReadingAloud] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState("");
-  const [aiResponse, setAiResponse] = useState("");
-  const [isAiResponding, setIsAiResponding] = useState(false);
+  const [concept, setConcept] = useState(mockConceptData);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [showPracticeQuestions, setShowPracticeQuestions] = useState(false);
-  const [practiceAnswers, setPracticeAnswers] = useState<{[key: number]: number}>({});
-  const [practiceSubmitted, setPracticeSubmitted] = useState(false);
+  const [isFlagged, setIsFlagged] = useState(false);
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
+  const [isAskingDoubt, setIsAskingDoubt] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [doubtQuestion, setDoubtQuestion] = useState('');
+  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [isQuizSubmitted, setIsQuizSubmitted] = useState(false);
   
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  
-  // Sample practice questions generated based on content
-  const practiceQuestions = [
-    {
-      question: `Which of the following best describes ${conceptTitle}?`,
-      options: [
-        "The relationship between force and acceleration",
-        "The conservation of energy in closed systems",
-        "The relationship between mass and gravity",
-        "The effects of friction on moving objects"
-      ],
-      correct: 0
-    },
-    {
-      question: `What is the primary application of ${conceptTitle} in real-world scenarios?`,
-      options: [
-        "Predicting weather patterns",
-        "Designing efficient engines",
-        "Building stable structures",
-        "Understanding planetary motion"
-      ],
-      correct: 3
-    },
-    {
-      question: "Which scientist is most closely associated with this concept?",
-      options: [
-        "Albert Einstein",
-        "Isaac Newton",
-        "Niels Bohr",
-        "Galileo Galilei"
-      ],
-      correct: 1
+  // Initialize speech synthesis
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      setSpeechSynthesis(window.speechSynthesis);
     }
-  ];
-  
-  // Read aloud functionality
-  const handleToggleReadAloud = () => {
-    if (!window.speechSynthesis) {
-      toast({
-        title: "Speech synthesis not supported",
-        description: "Your browser doesn't support text-to-speech functionality.",
-        variant: "destructive"
-      });
-      return;
-    }
+  }, []);
+
+  // Fetch concept data
+  useEffect(() => {
+    // In a real app, fetch data based on conceptId
+    console.log(`Fetching concept data for ID: ${conceptId}`);
+    // setConcept would be set with actual API data
+  }, [conceptId]);
+
+  // Handle bookmark
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? 'Bookmark removed' : 'Bookmark added',
+      description: isBookmarked 
+        ? `${concept.title} removed from your bookmarks` 
+        : `${concept.title} added to your bookmarks for quick access`,
+    });
+  };
+
+  // Handle flag for revision
+  const handleFlag = () => {
+    setIsFlagged(!isFlagged);
+    toast({
+      title: isFlagged ? 'Removed from revision list' : 'Flagged for revision',
+      description: isFlagged 
+        ? `${concept.title} removed from your revision list` 
+        : `${concept.title} added to your revision list`,
+    });
+  };
+
+  // Handle read aloud functionality
+  const handleReadAloud = () => {
+    if (!speechSynthesis) return;
     
     if (isReadingAloud) {
-      window.speechSynthesis.cancel();
+      speechSynthesis.cancel();
       setIsReadingAloud(false);
     } else {
-      const utterance = new SpeechSynthesisUtterance(conceptContent);
-      // Try to find a good voice
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.lang === 'en-IN' || voice.name.includes('Indian') || voice.lang === 'en-US'
-      );
+      // Extract text content from HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = concept.content;
+      const textToRead = tempDiv.textContent || tempDiv.innerText;
       
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      utterance.rate = 0.9; // Slightly slower for better comprehension
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.pitch = 1.0;
       utterance.onend = () => setIsReadingAloud(false);
-      utterance.onerror = () => setIsReadingAloud(false);
       
-      speechRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
+      speechSynthesis.speak(utterance);
       setIsReadingAloud(true);
     }
   };
-  
+
+  // Handle practicing a question
+  const handlePracticeQuestion = (index: number) => {
+    setSelectedQuestionIndex(index);
+    setSelectedAnswer(null);
+    setShowAnswer(false);
+  };
+
+  // Handle selecting an answer
+  const handleSelectAnswer = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex);
+  };
+
+  // Handle submitting an answer
+  const handleSubmitAnswer = () => {
+    if (selectedQuestionIndex === null || selectedAnswer === null) return;
+    
+    setShowAnswer(true);
+    setIsQuizSubmitted(true);
+    
+    const isCorrect = selectedAnswer === concept.practiceQuestions[selectedQuestionIndex].answer;
+    
+    toast({
+      title: isCorrect ? 'Correct Answer!' : 'Incorrect Answer',
+      description: isCorrect 
+        ? 'Well done! You got it right.' 
+        : `The correct answer is: ${concept.practiceQuestions[selectedQuestionIndex].options[concept.practiceQuestions[selectedQuestionIndex].answer]}`,
+      variant: isCorrect ? 'default' : 'destructive',
+    });
+  };
+
+  // Handle asking a doubt
+  const handleAskDoubt = () => {
+    if (!doubtQuestion.trim()) return;
+    
+    toast({
+      title: 'Question Submitted',
+      description: 'Your question has been sent to our AI Tutor.',
+    });
+    
+    setIsAskingDoubt(false);
+    setDoubtQuestion('');
+    
+    // In a real app, this would send the question to an API endpoint
+    setTimeout(() => {
+      toast({
+        title: 'AI Tutor Response',
+        description: 'Your answer is ready! Check the chat panel to view it.',
+      });
+    }, 2000);
+  };
+
   // Handle saving notes
   const handleSaveNotes = () => {
-    // In a real app, this would save to a database
     toast({
-      title: "Notes saved",
-      description: "Your notes have been saved successfully."
+      title: 'Notes Saved',
+      description: 'Your notes have been saved successfully',
     });
   };
-  
-  // Handle flagging for revision
-  const handleToggleFlag = () => {
-    setIsFlagged(!isFlagged);
-    
-    toast({
-      title: isFlagged ? "Removed from revision list" : "Added to revision list",
-      description: isFlagged 
-        ? "This concept has been removed from your revision list." 
-        : "This concept has been added to your revision list.",
-    });
-  };
-  
-  // Handle bookmark toggle
-  const handleToggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    
-    toast({
-      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
-      description: isBookmarked 
-        ? "This concept has been removed from your bookmarks." 
-        : "This concept has been added to your bookmarks.",
-    });
-  };
-  
-  // Handle asking AI tutor
-  const handleAskTutor = () => {
-    if (!currentQuestion.trim()) {
-      toast({
-        title: "Question required",
-        description: "Please enter a question to ask the AI tutor.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsAiResponding(true);
-    
-    // Simulate AI response
-    setTimeout(() => {
-      setAiResponse(`Based on "${conceptTitle}", I can explain that: ${conceptContent.substring(0, 150)}... 
-      
-To answer your question specifically: "${currentQuestion}" 
 
-The key principle here is that ${conceptContent.substring(50, 150)}... Does that help clarify things? Feel free to ask follow-up questions!`);
-      setIsAiResponding(false);
-    }, 1500);
-  };
-  
-  // Handle practice answer selection
-  const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
-    setPracticeAnswers({
-      ...practiceAnswers,
-      [questionIndex]: answerIndex
-    });
-  };
-  
-  // Handle practice submission
-  const handleSubmitPractice = () => {
-    setPracticeSubmitted(true);
-    
-    // Calculate score
-    const correctAnswers = Object.entries(practiceAnswers).filter(
-      ([questionIndex, answerIndex]) => 
-        practiceQuestions[parseInt(questionIndex)].correct === answerIndex
-    ).length;
-    
-    const score = Math.round((correctAnswers / practiceQuestions.length) * 100);
-    
-    toast({
-      title: "Practice completed!",
-      description: `You got ${correctAnswers} out of ${practiceQuestions.length} correct (${score}%).`
-    });
-  };
-  
-  // Calculate mastery level based on practice score
-  const masteryLevel = 65; // Sample mastery percentage
-  
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
+    <div className="container max-w-4xl mx-auto py-6">
+      {/* Back button and actions */}
+      <div className="flex items-center justify-between mb-6">
         <Button 
           variant="ghost" 
-          size="sm" 
-          onClick={() => navigate('/dashboard/student/concepts')}
-          className="mb-2"
+          className="flex items-center gap-1 text-muted-foreground" 
+          onClick={() => navigate(-1)}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Concepts
         </Button>
         
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-3xl font-bold">{conceptTitle}</h1>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-                Intermediate
-              </Badge>
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <Book className="h-4 w-4 mr-1" />
-              <span className="mr-3">{subject}</span>
-              <span className="mx-2">•</span>
-              <span>{chapter}</span>
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={isReadingAloud ? "destructive" : "outline"} 
+            size="sm"
+            onClick={handleReadAloud}
+            className="flex items-center gap-1"
+          >
+            {isReadingAloud ? (
+              <>
+                <VolumeX className="h-4 w-4" />
+                Stop Reading
+              </>
+            ) : (
+              <>
+                <Volume2 className="h-4 w-4" />
+                Read Aloud
+              </>
+            )}
+          </Button>
           
-          <div className="mt-4 sm:mt-0 flex flex-wrap items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={isBookmarked ? "bg-blue-50 text-blue-700 border-blue-200" : ""}
-              onClick={handleToggleBookmark}
-            >
-              {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-1" /> : <Bookmark className="h-4 w-4 mr-1" />}
-              {isBookmarked ? "Bookmarked" : "Bookmark"}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={isFlagged ? "bg-amber-50 text-amber-700 border-amber-200" : ""}
-              onClick={handleToggleFlag}
-            >
-              {isFlagged ? <FlagOff className="h-4 w-4 mr-1" /> : <Flag className="h-4 w-4 mr-1" />}
-              {isFlagged ? "Remove Flag" : "Flag for Revision"}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={isReadingAloud ? "bg-green-50 text-green-700 border-green-200" : ""}
-              onClick={handleToggleReadAloud}
-            >
-              {isReadingAloud ? <Pause className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}
-              {isReadingAloud ? "Stop Reading" : "Read Aloud"}
-            </Button>
-          </div>
+          <Button 
+            variant={isBookmarked ? "default" : "outline"} 
+            size="sm"
+            onClick={handleBookmark}
+            className="flex items-center gap-1"
+          >
+            {isBookmarked ? (
+              <>
+                <BookmarkCheck className="h-4 w-4" />
+                Bookmarked
+              </>
+            ) : (
+              <>
+                <BookmarkPlus className="h-4 w-4" />
+                Bookmark
+              </>
+            )}
+          </Button>
+          
+          <Button 
+            variant={isFlagged ? "warning" : "outline"} 
+            size="sm"
+            onClick={handleFlag}
+            className={`flex items-center gap-1 ${isFlagged ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}`}
+          >
+            <Flag className="h-4 w-4" />
+            {isFlagged ? 'Flagged' : 'Flag for Revision'}
+          </Button>
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="content">
-            <BookOpen className="h-4 w-4 mr-2 hidden sm:inline" />
+      {/* Concept header */}
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{concept.title}</h1>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              {concept.subject}
+            </Badge>
+            <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+              {concept.chapter}
+            </Badge>
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+              {concept.difficulty}
+            </Badge>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-sm text-muted-foreground">Mastery Level:</span>
+          <div className="flex-grow max-w-64">
+            <Progress value={concept.masteryLevel} className="h-2" />
+          </div>
+          <span className="text-sm font-medium">{concept.masteryLevel}%</span>
+        </div>
+        
+        <p className="text-muted-foreground">{concept.description}</p>
+      </div>
+      
+      {/* Main content tabs */}
+      <Tabs defaultValue="content" className="mb-6">
+        <TabsList className="grid grid-cols-5 mb-4">
+          <TabsTrigger value="content" className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
             <span>Content</span>
           </TabsTrigger>
-          <TabsTrigger value="practice">
-            <Brain className="h-4 w-4 mr-2 hidden sm:inline" />
+          <TabsTrigger value="formulas" className="flex items-center gap-1">
+            <FileText className="h-4 w-4" />
+            <span>Formulas</span>
+          </TabsTrigger>
+          <TabsTrigger value="practice" className="flex items-center gap-1">
+            <Brain className="h-4 w-4" />
             <span>Practice</span>
           </TabsTrigger>
-          <TabsTrigger value="notes">
-            <ClipboardList className="h-4 w-4 mr-2 hidden sm:inline" />
-            <span>Notes</span>
+          <TabsTrigger value="related" className="flex items-center gap-1">
+            <Link className="h-4 w-4" />
+            <span>Related</span>
           </TabsTrigger>
-          <TabsTrigger value="tutor">
-            <GraduationCap className="h-4 w-4 mr-2 hidden sm:inline" />
-            <span>AI Tutor</span>
+          <TabsTrigger value="notes" className="flex items-center gap-1">
+            <PenTool className="h-4 w-4" />
+            <span>My Notes</span>
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="content" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Concept Details</CardTitle>
-                </CardHeader>
-                <CardContent className="prose dark:prose-invert">
-                  <div>{conceptContent.split('\n\n').map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}</div>
-                </CardContent>
-              </Card>
+        {/* Content Tab */}
+        <TabsContent value="content">
+          <Card>
+            <CardContent className="pt-6">
+              <div 
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: concept.content }}
+              />
               
-              {/* Mastery Progress */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>Mastery Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">Overall Mastery</span>
-                        <span className="text-sm font-medium">{masteryLevel}%</span>
-                      </div>
-                      <Progress value={masteryLevel} className="h-2" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs">Recall Accuracy</span>
-                          <span className="text-xs font-medium">70%</span>
-                        </div>
-                        <Progress value={70} className="h-2" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs">Quiz Performance</span>
-                          <span className="text-xs font-medium">60%</span>
-                        </div>
-                        <Progress value={60} className="h-2" />
-                      </div>
-                    </div>
-                    
-                    <div className="text-xs text-center text-muted-foreground">
-                      Last studied 3 days ago • Scheduled for review tomorrow
+              <div className="mt-6 border-t pt-4">
+                <Button 
+                  onClick={() => setIsAskingDoubt(true)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask a Doubt
+                </Button>
+                
+                {isAskingDoubt && (
+                  <div className="mt-4 border rounded-md p-4">
+                    <h3 className="text-lg font-medium mb-2">Ask Your Doubt</h3>
+                    <Textarea 
+                      placeholder="Type your question about this concept..."
+                      value={doubtQuestion}
+                      onChange={(e) => setDoubtQuestion(e.target.value)}
+                      className="mb-4"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setIsAskingDoubt(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAskDoubt}>
+                        Submit Question
+                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div>
-              {/* Related Resources */}
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Related Resources</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Linked Concepts */}
-                  {linkedConcepts && linkedConcepts.length > 0 && (
-                    <div>
-                      <h3 className="font-medium text-sm mb-2 flex items-center gap-1">
-                        <LinkIcon className="h-4 w-4 text-blue-500" />
-                        Linked Concepts
-                      </h3>
-                      <div className="space-y-2">
-                        {linkedConcepts.map((concept) => (
-                          <Button
-                            key={concept.id}
-                            variant="outline"
-                            className="w-full justify-start text-left"
-                            onClick={() => navigate(`/dashboard/student/concept-study/${concept.id}`)}
-                          >
-                            {concept.title}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Related Flashcards */}
-                  {relatedFlashcards && relatedFlashcards.length > 0 && (
-                    <div>
-                      <h3 className="font-medium text-sm mb-2 flex items-center gap-1">
-                        <Zap className="h-4 w-4 text-amber-500" />
-                        Related Flashcards
-                      </h3>
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start text-left"
-                        onClick={() => navigate(`/dashboard/student/flashcards`)}
-                      >
-                        View {relatedFlashcards.length} Related Flashcards
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {/* Related Exams */}
-                  {relatedExams && relatedExams.length > 0 && (
-                    <div>
-                      <h3 className="font-medium text-sm mb-2 flex items-center gap-1">
-                        <ClipboardList className="h-4 w-4 text-green-500" />
-                        Related Exams
-                      </h3>
-                      <div className="space-y-2">
-                        {relatedExams.map((exam) => (
-                          <Button
-                            key={exam.id}
-                            variant="outline"
-                            className="w-full justify-start text-left"
-                            onClick={() => navigate(`/dashboard/student/practice-exam/${exam.id}`)}
-                          >
-                            {exam.title}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full" onClick={() => setActiveTab("practice")}>
-                    <Brain className="mr-2 h-4 w-4" />
-                    Start Quick Recall Practice
-                  </Button>
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    onClick={() => setActiveTab("notes")}
-                  >
-                    <ClipboardList className="mr-2 h-4 w-4" />
-                    Add Notes
-                  </Button>
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    onClick={() => setActiveTab("tutor")}
-                  >
-                    <GraduationCap className="mr-2 h-4 w-4" />
-                    Ask AI Tutor
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="practice" className="mt-6">
+        {/* Formulas Tab */}
+        <TabsContent value="formulas">
           <Card>
-            <CardHeader>
-              <CardTitle>Quick Recall Practice</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!showPracticeQuestions ? (
-                <div className="text-center p-8">
-                  <Brain className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold mb-2">Ready to test your knowledge?</h3>
-                  <p className="mb-6 text-muted-foreground">
-                    This quick recall practice will help reinforce your understanding of {conceptTitle}.
-                  </p>
-                  <Button onClick={() => setShowPracticeQuestions(true)}>
-                    Start Practice Questions
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {practiceQuestions.map((q, qIndex) => (
-                    <div key={qIndex} className="space-y-4">
-                      <h3 className="font-medium">Question {qIndex + 1}: {q.question}</h3>
-                      
-                      <RadioGroup 
-                        value={practiceAnswers[qIndex]?.toString()} 
-                        onValueChange={(val) => handleAnswerSelect(qIndex, parseInt(val))}
-                        disabled={practiceSubmitted}
-                      >
-                        {q.options.map((option, oIndex) => (
-                          <div key={oIndex} className="flex items-center space-x-2">
-                            <Radio 
-                              value={oIndex.toString()} 
-                              id={`q${qIndex}-a${oIndex}`}
-                              className={practiceSubmitted ? 
-                                q.correct === oIndex ? "text-green-500 border-green-500" : 
-                                practiceAnswers[qIndex] === oIndex ? "text-red-500 border-red-500" : "" 
-                                : ""}
-                            />
-                            <Label 
-                              htmlFor={`q${qIndex}-a${oIndex}`}
-                              className={practiceSubmitted ?
-                                q.correct === oIndex ? "text-green-700 font-medium" : 
-                                practiceAnswers[qIndex] === oIndex ? "text-red-700" : "" 
-                                : ""}
-                            >
-                              {option}
-                              {practiceSubmitted && q.correct === oIndex && (
-                                <CheckCircle className="inline-block ml-1 h-4 w-4 text-green-500" />
-                              )}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                      
-                      {practiceSubmitted && practiceAnswers[qIndex] !== undefined && practiceAnswers[qIndex] !== q.correct && (
-                        <div className="text-sm bg-red-50 text-red-800 p-2 rounded-md mt-2">
-                          <span className="font-medium">Correct answer:</span> {q.options[q.correct]}
-                        </div>
-                      )}
+            <CardContent className="pt-6">
+              <div className="grid gap-6">
+                {concept.formulas.map(formula => (
+                  <div key={formula.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50">
+                    <h3 className="text-lg font-medium mb-2">{formula.name}</h3>
+                    <div className="text-2xl font-bold mb-4 text-center py-3 bg-white dark:bg-gray-800 rounded-md">
+                      {formula.formula}
                     </div>
-                  ))}
-                  
-                  <div className="pt-4">
-                    {!practiceSubmitted ? (
-                      <Button 
-                        onClick={handleSubmitPractice}
-                        disabled={Object.keys(practiceAnswers).length < practiceQuestions.length}
-                      >
-                        Submit Answers
-                      </Button>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
-                        <div>
-                          <h3 className="font-bold text-lg">
-                            Your score: {Math.round((Object.entries(practiceAnswers).filter(
-                              ([qIndex, aIndex]) => practiceQuestions[parseInt(qIndex)].correct === aIndex
-                            ).length / practiceQuestions.length) * 100)}%
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Great job! Keep practicing to improve your mastery.
-                          </p>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Variables:</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {formula.variables.map(variable => (
+                        <div key={variable.symbol} className="border rounded p-2 text-sm">
+                          <span className="font-medium">{variable.symbol}</span>: {variable.name} ({variable.unit})
                         </div>
-                        <Button 
-                          onClick={() => {
-                            setPracticeSubmitted(false);
-                            setPracticeAnswers({});
-                            setShowPracticeQuestions(false);
-                          }}
-                          variant="outline"
-                        >
-                          Reset & Try Again
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-end">
+                <Button variant="outline" onClick={() => navigate(`/concepts/${conceptId}/formula-lab`)}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open Formula Lab
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Practice Tab */}
+        <TabsContent value="practice">
+          <Card>
+            <CardContent className="pt-6">
+              {selectedQuestionIndex !== null ? (
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Question {selectedQuestionIndex + 1}</h3>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setSelectedQuestionIndex(null)}
+                    >
+                      Back to Questions
+                    </Button>
+                  </div>
+                  
+                  <div className="mb-6 border-b pb-4">
+                    <p className="text-lg mb-4">
+                      {concept.practiceQuestions[selectedQuestionIndex].question}
+                    </p>
+                    
+                    <RadioGroup 
+                      value={selectedAnswer?.toString()} 
+                      onValueChange={(value) => handleSelectAnswer(Number(value))}
+                      disabled={showAnswer}
+                    >
+                      {concept.practiceQuestions[selectedQuestionIndex].options.map((option, i) => (
+                        <div key={i} className="flex items-start space-x-2 my-2">
+                          <RadioGroupItem value={i.toString()} id={`option-${i}`} />
+                          <Label htmlFor={`option-${i}`} className="flex-1">{option}</Label>
+                          {showAnswer && i === concept.practiceQuestions[selectedQuestionIndex].answer && (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          )}
+                          {showAnswer && selectedAnswer === i && i !== concept.practiceQuestions[selectedQuestionIndex].answer && (
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                          )}
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                  
+                  {!showAnswer ? (
+                    <Button 
+                      onClick={handleSubmitAnswer} 
+                      disabled={selectedAnswer === null}
+                    >
+                      Submit Answer
+                    </Button>
+                  ) : (
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-2">Explanation:</h4>
+                      <p className="p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                        {concept.practiceQuestions[selectedQuestionIndex].explanation}
+                      </p>
+                      
+                      <div className="flex justify-between mt-4">
+                        <Button variant="outline" onClick={() => {
+                          setSelectedQuestionIndex(null);
+                          setSelectedAnswer(null);
+                          setShowAnswer(false);
+                        }}>
+                          Try Another Question
+                        </Button>
+                        
+                        <Button variant="default" onClick={() => {
+                          const nextIndex = (selectedQuestionIndex + 1) % concept.practiceQuestions.length;
+                          setSelectedQuestionIndex(nextIndex);
+                          setSelectedAnswer(null);
+                          setShowAnswer(false);
+                        }}>
+                          Next Question
                         </Button>
                       </div>
-                    )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Practice Questions</h3>
+                  <div className="grid gap-3">
+                    {concept.practiceQuestions.map((question, index) => (
+                      <div 
+                        key={question.id}
+                        className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                        onClick={() => handlePracticeQuestion(index)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium">Question {index + 1}</h4>
+                          <Badge variant={isQuizSubmitted ? "outline" : "secondary"}>
+                            {isQuizSubmitted ? "Attempted" : "New"}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground line-clamp-1 mt-1">
+                          {question.question}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-6 border-t pt-4">
+                    <Button variant="outline" className="w-full">
+                      Take a Full Quiz on This Concept
+                    </Button>
                   </div>
                 </div>
               )}
@@ -563,79 +552,87 @@ The key principle here is that ${conceptContent.substring(50, 150)}... Does that
           </Card>
         </TabsContent>
         
-        <TabsContent value="notes" className="mt-6">
+        {/* Related Concepts Tab */}
+        <TabsContent value="related">
           <Card>
-            <CardHeader>
-              <CardTitle>My Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-medium mb-4">Related Concepts</h3>
+              <div className="grid gap-3">
+                {concept.relatedConcepts.map(relatedConcept => (
+                  <div 
+                    key={relatedConcept.id} 
+                    className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                    onClick={() => navigate(`/dashboard/student/concept-study/${relatedConcept.id}`)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium">{relatedConcept.title}</h4>
+                      <Badge variant="outline">{relatedConcept.subject}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                      <Link className="h-4 w-4" />
+                      <span>Open concept</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Notes Tab */}
+        <TabsContent value="notes">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-medium mb-4">My Notes</h3>
+              <Textarea 
+                placeholder="Type your notes about this concept here..."
+                className="min-h-[200px] mb-4"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder={`Add your notes about ${conceptTitle} here...`}
-                className="min-h-[200px] mb-4"
               />
               <Button onClick={handleSaveNotes}>Save Notes</Button>
             </CardContent>
           </Card>
         </TabsContent>
-        
-        <TabsContent value="tutor" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Tutor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <h3 className="text-sm font-medium mb-2">Ask a question about this concept:</h3>
-                <div className="flex gap-2">
-                  <Textarea
-                    value={currentQuestion}
-                    onChange={(e) => setCurrentQuestion(e.target.value)}
-                    placeholder={`E.g., Can you explain ${conceptTitle} with a simple example?`}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleAskTutor} 
-                    disabled={isAiResponding || !currentQuestion.trim()}
-                    className="self-end"
-                  >
-                    {isAiResponding ? "Thinking..." : "Ask"}
-                  </Button>
-                </div>
-              </div>
-              
-              {isAiResponding ? (
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-md animate-pulse">
-                  <div className="flex items-center">
-                    <GraduationCap className="h-5 w-5 mr-2 text-blue-500" />
-                    <p>AI is thinking...</p>
-                  </div>
-                </div>
-              ) : aiResponse && (
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-start">
-                    <GraduationCap className="h-5 w-5 mr-2 text-blue-500 mt-1" />
-                    <div>
-                      <h3 className="font-medium mb-2">AI Tutor</h3>
-                      <div className="whitespace-pre-wrap">{aiResponse}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {!aiResponse && !isAiResponding && (
-                <div className="text-center p-6">
-                  <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-2" />
-                  <p className="text-muted-foreground">
-                    Ask any question about {conceptTitle} and our AI Tutor will help you understand it better.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
+      
+      {/* Study tips */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-yellow-500" />
+            <CardTitle className="text-lg">Study Tips for {concept.title}</CardTitle>
+          </div>
+          <CardDescription>Personalized recommendations to master this concept</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <div className="mt-1 bg-green-100 text-green-700 rounded-full p-1">
+                <CheckCircle className="h-4 w-4" />
+              </div>
+              <span>Associate each law with real-life examples to build intuitive understanding.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <div className="mt-1 bg-green-100 text-green-700 rounded-full p-1">
+                <CheckCircle className="h-4 w-4" />
+              </div>
+              <span>Practice solving problems involving all three laws to see how they interconnect.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <div className="mt-1 bg-green-100 text-green-700 rounded-full p-1">
+                <CheckCircle className="h-4 w-4" />
+              </div>
+              <span>Create your own examples where these laws apply to strengthen your grasp.</span>
+            </li>
+          </ul>
+        </CardContent>
+        <CardFooter className="border-t pt-4">
+          <Button variant="outline" className="w-full">
+            Generate More Study Tips
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

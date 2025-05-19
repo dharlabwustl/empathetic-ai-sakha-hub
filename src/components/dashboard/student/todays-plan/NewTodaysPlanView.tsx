@@ -17,6 +17,7 @@ import {
   Lightbulb, 
   BarChart
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
 
 interface NewTodaysPlanViewProps {
@@ -30,6 +31,8 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   onConceptClick,
   isMobile = false
 }) => {
+  const navigate = useNavigate();
+  
   if (!planData) {
     return <div>No plan data available</div>;
   }
@@ -39,6 +42,15 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
     if (hour < 12) return "morning";
     if (hour < 17) return "afternoon";
     return "evening";
+  };
+  
+  // Handler to navigate to concept study page
+  const handleConceptClick = (conceptId: string) => {
+    if (onConceptClick) {
+      onConceptClick(conceptId);
+    } else {
+      navigate(`/dashboard/student/concept-study/${conceptId}`);
+    }
   };
 
   return (
@@ -145,7 +157,8 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <ConceptsSection />
+          {/* Using ConceptsSection but with our custom click handler */}
+          <ConceptsSection onConceptClick={handleConceptClick} />
         </div>
       </div>
       

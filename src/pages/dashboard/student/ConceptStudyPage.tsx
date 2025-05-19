@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import EnhancedConceptDetail from '@/components/dashboard/student/concepts/EnhancedConceptDetail';
 
 const ConceptStudyPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -46,8 +46,8 @@ const ConceptStudyPage: React.FC = () => {
     );
   }
   
-  // Use the ConceptCardDetailPage component to display the concept details
-  return <ConceptCardDetailPage conceptId={conceptId} />;
+  // Use the EnhancedConceptDetail component to display the concept details
+  return <EnhancedConceptDetail conceptId={conceptId || ''} />;
 };
 
 export default ConceptStudyPage;
