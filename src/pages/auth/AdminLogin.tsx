@@ -3,7 +3,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-// Handle admin login redirection with proper error handling
+// Handle admin login redirection with better error handling
 const AdminLogin = () => {
   const { toast } = useToast();
   
