@@ -9,11 +9,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
+import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import FloatingAvatar from "@/components/shared/FloatingAvatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentDashboard = () => {
@@ -189,12 +188,12 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav} // Always hide tabs nav to prevent double sidebar
+        hideTabsNav={hideTabsNav}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showTourModal} // Pass the tour modal state
+        showWelcomeTour={showTourModal}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -232,19 +231,11 @@ const StudentDashboard = () => {
         language="en"
       />
       
-      {/* Dashboard Voice Assistant with mood integration */}
-      <DashboardVoiceAssistant 
-        userName={userProfile.name || userProfile.firstName || 'Student'} 
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-        isFirstTimeUser={isFirstTimeUser}
+      {/* Only show one AI assistant - use ChatAssistant for all devices */}
+      <ChatAssistant 
+        userType="student"
+        initialPrompt={suggestedNextAction ? `Help me with: ${suggestedNextAction}` : ""}
       />
-      
-      {/* Use the mobile-friendly FloatingAvatar for mobile */}
-      {isMobile && <FloatingAvatar />}
-      
-      {/* Use the full ChatAssistant for desktop */}
-      {!isMobile && <ChatAssistant userType="student" />}
     </>
   );
 };

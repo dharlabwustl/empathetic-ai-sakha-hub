@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
@@ -16,10 +17,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
     // Check if the greeting has been played already in this session
     const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
+    const currentPath = location.pathname;
     
     // Only play for first time users who haven't heard the greeting yet
     if (isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) {
@@ -29,79 +32,14 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           setTimeout(() => {
             setAudioPlaying(true);
             
-            // Create text for speech with better pronunciation for PREPZR
-            let welcomeText = '';
-            if (language === 'en') {
-              // Use phonetic pronunciation with a clear syllable break between Prep and zer
-              welcomeText = `Welcome to Prep-zer, ${userName}! Your personalized learning journey begins now. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students. If you need any assistance, click the chat button to interact with your AI tutor.`;
-            } else if (language === 'hi') {
-              welcomeText = `प्रेप ज़र में आपका स्वागत है, ${userName}! आपकी व्यक्तिगत शिक्षा यात्रा अब शुरू होती है। हमारा प्रीमियम प्लेटफ़ॉर्म AI-संचालित अध्ययन योजनाएँ, अभ्यास परीक्षण, और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। हम सदस्यता राजस्व का 5% वंचित छात्रों का समर्थन करने के लिए आवंटित करते हैं। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
-            }
-            
-            // Get available voices
-            const voices = window.speechSynthesis.getVoices();
+            // Context-aware greeting based on the current page
+            let welcomeText = getContextAwareGreeting(currentPath, userName, language);
             
             // Create speech synthesis utterance
-            const speech = new SpeechSynthesisUtterance(welcomeText);
-            speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
-            speech.rate = 0.95; // Slightly slower for clarity
-            speech.volume = 0.85;
-            speech.pitch = 1.05; // Slightly higher for a more pleasant tone
+            const speech = createSpeechUtterance(welcomeText, language);
             
-            // Find an Indian voice based on comprehensive list of possible voices
-            const preferredVoiceNames = [
-              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India',
-              'Kalpana', 'Kajal', 'Isha', 'Veena', 'Priya', 'Meena', 'Hindi India', 'en-IN',
-              'hi-IN', 'Indian', 'India'
-            ];
-            
-            // Try to find a preferred voice with better matching
-            let selectedVoice = null;
-            for (const name of preferredVoiceNames) {
-              const voice = voices.find(v => 
-                v.name?.toLowerCase().includes(name.toLowerCase()) || 
-                v.lang?.toLowerCase().includes(name.toLowerCase())
-              );
-              if (voice) {
-                console.log("Selected voice:", voice.name);
-                selectedVoice = voice;
-                break;
-              }
-            }
-            
-            // If still no voice selected, try to find any female voice
-            if (!selectedVoice) {
-              selectedVoice = voices.find(v => 
-                v.name?.toLowerCase().includes('female') || 
-                !v.name?.toLowerCase().includes('male')
-              );
-            }
-            
-            // If still nothing, use any available voice
-            if (!selectedVoice && voices.length > 0) {
-              selectedVoice = voices[0];
-            }
-            
-            // Set the selected voice if found
-            if (selectedVoice) {
-              speech.voice = selectedVoice;
-              console.log(`Using voice: ${selectedVoice.name}, lang: ${selectedVoice.lang}`);
-            } else {
-              console.log("No suitable voice found, using browser default");
-            }
-            
-            // Add event listeners
-            speech.onstart = () => setAudioPlaying(true);
-            speech.onend = () => {
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-              sessionStorage.setItem('voiceGreetingPlayed', 'true');
-            };
-            speech.onerror = (e) => {
-              console.error("Speech synthesis error", e);
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-            };
+            // Add event listeners for speech events
+            configureSpeechEvents(speech);
             
             // Play the speech
             window.speechSynthesis.speak(speech);
@@ -133,7 +71,112 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname]);
+  
+  // Generate context-aware greeting based on current page
+  const getContextAwareGreeting = (path: string, name: string, lang: string): string => {
+    // No need to repeatedly explain the pronunciation unless it's the first visit
+    const isPronunciationNeeded = sessionStorage.getItem('explainedPronunciation') !== 'true';
+    
+    // Only explain pronunciation once
+    if (isPronunciationNeeded) {
+      sessionStorage.setItem('explainedPronunciation', 'true');
+    }
+    
+    const pronunciationExplanation = isPronunciationNeeded ? 
+      ' Prep-zer is pronounced as "prep" like in preparation and "zer" like in laser. ' : '';
+    
+    if (lang === 'en') {
+      if (path.includes('/dashboard/student/today')) {
+        return `Hello ${name}! Welcome to your daily study plan.${pronunciationExplanation} Here you'll find tasks and concepts scheduled for today. Focus on completing these to stay on track with your exam preparation.`;
+      } else if (path.includes('/dashboard/student/concepts')) {
+        return `Welcome to the concepts section, ${name}!${pronunciationExplanation} Here you can explore and master the topics you need to learn. Each concept card contains detailed explanations, practice questions, and related resources.`;
+      } else if (path.includes('/dashboard/student/flashcards')) {
+        return `Welcome to flashcards, ${name}!${pronunciationExplanation} This section helps you memorize key information through spaced repetition. Regular practice with these cards will strengthen your recall during exams.`;
+      } else if (path.includes('/dashboard/student/practice-exam')) {
+        return `Welcome to practice exams, ${name}!${pronunciationExplanation} Taking these tests under timed conditions will help you prepare for the real exam environment and identify areas that need improvement.`;
+      } else if (path.includes('/dashboard/student/analytics')) {
+        return `Welcome to your analytics dashboard, ${name}!${pronunciationExplanation} Here you can track your progress and identify strengths and weaknesses in your exam preparation journey.`;
+      } else {
+        // Default dashboard greeting
+        return `Welcome to your personalized dashboard, ${name}!${pronunciationExplanation} I'm your AI tutor and I'll help you prepare for your exams efficiently. You can track your progress, access your study materials, and get personalized recommendations here.`;
+      }
+    } else if (lang === 'hi') {
+      // Hindi greetings (simplified for now)
+      return `नमस्ते ${name}! प्रेप-ज़र में आपका स्वागत है। मैं आपका AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
+    }
+    
+    return `Welcome to Prep-zer, ${name}!`;
+  };
+  
+  // Create a properly configured speech utterance
+  const createSpeechUtterance = (text: string, lang: string) => {
+    // Get available voices
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Create speech synthesis utterance
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = lang === 'en' ? 'en-IN' : 'hi-IN';
+    speech.rate = 0.95; // Slightly slower for clarity
+    speech.volume = 0.85;
+    speech.pitch = 1.05; // Slightly higher for a more pleasant tone
+    
+    // Find an Indian voice based on comprehensive list of possible voices
+    const preferredVoiceNames = [
+      'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India',
+      'Kalpana', 'Kajal', 'Isha', 'Veena', 'Priya', 'Meena', 'Hindi India', 'en-IN',
+      'hi-IN', 'Indian', 'India'
+    ];
+    
+    // Try to find a preferred voice with better matching
+    let selectedVoice = null;
+    for (const name of preferredVoiceNames) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(name.toLowerCase()) || 
+        v.lang?.toLowerCase().includes(name.toLowerCase())
+      );
+      if (voice) {
+        console.log("Selected voice:", voice.name);
+        selectedVoice = voice;
+        break;
+      }
+    }
+    
+    // If still no voice selected, try to find any female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        v.name?.toLowerCase().includes('female') || 
+        !v.name?.toLowerCase().includes('male')
+      );
+    }
+    
+    // If still nothing, use any available voice
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices[0];
+    }
+    
+    // Set the selected voice if found
+    if (selectedVoice) {
+      speech.voice = selectedVoice;
+    }
+    
+    return speech;
+  };
+  
+  // Configure speech event handlers
+  const configureSpeechEvents = (speech: SpeechSynthesisUtterance) => {
+    speech.onstart = () => setAudioPlaying(true);
+    speech.onend = () => {
+      setAudioPlaying(false);
+      setAudioPlayed(true);
+      sessionStorage.setItem('voiceGreetingPlayed', 'true');
+    };
+    speech.onerror = (e) => {
+      console.error("Speech synthesis error", e);
+      setAudioPlaying(false);
+      setAudioPlayed(true);
+    };
+  };
   
   const handleToggleMute = () => {
     setAudioMuted(!audioMuted);
