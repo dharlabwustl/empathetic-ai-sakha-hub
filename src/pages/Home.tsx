@@ -9,6 +9,7 @@ import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import SupportSection from '@/components/home/SupportSection';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import StudentJourneyCarousel from '@/components/home/StudentJourneyCarousel';
 import { useState } from 'react';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +39,9 @@ const Home = () => {
       
       {/* Page content */}
       <HeroSection />
+      
+      {/* Student Journey Carousel - New component */}
+      <StudentJourneyCarousel />
       
       {/* Donation Message Banner for Subscription Section */}
       <div className="container mx-auto px-4 my-8">
