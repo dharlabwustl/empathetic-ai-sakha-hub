@@ -25,19 +25,25 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
+      return "Welcome to PREP-zer! I'm Sakha AI, your intelligent learning companion. Our platform adapts to your unique learning style, helping you prepare for exams more effectively. We support UN Sustainability Goal 4, ensuring quality education for all. How can I assist you today?";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey while supporting UN Sustainability Goal 4 for inclusive and equitable quality education.";
+      return "Congratulations on taking this important step toward exam success! I'm Sakha AI, your personalized learning assistant. PREP-zer adapts to your unique learning style to create an engaging and effective study experience. We're proud to support UN Sustainability Goal 4 for quality education for all. Let's begin your journey to academic excellence!";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
+      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans, emotionally intelligent tutoring, and advanced analytics. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all. Let's make the most of your trial period!";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam. We're proud to support UN Sustainability Goal 4 for quality education.";
+      return "Welcome to our exam readiness analyzer! I'm Sakha AI, your exam preparation partner. Our comprehensive assessment will evaluate your current preparation level and identify specific areas for improvement. This personalized approach supports UN Sustainability Goal 4, promoting quality education through adaptive learning. Let's discover your exam readiness together!";
     }
     
     return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
   };
   
   useEffect(() => {
+    // Load mute preference
+    const muteSetting = localStorage.getItem('voice_assistant_muted');
+    if (muteSetting === 'true') {
+      setAudioMuted(true);
+    }
+    
     // Only play the greeting if speech synthesis is supported and we're on the right page
     if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting && !audioMuted) {
       // Use a timeout to ensure the component is fully mounted
@@ -51,8 +57,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Correct PREPZR pronunciation by using proper spelling in the text
           speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
           speech.lang = language;
-          speech.rate = 1.0; // Normal rate for clarity
-          speech.pitch = 1.1; // Slightly higher for a more vibrant tone
+          speech.rate = 0.98; // Normal rate for clarity
+          speech.pitch = 1.05; // Slightly higher for a more vibrant tone
           speech.volume = 0.9;
           
           // Get available voices
@@ -122,6 +128,30 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       }
     };
   }, [greetingPlayed, shouldPlayGreeting, location.pathname, language, audioMuted, toast]);
+  
+  // Listen for custom events to mute/unmute
+  useEffect(() => {
+    const handleMuteEvent = () => {
+      setAudioMuted(true);
+      localStorage.setItem('voice_assistant_muted', 'true');
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+    
+    const handleUnmuteEvent = () => {
+      setAudioMuted(false);
+      localStorage.setItem('voice_assistant_muted', 'false');
+    };
+    
+    document.addEventListener('voice-assistant-mute', handleMuteEvent);
+    document.addEventListener('voice-assistant-unmute', handleUnmuteEvent);
+    
+    return () => {
+      document.removeEventListener('voice-assistant-mute', handleMuteEvent);
+      document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
+    };
+  }, []);
   
   return null; // This component doesn't render any UI
 };

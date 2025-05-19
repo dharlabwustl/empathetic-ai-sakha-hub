@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Star, Sparkles, GraduationCap, Clock, Zap, Smile, Brain } from "lucide-react";
+import { ArrowRight, Star, Zap, Brain } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface HeroButtonsProps {
@@ -134,7 +134,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
               animate={{ rotateY: [0, 360] }}
               transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
             >
-              <GraduationCap size={18} className="text-violet-600 dark:text-violet-400" />
+              <Brain size={18} className="text-violet-600 dark:text-violet-400" />
             </motion.div>
             
             <span className="relative z-10">7 Days Free Trial</span>
@@ -155,24 +155,6 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
               style={{ transformStyle: "preserve-3d" }}
             >
               <Brain size={14} className="text-blue-500/70 transform" />
-            </motion.div>
-            
-            <motion.div 
-              className="absolute right-14 bottom-2 z-20"
-              animate={{ y: [0, -3, 0], rotateZ: [5, -5, 5] }}
-              transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <Clock size={14} className="text-green-500/70" />
-            </motion.div>
-            
-            <motion.div 
-              className="absolute right-24 top-2 z-20"
-              animate={{ y: [-2, 1, -2], rotateZ: [-8, 0, -8] }}
-              transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <Smile size={14} className="text-amber-500/70" />
             </motion.div>
             
             {/* 3D layered background effect */}

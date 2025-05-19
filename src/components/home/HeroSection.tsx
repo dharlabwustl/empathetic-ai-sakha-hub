@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { CheckCircle, BookOpen, Award, Clock, BrainCircuit, User, BookCheck, Star } from 'lucide-react';
+import { CheckCircle, Star, Zap, Book, Brain, User } from 'lucide-react';
+import HeroButtons from './hero/HeroButtons';
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -18,13 +19,9 @@ const HeroSection: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleTakeQuizClick = () => {
+  const handleExamReadinessClick = () => {
     // Dispatch event to open the exam readiness analyzer
     window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
-  };
-
-  const handleSignUpClick = () => {
-    navigate('/signup');
   };
 
   const slideVariants = {
@@ -35,7 +32,7 @@ const HeroSection: React.FC = () => {
 
   const slideContentList = [
     {
-      icon: <BrainCircuit size={48} className="text-indigo-500 drop-shadow-md" />,
+      icon: <Brain size={48} className="text-indigo-500 drop-shadow-md" />,
       title: "Adaptive Learning",
       description: "Our AI engine analyzes your learning patterns and adapts to create personalized study resources",
       image: "/assets/images/adaptive-learning-3d.webp"
@@ -47,7 +44,7 @@ const HeroSection: React.FC = () => {
       image: "/assets/images/student-avatar-3d.webp" 
     },
     {
-      icon: <BookCheck size={48} className="text-blue-500 drop-shadow-md" />,
+      icon: <Book size={48} className="text-blue-500 drop-shadow-md" />,
       title: "Performance Analytics",
       description: "Track your progress with detailed analytics and improve weak areas strategically",
       image: "/assets/images/analytics-3d.webp"
@@ -79,28 +76,10 @@ const HeroSection: React.FC = () => {
               AI-powered personalized learning companion that adapts to your learning style and helps you achieve exam success. Experience learning designed around you.
             </p>
             
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8"
-                onClick={handleSignUpClick}
-              >
-                <span>7 Days Free Trial</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950"
-                onClick={handleTakeQuizClick}
-              >
-                <Star className="mr-2 h-4 w-4" />
-                <span>Test Your Exam Readiness</span>
-              </Button>
-            </div>
+            <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
 
             {/* Feature checkpoints */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mt-8">
               {["Personalized Study Plans", "AI Concept Mastery", "Performance Analytics", "Voice-Guided Learning"].map((feature, index) => (
                 <motion.div 
                   key={index} 

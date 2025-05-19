@@ -31,32 +31,40 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   
   // Get context-aware and mood-aware greeting message
   const getContextMessage = (path: string, mood?: MoodType) => {
-    // Base greeting including user's name
-    let baseGreeting = `Welcome to your dashboard, ${userName}.`;
+    // Get user's first name only for more personal touch
+    const firstName = userName.split(' ')[0];
     
-    // Mood-specific additions
-    if (mood) {
+    // Base greeting including user's name
+    let baseGreeting = `Congratulations on joining PREPZR, ${firstName}! I'm Sakha AI, your personal learning assistant.`;
+    
+    // First-time user welcome
+    if (localStorage.getItem('new_user_signup') === 'true') {
+      baseGreeting = `Congratulations on joining PREPZR, ${firstName}! Welcome to your personalized learning journey. I'm Sakha AI, your intelligent learning companion.`;
+    }
+    
+    // Mood-specific additions for returning users
+    if (mood && !localStorage.getItem('new_user_signup')) {
       switch(mood) {
         case MoodType.HAPPY:
-          baseGreeting = `Great to see you looking happy today, ${userName}! Your positive energy will boost your learning.`;
+          baseGreeting = `It's great to see you looking happy today, ${firstName}! Your positive energy will boost your learning journey.`;
           break;
         case MoodType.MOTIVATED:
-          baseGreeting = `I can see you're feeling motivated today, ${userName}. Let's make the most of that energy!`;
+          baseGreeting = `I can see you're feeling motivated today, ${firstName}. That's excellent! Let's harness that energy for effective learning.`;
           break;
         case MoodType.FOCUSED:
-          baseGreeting = `You're in a focused state today, ${userName}. That's perfect for tackling challenging concepts.`;
+          baseGreeting = `You're in a focused state today, ${firstName}. Perfect timing! Let's tackle those challenging concepts together.`;
           break;
         case MoodType.TIRED:
-          baseGreeting = `I notice you're feeling tired today, ${userName}. We can focus on lighter review sessions to keep your progress going.`;
+          baseGreeting = `I notice you're feeling tired today, ${firstName}. Let's focus on lighter, engaging content to maintain your progress.`;
           break;
         case MoodType.STRESSED:
-          baseGreeting = `I see you're feeling stressed, ${userName}. Let's work on some achievable goals today to build your confidence.`;
+          baseGreeting = `I see you're feeling stressed, ${firstName}. Don't worry, we'll break down complex topics into manageable steps today.`;
           break;
         case MoodType.ANXIOUS:
-          baseGreeting = `I understand you're feeling anxious, ${userName}. We can start with some confidence-building exercises today.`;
+          baseGreeting = `I understand you're feeling anxious, ${firstName}. We'll start with confidence-building exercises to help you feel more prepared.`;
           break;
         case MoodType.OVERWHELMED:
-          baseGreeting = `Feeling overwhelmed is normal, ${userName}. Let's break things down into smaller, manageable steps today.`;
+          baseGreeting = `Feeling overwhelmed is completely normal during exam preparation, ${firstName}. Let's organize your study plan into smaller, achievable goals.`;
           break;
         default:
           // Use default greeting for other moods
@@ -64,23 +72,23 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       }
     }
     
-    // Path-specific content
+    // Path-specific content with more engaging, supportive language
     if (path.includes('/analytics')) {
-      return `${baseGreeting} Here in analytics, you can track your progress and identify areas that need attention.`;
+      return `${baseGreeting} You're now in your analytics dashboard, where you can track your progress and identify areas for improvement. I've analyzed your recent performance and highlighted key insights to help optimize your study strategy.`;
     } else if (path.includes('/concepts')) {
-      return `${baseGreeting} The concepts section helps you master key topics through interactive learning.`;
+      return `${baseGreeting} Welcome to the concepts section, your interactive learning hub. I've curated personalized concept cards based on your learning style and recent performance. Explore each concept through multiple learning modalities for deeper understanding.`;
     } else if (path.includes('/study-plan')) {
-      return `${baseGreeting} Your study plan is customized to optimize your learning efficiency and exam readiness.`;
+      return `${baseGreeting} Your customized study plan is ready! I've optimized your schedule to balance different subjects and maximize your exam readiness. Each study session is designed to adapt to your learning pace and preferences.`;
     } else if (path.includes('/feel-good')) {
-      return `${baseGreeting} Welcome to the Feel-Good Corner, where you can take breaks and recharge your mind.`;
+      return `${baseGreeting} Welcome to the Feel-Good Corner. This is your space to recharge and rejuvenate. I've selected motivational content and stress-relief activities specifically for you to maintain peak mental performance.`;
     } else if (path.includes('/settings')) {
-      return `${baseGreeting} Here you can customize your dashboard experience and update your preferences.`;
+      return `${baseGreeting} In settings, you can personalize your PREPZR experience. Adjust your learning preferences, notification settings, and voice assistant options to create your ideal learning environment.`;
     } else if (path.includes('/exams')) {
-      return `${baseGreeting} The exam section helps you practice with realistic questions and timing conditions.`;
+      return `${baseGreeting} In the exam section, you'll find realistic practice tests designed to boost your confidence and exam readiness. Each question targets specific concepts and provides detailed feedback to accelerate your learning.`;
     }
     
     // Default dashboard message with UN sustainability goal mention
-    return `${baseGreeting} I'm Sakha AI, your personalized learning assistant. I'll help you prepare effectively while supporting UN Sustainability Goal 4 for inclusive and quality education. Use the microphone button anytime you need assistance.`;
+    return `${baseGreeting} Your personalized dashboard is fully loaded with adaptive learning resources designed for your unique learning style. My AI-driven recommendations support UN Sustainability Goal 4 for quality education by making learning more accessible and effective. Use the microphone button anytime you need assistance with your studies.`;
   };
   
   useEffect(() => {
@@ -100,14 +108,14 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           // Correct PREPZR pronunciation by using proper spelling in the text
           utteranceRef.current.text = message.replace(/PREPZR/gi, 'PREP-zer');
           utteranceRef.current.lang = language;
-          utteranceRef.current.rate = 0.95; // Slightly slower for clarity
+          utteranceRef.current.rate = 0.98; // Slightly slower for clarity
           utteranceRef.current.pitch = 1.05; // Slightly higher for a more vibrant tone
           utteranceRef.current.volume = 0.9;
           
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a clear, vibrant voice
+          // Try to find a clear, confident voice
           const preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US'];
           let selectedVoice = null;
           
