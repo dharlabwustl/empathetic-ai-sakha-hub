@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -22,7 +21,6 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import { Card, CardContent } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
-import StudentJourneySection from '@/components/home/StudentJourneySection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -73,11 +71,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced 3D hero section with voice interaction */}
+        {/* Enhanced 3D hero section with animated avatar journey */}
         <Hero3DSection />
-        
-        {/* Student Journey Section - New Component */}
-        <StudentJourneySection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -89,7 +84,7 @@ const Index = () => {
         >
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              Smart Data. Real Impact. Humanizing exam prep.
+              We Understand Your Mindset, Not Just The Exam
             </h2>
           </div>
           <KpiStats />
@@ -173,7 +168,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-IN"  // Default to Indian English
+          language="en-IN" 
         />
       )}
     </div>
