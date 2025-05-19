@@ -30,18 +30,21 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
       // Set flag to indicate we're attempting an admin login
       localStorage.setItem('admin_login_attempt', 'true');
       
-      // Navigate to login page
-      navigate('/admin/login', { replace: true });
+      // Navigate to login page with a setTimeout to prevent potential race conditions
+      setTimeout(() => {
+        navigate('/admin/login', { replace: true });
+      }, 100);
     }
   }, [isAdminAuthenticated, isLoading, toast, navigate, redirected]);
 
-  // Show loading state only for a brief period to avoid endless spinning
+  // Show a simplified loading state to prevent endless spinning
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-t-blue-600 border-blue-200 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-xl font-medium">Verifying admin credentials...</p>
+          <p className="text-sm text-gray-500 mt-2">This will only take a moment</p>
         </div>
       </div>
     );

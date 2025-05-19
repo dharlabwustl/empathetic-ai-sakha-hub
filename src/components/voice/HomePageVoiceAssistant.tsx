@@ -8,7 +8,7 @@ interface HomePageVoiceAssistantProps {
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-IN'
+  language = 'en-US'
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
@@ -18,22 +18,20 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome');
+                            location.pathname.includes('/welcome') ||
+                            location.pathname.includes('/free-trial') ||
+                            location.pathname.includes('/exam-readiness');
   
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
-    if (lang.includes('hi')) {
-      return "प्रेप-ज़र में आपका स्वागत है। मैं साखा एआई हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।";
-    }
-    
     if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your moods, learning style, and surroundings to create a hyper-personalized study experience.";
+      return "Welcome to PREPZR, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
     } else if (path.includes('/signup')) {
-      return "I'm Sakha AI, the world's first emotionally aware exam preparation assistant. PREPZR adapts to your mood, learning style, and surroundings to create a personalized study journey that traditional coaching centers can't match.";
+      return "Congratulations on taking this important step! I'm Sakha AI, PREPZR's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREPZR free trial. I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
+      return "Welcome to your PREPZR free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
     } else if (path.includes('/exam-readiness')) {
-      return "I'm Sakha AI. Our exam readiness analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
+      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
     }
     
     return "Welcome to PREPZR. I'm Sakha AI, your emotionally intelligent exam companion.";
@@ -50,16 +48,17 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Create speech synthesis utterance
           const speech = new SpeechSynthesisUtterance(message);
           speech.lang = language;
-          speech.rate = 0.95; // Slightly slower for clarity
-          speech.volume = 0.85;
+          speech.rate = 1.0; // Normal rate for clarity
+          speech.pitch = 1.1; // Slightly higher for a more vibrant tone
+          speech.volume = 0.9;
           
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find an Indian English voice 
+          // Try to find a clear, vibrant voice - preferring US English voices
           const preferredVoiceNames = [
-            'Google हिन्दी', 'Microsoft Kalpana', 'Google English India',
-            'en-IN', 'hi-IN', 'Indian', 'India'
+            'Google US English Female', 'Microsoft Zira', 'Samantha', 
+            'Alex', 'en-US', 'en-GB'
           ];
           
           // Try to find a preferred voice

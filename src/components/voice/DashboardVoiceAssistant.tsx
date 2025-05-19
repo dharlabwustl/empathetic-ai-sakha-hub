@@ -12,7 +12,7 @@ interface DashboardVoiceAssistantProps {
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
   userName = 'Student',
-  language = 'en-IN',
+  language = 'en-US',
   userMood
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
@@ -30,7 +30,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
         try {
           // Create a personalized welcome message that mentions UN sustainability goals
           // instead of the free/donation message
-          let welcomeMessage = `Welcome to your personalized dashboard, ${userName}! I'm Sakha AI, your adaptive learning assistant. `;
+          let welcomeMessage = `Congratulations ${userName}! Welcome to your personalized dashboard. I'm Sakha AI, your adaptive learning assistant. `;
           
           // Add UN sustainability goals message
           welcomeMessage += "PREPZR supports UN Sustainability goals with inclusive and equitable quality education by providing access to personalized learning for all students.";
@@ -58,16 +58,17 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           // Create speech synthesis utterance
           const speech = new SpeechSynthesisUtterance(welcomeMessage);
           speech.lang = language;
-          speech.rate = 0.95; // Slightly slower for clarity
-          speech.volume = 0.85;
+          speech.rate = 1.0; // Normal speed for clarity
+          speech.pitch = 1.1; // Slightly higher pitch for a more vibrant tone
+          speech.volume = 0.9;
           
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find an Indian English voice 
+          // Try to find a vibrant, clear voice - preferring US English voices
           const preferredVoiceNames = [
-            'Google हिन्दी', 'Microsoft Kalpana', 'Google English India',
-            'en-IN', 'hi-IN', 'Indian', 'India'
+            'Google US English Female', 'Microsoft Zira', 'Samantha', 
+            'en-US', 'en-GB', 'English'
           ];
           
           // Find best matching voice

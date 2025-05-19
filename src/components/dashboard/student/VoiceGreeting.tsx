@@ -108,12 +108,14 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     else if (hour < 17) timeGreeting = 'Good afternoon';
     else timeGreeting = 'Good evening';
     
-    // Add engagement-specific greeting
+    // Add engagement-specific greeting with congratulations
     let engagementGreeting = '';
-    if (engagement === 'returning') {
-      engagementGreeting = "Welcome back! It's great to see you again. ";
+    if (engagement === 'new') {
+      engagementGreeting = `Congratulations ${name}! You've made an excellent choice selecting PREPZR for your exam preparation. `;
+    } else if (engagement === 'returning') {
+      engagementGreeting = `Welcome back ${name}! It's great to see you again. Your commitment to exam preparation is commendable. `;
     } else if (engagement === 'active') {
-      engagementGreeting = "You're being consistent with your studies. That's excellent! ";
+      engagementGreeting = `Great to see you again today ${name}! Your consistent study habits are impressive. `;
     }
     
     // Add UN sustainability goals message instead of donation message
@@ -143,23 +145,22 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     return `${timeGreeting} ${name}! Welcome to PREPZR!`;
   };
   
-  // Create a properly configured speech utterance with enhanced emotional intonation
+  // Create a properly configured speech utterance with vibrant tone
   const createSpeechUtterance = (text: string, lang: string) => {
     // Get available voices
     const voices = window.speechSynthesis.getVoices();
     
     // Create speech synthesis utterance
     const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = lang === 'en' ? 'en-IN' : 'hi-IN';
-    speech.rate = 0.93; // Slightly slower for clarity
-    speech.volume = 0.85;
-    speech.pitch = 1.05; // Slightly higher for a more pleasant tone
+    speech.lang = lang === 'en' ? 'en-US' : 'hi-IN';
+    speech.rate = 0.98; // Slightly slower for clarity
+    speech.volume = 0.9;
+    speech.pitch = 1.05; // Slightly higher for a more vibrant tone
     
-    // Find an Indian voice based on comprehensive list of possible voices
+    // Find a vibrant voice based on comprehensive list of possible voices
     const preferredVoiceNames = [
-      'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India',
-      'Kalpana', 'Kajal', 'Isha', 'Veena', 'Priya', 'Meena', 'Hindi India', 'en-IN',
-      'hi-IN', 'Indian', 'India'
+      'Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex',
+      'Karen', 'Victoria', 'Moira', 'Tessa', 'en-US', 'en-GB'
     ];
     
     // Try to find a preferred voice with better matching
