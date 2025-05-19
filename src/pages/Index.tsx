@@ -1,8 +1,8 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/landing/HeroSection';
+import Hero3DSection from '@/components/home/Hero3DSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -20,19 +20,11 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import MilestonesSection from '@/components/home/MilestonesSection';
 
 const Index = () => {
   const navigate = useNavigate();
-  const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  
-  const scrollToFeatures = () => {
-    if (featuresRef.current) {
-      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -55,7 +47,7 @@ const Index = () => {
   };
 
   // Listen for events
-  useEffect(() => {
+  React.useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
     };
@@ -78,8 +70,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Use our new story-focused hero section */}
-        <HeroSection />
+        {/* Enhanced 3D hero section with voice interaction */}
+        <Hero3DSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -97,9 +89,6 @@ const Index = () => {
           <KpiStats />
         </motion.section>
         
-        {/* Milestones Section */}
-        <MilestonesSection />
-        
         {/* Backed By Section with partner logos */}
         <BackedBySection />
         
@@ -113,9 +102,7 @@ const Index = () => {
         
         <EcosystemAnimation />
         
-        <div ref={featuresRef}>
-          <FeaturesSection />
-        </div>
+        <FeaturesSection />
         
         <ExamPreparationSection />
         

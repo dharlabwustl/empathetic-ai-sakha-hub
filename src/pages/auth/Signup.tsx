@@ -32,11 +32,10 @@ const Signup = () => {
 
   return (
     <div>
-      {/* Use the unified voice greeting component */}
       <VoiceGreeting 
         isFirstTimeUser={true}
         userName="New User"
-        language="en"
+        language="hi"
       />
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-center">

@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import StudentLoginForm from "./forms/StudentLoginForm";
+import AdminLoginRedirect from "./forms/AdminLoginRedirect";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface LoginPageProps {
   returnTo?: string;
@@ -16,6 +18,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student', 
   const { isAuthenticated } = useAuth();
   const { isAdminAuthenticated } = useAdminAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("student");
   
   // Check if already authenticated and redirect
   useEffect(() => {
@@ -33,12 +36,31 @@ const LoginPage: React.FC<LoginPageProps> = ({ returnTo = '/dashboard/student', 
     }
   }, [navigate, isAuthenticated, isAdminAuthenticated]);
 
-  // We ensure it defaults to student
-  const activeTab = "student";
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <div className="p-6 space-y-6">
-      <StudentLoginForm activeTab={activeTab} />
+      <Tabs 
+        defaultValue="student" 
+        value={activeTab} 
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-2 w-full">
+          <TabsTrigger value="student">Student</TabsTrigger>
+          <TabsTrigger value="admin">Admin</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="student" className="mt-4">
+          <StudentLoginForm activeTab={activeTab} />
+        </TabsContent>
+        
+        <TabsContent value="admin" className="mt-4">
+          <AdminLoginRedirect />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
