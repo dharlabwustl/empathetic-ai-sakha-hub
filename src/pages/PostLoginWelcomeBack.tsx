@@ -117,6 +117,7 @@ const PostLoginWelcomeBack = () => {
 
   return (
     <>
+      {/* Single voice greeting component with context awareness */}
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userName}

@@ -1,6 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
@@ -17,10 +19,15 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const [audioPlayed, setAudioPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
   const location = useLocation();
+  const { speakMessage } = useVoiceAnnouncer({
+    userName,
+    isFirstTimeUser
+  });
   
   // Check if this is a concept detail page or welcome flow page
   const isConceptPage = location.pathname.includes('/concepts/') && !location.pathname.includes('/concepts/formula-lab');
   const isWelcomePage = location.pathname.includes('/welcome-flow') || location.pathname.includes('/welcome-back');
+  const isDashboardPage = location.pathname.includes('/dashboard');
   
   // Get current page context
   const getCurrentPageContext = (pathname: string): string => {
@@ -32,160 +39,116 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       return 'dashboard';
     } else if (pathname === '/') {
       return 'home';
+    } else if (pathname.includes('/signup')) {
+      return 'signup';
     }
     return 'other';
   };
   
   const currentPageContext = getCurrentPageContext(location.pathname);
   
+  // Check if a greeting has been played in this session for this specific page context
+  const sessionStorageKey = `voiceGreeting_${currentPageContext}_played`;
+  
   useEffect(() => {
-    // Check if the greeting has been played already in this session
-    const hasPlayed = sessionStorage.getItem('voiceGreetingPlayed') === 'true';
+    // Check if the greeting has been played already for this context in this session
+    const hasPlayedForContext = sessionStorage.getItem(sessionStorageKey) === 'true';
     
-    // Reset played state when location changes
-    if (location.pathname) {
-      setAudioPlayed(false);
-    }
-
     // Only play for specific contexts and when not muted
-    if (((isFirstTimeUser && !hasPlayed && !audioPlayed && !audioMuted) || 
-        (isConceptPage && !audioPlayed && !audioMuted) ||
-        (isWelcomePage && !audioPlayed && !audioMuted))) {
+    if (((isFirstTimeUser && !hasPlayedForContext && !audioPlayed && !audioMuted) || 
+        (isConceptPage && !hasPlayedForContext && !audioPlayed && !audioMuted) ||
+        (isWelcomePage && !hasPlayedForContext && !audioPlayed && !audioMuted) ||
+        (isDashboardPage && isFirstTimeUser && !hasPlayedForContext && !audioPlayed && !audioMuted))) {
+      
       const playGreeting = async () => {
         try {
           // Use a timeout to ensure the component is fully mounted
           setTimeout(() => {
             setAudioPlaying(true);
             
-            // Create text for speech with better pronunciation for PREPZR
-            let welcomeText = '';
+            // Get context-aware greeting message
+            const welcomeText = getContextAwareGreeting(currentPageContext, userName, language);
             
-            // Different greetings based on page context
-            if (isConceptPage) {
-              if (language === 'en') {
-                welcomeText = `Hello, I'm Sakha AI, your Prep-zer learning assistant. I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
-              } else if (language === 'hi') {
-                welcomeText = `नमस्ते, मैं साखा एआई हूँ, आपका Prep-zer सीखने वाला सहायक। मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
-              }
-            } else if (isWelcomePage) {
-              if (language === 'en') {
-                // More detailed welcome flow specific greeting
-                welcomeText = `Welcome to Prep-zer! I'm Sakha AI, your personalized learning assistant. I'll guide you through your personalized learning journey. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics tailored to your exam preparation. We support UN Sustainability goals for inclusive and equitable quality education. You've made an excellent choice for your exam preparation. Let's begin by exploring the features that will help you succeed!`;
-              } else if (language === 'hi') {
-                welcomeText = `Prep-zer में आपका स्वागत है! मैं साखा एआई हूं, आपका व्यक्तिगत शिक्षण सहायक। मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा तैयारी के लिए व्यक्तिगत अध्ययन योजनाएं, अनुकूली शिक्षण और प्रदर्शन विश्लेषण प्रदान करता है। आपने अपनी परीक्षा तैयारी के लिए एक उत्कृष्ट विकल्प चुना है। आइए उन सुविधाओं का अन्वेषण करके शुरू करें जो आपको सफल होने में मदद करेंगी!`;
-              }
-            } else if (isFirstTimeUser) {
-              if (language === 'en') {
-                // First time user specific greeting
-                welcomeText = `Welcome to Prep-zer, ${userName}! I'm Sakha AI, the core AI engine that will help you crack your exams. Prep-zer is pronounced as 'prep' like in 'preparation' plus 'zer' like in 'laser'. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students as part of UN Sustainability goals. If you need any assistance, click the chat button to interact with me anytime.`;
-              } else if (language === 'hi') {
-                welcomeText = `Prep-zer में आपका स्वागत है, ${userName}! मैं साखा एआई हूं, वह मुख्य एआई इंजन जो आपको परीक्षाओं में सफल होने में मदद करेगा। हमारा प्रीमियम प्लेटफ़ॉर्म AI-संचालित अध्ययन योजनाएँ, अभ्यास परीक्षण, और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। हम सदस्यता राजस्व का 5% वंचित छात्रों का समर्थन करने के लिए आवंटित करते हैं। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
-              }
-            }
+            // Play the greeting with our centralized voice system
+            speakMessage(welcomeText);
             
-            // Get available voices
-            const voices = window.speechSynthesis.getVoices();
-            
-            // Create speech synthesis utterance
-            const speech = new SpeechSynthesisUtterance(welcomeText);
-            speech.lang = language === 'en' ? 'en-IN' : 'hi-IN';
-            speech.rate = 0.9; // Slightly slower for clarity
-            speech.volume = 0.8;
-            
-            // Find an Indian voice based on comprehensive list of possible voices
-            const preferredVoiceNames = [
-              'Google हिन्दी', 'Microsoft Kalpana', 'Microsoft Kajal', 'Google English India',
-              'Kalpana', 'Kajal', 'Isha', 'Veena', 'Priya', 'Meena', 'Hindi India', 'en-IN',
-              'hi-IN', 'Indian', 'India'
-            ];
-            
-            // Try to find a preferred voice with better matching
-            let selectedVoice = null;
-            for (const name of preferredVoiceNames) {
-              const voice = voices.find(v => 
-                v.name?.toLowerCase().includes(name.toLowerCase()) || 
-                v.lang?.toLowerCase().includes(name.toLowerCase())
-              );
-              if (voice) {
-                console.log("Selected voice:", voice.name);
-                selectedVoice = voice;
-                break;
-              }
-            }
-            
-            // If still no voice selected, try to find any female voice
-            if (!selectedVoice) {
-              selectedVoice = voices.find(v => 
-                v.name?.toLowerCase().includes('female') || 
-                !v.name?.toLowerCase().includes('male')
-              );
-            }
-            
-            // If still nothing, use any available voice
-            if (!selectedVoice && voices.length > 0) {
-              selectedVoice = voices[0];
-            }
-            
-            // Set the selected voice if found
-            if (selectedVoice) {
-              speech.voice = selectedVoice;
-              console.log(`Using voice: ${selectedVoice.name}, lang: ${selectedVoice.lang}`);
-            } else {
-              console.log("No suitable voice found, using browser default");
-            }
-            
-            // Correct PREPZR pronunciation
-            const correctedText = welcomeText
-              .replace(/PREPZR/gi, 'Prep-zer')
-              .replace(/prepzr/gi, 'Prep-zer')
-              .replace(/Prepzr/g, 'Prep-zer');
-            
-            speech.text = correctedText;
-            
-            // Add event listeners
-            speech.onstart = () => setAudioPlaying(true);
-            speech.onend = () => {
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-              sessionStorage.setItem('voiceGreetingPlayed', 'true');
-            };
-            speech.onerror = (e) => {
-              console.error("Speech synthesis error", e);
-              setAudioPlaying(false);
-              setAudioPlayed(true);
-            };
-            
-            // Play the speech
-            window.speechSynthesis.speak(speech);
+            // Setup event listeners to track when speech is done
+            document.addEventListener('voice-speaking-ended', handleSpeechEnd);
           }, 1500);
         } catch (error) {
           console.error("Error playing greeting:", error);
           setAudioPlayed(true);
+          sessionStorage.setItem(sessionStorageKey, 'true');
         }
       };
       
-      // Force voices to load first, then play greeting
-      if (window.speechSynthesis) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          window.speechSynthesis.onvoiceschanged = null; // Prevent multiple calls
-          playGreeting();
-        };
-        
-        // Trigger voice loading
-        window.speechSynthesis.getVoices();
-        
-        // Fallback in case onvoiceschanged doesn't fire
-        setTimeout(playGreeting, 1000);
-      }
+      playGreeting();
     }
     
     // Cleanup on unmount
     return () => {
+      document.removeEventListener('voice-speaking-ended', handleSpeechEnd);
       if (audioPlaying && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage, isDashboardPage, currentPageContext]);
+  
+  const handleSpeechEnd = () => {
+    setAudioPlaying(false);
+    setAudioPlayed(true);
+    sessionStorage.setItem(sessionStorageKey, 'true');
+    document.removeEventListener('voice-speaking-ended', handleSpeechEnd);
+  };
+  
+  // Generate context-aware greeting based on current page, user engagement level
+  const getContextAwareGreeting = (
+    contextType: string, 
+    name: string, 
+    lang: string
+  ): string => {
+    // Determine time of day for more personalized greeting
+    const hour = new Date().getHours();
+    let timeGreeting = 'Hello';
+    if (hour < 12) timeGreeting = 'Good morning';
+    else if (hour < 17) timeGreeting = 'Good afternoon';
+    else timeGreeting = 'Good evening';
+    
+    // The UN sustainability goals message to replace donation messaging
+    const sustainabilityMessage = "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
+    
+    if (lang === 'en') {
+      if (contextType === 'welcome') {
+        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our AI-powered platform offers adaptive study plans, practice tests, and personalized recommendations tailored to your learning style. ${sustainabilityMessage} Let me guide you through our key features to help you succeed in your exams.`;
+      } else if (contextType === 'concept') {
+        return `Hello ${name}, I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+      } else if (contextType === 'dashboard') {
+        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
+      } else if (contextType === 'signup') {
+        return `Congratulations ${name}! You've made an excellent choice selecting PREP-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals.`;
+      } else if (contextType === 'home') {
+        return `Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage}`;
+      } else {
+        return `${timeGreeting} ${name}! Welcome to PREP-zer. ${sustainabilityMessage}`;
+      }
+    } else if (lang === 'hi') {
+      // Hindi greetings with sustainability message
+      const hindiTimeGreeting = hour < 12 ? 'सुप्रभात' : (hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या');
+      const hindiSustainabilityMsg = "प्रेप-ज़र समावेशी और गुणवत्तापूर्ण शिक्षा के साथ संयुक्त राष्ट्र सतत विकास लक्ष्यों का समर्थन करता है। हम सभी छात्रों के लिए व्यक्तिगत शिक्षा तक समान पहुंच प्रदान करने के लिए प्रतिबद्ध हैं।";
+      
+      if (contextType === 'welcome' || contextType === 'signup') {
+        return `प्रेप-ज़र में आपका स्वागत है, ${name}! मैं साखा एआई हूँ, आपका व्यक्तिगत शिक्षण सहायक। हमारा AI-संचालित प्लेटफॉर्म अनुकूलनीय अध्ययन योजनाएं, अभ्यास परीक्षण और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। ${hindiSustainabilityMsg}`;
+      } else if (contextType === 'concept') {
+        return `नमस्ते ${name}, मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
+      } else if (contextType === 'dashboard') {
+        return `${hindiTimeGreeting} ${name}! आपके भावनात्मक रूप से बुद्धिमान डैशबोर्ड में आपका स्वागत है। ${hindiSustainabilityMsg} मैं आपका AI सीखने वाला साथी हूँ, और मैं आपके मूड, सीखने की शैली और परिवेश के अनुसार अनुकूलित हो जाता हूँ।`;
+      } else {
+        return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। ${hindiSustainabilityMsg}`;
+      }
+    }
+    
+    return `${timeGreeting} ${name}! Welcome to PREP-zer!`;
+  };
   
   const handleToggleMute = () => {
     setAudioMuted(!audioMuted);
@@ -197,12 +160,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       }
       setAudioPlaying(false);
       setAudioPlayed(true);
-      sessionStorage.setItem('voiceGreetingPlayed', 'true');
+      sessionStorage.setItem(sessionStorageKey, 'true');
     }
   };
   
-  // Don't render anything if already played or not a first-time user
-  if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage) || audioPlayed) return null;
+  // Don't render anything if already played or not a first-time user on specific contexts
+  if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage && !isDashboardPage) || audioPlayed) return null;
   
   return (
     <div 
@@ -210,6 +173,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         ${audioPlaying ? 'bg-primary text-white' : 'bg-white text-gray-600'} 
         cursor-pointer transition-all duration-300 hover:scale-105 animate-bounce-slow`}
       onClick={handleToggleMute}
+      title={audioMuted ? "Unmute voice assistant" : "Mute voice assistant"}
     >
       {audioMuted ? (
         <VolumeX className="h-6 w-6" />
