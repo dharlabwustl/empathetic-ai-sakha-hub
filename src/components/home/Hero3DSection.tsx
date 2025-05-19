@@ -3,9 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Book, Star, Sparkles, Mic, MicOff } from 'lucide-react';
+import { ArrowRight, Mic, MicOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import ExamNamesBadge from './hero/ExamNamesBadge';
+import HeroButtons from './hero/HeroButtons';
 
 const Hero3DSection: React.FC = () => {
   const navigate = useNavigate();
@@ -32,21 +34,18 @@ const Hero3DSection: React.FC = () => {
       title: "The Beginning",
       description: "Every student starts with big dreams and aspirations. The path seems challenging, but the potential is limitless.",
       color: "#6366f1",
-      icon: <Book className="h-10 w-10 text-indigo-500" />,
       voiceCommands: ["beginning", "start", "dreams"]
     },
     {
       title: "The Struggle",
       description: "Studying becomes harder, concepts more complex. This is where many students feel overwhelmed and need guidance.",
       color: "#f59e0b",
-      icon: <Star className="h-10 w-10 text-amber-500" />,
       voiceCommands: ["struggle", "hard", "complex", "overwhelmed"]
     },
     {
       title: "The Breakthrough",
       description: "With PREPZR's AI-powered assistance, complex concepts become clear, study plans become personalized, and confidence grows.",
       color: "#10b981", 
-      icon: <Sparkles className="h-10 w-10 text-emerald-500" />,
       voiceCommands: ["breakthrough", "success", "clear", "confidence"]
     }
   ];
@@ -144,6 +143,11 @@ const Hero3DSection: React.FC = () => {
       return;
     }
     
+    if (lowerCommand.includes('neet') || lowerCommand.includes('exam')) {
+      handleNeetExamClick();
+      return;
+    }
+    
     // Check for stage-specific commands
     for (let i = 0; i < journeyStages.length; i++) {
       const stage = journeyStages[i];
@@ -204,8 +208,8 @@ const Hero3DSection: React.FC = () => {
     // Create initial particles
     createParticles(journeyStages[0].color);
     
-    // Add background floating shapes
-    addBackgroundShapes();
+    // Add background floating shapes representing student journey
+    addStudentJourneyObjects();
     
     // Handle window resize
     const handleResize = () => {
@@ -317,67 +321,107 @@ const Hero3DSection: React.FC = () => {
     colors.needsUpdate = true;
   };
   
-  const addBackgroundShapes = () => {
+  const addStudentJourneyObjects = () => {
     if (!sceneRef.current) return;
     
-    const addShape = (geometry: THREE.BufferGeometry, color: string, position: THREE.Vector3, scale: THREE.Vector3) => {
+    // Create symbolic 3D objects representing the student journey
+    const addSymbolicObject = (type: string, color: string, position: THREE.Vector3, scale: number = 1) => {
+      let geometry;
+      
+      // Create different geometries based on journey stage symbol
+      switch(type) {
+        case 'book': // Knowledge object
+          geometry = new THREE.BoxGeometry(1.5, 2, 0.2);
+          break;
+        case 'brain': // Understanding
+          geometry = new THREE.IcosahedronGeometry(1, 1);
+          break;
+        case 'medal': // Achievement
+          geometry = new THREE.TorusGeometry(1, 0.3, 16, 32);
+          break;
+        case 'molecule': // Complex concepts
+          geometry = new THREE.SphereGeometry(0.4, 8, 8);
+          break;
+        case 'lightbulb': // Insights
+          geometry = new THREE.CapsuleGeometry(0.7, 1, 4, 8);
+          break;
+        default:
+          geometry = new THREE.SphereGeometry(1, 16, 16);
+      }
+      
       const material = new THREE.MeshPhongMaterial({
         color: color,
         transparent: true,
-        opacity: 0.4,
-        side: THREE.DoubleSide
+        opacity: 0.8,
+        shininess: 100,
       });
       
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.copy(position);
-      mesh.scale.copy(scale);
+      mesh.scale.set(scale, scale, scale);
       mesh.rotation.set(
         Math.random() * Math.PI,
         Math.random() * Math.PI,
         Math.random() * Math.PI
       );
       
+      // Add glow effect for special objects
+      if (['brain', 'lightbulb', 'medal'].includes(type)) {
+        const glowMaterial = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.15
+        });
+        
+        const glowMesh = new THREE.Mesh(geometry, glowMaterial);
+        glowMesh.scale.set(1.5, 1.5, 1.5);
+        mesh.add(glowMesh);
+      }
+      
       sceneRef.current!.add(mesh);
+      
+      // If type is molecule, create connections to simulate molecular structure
+      if (type === 'molecule') {
+        // Create "electron" particles around the molecule
+        for (let i = 0; i < 3; i++) {
+          const electronGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+          const electronMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.7
+          });
+          
+          const electron = new THREE.Mesh(electronGeometry, electronMaterial);
+          const angle = (i / 3) * Math.PI * 2;
+          const radius = 1.5;
+          
+          electron.position.set(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            0
+          );
+          
+          mesh.add(electron);
+        }
+      }
+      
+      return mesh;
     };
     
-    // Create various geometric shapes
-    const shapes = [
-      new THREE.OctahedronGeometry(1, 0),
-      new THREE.TetrahedronGeometry(1, 0),
-      new THREE.IcosahedronGeometry(1, 0),
-      new THREE.TorusGeometry(1, 0.3, 16, 32),
-      new THREE.BoxGeometry(1, 1, 1)
-    ];
+    // Stage 1: Beginning - Books and curiosity
+    const book1 = addSymbolicObject('book', '#4f46e5', new THREE.Vector3(-10, 5, -5), 1.2);
+    const book2 = addSymbolicObject('book', '#6366f1', new THREE.Vector3(-8, 3, -8), 0.9);
+    const book3 = addSymbolicObject('book', '#818cf8', new THREE.Vector3(-12, 0, -3), 1);
     
-    // Colors that match our theme
-    const colors = [
-      "#6366f1", // indigo
-      "#10b981", // emerald
-      "#f59e0b", // amber
-      "#ec4899", // pink
-      "#3b82f6"  // blue
-    ];
+    // Stage 2: Struggle - Complex concepts
+    const molecule1 = addSymbolicObject('molecule', '#f59e0b', new THREE.Vector3(0, 8, -10), 1.5);
+    const molecule2 = addSymbolicObject('molecule', '#fbbf24', new THREE.Vector3(3, 6, -7), 1.2);
+    const molecule3 = addSymbolicObject('molecule', '#fcd34d', new THREE.Vector3(-2, 10, -5), 1);
     
-    // Add 10 random shapes
-    for (let i = 0; i < 10; i++) {
-      const shapeIndex = Math.floor(Math.random() * shapes.length);
-      const colorIndex = Math.floor(Math.random() * colors.length);
-      
-      addShape(
-        shapes[shapeIndex],
-        colors[colorIndex],
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 40,
-          (Math.random() - 0.5) * 40,
-          (Math.random() - 0.5) * 20 - 5
-        ),
-        new THREE.Vector3(
-          1 + Math.random() * 2,
-          1 + Math.random() * 2,
-          1 + Math.random() * 2
-        )
-      );
-    }
+    // Stage 3: Breakthrough - Understanding and achievement
+    const brain = addSymbolicObject('brain', '#10b981', new THREE.Vector3(10, -2, -6), 1.5);
+    const medal = addSymbolicObject('medal', '#34d399', new THREE.Vector3(12, 2, -4), 1.2);
+    const lightbulb = addSymbolicObject('lightbulb', '#6ee7b7', new THREE.Vector3(8, 0, -8), 1);
   };
 
   const handleNextStage = () => {
@@ -401,6 +445,20 @@ const Hero3DSection: React.FC = () => {
   const handleGetStarted = () => {
     navigate('/signup');
   };
+  
+  const handleNeetExamClick = () => {
+    // Set exam goal as NEET in localStorage for the signup flow
+    const userData = {
+      examGoal: "NEET",
+      isNewUser: true,
+      completedOnboarding: false
+    };
+    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("new_user_signup", "true");
+    
+    // Navigate to signup page
+    navigate("/signup?exam=NEET");
+  };
 
   const toggleListening = () => {
     if (isListening) {
@@ -415,7 +473,7 @@ const Hero3DSection: React.FC = () => {
         
         toast({
           title: "Listening...",
-          description: "Try saying 'next', 'previous', or a stage name like 'breakthrough'",
+          description: "Try saying 'next', 'previous', 'NEET exam', or a stage name like 'breakthrough'",
         });
       } else {
         toast({
@@ -428,7 +486,7 @@ const Hero3DSection: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-[90vh] w-full overflow-hidden">
       {/* Three.js container for the background animation */}
       <div 
         ref={threeContainerRef} 
@@ -462,25 +520,36 @@ const Hero3DSection: React.FC = () => {
                 </p>
               </motion.div>
               
+              {/* NEET exam badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="my-2"
+              >
+                <ExamNamesBadge />
+              </motion.div>
+              
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4"
               >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-                  onClick={handleGetStarted}
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                
+                <HeroButtons onAnalyzeClick={() => {
+                  // Dispatch custom event to open exam analyzer
+                  window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
+                }} />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-2"
+                  className="mt-2 border-2"
                   onClick={toggleListening}
                 >
                   {isListening ? (
@@ -531,7 +600,18 @@ const Hero3DSection: React.FC = () => {
                     currentStage === 1 ? 'bg-amber-200 dark:bg-amber-800/50' :
                     'bg-emerald-200 dark:bg-emerald-800/50'
                   }`}>
-                    {journeyStages[currentStage].icon}
+                    {/* Use 3D model or image based on stage */}
+                    <div className="h-16 w-16 flex items-center justify-center">
+                      {currentStage === 0 && (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10 text-indigo-500"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                      )}
+                      {currentStage === 1 && (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10 text-amber-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                      )}
+                      {currentStage === 2 && (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10 text-emerald-500"><path d="M12 3c.53 0 1.04.2 1.43.59L22 12l-8.57 8.41c-.39.39-.9.59-1.43.59s-1.04-.2-1.43-.59L2 12l8.57-8.41C10.96 3.2 11.47 3 12 3z"></path></svg>
+                      )}
+                    </div>
                   </div>
                   
                   <h2 className={`text-2xl font-bold ${
@@ -553,7 +633,7 @@ const Hero3DSection: React.FC = () => {
                       className="rounded-full w-10 h-10 p-0 flex items-center justify-center"
                       title="Previous Stage"
                     >
-                      <ArrowLeft className="h-5 w-5" />
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="m15 18-6-6 6-6"></path></svg>
                     </Button>
                     
                     <Button
@@ -603,7 +683,7 @@ const Hero3DSection: React.FC = () => {
               "Show breakthrough"
             </span>
             <span className="px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 rounded text-xs">
-              "Get started"
+              "NEET exam"
             </span>
           </div>
         </div>

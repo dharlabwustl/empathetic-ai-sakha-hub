@@ -23,7 +23,7 @@ const ExamNamesBadge = () => {
   
   return (
     <motion.div 
-      className="flex flex-wrap justify-center items-center gap-2"
+      className="flex flex-wrap justify-center sm:justify-start items-center gap-2"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
@@ -35,7 +35,7 @@ const ExamNamesBadge = () => {
       >
         Trusted by students preparing for:
       </motion.div>
-      <div className="flex flex-wrap gap-2 items-center justify-center">
+      <div className="flex flex-wrap gap-2 items-center">
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -49,6 +49,7 @@ const ExamNamesBadge = () => {
                 textShadow: ["0px 0px 0px rgba(255,255,255,0)", "0px 0px 4px rgba(255,255,255,0.5)", "0px 0px 0px rgba(255,255,255,0)"]
               }}
               transition={{ duration: 3, repeat: Infinity }}
+              className="font-semibold"
             >
               NEET
             </motion.span>
