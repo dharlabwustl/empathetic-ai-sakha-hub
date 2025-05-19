@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   BookOpen, 
   FileText, 
@@ -32,8 +33,32 @@ import {
   Share2,
   List,
   Layers,
-  Highlighter
+  Highlighter,
+  Flag,
+  Check,
+  HelpCircle,
+  Brain,
+  Link as LinkIcon,
+  Headphones,
+  PauseCircle,
+  Clock,
+  BrainCircuit,
+  Pen,
+  CopyCheck
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
+import useUserNotes from '@/hooks/useUserNotes';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 interface ConceptCardDetailProps {
   conceptId: string;
@@ -47,11 +72,26 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
+  const [flaggedForRevision, setFlaggedForRevision] = useState(false);
   const [selectedText, setSelectedText] = useState<string>("");
   const [highlights, setHighlights] = useState<string[]>([]);
   const [notes, setNotes] = useState<string[]>([]);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [noteText, setNoteText] = useState("");
+  const [aiTutorDialogOpen, setAiTutorDialogOpen] = useState(false);
+  const [tutorQuestion, setTutorQuestion] = useState("");
+  const [tutorResponse, setTutorResponse] = useState("");
+  const [isTutorThinking, setIsTutorThinking] = useState(false);
+  const [quizDialogOpen, setQuizDialogOpen] = useState(false);
+  const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [quizAnswered, setQuizAnswered] = useState(false);
+  const [quizResults, setQuizResults] = useState({ correct: 0, total: 0 });
+  const [isShowingRelatedConcepts, setIsShowingRelatedConcepts] = useState(false);
+  const speakTextRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { saveNote, getNoteForConcept } = useUserNotes();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Simulate loading concept data
@@ -122,25 +162,160 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
             answer: "The person pushes backward on the ground, and the ground pushes forward on the person with equal magnitude."
           }
         ],
-        relatedConcepts: ["Momentum", "Friction", "Gravitational Force", "Work and Energy"]
+        relatedConcepts: [
+          { id: "rc1", title: "Momentum", subject: "Physics", difficulty: "Medium" },
+          { id: "rc2", title: "Friction", subject: "Physics", difficulty: "Easy" },
+          { id: "rc3", title: "Gravitational Force", subject: "Physics", difficulty: "Medium" },
+          { id: "rc4", title: "Work and Energy", subject: "Physics", difficulty: "Hard" }
+        ],
+        quizQuestions: [
+          {
+            question: "Which of Newton's laws states that an object at rest stays at rest unless acted upon by an external force?",
+            options: ["First Law", "Second Law", "Third Law", "Fourth Law"],
+            correctAnswer: "First Law"
+          },
+          {
+            question: "The equation F = ma represents which of Newton's laws?",
+            options: ["First Law", "Second Law", "Third Law", "None of the above"],
+            correctAnswer: "Second Law"
+          },
+          {
+            question: "According to Newton's third law, when one object exerts a force on another object, the second object...",
+            options: [
+              "Accelerates proportionally to its mass",
+              "Remains at rest",
+              "Exerts an equal and opposite force on the first object",
+              "Moves in the same direction as the force"
+            ],
+            correctAnswer: "Exerts an equal and opposite force on the first object"
+          }
+        ],
+        keyPoints: [
+          "Newton's First Law establishes the principle of inertia",
+          "The Second Law quantifies the relationship between force, mass, and acceleration",
+          "The Third Law describes the symmetry of forces in interactions between objects",
+          "These laws provide the foundation for classical mechanics"
+        ]
       };
       
       setConceptData(mockConceptData);
       setLoading(false);
+      
+      // Load saved notes
+      const savedNote = getNoteForConcept(conceptId);
+      if (savedNote) {
+        setNotes([savedNote]);
+      }
+
+      // Load saved highlights
+      try {
+        const savedHighlights = localStorage.getItem(`highlights-${conceptId}`);
+        if (savedHighlights) {
+          setHighlights(JSON.parse(savedHighlights));
+        }
+      } catch (e) {
+        console.error("Error loading highlights:", e);
+      }
+      
+      // Check if bookmarked
+      try {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
+        setBookmarked(bookmarks.includes(conceptId));
+      } catch (e) {
+        console.error("Error loading bookmark state:", e);
+      }
+      
+      // Check if flagged for revision
+      try {
+        const flagged = JSON.parse(localStorage.getItem('flaggedConcepts') || '[]');
+        setFlaggedForRevision(flagged.includes(conceptId));
+      } catch (e) {
+        console.error("Error loading flagged state:", e);
+      }
+      
     }, 800);
   }, [conceptId]);
   
-  // Simulate audio playback
-  const toggleAudioPlayback = () => {
-    if (audioPlaying) {
-      setAudioPlaying(false);
-    } else {
-      setAudioPlaying(true);
-      // Simulate audio finishing after 10 seconds
-      setTimeout(() => {
+  // Text-to-speech functionality
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Create a new utterance
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Get available voices and set a good one if available
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoices = ['Google US English', 'Microsoft David', 'Samantha'];
+      
+      for (const voiceName of preferredVoices) {
+        const voice = voices.find(v => v.name.includes(voiceName));
+        if (voice) {
+          utterance.voice = voice;
+          break;
+        }
+      }
+      
+      // Set properties
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      
+      // Set callbacks
+      utterance.onstart = () => setAudioPlaying(true);
+      utterance.onend = () => setAudioPlaying(false);
+      utterance.onerror = () => {
         setAudioPlaying(false);
-      }, 10000);
+        toast({
+          title: "Read Aloud Error",
+          description: "There was an error with text-to-speech. Please try again.",
+          variant: "destructive"
+        });
+      };
+      
+      // Save reference to stop later if needed
+      speakTextRef.current = utterance;
+      
+      // Speak
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast({
+        title: "Feature Not Supported",
+        description: "Text-to-speech is not supported in your browser.",
+        variant: "destructive"
+      });
     }
+  };
+  
+  // Stop speaking
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setAudioPlaying(false);
+    }
+  };
+  
+  // Read aloud the concept content
+  const readAloudContent = () => {
+    if (!conceptData) return;
+    
+    // Extract text content from HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = conceptData.content;
+    const textContent = tempDiv.textContent || '';
+    
+    if (audioPlaying) {
+      stopSpeaking();
+    } else {
+      speakText(textContent);
+    }
+  };
+  
+  // Extract plain text from HTML
+  const getPlainText = (html: string) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || '';
   };
   
   // Handle text selection for highlighting
@@ -156,34 +331,189 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
   // Add highlight
   const addHighlight = () => {
     if (selectedText) {
-      setHighlights([...highlights, selectedText]);
+      const newHighlights = [...highlights, selectedText];
+      setHighlights(newHighlights);
       setSelectedText("");
+      
+      // Save to localStorage
+      localStorage.setItem(`highlights-${conceptId}`, JSON.stringify(newHighlights));
+      
+      toast({
+        title: "Highlight Added",
+        description: "Your highlight has been saved.",
+      });
     }
   };
   
   // Add note
   const addNote = () => {
     if (noteText.trim()) {
-      setNotes([...notes, noteText]);
+      const newNotes = [...notes, noteText];
+      setNotes(newNotes);
+      
+      // Save note to localStorage
+      saveNote(conceptId, noteText);
+      
       setNoteText("");
       setIsAddingNote(false);
+      
+      toast({
+        title: "Note Added",
+        description: "Your note has been saved.",
+      });
     }
   };
   
   // Toggle bookmark
   const toggleBookmark = () => {
-    setBookmarked(!bookmarked);
+    try {
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
+      
+      let updatedBookmarks;
+      if (bookmarked) {
+        updatedBookmarks = bookmarks.filter((id: string) => id !== conceptId);
+      } else {
+        updatedBookmarks = [...bookmarks, conceptId];
+      }
+      
+      localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
+      setBookmarked(!bookmarked);
+      
+      toast({
+        title: bookmarked ? "Bookmark Removed" : "Bookmark Added",
+        description: bookmarked 
+          ? "This concept has been removed from your bookmarks." 
+          : "This concept has been added to your bookmarks."
+      });
+    } catch (e) {
+      console.error("Error toggling bookmark:", e);
+      toast({
+        title: "Error",
+        description: "Could not update bookmark status.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Toggle flag for revision
+  const toggleFlagForRevision = () => {
+    try {
+      const flagged = JSON.parse(localStorage.getItem('flaggedConcepts') || '[]');
+      
+      let updatedFlagged;
+      if (flaggedForRevision) {
+        updatedFlagged = flagged.filter((id: string) => id !== conceptId);
+      } else {
+        updatedFlagged = [...flagged, conceptId];
+      }
+      
+      localStorage.setItem('flaggedConcepts', JSON.stringify(updatedFlagged));
+      setFlaggedForRevision(!flaggedForRevision);
+      
+      toast({
+        title: flaggedForRevision ? "Removed from Revision" : "Flagged for Revision",
+        description: flaggedForRevision 
+          ? "This concept has been removed from your revision list." 
+          : "This concept has been added to your revision list."
+      });
+    } catch (e) {
+      console.error("Error toggling flag:", e);
+      toast({
+        title: "Error",
+        description: "Could not update revision status.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Submit question to AI Tutor
+  const submitTutorQuestion = () => {
+    if (!tutorQuestion.trim()) return;
+    
+    setIsTutorThinking(true);
+    
+    // Simulate AI response
+    setTimeout(() => {
+      let response = "";
+      
+      if (tutorQuestion.toLowerCase().includes("first law")) {
+        response = "Newton's First Law states that an object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an unbalanced force. This is also called the law of inertia. For example, when you're in a car and it suddenly stops, your body tends to continue moving forward - that's inertia in action!";
+      } else if (tutorQuestion.toLowerCase().includes("second law")) {
+        response = "Newton's Second Law establishes that Force = mass × acceleration (F = ma). This means the force acting on an object is equal to the mass of that object multiplied by its acceleration. The greater the mass, the more force needed to achieve the same acceleration. This explains why it's harder to push a heavy object than a light one.";
+      } else if (tutorQuestion.toLowerCase().includes("third law")) {
+        response = "Newton's Third Law states that for every action, there is an equal and opposite reaction. When one object exerts a force on another object, the second object exerts an equal force in the opposite direction on the first object. For instance, when you push against a wall, the wall pushes back with equal force, which is why you don't go through it.";
+      } else {
+        response = "Newton's laws of motion are fundamental principles that describe the relationship between an object and the forces acting on it. The first law covers inertia, the second law quantifies the relationship between force, mass and acceleration (F=ma), and the third law states that for every action there's an equal and opposite reaction. These principles form the foundation of classical mechanics and help us understand how objects move in our physical world.";
+      }
+      
+      setTutorResponse(response);
+      setIsTutorThinking(false);
+    }, 1500);
+  };
+  
+  // Start quiz
+  const startQuiz = () => {
+    setCurrentQuizQuestion(0);
+    setSelectedAnswer(null);
+    setQuizAnswered(false);
+    setQuizResults({ correct: 0, total: 0 });
+    setQuizDialogOpen(true);
+  };
+  
+  // Check quiz answer
+  const checkAnswer = () => {
+    if (!selectedAnswer || !conceptData?.quizQuestions) return;
+    
+    const currentQuestion = conceptData.quizQuestions[currentQuizQuestion];
+    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    
+    setQuizAnswered(true);
+    setQuizResults(prev => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      total: prev.total + 1
+    }));
+  };
+  
+  // Next quiz question
+  const nextQuestion = () => {
+    if (!conceptData?.quizQuestions) return;
+    
+    if (currentQuizQuestion < conceptData.quizQuestions.length - 1) {
+      setCurrentQuizQuestion(prev => prev + 1);
+      setSelectedAnswer(null);
+      setQuizAnswered(false);
+    } else {
+      // Quiz finished
+      toast({
+        title: "Quiz Completed",
+        description: `You scored ${quizResults.correct} out of ${conceptData.quizQuestions.length}!`,
+      });
+      setQuizDialogOpen(false);
+    }
   };
   
   // Download content as PDF (simulated)
   const downloadContent = () => {
-    alert("Downloading content as PDF...");
+    toast({
+      title: "Downloading PDF",
+      description: "Your PDF is being prepared for download."
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Download Complete",
+        description: "The PDF has been downloaded successfully.",
+      });
+    }, 1500);
   };
   
   // Share concept (simulated)
   const shareContent = () => {
     navigator.clipboard.writeText(`Check out this concept: ${conceptData?.title}`);
-    alert("Link copied to clipboard!");
+    toast({
+      title: "Link Copied",
+      description: "Link copied to clipboard!",
+    });
   };
   
   if (loading) {
@@ -219,7 +549,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
   }
   
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-5xl mx-auto">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -229,11 +559,12 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
             <CardTitle className="text-2xl font-bold">{conceptData.title}</CardTitle>
             <CardDescription className="text-base">{conceptData.subtitle}</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
               variant="outline" 
               size="sm"
               onClick={toggleBookmark}
+              className={bookmarked ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
             >
               {bookmarked ? (
                 <BookmarkCheck className="h-4 w-4 mr-1 text-blue-500" />
@@ -241,6 +572,15 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
                 <Bookmark className="h-4 w-4 mr-1" />
               )}
               {bookmarked ? "Saved" : "Save"}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={toggleFlagForRevision}
+              className={flaggedForRevision ? "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" : ""}
+            >
+              <Flag className={`h-4 w-4 mr-1 ${flaggedForRevision ? "text-amber-500" : ""}`} />
+              {flaggedForRevision ? "Flagged" : "Flag for Revision"}
             </Button>
             <Button 
               variant="outline" 
@@ -260,7 +600,9 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
         
         <div className="flex justify-between items-center mt-3">
           <div className="flex gap-4 text-sm text-muted-foreground">
-            <div>Est. time: {conceptData.estimatedTime}</div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {conceptData.estimatedTime}
+            </div>
             <div>Last studied: {conceptData.lastStudied}</div>
           </div>
           <div className="flex items-center gap-2">
@@ -269,6 +611,112 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
             <span className="text-sm font-medium">{conceptData.mastery}%</span>
           </div>
         </div>
+        
+        {/* Quick action buttons */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={readAloudContent}
+            className={audioPlaying ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
+          >
+            {audioPlaying ? (
+              <>
+                <PauseCircle className="mr-1 h-4 w-4" /> Stop Reading
+              </>
+            ) : (
+              <>
+                <Headphones className="mr-1 h-4 w-4" /> Read Aloud
+              </>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={startQuiz}
+          >
+            <BrainCircuit className="mr-1 h-4 w-4" /> Quick Recall Practice
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAddingNote(true)}
+          >
+            <Pen className="mr-1 h-4 w-4" /> Add Notes
+          </Button>
+          <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                <HelpCircle className="mr-1 h-4 w-4" /> Ask AI Tutor
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Ask AI Tutor about {conceptData.title}</DialogTitle>
+                <DialogDescription>
+                  Get personalized help with understanding this concept.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-2">
+                {tutorResponse && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm">{tutorResponse}</p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Textarea
+                    placeholder="Ask a question about this concept..."
+                    value={tutorQuestion}
+                    onChange={(e) => setTutorQuestion(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                  <Button 
+                    onClick={submitTutorQuestion} 
+                    disabled={isTutorThinking || !tutorQuestion.trim()}
+                    className="w-full"
+                  >
+                    {isTutorThinking ? "Thinking..." : "Ask Question"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsShowingRelatedConcepts(!isShowingRelatedConcepts)}
+          >
+            <LinkIcon className="mr-1 h-4 w-4" /> Related Concepts
+          </Button>
+        </div>
+        {/* Related concepts panel */}
+        {isShowingRelatedConcepts && (
+          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <h4 className="text-sm font-medium mb-3">Related Concepts</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {conceptData.relatedConcepts.map((concept: any) => (
+                <div 
+                  key={concept.id} 
+                  className="p-3 border rounded-lg hover:bg-white dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                  onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                      <LinkIcon className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{concept.title}</p>
+                      <p className="text-xs text-muted-foreground">{concept.subject} • {concept.difficulty}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardHeader>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -288,6 +736,9 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
             </TabsTrigger>
             <TabsTrigger value="notes" className="flex-1">
               <FileText className="h-4 w-4 mr-1" /> Notes
+            </TabsTrigger>
+            <TabsTrigger value="flashcards" className="flex-1">
+              <Brain className="h-4 w-4 mr-1" /> Flashcards
             </TabsTrigger>
           </TabsList>
         </div>
@@ -368,7 +819,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
               <div className="flex justify-center">
                 <Button 
                   size="lg" 
-                  onClick={toggleAudioPlayback}
+                  onClick={readAloudContent}
                   className={`${audioPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
                 >
                   {audioPlaying ? (
@@ -386,7 +837,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
                     </>
                   ) : (
                     <>
-                      <Play className="mr-2 h-4 w-4" /> Play Audio
+                      <Headphones className="mr-2 h-4 w-4" /> Start Reading Aloud
                     </>
                   )}
                 </Button>
@@ -426,18 +877,12 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
             
             <h3 className="text-xl font-medium pt-4">Key Points</h3>
             <div className="space-y-2">
-              <div className="flex items-start gap-2">
-                <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">1</div>
-                <p>Newton's First Law establishes the principle of inertia.</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">2</div>
-                <p>The Second Law quantifies the relationship between force, mass, and acceleration.</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">3</div>
-                <p>The Third Law describes the symmetry of forces in interactions between objects.</p>
-              </div>
+              {conceptData.keyPoints.map((point: string, index: number) => (
+                <div key={index} className="flex items-start gap-2">
+                  <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">{index + 1}</div>
+                  <p>{point}</p>
+                </div>
+              ))}
             </div>
           </TabsContent>
           
@@ -458,10 +903,17 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
               ))}
             </div>
             
-            <div className="mt-6">
-              <Button className="w-full">
-                <MessageSquare className="mr-2 h-4 w-4" /> Practice with AI Tutor
+            <div className="mt-6 flex gap-3">
+              <Button className="flex-1" onClick={startQuiz}>
+                <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
               </Button>
+              <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="flex-1">
+                    <MessageSquare className="mr-2 h-4 w-4" /> Ask AI Tutor
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
           </TabsContent>
           
@@ -475,13 +927,13 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
                 }}
                 disabled={isAddingNote}
               >
-                <FileText className="h-4 w-4 mr-1" /> Add Note
+                <Pen className="h-4 w-4 mr-1" /> Add Note
               </Button>
             </div>
             
             {isAddingNote ? (
               <div className="border rounded-lg p-4 space-y-3">
-                <textarea
+                <Textarea
                   className="w-full min-h-[150px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Write your note here..."
                   value={noteText}
@@ -523,6 +975,57 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
               </>
             )}
           </TabsContent>
+          
+          <TabsContent value="flashcards" className="space-y-6">
+            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-medium mb-4">Flashcards & Exam Format</h3>
+              <p className="mb-4">Convert this concept into flashcards and exam questions to test your knowledge.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="h-5 w-5 text-purple-500" />
+                    <h4 className="font-medium">Flashcards</h4>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Create a set of flashcards based on this concept to practice recall.
+                  </p>
+                  <Button className="w-full" onClick={() => navigate('/dashboard/student/flashcards')}>
+                    Study Flashcards
+                  </Button>
+                </div>
+                
+                <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CopyCheck className="h-5 w-5 text-green-500" />
+                    <h4 className="font-medium">Practice Tests</h4>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Test your understanding with exam-style questions.
+                  </p>
+                  <Button className="w-full" onClick={() => navigate('/dashboard/student/practice-exam')}>
+                    Take Practice Test
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <h4 className="font-medium mb-3">Preview Flashcards</h4>
+                <div className="border rounded-lg overflow-hidden mb-4">
+                  <div className="p-4 border-b bg-white dark:bg-gray-900 text-center">
+                    <p className="font-medium">What is Newton's First Law?</p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-center">
+                    <p>An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+                  </div>
+                </div>
+                
+                <Button variant="outline" className="w-full" onClick={startQuiz}>
+                  <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
         </CardContent>
       </Tabs>
       
@@ -530,15 +1033,116 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
         <div>
           <h4 className="text-sm font-medium">Related Concepts</h4>
           <div className="flex flex-wrap gap-2 mt-1">
-            {conceptData.relatedConcepts.map((concept: string, index: number) => (
-              <Badge key={index} variant="secondary">{concept}</Badge>
+            {conceptData.relatedConcepts.map((concept: any) => (
+              <Badge 
+                key={concept.id} 
+                variant="secondary"
+                className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
+              >
+                {concept.title}
+              </Badge>
             ))}
           </div>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/today')}>
           <List className="h-4 w-4 mr-1" /> View in Study Plan
         </Button>
       </CardFooter>
+      
+      {/* Quick Recall Practice Dialog */}
+      <Dialog open={quizDialogOpen} onOpenChange={setQuizDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Quick Recall Practice</DialogTitle>
+            <DialogDescription>
+              Test your understanding of {conceptData.title}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {conceptData.quizQuestions && currentQuizQuestion < conceptData.quizQuestions.length && (
+            <div className="space-y-4">
+              <div className="py-2">
+                <h4 className="font-medium mb-2">
+                  Question {currentQuizQuestion + 1} of {conceptData.quizQuestions.length}
+                </h4>
+                <p>{conceptData.quizQuestions[currentQuizQuestion].question}</p>
+              </div>
+              
+              <div className="space-y-2">
+                {conceptData.quizQuestions[currentQuizQuestion].options.map((option: string) => (
+                  <div 
+                    key={option} 
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      selectedAnswer === option 
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    } ${
+                      quizAnswered && option === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : ''
+                    } ${
+                      quizAnswered && selectedAnswer === option && option !== conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (!quizAnswered) {
+                        setSelectedAnswer(option);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full border mr-2 flex-shrink-0 ${
+                        selectedAnswer === option 
+                          ? 'border-blue-500 bg-blue-500' 
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedAnswer === option && (
+                          <Check className="h-4 w-4 text-white" />
+                        )}
+                      </div>
+                      <span>{option}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-between pt-4">
+                {!quizAnswered ? (
+                  <Button 
+                    className="w-full"
+                    onClick={checkAnswer}
+                    disabled={!selectedAnswer}
+                  >
+                    Check Answer
+                  </Button>
+                ) : (
+                  <Button 
+                    className="w-full"
+                    onClick={nextQuestion}
+                  >
+                    {currentQuizQuestion < conceptData.quizQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                  </Button>
+                )}
+              </div>
+              
+              {quizAnswered && (
+                <div className={`p-3 rounded-lg ${
+                  selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                    ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200'
+                    : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+                }`}>
+                  {selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer 
+                    ? 'Correct! Well done.' 
+                    : `Incorrect. The correct answer is: ${conceptData.quizQuestions[currentQuizQuestion].correctAnswer}`
+                  }
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
