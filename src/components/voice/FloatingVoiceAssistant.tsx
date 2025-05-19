@@ -1,12 +1,16 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Mic, MicOff, Volume2, VolumeX, Globe, HelpCircle } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { 
-  findBestVoice,
-  fixPronunciation
-} from '@/components/dashboard/student/voice/voiceUtils';
+import React, { useState, useEffect } from 'react';
+import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FloatingVoiceAssistantProps {
   isOpen: boolean;
@@ -21,485 +25,488 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
   onNavigationCommand,
   language = 'en-IN'
 }) => {
+  const { toast } = useToast();
+  const [command, setCommand] = useState<string>('');
   const [response, setResponse] = useState<string>('');
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [muted, setMuted] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(language);
-  const [showHelp, setShowHelp] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-  
-  // Home page specific questions and answers
-  const homePageQA = {
-    'en-IN': [
-      {
-        keywords: ['exam', 'readiness', 'score'],
-        response: "Our Exam Readiness Score is a dynamic measure of your preparation level. It uses AI to analyze your performance on practice tests, concept mastery, study consistency, and engagement with the platform. Unlike static scores, it adapts as you learn, helping you focus on improving weak areas."
-      },
-      {
-        keywords: ['coaching', 'institute', 'better', 'advantage'],
-        response: "PREPZR offers several advantages over traditional coaching institutes. We provide 24/7 access to personalized learning, adapt to your schedule and learning pace, offer instant doubt resolution through our AI tutor, and use data-driven insights to identify and address your specific knowledge gaps. All at a fraction of the cost of coaching institutes."
-      },
-      {
-        keywords: ['feature', 'what', 'offer'],
-        response: "PREPZR features include personalized AI-driven study plans, adaptive question banks that focus on your weak areas, interactive flashcards with spaced repetition, concept maps for visual learning, detailed performance analytics, mood-based study recommendations, and a 24/7 AI tutor for instant doubt resolution."
-      },
-      {
-        keywords: ['free', 'trial', 'subscription'],
-        response: "We offer a 7-day free trial that gives full access to all premium features. Our subscription plans are designed to be affordable while providing comprehensive exam preparation. And remember, 5% of all subscription revenue goes toward providing access for underprivileged students."
-      },
-      {
-        keywords: ['donation', 'support', 'underprivileged'],
-        response: "PREPZR allocates 5% of all subscription revenue to provide platform access for underprivileged students. This is our commitment to making quality education accessible to all, regardless of financial background."
-      },
-      {
-        keywords: ['signup', 'register', 'join'],
-        response: "Signing up for PREPZR takes just a minute! Click the 'Sign up' button at the top of the page. You can create an account with your email or use Google sign-in for quicker access. Start with our 7-day free trial to experience all premium features before deciding on a subscription."
-      },
-      {
-        keywords: ['ai', 'artificial intelligence', 'machine learning'],
-        response: "PREPZR leverages advanced AI in multiple ways. Our system analyzes your performance to identify knowledge gaps, creates personalized study plans, provides adaptive question difficulty, offers instant doubt resolution through our AI tutor, and even suggests optimal study times based on your learning patterns and mood."
-      },
-      {
-        keywords: ['compare', 'other', 'platform', 'different'],
-        response: "What sets PREPZR apart from other online platforms is our holistic approach to learning. We consider not just content knowledge, but also your learning style, mood, study environment, and exam-specific strategies. Our adaptive AI continuously personalizes your experience, unlike platforms with static content."
-      }
-    ],
-    'hi-IN': [
-      {
-        keywords: ['परीक्षा', 'तैयारी', 'स्कोर'],
-        response: "हमारा परीक्षा तैयारी स्कोर आपके तैयारी स्तर का एक गतिशील मापक है। यह अभ्यास परीक्षणों, अवधारणा मास्टरी, अध्ययन निरंतरता और प्लेटफ़ॉर्म के साथ जुड़ाव पर आपके प्रदर्शन का विश्लेषण करने के लिए AI का उपयोग करता है। स्थिर स्कोर के विपरीत, यह आपके सीखने के साथ अनुकूल होता है, जिससे आपको कमजोर क्षेत्रों को सुधारने पर ध्यान केंद्रित करने में मदद मिलती है।"
-      },
-      {
-        keywords: ['कोचिंग', 'संस्थान', 'बेहतर', 'फायदा'],
-        response: "प्रेप-ज़र पारंपरिक कोचिंग संस्थानों की तुलना में कई लाभ प्रदान करता है। हम व्यक्तिगत शिक्षा तक 24/7 पहुंच प्रदान करते हैं, आपके कार्यक्रम और सीखने की गति के अनुकूल होते हैं, हमारे AI ट्यूटर के माध्यम से त्वरित संदेह समाधान प्रदान करते हैं, और आपके विशिष्ट ज्ञान अंतराल की पहचान करने और संबोधित करने के लिए डेटा-संचालित अंतर्दृष्टि का उपयोग करते हैं।"
-      },
-      {
-        keywords: ['फीचर', 'क्या', 'ऑफर'],
-        response: "प्रेप-ज़र की विशेषताओं में शामिल हैं व्यक्तिगत AI-संचालित अध्ययन योजनाएं, अनुकूली प्रश्न बैंक जो आपके कमजोर क्षेत्रों पर ध्यान केंद्रित करते हैं, स्पेस्ड रिपिटिशन के साथ इंटरैक्टिव फ्लैशकार्ड, विजुअल लर्निंग के लिए कॉन्सेप्ट मैप्स, विस्तृत प्रदर्शन विश्लेषण, मूड-आधारित अध्ययन सिफारिशें, और त्वरित संदेह समाधान के लिए 24/7 AI ट्यूटर।"
-      },
-      {
-        keywords: ['फ्री', 'ट्रायल', 'सब्सक्रिप्शन'],
-        response: "हम 7-दिवसीय निःशुल्क परीक्षण प्रदान करते हैं जो सभी प्रीमियम सुविधाओं तक पूर्ण पहुंच देता है। हमारी सदस्यता योजनाएं व्यापक परीक्षा तैयारी प्रदान करते हुए किफायती होने के लिए डिज़ाइन की गई हैं। और याद रखें, सभी सदस्यता राजस्व का 5% वंचित छात्रों के लिए पहुंच प्रदान करने के लिए जाता है।"
-      },
-      {
-        keywords: ['दान', 'समर्थन', 'वंचित'],
-        response: "प्रेप-ज़र वंचित छात्रों के लिए प्लेटफॉर्म तक पहुंच प्रदान करने के लिए सभी सदस्यता राजस्व का 5% आवंटित करता है। यह वित्तीय पृष्ठभूमि की परवाह किए बिना सभी के लिए गुणवत्तापूर्ण शिक्षा को सुलभ बनाने के लिए हमारी प्रतिबद्धता है।"
-      },
-      {
-        keywords: ['साइनअप', 'रजिस्टर', 'ज्वाइन'],
-        response: "प्रेप-ज़र के लिए साइनअप करने में बस एक मिनट लगता है! पेज के शीर्ष पर 'Sign up' बटन पर क्लिक करें। आप अपने ईमेल के साथ एक खाता बना सकते हैं या त्वरित पहुंच के लिए Google साइन-इन का उपयोग कर सकते हैं। सदस्यता पर निर्णय लेने से पहले सभी प्रीमियम सुविधाओं का अनुभव करने के लिए हमारे 7-दिवसीय निःशुल्क परीक्षण के साथ शुरुआत करें।"
-      }
-    ]
-  };
-  
-  // Example commands for help section
-  const helpCommands = {
-    'en-IN': [
-      "Tell me about exam readiness score",
-      "How is PREPZR better than coaching?",
-      "What features do you offer?",
-      "How do I sign up?",
-      "Tell me about your free trial",
-      "How does your AI work?",
-      "How do you support underprivileged students?"
-    ],
-    'hi-IN': [
-      "परीक्षा तैयारी स्कोर के बारे में बताएं",
-      "प्रेप-ज़र कोचिंग से कैसे बेहतर है?",
-      "आप कौन से फीचर्स प्रदान करते हैं?",
-      "मैं कैसे साइन अप करूं?",
-      "अपने फ्री ट्रायल के बारे में बताएं",
-      "आपका AI कैसे काम करता है?",
-      "आप वंचित छात्रों का समर्थन कैसे करते हैं?"
-    ]
-  };
-  
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
-      console.error('Speech recognition not supported');
+  const [inputText, setInputText] = useState<string>('');
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>('voice');
+  const [settings, setSettings] = useState({
+    volume: 0.8,
+    rate: 1.0,
+    pitch: 1.0
+  });
+
+  // Process voice or text command
+  const processCommand = (text: string) => {
+    setCommand(text);
+    
+    // Determine if this is a navigation command
+    const lowerText = text.toLowerCase();
+    
+    // Handle navigation commands
+    if (lowerText.includes('go to') || lowerText.includes('navigate to')) {
+      handleNavigationCommand(lowerText);
       return;
     }
     
-    // Set initial welcome message
-    const welcomeMsg = selectedLanguage === 'hi-IN' 
-      ? "नमस्ते! मैं आपका प्रेप-ज़र वॉयस असिस्टेंट हूँ। मैं आपको हमारे प्लेटफॉर्म के बारे में जानकारी प्रदान कर सकता हूँ। आप मुझसे परीक्षा तैयारी, हमारी सुविधाओं, या साइनअप प्रक्रिया के बारे में पूछ सकते हैं।"
-      : "Hello! I'm your PREPZR voice assistant. I can provide information about our platform. Feel free to ask me about exam preparation, our features, or how to sign up.";
-    
-    setResponse(welcomeMsg);
-    if (!muted) speakText(welcomeMsg);
-    
-    // Set up click outside listener
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-    };
-  }, [isOpen, selectedLanguage]);
-  
-  // Initialize speech recognition
-  const initSpeechRecognition = () => {
-    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+    // Handle information requests
+    if (lowerText.includes('what is') || lowerText.includes('tell me about')) {
+      handleInfoRequest(lowerText);
       return;
     }
     
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = false;
-    recognitionRef.current.interimResults = false;
-    recognitionRef.current.lang = selectedLanguage;
-    
-    recognitionRef.current.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setTranscript(transcript);
-      processCommand(transcript);
-    };
-    
-    recognitionRef.current.onend = () => {
-      setIsListening(false);
-    };
-    
-    recognitionRef.current.onerror = (event) => {
-      console.error('Speech recognition error', event);
-      setIsListening(false);
-    };
-  };
-  
-  // Start listening
-  const startListening = () => {
-    if (!recognitionRef.current) {
-      initSpeechRecognition();
-    } else {
-      // Update language in case it changed
-      recognitionRef.current.lang = selectedLanguage;
-    }
-    
-    try {
-      recognitionRef.current?.start();
-      setIsListening(true);
-      setTranscript('');
-    } catch (e) {
-      console.error('Error starting speech recognition', e);
-    }
-  };
-  
-  // Stop listening
-  const stopListening = () => {
-    try {
-      recognitionRef.current?.abort();
-      setIsListening(false);
-    } catch (e) {
-      console.error('Error stopping speech recognition', e);
-    }
-  };
-  
-  // Process voice command
-  const processCommand = (command: string) => {
-    setIsProcessing(true);
-    
-    // Language change commands (always check these first)
-    if (command.toLowerCase().includes('speak in hindi') || command.toLowerCase().includes('hindi में बात करो')) {
-      setSelectedLanguage('hi-IN');
-      const response = "अब मैं हिंदी में बात करूँगा।";
-      setResponse(response);
-      if (!muted) speakText(response);
-      setIsProcessing(false);
+    // Handle feature requests
+    if (lowerText.includes('show me') || lowerText.includes('open')) {
+      handleFeatureRequest(lowerText);
       return;
     }
     
-    if (command.toLowerCase().includes('speak in english') || command.toLowerCase().includes('अंग्रेजी में बात करो')) {
-      setSelectedLanguage('en-IN');
-      const response = "I'll now speak in English.";
-      setResponse(response);
-      if (!muted) speakText(response);
-      setIsProcessing(false);
-      return;
-    }
-    
-    // Navigation commands
-    if (command.toLowerCase().includes('sign up') || command.toLowerCase().includes('register') || 
-        command.toLowerCase().includes('साइन अप') || command.toLowerCase().includes('रजिस्टर')) {
-      if (onNavigationCommand) {
-        const response = selectedLanguage === 'hi-IN'
-          ? "मैं आपको साइन अप पेज पर ले जा रहा हूँ।"
-          : "I'm taking you to the sign up page.";
-        setResponse(response);
-        if (!muted) speakText(response);
-        
-        setTimeout(() => {
-          onNavigationCommand('/signup');
-          onClose();
-        }, 2000);
-        setIsProcessing(false);
-        return;
-      }
-    }
-    
-    if (command.toLowerCase().includes('log in') || command.toLowerCase().includes('login') ||
-        command.toLowerCase().includes('लॉग इन') || command.toLowerCase().includes('साइन इन')) {
-      if (onNavigationCommand) {
-        const response = selectedLanguage === 'hi-IN'
-          ? "मैं आपको लॉगिन पेज पर ले जा रहा हूँ।"
-          : "I'm taking you to the login page.";
-        setResponse(response);
-        if (!muted) speakText(response);
-        
-        setTimeout(() => {
-          onNavigationCommand('/login');
-          onClose();
-        }, 2000);
-        setIsProcessing(false);
-        return;
-      }
-    }
-    
-    // Process Q&A for home page
-    const qaList = homePageQA[selectedLanguage as keyof typeof homePageQA] || homePageQA['en-IN'];
-    const lowerCommand = command.toLowerCase();
-    
-    // Find matching QA pair based on keywords
-    for (const qa of qaList) {
-      if (qa.keywords.some(keyword => lowerCommand.includes(keyword.toLowerCase()))) {
-        setResponse(qa.response);
-        if (!muted) speakText(qa.response);
-        setIsProcessing(false);
-        return;
-      }
-    }
-    
-    // Default response if no match found
-    const defaultResponse = selectedLanguage === 'hi-IN'
-      ? "मुझे आपका प्रश्न समझने में कठिनाई हो रही है। आप परीक्षा तैयारी, हमारी सुविधाओं या साइनअप के बारे में पूछ सकते हैं।"
-      : "I'm having trouble understanding your question. You can ask about exam preparation, our features, or how to sign up.";
-    
+    // Default response
+    const defaultResponse = "I'm Sakha AI, PREPZR's core AI engine. I can help you navigate the platform, learn about our features, and support your exam preparation journey. Try asking about specific exams or features.";
     setResponse(defaultResponse);
-    if (!muted) speakText(defaultResponse);
-    setIsProcessing(false);
+    speakResponse(defaultResponse);
+  };
+  
+  // Handle navigation requests
+  const handleNavigationCommand = (command: string) => {
+    let route = '/';
+    
+    if (command.includes('dashboard') || command.includes('home')) {
+      route = '/dashboard/student';
+      setResponse("Opening your student dashboard now.");
+    } else if (command.includes('login') || command.includes('sign in')) {
+      route = '/login';
+      setResponse("Taking you to the login page.");
+    } else if (command.includes('signup') || command.includes('register')) {
+      route = '/signup';
+      setResponse("Taking you to the signup page.");
+    } else if (command.includes('exam') || command.includes('test')) {
+      route = '/exam-readiness';
+      setResponse("Opening our exam readiness analyzer.");
+    } else if (command.includes('pricing') || command.includes('plans')) {
+      route = '/pricing';
+      setResponse("Let me show you our subscription plans.");
+    } else if (command.includes('free') || command.includes('trial')) {
+      route = '/free-trial';
+      setResponse("Taking you to our free trial page.");
+    } else {
+      setResponse("I'm not sure where you want to go. Try asking for the dashboard, login, signup, or exam readiness page.");
+      speakResponse("I'm not sure where you want to go. Try asking for the dashboard, login, signup, or exam readiness page.");
+      return;
+    }
+    
+    // Speak response before navigation
+    speakResponse(response);
+    
+    // Navigate after speech or a short delay
+    setTimeout(() => {
+      if (onNavigationCommand) {
+        onNavigationCommand(route);
+      }
+      onClose();
+    }, 1500);
+  };
+  
+  // Handle information requests
+  const handleInfoRequest = (command: string) => {
+    let infoResponse = "";
+    
+    if (command.includes('prepzr')) {
+      infoResponse = "PREPZR is the world's first emotionally aware exam preparation platform. We adapt to your moods, learning style, and surroundings to create a hyper-personalized study experience. We support UN Sustainability goals by donating 5% of subscription revenue to help underprivileged students access quality education.";
+    } else if (command.includes('voice') || command.includes('assistant')) {
+      infoResponse = "I'm Sakha AI, your voice assistant. I can help you navigate the platform, answer questions about PREPZR features, and provide study guidance. Just ask me what you need!";
+    } else if (command.includes('subscription') || command.includes('plan')) {
+      infoResponse = "PREPZR offers flexible subscription plans to match your needs. Our plans include personalized study plans, AI-driven concept explanations, practice exams, and performance analytics. Plus, 5% of all subscription revenue helps fund education for underprivileged students.";
+    } else if (command.includes('exam') || command.includes('test')) {
+      infoResponse = "PREPZR helps you prepare for various competitive exams with personalized study plans, adaptive practice tests, and performance analytics. Our AI analyzes your learning patterns and adapts to your emotional state to optimize your study experience.";
+    } else {
+      infoResponse = "I don't have specific information about that topic yet. Try asking about PREPZR, our subscription plans, or how our voice assistant works.";
+    }
+    
+    setResponse(infoResponse);
+    speakResponse(infoResponse);
+  };
+  
+  // Handle feature requests
+  const handleFeatureRequest = (command: string) => {
+    let featureResponse = "";
+    
+    if (command.includes('readiness') || command.includes('analyzer')) {
+      featureResponse = "Our Exam Readiness Analyzer helps you understand your preparation level before an exam. It identifies knowledge gaps, recommends focus areas, and estimates your current performance level.";
+      if (onNavigationCommand) {
+        setTimeout(() => onNavigationCommand('/exam-readiness'), 2000);
+      }
+    } else if (command.includes('study plan') || command.includes('study schedule')) {
+      featureResponse = "Our personalized study plans adapt to your learning pace, strengths, weaknesses, and emotional state. They optimize your study time and ensure you're prepared for your exams.";
+      if (onNavigationCommand) {
+        setTimeout(() => onNavigationCommand('/dashboard/student/today'), 2000);
+      }
+    } else if (command.includes('concept') || command.includes('topics')) {
+      featureResponse = "Our concept cards break down complex topics into easy-to-understand chunks, with visual aids, examples, and practice questions tailored to your learning style.";
+      if (onNavigationCommand) {
+        setTimeout(() => onNavigationCommand('/dashboard/student/concepts'), 2000);
+      }
+    } else {
+      featureResponse = "I'm not sure which feature you're asking about. Try asking about our exam readiness analyzer, personalized study plans, or concept cards.";
+    }
+    
+    setResponse(featureResponse);
+    speakResponse(featureResponse);
+  };
+
+  // Text input handling
+  const handleSubmitText = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputText.trim()) {
+      processCommand(inputText);
+      setInputText('');
+    }
+  };
+  
+  // Voice commands
+  const startListening = () => {
+    setIsListening(true);
+    toast({
+      title: "Voice Assistant Listening",
+      description: "Say a command like 'Tell me about PREPZR'",
+    });
+    
+    // Simulate speech recognition (in a real app, use the Web Speech API)
+    setTimeout(() => {
+      const simulatedCommands = [
+        "Tell me about PREPZR",
+        "What are your subscription plans?",
+        "Show me the exam readiness analyzer",
+        "Take me to the dashboard"
+      ];
+      const randomCommand = simulatedCommands[Math.floor(Math.random() * simulatedCommands.length)];
+      setCommand(randomCommand);
+      processCommand(randomCommand);
+      setIsListening(false);
+    }, 3000);
+  };
+  
+  const stopListening = () => {
+    setIsListening(false);
+  };
+  
+  // Speech synthesis
+  const speakResponse = (text: string) => {
+    if ('speechSynthesis' in window && !isMuted) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      // Create speech synthesis utterance
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Apply voice settings
+      utterance.volume = settings.volume;
+      utterance.rate = settings.rate;
+      utterance.pitch = settings.pitch;
+      utterance.lang = language;
+      
+      // Get available voices
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Try to find an Indian English voice
+      const preferredVoiceNames = [
+        'Google हिन्दी', 'Microsoft Kalpana', 'Google English India',
+        'en-IN', 'hi-IN', 'Indian', 'India'
+      ];
+      
+      // Find best matching voice
+      let selectedVoice = null;
+      for (const name of preferredVoiceNames) {
+        const voice = voices.find(v => 
+          v.name?.toLowerCase().includes(name.toLowerCase()) || 
+          v.lang?.toLowerCase().includes(name.toLowerCase())
+        );
+        if (voice) {
+          selectedVoice = voice;
+          break;
+        }
+      }
+      
+      // If still no voice selected, use any available voice
+      if (!selectedVoice && voices.length > 0) {
+        selectedVoice = voices[0];
+      }
+      
+      // Set the selected voice if found
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Handle events
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      // Speak
+      window.speechSynthesis.speak(utterance);
+    }
   };
   
   // Toggle mute
   const toggleMute = () => {
-    setMuted(!muted);
+    setIsMuted(!isMuted);
     
-    if (isSpeaking && !muted) {
-      // Cancel speech if unmuting
-      window.speechSynthesis?.cancel();
+    if (!isMuted) {
+      // If currently not muted and about to be muted, stop any speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
       setIsSpeaking(false);
     }
   };
   
-  // Toggle language
-  const toggleLanguage = () => {
-    const newLanguage = selectedLanguage === 'en-IN' ? 'hi-IN' : 'en-IN';
-    setSelectedLanguage(newLanguage);
-    
-    const message = newLanguage === 'hi-IN'
-      ? "अब मैं हिंदी में बात करूँगा।"
-      : "I'll now speak in English.";
-    
-    setResponse(message);
-    if (!muted) speakText(message);
-    
-    // Update recognition language if active
-    if (recognitionRef.current) {
-      recognitionRef.current.lang = newLanguage;
-    }
+  // Handle settings change
+  const handleSettingsChange = (type: 'volume' | 'rate' | 'pitch', value: number) => {
+    setSettings(prev => ({ ...prev, [type]: value }));
   };
   
-  // Text to speech function
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      // Fix pronunciation of "PREPZR"
-      const processedText = fixPronunciation(text);
-      
-      const utterance = new SpeechSynthesisUtterance(processedText);
-      
-      // Get all available voices
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Find an appropriate voice for the selected language
-      const voice = findBestVoice(voices, selectedLanguage);
-      if (voice) utterance.voice = voice;
-      
-      utterance.lang = selectedLanguage;
-      utterance.rate = 1.0;
-      utterance.pitch = 1.1; // Slightly higher for female voice
-      utterance.volume = 0.8;
-      
-      setIsSpeaking(true);
-      
-      window.speechSynthesis.speak(utterance);
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-    }
-  };
-  
-  // Show the help dialog
-  const handleShowHelp = () => {
-    setShowHelp(true);
-    const helpMessage = selectedLanguage === 'hi-IN'
-      ? "आप मुझसे निम्न प्रकार के प्रश्न पूछ सकते हैं:"
-      : "You can ask me questions like:";
-    
-    setResponse(helpMessage);
-    if (!muted) speakText(helpMessage);
-  };
-  
-  // Try a sample command
-  const trySampleCommand = (command: string) => {
-    setTranscript(command);
-    processCommand(command);
-  };
-  
-  // Animation variants for the dialog
-  const dialogVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1 }
+  // Test voice with current settings
+  const testVoice = () => {
+    speakResponse("This is a test of the PREPZR voice assistant with your current settings.");
   };
 
+  if (!isOpen) return null;
+  
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            ref={modalRef}
-            className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden border border-gray-200 dark:border-gray-800"
-            variants={dialogVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={{ type: "spring", damping: 30, stiffness: 400 }}
-          >
-            <div className="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex justify-between items-center">
-              <h3 className="font-semibold text-lg">PREPZR Voice Assistant</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="p-5">
-              <div className={`chat-bubble ${isSpeaking ? 'speaking' : ''} max-h-64 overflow-auto bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4`}>
-                {isProcessing ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                    <span className="text-gray-500 dark:text-gray-400">Processing...</span>
-                  </div>
-                ) : (
-                  <p>{response}</p>
-                )}
-              </div>
-              
-              {transcript && (
-                <div className="mb-4 p-2 bg-purple-50 dark:bg-purple-900/20 rounded border border-purple-100 dark:border-purple-800/30">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <span className="font-semibold">You said:</span> {transcript}
-                  </p>
-                </div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg max-h-[80vh] overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+              {isSpeaking ? (
+                <Volume2 className="h-5 w-5 animate-pulse" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
               )}
-              
-              {showHelp && (
-                <div className="mb-4 space-y-2">
-                  <h4 className="font-medium text-sm">Try asking:</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {helpCommands[selectedLanguage as keyof typeof helpCommands]?.map((cmd, i) => (
-                      <Button
-                        key={i}
-                        variant="outline"
-                        size="sm"
-                        className="justify-start text-xs h-auto py-1"
-                        onClick={() => trySampleCommand(cmd)}
-                      >
-                        "{cmd}"
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+              Sakha AI Voice Assistant
+              {isListening && (
+                <Badge variant="outline" className="bg-red-500 text-white border-red-400 animate-pulse">
+                  Listening
+                </Badge>
               )}
-              
-              <div className="flex justify-between mt-4">
-                <div className="space-x-2">
-                  <Button
-                    variant={isListening ? "default" : "outline"}
-                    size="sm"
-                    className={isListening ? "bg-red-500 hover:bg-red-600" : ""}
-                    onClick={isListening ? stopListening : startListening}
-                  >
-                    {isListening ? (
-                      <MicOff className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Mic className="h-4 w-4 mr-2" />
-                    )}
-                    {isListening ? "Stop" : "Speak"}
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleMute}
-                    className="h-9 w-9"
-                  >
-                    {muted ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleLanguage}
-                    className="h-9 w-9"
-                  >
-                    <Globe className="h-4 w-4" />
-                  </Button>
-                </div>
-                
+            </CardTitle>
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-3 mx-4 mt-4">
+            <TabsTrigger value="voice">Voice</TabsTrigger>
+            <TabsTrigger value="text">Text</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+          
+          <CardContent className="overflow-y-auto max-h-[50vh] p-4">
+            <TabsContent value="voice" className="space-y-4 mt-2">
+              <div className="flex flex-col items-center gap-4">
                 <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleShowHelp}
-                  className="h-9 w-9"
+                  onClick={isListening ? stopListening : startListening}
+                  variant={isListening ? "destructive" : "default"}
+                  className="w-40 h-40 rounded-full shadow-lg flex flex-col items-center justify-center gap-2 transition-all"
+                  disabled={isSpeaking}
                 >
-                  <HelpCircle className="h-4 w-4" />
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-12 w-12 mb-2" />
+                      <span>Stop</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-12 w-12 mb-2" />
+                      <span>Tap to Speak</span>
+                    </>
+                  )}
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={toggleMute}
+                  className="flex items-center gap-2"
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX className="h-4 w-4" />
+                      <span>Unmute</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      <span>Mute</span>
+                    </>
+                  )}
                 </Button>
               </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              
+              {command && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">You said:</p>
+                  <p className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md mt-1">{command}</p>
+                </div>
+              )}
+              
+              {response && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Sakha AI response:</p>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md mt-1">
+                    <p>{response}</p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Try saying:</p>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => processCommand("Tell me about PREPZR")}>
+                    "Tell me about PREPZR"
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => processCommand("Show me the exam readiness analyzer")}>
+                    "Show me the exam readiness analyzer"
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => processCommand("What are your subscription plans?")}>
+                    "What are your subscription plans?"
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => processCommand("Take me to the dashboard")}>
+                    "Take me to the dashboard"
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="text" className="space-y-4 mt-2">
+              <form onSubmit={handleSubmitText} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="text-input">Type your message:</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="text-input"
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      placeholder="e.g., Tell me about PREPZR"
+                    />
+                    <Button type="submit" disabled={!inputText.trim()}>
+                      Send
+                    </Button>
+                  </div>
+                </div>
+              </form>
+              
+              {command && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">You asked:</p>
+                  <p className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md mt-1">{command}</p>
+                </div>
+              )}
+              
+              {response && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Sakha AI response:</p>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md mt-1">
+                    <p>{response}</p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Suggested questions:</p>
+                <div className="grid grid-cols-1 gap-2 mt-1">
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => {
+                    setInputText("Tell me about PREPZR");
+                    processCommand("Tell me about PREPZR");
+                  }}>
+                    Tell me about PREPZR
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => {
+                    setInputText("Show me the exam readiness analyzer");
+                    processCommand("Show me the exam readiness analyzer");
+                  }}>
+                    Show me the exam readiness analyzer
+                  </Button>
+                  <Button variant="ghost" size="sm" className="justify-start h-auto py-1" onClick={() => {
+                    setInputText("What are your subscription plans?");
+                    processCommand("What are your subscription plans?");
+                  }}>
+                    What are your subscription plans?
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="settings" className="space-y-4 mt-2">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="volume-slider">Volume: {Math.round(settings.volume * 100)}%</Label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={toggleMute}
+                      className="h-7 text-xs"
+                    >
+                      {isMuted ? 'Unmute' : 'Mute'}
+                    </Button>
+                  </div>
+                  <Slider
+                    id="volume-slider"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={[settings.volume]}
+                    onValueChange={([value]) => handleSettingsChange('volume', value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="rate-slider">Speed: {settings.rate.toFixed(1)}x</Label>
+                  <Slider
+                    id="rate-slider"
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    value={[settings.rate]}
+                    onValueChange={([value]) => handleSettingsChange('rate', value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="pitch-slider">Pitch: {settings.pitch.toFixed(1)}</Label>
+                  <Slider
+                    id="pitch-slider"
+                    min={0.5}
+                    max={1.5}
+                    step={0.1}
+                    value={[settings.pitch]}
+                    onValueChange={([value]) => handleSettingsChange('pitch', value)}
+                  />
+                </div>
+                
+                <Button className="w-full" onClick={testVoice}>
+                  Test Voice Settings
+                </Button>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+        
+        <CardFooter className="flex justify-between bg-gray-50 dark:bg-gray-800/50 p-4">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Sakha AI - PREPZR's Core Intelligence
+          </div>
+          <div className="flex items-center gap-2">
+            <Settings className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

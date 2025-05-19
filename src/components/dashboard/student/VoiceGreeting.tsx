@@ -101,18 +101,6 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     lang: string,
     engagement: string
   ): string => {
-    // Only explain pronunciation once per user session
-    const isPronunciationNeeded = sessionStorage.getItem('explainedPronunciation') !== 'true';
-    
-    // Mark that we've explained pronunciation
-    if (isPronunciationNeeded) {
-      sessionStorage.setItem('explainedPronunciation', 'true');
-    }
-    
-    // Only add pronunciation explanation the first time
-    const pronunciationExplanation = isPronunciationNeeded ? 
-      ' Prep-zer is pronounced as "prep" like in preparation and "zer" like in laser. ' : '';
-    
     // Determine time of day for more personalized greeting
     const hour = new Date().getHours();
     let timeGreeting = 'Hello';
@@ -128,28 +116,31 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       engagementGreeting = "You're being consistent with your studies. That's excellent! ";
     }
     
+    // Add UN sustainability goals message instead of donation message
+    const sustainabilityMessage = "PREPZR supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
+    
     if (lang === 'en') {
       if (path.includes('/dashboard/student/today')) {
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your daily study plan.${pronunciationExplanation} I've personalized today's tasks based on your learning patterns and upcoming exams. Focus on completing these to stay on track with your exam preparation.`;
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your daily study plan. ${sustainabilityMessage} I've personalized today's tasks based on your learning patterns and upcoming exams. Focus on completing these to stay on track with your exam preparation.`;
       } else if (path.includes('/dashboard/student/concepts')) {
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to the concepts section.${pronunciationExplanation} I've highlighted concepts that need your attention today based on your performance data and exam proximity. Each concept card adapts to your learning style.`;
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to the concepts section. ${sustainabilityMessage} I've highlighted concepts that need your attention today based on your performance data and exam proximity.`;
       } else if (path.includes('/dashboard/student/flashcards')) {
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your personalized flashcards.${pronunciationExplanation} I've prioritized these cards based on your memory patterns and upcoming exams. Regular practice with these cards will strengthen your recall during exams.`;
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your personalized flashcards. ${sustainabilityMessage} I've prioritized these cards based on your memory patterns and upcoming exams.`;
       } else if (path.includes('/dashboard/student/practice-exam')) {
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to practice exams.${pronunciationExplanation} I've prepared adaptive tests that focus on your weak areas while building confidence in your strong topics. This balanced approach will maximize your exam readiness.`;
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to practice exams. ${sustainabilityMessage} I've prepared adaptive tests that focus on your weak areas while building confidence in your strong topics.`;
       } else if (path.includes('/dashboard/student/analytics')) {
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your analytics dashboard.${pronunciationExplanation} I'm constantly analyzing your learning patterns and progress. Today, I've identified key areas where focused effort will give you maximum improvement.`;
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your analytics dashboard. ${sustainabilityMessage} I'm constantly analyzing your learning patterns and progress to identify key areas for improvement.`;
       } else {
-        // Default dashboard greeting with engagement awareness
-        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your emotionally intelligent dashboard.${pronunciationExplanation} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
+        // Default dashboard greeting with engagement awareness and UN sustainability message
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
       }
     } else if (lang === 'hi') {
-      // Hindi greetings with time-awareness (simplified)
+      // Hindi greetings with UN sustainability message (simplified)
       const hindiTimeGreeting = hour < 12 ? 'सुप्रभात' : (hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या');
-      return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। मैं आपका भावनात्मक रूप से बुद्धिमान AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
+      return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्यों का समर्थन करते हैं और सभी छात्रों के लिए समावेशी और गुणवत्तापूर्ण शिक्षा प्रदान करते हैं। मैं आपका भावनात्मक रूप से बुद्धिमान AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
     }
     
-    return `${timeGreeting} ${name}! Welcome to Prep-zer!`;
+    return `${timeGreeting} ${name}! Welcome to PREPZR!`;
   };
   
   // Create a properly configured speech utterance with enhanced emotional intonation

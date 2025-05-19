@@ -12,7 +12,6 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentDashboard = () => {
@@ -224,17 +223,18 @@ const StudentDashboard = () => {
         loginCount={userProfile.loginCount}
       />
 
-      {/* Voice Greeting - will play for first time users */}
+      {/* Enhanced Voice Greeting with UN sustainability goals message */}
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
         language="en"
       />
       
-      {/* Only show one AI assistant - use ChatAssistant for all devices */}
-      <ChatAssistant 
-        userType="student"
-        initialPrompt={suggestedNextAction ? `Help me with: ${suggestedNextAction}` : ""}
+      {/* Enhanced Dashboard Voice Assistant that considers user mood */}
+      <DashboardVoiceAssistant
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        language="en-IN"
+        userMood={currentMood}
       />
     </>
   );

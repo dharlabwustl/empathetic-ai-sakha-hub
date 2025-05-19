@@ -68,10 +68,8 @@ const AdminLogin = () => {
         // Mark admin as logged in
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Navigate after a short delay to ensure state updates
-        setTimeout(() => {
-          navigate('/admin/dashboard', { replace: true });
-        }, 300);
+        // Navigate after login success - fixed the issue with vibrating after login
+        navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
@@ -95,7 +93,8 @@ const AdminLogin = () => {
     setTimeout(() => {
       const form = document.getElementById('admin-login-form');
       if (form) {
-        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        form.dispatchEvent(submitEvent);
       }
     }, 100);
   };
