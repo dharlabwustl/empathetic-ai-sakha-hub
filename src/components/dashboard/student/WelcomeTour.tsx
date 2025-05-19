@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Brain, CalendarDays, FileText, BookOpen, ExternalLink, Heart } from 'lucide-react';
+import { Brain, CalendarDays, FileText, BookOpen, ExternalLink } from 'lucide-react';
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -41,8 +41,8 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           </DialogTitle>
           <DialogDescription>
             {isFirstTimeUser 
-              ? "We understand your mindset, not just the exam. Your emotionally aware, hyper-personalized learning space is ready."
-              : `It's good to see you again. Let's continue your learning journey with personalized guidance.`
+              ? "Your personalized learning space is ready for you."
+              : `It's good to see you again. Let's continue your learning journey.`
             }
           </DialogDescription>
         </DialogHeader>
@@ -98,20 +98,6 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
               <p className="text-xs text-gray-600 dark:text-gray-300">
                 Get instant help with difficult concepts and study strategies.
               </p>
-            </div>
-          </div>
-          
-          {/* UN Sustainability Goals Message (replaces donation message) */}
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30 p-4 rounded-lg border">
-            <div className="flex items-center gap-3">
-              <Heart className="h-5 w-5 text-purple-500 dark:text-purple-300" />
-              <div>
-                <h4 className="text-sm font-semibold mb-1 text-purple-600 dark:text-purple-300">Supporting UN Sustainability Goals</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. 
-                  We're committed to providing equal access to personalized learning for all students.
-                </p>
-              </div>
             </div>
           </div>
           
