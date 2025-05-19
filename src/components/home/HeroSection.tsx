@@ -119,7 +119,6 @@ const HeroSection: React.FC = () => {
                     damping: 20
                   }}
                   className={`absolute inset-0 flex flex-col items-center justify-center ${index === activeSlide ? 'z-10' : 'z-0'}`}
-                  style={{ display: index === activeSlide ? 'flex' : 'none' }}
                 >
                   <motion.div
                     initial={{y: 20, opacity: 0}}
