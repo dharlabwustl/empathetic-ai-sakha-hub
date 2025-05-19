@@ -75,14 +75,15 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   
   // Generate context-aware greeting based on current page
   const getContextAwareGreeting = (path: string, name: string, lang: string): string => {
-    // No need to repeatedly explain the pronunciation unless it's the first visit
+    // Only explain pronunciation once per user session
     const isPronunciationNeeded = sessionStorage.getItem('explainedPronunciation') !== 'true';
     
-    // Only explain pronunciation once
+    // Mark that we've explained pronunciation
     if (isPronunciationNeeded) {
       sessionStorage.setItem('explainedPronunciation', 'true');
     }
     
+    // Only add pronunciation explanation the first time
     const pronunciationExplanation = isPronunciationNeeded ? 
       ' Prep-zer is pronounced as "prep" like in preparation and "zer" like in laser. ' : '';
     

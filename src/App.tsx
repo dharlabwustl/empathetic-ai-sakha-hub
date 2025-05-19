@@ -67,6 +67,16 @@ import Signup from '@/pages/auth/Signup';
 import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
 
+// Import new footer pages
+import About from '@/pages/About';
+import Features from '@/pages/Features';
+import Blog from '@/pages/Blog';
+import Help from '@/pages/Help';
+import FAQ from '@/pages/FAQ';
+import Contact from '@/pages/Contact';
+import Careers from '@/pages/Careers';
+import Sustainability from '@/pages/Sustainability';
+
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
   return (
@@ -93,8 +103,19 @@ function App() {
               {/* Redirect old admin login routes to the new path */}
               <Route path="/login/admin" element={<Navigate to="/admin/login" replace />} />
               <Route path="/register" element={<SignUp />} />
+              
+              {/* Footer pages */}
+              <Route path="/about" element={<About />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/sustainability" element={<Sustainability />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
               {/* Auth-specific routes */}
