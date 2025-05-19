@@ -38,8 +38,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   };
   
   useEffect(() => {
-    // Only play the greeting if speech synthesis is supported and we're on the right page
-    if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting && !audioMuted) {
+    // Check if greeting has already been played in this session for this page
+    const sessionKey = `voiceGreeting_${location.pathname}`;
+    const hasBeenPlayed = sessionStorage.getItem(sessionKey) === 'true';
+    
+    // Only play the greeting if speech synthesis is supported, we're on the right page,
+    // it hasn't been played yet, and audio isn't muted
+    if ('speechSynthesis' in window && !greetingPlayed && !hasBeenPlayed && shouldPlayGreeting && !audioMuted) {
+      // Mark as played in session storage to prevent repeated playback
+      sessionStorage.setItem(sessionKey, 'true');
+      
       // Use a timeout to ensure the component is fully mounted
       const timer = setTimeout(() => {
         try {

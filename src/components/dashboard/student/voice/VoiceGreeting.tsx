@@ -23,15 +23,19 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const { toast } = useToast();
   
   useEffect(() => {
-    // Only play greeting if this is a first-time user or for welcome back messages
-    if (!greetingPlayed && 'speechSynthesis' in window) {
+    // Check if greeting has already been played in this session
+    const hasBeenPlayed = sessionStorage.getItem('welcomeGreetingPlayed') === 'true';
+    
+    // Only play greeting if this is a first-time user and greeting hasn't been played yet
+    if (!greetingPlayed && !hasBeenPlayed && isFirstTimeUser && 'speechSynthesis' in window) {
+      // Set session storage flag to prevent repeated playback
+      sessionStorage.setItem('welcomeGreetingPlayed', 'true');
+      
       // Use a timeout to ensure the component is fully mounted
       const timer = setTimeout(() => {
         try {
           // Create a personalized welcome message
-          let welcomeMessage = isFirstTimeUser 
-            ? `Congratulations ${userName}! Welcome to your personalized dashboard. I'm Sakha AI, your adaptive learning assistant. `
-            : `Welcome back ${userName}! I'm Sakha AI, your adaptive learning assistant. `;
+          let welcomeMessage = `Congratulations ${userName}! Welcome to your personalized dashboard. I'm Sakha AI, your adaptive learning assistant. `;
           
           // Add UN sustainability goal message (replacing donation message)
           welcomeMessage += UN_SUSTAINABILITY_MESSAGE;
