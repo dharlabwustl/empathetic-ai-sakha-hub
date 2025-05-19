@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PenLine, Volume2, BookOpen, Star } from 'lucide-react';
+import { PenLine, Volume2, BookOpen, Star, Share, Copy, Check } from 'lucide-react';
 import ReadAloudSection from './ReadAloudSection';
 import NoteSection from './NoteSection';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface ConceptContentProps {
   content: string;
@@ -27,12 +28,39 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
   setIsReadingAloud
 }) => {
   const [isHighlighted, setIsHighlighted] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   // Split content into paragraphs for better readability
   const contentParagraphs = content.split('\n\n').filter(paragraph => paragraph.trim() !== '');
 
   const toggleHighlight = () => {
     setIsHighlighted(!isHighlighted);
+    toast({
+      title: isHighlighted ? "Highlights removed" : "Key points highlighted",
+      description: isHighlighted 
+        ? "Text highlighting has been removed" 
+        : "Important concepts have been highlighted for easier studying",
+    });
+  };
+
+  const handleCopyContent = () => {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    toast({
+      title: "Content copied",
+      description: "The concept content has been copied to your clipboard",
+    });
+    
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = () => {
+    // In a real app, this would open a share dialog or generate a link
+    toast({
+      title: "Share feature",
+      description: "Share functionality would be implemented here in a production app",
+    });
   };
 
   return (
@@ -46,7 +74,7 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
               <h2 className="text-xl font-semibold flex items-center">
                 <BookOpen className="h-5 w-5 mr-2 text-blue-600" /> Concept Overview
               </h2>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -64,6 +92,24 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
                 >
                   <Volume2 className="h-4 w-4" />
                   {isReadingAloud ? 'Stop Reading' : 'Read Aloud'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={handleCopyContent}
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? 'Copied!' : 'Copy'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={handleShare}
+                >
+                  <Share className="h-4 w-4" />
+                  Share
                 </Button>
               </div>
             </div>
@@ -94,12 +140,14 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
               </Badge>
             </div>
 
-            <style jsx>{`
-              .concept-highlighted p {
-                position: relative;
-                background: linear-gradient(180deg, rgba(255,255,255,0) 50%, rgba(255,243,143,0.2) 50%);
-              }
-            `}</style>
+            <style>
+              {`
+                .concept-highlighted p {
+                  position: relative;
+                  background: linear-gradient(180deg, rgba(255,255,255,0) 50%, rgba(255,243,143,0.2) 50%);
+                }
+              `}
+            </style>
           </CardContent>
         </Card>
       </div>
