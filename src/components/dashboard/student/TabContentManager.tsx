@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
@@ -10,6 +9,7 @@ import PracticeExamLandingPage from '@/components/dashboard/student/practice-exa
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
 import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import EnhancedConceptDetail from './concepts/EnhancedConceptDetail';
 
 interface RedesignedTodaysPlanProps {
   userProfile: UserProfileBase;
@@ -103,6 +103,9 @@ export const generateTabContents = ({
     
     // Concept Cards tab
     "concepts": <ConceptsLandingPage />,
+    
+    // Concept Details (dynamically loaded via routes)
+    "concept-detail": <EnhancedConceptDetail />,
     
     // Flashcards tab
     "flashcards": <FlashcardsLandingPage />,

@@ -13,7 +13,7 @@ import { useState } from 'react';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -39,18 +39,17 @@ const Home = () => {
       {/* Page content */}
       <HeroSection />
       
-      {/* Donation Message Banner for Subscription Section */}
+      {/* UN Sustainability Goals Banner */}
       <div className="container mx-auto px-4 my-8">
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+        <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 dark:from-blue-900/20 dark:to-green-900/20 dark:border-blue-800/30">
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
-              <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
+            <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
+              <Globe className="h-6 w-6 text-blue-500 dark:text-blue-300" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
+              <h3 className="text-lg font-semibold mb-1 text-blue-600 dark:text-blue-300">Supporting UN Sustainability Goals</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                We donate 5% of monthly subscription revenue to fund underprivileged students,
-                providing them free access to our platform.
+                We support UN Goal 4: Ensuring inclusive and equitable quality education and promoting lifelong learning opportunities for all.
               </p>
             </div>
           </CardContent>
