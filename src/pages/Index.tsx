@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/landing/HeroSection';
+import Interactive3DHero from '@/components/home/Interactive3DHero';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -77,8 +77,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Use our new story-focused hero section */}
-        <HeroSection />
+        {/* Replace standard hero with our new interactive 3D hero */}
+        <Interactive3DHero />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
