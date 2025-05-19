@@ -22,12 +22,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
                             location.pathname.includes('/free-trial') ||
                             location.pathname.includes('/exam-readiness');
   
-  // Get context-aware message based on page, now with UN sustainability goal message
+  // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
       return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
     } else if (path.includes('/signup')) {
       return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey while supporting UN Sustainability Goal 4 for inclusive and equitable quality education.";
+    } else if (path.includes('/welcome')) {
+      return "Congratulations and welcome to PREP-zer! I'm Sakha AI, your personal learning assistant. I'm here to guide you through your exam preparation journey. We're committed to supporting UN Sustainability Goal 4, ensuring quality education for all students.";
     } else if (path.includes('/free-trial')) {
       return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
     } else if (path.includes('/exam-readiness')) {

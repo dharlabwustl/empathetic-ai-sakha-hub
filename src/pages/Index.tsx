@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import HeroSection from '@/components/home/HeroSection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -70,8 +71,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced 3D hero section with voice interaction */}
-        <Hero3DSection />
+        {/* Updated Hero Section with customized title and buttons */}
+        <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
