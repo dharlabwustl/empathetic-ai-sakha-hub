@@ -1,16 +1,13 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Brain, BookOpen, FileCheck, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import FormulaTabContent from './FormulaTabContent';
+import { Book, BookOpen, FileCheck, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag, Brain, CheckCircle } from 'lucide-react';
 import useUserNotes from '@/hooks/useUserNotes';
 import ConceptContent from './concept-detail/ConceptContent';
 import NoteSection from './concept-detail/NoteSection';
-import ReadAloudSection from './concept-detail/ReadAloudSection';
+import FormulaTabContent from './FormulaTabContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import RevisionSection from './concept-detail/RevisionSection';
@@ -23,6 +20,8 @@ export interface ConceptDetailProps {
   topic: string;
   difficulty: 'easy' | 'medium' | 'hard';
   content: string;
+  masteryLevel?: number;
+  onMasteryUpdate?: (newLevel: number) => void;
 }
 
 const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({ 
@@ -31,7 +30,9 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   subject, 
   topic, 
   difficulty,
-  content
+  content,
+  masteryLevel = 0,
+  onMasteryUpdate
 }) => {
   const [activeTab, setActiveTab] = useState('content');
   const [isFormulaLabOpen, setIsFormulaLabOpen] = useState(false);
@@ -39,6 +40,8 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
+  const [validationCompleted, setValidationCompleted] = useState(false);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
 
   const { toast } = useToast();
 
@@ -81,40 +84,50 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     });
   };
 
+  // Handle quiz completion and mastery update
+  const handleQuizComplete = (score: number) => {
+    setQuizScore(score);
+    setValidationCompleted(true);
+
+    // Update mastery level based on quiz performance
+    if (onMasteryUpdate) {
+      // Calculate new mastery level (this is a simplified example)
+      const improvement = score / 100 * 20; // Max 20% improvement based on score
+      const newMasteryLevel = Math.min(100, Math.round(masteryLevel + improvement));
+      onMasteryUpdate(newMasteryLevel);
+    }
+
+    toast({
+      title: "Knowledge validation complete",
+      description: `You scored ${score}% on the concept quiz.`,
+      variant: "default",
+    });
+  };
+
   return (
     <div className="space-y-6 p-1">
-      {/* Header with concept info */}
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-2xl font-bold">{title}</h1>
-            <Badge variant={
-              difficulty === 'easy' ? 'outline' :
-              difficulty === 'medium' ? 'secondary' :
-              'destructive'
-            } className="ml-2">
-              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-            </Badge>
-            {isFlagged && (
-              <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400">
-                Flagged for Revision
-              </Badge>
-            )}
-          </div>
-          <p className="text-gray-500 dark:text-gray-400">{subject} - {topic}</p>
-        </div>
+      {/* Action buttons on top */}
+      <div className="flex flex-wrap gap-2 justify-end">
+        <Button 
+          size="sm" 
+          variant="outline"
+          onClick={handleToggleFlag}
+          className={isFlagged ? "border-amber-500 text-amber-500" : ""}
+        >
+          <Flag className="h-4 w-4 mr-1" /> 
+          {isFlagged ? "Remove Flag" : "Flag for Revision"}
+        </Button>
 
-        <div className="flex items-center gap-2">
+        {validationCompleted && quizScore !== null && (
           <Button 
             size="sm" 
             variant="outline"
-            onClick={handleToggleFlag}
-            className={isFlagged ? "border-amber-500 text-amber-500" : ""}
+            className="border-green-500 text-green-500"
           >
-            <Flag className="h-4 w-4 mr-1" /> 
-            {isFlagged ? "Remove Flag" : "Flag for Revision"}
+            <CheckCircle className="h-4 w-4 mr-1" /> 
+            Validated: {quizScore}%
           </Button>
-        </div>
+        )}
       </div>
 
       <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -161,6 +174,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
             conceptId={conceptId} 
             title={title} 
             content={content}
+            onQuizComplete={handleQuizComplete}
           />
         </TabsContent>
 
@@ -181,6 +195,32 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
           />
         </TabsContent>
       </Tabs>
+
+      {/* Mastery Progress Bar */}
+      <div className="mt-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium flex items-center">
+            <Brain className="h-4 w-4 mr-2 text-blue-600" /> Concept Mastery Progress
+          </h3>
+          <span className="text-sm font-medium">{masteryLevel}%</span>
+        </div>
+        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div 
+            className={`h-full rounded-full ${
+              masteryLevel > 80 ? 'bg-green-500' : 
+              masteryLevel > 50 ? 'bg-blue-500' : 
+              masteryLevel > 30 ? 'bg-yellow-500' : 'bg-red-500'
+            }`}
+            style={{ width: `${masteryLevel}%` }}
+          />
+        </div>
+        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+          {masteryLevel >= 30 && masteryLevel < 50 && "You're making progress. Keep practicing to strengthen your understanding."}
+          {masteryLevel >= 50 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+          {masteryLevel >= 80 && "Excellent mastery! You can now focus on related concepts."}
+        </div>
+      </div>
     </div>
   );
 };

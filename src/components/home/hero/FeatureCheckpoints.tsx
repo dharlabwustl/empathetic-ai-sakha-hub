@@ -5,10 +5,10 @@ import { CheckCircle } from 'lucide-react';
 
 const FeatureCheckpoints: React.FC = () => {
   const features = [
-    "Personalized Study Plans", 
-    "AI Concept Mastery", 
-    "Performance Analytics", 
-    "Voice-Guided Learning"
+    "AI-Powered Personalized Learning", 
+    "Concept Mastery Validation", 
+    "Interactive Study Materials", 
+    "Adaptive Performance Analytics"
   ];
 
   return (
@@ -21,8 +21,8 @@ const FeatureCheckpoints: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 + index * 0.1 }}
         >
-          <CheckCircle className="h-5 w-5 text-green-500" />
-          <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+          <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{feature}</span>
         </motion.div>
       ))}
     </div>
