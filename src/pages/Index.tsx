@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import MilestonesSection from '@/components/home/MilestonesSection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -95,6 +96,9 @@ const Index = () => {
           </div>
           <KpiStats />
         </motion.section>
+        
+        {/* Milestones Section */}
+        <MilestonesSection />
         
         {/* Backed By Section with partner logos */}
         <BackedBySection />

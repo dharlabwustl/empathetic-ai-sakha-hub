@@ -115,21 +115,21 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     else timeGreeting = 'Good evening';
     
     // The UN sustainability goals message to replace donation messaging
-    const sustainabilityMessage = "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
+    const sustainabilityMessage = "Prep-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
     
     if (lang === 'en') {
       if (contextType === 'welcome') {
-        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our AI-powered platform offers adaptive study plans, practice tests, and personalized recommendations tailored to your learning style. ${sustainabilityMessage} Let me guide you through our key features to help you succeed in your exams.`;
+        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our AI-powered platform offers adaptive study plans, practice tests, and personalized recommendations tailored to your learning style. ${sustainabilityMessage} Let me guide you through our key features to help you succeed in your exams. Feel free to ask me for assistance if you need help exploring study plans, concept cards, flashcards, practice exams, or any other features.`;
       } else if (contextType === 'concept') {
         return `Hello ${name}, I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
       } else if (contextType === 'dashboard') {
-        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
+        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results. Feel free to ask me about your study plan, concept cards, flashcards, practice exams, formula lab, or ask for assistance with anything on your dashboard.`;
       } else if (contextType === 'signup') {
-        return `Congratulations ${name}! You've made an excellent choice selecting PREP-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals.`;
+        return `Congratulations ${name}! You've made an excellent choice selecting Prep-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals. I'm here to help you navigate through the platform, just ask for assistance at any time.`;
       } else if (contextType === 'home') {
-        return `Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage}`;
+        return `Welcome to Prep-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage} If you have any questions about our features or how we can help with your exam preparation, just ask.`;
       } else {
-        return `${timeGreeting} ${name}! Welcome to PREP-zer. ${sustainabilityMessage}`;
+        return `${timeGreeting} ${name}! Welcome to Prep-zer. ${sustainabilityMessage} If you need any assistance exploring our platform or have questions about your study journey, I'm here to help.`;
       }
     } else if (lang === 'hi') {
       // Hindi greetings with sustainability message
@@ -141,13 +141,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       } else if (contextType === 'concept') {
         return `नमस्ते ${name}, मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
       } else if (contextType === 'dashboard') {
-        return `${hindiTimeGreeting} ${name}! आपके भावनात्मक रूप से बुद्धिमान डैशबोर्ड में आपका स्वागत है। ${hindiSustainabilityMsg} मैं आपका AI सीखने वाला साथी हूँ, और मैं आपके मूड, सीखने की शैली और परिवेश के अनुसार अनुकूलित हो जाता हूँ।`;
+        return `${hindiTimeGreeting} ${name}! आपके भावनात्मक रूप से बुद्धिमान डैशबोर्ड में आपका स्वागत है। ${hindiSustainabilityMsg} मैं आपका AI सीखने वाला साथी हूँ, और मैं आपके मूड, सीखने की शैली और परिवेश के अनुसार अनुकूलित हो जाता हूँ। अगर आपको अपनी अध्ययन योजना, कॉन्सेप्ट कार्ड्स, फ्लैशकार्ड्स, अभ्यास परीक्षा या फॉर्मूला लैब के बारे में कोई प्रश्न है, तो मुझसे पूछें।`;
       } else {
         return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। ${hindiSustainabilityMsg}`;
       }
     }
     
-    return `${timeGreeting} ${name}! Welcome to PREP-zer!`;
+    return `${timeGreeting} ${name}! Welcome to Prep-zer!`;
   };
   
   const handleToggleMute = () => {

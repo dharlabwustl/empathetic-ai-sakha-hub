@@ -28,19 +28,19 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     // Add UN sustainability goals message
-    const sustainabilityMessage = "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students.";
+    const sustainabilityMessage = "Prep-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students.";
     
     if (path === '/') {
-      return `Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage}`;
+      return `Welcome to Prep-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. If you need any assistance exploring our features, I'm here to help. ${sustainabilityMessage}`;
     } else if (path.includes('/signup')) {
-      return `Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey. ${sustainabilityMessage}`;
+      return `Congratulations on taking this important step! I'm Sakha AI, Prep-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey. Need any help getting started? Just ask. ${sustainabilityMessage}`;
     } else if (path.includes('/free-trial')) {
-      return `Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. ${sustainabilityMessage}`;
+      return `Welcome to your Prep-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. Let me know if you need help exploring any features. ${sustainabilityMessage}`;
     } else if (path.includes('/exam-readiness')) {
-      return `Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam. ${sustainabilityMessage}`;
+      return `Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam. I can help you interpret these results if you need assistance. ${sustainabilityMessage}`;
     }
     
-    return `Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion. ${sustainabilityMessage}`;
+    return `Welcome to Prep-zer. I'm Sakha AI, your emotionally intelligent exam companion. I'm here to assist you with navigating our platform, exploring study plans, concept cards, flashcards, practice exams, and more. ${sustainabilityMessage}`;
   };
   
   useEffect(() => {

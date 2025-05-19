@@ -107,6 +107,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
               <p className="text-sm font-medium text-blue-800 dark:text-blue-300">{suggestedNextAction}</p>
             </div>
           )}
+
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900/50">
+            <h3 className="text-sm font-medium mb-2">UN Sustainability Goals</h3>
+            <p className="text-xs text-gray-600 dark:text-gray-300">
+              Prep-zer supports UN Sustainability goals with inclusive and equitable quality education. 
+              We're committed to providing equal access to personalized learning for all students.
+            </p>
+          </div>
         </div>
         
         <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
