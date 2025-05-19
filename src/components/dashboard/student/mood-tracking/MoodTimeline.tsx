@@ -13,7 +13,13 @@ interface MoodTimelineProps {
 }
 
 const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
-  const lastSevenDays = moodHistory.slice(0, 7).reverse();
+  // Ensure we have valid data and convert to uppercase if needed
+  const normalizedMoodHistory = moodHistory.map(entry => ({
+    mood: (typeof entry.mood === 'string' ? entry.mood.toUpperCase() : entry.mood) as MoodType,
+    timestamp: entry.timestamp
+  }));
+  
+  const lastSevenDays = normalizedMoodHistory.slice(0, 7).reverse();
   
   return (
     <Card className="p-4">

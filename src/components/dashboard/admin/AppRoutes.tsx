@@ -21,9 +21,6 @@ const AdminAppRoutes: React.FC = () => {
         verifiedMoodImprovement: 65,
         averageMoodScore: 7.8,
         averageTimeSavedPerWeek: 5.2,
-        // systemHealthScore: 98, // Removed this property as it doesn't exist in the type
-        totalContentItems: 1250,
-        averageSessionLength: 28,
         weeklyActiveUsers: 210,
         monthlyActiveUsers: 230,
         retentionRate: 85,
@@ -34,7 +31,9 @@ const AdminAppRoutes: React.FC = () => {
           concepts: 92,
           feelGoodCorner: 78
         },
-        contentEngagementRate: 76
+        contentEngagementRate: 76,
+        totalContentItemCount: 1250, // Changed from totalContentItems to match type definition
+        averageSessionLength: 28
       }} />} />
       <Route path="/subscriptions" element={<SubscriptionManager />} />
     </Routes>

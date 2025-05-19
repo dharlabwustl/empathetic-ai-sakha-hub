@@ -11,7 +11,7 @@ import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Login = () => {
-  const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
+  // Only need a single login tab now, since Admin will redirect to a separate page
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -74,35 +74,30 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           
-          <Tabs defaultValue="student" value={loginTab} onValueChange={(value) => setLoginTab(value as "student" | "admin")}>
-            <div className="px-6 pt-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="student">Student</TabsTrigger>
-                <TabsTrigger value="admin">Administrator</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value="student" className="pt-2">
-              <form onSubmit={(e) => e.preventDefault()}>
+          <CardContent className="p-6">
+            <div className="flex flex-col space-y-6">
+              {/* Student login form */}
+              <div>
+                <h3 className="text-lg font-medium mb-4">Student Login</h3>
                 <LoginPage onError={handleLoginError} />
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="admin" className="pt-2">
-              <CardContent>
-                <div className="space-y-4 py-4">
-                  <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={handleAdminLoginRedirect}>
-                      Go to Admin Login
-                    </Button>
-                  </div>
-                  <p className="text-sm text-center text-muted-foreground">
-                    Administrator access is restricted to authorized personnel only.
-                  </p>
-                </div>
-              </CardContent>
-            </TabsContent>
-          </Tabs>
+              </div>
+              
+              {/* Admin login button */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium mb-4">Administrator Login</h3>
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleAdminLoginRedirect}
+                >
+                  Go to Admin Login
+                </Button>
+                <p className="mt-2 text-sm text-center text-muted-foreground">
+                  Administrator access is restricted to authorized personnel only.
+                </p>
+              </div>
+            </div>
+          </CardContent>
           
           <CardFooter className="flex justify-center border-t pt-6">
             <p className="text-sm text-gray-600">

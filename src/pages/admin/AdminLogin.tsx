@@ -78,8 +78,8 @@ const AdminLogin = () => {
         // Mark admin as logged in explicitly to guarantee it's set
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Navigate after login success - force a hard redirect
-        window.location.href = '/admin/dashboard';
+        // Use navigate instead of direct location change to prevent animation issues
+        navigate('/admin/dashboard', { replace: true });
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
@@ -164,6 +164,7 @@ const AdminLogin = () => {
                     variant="link" 
                     className="px-0 font-normal text-xs h-auto"
                     type="button"
+                    onClick={() => navigate("/admin/forgot-password")}
                   >
                     Forgot password?
                   </Button>

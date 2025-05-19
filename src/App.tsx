@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -66,6 +65,8 @@ import AdminLoginPage from '@/pages/auth/AdminLogin';
 import Signup from '@/pages/auth/Signup';
 import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
+import ForgotPassword from '@/pages/auth/ForgotPassword';
+import AdminForgotPassword from '@/pages/auth/AdminForgotPassword';
 
 // Import new footer pages
 import About from '@/pages/About';
@@ -100,6 +101,8 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
               {/* Redirect old admin login routes to the new path */}
               <Route path="/login/admin" element={<Navigate to="/admin/login" replace />} />
               <Route path="/register" element={<SignUp />} />
@@ -122,6 +125,7 @@ function App() {
               <Route path="/auth/signup" element={<Signup />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/admin-login" element={<AdminLoginPage />} />
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               
               {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />

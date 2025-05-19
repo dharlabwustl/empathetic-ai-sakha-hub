@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -119,6 +118,10 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {loginError && (
@@ -153,12 +156,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
             type="button"
             variant="link"
             className="p-0 h-auto text-xs"
-            onClick={() => {
-              toast({
-                title: "Password Reset",
-                description: "Password reset functionality will be available soon."
-              });
-            }}
+            onClick={handleForgotPassword}
           >
             Forgot password?
           </Button>
