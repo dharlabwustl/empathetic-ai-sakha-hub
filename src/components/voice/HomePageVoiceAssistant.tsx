@@ -25,16 +25,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
+      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
+      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey while supporting UN Sustainability Goal 4 for inclusive and equitable quality education.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
+      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
+      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam. We're proud to support UN Sustainability Goal 4 for quality education.";
     }
     
-    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion.";
+    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
   };
   
   useEffect(() => {
@@ -58,11 +58,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a clear, vibrant voice - preferring US English voices
-          const preferredVoiceNames = [
-            'Google US English Female', 'Microsoft Zira', 'Samantha', 
-            'Alex', 'en-US', 'en-GB'
-          ];
+          // Try to find a clear, vibrant voice - preferring Indian English voices for en-IN
+          const preferredVoiceNames = language === 'en-IN' 
+            ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India']
+            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
           
           // Try to find a preferred voice
           let selectedVoice = null;

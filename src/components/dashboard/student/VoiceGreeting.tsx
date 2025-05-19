@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -117,8 +118,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       engagementGreeting = `Great to see you again today ${name}! Your consistent study habits are impressive. `;
     }
     
-    // Add UN sustainability goals message instead of donation message
-    const sustainabilityMessage = "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
+    // UN sustainability goals message
+    const sustainabilityMessage = "PREP-zer supports UN Sustainability Goal 4 with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
     
     if (lang === 'en') {
       if (path.includes('/dashboard/student/today')) {
