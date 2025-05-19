@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Volume2, Brain, Sparkles } from "lucide-react";
 import { MoodType } from "@/types/user/base";
+import * as THREE from "three";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -19,8 +19,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
   const [showStudentAvatar, setShowStudentAvatar] = useState(false);
   
   // Create refs for animated elements
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const threeContainerRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const animationRef = useRef<number>(0);
+  const particlesRef = useRef<THREE.Points | null>(null);
   
   useEffect(() => {
     // Faster animation sequence for better UX
@@ -37,14 +41,22 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
       setShowStudentAvatar(true);
     }, 700);
     
-    // Setup ambient animation
-    setupWaveAnimation();
+    // Setup ambient 3D animation
+    setupThreeJSAnimation();
     
     return () => {
       clearTimeout(timer);
       clearTimeout(buttonTimer);
       clearTimeout(avatarTimer);
-      cancelAnimationFrame(animationRef.current);
+      
+      // Clean up Three.js resources
+      if (rendererRef.current && threeContainerRef.current) {
+        threeContainerRef.current.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose();
+      }
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       
       // Cancel any ongoing speech when component unmounts
       if ('speechSynthesis' in window) {
@@ -61,79 +73,204 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
     }
   }, [animationComplete, welcomeSpoken]);
   
-  // Setup canvas wave animation
-  const setupWaveAnimation = () => {
-    if (!canvasRef.current) return;
+  // Setup Three.js animation for immersive 3D background
+  const setupThreeJSAnimation = () => {
+    if (!threeContainerRef.current) return;
     
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    // Initialize Three.js scene
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
     
-    // Set canvas dimensions
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera(
+      75, 
+      window.innerWidth / window.innerHeight, 
+      0.1, 
+      1000
+    );
+    camera.position.z = 30;
+    cameraRef.current = camera;
+    
+    // Setup renderer with transparent background
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true 
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0); // Transparent background
+    
+    threeContainerRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+    
+    // Add ambient and directional light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+    
+    // Create mood-specific particle effects
+    createMoodParticles();
+    
+    // Add background floating shapes
+    addBackgroundShapes();
+    
+    // Handle window resize
+    const handleResize = () => {
+      if (cameraRef.current && rendererRef.current) {
+        cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+        cameraRef.current.updateProjectionMatrix();
+        rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+      }
     };
-    
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // Wave parameters
-    let waves = [];
-    const waveCount = 3;
-    const baseColors = [
-      currentMood ? getMoodSpecificContent().color : 'rgba(99, 102, 241, 0.2)',
-      currentMood ? getMoodSpecificContent().secondaryColor : 'rgba(129, 140, 248, 0.3)',
-      'rgba(147, 197, 253, 0.15)'
-    ];
-    
-    // Create waves
-    for (let i = 0; i < waveCount; i++) {
-      waves.push({
-        frequency: 0.005 + (i * 0.002),
-        amplitude: 50 + (i * 30),
-        speed: 0.03 - (i * 0.005),
-        phase: 0,
-        color: baseColors[i]
-      });
-    }
+    window.addEventListener('resize', handleResize);
     
     // Animation loop
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (particlesRef.current) {
+        particlesRef.current.rotation.y += 0.001;
+      }
       
-      // Draw each wave
-      waves.forEach(wave => {
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height / 2);
-        
-        for (let x = 0; x < canvas.width; x++) {
-          const y = Math.sin(x * wave.frequency + wave.phase) * wave.amplitude + (canvas.height / 2);
-          ctx.lineTo(x, y);
+      // Rotate and animate all children in the scene
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+          object.rotation.x += 0.002;
+          object.rotation.y += 0.003;
+          
+          // Subtle floating motion
+          object.position.y += Math.sin(Date.now() * 0.001 + object.position.x) * 0.01;
         }
-        
-        // Complete wave path
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.closePath();
-        
-        // Fill wave
-        ctx.fillStyle = wave.color;
-        ctx.fill();
-        
-        // Update phase for animation
-        wave.phase += wave.speed;
       });
       
+      renderer.render(scene, camera);
       animationRef.current = requestAnimationFrame(animate);
     };
     
     animate();
     
     return () => {
-      cancelAnimationFrame(animationRef.current);
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', handleResize);
     };
+  };
+  
+  const createMoodParticles = () => {
+    if (!sceneRef.current) return;
+    
+    // Get mood-specific colors
+    const moodTheme = getMoodSpecificContent();
+    
+    // Create particles
+    const particleCount = 2000;
+    const particles = new THREE.BufferGeometry();
+    
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    
+    // Create color object from mood theme
+    const color1 = new THREE.Color(moodTheme.particleColor1 || '#6366f1');
+    const color2 = new THREE.Color(moodTheme.particleColor2 || '#818cf8');
+    
+    // Distribute particles in a spherical pattern
+    for (let i = 0; i < particleCount; i++) {
+      // Position
+      const radius = 15 + Math.random() * 15;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = radius * Math.cos(phi);
+      
+      // Color - interpolate between two mood colors
+      const mixRatio = Math.random();
+      colors[i * 3] = color1.r * mixRatio + color2.r * (1 - mixRatio);
+      colors[i * 3 + 1] = color1.g * mixRatio + color2.g * (1 - mixRatio);
+      colors[i * 3 + 2] = color1.b * mixRatio + color2.b * (1 - mixRatio);
+    }
+    
+    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    // Create point material
+    const particleMaterial = new THREE.PointsMaterial({
+      size: 0.15,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    // Create points system
+    const pointsSystem = new THREE.Points(particles, particleMaterial);
+    sceneRef.current.add(pointsSystem);
+    
+    particlesRef.current = pointsSystem;
+  };
+  
+  const addBackgroundShapes = () => {
+    if (!sceneRef.current) return;
+    
+    // Get mood specific content
+    const moodTheme = getMoodSpecificContent();
+    
+    // Add geometric shapes based on mood
+    const geometries = [
+      new THREE.IcosahedronGeometry(2, 0),  // Brain-like shape
+      new THREE.TorusGeometry(3, 1, 16, 100),  // Ring/orbit
+      new THREE.TetrahedronGeometry(1.5, 0),  // Sharp focus shape
+    ];
+    
+    // Create materials with mood theme
+    const materials = [
+      new THREE.MeshPhongMaterial({ 
+        color: moodTheme.shape1Color || "#4f46e5", 
+        transparent: true, 
+        opacity: 0.7,
+        wireframe: Math.random() > 0.5
+      }),
+      new THREE.MeshPhongMaterial({ 
+        color: moodTheme.shape2Color || "#818cf8", 
+        transparent: true, 
+        opacity: 0.5,
+        wireframe: Math.random() > 0.7
+      }),
+      new THREE.MeshPhongMaterial({ 
+        color: moodTheme.shape3Color || "#a5b4fc", 
+        transparent: true, 
+        opacity: 0.6,
+        wireframe: Math.random() > 0.3
+      })
+    ];
+    
+    // Place shapes around the scene
+    for (let i = 0; i < 12; i++) {
+      const geomIndex = i % geometries.length;
+      const matIndex = (i + 1) % materials.length;
+      
+      const mesh = new THREE.Mesh(geometries[geomIndex], materials[matIndex]);
+      
+      // Position in a orbital pattern
+      const radius = 20 + Math.random() * 10;
+      const angle = (i / 12) * Math.PI * 2;
+      const height = (Math.random() - 0.5) * 20;
+      
+      mesh.position.x = Math.cos(angle) * radius;
+      mesh.position.z = Math.sin(angle) * radius;
+      mesh.position.y = height;
+      
+      // Randomize rotation
+      mesh.rotation.x = Math.random() * Math.PI;
+      mesh.rotation.y = Math.random() * Math.PI;
+      mesh.rotation.z = Math.random() * Math.PI;
+      
+      // Randomize scale (but keep it proportional)
+      const scale = 0.5 + Math.random() * 1.5;
+      mesh.scale.set(scale, scale, scale);
+      
+      sceneRef.current.add(mesh);
+    }
   };
   
   const speakWelcomeMessage = () => {
@@ -209,127 +346,92 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
     }
   };
   
-  // Particles animation for emotional representation
-  const particleVariants = {
-    hidden: { opacity: 0 },
-    visible: (i: number) => ({
-      opacity: [0.3, 0.8, 0.3],
-      scale: [1, 1.2, 1],
-      x: Math.sin(i * 0.8) * 10,
-      y: Math.cos(i * 0.8) * 10,
-      transition: {
-        repeat: Infinity,
-        repeatType: "reverse" as const,
-        duration: 3 + i * 0.5,
-        ease: "easeInOut",
-      },
-    }),
-  };
-  
-  // Emotional representation
-  const EmotionParticles = () => {
-    const particleCount = 6;
-    const moodTheme = getMoodSpecificContent();
-    
-    return (
-      <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: particleCount }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              background: moodTheme.gradient,
-              width: 20 + Math.random() * 30,
-              height: 20 + Math.random() * 30,
-              left: `${15 + Math.random() * 70}%`,
-              top: `${15 + Math.random() * 70}%`,
-              filter: "blur(15px)",
-            }}
-            variants={particleVariants}
-            custom={i}
-            initial="hidden"
-            animate="visible"
-          />
-        ))}
-      </div>
-    );
-  };
-  
   // Map mood to specific quotes, messages, and visual themes
   const getMoodSpecificContent = () => {
     const defaultQuote = "Study hard and be awesome!";
     const defaultMessage = "Let's achieve something great today!";
-    const defaultColor = "rgba(79, 70, 229, 0.2)"; // Indigo default
-    const defaultSecondaryColor = "rgba(99, 102, 241, 0.3)";
-    const defaultGradient = "linear-gradient(120deg, rgba(129, 140, 248, 0.5), rgba(165, 180, 252, 0.3))";
     const defaultImage = "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png";
     
     const moodContent = {
       [MoodType.MOTIVATED]: {
         quote: "Success is the sum of small efforts, repeated day in and day out.",
         message: "You're motivated! Let's channel that energy into focused study.",
-        color: "rgba(79, 70, 229, 0.25)", // Indigo
-        secondaryColor: "rgba(99, 102, 241, 0.3)",
-        gradient: "linear-gradient(120deg, rgba(129, 140, 248, 0.5), rgba(165, 180, 252, 0.3))",
         image: "/lovable-uploads/1d4f90c6-4bcf-4265-89ba-b51ffa584307.png",
-        avatarImage: "/lovable-uploads/f0722b8a-3f2f-499b-9bd9-fe9e07d94c41.png"
+        avatarImage: "/lovable-uploads/f0722b8a-3f2f-499b-9bd9-fe9e07d94c41.png",
+        particleColor1: '#6366f1',
+        particleColor2: '#818cf8',
+        shape1Color: '#4f46e5',
+        shape2Color: '#818cf8',
+        shape3Color: '#a5b4fc'
       },
       [MoodType.HAPPY]: {
         quote: "A positive mindset brings positive results.",
         message: "Great to see you happy! Ready to learn something new?",
-        color: "rgba(245, 158, 11, 0.25)", // Amber
-        secondaryColor: "rgba(252, 211, 77, 0.3)",
-        gradient: "linear-gradient(120deg, rgba(251, 191, 36, 0.5), rgba(252, 211, 77, 0.3))",
         image: "/lovable-uploads/16da1ff5-9fab-4b4b-bd21-5977748acd16.png",
-        avatarImage: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png"
+        avatarImage: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
+        particleColor1: '#f59e0b',
+        particleColor2: '#fcd34d',
+        shape1Color: '#d97706',
+        shape2Color: '#fbbf24',
+        shape3Color: '#fcd34d'
       },
       [MoodType.FOCUSED]: {
         quote: "Discipline is the bridge between goals and accomplishment.",
         message: "You're in the zone! Let's make progress on important concepts.",
-        color: "rgba(5, 150, 105, 0.25)", // Emerald
-        secondaryColor: "rgba(16, 185, 129, 0.3)", 
-        gradient: "linear-gradient(120deg, rgba(16, 185, 129, 0.5), rgba(110, 231, 183, 0.3))",
         image: "/lovable-uploads/c22d3091-93f3-466d-ac2a-a871167e98e4.png",
-        avatarImage: "/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png"
+        avatarImage: "/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png",
+        particleColor1: '#059669',
+        particleColor2: '#10b981',
+        shape1Color: '#047857',
+        shape2Color: '#10b981',
+        shape3Color: '#6ee7b7'
       },
       [MoodType.OKAY]: {
         quote: "Small progress is still progress.",
         message: "Let's build some momentum with your studies today.",
-        color: "rgba(37, 99, 235, 0.25)", // Blue
-        secondaryColor: "rgba(59, 130, 246, 0.3)",
-        gradient: "linear-gradient(120deg, rgba(59, 130, 246, 0.5), rgba(147, 197, 253, 0.3))",
         image: "/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png",
-        avatarImage: "/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png"
+        avatarImage: "/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png",
+        particleColor1: '#2563eb',
+        particleColor2: '#3b82f6',
+        shape1Color: '#1d4ed8',
+        shape2Color: '#3b82f6',
+        shape3Color: '#93c5fd'
       },
       [MoodType.STRESSED]: {
         quote: "Take a deep breath. You've got this.",
         message: "Let's break down your work into manageable chunks.",
-        color: "rgba(220, 38, 38, 0.2)", // Red
-        secondaryColor: "rgba(239, 68, 68, 0.25)",
-        gradient: "linear-gradient(120deg, rgba(239, 68, 68, 0.5), rgba(252, 165, 165, 0.3))",
         image: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
-        avatarImage: "/lovable-uploads/671c8cbb-4d23-4d74-afc5-5977b926a678.png"
+        avatarImage: "/lovable-uploads/671c8cbb-4d23-4d74-afc5-5977b926a678.png",
+        particleColor1: '#dc2626',
+        particleColor2: '#ef4444',
+        shape1Color: '#b91c1c',
+        shape2Color: '#ef4444',
+        shape3Color: '#fca5a5'
       },
       [MoodType.TIRED]: {
         quote: "Rest if you must, but don't quit.",
         message: "Let's focus on review and light learning today.",
-        color: "rgba(124, 58, 237, 0.2)", // Violet
-        secondaryColor: "rgba(139, 92, 246, 0.25)",
-        gradient: "linear-gradient(120deg, rgba(139, 92, 246, 0.5), rgba(196, 181, 253, 0.3))",
         image: "/lovable-uploads/0fa1cac6-aec8-4484-82f8-54739838449c.png",
-        avatarImage: "/lovable-uploads/9296075b-86c2-49b6-84c1-2679c2d4ed94.png"
+        avatarImage: "/lovable-uploads/9296075b-86c2-49b6-84c1-2679c2d4ed94.png",
+        particleColor1: '#7c3aed',
+        particleColor2: '#8b5cf6',
+        shape1Color: '#6d28d9',
+        shape2Color: '#8b5cf6',
+        shape3Color: '#c4b5fd'
       }
     };
     
     if (!currentMood || !Object.prototype.hasOwnProperty.call(moodContent, currentMood)) {
       return { 
         quote: defaultQuote, 
-        message: defaultMessage, 
-        color: defaultColor, 
-        secondaryColor: defaultSecondaryColor,
-        gradient: defaultGradient,
+        message: defaultMessage,
         image: defaultImage,
-        avatarImage: "/lovable-uploads/942253c5-380a-4285-85aa-06a90b045ade.png"
+        avatarImage: "/lovable-uploads/942253c5-380a-4285-85aa-06a90b045ade.png",
+        particleColor1: '#6366f1',
+        particleColor2: '#818cf8',
+        shape1Color: '#4f46e5',
+        shape2Color: '#818cf8',
+        shape3Color: '#a5b4fc'
       };
     }
     
@@ -340,19 +442,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
   
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Dynamic canvas background */}
-      <canvas 
-        ref={canvasRef}
+      {/* 3D Background */}
+      <div 
+        ref={threeContainerRef}
         className="absolute inset-0 w-full h-full -z-10"
       />
-      
-      {/* Emotion particles */}
-      <EmotionParticles />
       
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <motion.div 
-          className="max-w-md w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-xl shadow-xl overflow-hidden"
+          className="max-w-md w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg rounded-xl shadow-xl overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -401,19 +500,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
                   src={image}
                   alt="PREPZR Logo" 
                   className="h-20 w-20"
-                />
-                
-                {/* Animated sparkling effect around logo */}
-                <motion.div
-                  className="absolute -inset-4 rounded-full"
-                  animate={{
-                    background: [
-                      "radial-gradient(circle, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0) 70%)",
-                      "radial-gradient(circle, rgba(99,102,241,0.5) 0%, rgba(99,102,241,0) 70%)",
-                      "radial-gradient(circle, rgba(99,102,241,0.3) 0%, rgba(99,102,241,0) 70%)"
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 
                 {/* Animated pulsing effect */}

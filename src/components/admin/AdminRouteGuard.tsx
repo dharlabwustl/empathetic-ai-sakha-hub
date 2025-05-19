@@ -10,11 +10,11 @@ interface AdminRouteGuardProps {
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { toast } = useToast();
-  const { isAdminAuthenticated, adminLoading } = useAdminAuth();
+  const { isAdminAuthenticated, isLoading } = useAdminAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!adminLoading && !isAdminAuthenticated) {
+    if (!isLoading && !isAdminAuthenticated) {
       console.log("Admin authentication failed in AdminRouteGuard, redirecting to login");
       toast({
         title: "Authentication required",
@@ -23,9 +23,9 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
       });
       navigate('/admin/login', { replace: true });
     }
-  }, [isAdminAuthenticated, adminLoading, toast, navigate]);
+  }, [isAdminAuthenticated, isLoading, toast, navigate]);
 
-  if (adminLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-pulse text-center">

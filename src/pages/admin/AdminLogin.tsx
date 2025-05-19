@@ -18,7 +18,7 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated, isLoading: contextLoading } = useAdminAuth();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
   // Check if already authenticated
@@ -68,10 +68,10 @@ const AdminLogin = () => {
         // Mark admin as logged in
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Use setTimeout to ensure state updates have propagated
+        // Navigate after a short delay to ensure state updates
         setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 100);
+          navigate('/admin/dashboard', { replace: true });
+        }, 300);
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
@@ -99,18 +99,6 @@ const AdminLogin = () => {
       }
     }, 100);
   };
-
-  // If the auth context is still loading, show a loading indicator
-  if (contextLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-purple-600" />
-          <p className="text-lg font-medium">Initializing admin portal...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 dark:from-gray-900 dark:to-gray-800">
