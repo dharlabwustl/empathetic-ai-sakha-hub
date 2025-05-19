@@ -62,7 +62,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
             <Zap size={18} className="text-blue-700" />
           </motion.div>
           
-          <span className="font-medium relative z-10">Experience Future-Ready Learning</span>
+          <span className="font-medium relative z-10">Test Your Exam Readiness</span>
           
           {/* 3D depth elements */}
           <motion.div 
@@ -137,7 +137,7 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
               <GraduationCap size={18} className="text-violet-600 dark:text-violet-400" />
             </motion.div>
             
-            <span className="relative z-10">Begin Your Success Journey</span>
+            <span className="relative z-10">7 Days Free Trial</span>
             
             <motion.div
               className="relative z-10"
