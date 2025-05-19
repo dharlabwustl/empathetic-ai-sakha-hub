@@ -1,7 +1,28 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Volume2, VolumeX, Mic, MicOff, Settings } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 import { MoodType } from '@/types/user/base';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
@@ -10,211 +31,349 @@ interface DashboardVoiceAssistantProps {
   isFirstTimeUser?: boolean;
 }
 
-const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
-  userName = '',
+const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
+  userName = "student",
   currentMood,
   onMoodChange,
   isFirstTimeUser = false
 }) => {
-  const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
-  const [lastPagePath, setLastPagePath] = useState<string | null>(null);
-  const location = useLocation();
-  const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [pageContext, setPageContext] = useState('');
-  const [sessionStorage] = useState(() => {
-    return {
-      welcomeMessagePlayed: Boolean(localStorage.getItem('dashboard_welcome_played'))
-    };
-  });
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [speed, setSpeed] = useState(50);
+  const [pitch, setPitch] = useState(50);
+  const [voicePreference, setVoicePreference] = useState("female");
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   
-  // Track user interaction to avoid annoying users with too many messages
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      setLastInteractionTime(Date.now());
-    };
-    
-    // Track user interactions
-    window.addEventListener('click', handleUserInteraction);
-    window.addEventListener('scroll', handleUserInteraction);
-    
-    return () => {
-      window.removeEventListener('click', handleUserInteraction);
-      window.removeEventListener('scroll', handleUserInteraction);
-    };
-  }, []);
+  // Check if browser supports speech synthesis
+  const hasSpeechSupport = typeof window !== 'undefined' && 'speechSynthesis' in window;
   
-  // Extract current page context
+  // Initialize speech synthesis and load available voices
   useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('/dashboard/student/overview')) setPageContext('overview');
-    else if (path.includes('/dashboard/student/concepts')) setPageContext('concepts');
-    else if (path.includes('/dashboard/student/study-plan')) setPageContext('study-plan');
-    else if (path.includes('/dashboard/student/practice')) setPageContext('practice');
-    else if (path.includes('/dashboard/student/analytics')) setPageContext('analytics');
-    else if (path.includes('/dashboard/student/subscription')) setPageContext('subscription');
-    else setPageContext('dashboard');
-    
-    // Check if we've moved to a new page
-    if (path !== lastPagePath) {
-      // Cancel any ongoing speech when changing pages
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      
-      // Save this path so we can detect page changes
-      setLastPagePath(path);
-      
-      // Reset greeting flag if changing pages
-      if (lastPagePath) {
-        setGreetingPlayed(false);
-      }
-    }
-  }, [location.pathname, lastPagePath]);
-  
-  useEffect(() => {
-    // Only play welcome message once per session, and only on dashboard
-    if (
-      'speechSynthesis' in window &&
-      !greetingPlayed && 
-      !sessionStorage.welcomeMessagePlayed &&
-      location.pathname.includes('/dashboard')
-    ) {
-      const timer = setTimeout(() => {
-        // Different message for first-time users vs returning users
-        let message = '';
+    if (hasSpeechSupport) {
+      // Load available voices
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        setAvailableVoices(voices);
         
-        if (isFirstTimeUser) {
-          // First-time user welcome - improved with proper PREPZR pronunciation
-          message = `Congratulations ${userName} for joining Prep-zer! You've made an excellent decision in choosing us for your exam preparation journey. Our personalized dashboard adapts to your learning style and progress to help you achieve your goals efficiently. I'm your AI study assistant and will guide you through our powerful features including your Exam Readiness Score, personalized study plan, and adaptive practice tests. You can take a tour of the dashboard to learn more about all our features.`;
+        // Try to find a preferred voice
+        let voice = null;
+        
+        if (voicePreference === "female") {
+          voice = voices.find(v => 
+            v.name.toLowerCase().includes('female') || 
+            v.name.toLowerCase().includes('woman') ||
+            v.name.toLowerCase().includes('girl') ||
+            (v.name.toLowerCase().includes('google') && v.lang.includes('en'))
+          );
         } else {
-          // Returning user welcome - confident and enthusiastic tone
-          message = `Welcome back to your Prep-zer dashboard, ${userName}. Your study plan has been updated based on your recent activity and progress. Let's continue your exam preparation journey with confidence!`;
+          voice = voices.find(v => 
+            v.name.toLowerCase().includes('male') || 
+            v.name.toLowerCase().includes('man') || 
+            v.name.toLowerCase().includes('boy')
+          );
         }
         
-        if (message) {
-          speakMessage(message);
-          setGreetingPlayed(true);
-          localStorage.setItem('dashboard_welcome_played', 'true');
+        if (!voice && voices.length > 0) {
+          // Default to first English voice
+          voice = voices.find(v => v.lang.startsWith('en')) || voices[0];
         }
-      }, 1500);
+        
+        if (voice) {
+          setSelectedVoice(voice);
+        }
+      };
       
+      loadVoices();
+      
+      // Chrome loads voices asynchronously
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      
+      // Clean up
       return () => {
-        if (timer) clearTimeout(timer);
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
       };
     }
-    
-    return () => {
-      if (messageTimerRef.current) {
-        clearTimeout(messageTimerRef.current);
-      }
-    };
-  }, [location.pathname, userName, greetingPlayed, isFirstTimeUser, sessionStorage.welcomeMessagePlayed]);
+  }, [voicePreference, hasSpeechSupport]);
   
-  // Handle context-specific messages based on dashboard section
+  // Welcome new users with voice assistant after they've seen the tour
   useEffect(() => {
-    // Only provide context hints if user has already seen the welcome message
-    if (greetingPlayed && location.pathname.includes('/dashboard')) {
-      // Extract the specific dashboard section from the URL
-      const dashboardSection = location.pathname.split('/').pop();
+    if (isFirstTimeUser && hasSpeechSupport) {
+      const hasBeenWelcomed = localStorage.getItem('voice-welcomed');
       
-      let contextMessage = '';
-      
-      // Provide context-specific guidance based on which section they're viewing
-      switch(dashboardSection) {
-        case 'overview':
-          contextMessage = `This is your dashboard overview. Here you can see your Exam Readiness Score, upcoming events, and performance trends. The score reflects how prepared you are for your exams based on your engagement and performance.`;
-          break;
-        case 'study-plan':
-          contextMessage = `This is your personalized study plan. It adjusts based on your learning pace and performance to optimize your exam preparation. You can track your progress for each concept and see what's scheduled next.`;
-          break;
-        case 'concepts':
-          contextMessage = `Here you can explore all concepts you need to master. Click on any concept card to access detailed explanations, notes, practice questions, and use features like read-aloud or AI tutoring.`;
-          break;
-        case 'practice':
-          contextMessage = `Test your knowledge with practice exams. They simulate real exam conditions and provide detailed analytics on your performance to identify areas that need improvement.`;
-          break;
-        case 'analytics':
-          contextMessage = `Your analytics show your progress over time. Use these insights to identify areas that need more focus and adjust your study plan accordingly.`;
-          break;
-        case 'subscription':
-          contextMessage = `This is the subscription management page. You can upgrade your plan to access premium features or manage your current subscription. Remember, 5% of all subscription revenue goes toward providing free access to underprivileged students.`;
-          break;
-      }
-      
-      if (contextMessage) {
-        // Set a delay so it doesn't speak immediately after the welcome message
-        messageTimerRef.current = setTimeout(() => {
-          speakMessage(contextMessage);
-        }, 5000);
+      if (!hasBeenWelcomed && selectedVoice) {
+        // Wait a bit after tour completes
+        const timer = setTimeout(() => {
+          speakText(`Hello ${userName}! I'm your voice assistant. Click my icon anytime you need help.`);
+          localStorage.setItem('voice-welcomed', 'true');
+        }, 2000);
+        
+        return () => clearTimeout(timer);
       }
     }
-    
-    return () => {
-      if (messageTimerRef.current) {
-        clearTimeout(messageTimerRef.current);
-      }
-    };
-  }, [greetingPlayed, location.pathname]);
+  }, [isFirstTimeUser, selectedVoice, userName, hasSpeechSupport]);
   
-  // Speak with proper PREPZR pronunciation
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
+  // Function to speak text
+  const speakText = (text: string) => {
+    if (!hasSpeechSupport || isMuted) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Apply voice settings
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    
+    utterance.volume = volume / 100;
+    utterance.rate = speed / 50; // Convert to range 0.5-1.5
+    utterance.pitch = pitch / 50; // Convert to range 0.5-1.5
+    
+    // Speak
+    window.speechSynthesis.speak(utterance);
+    
+    // Show toast
+    toast({
+      title: "Voice Assistant Speaking",
+      description: text.length > 50 ? `${text.substring(0, 50)}...` : text,
+    });
+  };
+  
+  // Function to start listening
+  const handleToggleListening = () => {
+    setIsListening(!isListening);
+    
+    if (!isListening) {
+      toast({
+        title: "Listening...",
+        description: "Say a command like 'Show my study plan'",
+      });
       
-      // Create utterance with proper PREPZR pronunciation
-      // Use phonetic syllable breaks for better pronunciation: "Prep" + "zer"
-      const correctedText = text
-        .replace(/PREPZR/gi, 'Prep-zer')
-        .replace(/prepzr/gi, 'Prep-zer')
-        .replace(/Prepzr/g, 'Prep-zer');
-      
-      const utterance = new SpeechSynthesisUtterance(correctedText);
-      
-      // Use voices API to find an appropriate voice
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Try to find an Indian English female voice first (for consistency)
-      let selectedVoice = voices.find(v => 
-        (v.lang === 'en-IN' || v.name.includes('Indian')) && 
-        (v.name.toLowerCase().includes('female') || v.name.includes('Kalpana') || v.name.includes('Kajal'))
-      );
-      
-      // If no Indian voice, try to find any English female voice
-      if (!selectedVoice) {
-        selectedVoice = voices.find(v => 
-          v.lang.includes('en') && v.name.toLowerCase().includes('female')
-        );
-      }
-      
-      // If still no match, use default voice
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-      
-      // Set properties for a confident, pleasant voice
-      utterance.lang = 'en-IN';
-      utterance.rate = 0.95; // Slightly slower for better clarity
-      utterance.pitch = 1.1; // Slightly higher for female voice
-      utterance.volume = 0.8;
-      
-      // Speak the message
-      window.speechSynthesis.speak(utterance);
-      
-      // Dispatch event to notify other components
-      document.dispatchEvent(new CustomEvent('voice-speaking-started', {
-        detail: { message: correctedText }
-      }));
-      
-      utterance.onend = () => {
-        document.dispatchEvent(new Event('voice-speaking-ended'));
-      };
+      // Simulate stopping listening after 5 seconds
+      setTimeout(() => {
+        setIsListening(false);
+        
+        // Simulate response
+        speakText("I heard you! Opening your study plan now.");
+        
+        // Navigate or perform action based on command
+        // This would be replaced with actual speech recognition logic
+      }, 5000);
     }
   };
+  
+  // Function to toggle mute
+  const handleToggleMute = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    
+    toast({
+      title: newMuted ? "Voice Muted" : "Voice Unmuted",
+      description: newMuted ? "Voice assistant will not speak" : "Voice assistant can speak now",
+    });
+    
+    if (window.speechSynthesis && newMuted) {
+      window.speechSynthesis.cancel();
+    }
+  };
+  
+  // Test voice with sample text
+  const handleTestVoice = () => {
+    const testText = currentMood 
+      ? `Hello ${userName}! I notice you're feeling ${currentMood.toLowerCase()} today. Is there anything I can help with?`
+      : `Hello ${userName}! How can I help you today?`;
+      
+    speakText(testText);
+    
+    // Mark as tested in localStorage
+    localStorage.setItem('voice-tested', 'true');
+  };
+  
+  return (
+    <>
+      {/* Floating button */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="secondary"
+              className="fixed bottom-6 right-6 h-12 w-12 rounded-full shadow-lg bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 z-50"
+              onClick={() => setIsOpen(true)}
+            >
+              <Volume2 className="h-6 w-6 text-white" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Open Voice Assistant</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
-  // This is an invisible component - it only provides voice functionality
-  return null;
+      {/* Voice Assistant Drawer */}
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <DrawerContent className="max-w-md mx-auto">
+          <DrawerHeader>
+            <DrawerTitle className="text-xl font-bold">Voice Assistant</DrawerTitle>
+            <DrawerDescription>
+              Control your voice assistant settings and interactions.
+            </DrawerDescription>
+          </DrawerHeader>
+          
+          <div className="px-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Microphone</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={handleToggleListening}
+                    variant={isListening ? "destructive" : "secondary"}
+                    className="w-full"
+                  >
+                    {isListening ? (
+                      <><MicOff className="mr-2 h-4 w-4" /> Stop Listening</>
+                    ) : (
+                      <><Mic className="mr-2 h-4 w-4" /> Start Listening</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Speaker</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={handleToggleMute}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {isMuted ? (
+                      <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
+                    ) : (
+                      <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-sm">Voice Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="voice-volume">Volume</Label>
+                    <span className="text-sm text-muted-foreground">{volume}%</span>
+                  </div>
+                  <Slider 
+                    id="voice-volume"
+                    min={0} 
+                    max={100} 
+                    step={1}
+                    value={[volume]}
+                    onValueChange={(values) => setVolume(values[0])}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="voice-speed">Speaking Speed</Label>
+                    <span className="text-sm text-muted-foreground">{speed}%</span>
+                  </div>
+                  <Slider 
+                    id="voice-speed"
+                    min={25} 
+                    max={200} 
+                    step={5}
+                    value={[speed]}
+                    onValueChange={(values) => setSpeed(values[0])}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="voice-pitch">Voice Pitch</Label>
+                    <span className="text-sm text-muted-foreground">{pitch}%</span>
+                  </div>
+                  <Slider 
+                    id="voice-pitch"
+                    min={25} 
+                    max={150} 
+                    step={5}
+                    value={[pitch]}
+                    onValueChange={(values) => setPitch(values[0])}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Voice Preference</Label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="voice-male"
+                        checked={voicePreference === "male"}
+                        onCheckedChange={() => setVoicePreference("male")}
+                      />
+                      <Label htmlFor="voice-male">Male</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="voice-female"
+                        checked={voicePreference === "female"}
+                        onCheckedChange={() => setVoicePreference("female")}
+                      />
+                      <Label htmlFor="voice-female">Female</Label>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={handleTestVoice}
+                  className="w-full mt-2"
+                  variant="default"
+                >
+                  Test Voice
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Voice Commands</CardTitle>
+                <CardDescription>Try saying these phrases:</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc pl-5 space-y-1 text-sm">
+                  <li>"Show me my study plan"</li>
+                  <li>"Open concept cards"</li>
+                  <li>"Start practice exam"</li>
+                  <li>"What's my exam readiness score?"</li>
+                  <li>"I'm feeling stressed today"</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <DrawerFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
 };
 
 export default DashboardVoiceAssistant;

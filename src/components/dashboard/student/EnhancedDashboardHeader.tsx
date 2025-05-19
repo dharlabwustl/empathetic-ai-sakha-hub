@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { BookMarked, Edit } from "lucide-react";
+import { BookMarked, ChevronRight, Target, TrendingUp, BookOpen } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -76,6 +76,25 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
   // Calculate exam readiness score
   const examReadinessScore = 72; // This would be calculated based on user performance
   
+  // Weekly trends data for exam readiness score
+  const weeklyTrends = [
+    { week: '-6w', score: 45 },
+    { week: '-5w', score: 52 },
+    { week: '-4w', score: 58 },
+    { week: '-3w', score: 63 },
+    { week: '-2w', score: 68 },
+    { week: '-1w', score: 70 },
+    { week: 'now', score: 72 }
+  ];
+  
+  // Tips for improving exam readiness based on score
+  const examReadinessTips = [
+    "Review your weak areas more frequently",
+    "Try practice exams under timed conditions",
+    "Create flashcards for difficult concepts",
+    "Teach concepts to someone else to solidify your understanding"
+  ];
+  
   const handleMoodChange = (mood: MoodType) => {
     if (onMoodChange) {
       onMoodChange(mood);
@@ -117,11 +136,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {greetingText}, {userName}!
               </h1>
-              <Link to="/dashboard/student/profile">
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </Link>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {formattedDate} • {formattedTime}
@@ -150,15 +164,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
                     : userProfile.subscription.planType?.toUpperCase() || 'FREE'} Plan
                 </Badge>
               )}
-              
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="h-6 py-0 text-xs" asChild>
-                  <Link to="/dashboard/student/academic">Switch Exam</Link>
-                </Button>
-                <Button variant="outline" size="sm" className="h-6 py-0 text-xs" asChild>
-                  <Link to="/dashboard/student/academic">New Plan</Link>
-                </Button>
-              </div>
             </div>
           </div>
         </div>
@@ -186,125 +191,149 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
               </Tooltip>
             </TooltipProvider>
           )}
-          
-          {/* Profile link */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="relative"
-                  asChild
-                >
-                  <Link to="/dashboard/student/profile">
-                    <Avatar className="h-6 w-6">
-                      {avatar ? (
-                        <AvatarImage src={avatar} alt={userName} />
-                      ) : (
-                        <AvatarFallback className="text-xs">{getInitials(userName)}</AvatarFallback>
-                      )}
-                    </Avatar>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>View your profile</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
       
-      {/* Learning Profile & Daily Streak Section with improved layout */}
+      {/* Enhanced Exam Readiness Section */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-12 gap-4">
-        {/* Learning Profile - Compact and impressive */}
+        {/* Exam Readiness Section */}
         <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm md:col-span-8">
           <CardContent className="p-3">
-            <div className="flex justify-between items-center mb-1">
+            <div className="flex justify-between items-center mb-3">
               <h3 className="font-medium flex items-center gap-1">
-                <span className="text-purple-500">💡</span> Learning Profile
+                <Target className="h-4 w-4 text-purple-500" /> Exam Readiness Score
               </h3>
-              <Link to="/dashboard/student/profile">
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                  <Edit className="h-3 w-3" />
-                </Button>
-              </Link>
+              <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-0">
+                <TrendingUp className="h-3 w-3 mr-1" /> +2% this week
+              </Badge>
             </div>
             
-            <div className="grid grid-cols-3 gap-3 text-sm">
-              <div className="bg-blue-50/70 dark:bg-blue-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Learning Style</span>
-                <span className="font-medium">{userProfile?.personalityType || "Analytical"}</span>
-              </div>
-              <div className="bg-purple-50/70 dark:bg-purple-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Daily Hours</span>
-                <span className="font-medium">{userProfile?.preferences?.dailyStudyHours || userProfile?.studyPreferences?.hoursPerDay || 4}h</span>
-              </div>
-              <div className="bg-green-50/70 dark:bg-green-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Total Study</span>
-                <span className="font-medium">124 hours</span>
-              </div>
-              <div className="bg-amber-50/70 dark:bg-amber-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Study Time</span>
-                <span className="font-medium">Evening</span>
-              </div>
-              <div className="bg-indigo-50/70 dark:bg-indigo-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Study Pace</span>
-                <span className="font-medium">Moderate</span>
-              </div>
-              <div className="bg-pink-50/70 dark:bg-pink-900/20 rounded-lg p-2">
-                <span className="text-xs text-gray-500 block">Exam Score</span>
-                <span className="font-medium">{examReadinessScore}%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Daily Streak - Enhanced with benefits */}
-        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm md:col-span-4">
-          <CardContent className="p-3">
-            <div className="flex justify-between items-center mb-1">
-              <h3 className="font-medium flex items-center gap-1">
-                <span className="text-amber-500">🔥</span> Daily Streak
-              </h3>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-orange-500">{userProfile?.streak?.current || userProfile?.studyStreak || 12}</div>
-                <p className="text-xs text-gray-500">days</p>
+            <div className="grid grid-cols-12 gap-2">
+              {/* Main Score */}
+              <div className="col-span-4 bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-900/40 rounded-lg p-3 text-center">
+                <div className="text-3xl font-bold text-violet-700 dark:text-violet-400">{examReadinessScore}%</div>
+                <div className="text-xs text-violet-600 dark:text-violet-300">Overall Readiness</div>
               </div>
               
-              <div className="text-xs text-gray-600 dark:text-gray-400 flex-1">
-                <p className="mb-1 font-medium">Benefits:</p>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-green-400"></span>
-                    <span className="text-[10px]">Better retention</span>
+              {/* Weekly Trend */}
+              <div className="col-span-8 bg-slate-50 dark:bg-slate-900/30 rounded-lg p-3">
+                <div className="text-xs text-gray-500 mb-2">Weekly Progress</div>
+                <div className="flex items-end justify-between h-10">
+                  {weeklyTrends.map((week, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <div 
+                        className="w-5 bg-gradient-to-t from-blue-400 to-violet-500 dark:from-blue-600 dark:to-violet-600 rounded-sm"
+                        style={{ height: `${(week.score / 100) * 40}px` }}
+                      ></div>
+                      <div className="text-[10px] text-gray-400 mt-1">{week.week}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Tips & Weak/Strong Areas */}
+              <div className="col-span-12 mt-3 grid grid-cols-12 gap-2">
+                <div className="col-span-7 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                  <div className="text-xs text-blue-700 dark:text-blue-400 font-medium mb-1">Tips to Improve</div>
+                  <ul className="text-xs text-gray-600 dark:text-gray-300 pl-4 list-disc space-y-0.5">
+                    {examReadinessTips.map((tip, i) => (
+                      <li key={i}>{tip}</li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div className="col-span-5 grid grid-rows-2 gap-2">
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-2">
+                    <div className="text-xs text-red-700 dark:text-red-400 font-medium mb-1">Weak Areas</div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Thermodynamics</Badge>
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Organic Chem</Badge>
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Vectors</Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-blue-400"></span>
-                    <span className="text-[10px]">Exam readiness</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-purple-400"></span>
-                    <span className="text-[10px]">Special rewards</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-amber-400"></span>
-                    <span className="text-[10px]">Dopamine boost</span>
+                  
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2">
+                    <div className="text-xs text-green-700 dark:text-green-400 font-medium mb-1">Strong Areas</div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Algebra</Badge>
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Mechanics</Badge>
+                      <Badge variant="outline" className="text-[10px] py-0 bg-white/80">Biology</Badge>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            
+            <div className="flex gap-2 mt-3">
+              <Button variant="outline" size="sm" className="text-xs h-7" asChild>
+                <Link to="/dashboard/student/academic">Switch Exam</Link>
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs h-7" asChild>
+                <Link to="/dashboard/student/academic">New Plan</Link>
+              </Button>
+              <Button size="sm" className="text-xs h-7 ml-auto" asChild>
+                <Link to="/dashboard/student/today">
+                  Today's Plan <ChevronRight className="h-3 w-3 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* KPI Dashboard */}
+        <Card className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-sm md:col-span-4">
+          <CardContent className="p-3">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-medium flex items-center gap-1">
+                <BookOpen className="h-4 w-4 text-blue-500" /> Learning Progress
+              </h3>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Concepts Completed</span>
+                  <span className="font-medium text-blue-700 dark:text-blue-300">45/60</span>
+                </div>
+                <Progress value={75} className="h-1" />
+                <div className="text-[10px] text-green-600 mt-1">+5 this week</div>
+              </div>
               
-            <div className="mt-2">
-              <Link to="/dashboard/student/today">
-                <Button size="sm" className="bg-gradient-to-r from-orange-400 to-amber-500 border-0 w-full">
-                  Complete Today's Task
-                </Button>
-              </Link>
+              <div className="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Quiz Average</span>
+                  <span className="font-medium text-violet-700 dark:text-violet-300">82%</span>
+                </div>
+                <Progress value={82} className="h-1" />
+                <div className="text-[10px] text-green-600 mt-1">+3% this week</div>
+              </div>
+              
+              <div className="bg-pink-50 dark:bg-pink-900/20 rounded-lg p-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Flashcard Recall</span>
+                  <span className="font-medium text-pink-700 dark:text-pink-300">78%</span>
+                </div>
+                <Progress value={78} className="h-1" />
+                <div className="text-[10px] text-green-600 mt-1">+7% this week</div>
+              </div>
+              
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Practice Tests</span>
+                  <span className="font-medium text-amber-700 dark:text-amber-300">12 completed</span>
+                </div>
+                <Progress value={60} className="h-1" />
+                <div className="text-[10px] text-green-600 mt-1">+2 this week</div>
+              </div>
+              
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Study Goal</span>
+                  <span className="font-medium text-indigo-700 dark:text-indigo-300">4.5/5 hrs</span>
+                </div>
+                <Progress value={90} className="h-1" />
+                <div className="text-[10px] text-green-600 mt-1">+0.5 hrs this week</div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -345,50 +374,6 @@ const EnhancedDashboardHeader: React.FC<EnhancedDashboardHeaderProps> = ({
           ))}
         </div>
       )}
-      
-      {/* Daily Tasks Buttons */}
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-        <Link to="/dashboard/student/today" className="no-underline">
-          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-blue-50 border-blue-100 dark:from-gray-800 dark:to-blue-900/20 dark:border-blue-800/30 h-auto py-2">
-            <div className="flex flex-col items-center">
-              <span className="text-xl mb-1">📚</span>
-              <span className="text-xs">Today's Plan</span>
-            </div>
-          </Button>
-        </Link>
-        <Link to="/dashboard/student/concepts" className="no-underline">
-          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-purple-50 border-purple-100 dark:from-gray-800 dark:to-purple-900/20 dark:border-purple-800/30 h-auto py-2">
-            <div className="flex flex-col items-center">
-              <span className="text-xl mb-1">🧠</span>
-              <span className="text-xs">Concepts</span>
-            </div>
-          </Button>
-        </Link>
-        <Link to="/dashboard/student/flashcards" className="no-underline">
-          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-green-50 border-green-100 dark:from-gray-800 dark:to-green-900/20 dark:border-green-800/30 h-auto py-2">
-            <div className="flex flex-col items-center">
-              <span className="text-xl mb-1">🔄</span>
-              <span className="text-xs">Recall Practice</span>
-            </div>
-          </Button>
-        </Link>
-        <Link to="/dashboard/student/practice-exam" className="no-underline">
-          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-amber-50 border-amber-100 dark:from-gray-800 dark:to-amber-900/20 dark:border-amber-800/30 h-auto py-2">
-            <div className="flex flex-col items-center">
-              <span className="text-xl mb-1">📝</span>
-              <span className="text-xs">Practice Exam</span>
-            </div>
-          </Button>
-        </Link>
-        <Link to="/dashboard/student/feel-good-corner" className="no-underline">
-          <Button variant="outline" className="w-full bg-gradient-to-b from-white to-pink-50 border-pink-100 dark:from-gray-800 dark:to-pink-900/20 dark:border-pink-800/30 h-auto py-2">
-            <div className="flex flex-col items-center">
-              <span className="text-xl mb-1">😊</span>
-              <span className="text-xs">Feel Good</span>
-            </div>
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 };
