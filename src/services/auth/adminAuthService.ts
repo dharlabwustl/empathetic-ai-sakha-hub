@@ -77,18 +77,21 @@ const adminAuthService = {
     
     // Dispatch event to notify components about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
+    
+    // Short delay to ensure localStorage changes have propagated
+    await new Promise(resolve => setTimeout(resolve, 100));
   },
   
-  // Get current admin user
+  // Get current admin user with improved error handling
   async getAdminUser(): Promise<AdminUser | null> {
-    const token = localStorage.getItem("adminToken");
-    const userJson = localStorage.getItem("adminUser");
-    
-    if (!token || !userJson) {
-      return null;
-    }
-    
     try {
+      const token = localStorage.getItem("adminToken");
+      const userJson = localStorage.getItem("adminUser");
+      
+      if (!token || !userJson) {
+        return null;
+      }
+      
       return JSON.parse(userJson) as AdminUser;
     } catch (error) {
       console.error("Error parsing admin user:", error);
@@ -96,11 +99,22 @@ const adminAuthService = {
     }
   },
   
-  // Check if admin is authenticated
+  // Check if admin is authenticated with improved validation
   isAuthenticated(): boolean {
-    const token = localStorage.getItem("adminToken");
-    const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
-    return !!token && isAdminLoggedIn;
+    try {
+      const token = localStorage.getItem("adminToken");
+      const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
+      
+      if (token && isAdminLoggedIn) {
+        const userJson = localStorage.getItem("adminUser");
+        return !!userJson && JSON.parse(userJson) !== null;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error("Error checking admin authentication:", error);
+      return false;
+    }
   }
 };
 

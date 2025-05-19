@@ -102,7 +102,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     // Base messages with enhanced contextual awareness
     const baseMessages = {
       general: {
-        en: "Hello, I'm Sakha AI, the core AI engine of PREPZR — pronounced as 'prep' like in 'preparation' and 'zer' like in 'laser'. Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
+        en: "Hello, I'm Sakha AI, the core AI engine of PREPZR. Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
         hi: "नमस्ते, मैं साखा एआई हूं, प्रेप-ज़र का मुख्य एआई इंजन। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
       },
       "exam-prep": {
@@ -215,18 +215,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     };
   }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime, speechCount, pageContext]);
 
-  // Properly format the speakMessage function to ensure correct PREPZR pronunciation
+  // Improved speakMessage function without explanations of pronunciation
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
       // Cancel any ongoing speech
       window.speechSynthesis.cancel();
       
-      // Create utterance with proper PREPZR pronunciation (Prep-zer) with a pause between syllables
-      // Using phonetic spelling for better pronunciation: "Prep" (as in preparation) + "zer" (as in laser)
-      const correctedText = text
-        .replace(/PREPZR/gi, 'Prep-zer')
-        .replace(/prepzr/gi, 'Prep-zer')
-        .replace(/Prepzr/g, 'Prep-zer');
+      // Use proper PREPZR pronunciation without explanation
+      const correctedText = text.replace(/PREPZR/gi, 'Prepzer');
       
       const utterance = new SpeechSynthesisUtterance(correctedText);
       speechSynthesisRef.current = utterance;
@@ -261,13 +257,12 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       // Set properties for a pleasant, enthusiastic voice with improved cadence and pitch
       utterance.lang = language;
-      utterance.rate = 0.93; // Slightly slower for better comprehension
+      utterance.rate = 0.98; // Slightly slower for better comprehension
       utterance.pitch = 1.1; // Slightly higher pitch for female voice
-      utterance.volume = 0.85;
+      utterance.volume = 0.9;
       
-      // Add dynamic intonation patterns
+      // Add emphasis to key phrases
       const addMarkupForEmphasis = (text: string): string => {
-        // Emphasize key phrases
         return text
           .replace(/emotionally (aware|intelligent)/gi, '<emphasis>emotionally $1</emphasis>')
           .replace(/hyper-personalized/gi, '<emphasis>hyper-personalized</emphasis>')

@@ -43,6 +43,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       try {
         setIsLoading(true);
         
+        // Add a small delay to ensure localStorage is properly accessed
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check if admin is authenticated
         const isAdmin = adminAuthService.isAuthenticated();
         setIsAdminAuthenticated(isAdmin);
         
@@ -56,6 +60,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         console.error("Error checking admin auth status:", err);
         setError("Error checking authentication status");
       } finally {
+        // Ensure loading state is properly set to false
         setIsLoading(false);
       }
     };
@@ -113,7 +118,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       });
       return false;
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300); // Small delay to ensure state updates properly
     }
   };
 
