@@ -72,7 +72,7 @@ const HeroSection: React.FC = () => {
             className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              We understand your mindset, not just the exam
+              Transforming Exam Preparation - We understand your mindset, not just the exam
             </h1>
             
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8">
@@ -122,20 +122,26 @@ const HeroSection: React.FC = () => {
                   style={{ display: index === activeSlide ? 'flex' : 'none' }}
                 >
                   <motion.div
-                    animate={index === activeSlide ? 
-                      { y: [0, -10, 0], scale: [1, 1.02, 1], rotate: [0, 2, 0] } : 
-                      { y: 0, scale: 1, rotate: 0 }
-                    }
-                    transition={{ 
-                      duration: 3, 
-                      repeat: Infinity, 
-                      repeatType: "reverse", 
-                      ease: "easeInOut" 
+                    initial={{y: 20, opacity: 0}}
+                    animate={{y: 0, opacity: 1}}
+                    transition={{
+                      delay: slide.animationDelay,
+                      duration: 0.5
                     }}
                     className="mb-8"
                   >
-                    {/* 3D icon or image */}
-                    <div className="relative">
+                    <motion.div
+                      animate={
+                        { y: [0, -10, 0], scale: [1, 1.02, 1], rotate: [0, 2, 0] }
+                      }
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity, 
+                        repeatType: "reverse", 
+                        ease: "easeInOut" 
+                      }}
+                      className="relative"
+                    >
                       {slide.icon}
                       <img 
                         src={slide.image || `/assets/images/slide-${index + 1}.webp`} 
@@ -146,13 +152,13 @@ const HeroSection: React.FC = () => {
                           e.currentTarget.src = "/assets/images/default-slide.png";
                         }}
                       />
-                    </div>
+                    </motion.div>
                   </motion.div>
                   
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
+                    transition={{ delay: 0.2 + slide.animationDelay, duration: 0.5 }}
                     className="text-center max-w-md"
                   >
                     <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
