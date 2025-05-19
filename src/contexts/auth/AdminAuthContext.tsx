@@ -1,187 +1,206 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import adminAuthService from '@/services/auth/adminAuthService';
-import { AdminUser } from '@/types/user/base';
 import { useToast } from "@/hooks/use-toast";
+import { AdminUser } from '@/types/user/base';
 
+// Define the context type
 interface AdminAuthContextType {
+  adminUser: AdminUser | null;
   isAdminAuthenticated: boolean;
   isLoading: boolean;
-  adminUser: AdminUser | null;
-  adminLogin: (email: string, password: string) => Promise<boolean>;
-  adminLogout: () => Promise<void>;
+  loginAdmin: (email: string, password: string) => Promise<boolean>;
+  logoutAdmin: () => void;
   error: string | null;
 }
 
+// Create context with default values
 const AdminAuthContext = createContext<AdminAuthContextType>({
-  isAdminAuthenticated: false,
-  isLoading: false,
   adminUser: null,
-  adminLogin: async () => false,
-  adminLogout: async () => {},
+  isAdminAuthenticated: false,
+  isLoading: true,
+  loginAdmin: async () => false,
+  logoutAdmin: () => {},
   error: null
 });
 
+// Hook to use the admin auth context
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
+// Provider props type
 interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check authentication status on component mount
+  // Check admin authentication on mount
   useEffect(() => {
-    const checkAuthStatus = async () => {
+    const checkAdminAuth = () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
+        // Get admin token from localStorage
+        const adminToken = localStorage.getItem('adminToken');
+        const adminUserData = localStorage.getItem('adminUser');
         
-        // Explicitly check localStorage directly first
-        const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-        
-        // Then check through the service
-        const isAdmin = adminAuthService.isAuthenticated() || isAdminLoggedIn;
-        setIsAdminAuthenticated(isAdmin);
-        
-        if (isAdmin) {
-          const user = await adminAuthService.getAdminUser();
-          setAdminUser(user);
-          
-          // Ensure admin_logged_in is set in localStorage
-          if (!isAdminLoggedIn) {
-            localStorage.setItem('admin_logged_in', 'true');
-          }
+        if (adminToken && adminUserData) {
+          // Parse admin user data
+          const parsedAdminUser = JSON.parse(adminUserData) as AdminUser;
+          setAdminUser(parsedAdminUser);
+          setIsAdminAuthenticated(true);
         } else {
           setAdminUser(null);
+          setIsAdminAuthenticated(false);
         }
       } catch (err) {
-        console.error("Error checking admin auth status:", err);
-        setError("Error checking authentication status");
+        console.error('Error checking admin authentication:', err);
+        setAdminUser(null);
+        setIsAdminAuthenticated(false);
       } finally {
-        // Ensure loading state is properly set to false
         setIsLoading(false);
       }
     };
     
-    checkAuthStatus();
+    // Initial check
+    checkAdminAuth();
     
     // Listen for auth state changes
-    const handleAuthChange = () => {
-      checkAuthStatus();
-    };
-    
-    window.addEventListener('auth-state-changed', handleAuthChange);
+    window.addEventListener('admin-auth-changed', checkAdminAuth);
     
     return () => {
-      window.removeEventListener('auth-state-changed', handleAuthChange);
+      window.removeEventListener('admin-auth-changed', checkAdminAuth);
     };
   }, []);
 
-  const adminLogin = async (email: string, password: string) => {
+  // Admin login function
+  const loginAdmin = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      setIsLoading(true);
-      setError(null);
+      // Simple validation
+      if (!email || !password) {
+        setError('Email and password are required');
+        return false;
+      }
       
-      const response = await adminAuthService.adminLogin({ email, password });
-      
-      if (response.success && response.data) {
-        setIsAdminAuthenticated(true);
-        setAdminUser(response.data);
+      // For demo purposes, accept admin@prepzr.com or any email with admin in it
+      if (email === 'admin@prepzr.com' || email.includes('admin')) {
+        // Create admin user object
+        const user: AdminUser = {
+          id: `admin_${Date.now()}`,
+          name: email.split('@')[0],
+          email: email,
+          role: 'admin',
+          permissions: ['all']
+        };
         
-        // Explicitly set admin logged in status
+        // Generate token
+        const token = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        
+        // Clear any existing user data
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userData');
+        
+        // Set admin data in localStorage
+        localStorage.setItem('adminToken', token);
+        localStorage.setItem('adminUser', JSON.stringify(user));
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Dispatch event to notify components about auth state change
-        window.dispatchEvent(new Event('auth-state-changed'));
+        // Update state
+        setAdminUser(user);
+        setIsAdminAuthenticated(true);
         
+        // Show success toast
         toast({
-          title: "Login Successful",
-          description: "Welcome to the PREPZR admin dashboard"
+          title: 'Login successful',
+          description: `Welcome back, ${user.name}!`,
+          variant: 'default'
         });
+        
+        // Dispatch event
+        window.dispatchEvent(new Event('admin-auth-changed'));
         
         return true;
       } else {
-        setError(response.message || "Login failed");
+        setError('Invalid admin credentials');
         toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: response.message || "Invalid credentials"
+          title: 'Login failed',
+          description: 'Invalid admin credentials',
+          variant: 'destructive'
         });
         return false;
       }
     } catch (err) {
-      console.error("Admin login error:", err);
-      setError("An error occurred during login");
+      console.error('Admin login error:', err);
+      setError('An unexpected error occurred');
       toast({
-        variant: "destructive",
-        title: "Login Error",
-        description: "An unexpected error occurred"
+        title: 'Login error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive'
       });
       return false;
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 300); // Small delay to ensure state updates properly
+      setIsLoading(false);
     }
   };
 
-  const adminLogout = async () => {
+  // Admin logout function
+  const logoutAdmin = () => {
+    setIsLoading(true);
+    
     try {
-      setIsLoading(true);
-      await adminAuthService.adminLogout();
-      
-      // Explicitly clear admin logged in status
-      localStorage.removeItem('admin_logged_in');
+      // Clear admin data
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminUser');
-      localStorage.removeItem('admin_login_attempt');
+      localStorage.removeItem('admin_logged_in');
       
-      setIsAdminAuthenticated(false);
+      // Update state
       setAdminUser(null);
+      setIsAdminAuthenticated(false);
       
-      // Dispatch event to notify components about auth state change
-      window.dispatchEvent(new Event('auth-state-changed'));
-      
-      // Show a success toast
+      // Show toast
       toast({
-        title: "Logout Successful",
-        description: "You have been logged out from the admin dashboard"
+        title: 'Logout successful',
+        description: 'You have been logged out of the admin portal',
+        variant: 'default'
       });
       
-      // Navigate to the admin login page
+      // Dispatch event
+      window.dispatchEvent(new Event('admin-auth-changed'));
+      
+      // Navigate to login page
       navigate('/admin/login', { replace: true });
     } catch (err) {
-      console.error("Admin logout error:", err);
-      setError("An error occurred during logout");
-      
+      console.error('Admin logout error:', err);
       toast({
-        variant: "destructive",
-        title: "Logout Error",
-        description: "An error occurred while logging out"
+        title: 'Logout error',
+        description: 'An error occurred during logout',
+        variant: 'destructive'
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Provide context value
+  const contextValue: AdminAuthContextType = {
+    adminUser,
+    isAdminAuthenticated,
+    isLoading,
+    loginAdmin,
+    logoutAdmin,
+    error
+  };
+
   return (
-    <AdminAuthContext.Provider
-      value={{
-        isAdminAuthenticated,
-        isLoading,
-        adminUser,
-        adminLogin,
-        adminLogout,
-        error
-      }}
-    >
+    <AdminAuthContext.Provider value={contextValue}>
       {children}
     </AdminAuthContext.Provider>
   );

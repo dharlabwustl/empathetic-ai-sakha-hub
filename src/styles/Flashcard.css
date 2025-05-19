@@ -6,3 +6,39 @@
 .backface-hidden {
   backface-visibility: hidden;
 }
+
+.flashcard-container {
+  perspective: 1000px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 0.5rem;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.flashcard-container.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 1.5rem;
+  overflow-y: auto;
+}

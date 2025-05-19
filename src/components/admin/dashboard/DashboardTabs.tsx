@@ -1,7 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SystemLog } from '@/types/admin/systemLog';
+import { AdminDashboardStats } from '@/types/admin';
+import { StudentData } from "@/types/admin/studentData";
 
 // Import components
 import Overview from './Overview';
@@ -14,32 +16,38 @@ import DatabaseExplorer from '../database/DatabaseExplorer';
 import ApiEndpoints from '../api/ApiEndpoints';
 
 interface DashboardTabsProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  stats?: AdminDashboardStats | null;
+  recentStudents?: StudentData[];
+  recentLogs?: SystemLog[];
 }
 
-const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange }) => {
-  // Mock system logs data
-  const logs: SystemLog[] = [
+const DashboardTabs: React.FC<DashboardTabsProps> = ({ stats, recentStudents = [], recentLogs = [] }) => {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  // Mock system logs data if none provided
+  const logsToDisplay = recentLogs.length > 0 ? recentLogs : [
     { 
       id: '1', 
       event: 'User login successful', 
-      timestamp: new Date().toISOString(), 
-      level: 'info', 
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      message: 'User logged in successfully',
       details: { userId: 'user123', ip: '192.168.1.1' } 
     },
     { 
       id: '2', 
       event: 'Database connection failed', 
-      timestamp: new Date().toISOString(), 
-      level: 'error', 
+      timestamp: new Date().toISOString(),
+      level: 'error',
+      message: 'Database connection failed',
       details: { database: 'users', error: 'Connection timeout' } 
     },
     { 
       id: '3', 
       event: 'API rate limit exceeded', 
-      timestamp: new Date().toISOString(), 
+      timestamp: new Date().toISOString(),
       level: 'warning',
+      message: 'API rate limit exceeded',
       details: { endpoint: '/api/users', requestCount: 120, limit: 100 } 
     },
   ];
@@ -47,7 +55,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange })
   return (
     <Tabs 
       value={activeTab} 
-      onValueChange={onTabChange}
+      onValueChange={setActiveTab}
       className="w-full"
     >
       <TabsList className="grid w-full grid-cols-8">
@@ -90,7 +98,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange })
       </TabsContent>
       
       <TabsContent value="logs" className="space-y-4 mt-4">
-        <SystemLogs logs={logs} />
+        <SystemLogs logs={logsToDisplay} />
       </TabsContent>
     </Tabs>
   );

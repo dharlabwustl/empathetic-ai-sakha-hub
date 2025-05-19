@@ -21,7 +21,6 @@ const AdminAppRoutes: React.FC = () => {
         verifiedMoodImprovement: 65,
         averageMoodScore: 7.8,
         averageTimeSavedPerWeek: 5.2,
-        monthlyActiveUsers: 230,
         retentionRate: 85,
         churnRate: 15,
         conversionRate: 12,
