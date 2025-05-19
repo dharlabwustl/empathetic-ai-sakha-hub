@@ -1,8 +1,8 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import Interactive3DHero from '@/components/home/Interactive3DHero';
+import Hero3DSection from '@/components/home/Hero3DSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -23,15 +23,8 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 
 const Index = () => {
   const navigate = useNavigate();
-  const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  
-  const scrollToFeatures = () => {
-    if (featuresRef.current) {
-      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -54,7 +47,7 @@ const Index = () => {
   };
 
   // Listen for events
-  useEffect(() => {
+  React.useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
     };
@@ -77,8 +70,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Replace standard hero with our new interactive 3D hero */}
-        <Interactive3DHero />
+        {/* Use our new 3D hero section with voice interaction */}
+        <Hero3DSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -109,9 +102,7 @@ const Index = () => {
         
         <EcosystemAnimation />
         
-        <div ref={featuresRef}>
-          <FeaturesSection />
-        </div>
+        <FeaturesSection />
         
         <ExamPreparationSection />
         
