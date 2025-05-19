@@ -102,7 +102,7 @@ const HeroSection: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="relative h-[400px] md:h-[500px]"
             >
-              {/* 3D animated slide content */}
+              {/* 3D animated slide content - automatically rotating */}
               {slideContentList.map((slide, index) => (
                 <motion.div
                   key={index}

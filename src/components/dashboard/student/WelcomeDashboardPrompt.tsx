@@ -224,6 +224,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
               <Button 
                 className="w-full" 
                 variant="outline"
+                disabled={!speechCompleted && isSpeaking}
                 onClick={handleGotIt}
               >
                 Got it
