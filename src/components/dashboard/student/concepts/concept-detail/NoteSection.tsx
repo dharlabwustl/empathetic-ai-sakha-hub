@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PenLine, Save, Clock, CheckCircle } from 'lucide-react';
+import { PenLine, Save, Clock, CheckCircle, Bookmark, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 interface NoteSectionProps {
   userNotes: string;
@@ -17,7 +18,14 @@ const NoteSection: React.FC<NoteSectionProps> = ({ userNotes, setUserNotes, hand
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
   const [autoSaveInterval, setAutoSaveInterval] = useState<NodeJS.Timeout | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
   const { toast } = useToast();
+  
+  // Calculate word count
+  useEffect(() => {
+    const words = userNotes.trim() ? userNotes.trim().split(/\s+/).length : 0;
+    setWordCount(words);
+  }, [userNotes]);
   
   // Auto-save functionality
   useEffect(() => {
@@ -70,44 +78,63 @@ const NoteSection: React.FC<NoteSectionProps> = ({ userNotes, setUserNotes, hand
   };
   
   return (
-    <Card className="border-2 border-blue-100 dark:border-blue-900/30 shadow-sm">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold flex items-center text-lg">
-            <PenLine className="h-5 w-5 mr-2 text-blue-600" /> My Notes
-          </h3>
+    <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/30 dark:to-gray-900">
+      <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center text-xl font-bold">
+          <FileText className="h-5 w-5 mr-2 text-indigo-600" /> 
+          Study Notes
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2">
             {lastSaved && (
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Clock className="h-3 w-3" /> Saved at {lastSaved}
+              <Badge variant="outline" className="flex items-center gap-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+                <Clock className="h-3 w-3" /> Last saved at {lastSaved}
               </Badge>
             )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={`text-xs ${autoSaveEnabled ? 'bg-blue-50 border-blue-300 text-blue-600 dark:bg-blue-900/20 dark:border-blue-800' : ''}`}
-              onClick={toggleAutoSave}
-            >
-              {autoSaveEnabled ? 'Auto-save On' : 'Auto-save Off'}
-            </Button>
+          </div>
+          <Button 
+            variant={autoSaveEnabled ? "default" : "outline"} 
+            size="sm" 
+            className={`text-xs ${autoSaveEnabled ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-indigo-900/20'}`}
+            onClick={toggleAutoSave}
+          >
+            {autoSaveEnabled ? 'Auto-save On' : 'Auto-save Off'}
+          </Button>
+        </div>
+        
+        <div className="relative">
+          <textarea
+            className="w-full border rounded-lg p-4 min-h-[220px] text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm"
+            placeholder="Write your notes here to strengthen your understanding of this concept..."
+            value={userNotes}
+            onChange={(e) => setUserNotes(e.target.value)}
+            style={{ resize: 'vertical' }}
+          />
+          <div className="absolute bottom-2 right-2 text-xs text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-800/50 px-2 py-1 rounded-md backdrop-blur-sm">
+            {wordCount} words
           </div>
         </div>
         
-        <textarea
-          className="w-full border rounded-md p-3 min-h-[200px] text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800"
-          placeholder="Add your notes here to reinforce your understanding of this concept..."
-          value={userNotes}
-          onChange={(e) => setUserNotes(e.target.value)}
-        />
-        
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-xs text-gray-500">
-            Tip: Taking notes in your own words helps improve retention and understanding
+        <div className="mt-4 space-y-3">
+          <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>Note completeness</span>
+            <span>{Math.min(Math.floor(wordCount / 5), 100)}%</span>
           </div>
+          <Progress value={Math.min(wordCount / 5, 100)} className="h-1.5 bg-gray-200 dark:bg-gray-700">
+            <div className="h-full bg-indigo-600 rounded-full"></div>
+          </Progress>
+          
+          <div className="text-xs text-gray-500 mt-2 italic">
+            Tip: Detailed notes in your own words significantly improves retention and understanding
+          </div>
+          
           <Button 
             onClick={() => handleSave()} 
             disabled={isSaving}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 mt-2"
           >
             {isSaving ? (
               <>
