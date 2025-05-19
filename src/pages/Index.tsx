@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import MilestonesSection from '@/components/home/MilestonesSection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -92,9 +93,18 @@ const Index = () => {
             <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
               Smart Data. Real Impact. Humanizing exam prep.
             </h2>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
+              We understand your mindset, not just the exam.
+            </p>
+            <p className="mt-1 text-md text-gray-500 dark:text-gray-400">
+              PREPZR: emotionally aware, hyper-personalized, adaptive exam prep platform.
+            </p>
           </div>
           <KpiStats />
         </motion.section>
+        
+        {/* Milestones Section */}
+        <MilestonesSection />
         
         {/* Backed By Section with partner logos */}
         <BackedBySection />

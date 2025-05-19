@@ -119,17 +119,17 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     
     if (lang === 'en') {
       if (contextType === 'welcome') {
-        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our AI-powered platform offers adaptive study plans, practice tests, and personalized recommendations tailored to your learning style. ${sustainabilityMessage} Let me guide you through our key features to help you succeed in your exams.`;
+        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our emotionally-aware, hyper-personalized platform offers adaptive study plans, practice tests, and recommendations tailored to your unique learning style. ${sustainabilityMessage} I'm here to guide you through our key features - from concept cards to flashcards, formula lab, and academic advising. Just ask if you need any assistance with your exam preparation.`;
       } else if (contextType === 'concept') {
-        return `Hello ${name}, I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+        return `Hello ${name}, I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept or direct you to related study materials?`;
       } else if (contextType === 'dashboard') {
-        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
+        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your learning style, mood, and environment to optimize your study experience. I can help you navigate to your study plan, concept cards, flashcards, practice exams, or formula lab. What would you like to focus on today?`;
       } else if (contextType === 'signup') {
-        return `Congratulations ${name}! You've made an excellent choice selecting PREP-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals.`;
+        return `Congratulations ${name} on joining PREP-zer! You've made an excellent choice for your exam preparation journey. ${sustainabilityMessage} As your adaptive learning assistant, I'll personalize your study experience based on your learning patterns, mood, and goals. I can help you explore our features, create study plans, access concept cards, or prepare practice tests. What would you like to explore first?`;
       } else if (contextType === 'home') {
-        return `Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage}`;
+        return `Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. Our platform helps with confidence building, exam success, time saving, stress-free preparation, and happy learning. ${sustainabilityMessage} Would you like to learn more about our features or get started with a free trial?`;
       } else {
-        return `${timeGreeting} ${name}! Welcome to PREP-zer. ${sustainabilityMessage}`;
+        return `${timeGreeting} ${name}! Welcome to PREP-zer, your emotionally-aware, hyper-personalized exam preparation platform. ${sustainabilityMessage} I'm here to assist with any questions about our features or how to get started.`;
       }
     } else if (lang === 'hi') {
       // Hindi greetings with sustainability message
