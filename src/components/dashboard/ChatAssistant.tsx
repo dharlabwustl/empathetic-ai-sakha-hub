@@ -43,8 +43,9 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
     
     // Simulate AI response after delay
     setTimeout(() => {
+      // Make sure to use the correct PREPZR pronunciation in responses
       const responses = {
-        'student': "I'm Sakha AI, PREPZR's core AI engine. I can help you with your studies! What subject are you working on?",
+        'student': "I'm Sakha AI, Prep-zer's core AI engine. I can help you with your studies! What subject are you working on?",
         'employee': "I'm Sakha AI. How can I assist with your work today?",
         'default': "I'm Sakha AI. How can I assist you today?"
       };

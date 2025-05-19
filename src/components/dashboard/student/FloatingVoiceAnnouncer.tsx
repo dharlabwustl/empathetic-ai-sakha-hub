@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -111,7 +110,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     
     setIsSpeaking(true);
     
-    // Correct PREPZR pronunciation
+    // Correct PREPZR pronunciation with clear syllable break - 'prep' like in preparation and 'zer' like in laser
     const correctedText = text
       .replace(/PREPZR/gi, 'Prep-zer')
       .replace(/prepzr/gi, 'Prep-zer')
@@ -159,7 +158,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     }
     
     // Set properties
-    utterance.rate = 1.0;
+    utterance.rate = 0.95; // Slightly slower for better clarity on syllables
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     utterance.lang = 'en-IN';

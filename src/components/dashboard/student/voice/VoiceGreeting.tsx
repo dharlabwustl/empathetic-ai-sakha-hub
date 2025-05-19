@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -64,23 +63,23 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             // Different greetings based on page context
             if (isConceptPage) {
               if (language === 'en') {
-                welcomeText = `Hello, I'm Sakha AI, your PREPZR learning assistant. I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+                welcomeText = `Hello, I'm Sakha AI, your Prep-zer learning assistant. I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
               } else if (language === 'hi') {
-                welcomeText = `नमस्ते, मैं साखा एआई हूँ, आपका PREPZR सीखने वाला सहायक। मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
+                welcomeText = `नमस्ते, मैं साखा एआई हूँ, आपका Prep-zer सीखने वाला सहायक। मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो आप जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
               }
             } else if (isWelcomePage) {
               if (language === 'en') {
                 // More detailed welcome flow specific greeting
-                welcomeText = `Welcome to PREPZR! I'm Sakha AI, your personalized learning assistant. I'll guide you through your personalized learning journey. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics tailored to your exam preparation. We support UN Sustainability goals for inclusive and equitable quality education. You've made an excellent choice for your exam preparation. Let's begin by exploring the features that will help you succeed!`;
+                welcomeText = `Welcome to Prep-zer! I'm Sakha AI, your personalized learning assistant. I'll guide you through your personalized learning journey. Our AI-powered platform offers personalized study plans, adaptive learning, and performance analytics tailored to your exam preparation. We support UN Sustainability goals for inclusive and equitable quality education. You've made an excellent choice for your exam preparation. Let's begin by exploring the features that will help you succeed!`;
               } else if (language === 'hi') {
-                welcomeText = `PREPZR में आपका स्वागत है! मैं साखा एआई हूं, आपका व्यक्तिगत शिक्षण सहायक। मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा तैयारी के लिए व्यक्तिगत अध्ययन योजनाएं, अनुकूली शिक्षण और प्रदर्शन विश्लेषण प्रदान करता है। आपने अपनी परीक्षा तैयारी के लिए एक उत्कृष्ट विकल्प चुना है। आइए उन सुविधाओं का अन्वेषण करके शुरू करें जो आपको सफल होने में मदद करेंगी!`;
+                welcomeText = `Prep-zer में आपका स्वागत है! मैं साखा एआई हूं, आपका व्यक्तिगत शिक्षण सहायक। मैं आपकी व्यक्तिगत शिक्षा यात्रा में आपका मार्गदर्शन करूंगा। हमारा AI-संचालित प्लेटफॉर्म आपकी परीक्षा तैयारी के लिए व्यक्तिगत अध्ययन योजनाएं, अनुकूली शिक्षण और प्रदर्शन विश्लेषण प्रदान करता है। आपने अपनी परीक्षा तैयारी के लिए एक उत्कृष्ट विकल्प चुना है। आइए उन सुविधाओं का अन्वेषण करके शुरू करें जो आपको सफल होने में मदद करेंगी!`;
               }
             } else if (isFirstTimeUser) {
               if (language === 'en') {
                 // First time user specific greeting
-                welcomeText = `Welcome to PREPZR, ${userName}! I'm Sakha AI, the core AI engine that will help you crack your exams. PREPZR is pronounced as 'prep' like in 'preparation' plus 'zer' like in 'laser'. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students as part of UN Sustainability goals. If you need any assistance, click the chat button to interact with me anytime.`;
+                welcomeText = `Welcome to Prep-zer, ${userName}! I'm Sakha AI, the core AI engine that will help you crack your exams. Prep-zer is pronounced as 'prep' like in 'preparation' plus 'zer' like in 'laser'. Our premium platform offers AI-powered study plans, practice tests, and personalized recommendations tailored to your learning style. We allocate 5% of subscription revenue to support underprivileged students as part of UN Sustainability goals. If you need any assistance, click the chat button to interact with me anytime.`;
               } else if (language === 'hi') {
-                welcomeText = `PREPZR में आपका स्वागत है, ${userName}! मैं साखा एआई हूं, वह मुख्य एआई इंजन जो आपको परीक्षाओं में सफल होने में मदद करेगा। हमारा प्रीमियम प्लेटफ़ॉर्म AI-संचालित अध्ययन योजनाएँ, अभ्यास परीक्षण, और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। हम सदस्यता राजस्व का 5% वंचित छात्रों का समर्थन करने के लिए आवंटित करते हैं। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
+                welcomeText = `Prep-zer में आपका स्वागत है, ${userName}! मैं साखा एआई हूं, वह मुख्य एआई इंजन जो आपको परीक्षाओं में सफल होने में मदद करेगा। हमारा प्रीमियम प्लेटफ़ॉर्म AI-संचालित अध्ययन योजनाएँ, अभ्यास परीक्षण, और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। हम सदस्यता राजस्व का 5% वंचित छात्रों का समर्थन करने के लिए आवंटित करते हैं। यदि आपको किसी भी सहायता की आवश्यकता है, तो अपने एआई ट्यूटर के साथ बातचीत करने के लिए चैट बटन पर क्लिक करें।`;
               }
             }
             

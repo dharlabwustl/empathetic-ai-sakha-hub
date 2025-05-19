@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
@@ -70,7 +69,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     },
     signup: {
       en: "I'm Sakha AI, and I'll help you crack your exams. Want to know why PREPZR outshines coaching centers? Let me tell you. Explore our free trial and take the Exam Readiness Challenge to see where you stand.",
-      hi: "मैं साखा एआई हूँ, और मैं आपको अपनी परीक्षाओं में सफलता प्राप्त करने में मदद करूँगा। अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
+      hi: "मैं साखा एआई हूँ, और मैं आपको अपनी परीक्षाओं में सफलता प्राप्त करने में मदद करूँगा। अपनी परीक्षा की तैयारी शुरू कर���े के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
     },
     features: {
       en: "I'm Sakha AI, your exam assistant. Unlike coaching institutes, PREPZR offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
@@ -154,6 +153,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     };
   }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime, speechCount]);
 
+  // Properly format the speakMessage function to ensure correct PREPZR pronunciation
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
       // Cancel any ongoing speech

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,7 +91,13 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Use clear syllable break for PREPZR pronunciation - "prep" like in preparation + "zer" like in laser
+    const correctedText = text
+      .replace(/PREPZR/gi, 'Prep-zer')
+      .replace(/prepzr/gi, 'Prep-zer')
+      .replace(/Prepzr/g, 'Prep-zer');
+    
+    const utterance = new SpeechSynthesisUtterance(correctedText);
     
     // Apply voice settings
     if (settings.voice) {

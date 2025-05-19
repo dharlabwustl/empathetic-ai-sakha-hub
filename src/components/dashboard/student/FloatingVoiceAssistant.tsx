@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -50,7 +49,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
     if (!isOpen) {
       toast({
         title: "Sakha AI Activated",
-        description: `Hello ${userName}, I'm the PREPZR core AI engine. How can I help you crack your exams today?`,
+        description: `Hello ${userName}, I'm the Prep-zer core AI engine. How can I help you crack your exams today?`,
       });
     }
   };
