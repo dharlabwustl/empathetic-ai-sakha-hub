@@ -92,13 +92,13 @@ const FlashcardInteractivePage: React.FC = () => {
           {/* Flashcard */}
           <div className="perspective-1000">
             <div 
-              className={`relative transition-all duration-500 transform-style-3d cursor-pointer h-[400px] ${flipped ? 'rotate-y-180' : ''}`}
+              className={`relative transition-all duration-500 transform-style-3d cursor-pointer h-[300px] sm:h-[400px] ${flipped ? 'rotate-y-180' : ''}`}
               onClick={handleFlip}
             >
               {/* Front of card - Question */}
-              <Card className={`absolute inset-0 backface-hidden p-6 ${flipped ? 'hidden' : ''}`}>
+              <Card className={`absolute inset-0 backface-hidden p-4 sm:p-6 ${flipped ? 'hidden' : ''}`}>
                 <CardContent className="flex flex-col items-center justify-center h-full">
-                  <div className="text-2xl font-semibold text-center">
+                  <div className="text-xl sm:text-2xl font-semibold text-center">
                     {mockFlashcards[currentCardIndex].question}
                   </div>
                   <p className="text-sm text-muted-foreground mt-8 animate-pulse">
@@ -108,9 +108,9 @@ const FlashcardInteractivePage: React.FC = () => {
               </Card>
               
               {/* Back of card - Answer */}
-              <Card className={`absolute inset-0 backface-hidden p-6 rotate-y-180 ${!flipped ? 'hidden' : ''}`}>
+              <Card className={`absolute inset-0 backface-hidden p-4 sm:p-6 rotate-y-180 ${!flipped ? 'hidden' : ''}`}>
                 <CardContent className="flex flex-col items-center justify-center h-full">
-                  <div className="text-xl text-center">
+                  <div className="text-lg sm:text-xl text-center">
                     {mockFlashcards[currentCardIndex].answer}
                   </div>
                   <p className="text-sm text-muted-foreground mt-8 animate-pulse">
@@ -127,9 +127,11 @@ const FlashcardInteractivePage: React.FC = () => {
               variant="outline" 
               onClick={handlePreviousCard}
               disabled={currentCardIndex === 0}
+              className="px-2 sm:px-4"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
+              <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Previous</span>
+              <span className="xs:hidden">Prev</span>
             </Button>
             
             <div className="flex gap-2">
@@ -146,26 +148,35 @@ const FlashcardInteractivePage: React.FC = () => {
               
               <Button 
                 variant="outline" 
-                className="flex items-center"
+                className="hidden sm:flex items-center"
                 onClick={handleMarkAsMastered}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Mark as Mastered
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="sm:hidden"
+                onClick={handleMarkAsMastered}
+              >
+                <CheckCircle className="h-4 w-4" />
               </Button>
             </div>
             
             <Button 
               onClick={handleNextCard}
               disabled={currentCardIndex === mockFlashcards.length - 1}
+              className="px-2 sm:px-4"
             >
-              Next
-              <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+              <span className="hidden xs:inline">Next</span>
+              <ArrowLeft className="h-4 w-4 ml-1 sm:ml-2 rotate-180" />
             </Button>
           </div>
         </div>
         
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-6 mt-6 lg:mt-0">
           {/* Mastery tracker */}
           <Card>
             <CardHeader>
@@ -173,7 +184,7 @@ const FlashcardInteractivePage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center">
-                <div className="relative h-32 w-32">
+                <div className="relative h-24 w-24 sm:h-32 sm:w-32">
                   <svg className="h-full w-full" viewBox="0 0 100 100">
                     <circle
                       className="text-muted-foreground/20 stroke-current"
@@ -197,7 +208,7 @@ const FlashcardInteractivePage: React.FC = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold">{masteryScore}%</span>
+                    <span className="text-xl sm:text-2xl font-bold">{masteryScore}%</span>
                   </div>
                 </div>
                 
@@ -250,6 +261,21 @@ const FlashcardInteractivePage: React.FC = () => {
         }
         .rotate-y-180 {
           transform: rotateY(180deg);
+        }
+        
+        /* Extra small screen class */
+        @media (max-width: 400px) {
+          .xs\\:hidden {
+            display: none;
+          }
+          .xs\\:inline {
+            display: inline;
+          }
+        }
+        @media (min-width: 401px) {
+          .hidden.xs\\:inline {
+            display: inline;
+          }
         }
       `}</style>
     </SharedPageLayout>

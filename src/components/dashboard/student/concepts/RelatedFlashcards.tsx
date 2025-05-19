@@ -71,9 +71,9 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold">Flashcards</h2>
-        <Button onClick={handleStartPractice}>
+        <Button onClick={handleStartPractice} className="whitespace-nowrap">
           <Play className="mr-2 h-4 w-4" />
           Start Practice Session
         </Button>
@@ -131,16 +131,19 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
                   variant="outline" 
                   onClick={handlePreviousCard}
                   disabled={flashcards.length <= 1}
+                  className="whitespace-nowrap"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
                 </Button>
                 
                 <Button 
                   onClick={handleNextCard}
                   disabled={flashcards.length <= 1}
+                  className="whitespace-nowrap"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -185,9 +188,9 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
                 </div>
               </form>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={() => setActiveTab('browse')}>Cancel</Button>
-              <Button onClick={handleCreateFlashcard}>
+            <CardFooter className="flex flex-col sm:flex-row justify-between gap-2">
+              <Button variant="outline" onClick={() => setActiveTab('browse')} className="w-full sm:w-auto">Cancel</Button>
+              <Button onClick={handleCreateFlashcard} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Flashcard
               </Button>
@@ -196,8 +199,8 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
           
           <Card className="bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800">
             <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="bg-green-100 dark:bg-green-800 p-2 rounded-full">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="bg-green-100 dark:bg-green-800 p-2 rounded-full w-fit h-fit">
                   <Lightbulb className="h-6 w-6 text-green-700 dark:text-green-300" />
                 </div>
                 <div>
@@ -214,6 +217,21 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
           </Card>
         </TabsContent>
       </Tabs>
+
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .transform-style-preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </div>
   );
 };

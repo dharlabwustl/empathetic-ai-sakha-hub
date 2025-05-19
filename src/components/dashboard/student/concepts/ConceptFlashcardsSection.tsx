@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,7 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
       description: `Beginning flashcard session for ${conceptTitle}`,
     });
     // Navigate to flashcard practice page
+    navigate(`/dashboard/student/flashcards/practice/${conceptId}`);
   };
   
   const updateConfidence = (id: string, confidence: 'low' | 'medium' | 'high') => {
@@ -102,20 +104,20 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold flex items-center">
           <BookOpen className="mr-2 h-6 w-6 text-blue-600" />
           Flashcards
         </h2>
         
-        <div className="flex gap-2">
-          <Button onClick={addNewFlashcard} variant="outline">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={addNewFlashcard} variant="outline" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Flashcard
           </Button>
           
-          <Button onClick={startPractice}>
+          <Button onClick={startPractice} className="w-full sm:w-auto">
             <PlayCircle className="mr-2 h-4 w-4" />
             Practice All
           </Button>
@@ -136,7 +138,7 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
               </div>
             </div>
             
-            <div className="flex gap-4 text-center">
+            <div className="flex flex-wrap gap-4 text-center justify-center sm:justify-start">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">{flashcardsTotal}</p>
                 <p className="text-xs text-blue-600 dark:text-blue-500">Total Cards</p>
@@ -193,7 +195,7 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
                   <div className="flex flex-col h-full">
                     <div className="flex-1">
                       <h4 className="text-lg font-medium mb-2">Question</h4>
-                      <p>{card.front}</p>
+                      <p className="text-sm sm:text-base">{card.front}</p>
                     </div>
                     <div className="text-sm text-right text-muted-foreground">
                       Click to reveal answer
@@ -210,7 +212,7 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
                   <div className="flex flex-col h-full">
                     <div className="flex-1">
                       <h4 className="text-lg font-medium mb-2">Answer</h4>
-                      <p>{card.back}</p>
+                      <p className="text-sm sm:text-base">{card.back}</p>
                     </div>
                     
                     <div className="flex justify-between items-center mt-2">
