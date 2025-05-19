@@ -24,10 +24,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     isFirstTimeUser
   });
   
-  // Check if this is a concept detail page or welcome flow page
+  // Check if this is a unique page that should have its own greeting
   const isConceptPage = location.pathname.includes('/concepts/') && !location.pathname.includes('/concepts/formula-lab');
   const isWelcomePage = location.pathname.includes('/welcome-flow') || location.pathname.includes('/welcome-back');
   const isDashboardPage = location.pathname.includes('/dashboard');
+  const isFlashcardPage = location.pathname.includes('/flashcards');
+  const isPracticePage = location.pathname.includes('/practice');
+  const isAnalyticsPage = location.pathname.includes('/analytics');
   
   // Get current page context
   const getCurrentPageContext = (pathname: string): string => {
@@ -35,6 +38,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       return 'welcome';
     } else if (pathname.includes('/concepts/')) {
       return 'concept';
+    } else if (pathname.includes('/flashcards')) {
+      return 'flashcards';
+    } else if (pathname.includes('/practice')) {
+      return 'practice';
+    } else if (pathname.includes('/analytics')) {
+      return 'analytics';
     } else if (pathname.includes('/dashboard')) {
       return 'dashboard';
     } else if (pathname === '/') {
@@ -55,10 +64,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     const hasPlayedForContext = sessionStorage.getItem(sessionStorageKey) === 'true';
     
     // Only play for specific contexts and when not muted
-    if (((isFirstTimeUser && !hasPlayedForContext && !audioPlayed && !audioMuted) || 
-        (isConceptPage && !hasPlayedForContext && !audioPlayed && !audioMuted) ||
-        (isWelcomePage && !hasPlayedForContext && !audioPlayed && !audioMuted) ||
-        (isDashboardPage && isFirstTimeUser && !hasPlayedForContext && !audioPlayed && !audioMuted))) {
+    if ((!hasPlayedForContext && !audioPlayed && !audioMuted) && 
+        (isFirstTimeUser || isConceptPage || isWelcomePage || isDashboardPage || 
+         isFlashcardPage || isPracticePage || isAnalyticsPage)) {
       
       const playGreeting = async () => {
         try {
@@ -92,7 +100,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage, isDashboardPage, currentPageContext]);
+  }, [userName, language, audioPlayed, audioMuted, location.pathname, isConceptPage, isWelcomePage, isDashboardPage, currentPageContext]);
   
   const handleSpeechEnd = () => {
     setAudioPlaying(false);
@@ -119,17 +127,23 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     
     if (lang === 'en') {
       if (contextType === 'welcome') {
-        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our AI-powered platform offers adaptive study plans, practice tests, and personalized recommendations tailored to your learning style. ${sustainabilityMessage} Let me guide you through our key features to help you succeed in your exams. Feel free to ask me for assistance if you need help exploring study plans, concept cards, flashcards, practice exams, or any other features.`;
+        return `Welcome to Prep-zer, ${name}! I'm Sakha AI, your personalized learning assistant. Our emotionally aware, hyper-personalized platform adapts to your learning style and mindset, not just the exam content. ${sustainabilityMessage} I can guide you through our key features to help you succeed. Feel free to ask about study plans, concept cards, flashcards, practice exams, formula lab, or any other features.`;
       } else if (contextType === 'concept') {
-        return `Hello ${name}, I've loaded your concept details. You can read through the material, take notes, and use the Read Aloud feature if you prefer listening. Would you like me to help explain any part of this concept?`;
+        return `Hello ${name}, welcome to the concept details page. Here you can explore in-depth explanations, visual aids, and practical examples. Would you like me to help explain any part of this concept or suggest related topics? I can also read the content aloud if you prefer an audio learning experience.`;
+      } else if (contextType === 'flashcards') {
+        return `${timeGreeting} ${name}! Welcome to your personalized flashcards. I've organized these cards based on your learning patterns and upcoming exam schedule. You can review them in order, shuffle for spaced repetition, or focus on difficult cards. Let me know if you need help with any features.`;
+      } else if (contextType === 'practice') {
+        return `${timeGreeting} ${name}! This is your practice exam section. You can take full-length tests, quick quizzes, or focus on specific topics. I'll analyze your performance afterward to identify knowledge gaps and suggest areas for improvement. Good luck with your practice!`;
+      } else if (contextType === 'analytics') {
+        return `${timeGreeting} ${name}! Here in your analytics dashboard, you can track your progress, identify strengths and weaknesses, and see how your study habits correlate with performance. The insights here will help you optimize your remaining study time. Let me know if you need help interpreting any charts or metrics.`;
       } else if (contextType === 'dashboard') {
-        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results. Feel free to ask me about your study plan, concept cards, flashcards, practice exams, formula lab, or ask for assistance with anything on your dashboard.`;
+        return `${timeGreeting} ${name}! Welcome to your emotionally intelligent dashboard. ${sustainabilityMessage} I understand your mindset, not just the exam content. Today's recommendations are hyper-personalized to help you achieve optimal results. Feel free to ask about your study plan, concept cards, flashcards, practice exams, or formula lab.`;
       } else if (contextType === 'signup') {
-        return `Congratulations ${name}! You've made an excellent choice selecting Prep-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals. I'm here to help you navigate through the platform, just ask for assistance at any time.`;
+        return `Congratulations ${name}! You've made an excellent choice selecting Prep-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant, and I'll personalize your study experience based on your learning patterns, mood, and goals. I understand your mindset, not just the exam content.`;
       } else if (contextType === 'home') {
-        return `Welcome to Prep-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. ${sustainabilityMessage} If you have any questions about our features or how we can help with your exam preparation, just ask.`;
+        return `Welcome to Prep-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. I understand your mindset, not just the exam content. ${sustainabilityMessage} If you have any questions about our features, just ask.`;
       } else {
-        return `${timeGreeting} ${name}! Welcome to Prep-zer. ${sustainabilityMessage} If you need any assistance exploring our platform or have questions about your study journey, I'm here to help.`;
+        return `${timeGreeting} ${name}! Welcome to Prep-zer. ${sustainabilityMessage} If you need any assistance exploring our emotionally aware, hyper-personalized platform, I'm here to help.`;
       }
     } else if (lang === 'hi') {
       // Hindi greetings with sustainability message
@@ -139,11 +153,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       if (contextType === 'welcome' || contextType === 'signup') {
         return `प्रेप-ज़र में आपका स्वागत है, ${name}! मैं साखा एआई हूँ, आपका व्यक्तिगत शिक्षण सहायक। हमारा AI-संचालित प्लेटफॉर्म अनुकूलनीय अध्ययन योजनाएं, अभ्यास परीक्षण और आपकी सीखने की शैली के अनुरूप व्यक्तिगत सिफारिशें प्रदान करता है। ${hindiSustainabilityMsg}`;
       } else if (contextType === 'concept') {
-        return `नमस्ते ${name}, मैंने आपके कॉन्सेप्ट विवरण लोड कर दिए हैं। आप सामग्री पढ़ सकते हैं, नोट्स ले सकते हैं, और यदि आप सुनना पसंद करते हैं तो जोर से पढ़ने की सुविधा का उपयोग कर सकते हैं।`;
+        return `नमस्ते ${name}, कॉन्सेप्ट विवरण पेज में आपका स्वागत है। यहां आप विस्तृत व्याख्याओं, दृश्य सहायता और व्यावहारिक उदाहरणों का अन्वेषण कर सकते हैं। क्या आप चाहेंगे कि मैं इस अवधारणा के किसी भी हिस्से को समझाने या संबंधित विषयों का सुझाव देने में मदद करूं?`;
+      } else if (contextType === 'flashcards') {
+        return `${hindiTimeGreeting} ${name}! आपके व्यक्तिगत फ्लैशकार्ड्स में आपका स्वागत है। मैंने इन कार्डों को आपके सीखने के पैटर्न और आगामी परीक्षा के कार्यक्रम के आधार पर व्यवस्थित किया है। आप उन्हें क्रम में समीक्षा कर सकते हैं, स्पेस्ड रिपिटिशन के लिए शफल कर सकते हैं, या कठिन कार्ड्स पर ध्यान केंद्रित कर सकते हैं।`;
       } else if (contextType === 'dashboard') {
         return `${hindiTimeGreeting} ${name}! आपके भावनात्मक रूप से बुद्धिमान डैशबोर्ड में आपका स्वागत है। ${hindiSustainabilityMsg} मैं आपका AI सीखने वाला साथी हूँ, और मैं आपके मूड, सीखने की शैली और परिवेश के अनुसार अनुकूलित हो जाता हूँ। अगर आपको अपनी अध्ययन योजना, कॉन्सेप्ट कार्ड्स, फ्लैशकार्ड्स, अभ्यास परीक्षा या फॉर्मूला लैब के बारे में कोई प्रश्न है, तो मुझसे पूछें।`;
       } else {
-        return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। ${hindiSustainabilityMsg}`;
+        return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। ${hindiSustainabilityMsg} मैं आपकी मदद के लिए यहां हूं।`;
       }
     }
     
@@ -164,8 +180,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     }
   };
   
-  // Don't render anything if already played or not a first-time user on specific contexts
-  if ((!isFirstTimeUser && !isConceptPage && !isWelcomePage && !isDashboardPage) || audioPlayed) return null;
+  // Don't render anything if already played
+  if (audioPlayed) return null;
   
   return (
     <div 
