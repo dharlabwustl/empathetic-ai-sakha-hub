@@ -6,7 +6,7 @@ const BackedBySection = () => {
   const partners = [
     {
       name: 'NVIDIA Inception',
-      logo: '/lovable-uploads/942253c5-380a-4285-85aa-06a90b045ade.png',
+      logo: '/lovable-uploads/f0722b8a-3f2f-499b-9bd9-fe9e07d94c41.png',
       alt: 'NVIDIA Inception Program Logo'
     },
     {

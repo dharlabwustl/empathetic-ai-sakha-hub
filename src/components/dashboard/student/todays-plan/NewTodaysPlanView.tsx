@@ -1,268 +1,173 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, BookOpen, ArrowRight, BookMarked, Brain, Flag } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  subject: string;
-  chapter?: string;
-  estimatedTime: number;
-  difficulty: string;
-  completed: boolean;
-}
-
-interface PracticeQuiz {
-  id: string;
-  title: string;
-  questions: number;
-  estimatedTime: number;
-  completed: boolean;
-  subject: string;
-}
-
-interface StudyPlan {
-  date: string;
-  totalItems: number;
-  completedItems: number;
-  conceptCards: ConceptCard[];
-  practiceQuizzes: PracticeQuiz[];
-  revision?: string[];
-}
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { 
+  BookOpen, 
+  Calendar, 
+  Clock, 
+  ListChecks, 
+  Star, 
+  Lightbulb, 
+  BarChart
+} from "lucide-react";
+import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
 
 interface NewTodaysPlanViewProps {
-  planData: StudyPlan;
-  onConceptClick: (conceptId: string) => void;
+  planData: any; // Simplified for this example
+  onConceptClick?: (conceptId: string) => void;
   isMobile?: boolean;
 }
 
-const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ planData, onConceptClick, isMobile = false }) => {
-  const { completedItems, totalItems, conceptCards, practiceQuizzes, revision = [] } = planData;
-  
-  // Calculate completion percentage
-  const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-  
-  // Break down plan data by type
-  const pendingConcepts = conceptCards.filter(card => !card.completed);
-  const completedConcepts = conceptCards.filter(card => card.completed);
-  const pendingQuizzes = practiceQuizzes.filter(quiz => !quiz.completed);
-  const completedQuizzes = practiceQuizzes.filter(quiz => quiz.completed);
-  
-  // Helper function for difficulty color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case 'easy': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-      case 'medium': return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'hard': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
-    }
+const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ 
+  planData, 
+  onConceptClick,
+  isMobile = false
+}) => {
+  if (!planData) {
+    return <div>No plan data available</div>;
+  }
+
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "morning";
+    if (hour < 17) return "afternoon";
+    return "evening";
   };
-  
+
   return (
     <div className="space-y-6">
-      {/* Overall progress */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold">Today's Progress</h3>
-              <div className="flex items-center gap-2">
-                <Progress value={completionPercentage} className="h-2 w-[200px]" />
-                <span className="text-sm font-medium">{completionPercentage}%</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {completedItems} of {totalItems} items completed
-              </p>
+      {/* Top Cards: Study Time and Focus Areas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center">
+                <Clock className="mr-2 h-4 w-4 text-blue-500" />
+                Today's Study Time
+              </CardTitle>
+              <span className="text-2xl font-bold">
+                {planData.totalStudyHours || 2} hrs
+              </span>
             </div>
-            
-            <Button variant="outline" className="gap-2">
-              <Flag className="h-4 w-4" />
-              <span>Mark All Complete</span>
-            </Button>
-          </div>
+            <CardDescription>
+              Recommended time allocation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {planData.timeAllocation ? (
+              <div className="space-y-2">
+                {planData.timeAllocation.map((item: any, i: number) => (
+                  <div key={i} className="flex justify-between items-center text-sm">
+                    <span>{item.subject}</span>
+                    <span className="font-medium">{item.minutes} min</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span>Physics</span>
+                  <span className="font-medium">45 min</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span>Chemistry</span>
+                  <span className="font-medium">30 min</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span>Biology</span>
+                  <span className="font-medium">45 min</span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center">
+              <ListChecks className="mr-2 h-4 w-4 text-purple-500" />
+              Focus Areas
+            </CardTitle>
+            <CardDescription>
+              Based on your recent performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {planData.focusAreas ? planData.focusAreas.map((area: any, i: number) => (
+                <div key={i}>
+                  <div className="flex justify-between mb-1 text-sm">
+                    <span>{area.name}</span>
+                    <span className="text-muted-foreground">{area.progress}%</span>
+                  </div>
+                  <Progress value={area.progress} className="h-2" />
+                </div>
+              )) : (
+                <>
+                  <div>
+                    <div className="flex justify-between mb-1 text-sm">
+                      <span>Organic Chemistry</span>
+                      <span className="text-muted-foreground">35%</span>
+                    </div>
+                    <Progress value={35} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1 text-sm">
+                      <span>Mechanics</span>
+                      <span className="text-muted-foreground">60%</span>
+                    </div>
+                    <Progress value={60} className="h-2" />
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Concept Cards Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium flex items-center">
+            <BookOpen className="mr-2 h-5 w-5 text-blue-600" />
+            Today's Concept Cards
+          </h3>
+          <span className="text-sm text-muted-foreground">
+            {planData.conceptCards ? planData.conceptCards.length : 6} cards
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <ConceptsSection />
+        </div>
+      </div>
+      
+      {/* Study Tips */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center">
+            <Lightbulb className="mr-2 h-4 w-4 text-amber-500" />
+            Study Tip for {getTimeOfDay()}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm">
+            {getTimeOfDay() === "morning" 
+              ? "Start with your most challenging subjects while your mind is fresh. Take short breaks between study sessions to maintain focus."
+              : getTimeOfDay() === "afternoon"
+              ? "Review your notes from the morning and work on problem-solving to reinforce the concepts. Stay hydrated to maintain cognitive performance."
+              : "For evening study, focus on revision rather than new topics. Summarize what you've learned today before going to sleep to improve retention."
+            }
+          </p>
         </CardContent>
       </Card>
-      
-      {/* Pending Concepts Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-500" />
-            <span>Concepts to Learn ({pendingConcepts.length})</span>
-          </h3>
-        </div>
-        
-        {pendingConcepts.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-4">
-            {pendingConcepts.map(concept => (
-              <Card
-                key={concept.id}
-                className="overflow-hidden cursor-pointer hover:border-blue-300 transition-colors"
-                onClick={() => onConceptClick(concept.id)}
-              >
-                <div className="border-l-4 border-blue-500 h-full">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge className={getDifficultyColor(concept.difficulty)}>
-                        {concept.difficulty}
-                      </Badge>
-                      <div className="flex items-center text-muted-foreground text-sm">
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>{concept.estimatedTime} min</span>
-                      </div>
-                    </div>
-                    
-                    <h4 className="font-medium mb-1">{concept.title}</h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {concept.description || `Learn about ${concept.title}`}
-                    </p>
-                    
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-xs text-muted-foreground">
-                        {concept.subject} {concept.chapter ? `• ${concept.chapter}` : ''}
-                      </span>
-                      <Button variant="ghost" size="sm" className="h-8 p-0 flex items-center gap-1">
-                        <span className="text-xs">Start</span>
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="bg-gray-50 dark:bg-gray-900/20">
-            <CardContent className="p-4 text-center">
-              <p className="text-muted-foreground">No pending concepts for today</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-      
-      {/* Practice Quizzes Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-500" />
-            <span>Practice Quizzes ({pendingQuizzes.length})</span>
-          </h3>
-        </div>
-        
-        {pendingQuizzes.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-4">
-            {pendingQuizzes.map(quiz => (
-              <Card key={quiz.id} className="overflow-hidden cursor-pointer hover:border-purple-300 transition-colors">
-                <div className="border-l-4 border-purple-500 h-full">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
-                        {quiz.questions} Questions
-                      </Badge>
-                      <div className="flex items-center text-muted-foreground text-sm">
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>{quiz.estimatedTime} min</span>
-                      </div>
-                    </div>
-                    
-                    <h4 className="font-medium mb-1">{quiz.title}</h4>
-                    
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-xs text-muted-foreground">
-                        {quiz.subject}
-                      </span>
-                      <Button variant="ghost" size="sm" className="h-8 p-0 flex items-center gap-1">
-                        <span className="text-xs">Start Quiz</span>
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="bg-gray-50 dark:bg-gray-900/20">
-            <CardContent className="p-4 text-center">
-              <p className="text-muted-foreground">No practice quizzes scheduled for today</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-      
-      {/* Revision Section */}
-      {revision.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <BookMarked className="h-5 w-5 text-amber-500" />
-              <span>Review & Revision ({revision.length})</span>
-            </h3>
-          </div>
-          
-          <Card>
-            <CardContent className="p-4">
-              <ul className="divide-y">
-                {revision.map((item, index) => (
-                  <li key={index} className="py-3 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <BookMarked className="h-4 w-4 text-amber-500" />
-                      <span>{item}</span>
-                    </div>
-                    <Button size="sm" variant="ghost">Review</Button>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-      
-      {/* Completed Items */}
-      {(completedConcepts.length > 0 || completedQuizzes.length > 0) && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span>Completed Today ({completedConcepts.length + completedQuizzes.length})</span>
-            </h3>
-          </div>
-          
-          <Card>
-            <CardContent className="p-4">
-              <ul className="divide-y">
-                {completedConcepts.map(concept => (
-                  <li key={concept.id} className="py-3 flex justify-between items-center opacity-60">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-blue-500" />
-                      <span>{concept.title}</span>
-                    </div>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                      Completed
-                    </Badge>
-                  </li>
-                ))}
-                {completedQuizzes.map(quiz => (
-                  <li key={quiz.id} className="py-3 flex justify-between items-center opacity-60">
-                    <div className="flex items-center gap-2">
-                      <Brain className="h-4 w-4 text-purple-500" />
-                      <span>{quiz.title}</span>
-                    </div>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                      Completed
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };

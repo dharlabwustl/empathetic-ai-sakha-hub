@@ -23,7 +23,10 @@ import {
   ChevronRight,
   Lightbulb,
   Book,
-  Clock
+  Clock,
+  Brain,
+  Calendar,
+  Zap
 } from 'lucide-react';
 import {
   Collapsible,
@@ -90,6 +93,27 @@ const ExamReadinessSection: React.FC<ExamReadinessSectionProps> = ({
       description: "Explain difficult concepts to someone else or even to yourself. Teaching solidifies understanding.",
       icon: <Lightbulb className="h-4 w-4 text-amber-500" />,
       action: "Practice teaching"
+    },
+    {
+      id: 5,
+      title: "Spaced Repetition",
+      description: "Review material at increasing intervals over time to enhance long-term retention and recall.",
+      icon: <Calendar className="h-4 w-4 text-purple-500" />,
+      action: "Schedule reviews" 
+    },
+    {
+      id: 6,
+      title: "Active Recall Practice",
+      description: "Test yourself regularly instead of just re-reading. Active recall strengthens memory pathways.",
+      icon: <Brain className="h-4 w-4 text-indigo-500" />,
+      action: "Self-test"
+    },
+    {
+      id: 7,
+      title: "Power of Sleep",
+      description: "Ensure 7-8 hours of quality sleep, especially before exams. Sleep consolidates memory and improves focus.",
+      icon: <Zap className="h-4 w-4 text-yellow-500" />,
+      action: "Optimize sleep"
     }
   ];
   

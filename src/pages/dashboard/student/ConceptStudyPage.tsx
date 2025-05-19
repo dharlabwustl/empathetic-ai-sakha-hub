@@ -10,7 +10,6 @@ const ConceptStudyPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [conceptData, setConceptData] = useState(null);
   
   useEffect(() => {
     console.log("Pages/ConceptStudyPage - Loading concept with ID:", conceptId);
@@ -48,7 +47,7 @@ const ConceptStudyPage: React.FC = () => {
   }
   
   // Use the ConceptCardDetailPage component to display the concept details
-  return <ConceptCardDetailPage />;
+  return <ConceptCardDetailPage conceptId={conceptId} />;
 };
 
 export default ConceptStudyPage;

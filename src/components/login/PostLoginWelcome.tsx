@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -98,14 +99,14 @@ const PostLoginWelcome = () => {
       setLoading(false);
     }, 800);
     
-    // Auto-redirect after 5 seconds if no action taken
+    // Auto-redirect after 10 seconds if no action taken
     const timer = setTimeout(() => {
       navigate('/dashboard/student/today');
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to Today's Plan.",
       });
-    }, 10000); // Increased time to 10 seconds to give users more time to interact
+    }, 10000);
     
     return () => clearTimeout(timer);
   }, [navigate, toast]);
