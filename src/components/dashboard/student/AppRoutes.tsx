@@ -1,27 +1,59 @@
 
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import DashboardOverview from "./DashboardOverview";
+import TodaysPlanView from "./todays-plan/TodaysPlanView";
+import StudyPlanView from "./study-plan/StudyPlanView";
+import ConceptsView from "./concepts/ConceptsView";
+import ConceptCardDetailPage from "@/components/dashboard/student/concepts/ConceptCardDetailPage";
+import FlashcardsView from "./flashcards/FlashcardsView";
+import NotificationsView from "./notifications/NotificationsView";
+import PracticeExamsView from "./practice-exam/PracticeExamsView";
+import FeelGoodCorner from "./FeelGoodCorner";
+import AcademicAdvisorView from "./academic/AcademicAdvisorView";
+import FormulaLabPage from "@/pages/dashboard/student/formula-lab/FormulaLabPage";
+import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
+import FormulaPracticePage from "@/pages/dashboard/student/FormulaPracticePage";
+import AnalyticsDashboard from "@/components/dashboard/student/analytics/AnalyticsDashboard";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
+import ConceptStudyPage from "@/pages/dashboard/student/ConceptStudyPage";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import RedesignedTodaysPlan from "./todays-plan/RedesignedTodaysPlan";
+import SubscriptionPage from "@/pages/dashboard/student/SubscriptionPage";
 
-import StudentDashboard from '@/pages/dashboard/StudentDashboard';
-import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
-import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
-import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
-import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
-import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
-
-const StudentAppRoutes = () => {
+const AppRoutes: React.FC = () => {
+  const { userProfile } = useUserProfile(UserRole.Student);
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const kpis = []; // Define your KPIs here or fetch them
+  
+  // Log routing information for debugging
+  console.log("AppRoutes - Mobile view:", isMobile ? "Yes" : "No");
+  
   return (
     <Routes>
-      <Route path="/" element={<StudentDashboard />} />
+      <Route path="/" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
       <Route path="/today" element={<RedesignedTodaysPlan />} />
-      <Route path="/concepts" element={<ConceptsLandingPage />} />
-      <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
-      <Route path="/flashcards" element={<FlashcardsLandingPage />} />
-      <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
-      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/plan" element={<StudyPlanView />} />
+      <Route path="/concepts" element={<ConceptsView />} />
+      <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
+      <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
+      <Route path="/concept/:conceptId" element={<ConceptCardDetailPage />} /> {/* Added this route for backward compatibility */}
+      <Route path="/concept-card/:conceptId" element={<ConceptCardDetailPage />} /> {/* Added this route as well for any references */}
+      <Route path="/flashcards" element={<FlashcardsView />} />
+      <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
+      <Route path="/notifications" element={<NotificationsView />} />
+      <Route path="/practice-exam" element={<PracticeExamsView />} />
+      <Route path="/feel-good-corner" element={<FeelGoodCorner />} />
+      <Route path="/academic" element={<AcademicAdvisorView userProfile={userProfile} />} />
+      <Route path="/academic-advisor" element={<AcademicAdvisorView userProfile={userProfile} />} />
+      <Route path="/formula-practice" element={<FormulaPracticePage />} />
+      <Route path="/tutor" element={<DashboardOverview userProfile={userProfile} kpis={kpis} />} />
+      <Route path="/analytics" element={<AnalyticsDashboard />} />
+      <Route path="/subscription" element={<SubscriptionPage />} />
     </Routes>
   );
 };
 
-export default StudentAppRoutes;
+export default AppRoutes;

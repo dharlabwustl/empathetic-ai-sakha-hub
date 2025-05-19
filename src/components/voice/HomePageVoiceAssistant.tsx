@@ -25,29 +25,21 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
+      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey while supporting UN Sustainability Goal 4 for inclusive and equitable quality education.";
+      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
+      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam. We're proud to support UN Sustainability Goal 4 for quality education.";
+      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
     }
     
-    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion. We're committed to UN Sustainability Goal 4, ensuring inclusive and quality education for all.";
+    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion.";
   };
   
   useEffect(() => {
-    // Create a unique identifier for this page visit to prevent repetition
-    const sessionKey = `voiceGreeting_${location.pathname}`;
-    const hasBeenPlayed = sessionStorage.getItem(sessionKey) === 'true';
-    
-    // Only play the greeting if speech synthesis is supported, we're on the right page,
-    // it hasn't been played yet, and audio isn't muted
-    if ('speechSynthesis' in window && !greetingPlayed && !hasBeenPlayed && shouldPlayGreeting && !audioMuted) {
-      // Mark as played in session storage to prevent repeated playback
-      sessionStorage.setItem(sessionKey, 'true');
-      
+    // Only play the greeting if speech synthesis is supported and we're on the right page
+    if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting && !audioMuted) {
       // Use a timeout to ensure the component is fully mounted
       const timer = setTimeout(() => {
         try {
@@ -66,42 +58,28 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a clear, vibrant female voice
-          const preferredVoiceNames = language === 'en-IN' 
-            ? ['Google India Female', 'Microsoft Kajal', 'en-IN', 'English India Female', 'India Female']
-            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Victoria', 'en-US Female', 'en-GB Female'];
+          // Try to find a clear, vibrant voice - preferring US English voices
+          const preferredVoiceNames = [
+            'Google US English Female', 'Microsoft Zira', 'Samantha', 
+            'Alex', 'en-US', 'en-GB'
+          ];
           
           // Try to find a preferred voice
           let selectedVoice = null;
           for (const name of preferredVoiceNames) {
             const voice = voices.find(v => 
-              (v.name?.toLowerCase().includes(name.toLowerCase()) || 
-              v.lang?.toLowerCase().includes(name.toLowerCase())) &&
-              !v.name?.toLowerCase().includes('male')
+              v.name?.toLowerCase().includes(name.toLowerCase()) || 
+              v.lang?.toLowerCase().includes(name.toLowerCase())
             );
             if (voice) {
               selectedVoice = voice;
-              console.log("Selected voice:", voice.name);
               break;
-            }
-          }
-          
-          // If no preferred voice found, try to find any female voice
-          if (!selectedVoice) {
-            const femaleVoice = voices.find(v => 
-              v.name?.toLowerCase().includes('female') ||
-              !v.name?.toLowerCase().includes('male')
-            );
-            if (femaleVoice) {
-              selectedVoice = femaleVoice;
-              console.log("Selected female voice:", femaleVoice.name);
             }
           }
           
           // If still no voice selected, use any available voice
           if (!selectedVoice && voices.length > 0) {
             selectedVoice = voices[0];
-            console.log("Defaulted to voice:", voices[0].name);
           }
           
           // Set the selected voice if found

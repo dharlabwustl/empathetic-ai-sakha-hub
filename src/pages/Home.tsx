@@ -39,18 +39,18 @@ const Home = () => {
       {/* Page content */}
       <HeroSection />
       
-      {/* UN Sustainability Goals Banner - replacing donation message */}
+      {/* Donation Message Banner for Subscription Section */}
       <div className="container mx-auto px-4 my-8">
-        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-blue-100 dark:from-green-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
-              <Heart className="h-6 w-6 text-green-500 dark:text-green-300 fill-green-200 dark:fill-green-800" />
+            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full">
+              <Heart className="h-6 w-6 text-purple-500 dark:text-purple-300 fill-purple-200 dark:fill-purple-800" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-1 text-green-600 dark:text-green-300">Supporting UN Sustainability Goals</h3>
+              <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                PREP-zer is committed to providing inclusive and equitable quality education, 
-                supporting UN Sustainability Goal 4 to ensure equal access to education for all.
+                We donate 5% of monthly subscription revenue to fund underprivileged students,
+                providing them free access to our platform.
               </p>
             </div>
           </CardContent>

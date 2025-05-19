@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import ImmersiveHeroSection from '@/components/home/hero/ImmersiveHeroSection';
+import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -23,8 +23,15 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 
 const Index = () => {
   const navigate = useNavigate();
+  const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  
+  const scrollToFeatures = () => {
+    if (featuresRef.current) {
+      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -47,7 +54,7 @@ const Index = () => {
   };
 
   // Listen for events
-  React.useEffect(() => {
+  useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
     };
@@ -70,8 +77,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* New Immersive Hero Section with 3D animation and voice */}
-        <ImmersiveHeroSection />
+        {/* Use our new story-focused hero section */}
+        <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -102,7 +109,9 @@ const Index = () => {
         
         <EcosystemAnimation />
         
-        <FeaturesSection />
+        <div ref={featuresRef}>
+          <FeaturesSection />
+        </div>
         
         <ExamPreparationSection />
         
