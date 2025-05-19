@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -30,29 +31,27 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 interface FloatingVoiceAssistantProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onNavigationCommand?: (route: string) => void;
+  language?: string;
   userName?: string;
 }
 
-const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userName = "student" }) => {
+const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ 
+  isOpen, 
+  onClose, 
+  onNavigationCommand,
+  language = 'en-US',
+  userName = "Student" 
+}) => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(80);
   const [speed, setSpeed] = useState(50);
   const [pitch, setPitch] = useState(50);
   const [voicePreference, setVoicePreference] = useState("female");
-  
-  const handleToggleAssistant = () => {
-    setIsOpen(!isOpen);
-    
-    if (!isOpen) {
-      toast({
-        title: "Sakha AI Activated",
-        description: `Hello ${userName}, I'm the Prep-zer core AI engine. How can I help you crack your exams today?`,
-      });
-    }
-  };
   
   const handleToggleMute = () => {
     setIsMuted(!isMuted);
@@ -68,39 +67,59 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
     if (!isListening) {
       toast({
         title: "Sakha AI Listening...",
-        description: "Say something like 'Show me my study plan'",
+        description: `Hello ${userName}, what can I help you with today?`,
       });
       
       // Simulate stopping listening after 5 seconds
       setTimeout(() => {
         setIsListening(false);
+        speakMessage("I'm sorry, I didn't catch that. Could you try again?");
       }, 5000);
+    } else {
+      // Stop listening
+      toast({
+        title: "Stopped Listening",
+        description: "Voice recognition deactivated",
+      });
+    }
+  };
+
+  const speakMessage = (message: string) => {
+    if (!isMuted && 'speechSynthesis' in window) {
+      // Create speech synthesis utterance
+      const speech = new SpeechSynthesisUtterance();
+      
+      // Correct PREPZR pronunciation 
+      speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+      speech.lang = language;
+      speech.volume = volume / 100;
+      speech.rate = 0.85 + (speed / 100);
+      speech.pitch = 0.75 + (pitch / 100) * 0.5;
+      
+      // Get available voices
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Filter by gender preference if possible
+      const preferredVoices = voices.filter(voice => {
+        if (voicePreference === "female") {
+          return voice.name.toLowerCase().includes("female") || 
+                !voice.name.toLowerCase().includes("male");
+        } else {
+          return voice.name.toLowerCase().includes("male");
+        }
+      });
+      
+      if (preferredVoices.length > 0) {
+        speech.voice = preferredVoices[0];
+      }
+      
+      window.speechSynthesis.speak(speech);
     }
   };
   
   return (
     <>
-      {/* Floating button */}
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="fixed bottom-6 right-6 h-12 w-12 rounded-full shadow-lg bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 z-50"
-              onClick={handleToggleAssistant}
-            >
-              <Volume2 className="h-6 w-6 text-white" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Open Sakha AI Voice Assistant</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {/* Voice Assistant Drawer */}
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent className="max-w-md mx-auto">
           <DrawerHeader>
             <DrawerTitle className="text-xl font-bold">Sakha AI Voice Assistant</DrawerTitle>
@@ -226,7 +245,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
             
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Sakha AI Voice Commands</CardTitle>
+                <CardTitle className="text-sm">Voice Commands</CardTitle>
                 <CardDescription>Try saying these phrases:</CardDescription>
               </CardHeader>
               <CardContent>
@@ -242,7 +261,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
           </div>
           
           <DrawerFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={onClose}>Close</Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
