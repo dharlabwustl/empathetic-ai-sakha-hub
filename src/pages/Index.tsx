@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -76,7 +77,7 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced interactive 3D hero */}
+        {/* Replace standard hero with our new interactive 3D hero */}
         <Interactive3DHero />
         
         {/* Smart Data section with animation and KPI stats */}
@@ -158,7 +159,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-IN"
+          language="en-IN"  // Default to Indian English
         />
       )}
     </div>
