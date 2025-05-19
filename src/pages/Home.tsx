@@ -15,8 +15,6 @@ import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
-import ImmersiveJourneyPath from '@/components/home/ImmersiveJourneyPath';
-import ImmersiveStudentExperience from '@/components/home/ImmersiveStudentExperience';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -42,14 +40,8 @@ const Home = () => {
       {/* Page content */}
       <HeroSection />
       
-      {/* Immersive Student Experience - New Component */}
-      <ImmersiveStudentExperience />
-      
-      {/* Student Journey Carousel */}
+      {/* Student Journey Carousel - New component */}
       <StudentJourneyCarousel />
-      
-      {/* Immersive Journey Path - New Component */}
-      <ImmersiveJourneyPath />
       
       {/* Donation Message Banner for Subscription Section */}
       <div className="container mx-auto px-4 my-8">

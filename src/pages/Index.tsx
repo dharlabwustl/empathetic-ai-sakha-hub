@@ -21,8 +21,6 @@ import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import StudentJourneyCarousel from '@/components/home/StudentJourneyCarousel';
-import ImmersiveJourneyPath from '@/components/home/ImmersiveJourneyPath';
-import ImmersiveStudentExperience from '@/components/home/ImmersiveStudentExperience';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -76,14 +74,8 @@ const Index = () => {
         {/* Enhanced 3D hero section with voice interaction */}
         <Hero3DSection />
         
-        {/* Immersive Student Experience - New Component */}
-        <ImmersiveStudentExperience />
-        
-        {/* Student Journey Carousel */}
+        {/* Student Journey Carousel - New component */}
         <StudentJourneyCarousel />
-        
-        {/* Immersive Journey Path - New Component */}
-        <ImmersiveJourneyPath />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
