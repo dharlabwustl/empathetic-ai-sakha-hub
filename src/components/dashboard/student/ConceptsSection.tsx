@@ -42,9 +42,8 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Navigate to the enhanced concept detail page
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
-    navigate(`/dashboard/student/concept-study/${cardId}`);
+    navigate(`/dashboard/student/concepts/${cardId}`);
   };
   
   return (

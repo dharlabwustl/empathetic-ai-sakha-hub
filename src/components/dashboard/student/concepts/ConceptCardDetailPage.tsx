@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ConceptsPageLayout } from '../concept-cards/ConceptsPageLayout';
 import { Button } from '@/components/ui/button';
@@ -29,23 +29,26 @@ import {
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import FloatingAvatar from '@/components/shared/FloatingAvatar';
+import { useVoiceAssistant } from '@/hooks/useVoiceAssistant';
 
 const ConceptCardDetailPage = () => {
   const { conceptId } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // Voice assistant for read-aloud functionality
+  const { speakText, isSpeaking } = useVoiceAssistant({ userName: 'Student' });
+  
   // States for various features
   const [activeTab, setActiveTab] = useState('overview');
   const [isReading, setIsReading] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
   const [userNote, setUserNote] = useState('');
-  const [speechUtterance, setSpeechUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [quickQuizAnswered, setQuickQuizAnswered] = useState(false);
   const [quickQuizCorrect, setQuickQuizCorrect] = useState(false);
   const [showAITutor, setShowAITutor] = useState(false);
   
-  // Get user notes (mock implementation)
+  // Get user notes
   const { saveNote, getNoteForConcept } = useUserNotes();
   
   // Mock concept data (would be fetched from API in a real app)
@@ -83,12 +86,13 @@ const ConceptCardDetailPage = () => {
     setIsFlagged(flaggedConcepts.includes(conceptId));
     
     return () => {
-      // Clean up speech synthesis when component unmounts
-      if (speechUtterance) {
+      // Clean up when component unmounts
+      if (isReading) {
         window.speechSynthesis.cancel();
+        setIsReading(false);
       }
     };
-  }, [conceptId]);
+  }, [conceptId, getNoteForConcept]);
   
   const handleSaveNote = () => {
     saveNote(conceptId || '', userNote);
@@ -105,12 +109,17 @@ const ConceptCardDetailPage = () => {
       return;
     }
     
-    const utterance = new SpeechSynthesisUtterance(concept.content);
-    utterance.rate = 0.9; // Slightly slower than default
-    utterance.onend = () => setIsReading(false);
-    setSpeechUtterance(utterance);
+    // Use the voice assistant to speak the text
+    speakText(concept.content);
     setIsReading(true);
-    window.speechSynthesis.speak(utterance);
+    
+    // Set up a way to track when speech ends
+    const checkSpeaking = setInterval(() => {
+      if (!window.speechSynthesis.speaking) {
+        clearInterval(checkSpeaking);
+        setIsReading(false);
+      }
+    }, 100);
   };
   
   const handleFlagForRevision = () => {
@@ -206,6 +215,7 @@ const ConceptCardDetailPage = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleReadAloud}
+                    className={isReading ? "bg-green-50 border-green-500 text-green-700" : ""}
                   >
                     <Volume2 size={16} className={`mr-1 ${isReading ? "text-green-600" : ""}`} />
                     {isReading ? "Stop reading" : "Read aloud"}
