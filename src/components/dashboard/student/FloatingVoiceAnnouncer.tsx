@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Volume } from 'lucide-react';
+import React, { useState } from 'react';
+import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { MoodType } from '@/types/user/base';
 import { useLocation } from 'react-router-dom';
@@ -28,24 +28,24 @@ const moodMap: Record<string, MoodType> = {
 // Helper function to get context-specific responses
 const getContextResponse = (pathname: string) => {
   if (pathname.includes('/welcome-flow')) {
-    return "Welcome to PREPZR! We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
+    return "Hello! I'm Sakha AI, the core AI engine of PREPZR. PREPZR is pronounced as 'prep' like in preparation and 'zer' like in laser. We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
   } else if (pathname.includes('/dashboard/student/today')) {
-    return "This is your daily study plan. It shows concepts, flashcards, and practice tests scheduled for today. I've organized them based on your learning priorities and past performance.";
+    return "I'm Sakha AI, your exam assistant. This is your daily study plan. It shows concepts, flashcards, and practice tests scheduled for today. I've organized them based on your learning priorities and past performance.";
   } else if (pathname.includes('/dashboard/student/overview')) {
-    return "This overview shows your study progress and key metrics. Your Exam Readiness score represents how prepared you are for your upcoming exams based on your performance and engagement.";
+    return "Sakha AI here. This overview shows your study progress and key metrics. Your Exam Readiness score represents how prepared you are for your upcoming exams based on your performance and engagement.";
   } else if (pathname.includes('/dashboard/student/concepts')) {
-    return "Here you can explore all the concepts you need to master. You can read detailed explanations, listen to audio guides, take notes, and practice with related flashcards.";
+    return "Sakha AI at your service. Here you can explore all the concepts you need to master. You can read detailed explanations, listen to audio guides, take notes, and practice with related flashcards.";
   } else if (pathname.includes('/dashboard/student/flashcards')) {
-    return "These flashcards help you memorize key facts and formulas. They use spaced repetition algorithms to show you cards at optimal intervals for better retention.";
+    return "This is Sakha AI. These flashcards help you memorize key facts and formulas. They use spaced repetition algorithms to show you cards at optimal intervals for better retention.";
   } else if (pathname.includes('/dashboard/student/practice-exam')) {
-    return "Practice exams help you prepare for the real thing. They simulate exam conditions and provide detailed analytics on your performance to identify areas for improvement.";
+    return "Sakha AI here to help. Practice exams help you prepare for the real thing. They simulate exam conditions and provide detailed analytics on your performance to identify areas for improvement.";
   } else if (pathname.includes('/dashboard/student/analytics')) {
-    return "These analytics show your learning progress over time. You can track improvements in your scores, time spent studying, and concept mastery.";
+    return "Sakha AI at your service. These analytics show your learning progress over time. You can track improvements in your scores, time spent studying, and concept mastery.";
   } else if (pathname.includes('/dashboard/student/create-study-plan')) {
-    return "Let's create a personalized study plan based on your exam date, available study time, and topic preferences. Our AI will optimize your schedule for maximum learning efficiency.";
+    return "Sakha AI here. Let's create a personalized study plan based on your exam date, available study time, and topic preferences. Our AI will optimize your schedule for maximum learning efficiency.";
   }
   
-  return "I'm your voice assistant. Ask me questions about your studies, and I'll guide you through PREPZR's features to help you prepare for your exams.";
+  return "I'm Sakha AI, PREPZR's core AI engine. Ask me questions about your studies, and I'll guide you through PREPZR's features to help you prepare for your exams.";
 };
 
 interface FloatingVoiceAnnouncerProps {
@@ -71,7 +71,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
-      speakMessage("Hello! How can I help you with your studies today?");
+      speakMessage("Hello! I'm Sakha AI, PREPZR's core AI engine. How can I help you with your exam preparation today?");
       return;
     }
     
@@ -111,8 +111,14 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     
     setIsSpeaking(true);
     
+    // Correct PREPZR pronunciation
+    const correctedText = text
+      .replace(/PREPZR/gi, 'Prep-zer')
+      .replace(/prepzr/gi, 'Prep-zer')
+      .replace(/Prepzr/g, 'Prep-zer');
+    
     // Create a new utterance
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(correctedText);
     
     // Load voices
     const voices = window.speechSynthesis.getVoices();
@@ -175,7 +181,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   const startListening = () => {
     setIsListeningMode(true);
     toast({
-      title: "Listening...",
+      title: "Sakha AI Listening...",
       description: "Say something like 'Tell me about my study plan'",
     });
     
@@ -192,7 +198,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   };
 
   // Speak context-specific information when the announcer is opened
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && !isSpeaking && !isMuted) {
       const contextResponse = getContextResponse(location.pathname);
       if (contextResponse) {
@@ -202,7 +208,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   }, [isOpen, location.pathname, isMuted]);
   
   // Mood detection logic
-  useEffect(() => {
+  React.useEffect(() => {
     if (command) {
       const lowerCommand = command.toLowerCase();
       
@@ -225,7 +231,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   return (
     <div className="fixed bottom-6 right-6 z-50 bg-white border rounded-lg shadow-lg p-4 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Voice Assistant</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Sakha AI Voice Assistant</h3>
         <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

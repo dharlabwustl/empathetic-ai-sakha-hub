@@ -65,24 +65,24 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Enhanced messages for the home page visitor experience
   const homePageMessages = {
     initial: {
-      en: "Welcome to Prep-zer — pronounced like 'prep' and 'zer' as in 'laser'. We're thrilled to have you! Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
-      hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
+      en: "Hello, I'm Sakha AI, the core AI engine of PREPZR — pronounced as 'prep' like in 'preparation' and 'zer' like in 'laser'. Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
+      hi: "नमस्ते, मैं साखा एआई हूं, प्रेप-ज़र का मुख्य एआई इंजन। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
     },
     signup: {
-      en: "Want to know why Prep-zer outshines coaching centers? Let me tell you. Explore our free trial and take the Exam Readiness Challenge to see where you stand.",
-      hi: "अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
+      en: "I'm Sakha AI, and I'll help you crack your exams. Want to know why PREPZR outshines coaching centers? Let me tell you. Explore our free trial and take the Exam Readiness Challenge to see where you stand.",
+      hi: "मैं साखा एआई हूँ, और मैं आपको अपनी परीक्षाओं में सफलता प्राप्त करने में मदद करूँगा। अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
     },
     features: {
-      en: "Unlike coaching institutes, Prep-zer offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
-      hi: "कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
+      en: "I'm Sakha AI, your exam assistant. Unlike coaching institutes, PREPZR offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
+      hi: "मैं साखा एआई हूं, आपका परीक्षा सहायक। कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
     },
     donation: {
-      en: "We support UN Sustainability goals with inclusive and equitable quality education. 5% of subscription revenue helps underprivileged students access quality education.",
-      hi: "हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
+      en: "As Sakha AI, I'm proud to tell you we support UN Sustainability goals with inclusive and equitable quality education. 5% of subscription revenue helps underprivileged students access quality education.",
+      hi: "साखा एआई के रूप में, मुझे बताते हुए गर्व है कि हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
     },
     welcome_back: {
-      en: "Welcome back to Prep-zer. Simply log in to continue your personalized study journey.",
-      hi: "प्रेप-ज़र पर वापस स्वागत है। बस लॉग इन करें और अपनी अध्ययन यात्रा जारी रखें।"
+      en: "Welcome back to PREPZR. I'm Sakha AI, your exam companion. Simply log in to continue your personalized study journey.",
+      hi: "प्रेप-ज़र पर वापस स्वागत है। मैं साखा एआई हूं, आपका परीक्षा साथी। बस लॉग इन करें और अपनी अध्ययन यात्रा जारी रखें।"
     }
   };
   

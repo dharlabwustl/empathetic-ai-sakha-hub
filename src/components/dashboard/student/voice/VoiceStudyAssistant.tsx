@@ -104,7 +104,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     }
     
     // If no command recognized
-    speakMessage("I'm not sure how to help with that. Try asking about your mood, study plan, or tasks.");
+    speakMessage("I'm Sakha AI, the core AI engine of PREPZR. I'm not sure how to help with that. Try asking about your mood, study plan, or tasks.");
   };
   
   const handleMoodCommand = (command: string) => {
@@ -189,7 +189,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
     <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300`}>
       <CardHeader className="p-3 pb-0">
         <CardTitle className="text-sm flex justify-between items-center">
-          <span>Voice Assistant</span>
+          <span>Sakha AI Voice</span>
           {expanded && (
             <Button 
               variant="ghost" 
@@ -260,7 +260,7 @@ const VoiceStudyAssistant: React.FC<VoiceStudyAssistantProps> = ({
               className="w-full"
             >
               <Mic className="h-4 w-4 mr-2" />
-              Use Voice Commands
+              Ask Sakha AI
             </Button>
           </div>
         )}

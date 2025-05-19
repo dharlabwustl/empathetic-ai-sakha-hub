@@ -7,7 +7,7 @@ const FloatingAvatar = () => {
   const [messages, setMessages] = useState([
     { 
       type: 'bot',
-      content: 'Hello! I\'m Sakha, your AI companion. How can I help you today?'
+      content: 'Hello! I\'m Sakha AI, your AI companion for PREPZR. How can I help you today?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -22,7 +22,7 @@ const FloatingAvatar = () => {
     setTimeout(() => {
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        content: "I'd be happy to assist you with that! To get the full experience, why not sign up for a free account?" 
+        content: "I'd be happy to assist you with that! To get the full exam preparation experience, why not sign up for a free account with PREPZR?" 
       }]);
     }, 1000);
     
@@ -65,7 +65,7 @@ const FloatingAvatar = () => {
               />
               <div>
                 <h3 className="font-medium text-sm">Sakha AI</h3>
-                <p className="text-xs opacity-80">How can I help you?</p>
+                <p className="text-xs opacity-80">How can I help you crack your exams?</p>
               </div>
             </div>
             <button 

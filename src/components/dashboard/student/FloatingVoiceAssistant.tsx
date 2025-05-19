@@ -49,8 +49,8 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
     
     if (!isOpen) {
       toast({
-        title: "Voice Assistant Activated",
-        description: `Hello ${userName}, how can I help you today?`,
+        title: "Sakha AI Activated",
+        description: `Hello ${userName}, I'm the PREPZR core AI engine. How can I help you crack your exams today?`,
       });
     }
   };
@@ -59,7 +59,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
     setIsMuted(!isMuted);
     toast({
       title: isMuted ? "Voice Unmuted" : "Voice Muted",
-      description: isMuted ? "You can now hear voice responses" : "Voice responses are now muted",
+      description: isMuted ? "You can now hear Sakha AI responses" : "Sakha AI voice responses are now muted",
     });
   };
   
@@ -68,7 +68,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
     
     if (!isListening) {
       toast({
-        title: "Listening...",
+        title: "Sakha AI Listening...",
         description: "Say something like 'Show me my study plan'",
       });
       
@@ -95,7 +95,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Open Voice Assistant</p>
+            <p>Open Sakha AI Voice Assistant</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -104,9 +104,9 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerContent className="max-w-md mx-auto">
           <DrawerHeader>
-            <DrawerTitle className="text-xl font-bold">Voice Assistant</DrawerTitle>
+            <DrawerTitle className="text-xl font-bold">Sakha AI Voice Assistant</DrawerTitle>
             <DrawerDescription>
-              Control your voice assistant settings and interactions.
+              PREPZR's core AI engine to help you crack your exams.
             </DrawerDescription>
           </DrawerHeader>
           
@@ -227,7 +227,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({ userNam
             
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Voice Commands</CardTitle>
+                <CardTitle className="text-sm">Sakha AI Voice Commands</CardTitle>
                 <CardDescription>Try saying these phrases:</CardDescription>
               </CardHeader>
               <CardContent>

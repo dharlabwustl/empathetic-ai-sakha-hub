@@ -44,9 +44,9 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
     // Simulate AI response after delay
     setTimeout(() => {
       const responses = {
-        'student': 'I can help you with your studies! What subject are you working on?',
-        'employee': 'How can I assist with your work today?',
-        'default': 'How can I assist you today?'
+        'student': "I'm Sakha AI, PREPZR's core AI engine. I can help you with your studies! What subject are you working on?",
+        'employee': "I'm Sakha AI. How can I assist with your work today?",
+        'default': "I'm Sakha AI. How can I assist you today?"
       };
       
       const responseText = responses[userType as keyof typeof responses] || responses.default;
@@ -107,7 +107,7 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
                   <PrepzrLogo width={32} height={32} />
                 </div>
                 <div className="font-semibold text-lg bg-gradient-to-r from-sky-500 to-violet-500 text-transparent bg-clip-text">
-                  PREPZR Assistant
+                  Sakha AI Assistant
                 </div>
               </div>
               
@@ -136,9 +136,9 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
                   {messages.length === 0 && (
                     <div className="text-center py-8 px-4">
                       <Headphones className="h-12 w-12 mx-auto text-sky-500 mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">PREPZR Assistant</h3>
+                      <h3 className="font-semibold text-lg mb-2">Sakha AI - PREPZR's Core AI Engine</h3>
                       <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-                        I'm your personal AI assistant for learning. Ask me anything about your studies!
+                        I'm your personal AI assistant for learning. I'll help you crack your exams! Ask me anything about your studies.
                       </p>
                       <div className="grid grid-cols-2 gap-2">
                         <Button
@@ -178,7 +178,7 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
                   {loading && (
                     <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                       <Loader className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">PREPZR is thinking...</span>
+                      <span className="text-sm">Sakha AI is thinking...</span>
                     </div>
                   )}
                   
@@ -195,7 +195,7 @@ const ChatAssistant = ({ userType = 'student', initialPrompt = '' }: ChatAssista
                     className="flex gap-2"
                   >
                     <Textarea
-                      placeholder="Ask PREPZR anything..."
+                      placeholder="Ask Sakha AI anything..."
                       className="min-h-[40px] max-h-[120px] resize-none"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
