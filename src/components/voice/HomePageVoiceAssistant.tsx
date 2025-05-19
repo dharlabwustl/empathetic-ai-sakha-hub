@@ -22,7 +22,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
                             location.pathname.includes('/free-trial') ||
                             location.pathname.includes('/exam-readiness');
   
-  // Get context-aware message based on page, now with UN sustainability goal message
+  // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
       return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
@@ -38,7 +38,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   };
   
   useEffect(() => {
-    // Check if greeting has already been played in this session for this page
+    // Create a unique identifier for this page visit to prevent repetition
     const sessionKey = `voiceGreeting_${location.pathname}`;
     const hasBeenPlayed = sessionStorage.getItem(sessionKey) === 'true';
     
@@ -66,27 +66,42 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a clear, vibrant voice - preferring Indian English voices for en-IN
+          // Try to find a clear, vibrant female voice
           const preferredVoiceNames = language === 'en-IN' 
-            ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India']
-            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
+            ? ['Google India Female', 'Microsoft Kajal', 'en-IN', 'English India Female', 'India Female']
+            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Victoria', 'en-US Female', 'en-GB Female'];
           
           // Try to find a preferred voice
           let selectedVoice = null;
           for (const name of preferredVoiceNames) {
             const voice = voices.find(v => 
-              v.name?.toLowerCase().includes(name.toLowerCase()) || 
-              v.lang?.toLowerCase().includes(name.toLowerCase())
+              (v.name?.toLowerCase().includes(name.toLowerCase()) || 
+              v.lang?.toLowerCase().includes(name.toLowerCase())) &&
+              !v.name?.toLowerCase().includes('male')
             );
             if (voice) {
               selectedVoice = voice;
+              console.log("Selected voice:", voice.name);
               break;
+            }
+          }
+          
+          // If no preferred voice found, try to find any female voice
+          if (!selectedVoice) {
+            const femaleVoice = voices.find(v => 
+              v.name?.toLowerCase().includes('female') ||
+              !v.name?.toLowerCase().includes('male')
+            );
+            if (femaleVoice) {
+              selectedVoice = femaleVoice;
+              console.log("Selected female voice:", femaleVoice.name);
             }
           }
           
           // If still no voice selected, use any available voice
           if (!selectedVoice && voices.length > 0) {
             selectedVoice = voices[0];
+            console.log("Defaulted to voice:", voices[0].name);
           }
           
           // Set the selected voice if found

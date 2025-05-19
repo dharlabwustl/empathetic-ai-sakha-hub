@@ -24,12 +24,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   
   useEffect(() => {
     // Check if greeting has already been played in this session
-    const hasBeenPlayed = sessionStorage.getItem('welcomeGreetingPlayed') === 'true';
+    const sessionKey = 'welcomeGreeting_dashboard';
+    const hasBeenPlayed = sessionStorage.getItem(sessionKey) === 'true';
     
     // Only play greeting if this is a first-time user and greeting hasn't been played yet
     if (!greetingPlayed && !hasBeenPlayed && isFirstTimeUser && 'speechSynthesis' in window) {
       // Set session storage flag to prevent repeated playback
-      sessionStorage.setItem('welcomeGreetingPlayed', 'true');
+      sessionStorage.setItem(sessionKey, 'true');
       
       // Use a timeout to ensure the component is fully mounted
       const timer = setTimeout(() => {
@@ -73,27 +74,42 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Try to find a vibrant, clear voice
+          // Try to find a vibrant, clear female voice
           const preferredVoiceNames = language === 'en-IN' 
-            ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India'] 
-            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
+            ? ['Google India Female', 'Microsoft Kajal', 'en-IN Female', 'English India Female', 'India Female']
+            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Victoria', 'en-US Female', 'en-GB Female'];
           
           // Find best matching voice
           let selectedVoice = null;
           for (const name of preferredVoiceNames) {
             const voice = voices.find(v => 
-              v.name?.toLowerCase().includes(name.toLowerCase()) || 
-              v.lang?.toLowerCase().includes(name.toLowerCase())
+              (v.name?.toLowerCase().includes(name.toLowerCase()) || 
+              v.lang?.toLowerCase().includes(name.toLowerCase())) && 
+              !v.name?.toLowerCase().includes('male')
             );
             if (voice) {
               selectedVoice = voice;
+              console.log("Selected voice:", voice.name);
               break;
+            }
+          }
+          
+          // If no preferred voice found, try to find any female voice
+          if (!selectedVoice) {
+            const femaleVoice = voices.find(v => 
+              v.name?.toLowerCase().includes('female') ||
+              !v.name?.toLowerCase().includes('male')
+            );
+            if (femaleVoice) {
+              selectedVoice = femaleVoice;
+              console.log("Selected female voice:", femaleVoice.name);
             }
           }
           
           // If still no voice selected, use any available voice
           if (!selectedVoice && voices.length > 0) {
             selectedVoice = voices[0];
+            console.log("Defaulted to voice:", voices[0].name);
           }
           
           // Set the selected voice if found
@@ -106,6 +122,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           speech.onend = () => {
             setGreetingPlayed(true);
             console.log("Voice greeting completed");
+            
+            // Additional check to ensure voice doesn't play again in this session
+            sessionStorage.setItem(sessionKey, 'true');
           };
           speech.onerror = (e) => {
             console.error("Speech synthesis error", e);
