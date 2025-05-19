@@ -17,7 +17,28 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioPlayed, setAudioPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
+  const [userEngagement, setUserEngagement] = useState<'new'|'returning'|'active'>('new');
   const location = useLocation();
+  
+  // Detect user engagement level based on localStorage history
+  useEffect(() => {
+    const loginCount = parseInt(localStorage.getItem('login_count') || '0', 10);
+    const lastLoginDate = localStorage.getItem('last_login_date');
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Update login metrics
+    localStorage.setItem('last_login_date', today);
+    localStorage.setItem('login_count', (loginCount + 1).toString());
+    
+    // Determine engagement level
+    if (loginCount === 0) {
+      setUserEngagement('new');
+    } else if (lastLoginDate === today) {
+      setUserEngagement('active');
+    } else {
+      setUserEngagement('returning');
+    }
+  }, []);
   
   useEffect(() => {
     // Check if the greeting has been played already in this session
@@ -32,8 +53,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           setTimeout(() => {
             setAudioPlaying(true);
             
-            // Context-aware greeting based on the current page
-            let welcomeText = getContextAwareGreeting(currentPath, userName, language);
+            // Context-aware greeting based on the current page and user engagement
+            let welcomeText = getContextAwareGreeting(currentPath, userName, language, userEngagement);
             
             // Create speech synthesis utterance
             const speech = createSpeechUtterance(welcomeText, language);
@@ -71,10 +92,15 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, userEngagement]);
   
-  // Generate context-aware greeting based on current page
-  const getContextAwareGreeting = (path: string, name: string, lang: string): string => {
+  // Generate context-aware greeting based on current page, user engagement level
+  const getContextAwareGreeting = (
+    path: string, 
+    name: string, 
+    lang: string,
+    engagement: string
+  ): string => {
     // Only explain pronunciation once per user session
     const isPronunciationNeeded = sessionStorage.getItem('explainedPronunciation') !== 'true';
     
@@ -87,30 +113,46 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     const pronunciationExplanation = isPronunciationNeeded ? 
       ' Prep-zer is pronounced as "prep" like in preparation and "zer" like in laser. ' : '';
     
-    if (lang === 'en') {
-      if (path.includes('/dashboard/student/today')) {
-        return `Hello ${name}! Welcome to your daily study plan.${pronunciationExplanation} Here you'll find tasks and concepts scheduled for today. Focus on completing these to stay on track with your exam preparation.`;
-      } else if (path.includes('/dashboard/student/concepts')) {
-        return `Welcome to the concepts section, ${name}!${pronunciationExplanation} Here you can explore and master the topics you need to learn. Each concept card contains detailed explanations, practice questions, and related resources.`;
-      } else if (path.includes('/dashboard/student/flashcards')) {
-        return `Welcome to flashcards, ${name}!${pronunciationExplanation} This section helps you memorize key information through spaced repetition. Regular practice with these cards will strengthen your recall during exams.`;
-      } else if (path.includes('/dashboard/student/practice-exam')) {
-        return `Welcome to practice exams, ${name}!${pronunciationExplanation} Taking these tests under timed conditions will help you prepare for the real exam environment and identify areas that need improvement.`;
-      } else if (path.includes('/dashboard/student/analytics')) {
-        return `Welcome to your analytics dashboard, ${name}!${pronunciationExplanation} Here you can track your progress and identify strengths and weaknesses in your exam preparation journey.`;
-      } else {
-        // Default dashboard greeting
-        return `Welcome to your personalized dashboard, ${name}!${pronunciationExplanation} I'm your AI tutor and I'll help you prepare for your exams efficiently. You can track your progress, access your study materials, and get personalized recommendations here.`;
-      }
-    } else if (lang === 'hi') {
-      // Hindi greetings (simplified for now)
-      return `नमस्ते ${name}! प्रेप-ज़र में आपका स्वागत है। मैं आपका AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
+    // Determine time of day for more personalized greeting
+    const hour = new Date().getHours();
+    let timeGreeting = 'Hello';
+    if (hour < 12) timeGreeting = 'Good morning';
+    else if (hour < 17) timeGreeting = 'Good afternoon';
+    else timeGreeting = 'Good evening';
+    
+    // Add engagement-specific greeting
+    let engagementGreeting = '';
+    if (engagement === 'returning') {
+      engagementGreeting = "Welcome back! It's great to see you again. ";
+    } else if (engagement === 'active') {
+      engagementGreeting = "You're being consistent with your studies. That's excellent! ";
     }
     
-    return `Welcome to Prep-zer, ${name}!`;
+    if (lang === 'en') {
+      if (path.includes('/dashboard/student/today')) {
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your daily study plan.${pronunciationExplanation} I've personalized today's tasks based on your learning patterns and upcoming exams. Focus on completing these to stay on track with your exam preparation.`;
+      } else if (path.includes('/dashboard/student/concepts')) {
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to the concepts section.${pronunciationExplanation} I've highlighted concepts that need your attention today based on your performance data and exam proximity. Each concept card adapts to your learning style.`;
+      } else if (path.includes('/dashboard/student/flashcards')) {
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your personalized flashcards.${pronunciationExplanation} I've prioritized these cards based on your memory patterns and upcoming exams. Regular practice with these cards will strengthen your recall during exams.`;
+      } else if (path.includes('/dashboard/student/practice-exam')) {
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to practice exams.${pronunciationExplanation} I've prepared adaptive tests that focus on your weak areas while building confidence in your strong topics. This balanced approach will maximize your exam readiness.`;
+      } else if (path.includes('/dashboard/student/analytics')) {
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your analytics dashboard.${pronunciationExplanation} I'm constantly analyzing your learning patterns and progress. Today, I've identified key areas where focused effort will give you maximum improvement.`;
+      } else {
+        // Default dashboard greeting with engagement awareness
+        return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to your emotionally intelligent dashboard.${pronunciationExplanation} I'm your AI learning companion, and I adapt to your mood, learning style, and surroundings. Today's recommendations are personalized to help you achieve optimal study results.`;
+      }
+    } else if (lang === 'hi') {
+      // Hindi greetings with time-awareness (simplified)
+      const hindiTimeGreeting = hour < 12 ? 'सुप्रभात' : (hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या');
+      return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। मैं आपका भावनात्मक रूप से बुद्धिमान AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
+    }
+    
+    return `${timeGreeting} ${name}! Welcome to Prep-zer!`;
   };
   
-  // Create a properly configured speech utterance
+  // Create a properly configured speech utterance with enhanced emotional intonation
   const createSpeechUtterance = (text: string, lang: string) => {
     // Get available voices
     const voices = window.speechSynthesis.getVoices();
@@ -118,7 +160,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     // Create speech synthesis utterance
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = lang === 'en' ? 'en-IN' : 'hi-IN';
-    speech.rate = 0.95; // Slightly slower for clarity
+    speech.rate = 0.93; // Slightly slower for clarity
     speech.volume = 0.85;
     speech.pitch = 1.05; // Slightly higher for a more pleasant tone
     

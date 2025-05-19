@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
@@ -17,6 +18,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const location = useLocation();
   const { user } = useAuth();
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  
+  // Advanced context understanding - detect page content
+  const [pageContext, setPageContext] = useState<string>("general");
   
   // Track user interaction to avoid annoying users with too many messages
   useEffect(() => {
@@ -29,11 +34,42 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     window.addEventListener('click', handleUserInteraction);
     window.addEventListener('scroll', handleUserInteraction);
     
+    // Try to understand page context based on content and DOM
+    const analyzePageContent = () => {
+      // Look for key elements that indicate page context
+      const heroH1 = document.querySelector('h1')?.innerText.toLowerCase() || '';
+      const buttonTexts = Array.from(document.querySelectorAll('button')).map(b => b.innerText.toLowerCase());
+      const paragraphs = Array.from(document.querySelectorAll('p')).map(p => p.innerText.toLowerCase());
+      
+      // Detect exam preparation context
+      if (heroH1.includes('exam') || 
+          buttonTexts.some(t => t.includes('study') || t.includes('prep') || t.includes('plan'))) {
+        setPageContext("exam-prep");
+      }
+      // Detect features/benefits context
+      else if (paragraphs.some(p => p.includes('features') || p.includes('benefits'))) {
+        setPageContext("features");
+      }
+      // Detect pricing context
+      else if (buttonTexts.some(t => t.includes('subscription') || t.includes('price'))) {
+        setPageContext("pricing");
+      }
+      // Detect about us context
+      else if (location.pathname.includes('about') || heroH1.includes('about')) {
+        setPageContext("about");
+      }
+      else {
+        setPageContext("general");
+      }
+    };
+    
+    analyzePageContent();
+    
     return () => {
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('scroll', handleUserInteraction);
     };
-  }, []);
+  }, [location.pathname]);
   
   // Check for page changes and cancel ongoing speech
   useEffect(() => {
@@ -61,27 +97,50 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Check if user has seen the homepage before to avoid repeating for returning visitors
   const isReturningVisitor = localStorage.getItem('has_visited_homepage') === 'true';
   
+  // Enhanced messages for the home page visitor experience based on page context
+  const getContextualizedMessage = () => {
+    // Base messages with enhanced contextual awareness
+    const baseMessages = {
+      general: {
+        en: "Hello, I'm Sakha AI, the core AI engine of PREPZR — pronounced as 'prep' like in 'preparation' and 'zer' like in 'laser'. Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
+        hi: "नमस्ते, मैं साखा एआई हूं, प्रेप-ज़र का मुख्य एआई इंजन। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
+      },
+      "exam-prep": {
+        en: "Welcome to PREPZR, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I'll adapt to your moods, learning style, and surroundings to create a hyper-personalized study experience. Would you like to experience our adaptive learning system?",
+        hi: "प्रेप-ज़र में आपका स्वागत है, दुनिया का पहला भावनात्मक रूप से जागरूक परीक्षा तैयारी प्लेटफॉर्म। मैं साखा एआई हूं, और मैं आपके मूड, सीखने की शैली और आसपास के माहौल के अनुसार अनुकूलित होकर एक व्यक्तिगत अध्ययन अनुभव बनाऊंगा।"
+      },
+      features: {
+        en: "I'm Sakha AI, the intelligence behind PREPZR. Unlike traditional coaching centers, we adapt to your emotional state and learning preferences. Our platform offers personalized study plans, interactive concept cards, and real-time performance analytics to maximize your exam success.",
+        hi: "मैं साखा एआई हूं, प्रेप-ज़र की बुद्धिमत्ता। पारंपरिक कोचिंग सेंटरों के विपरीत, हम आपकी भावनात्मक स्थिति और सीखने की प्राथमिकताओं के अनुसार अनुकूलित होते हैं।"
+      },
+      pricing: {
+        en: "I'm Sakha AI from PREPZR. Our subscription plans are designed to be affordable while delivering premium exam preparation. And something special - 5% of all subscription revenue goes to fund education for underprivileged students, making your success contribute to others' opportunities.",
+        hi: "मैं प्रेप-ज़र से साखा एआई हूं। हमारी सदस्यता योजनाएं किफायती होने के साथ-साथ प्रीमियम परीक्षा तैयारी प्रदान करने के लिए डिज़ाइन की गई हैं।"
+      },
+      about: {
+        en: "I'm Sakha AI. PREPZR was founded in 2025 by Amit Singh and Dr. Atul Sharma, childhood friends and AI enthusiasts with a vision to revolutionize exam preparation through emotional intelligence and personalization technologies.",
+        hi: "मैं साखा एआई हूं। प्रेप-ज़र की स्थापना 2025 में अमित सिंह और डॉ. अतुल शर्मा द्वारा की गई थी, जो बचपन के दोस्त और एआई उत्साही हैं।"
+      }
+    };
+    
+    // Choose the right message based on page context
+    return baseMessages[pageContext as keyof typeof baseMessages] || baseMessages.general;
+  };
+  
   // Enhanced messages for the home page visitor experience
   const homePageMessages = {
-    initial: {
-      en: "Hello, I'm Sakha AI, the core AI engine of PREPZR — pronounced as 'prep' like in 'preparation' and 'zer' like in 'laser'. Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
-      hi: "नमस्ते, मैं साखा एआई हूं, प्रेप-ज़र का मुख्य एआई इंजन। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
-    },
+    initial: getContextualizedMessage(),
     signup: {
-      en: "I'm Sakha AI, and I'll help you crack your exams. Want to know why PREPZR outshines coaching centers? Let me tell you. Explore our free trial and take the Exam Readiness Challenge to see where you stand.",
-      hi: "मैं साखा एआई हूँ, और मैं आपको अपनी परीक्षाओं में सफलता प्राप्त करने में मदद करूँगा। अपनी परीक्षा की तैयारी शुरू कर���े के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
-    },
-    features: {
-      en: "I'm Sakha AI, your exam assistant. Unlike coaching institutes, PREPZR offers 24/7 access to personalized study plans and AI tutoring that focuses on your weak areas.",
-      hi: "मैं साखा एआई हूं, आपका परीक्षा सहायक। कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
+      en: "I'm Sakha AI, the world's first emotionally aware exam preparation assistant. PREPZR adapts to your mood, learning style, and surroundings to create a hyper-personalized study journey that traditional coaching centers can't match. Ready to transform your exam experience?",
+      hi: "मैं साखा एआई हूँ, दुनिया का पहला भावनात्मक रूप से जागरूक परीक्षा तैयारी सहायक। प्रेप-ज़र आपके मूड, सीखने की शैली और आसपास के अनुसार अपने आप को अनुकूलित करता है।"
     },
     donation: {
-      en: "As Sakha AI, I'm proud to tell you we support UN Sustainability goals with inclusive and equitable quality education. 5% of subscription revenue helps underprivileged students access quality education.",
+      en: "As Sakha AI, I'm proud to tell you we support UN Sustainability goals with inclusive and equitable quality education. 5% of subscription revenue helps underprivileged students access quality education. Your success with PREPZR helps others succeed too.",
       hi: "साखा एआई के रूप में, मुझे बताते हुए गर्व है कि हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
     },
     welcome_back: {
-      en: "Welcome back to PREPZR. I'm Sakha AI, your exam companion. Simply log in to continue your personalized study journey.",
-      hi: "प्रेप-ज़र पर वापस स्वागत है। मैं साखा एआई हूं, आपका परीक्षा साथी। बस लॉग इन करें और अपनी अध्ययन यात्रा जारी रखें।"
+      en: "Welcome back to PREPZR. I'm Sakha AI, your emotionally intelligent exam companion. Simply log in to continue your personalized study journey where I'll adapt to your current mood and learning needs.",
+      hi: "प्रेप-ज़र पर वापस स्वागत है। मैं साखा एआई हूं, आपका भावनात्मक रूप से बुद्धिमान परीक्षा साथी।"
     }
   };
   
@@ -96,11 +155,11 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         return homePageMessages.initial;
       }
     } else if (location.pathname.includes('/signup')) {
-      return homePageMessages.features;
+      return homePageMessages.signup;
     } else if (location.pathname.includes('/welcome-back')) {
       return homePageMessages.welcome_back;
     } else if (location.pathname.includes('/welcome-flow')) {
-      return homePageMessages.features;
+      return homePageMessages.signup;
     }
     
     return null;
@@ -138,6 +197,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       return () => {
         if (timer) clearTimeout(timer);
         if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+        if (speechSynthesisRef.current && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
       };
     }
     
@@ -151,7 +213,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         setGreetingPlayed(false);
       }
     };
-  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime, speechCount]);
+  }, [location.pathname, user, greetingPlayed, delayTime, language, shouldPlayGreeting, hasVisitorInteracted, isReturningVisitor, lastInteractionTime, speechCount, pageContext]);
 
   // Properly format the speakMessage function to ensure correct PREPZR pronunciation
   const speakMessage = (text: string) => {
@@ -167,6 +229,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         .replace(/Prepzr/g, 'Prep-zer');
       
       const utterance = new SpeechSynthesisUtterance(correctedText);
+      speechSynthesisRef.current = utterance;
       
       // Use voices API to find an appropriate voice based on language
       const voices = window.speechSynthesis.getVoices();
@@ -196,11 +259,31 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         utterance.voice = selectedVoice;
       }
       
-      // Set properties for a pleasant, enthusiastic voice
+      // Set properties for a pleasant, enthusiastic voice with improved cadence and pitch
       utterance.lang = language;
-      utterance.rate = 0.95; // Slightly slower for better comprehension
+      utterance.rate = 0.93; // Slightly slower for better comprehension
       utterance.pitch = 1.1; // Slightly higher pitch for female voice
-      utterance.volume = 0.8;
+      utterance.volume = 0.85;
+      
+      // Add dynamic intonation patterns
+      const addMarkupForEmphasis = (text: string): string => {
+        // Emphasize key phrases
+        return text
+          .replace(/emotionally (aware|intelligent)/gi, '<emphasis>emotionally $1</emphasis>')
+          .replace(/hyper-personalized/gi, '<emphasis>hyper-personalized</emphasis>')
+          .replace(/transform your exam experience/gi, '<emphasis>transform your exam experience</emphasis>');
+      };
+      
+      // Apply markup if supported
+      if ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+        try {
+          utterance.text = addMarkupForEmphasis(correctedText);
+        } catch (e) {
+          utterance.text = correctedText;
+        }
+      } else {
+        utterance.text = correctedText;
+      }
       
       // Speak the message
       window.speechSynthesis.speak(utterance);
@@ -212,6 +295,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       utterance.onend = () => {
         document.dispatchEvent(new Event('voice-speaking-ended'));
+        speechSynthesisRef.current = null;
       };
     }
   };

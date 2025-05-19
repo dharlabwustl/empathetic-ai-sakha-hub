@@ -1,8 +1,8 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, GraduationCap, BookOpen, Trophy, Star, Lightbulb, Heart, Brain } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 const CallToAction = () => {
   const stats = [
@@ -57,8 +57,46 @@ const CallToAction = () => {
     })
   };
 
+  // Enhanced voice interaction - Play informational audio when component mounts
+  useEffect(() => {
+    // This custom event will be picked up by the HomePageVoiceAssistant
+    const triggerVoiceInfo = () => {
+      const voiceEvent = new CustomEvent('voice-announce', {
+        detail: {
+          message: "PREPZR's emotionally intelligent platform adapts to your learning style and mood, helping you achieve your exam goals with personalized, AI-driven preparation techniques."
+        }
+      });
+      document.dispatchEvent(voiceEvent);
+    };
+
+    // Add scroll listener to activate voice when this section is visible
+    const handleScroll = () => {
+      const element = document.getElementById('cta-section');
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        // If element is in viewport and hasn't spoken yet
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          // Only trigger voice if user hasn't heard it yet in this session
+          if (sessionStorage.getItem('cta-voice-played') !== 'true') {
+            triggerVoiceInfo();
+            // Mark as played to avoid repetition
+            sessionStorage.setItem('cta-voice-played', 'true');
+            window.removeEventListener('scroll', handleScroll);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section id="cta-section" className="py-20 relative overflow-hidden">
       {/* Background gradient with animation */}
       <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 overflow-hidden">
         <motion.div

@@ -73,6 +73,7 @@ const adminAuthService = {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin_logged_in");
+    localStorage.removeItem("admin_login_attempt");
     
     // Dispatch event to notify components about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
