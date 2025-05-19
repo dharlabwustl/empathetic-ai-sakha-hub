@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Brain, Award } from "lucide-react";
+import { ArrowRight, Brain, Target, Sparkles } from "lucide-react";
 import StudentAvatarJourney from '@/components/animations/StudentAvatarJourney';
 
 const HeroSection = () => {
@@ -18,119 +18,138 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-background to-background/80 pt-16 md:pt-24 pb-16">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-primary/5 to-transparent" />
-      <div className="absolute top-1/3 -translate-y-1/2 left-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute top-1/2 -translate-y-1/2 right-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-blue-500/10 rounded-full blur-3xl" />
-      
-      <div className="relative container px-4 mx-auto">
-        <div className="max-w-3xl mx-auto mb-16 text-center">
+    <section className="relative overflow-hidden pt-20 pb-16">
+      {/* Creative background elements */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-violet-50/50 dark:from-indigo-950/20 dark:to-violet-950/20" />
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute top-[20%] left-[20%] w-64 h-64 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl" />
+        <div className="absolute top-[50%] right-[20%] w-72 h-72 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-3xl" />
+        
+        {/* Decorative geometric shapes */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 0.4, scale: 1 }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute top-24 right-[15%] w-20 h-20 border-2 border-indigo-300/30 dark:border-indigo-400/20 rounded-xl rotate-12"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 0.4, scale: 1 }}
+          transition={{ duration: 2.5, delay: 0.3, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute bottom-24 left-[15%] w-16 h-16 border-2 border-purple-300/30 dark:border-purple-400/20 rounded-full"
+        />
+        <motion.div 
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: 0.5, rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[40%] left-[10%] w-24 h-24 border-4 border-dashed border-blue-300/20 dark:border-blue-400/10 rounded-full"
+        />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
+          {/* Left content column */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-5"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            className="flex-1"
           >
-            <span className="inline-block py-1 px-3 mb-4 text-xs font-medium text-primary bg-primary/10 rounded-full">
-              Supporting UN Sustainability Goal 4: Quality Education
-            </span>
+            {/* Sustainability badge */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-300 rounded-full"
+            >
+              <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+              <span className="text-xs font-medium">Supporting UN Sustainability Goal 4</span>
+            </motion.div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 mb-6">
+            {/* Main heading */}
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 leading-tight"
+            >
               We understand your mindset, not just the Exam
-            </h1>
+            </motion.h1>
             
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              PREPZR adapts to your learning style, builds personalized paths for any exam, and uses AI to detect your mood for optimized learning.
-            </p>
+            {/* Supporting text */}
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-2xl"
+            >
+              PREP-zer goes beyond traditional exam prep by adapting to your emotional state, 
+              learning style, and personal circumstances to create a truly personalized learning experience.
+            </motion.p>
+            
+            {/* CTA buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <Button 
+                onClick={handleGetStarted}
+                size="lg" 
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              >
+                7 Days Free Trial
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              
+              <Button 
+                onClick={handleExamReadiness}
+                variant="outline"
+                size="lg"
+                className="border-indigo-200 dark:border-indigo-800 hover:border-indigo-300 dark:hover:border-indigo-700"
+              >
+                Test Your Exam Readiness
+              </Button>
+            </motion.div>
+            
+            {/* Feature highlights */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl"
+            >
+              {[
+                { icon: <Brain className="h-5 w-5" />, text: "Mood-adaptive learning" },
+                { icon: <Target className="h-5 w-5" />, text: "Personalized path" },
+                { icon: <Sparkles className="h-5 w-5" />, text: "32% better results" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    {item.icon}
+                  </div>
+                  <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{item.text}</span>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
           
+          {/* Right content column - Avatar journey */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="flex-1 w-full lg:max-w-[600px]"
           >
-            <Button 
-              onClick={handleGetStarted}
-              size="lg" 
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
-            >
-              7 Days Free Trial
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            
-            <Button 
-              onClick={handleExamReadiness}
-              variant="outline"
-              size="lg"
-              className="border-primary/20 hover:border-primary/40"
-            >
-              Test Your Exam Readiness
-            </Button>
-          </motion.div>
-        </div>
-        
-        {/* 3D Animated Student Journey */}
-        <div className="mb-16">
-          <div className="rounded-xl overflow-hidden bg-gradient-to-b from-background to-gray-50 dark:to-gray-900/50 border border-gray-100 dark:border-gray-800 shadow-lg">
-            <div className="p-4 md:p-8">
-              <h2 className="text-2xl font-bold text-center mb-8">Student Learning Journey Animation</h2>
-              
-              <div className="relative h-[400px] md:h-[500px]">
-                <StudentAvatarJourney />
+            <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden backdrop-blur-sm">
+              <div className="p-1 md:p-2">
+                {/* Hero visualization */}
+                <div className="rounded-xl overflow-hidden bg-gradient-to-b from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 h-[400px] md:h-[500px]">
+                  <StudentAvatarJourney />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center rounded-lg mb-4">
-              <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Personalized Learning</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              AI that adapts to your unique learning style and creates a personalized study plan.
-            </p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center rounded-lg mb-4">
-              <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Mood-Adaptive</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Our AI detects your mood and adjusts your study materials for optimal learning efficiency.
-            </p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 flex items-center justify-center rounded-lg mb-4">
-              <Award className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Proven Results</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Our students achieve 32% better results using our emotionally intelligent exam preparation.
-            </p>
           </motion.div>
         </div>
       </div>

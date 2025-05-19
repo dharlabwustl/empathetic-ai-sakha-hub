@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import StudentAvatarJourney from '@/components/animations/StudentAvatarJourney';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Brain, Target, Sparkles } from 'lucide-react';
 
 const Hero3DSection = () => {
   const navigate = useNavigate();
@@ -18,131 +18,157 @@ const Hero3DSection = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-background/90 pt-24 pb-16">
-      {/* Background gradient effects */}
-      <div className="absolute inset-0 bg-gradient-radial from-primary/5 to-transparent"></div>
-      <div className="absolute top-1/3 -translate-y-1/2 left-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/2 -translate-y-1/2 right-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-blue-500/10 rounded-full blur-3xl"></div>
-      
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto mb-16 text-center">
-          <motion.div
+    <section className="relative overflow-hidden pt-24 pb-16">
+      {/* Creative background elements */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-violet-50/50 dark:from-indigo-950/20 dark:to-violet-950/20" />
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute top-[20%] left-[20%] w-64 h-64 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl" />
+        <div className="absolute top-[50%] right-[20%] w-72 h-72 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-3xl" />
+        
+        {/* Decorative geometric shapes */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 0.4, scale: 1 }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute top-24 right-[15%] w-20 h-20 border-2 border-indigo-300/30 dark:border-indigo-400/20 rounded-xl rotate-12"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 0.4, scale: 1 }}
+          transition={{ duration: 2.5, delay: 0.3, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute bottom-24 left-[15%] w-16 h-16 border-2 border-purple-300/30 dark:border-purple-400/20 rounded-full"
+        />
+        <motion.div 
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: 0.5, rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[40%] left-[10%] w-24 h-24 border-4 border-dashed border-blue-300/20 dark:border-blue-400/10 rounded-full"
+        />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          {/* Left content column */}
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-6"
+            transition={{ duration: 0.7 }}
+            className="flex-1 text-center lg:text-left"
           >
-            <span className="inline-block py-1 px-3 mb-4 text-xs font-medium text-primary bg-primary/10 rounded-full">
-              Supporting UN Sustainability Goal 4: Quality Education
-            </span>
+            {/* Sustainability badge */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-300 rounded-full"
+            >
+              <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+              <span className="text-xs font-medium">Supporting UN Sustainability Goal 4</span>
+            </motion.div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 mb-6">
+            {/* Main heading */}
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 leading-tight"
+            >
               We understand your mindset, not just the Exam
-            </h1>
+            </motion.h1>
             
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              PREP-zer adapts to your learning style, builds personalized paths for any exam, and uses AI to detect your mood for optimized learning.
-            </p>
+            {/* Supporting text */}
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="text-lg text-slate-600 dark:text-slate-300 mb-8 mx-auto lg:mx-0 max-w-2xl"
+            >
+              PREP-zer goes beyond traditional exam prep by adapting to your emotional state, 
+              learning style, and personal circumstances to create a truly personalized learning experience.
+            </motion.p>
+            
+            {/* CTA buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4"
+            >
+              <Button 
+                onClick={handleGetStarted}
+                size="lg" 
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              >
+                7 Days Free Trial
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              
+              <Button 
+                onClick={handleExamReadiness}
+                variant="outline"
+                size="lg"
+                className="border-indigo-200 dark:border-indigo-800 hover:border-indigo-300 dark:hover:border-indigo-700"
+              >
+                Test Your Exam Readiness
+              </Button>
+            </motion.div>
           </motion.div>
           
-          <motion.div
+          {/* Right content column - Avatar journey */}
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex-1 w-full lg:max-w-[600px]"
           >
-            <Button 
-              onClick={handleGetStarted}
-              size="lg" 
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
-            >
-              7 Days Free Trial
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            
-            <Button 
-              onClick={handleExamReadiness}
-              variant="outline"
-              size="lg"
-              className="border-primary/20 hover:border-primary/40"
-            >
-              Test Your Exam Readiness
-            </Button>
+            <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden backdrop-blur-sm transform lg:rotate-1">
+              <div className="p-1 md:p-2">
+                {/* Hero visualization */}
+                <div className="rounded-xl overflow-hidden bg-gradient-to-b from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 h-[400px] md:h-[500px]">
+                  <StudentAvatarJourney />
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
         
-        {/* 3D Animated Student Journey */}
-        <div className="mb-16">
-          <div className="rounded-xl overflow-hidden bg-gradient-to-b from-background to-gray-50 dark:to-gray-900/50 border border-gray-100 dark:border-gray-800 shadow-lg">
-            <div className="p-4 md:p-8">
-              <div className="relative h-[400px] md:h-[500px]">
-                <StudentAvatarJourney />
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Feature Highlights */}
+        {/* Feature highlights */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-16"
+          transition={{ duration: 0.7, delay: 0.7 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto"
         >
-          {/* Personalized Learning Feature */}
-          <motion.div
-            whileHover={{ y: -5, scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center rounded-lg mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Personalized Learning</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              AI that adapts to your unique learning style and creates a personalized study plan.
-            </p>
-          </motion.div>
-          
-          {/* Mood-Adaptive Feature */}
-          <motion.div
-            whileHover={{ y: -5, scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center rounded-lg mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600 dark:text-purple-400">
-                <path d="M2 9.5V4a2 2 0 0 1 2-2h4.586a1 1 0 0 1 .707.293l.707.707a1 1 0 0 0 .707.293H20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.5"></path>
-                <path d="M2 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
-                <path d="M6 13h4"></path>
-                <path d="M17 12v5"></path>
-                <path d="M14 15h6"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Mood-Adaptive</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Our AI detects your mood and adjusts your study materials for optimal learning efficiency.
-            </p>
-          </motion.div>
-          
-          {/* Proven Results Feature */}
-          <motion.div
-            whileHover={{ y: -5, scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
-          >
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 flex items-center justify-center rounded-lg mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-green-400">
-                <path d="M18 8a6 6 0 0 1-7.743 5.743L10 14l-1 1 1 1H6v-4l1 1 .257-.257A6 6 0 1 1 18 8Z"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Proven Results</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Our students achieve 32% better results using our emotionally intelligent exam preparation.
-            </p>
-          </motion.div>
+          {[
+            {
+              icon: <Brain className="h-6 w-6 text-indigo-500" />,
+              title: "Mood-Adaptive Learning",
+              description: "Our AI detects your mood and adjusts study materials for optimal learning efficiency."
+            },
+            {
+              icon: <Target className="h-6 w-6 text-purple-500" />,
+              title: "Personalized Path",
+              description: "Customized learning journeys adapted to your unique learning style and pace."
+            },
+            {
+              icon: <Sparkles className="h-6 w-6 text-pink-500" />,
+              title: "Proven Results",
+              description: "Students achieve 32% better results using our emotionally intelligent exam preparation."
+            }
+          ].map((feature, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ y: -5, scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white dark:bg-gray-800/50 p-6 rounded-xl shadow-md border border-gray-100 dark:border-gray-700/50 backdrop-blur-sm"
+            >
+              <div className="w-12 h-12 mb-4 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{feature.description}</p>
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>

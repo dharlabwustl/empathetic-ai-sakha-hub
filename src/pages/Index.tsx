@@ -70,7 +70,7 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced 3D hero section with voice interaction */}
+        {/* Enhanced 3D hero section with updated design */}
         <Hero3DSection />
         
         {/* Smart Data section with animation and KPI stats */}
