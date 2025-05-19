@@ -1,30 +1,42 @@
-import React, { useRef, useState, useEffect } from 'react';
+
+import React, { useRef, useState, useEffect, lazy, Suspense } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import Interactive3DHero from '@/components/home/Interactive3DHero';
 import WhatIsSection from '@/components/home/WhatIsSection';
-import FeaturesSection from '@/components/home/FeaturesSection';
-import ExamPreparationSection from '@/components/home/ExamPreparationSection';
-import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
-import CallToAction from '@/components/home/CallToAction';
-import FounderSection from '@/components/home/FounderSection';
-import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
-import FoundingTeamSection from '@/components/home/FoundingTeamSection';
-import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
-import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
-import BackedBySection from '@/components/home/BackedBySection';
-import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import { Loader2 } from 'lucide-react';
+
+// Lazy load components that aren't immediately visible
+const Interactive3DHero = lazy(() => import('@/components/home/Interactive3DHero'));
+const FeaturesSection = lazy(() => import('@/components/home/FeaturesSection'));
+const ExamPreparationSection = lazy(() => import('@/components/home/ExamPreparationSection'));
+const StudentBenefitsSection = lazy(() => import('@/components/home/StudentBenefitsSection'));
+const CallToAction = lazy(() => import('@/components/home/CallToAction'));
+const FounderSection = lazy(() => import('@/components/home/FounderSection'));
+const VideoSection = lazy(() => import('@/components/home/VideoSection'));
+const FoundingTeamSection = lazy(() => import('@/components/home/FoundingTeamSection'));
+const EcosystemAnimation = lazy(() => import('@/components/home/EcosystemAnimation'));
+const BackedBySection = lazy(() => import('@/components/home/BackedBySection'));
+const ChampionMethodologySection = lazy(() => import('@/components/home/ChampionMethodologySection'));
+const HomePageVoiceAssistant = lazy(() => import('@/components/voice/HomePageVoiceAssistant'));
+const FloatingVoiceAssistant = lazy(() => import('@/components/voice/FloatingVoiceAssistant'));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -52,7 +64,7 @@ const Index = () => {
     navigate(route);
   };
 
-  // Listen for events
+  // Listen for events and set loading state
   useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
@@ -65,9 +77,15 @@ const Index = () => {
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
     document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     
+    // Mark as loaded after a short delay
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 200);
+    
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
       document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
+      clearTimeout(timer);
     };
   }, []);
 
@@ -76,8 +94,22 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced interactive 3D hero */}
-        <Interactive3DHero />
+        {/* Hero section with loading optimization */}
+        <Suspense fallback={
+          <div className="h-[80vh] flex items-center justify-center bg-gradient-to-br from-purple-900/20 to-blue-900/20">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-purple-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-center mb-2">
+                Loading immersive NEET experience...
+              </h2>
+              <p className="text-muted-foreground">
+                Preparing your personalized learning journey
+              </p>
+            </div>
+          </div>
+        }>
+          <Interactive3DHero />
+        </Suspense>
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -96,7 +128,9 @@ const Index = () => {
         </motion.section>
         
         {/* Backed By Section with partner logos */}
-        <BackedBySection />
+        <Suspense fallback={<LoadingFallback />}>
+          <BackedBySection />
+        </Suspense>
         
         {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
@@ -104,35 +138,57 @@ const Index = () => {
         <WhatIsSection />
         
         {/* Champion Methodology Section */}
-        <ChampionMethodologySection />
+        <Suspense fallback={<LoadingFallback />}>
+          <ChampionMethodologySection />
+        </Suspense>
         
-        <EcosystemAnimation />
+        <Suspense fallback={<LoadingFallback />}>
+          <EcosystemAnimation />
+        </Suspense>
         
         <div ref={featuresRef}>
-          <FeaturesSection />
+          <Suspense fallback={<LoadingFallback />}>
+            <FeaturesSection />
+          </Suspense>
         </div>
         
-        <ExamPreparationSection />
+        <Suspense fallback={<LoadingFallback />}>
+          <ExamPreparationSection />
+        </Suspense>
         
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
-        <StudentBenefitsSection />
+        <Suspense fallback={<LoadingFallback />}>
+          <StudentBenefitsSection />
+        </Suspense>
         
-        <VideoSection />
+        <Suspense fallback={<LoadingFallback />}>
+          <VideoSection />
+        </Suspense>
         
-        <FounderSection />
+        <Suspense fallback={<LoadingFallback />}>
+          <FounderSection />
+        </Suspense>
         
-        <FoundingTeamSection />
+        <Suspense fallback={<LoadingFallback />}>
+          <FoundingTeamSection />
+        </Suspense>
         
-        <CallToAction />
+        <Suspense fallback={<LoadingFallback />}>
+          <CallToAction />
+        </Suspense>
       </main>
       
       <Footer />
       
-      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
-      <HomePageVoiceAssistant language="en-IN" />
+      {/* Conditionally render voice assistant components when needed */}
+      {isLoaded && (
+        <Suspense fallback={null}>
+          <HomePageVoiceAssistant language="en-IN" />
+        </Suspense>
+      )}
       
-      {/* Floating Voice Assistant button */}
+      {/* Floating Voice Assistant button - simplified animation */}
       <div className="fixed bottom-6 right-6 z-50">
         <motion.button
           className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
@@ -152,14 +208,16 @@ const Index = () => {
         </motion.button>
       </div>
       
-      {/* Enhanced Floating Voice Assistant with settings panel */}
-      {showVoiceAssistant && (
-        <FloatingVoiceAssistant 
-          isOpen={showVoiceAssistant} 
-          onClose={handleCloseVoiceAssistant}
-          onNavigationCommand={handleNavigationCommand}
-          language="en-IN"
-        />
+      {/* Render voice assistant dialog only when active */}
+      {showVoiceAssistant && isLoaded && (
+        <Suspense fallback={null}>
+          <FloatingVoiceAssistant 
+            isOpen={showVoiceAssistant} 
+            onClose={handleCloseVoiceAssistant}
+            onNavigationCommand={handleNavigationCommand}
+            language="en-IN"
+          />
+        </Suspense>
       )}
     </div>
   );
