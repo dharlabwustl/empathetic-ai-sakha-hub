@@ -12,15 +12,7 @@ const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Auto-rotate through slides
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % 3);
-    }, 5000); // Change slide every 5 seconds
-    
-    return () => clearInterval(interval);
-  }, []);
-
+  // Handler for exam readiness analyzer
   const handleExamReadinessClick = () => {
     // Dispatch event to open the exam readiness analyzer
     window.dispatchEvent(new CustomEvent('open-exam-analyzer'));

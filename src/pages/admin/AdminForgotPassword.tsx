@@ -1,8 +1,8 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ForgotPassword from "@/pages/auth/ForgotPassword";
 import { useToast } from "@/hooks/use-toast";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
 
 const AdminForgotPassword = () => {
   const { toast } = useToast();

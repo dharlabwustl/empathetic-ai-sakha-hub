@@ -7,20 +7,19 @@ import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import AdminLoginRedirect from '@/pages/login/forms/AdminLoginRedirect';
 
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAdminAuthenticated } = useAdminAuth();
   
   // Check if user is already logged in
   useEffect(() => {
     console.log("Checking login status in Login.tsx");
     
     // Check admin auth first
-    if (isAdminAuthenticated) {
+    if (localStorage.getItem('admin_logged_in') === 'true') {
       console.log("Admin already logged in, redirecting to admin dashboard");
       navigate('/admin/dashboard', { replace: true });
       return;
@@ -33,7 +32,7 @@ const Login = () => {
       navigate('/dashboard/student', { replace: true });
       return;
     }
-  }, [navigate, isAdminAuthenticated]);
+  }, [navigate]);
   
   const handleLoginError = (error: string) => {
     toast({
@@ -41,11 +40,6 @@ const Login = () => {
       description: error,
       variant: "destructive"
     });
-  };
-  
-  const handleAdminLoginRedirect = () => {
-    // Use React Router for navigation
-    navigate('/admin/login');
   };
   
   return (
@@ -80,19 +74,10 @@ const Login = () => {
                 <LoginPage onError={handleLoginError} />
               </div>
               
-              {/* Admin login button */}
+              {/* Admin login redirect */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium mb-4">Administrator Login</h3>
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleAdminLoginRedirect}
-                >
-                  Go to Admin Login
-                </Button>
-                <p className="mt-2 text-sm text-center text-muted-foreground">
-                  Administrator access is restricted to authorized personnel only.
-                </p>
+                <AdminLoginRedirect />
               </div>
             </div>
           </CardContent>

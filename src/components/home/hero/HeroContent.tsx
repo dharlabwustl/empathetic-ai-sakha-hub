@@ -17,7 +17,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8"
     >
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-        We understand your mindset, not just the exam
+        Transforming Exam Preparation
       </h1>
       
       <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8">

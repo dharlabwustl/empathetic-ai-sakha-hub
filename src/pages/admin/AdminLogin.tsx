@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import adminAuthService from "@/services/auth/adminAuthService";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -17,19 +18,14 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
   // Check if already authenticated
   useEffect(() => {
-    if (isAdminAuthenticated || localStorage.getItem('admin_logged_in') === 'true') {
-      console.log("Already authenticated as admin, redirecting to dashboard");
+    if (localStorage.getItem('admin_logged_in') === 'true') {
       navigate('/admin/dashboard', { replace: true });
     }
-    
-    // Clear any existing admin login attempt flag
-    localStorage.removeItem('admin_login_attempt');
-  }, [isAdminAuthenticated, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,30 +39,29 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      console.log("Submitting admin login form with email:", email);
-      
-      // Clear any existing student login data
+      // Clear any existing login data
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userData');
       
-      const success = await adminLogin(email, password);
+      // Attempt admin login
+      const response = await adminAuthService.adminLogin({
+        email: email,
+        password: password
+      });
       
-      if (success) {
-        console.log("Admin login successful, navigating to dashboard");
+      if (response.success && response.data) {
+        // Show success toast
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        // Mark admin as logged in explicitly to guarantee it's set
-        localStorage.setItem('admin_logged_in', 'true');
-        
-        // Use setTimeout to ensure state updates have completed
+        // Use setTimeout to ensure all state changes are complete before navigation
         setTimeout(() => {
           navigate('/admin/dashboard', { replace: true });
         }, 300);
       } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'.");
+        setLoginError(response.message || "Invalid admin credentials");
       }
     } catch (error) {
       console.error("Admin login error:", error);
@@ -74,10 +69,6 @@ const AdminLogin = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   const handleDemoAdminLogin = () => {
@@ -185,25 +176,17 @@ const AdminLogin = () => {
                 type="button"
                 variant="outline"
                 className="w-full mt-2"
-                onClick={() => {
-                  setEmail("admin@prepzr.com");
-                  setPassword("admin123");
-                  
-                  // Submit the form after a brief delay to allow state update
-                  setTimeout(() => {
-                    const form = document.getElementById('admin-login-form');
-                    if (form) {
-                      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                      form.dispatchEvent(submitEvent);
-                    }
-                  }, 100);
-                }}
+                onClick={handleDemoAdminLogin}
               >
                 Use Demo Admin Account
               </Button>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700" disabled={isLoading} type="submit">
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700" 
+                disabled={isLoading} 
+                type="submit"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

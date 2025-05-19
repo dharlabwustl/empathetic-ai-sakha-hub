@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, User, Book } from 'lucide-react';
 
@@ -14,6 +14,15 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
     center: { x: 0, opacity: 1 },
     exit: { x: -300, opacity: 0 }
   };
+
+  // Auto-rotate through slides
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 5000); // Change slide every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [setActiveSlide]);
 
   const slideContentList = [
     {

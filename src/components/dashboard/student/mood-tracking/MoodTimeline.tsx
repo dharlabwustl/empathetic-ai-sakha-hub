@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 interface MoodTimelineProps {
   moodHistory: Array<{
-    mood: MoodType;
+    mood: MoodType | string;
     timestamp: Date;
   }>;
 }
@@ -15,12 +15,10 @@ interface MoodTimelineProps {
 const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
   // Ensure we have valid data
   const normalizedMoodHistory = moodHistory.map(entry => {
-    let normalizedMood = entry.mood;
-    
     // If mood is a string, convert to uppercase to match MoodType enum
-    if (typeof entry.mood === 'string') {
-      normalizedMood = entry.mood.toUpperCase() as MoodType;
-    }
+    const normalizedMood = typeof entry.mood === 'string' 
+      ? entry.mood.toUpperCase() as MoodType
+      : entry.mood;
     
     return {
       mood: normalizedMood,
