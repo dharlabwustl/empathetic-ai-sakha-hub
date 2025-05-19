@@ -65,11 +65,11 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Enhanced messages for the home page visitor experience
   const homePageMessages = {
     initial: {
-      en: "Welcome to Prep-zer, your AI-powered exam preparation platform. Our premium subscription helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
+      en: "Welcome to Prep-zer — pronounced like 'prep' and 'zer' as in 'laser'. We're thrilled to have you! Our AI-powered exam preparation platform helps maximize your exam performance while supporting underprivileged students with 5% of subscription revenues.",
       hi: "प्रेप-ज़र में आपका स्वागत है। हमारा AI-संचालित परीक्षा तैयारी प्लेटफॉर्म आपकी परीक्षा तैयारी को आसान बनाता है।"
     },
     signup: {
-      en: "Ready to start your exam preparation journey? Sign up for our premium trial to access AI-powered study plans and performance analytics.",
+      en: "Want to know why Prep-zer outshines coaching centers? Let me tell you. Explore our free trial and take the Exam Readiness Challenge to see where you stand.",
       hi: "अपनी परीक्षा की तैयारी शुरू करने के लिए तैयार हैं? हमारे प्रीमियम ट्रायल के लिए साइन अप करें।"
     },
     features: {
@@ -77,7 +77,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       hi: "कोचिंग संस्थानों के विपरीत, प्रेप-ज़र आपको व्यक्तिगत अध्ययन योजनाओं और AI ट्यूटरिंग तक 24/7 पहुंच प्रदान करता है।"
     },
     donation: {
-      en: "We allocate 5% of subscription revenue to provide access for underprivileged students, making quality education more accessible.",
+      en: "We support UN Sustainability goals with inclusive and equitable quality education. 5% of subscription revenue helps underprivileged students access quality education.",
       hi: "हम सदस्यता राजस्व का 5% वंचित छात्रों को पहुंच प्रदान करने के लिए आवंटित करते हैं।"
     },
     welcome_back: {

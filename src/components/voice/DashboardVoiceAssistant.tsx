@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Volume2, VolumeX, Mic, MicOff, Settings } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { MoodType } from '@/types/user/base';
+import { useLocation } from 'react-router-dom';
 import {
   Drawer,
   DrawerClose,
@@ -22,7 +23,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
@@ -47,6 +48,40 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   const [voicePreference, setVoicePreference] = useState("female");
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [lastSpokenContext, setLastSpokenContext] = useState<string | null>(null);
+  const location = useLocation();
+  
+  // Context-aware welcome messages based on page URL
+  const getContextMessage = () => {
+    const path = location.pathname;
+    
+    if (path.includes('/dashboard/student/overview') || path === '/dashboard/student') {
+      return `Welcome to your dashboard, ${userName}. Here you can see your overall progress and key metrics. Would you like a quick tour of your dashboard features?`;
+    } 
+    else if (path.includes('/dashboard/student/today')) {
+      return `This is your daily study plan, ${userName}. I've organized concepts, flashcards, and practice tests based on your learning priorities. Which topic would you like to start with today?`;
+    }
+    else if (path.includes('/dashboard/student/concepts')) {
+      return `This is your concept library, ${userName}. You can explore detailed explanations, take notes, and practice with related resources. Is there a specific concept you'd like to learn more about?`;
+    }
+    else if (path.includes('/dashboard/student/concept-study')) {
+      return `Here you can deeply study this concept. You can read the explanations, watch video lessons, take notes, and practice with questions. Would you like me to read the content aloud for you?`;
+    }
+    else if (path.includes('/dashboard/student/flashcards')) {
+      return `Welcome to your flashcards, ${userName}. Spaced repetition is one of the most effective study techniques. Would you like me to guide you through an effective flashcard session?`;
+    }
+    else if (path.includes('/dashboard/student/practice-exam')) {
+      return `This is the practice exam section, ${userName}. Regular testing improves retention and reveals knowledge gaps. Would you like some tips for maximizing your practice exam effectiveness?`;
+    }
+    else if (path.includes('/dashboard/student/analytics')) {
+      return `Here are your analytics, ${userName}. You can track your progress, understand your strengths and weaknesses, and see how your study habits affect your performance.`;
+    }
+    else if (path.includes('/dashboard/student/feel-good-corner')) {
+      return `Welcome to the Feel Good Corner, ${userName}. Taking breaks and managing stress is important for effective learning. Would you like me to suggest a quick mindfulness exercise?`;
+    }
+    
+    return `Hello ${userName}. I'm your Prep-zer voice assistant. How can I help you with your studies today?`;
+  };
   
   // Check if browser supports speech synthesis
   const hasSpeechSupport = typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -95,7 +130,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       // Clean up
       return () => {
         if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
+          window.speechSynthesis.onvoiceschanged = null;
         }
       };
     }
@@ -109,7 +144,8 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       if (!hasBeenWelcomed && selectedVoice) {
         // Wait a bit after tour completes
         const timer = setTimeout(() => {
-          speakText(`Hello ${userName}! I'm your voice assistant. Click my icon anytime you need help.`);
+          const welcomeMessage = `Congratulations on joining Prep-zer, ${userName}! You've just taken the smartest step toward your success. Would you like a quick tour of your dashboard?`;
+          speakText(welcomeMessage);
           localStorage.setItem('voice-welcomed', 'true');
         }, 2000);
         
@@ -118,14 +154,34 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
   }, [isFirstTimeUser, selectedVoice, userName, hasSpeechSupport]);
   
-  // Function to speak text
+  // Monitor location changes to provide context-aware assistance
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const currentContext = currentPath.split('/').pop() || 'dashboard';
+    
+    // Only speak when context changes and not on first render
+    if (lastSpokenContext !== null && lastSpokenContext !== currentContext && !isMuted && hasSpeechSupport) {
+      const contextMessage = getContextMessage();
+      speakText(contextMessage);
+    }
+    
+    setLastSpokenContext(currentContext);
+  }, [location.pathname]);
+  
+  // Function to speak text with proper PREPZR pronunciation
   const speakText = (text: string) => {
     if (!hasSpeechSupport || isMuted) return;
     
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Fix pronunciation for PREPZR
+    const correctedText = text
+      .replace(/PREPZR/gi, 'Prep-zer')
+      .replace(/prepzr/gi, 'Prep-zer')
+      .replace(/Prepzr/g, 'Prep-zer');
+    
+    const utterance = new SpeechSynthesisUtterance(correctedText);
     
     // Apply voice settings
     if (selectedVoice) {
@@ -160,11 +216,12 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       setTimeout(() => {
         setIsListening(false);
         
-        // Simulate response
-        speakText("I heard you! Opening your study plan now.");
-        
-        // Navigate or perform action based on command
-        // This would be replaced with actual speech recognition logic
+        // Simulate response based on current page context
+        const contextResponse = location.pathname.includes('today') 
+          ? "I heard you! Let me explain your study plan. It's designed based on your learning style and goals."
+          : "I heard you! Opening your study plan now.";
+          
+        speakText(contextResponse);
       }, 5000);
     }
   };
@@ -184,13 +241,10 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
   };
   
-  // Test voice with sample text
+  // Test voice with context-aware message
   const handleTestVoice = () => {
-    const testText = currentMood 
-      ? `Hello ${userName}! I notice you're feeling ${currentMood.toLowerCase()} today. Is there anything I can help with?`
-      : `Hello ${userName}! How can I help you today?`;
-      
-    speakText(testText);
+    const contextMessage = getContextMessage();
+    speakText(contextMessage);
     
     // Mark as tested in localStorage
     localStorage.setItem('voice-tested', 'true');
@@ -230,10 +284,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           <div className="px-4">
             <div className="grid grid-cols-2 gap-4 mb-6">
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Microphone</CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <Button 
                     onClick={handleToggleListening}
                     variant={isListening ? "destructive" : "secondary"}
@@ -249,10 +300,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
               </Card>
               
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Speaker</CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <Button 
                     onClick={handleToggleMute}
                     variant="outline"
@@ -269,10 +317,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
             </div>
             
             <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-sm">Voice Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-6 space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label htmlFor="voice-volume">Volume</Label>
@@ -351,16 +396,14 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
             </Card>
             
             <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Voice Commands</CardTitle>
-                <CardDescription>Try saying these phrases:</CardDescription>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
+                <p className="font-medium mb-2">Try saying these phrases:</p>
                 <ul className="list-disc pl-5 space-y-1 text-sm">
                   <li>"Show me my study plan"</li>
                   <li>"Open concept cards"</li>
                   <li>"Start practice exam"</li>
                   <li>"What's my exam readiness score?"</li>
+                  <li>"Read this content aloud"</li>
                   <li>"I'm feeling stressed today"</li>
                 </ul>
               </CardContent>
