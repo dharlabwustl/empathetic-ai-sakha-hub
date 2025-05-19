@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -6,7 +5,7 @@ const BackedBySection = () => {
   const partners = [
     {
       name: 'NVIDIA Inception',
-      logo: '/lovable-uploads/01737148-61ec-4c48-8cd4-d3cbe28124a3.png', // Updated logo
+      logo: '/lovable-uploads/01d9bec1-6662-487f-8de6-86c1d36cddfd.png', // Updated logo
       alt: 'NVIDIA Inception Program Logo'
     },
     {

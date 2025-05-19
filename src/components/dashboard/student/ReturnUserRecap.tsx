@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock, X } from 'lucide-react';
+import { ArrowRight, Clock, X, Globe } from 'lucide-react';
 
 interface ReturnUserRecapProps {
   userName: string;
@@ -52,6 +52,13 @@ const ReturnUserRecap: React.FC<ReturnUserRecapProps> = ({
             <span>Last seen: {lastLoginDate}</span>
           </div>
           
+          <div className="mb-3 py-2 px-3 bg-blue-100 dark:bg-blue-800/40 rounded-md text-sm flex items-start">
+            <Globe className="h-4 w-4 text-blue-700 dark:text-blue-300 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-blue-700 dark:text-blue-300">
+              We support UN Sustainability goals - inclusive and equitable quality education and promote lifelong learning opportunities for all.
+            </p>
+          </div>
+
           {loginCount > 0 && loginCount % 5 === 0 && (
             <div className="mb-3 py-2 px-3 bg-blue-100 dark:bg-blue-800/40 rounded-md text-sm">
               <p className="text-blue-700 dark:text-blue-300 font-medium">
