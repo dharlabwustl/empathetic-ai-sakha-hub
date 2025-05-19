@@ -12,6 +12,9 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import ChatAssistant from "@/components/dashboard/ChatAssistant";
+import FloatingAvatar from "@/components/shared/FloatingAvatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -21,6 +24,7 @@ const StudentDashboard = () => {
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const {
     loading,
@@ -235,6 +239,12 @@ const StudentDashboard = () => {
         onMoodChange={handleMoodChange}
         isFirstTimeUser={isFirstTimeUser}
       />
+      
+      {/* Use the mobile-friendly FloatingAvatar for mobile */}
+      {isMobile && <FloatingAvatar />}
+      
+      {/* Use the full ChatAssistant for desktop */}
+      {!isMobile && <ChatAssistant userType="student" />}
     </>
   );
 };

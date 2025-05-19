@@ -39,7 +39,7 @@ const FloatingAvatar = () => {
     <>
       {/* Floating Button */}
       <button 
-        className="floating-avatar"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg flex items-center justify-center z-50"
         onClick={() => setIsOpen(true)}
       >
         <div className="relative">

@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import PrepzrLogo from '../common/PrepzrLogo';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
   Tooltip,
   TooltipContent,
@@ -168,8 +169,13 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
         </div>
       </ScrollArea>
       
-      {/* Logout Button */}
-      <div className="border-t border-border p-3">
+      {/* Bottom Section with Theme Toggle and Logout */}
+      <div className="border-t border-border p-3 space-y-2">
+        <div className={cn("flex", collapsed ? "justify-center" : "justify-between items-center")}>
+          {!collapsed && <span className="text-xs text-muted-foreground">Appearance</span>}
+          <ThemeToggle />
+        </div>
+        
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

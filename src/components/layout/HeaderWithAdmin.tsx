@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
@@ -117,7 +116,6 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
             {isLoggedIn ? (
               <div className="flex space-x-2 items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -156,7 +154,6 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-2">
-              <ThemeToggle />
               {isLoggedIn ? (
                 <>
                   <div className="py-2 px-1 text-sm text-gray-600 dark:text-gray-300">
