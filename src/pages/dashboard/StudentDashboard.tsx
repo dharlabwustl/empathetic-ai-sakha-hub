@@ -9,9 +9,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import VoiceGreeting from "@/components/dashboard/student/VoiceGreeting";
+import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import FloatingVoiceAssistant from "@/components/voice/FloatingVoiceAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentDashboard = () => {
@@ -20,6 +21,7 @@ const StudentDashboard = () => {
   const [showTourModal, setShowTourModal] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -146,6 +148,18 @@ const StudentDashboard = () => {
     navigate('/dashboard/student?new=true');
   };
 
+  const handleOpenVoiceAssistant = () => {
+    setShowVoiceAssistant(true);
+  };
+
+  const handleCloseVoiceAssistant = () => {
+    setShowVoiceAssistant(false);
+  };
+
+  const handleNavigationCommand = (route: string) => {
+    navigate(route);
+  };
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -236,6 +250,31 @@ const StudentDashboard = () => {
         language="en-IN"
         userMood={currentMood}
       />
+
+      {/* Floating voice assistant button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+          onClick={handleOpenVoiceAssistant}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg>
+          <span className="ml-2 font-medium">Voice Assistant</span>
+        </button>
+      </div>
+      
+      {/* Voice assistant dialog */}
+      {showVoiceAssistant && (
+        <FloatingVoiceAssistant 
+          isOpen={showVoiceAssistant} 
+          onClose={handleCloseVoiceAssistant}
+          onNavigationCommand={handleNavigationCommand}
+          language="en-IN"
+        />
+      )}
     </>
   );
 };

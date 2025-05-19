@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked, Sparkles, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from "@/hooks/use-toast";
@@ -213,6 +212,30 @@ const PostLoginWelcome = () => {
               : `You last logged in ${lastLoginDate}`}
           </motion.p>
         </div>
+        
+        {/* UN Sustainability Goals Banner - replacing donation message */}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.5 }}
+          className="mb-6"
+        >
+          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-blue-100 dark:from-green-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
+                <Heart className="h-6 w-6 text-green-500 dark:text-green-300 fill-green-200 dark:fill-green-800" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-1 text-green-600 dark:text-green-300">Supporting UN Sustainability Goals</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  PREPZR is committed to providing inclusive and equitable quality education, 
+                  supporting UN Sustainability Goal 4 to ensure equal access to education for all.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
         {/* Motion card component with various buttons */}
         <motion.div
