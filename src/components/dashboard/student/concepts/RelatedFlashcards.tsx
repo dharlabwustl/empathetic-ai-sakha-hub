@@ -218,7 +218,7 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ flashcards, conce
         </TabsContent>
       </Tabs>
 
-      <style jsx>{`
+      <style>{`
         .perspective-1000 {
           perspective: 1000px;
         }

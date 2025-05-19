@@ -9,7 +9,7 @@ import ConceptCardDetailPage from "@/components/dashboard/student/concepts/Conce
 import FlashcardsView from "./flashcards/FlashcardsView";
 import NotificationsView from "./notifications/NotificationsView";
 import PracticeExamsView from "./practice-exam/PracticeExamsView";
-import FeelGoodCorner from "./feel-good-corner/FeelGoodCorner";
+import FeelGoodCorner from "./FeelGoodCorner";
 import AcademicAdvisorView from "./academic/AcademicAdvisorView";
 import FormulaLabPage from "@/pages/dashboard/student/formula-lab/FormulaLabPage";
 import FlashcardPracticePage from "@/pages/dashboard/student/flashcard/FlashcardPracticePage";
@@ -39,6 +39,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/concepts/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concept-study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/concepts/:conceptId/formula-lab" element={<FormulaLabPage />} />
+      <Route path="/concept/:conceptId" element={<ConceptCardDetailPage />} /> {/* Added this route for backward compatibility */}
+      <Route path="/concept-card/:conceptId" element={<ConceptCardDetailPage />} /> {/* Added this route as well for any references */}
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:deckId" element={<FlashcardPracticePage />} />
       <Route path="/notifications" element={<NotificationsView />} />
