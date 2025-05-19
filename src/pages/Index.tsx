@@ -77,6 +77,7 @@ const Index = () => {
       <Header />
       
       <main>
+        {/* Use our new story-focused hero section */}
         <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
