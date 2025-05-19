@@ -25,16 +25,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
+      return "Welcome to PREP-zer, where we understand your mindset, not just the exam. We support UN Sustainability Goal 4 - quality education for all. Our adaptive platform personalizes your learning journey to help you achieve your academic goals.";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
+      return "Welcome to PREP-zer! We're proud to support UN Sustainability Goal 4 - ensuring inclusive and equitable quality education for all. Our platform adapts to your unique learning style, creating a personalized study experience that traditional methods can't match.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
+      return "Welcome to your 7-day free trial of PREP-zer! Supporting UN Sustainability Goal 4, we're committed to providing quality education for all. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
+      return "Welcome to our exam readiness analyzer. As part of our commitment to UN Sustainability Goal 4, we provide detailed insights about your preparation level and recommend specific areas to focus on before your exam.";
+    } else if (path.includes('/welcome')) {
+      return "Congratulations on joining PREP-zer! We're committed to UN Sustainability Goal 4, making quality education accessible to all. Your personalized dashboard is ready, and your journey to exam success begins now. Let's explore your personalized learning path together.";
     }
     
-    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion.";
+    return "Welcome to PREP-zer. As part of our commitment to UN Sustainability Goal 4, we're making quality education accessible to all through our innovative, adaptive learning platform.";
   };
   
   useEffect(() => {
@@ -103,9 +105,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           
           // Show toast notification
           toast({
-            title: "Sakha AI Voice Assistant",
-            description: "Voice assistance is available on this page",
-            duration: 3000,
+            title: "Welcome to PREP-zer",
+            description: "Supporting UN Goal 4: Quality Education for All",
+            duration: 4000,
           });
         } catch (error) {
           console.error("Error playing greeting:", error);

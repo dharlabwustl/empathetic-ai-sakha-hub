@@ -241,7 +241,7 @@ const PostLoginWelcome = () => {
                 <div className="mb-4 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm flex items-start">
                   <Globe className="h-4 w-4 text-blue-700 dark:text-blue-300 mt-0.5 mr-2 flex-shrink-0" />
                   <p className="text-blue-700 dark:text-blue-300">
-                    We support UN Sustainability goals - inclusive and equitable quality education and promote lifelong learning opportunities for all.
+                    PREP-zer proudly supports UN Sustainability Goal 4: Ensuring inclusive and equitable quality education and promoting lifelong learning opportunities for all.
                   </p>
                 </div>
               </motion.div>
