@@ -66,7 +66,7 @@ import Signup from '@/pages/auth/Signup';
 import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
-import AdminForgotPassword from '@/pages/auth/AdminForgotPassword';
+import AdminForgotPassword from '@/pages/admin/ForgotPassword';
 
 // Import new footer pages
 import About from '@/pages/About';

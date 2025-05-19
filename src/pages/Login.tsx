@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
@@ -11,7 +10,6 @@ import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Login = () => {
-  // Only need a single login tab now, since Admin will redirect to a separate page
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();

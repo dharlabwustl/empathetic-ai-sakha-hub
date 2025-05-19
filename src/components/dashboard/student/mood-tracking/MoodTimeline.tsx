@@ -13,11 +13,20 @@ interface MoodTimelineProps {
 }
 
 const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
-  // Ensure we have valid data and convert to uppercase if needed
-  const normalizedMoodHistory = moodHistory.map(entry => ({
-    mood: (typeof entry.mood === 'string' ? entry.mood.toUpperCase() : entry.mood) as MoodType,
-    timestamp: entry.timestamp
-  }));
+  // Ensure we have valid data
+  const normalizedMoodHistory = moodHistory.map(entry => {
+    let normalizedMood = entry.mood;
+    
+    // If mood is a string, convert to uppercase to match MoodType enum
+    if (typeof entry.mood === 'string') {
+      normalizedMood = entry.mood.toUpperCase() as MoodType;
+    }
+    
+    return {
+      mood: normalizedMood,
+      timestamp: entry.timestamp
+    };
+  });
   
   const lastSevenDays = normalizedMoodHistory.slice(0, 7).reverse();
   

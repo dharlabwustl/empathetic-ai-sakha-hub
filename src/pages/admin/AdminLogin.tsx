@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,29 +22,13 @@ const AdminLogin = () => {
 
   // Check if already authenticated
   useEffect(() => {
-    const checkAdminAuth = () => {
-      // Check if this is an admin login attempt
-      const isAdminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
-      
-      if (isAdminLoginAttempt) {
-        // Clear the flag so we don't loop
-        localStorage.removeItem('admin_login_attempt');
-        console.log("Admin login attempt detected");
-      }
-      
-      const isAuthenticated = localStorage.getItem('admin_logged_in') === 'true';
-      
-      if (isAuthenticated || isAdminAuthenticated) {
-        console.log("Already authenticated as admin, redirecting to dashboard");
-        navigate('/admin/dashboard', { replace: true });
-      }
-    };
+    if (isAdminAuthenticated || localStorage.getItem('admin_logged_in') === 'true') {
+      console.log("Already authenticated as admin, redirecting to dashboard");
+      navigate('/admin/dashboard', { replace: true });
+    }
     
-    // Check immediately and after a short delay to ensure auth state is properly loaded
-    checkAdminAuth();
-    const timer = setTimeout(checkAdminAuth, 500);
-    
-    return () => clearTimeout(timer);
+    // Clear any existing admin login attempt flag
+    localStorage.removeItem('admin_login_attempt');
   }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +52,7 @@ const AdminLogin = () => {
       const success = await adminLogin(email, password);
       
       if (success) {
-        console.log("Admin login successful, preparing to navigate");
+        console.log("Admin login successful, navigating to dashboard");
         toast({
           title: "Admin Login successful",
           description: "Welcome to the admin dashboard",
@@ -78,8 +61,10 @@ const AdminLogin = () => {
         // Mark admin as logged in explicitly to guarantee it's set
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Use navigate instead of direct location change to prevent animation issues
-        navigate('/admin/dashboard', { replace: true });
+        // Use setTimeout to ensure state updates have completed
+        setTimeout(() => {
+          navigate('/admin/dashboard', { replace: true });
+        }, 300);
       } else {
         setLoginError("Invalid admin credentials. Email must contain 'admin'.");
       }
@@ -189,7 +174,7 @@ const AdminLogin = () => {
                     variant="ghost"
                     size="icon"
                     className="absolute right-0 top-0 h-full"
-                    onClick={togglePasswordVisibility}
+                    onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
@@ -200,7 +185,19 @@ const AdminLogin = () => {
                 type="button"
                 variant="outline"
                 className="w-full mt-2"
-                onClick={handleDemoAdminLogin}
+                onClick={() => {
+                  setEmail("admin@prepzr.com");
+                  setPassword("admin123");
+                  
+                  // Submit the form after a brief delay to allow state update
+                  setTimeout(() => {
+                    const form = document.getElementById('admin-login-form');
+                    if (form) {
+                      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                      form.dispatchEvent(submitEvent);
+                    }
+                  }, 100);
+                }}
               >
                 Use Demo Admin Account
               </Button>
