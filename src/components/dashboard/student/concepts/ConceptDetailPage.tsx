@@ -22,7 +22,21 @@ const ConceptDetailPage: React.FC = () => {
       
       The cell cycle consists of interphase (G₁, S, and G₂ phases) and the mitotic phase (mitosis and cytokinesis). 
       During interphase, the cell grows and DNA replication occurs. In mitosis, the replicated chromosomes are separated 
-      into two nuclei, and cytokinesis divides the cytoplasm, organelles, and cell membrane.`
+      into two nuclei, and cytokinesis divides the cytoplasm, organelles, and cell membrane.
+      
+      Mitosis is divided into several distinct phases: prophase, prometaphase, metaphase, anaphase, and telophase.
+      In prophase, the chromosomes condense and become visible, and the nuclear envelope breaks down.
+      In metaphase, the chromosomes align at the metaphase plate, an imaginary line that divides the cell in half.
+      In anaphase, the sister chromatids separate and move to opposite poles of the cell.
+      In telophase, nuclear envelopes form around the two sets of chromosomes, and the chromosomes begin to decondense.
+      
+      Cytokinesis is the process that divides the cytoplasm of the cell into two daughter cells. In animal cells,
+      this occurs through a process called cleavage, where a contractile ring of actin filaments forms at the equator
+      of the cell and pinches the cell in two. In plant cells, a cell plate forms at the equator and grows outward
+      to create a new cell wall between the daughter cells.
+      
+      Understanding cell division is crucial for many areas of biology and medicine, including embryonic development,
+      growth, tissue repair, and cancer research.`
   };
 
   // Show concept loaded toast

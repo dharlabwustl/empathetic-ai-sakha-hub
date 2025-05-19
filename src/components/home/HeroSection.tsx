@@ -1,164 +1,140 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, BookOpen, Brain, Award } from "lucide-react";
+import StudentAvatarJourney from '@/components/animations/StudentAvatarJourney';
 
-const HeroSection: React.FC = () => {
+const HeroSection = () => {
   const navigate = useNavigate();
 
-  // Journey points for the animated path
-  const journeyPoints = [
-    { id: 1, title: "Starting Point", description: "Beginning of your preparation journey" },
-    { id: 2, title: "Concept Mastery", description: "Understanding core concepts" },
-    { id: 3, title: "Practice Phase", description: "Applying knowledge through practice" },
-    { id: 4, title: "Confidence Building", description: "Developing exam confidence" },
-    { id: 5, title: "Success", description: "Achieving your goals" }
-  ];
+  const handleGetStarted = () => {
+    navigate("/signup");
+  };
+
+  const handleExamReadiness = () => {
+    navigate("/exam-readiness");
+  };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-violet-50 to-white dark:from-gray-900 dark:to-gray-800 pt-16 pb-24">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left content - Text and CTA */}
+    <section className="relative overflow-hidden bg-gradient-to-b from-background to-background/80 pt-16 md:pt-24 pb-16">
+      {/* Background gradient effect */}
+      <div className="absolute inset-0 bg-gradient-radial from-primary/5 to-transparent" />
+      <div className="absolute top-1/3 -translate-y-1/2 left-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 -translate-y-1/2 right-1/4 -translate-x-1/2 w-[30rem] h-[30rem] bg-blue-500/10 rounded-full blur-3xl" />
+      
+      <div className="relative container px-4 mx-auto">
+        <div className="max-w-3xl mx-auto mb-16 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-5"
+          >
+            <span className="inline-block py-1 px-3 mb-4 text-xs font-medium text-primary bg-primary/10 rounded-full">
+              Supporting UN Sustainability Goal 4: Quality Education
+            </span>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 mb-6">
+              We understand your mindset, not just the Exam
+            </h1>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              PREPZR adapts to your learning style, builds personalized paths for any exam, and uses AI to detect your mood for optimized learning.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Button 
+              onClick={handleGetStarted}
+              size="lg" 
+              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+            >
+              7 Days Free Trial
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            
+            <Button 
+              onClick={handleExamReadiness}
+              variant="outline"
+              size="lg"
+              className="border-primary/20 hover:border-primary/40"
+            >
+              Test Your Exam Readiness
+            </Button>
+          </motion.div>
+        </div>
+        
+        {/* 3D Animated Student Journey */}
+        <div className="mb-16">
+          <div className="rounded-xl overflow-hidden bg-gradient-to-b from-background to-gray-50 dark:to-gray-900/50 border border-gray-100 dark:border-gray-800 shadow-lg">
+            <div className="p-4 md:p-8">
+              <h2 className="text-2xl font-bold text-center mb-8">Student Learning Journey Animation</h2>
+              
+              <div className="relative h-[400px] md:h-[500px]">
+                <StudentAvatarJourney />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center lg:text-left"
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-600">
-              We understand your mindset, <br/>not just the Exam
-            </h1>
-            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8">
-              Our AI-powered platform adapts to your learning style, mood, and environment 
-              to create a personalized preparation experience that traditional coaching can't match.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button
-                onClick={() => navigate('/free-trial')}
-                size="lg"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 rounded-lg text-lg"
-              >
-                7 Days Free Trial
-              </Button>
-              <Button
-                onClick={() => navigate('/exam-readiness')}
-                variant="outline"
-                size="lg"
-                className="px-8 py-6 rounded-lg border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 text-lg"
-              >
-                Test Your Exam Readiness
-              </Button>
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center rounded-lg mb-4">
+              <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
+            <h3 className="text-xl font-semibold mb-2">Personalized Learning</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              AI that adapts to your unique learning style and creates a personalized study plan.
+            </p>
           </motion.div>
-
-          {/* Right content - Animated Student Journey */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative h-[400px] md:h-[500px]"
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
           >
-            {/* Journey Path */}
-            <svg className="absolute top-0 left-0 w-full h-full z-10" viewBox="0 0 400 400">
-              <motion.path
-                d="M 50,200 C 100,100 150,300 200,150 S 300,250 350,200"
-                fill="transparent"
-                stroke="#8B5CF6"
-                strokeWidth="4"
-                strokeDasharray="520"
-                strokeDashoffset="520"
-                animate={{ strokeDashoffset: 0 }}
-                transition={{ duration: 3, ease: "easeInOut" }}
-              />
-            </svg>
-
-            {/* Milestone Points */}
-            {journeyPoints.map((point, index) => {
-              const xPos = 50 + (index * 75);
-              const yPos = 200 + (index % 2 === 0 ? -50 : 50);
-              
-              return (
-                <motion.div
-                  key={point.id}
-                  className="absolute z-20"
-                  style={{ top: yPos, left: xPos }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5 + (index * 0.3), duration: 0.5 }}
-                >
-                  <div className="relative">
-                    <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{point.id}</span>
-                    </div>
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg w-32 opacity-0 hover:opacity-100 transition-opacity">
-                      <p className="text-xs font-bold">{point.title}</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{point.description}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-
-            {/* Animated Student Avatar */}
-            <motion.div
-              className="absolute z-30 w-16 h-16"
-              initial={{ x: 50, y: 200 }}
-              animate={[
-                { x: 50, y: 200 },
-                { x: 125, y: 150 },
-                { x: 200, y: 250 },
-                { x: 275, y: 150 },
-                { x: 350, y: 200 }
-              ]}
-              transition={{
-                times: [0, 0.25, 0.5, 0.75, 1],
-                duration: 5,
-                repeat: Infinity,
-                repeatType: "loop",
-                ease: "easeInOut"
-              }}
-            >
-              <div className="relative">
-                {/* Student Avatar */}
-                <div className="w-16 h-16 bg-indigo-500 rounded-full border-4 border-white dark:border-gray-800 shadow-lg flex items-center justify-center overflow-hidden">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="#F9FAFB" />
-                    <path d="M12 6C13.1 6 14 6.9 14 8C14 9.1 13.1 10 12 10C10.9 10 10 9.1 10 8C10 6.9 10.9 6 12 6Z" fill="#4F46E5" />
-                    <path d="M12 20C9.33 20 7 18.67 7 16V15C7 13.9 7.9 13 9 13H15C16.1 13 17 13.9 17 15V16C17 18.67 14.67 20 12 20Z" fill="#4F46E5" />
-                  </svg>
-                </div>
-
-                {/* Emotion/State Indicator */}
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM17 13H7C6.45 13 6 12.55 6 12C6 11.45 6.45 11 7 11H17C17.55 11 18 11.45 18 12C18 12.55 17.55 13 17 13Z" fill="white" />
-                  </svg>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Background Elements */}
-            <motion.div 
-              className="absolute bottom-10 right-20 w-20 h-20 bg-purple-200 dark:bg-purple-800/30 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
-            <motion.div 
-              className="absolute top-20 left-10 w-16 h-16 bg-indigo-200 dark:bg-indigo-800/30 rounded-full"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-            />
-            <motion.div 
-              className="absolute top-40 right-40 w-12 h-12 bg-blue-200 dark:bg-blue-800/30 rounded-full"
-              animate={{ scale: [1, 1.15, 1] }}
-              transition={{ duration: 3.5, repeat: Infinity, delay: 1 }}
-            />
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center rounded-lg mb-4">
+              <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Mood-Adaptive</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Our AI detects your mood and adjusts your study materials for optimal learning efficiency.
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-800"
+          >
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 flex items-center justify-center rounded-lg mb-4">
+              <Award className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Proven Results</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Our students achieve 32% better results using our emotionally intelligent exam preparation.
+            </p>
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

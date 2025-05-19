@@ -22,7 +22,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
                             location.pathname.includes('/free-trial') ||
                             location.pathname.includes('/exam-readiness');
   
-  // Get context-aware message based on page
+  // Get context-aware message based on page, now with UN sustainability goal message
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
       return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience. PREP-zer supports UN Sustainability Goal 4 for inclusive and equitable quality education for all.";
