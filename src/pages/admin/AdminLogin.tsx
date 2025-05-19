@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import adminAuthService from "@/services/auth/adminAuthService";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +18,6 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
   // Check if already authenticated
@@ -32,11 +31,11 @@ const AdminLogin = () => {
       console.log("Admin login attempt detected");
     }
     
-    if (isAdminAuthenticated) {
+    if (adminAuthService.isAuthenticated()) {
       console.log("Already authenticated as admin, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +55,12 @@ const AdminLogin = () => {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userData');
       
-      const success = await adminLogin(email, password);
+      const loginResponse = await adminAuthService.adminLogin({
+        email,
+        password
+      });
       
-      if (success) {
+      if (loginResponse.success) {
         console.log("Admin login successful, preparing to navigate");
         toast({
           title: "Admin Login successful",
@@ -68,10 +70,10 @@ const AdminLogin = () => {
         // Mark admin as logged in
         localStorage.setItem('admin_logged_in', 'true');
         
-        // Navigate after login success - fixed the issue with vibrating after login
+        // Navigate after login success
         navigate('/admin/dashboard', { replace: true });
       } else {
-        setLoginError("Invalid admin credentials. Email must contain 'admin'.");
+        setLoginError(loginResponse.message || "Invalid admin credentials. Email must contain 'admin'.");
       }
     } catch (error) {
       console.error("Admin login error:", error);

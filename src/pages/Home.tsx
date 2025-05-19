@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import HeroSection from '@/components/home/HeroSection';
 import FeatureSection from '@/components/home/FeatureSection';
@@ -9,7 +9,6 @@ import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import SupportSection from '@/components/home/SupportSection';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import { useState } from 'react';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';

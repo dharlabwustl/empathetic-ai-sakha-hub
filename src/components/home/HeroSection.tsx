@@ -53,24 +53,41 @@ const HeroSection = () => {
             </div>
           </motion.div>
           
-          {/* Right side - Animated student avatar journey */}
+          {/* Right side - Student avatar journey animation */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative h-[400px] md:h-[500px]"
+            className="relative h-[400px] md:h-[500px] bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-2xl overflow-hidden"
           >
-            <div className="absolute w-full h-full">
-              {/* Journey Path */}
-              <svg className="absolute w-full h-full" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+            {/* Student Journey Map */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-full h-full max-w-[90%] max-h-[90%]" viewBox="0 0 500 400" preserveAspectRatio="xMidYMid meet">
+                {/* Journey Path */}
                 <path 
-                  d="M50,250 Q125,100 250,250 Q375,400 450,250" 
+                  d="M50,200 Q125,100 250,200 Q375,300 450,200" 
                   fill="none" 
                   stroke="url(#gradient)" 
-                  strokeWidth="4" 
-                  strokeDasharray="10,5"
+                  strokeWidth="6" 
+                  strokeLinecap="round"
+                  strokeDasharray="12,6"
                   className="path-animation"
                 />
+                
+                {/* Milestones dots */}
+                <circle cx="50" cy="200" r="8" fill="#6d28d9" />
+                <circle cx="150" cy="120" r="8" fill="#6d28d9" />
+                <circle cx="250" cy="200" r="8" fill="#6d28d9" />
+                <circle cx="350" cy="280" r="8" fill="#6d28d9" />
+                <circle cx="450" cy="200" r="8" fill="#6d28d9" />
+                
+                {/* Milestone glow effects */}
+                <circle cx="50" cy="200" r="12" fill="#6d28d9" fillOpacity="0.3" />
+                <circle cx="150" cy="120" r="12" fill="#6d28d9" fillOpacity="0.3" />
+                <circle cx="250" cy="200" r="12" fill="#6d28d9" fillOpacity="0.3" />
+                <circle cx="350" cy="280" r="12" fill="#6d28d9" fillOpacity="0.3" />
+                <circle cx="450" cy="200" r="12" fill="#6d28d9" fillOpacity="0.3" />
+                
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#9b87f5" />
@@ -79,32 +96,14 @@ const HeroSection = () => {
                 </defs>
               </svg>
               
-              {/* Student Avatar - Journey animation */}
-              <motion.div 
-                className="absolute left-0 top-[45%] w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg"
-                initial={{ x: 50, y: 250 }}
-                animate={{ 
-                  x: [50, 125, 250, 375, 450], 
-                  y: [250, 100, 250, 400, 250] 
-                }}
-                transition={{ 
-                  duration: 8, 
-                  times: [0, 0.25, 0.5, 0.75, 1],
-                  repeat: Infinity,
-                  repeatType: "reverse"
-                }}
-              >
-                <span className="text-2xl font-bold text-white">👤</span>
-              </motion.div>
-              
-              {/* Journey Milestones */}
+              {/* Student Milestone Labels */}
               <div className="absolute left-[10%] top-[50%] transform -translate-y-1/2">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
                   <p className="font-medium">Starting Point</p>
                 </div>
               </div>
               
-              <div className="absolute left-[25%] top-[20%] transform -translate-y-1/2">
+              <div className="absolute left-[30%] top-[30%] transform -translate-y-1/2">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
                   <p className="font-medium">Learning Concepts</p>
                 </div>
@@ -116,17 +115,84 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              <div className="absolute left-[75%] top-[80%] transform -translate-y-1/2">
+              <div className="absolute left-[70%] top-[70%] transform -translate-y-1/2">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
                   <p className="font-medium">Exam Simulation</p>
                 </div>
               </div>
               
-              <div className="absolute left-[90%] top-[50%] transform -translate-y-1/2">
+              <div className="absolute left-[90%] top-[50%] transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-md">
                   <p className="font-medium">Success!</p>
                 </div>
               </div>
+            </div>
+            
+            {/* Animated Student Avatar */}
+            <motion.div
+              className="absolute w-16 h-16 z-10"
+              initial={{ x: 50, y: 200 }}
+              animate={{ 
+                x: [50, 150, 250, 350, 450],
+                y: [200, 120, 200, 280, 200],
+                scale: [1, 1.1, 1, 1.1, 1.2],
+              }}
+              transition={{ 
+                duration: 10, 
+                times: [0, 0.25, 0.5, 0.75, 1],
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            >
+              <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-blue-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800">
+                <div className="text-white font-bold text-2xl">👤</div>
+              </div>
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-black/20 rounded-full filter blur-sm"></div>
+            </motion.div>
+            
+            {/* Animated Decorative Elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Academic symbols floating animation */}
+              <motion.div 
+                className="absolute text-3xl"
+                initial={{ x: "10%", y: "20%", opacity: 0.7 }}
+                animate={{ x: "15%", y: "25%", opacity: 0.9 }}
+                transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
+              >
+                📚
+              </motion.div>
+              <motion.div 
+                className="absolute text-3xl"
+                initial={{ x: "70%", y: "30%", opacity: 0.7 }}
+                animate={{ x: "75%", y: "35%", opacity: 0.9 }}
+                transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
+              >
+                🔬
+              </motion.div>
+              <motion.div 
+                className="absolute text-3xl"
+                initial={{ x: "60%", y: "70%", opacity: 0.7 }}
+                animate={{ x: "65%", y: "65%", opacity: 0.9 }}
+                transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
+              >
+                🎯
+              </motion.div>
+              <motion.div 
+                className="absolute text-3xl"
+                initial={{ x: "30%", y: "80%", opacity: 0.7 }}
+                animate={{ x: "25%", y: "75%", opacity: 0.9 }}
+                transition={{ duration: 3.5, repeat: Infinity, repeatType: "reverse" }}
+              >
+                🧠
+              </motion.div>
+              <motion.div 
+                className="absolute text-3xl"
+                initial={{ x: "40%", y: "15%", opacity: 0.7 }}
+                animate={{ x: "35%", y: "20%", opacity: 0.9 }}
+                transition={{ duration: 5.5, repeat: Infinity, repeatType: "reverse" }}
+              >
+                🏆
+              </motion.div>
             </div>
           </motion.div>
         </div>
