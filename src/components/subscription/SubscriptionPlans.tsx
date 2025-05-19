@@ -3,22 +3,20 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Info, Users } from 'lucide-react';
-
-interface PlanFeature {
-  text: string;
-  highlighted?: boolean;
-}
+import { standardSubscriptionPlans, SubscriptionType } from '@/types/user/subscription';
 
 interface Plan {
   id: string;
   name: string;
   price: number;
+  priceAnnual?: number;
   description: string;
   features: string[];
   type: string;
   highlighted?: boolean;
   popular?: boolean;
   buttonText?: string;
+  maxMembers?: number;
 }
 
 interface SubscriptionPlansProps {
@@ -32,98 +30,21 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'annual'>('monthly');
   
-  // Plans configuration
-  const plans: Plan[] = [
-    {
-      id: 'free',
-      name: 'Free Plan',
-      price: 0,
-      description: 'Basic access with limited features',
-      features: [
-        'Access to basic study materials',
-        'Limited practice questions',
-        'Community forum access',
-        'One mock test per month'
-      ],
-      type: 'free'
-    },
-    {
-      id: selectedPeriod === 'monthly' ? 'basic-monthly' : 'basic-annual',
-      name: 'Basic',
-      price: selectedPeriod === 'monthly' ? 299 : 2990,
-      description: 'Essential features for serious students',
-      features: [
-        'Everything in Free',
-        'Unlimited practice questions',
-        'Personalized study plan',
-        'Weekly performance reports',
-        '10 mock tests per month'
-      ],
-      highlighted: true,
-      type: 'basic',
-      popular: true,
-      buttonText: 'Upgrade Now'
-    },
-    {
-      id: selectedPeriod === 'monthly' ? 'premium-monthly' : 'premium-annual',
-      name: 'Premium',
-      price: selectedPeriod === 'monthly' ? 499 : 4990,
-      description: 'Advanced features for top performance',
-      features: [
-        'Everything in Basic',
-        'AI-powered study assistant',
-        'All premium study materials',
-        'Video explanations',
-        'Detailed performance analytics',
-        'Unlimited mock tests'
-      ],
-      type: 'premium',
-      buttonText: 'Go Premium'
-    }
-  ];
-  
-  // Group plans configuration
-  const groupPlans: Plan[] = [
-    {
-      id: selectedPeriod === 'monthly' ? 'team-monthly' : 'team-annual',
-      name: 'Team',
-      price: selectedPeriod === 'monthly' ? 999 : 9990,
-      description: 'Perfect for small study groups',
-      features: [
-        'Access for up to 5 members',
-        'Everything in Premium plan',
-        'Team progress dashboard',
-        'Collaborative study tools',
-        'Group mock tests'
-      ],
-      type: 'team'
-    },
-    {
-      id: selectedPeriod === 'monthly' ? 'institute-monthly' : 'institute-annual',
-      name: 'Institute',
-      price: selectedPeriod === 'monthly' ? 4999 : 49990,
-      description: 'Complete solution for coaching institutes',
-      features: [
-        'Access for up to 50 members',
-        'Everything in Team plan',
-        'Admin dashboard',
-        'Custom branding',
-        'API access',
-        'Dedicated support'
-      ],
-      type: 'institute'
-    }
-  ];
+  // Get plans from standardized plans
+  const individualPlans = standardSubscriptionPlans.individual;
+  const groupPlans = standardSubscriptionPlans.group;
   
   const handlePeriodToggle = (period: 'monthly' | 'annual') => {
     setSelectedPeriod(period);
   };
   
-  const getPriceDisplay = (price: number) => {
+  const getPriceDisplay = (price: number, priceAnnual?: number) => {
+    const displayPrice = selectedPeriod === 'annual' && priceAnnual ? priceAnnual : price;
+    
     return (
       <>
         <span className="mr-1">₹</span>
-        <span className="text-3xl font-bold">{price}</span>
+        <span className="text-3xl font-bold">{displayPrice}</span>
         <span className="text-muted-foreground">/{selectedPeriod === 'monthly' ? 'mo' : 'year'}</span>
       </>
     );
@@ -162,8 +83,8 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         <section>
           <h2 className="text-2xl font-bold mb-6">Individual Plans</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {individualPlans.map((plan) => (
               <div
                 key={plan.id}
                 className={`rounded-lg border ${
@@ -189,10 +110,10 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                     </div>
                   ) : (
                     <div className="mt-4 mb-6">
-                      {getPriceDisplay(plan.price)}
-                      {selectedPeriod === 'annual' && (
+                      {getPriceDisplay(plan.price, plan.priceAnnual)}
+                      {selectedPeriod === 'annual' && plan.priceAnnual && (
                         <div className="text-xs text-green-600 mt-1">
-                          Billed annually (₹{Math.round(plan.price / 12)}/month)
+                          Billed annually (₹{Math.round(plan.priceAnnual / 12)}/month)
                         </div>
                       )}
                     </div>
@@ -205,6 +126,10 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                         <span>{feature}</span>
                       </div>
                     ))}
+                  </div>
+                  
+                  <div className="flex items-center text-xs text-emerald-600 mb-4">
+                    <span>5% helps fund education for underprivileged students</span>
                   </div>
                   
                   <Button
@@ -232,7 +157,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             </Badge>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {groupPlans.map((plan) => (
               <div
                 key={plan.id}
@@ -242,14 +167,18 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                   <h3 className="text-xl font-bold">{plan.name}</h3>
                   <p className="text-muted-foreground mt-1.5 h-12">{plan.description}</p>
                   
-                  <div className="mt-4 mb-6">
-                    {getPriceDisplay(plan.price)}
-                    {selectedPeriod === 'annual' && (
+                  <div className="mt-4 mb-3">
+                    {getPriceDisplay(plan.price, plan.priceAnnual)}
+                    {selectedPeriod === 'annual' && plan.priceAnnual && (
                       <div className="text-xs text-green-600 mt-1">
-                        Billed annually (₹{Math.round(plan.price / 12)}/month)
+                        Billed annually (₹{Math.round(plan.priceAnnual / 12)}/month)
                       </div>
                     )}
                   </div>
+                  
+                  <p className="text-sm text-purple-600 mb-3">
+                    For up to {plan.maxMembers} members
+                  </p>
                   
                   <div className="space-y-3 mb-6">
                     {plan.features.map((feature, i) => (
@@ -258,6 +187,10 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                         <span>{feature}</span>
                       </div>
                     ))}
+                  </div>
+                  
+                  <div className="flex items-center text-xs text-emerald-600 mb-4">
+                    <span>5% helps fund education for underprivileged students</span>
                   </div>
                   
                   <Button
@@ -283,6 +216,10 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             Contact our support team for personalized recommendations based on your exam needs.
           </p>
         </div>
+      </div>
+      
+      <div className="text-center text-sm text-gray-500 mt-8">
+        <p>We support UN Sustainability goals - inclusive and equitable quality education and promote lifelong learning opportunities for all.</p>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Calendar, AlertCircle, ChevronRight, Package, Heart } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { SubscriptionType } from '@/types/user/base';
+import { SubscriptionType } from '@/types/user/subscription';
 
 interface SubscriptionBannerProps {
   subscription?: SubscriptionType | {
@@ -53,6 +53,14 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
         borderColor: 'border-purple-400',
         icon: <Sparkles className="h-4 w-4" />
       };
+    } else if (planTypeLower.includes('premium')) {
+      return {
+        name: 'Premium',
+        color: 'bg-gradient-to-r from-blue-500 to-blue-300',
+        textColor: 'text-blue-900',
+        borderColor: 'border-blue-400',
+        icon: <Sparkles className="h-4 w-4" />
+      };
     } else if (planTypeLower.includes('group')) {
       return {
         name: 'Group',
@@ -60,6 +68,22 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
         textColor: 'text-blue-900',
         borderColor: 'border-blue-400',
         icon: <Package className="h-4 w-4" />
+      };
+    } else if (planTypeLower.includes('basic')) {
+      return {
+        name: 'Basic',
+        color: 'bg-gradient-to-r from-green-500 to-green-300',
+        textColor: 'text-green-900',
+        borderColor: 'border-green-400',
+        icon: <Calendar className="h-4 w-4" />
+      };
+    } else if (planTypeLower.includes('trial')) {
+      return {
+        name: 'Trial',
+        color: 'bg-gradient-to-r from-amber-500 to-amber-300',
+        textColor: 'text-amber-900',
+        borderColor: 'border-amber-400',
+        icon: <Calendar className="h-4 w-4" />
       };
     } else {
       return {
@@ -183,11 +207,11 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
                   </span>
                 )}
                 
-                {/* Donation message for premium plans */}
+                {/* UN Sustainability message for premium plans */}
                 {isActive && !planType.toLowerCase().includes('free') && (
                   <div className="flex items-center mt-1 text-xs text-emerald-600">
                     <Heart className="h-3 w-3 mr-1 text-pink-500 fill-pink-200" />
-                    <span>5% of your subscription helps fund education for underprivileged students</span>
+                    <span>We support UN Sustainability goals - 5% helps fund education for underprivileged students</span>
                   </div>
                 )}
               </div>

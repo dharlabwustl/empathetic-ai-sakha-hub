@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layouts/MainLayout';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
-import { SubscriptionPlan } from '@/types/user/base';
+import { SubscriptionPlan } from '@/types/user/subscription';
 import { Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import PaymentFlow from '@/components/subscription/PaymentFlow';
@@ -72,8 +72,8 @@ const SubscriptionPage: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-1 text-purple-600 dark:text-purple-300">Making a difference together</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  We donate 5% of monthly subscription revenue to fund underprivileged students,
-                  providing them free access to our platform.
+                  We support UN Sustainability goals with inclusive and equitable quality education. 
+                  5% of subscription revenue helps underprivileged students access quality education.
                 </p>
               </div>
             </CardContent>
@@ -176,9 +176,10 @@ const SubscriptionPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Reminder about donation */}
+            {/* UN Sustainability goals message */}
             <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-              <p>5% of all purchases helps fund free access for underprivileged students.</p>
+              <p>We support UN Sustainability goals - inclusive and equitable quality education and promote lifelong learning opportunities for all.</p>
+              <p className="mt-1">5% of all purchases helps fund free access for underprivileged students.</p>
             </div>
           </div>
         </div>

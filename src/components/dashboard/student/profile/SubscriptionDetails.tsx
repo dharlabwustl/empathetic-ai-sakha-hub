@@ -105,12 +105,13 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({
               </div>
             </div>
             
-            {/* Donation note */}
+            {/* UN Sustainability goals message */}
             <div className="bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 p-4 rounded-lg border border-pink-100 dark:border-pink-800/30 flex items-center gap-2">
               <Heart className="text-pink-500 h-5 w-5 flex-shrink-0" />
               <p className="text-sm">
                 <span className="font-medium">Making a difference together:</span>{" "}
-                We donate 5% of monthly subscription revenue to fund underprivileged students, providing them free access to our platform.
+                We support UN Sustainability goals with inclusive and equitable quality education. 
+                5% of subscription revenue helps underprivileged students access quality education.
               </p>
             </div>
 
