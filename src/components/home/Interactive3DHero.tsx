@@ -1,692 +1,736 @@
-import React, { useEffect, useRef, useState } from 'react';
+
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, GraduationCap, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HeroButtons from './hero/HeroButtons';
+import ExamNamesBadge from './hero/ExamNamesBadge';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { toast } from 'sonner';
 
-const Interactive3DHero: React.FC = () => {
-  const threeContainerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+const Interactive3DHero = () => {
+  const [currentStage, setCurrentStage] = useState(0);
+  const [showJourney, setShowJourney] = useState(false);
+  const [showCtaButton, setShowCtaButton] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const animationRef = useRef<number>(0);
-  
-  const [currentStage, setCurrentStage] = useState(0);
-  const [showCTA, setShowCTA] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const speechRef = useRef<SpeechRecognition | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const frameIdRef = useRef<number>(0);
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Journey stages - educational journey with exam preparation focus
   const journeyStages = [
     {
-      title: "Exam Preparation Journey",
-      subtitle: "Where are you in your journey?",
-      description: "From initial struggle to mastery, we walk with you through every step of your exam preparation journey.",
-      color: "#8b5cf6", // Purple
-      modelType: "books",
+      title: "Start Your NEET Preparation Journey",
+      subtitle: "Join thousands of successful NEET aspirants",
+      description: "Prepare for NEET with our AI-powered platform that adapts to your learning style and mood.",
+      background: "Medical",
+      voiceCommand: "start journey"
     },
     {
-      title: "Personalized Learning",
-      subtitle: "Tailored to your needs",
-      description: "Our AI understands your strengths and weaknesses, creating a study plan that optimizes your learning.",
-      color: "#3b82f6", // Blue
-      modelType: "brain",
+      title: "Personalized Study Plan",
+      subtitle: "Tailored specifically for NEET examination",
+      description: "Get a customized study plan that focuses on your strengths and improves your weak areas in Physics, Chemistry, and Biology.",
+      background: "Books",
+      voiceCommand: "study plan"
     },
     {
-      title: "Mastery Through Practice",
-      subtitle: "Learn by doing",
-      description: "Apply concepts through interactive problems, flashcards, and simulated exam environments.",
-      color: "#10b981", // Green
-      modelType: "chart",
+      title: "Track Your Progress",
+      subtitle: "Monitor your NEET preparation journey",
+      description: "See your improvement over time with detailed analytics and performance insights for all NEET subjects.",
+      background: "Analytics",
+      voiceCommand: "progress"
+    },
+    {
+      title: "Practice With Real NEET Questions",
+      subtitle: "Build exam confidence",
+      description: "Access thousands of previous NEET exam questions and take full-length practice tests under timed conditions.",
+      background: "Exam",
+      voiceCommand: "practice"
+    },
+    {
+      title: "Achieve Your Medical Dream",
+      subtitle: "Your success is our success",
+      description: "Join the ranks of PREPZR students who have successfully gained admission to top medical colleges across India.",
+      background: "Success",
+      voiceCommand: "success"
     }
   ];
 
-  // Automatically advance to next stage
+  // Initialize 3D scene
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (currentStage < journeyStages.length - 1) {
-        setCurrentStage(prev => prev + 1);
-      } else {
-        // Show CTA when reached the last stage
-        setShowCTA(true);
-      }
-    }, 5000); // Auto-advance every 5 seconds
+    if (!containerRef.current) return;
     
-    return () => clearTimeout(timer);
-  }, [currentStage]);
-
-  // Show CTA regardless after some time
-  useEffect(() => {
-    const ctaTimer = setTimeout(() => {
-      setShowCTA(true);
-    }, 7000); // Show CTA after 7 seconds even if not at last stage
-    
-    return () => clearTimeout(ctaTimer);
-  }, []);
-
-  // Setup speech recognition
-  useEffect(() => {
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      speechRef.current = new SpeechRecognition();
-      speechRef.current.continuous = true;
-      speechRef.current.interimResults = true;
-      
-      speechRef.current.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        
-        if (finalTranscript.toLowerCase().includes('next')) {
-          handleNext();
-        } else if (finalTranscript.toLowerCase().includes('previous')) {
-          handlePrevious();
-        } else if (finalTranscript.toLowerCase().includes('start') || 
-                  finalTranscript.toLowerCase().includes('begin') || 
-                  finalTranscript.toLowerCase().includes('ready')) {
-          handleGetStarted();
-        }
-        
-        setTranscript(finalTranscript);
-      };
-    }
-    
-    return () => {
-      if (speechRef.current) {
-        speechRef.current.stop();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    // Setup the 3D background animation
-    setupThreeJSAnimation();
-    
-    // Clean up function
-    return () => {
-      // Clean up Three.js resources
-      if (rendererRef.current && threeContainerRef.current) {
-        threeContainerRef.current.removeChild(rendererRef.current.domElement);
-        rendererRef.current.dispose();
-      }
-      
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    // Change 3D scene when stage changes
-    if (sceneRef.current) {
-      updateScene(journeyStages[currentStage].modelType, journeyStages[currentStage].color);
-    }
-  }, [currentStage]);
-
-  const setupThreeJSAnimation = () => {
-    if (!threeContainerRef.current) return;
-    
-    // Initialize Three.js scene
+    // Scene setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     
+    // Camera setup
+    const camera = new THREE.PerspectiveCamera(
+      70,
+      window.innerWidth / (window.innerHeight * 0.9),
+      0.1,
+      1000
+    );
+    camera.position.z = 5;
+    cameraRef.current = camera;
+    
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight * 0.9);
+    renderer.setClearColor(0x000000, 0);
+    containerRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+    
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     
     // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(10, 10, 10);
     scene.add(directionalLight);
 
-    // Add soft hemisphere light
-    const hemisphereLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 0.7);
-    scene.add(hemisphereLight);
-    
-    // Setup camera
-    const camera = new THREE.PerspectiveCamera(
-      75, 
-      window.innerWidth / window.innerHeight, 
-      0.1, 
-      1000
-    );
-    camera.position.z = 30;
-    cameraRef.current = camera;
-    
-    // Setup renderer with transparent background
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true 
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    
-    threeContainerRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-    
-    // Create initial scene based on first stage
-    updateScene(journeyStages[0].modelType, journeyStages[0].color);
-    
-    // Handle window resize
-    const handleResize = () => {
-      if (cameraRef.current && rendererRef.current && threeContainerRef.current) {
-        const width = threeContainerRef.current.clientWidth;
-        const height = threeContainerRef.current.clientHeight;
-        
-        cameraRef.current.aspect = width / height;
-        cameraRef.current.updateProjectionMatrix();
-        rendererRef.current.setSize(width, height);
-      }
-    };
-    window.addEventListener('resize', handleResize);
+    // Create 3D objects based on the current stage
+    createBackground(currentStage);
     
     // Animation loop
     const animate = () => {
-      // Rotate all 3D objects
+      frameIdRef.current = requestAnimationFrame(animate);
+      
+      // Animate objects in the scene
       scene.traverse((object) => {
-        if (object instanceof THREE.Mesh || object instanceof THREE.Group) {
-          object.rotation.y += 0.002;
-          
-          // Add subtle floating motion 
-          if (object.position.y !== undefined) {
-            const time = Date.now() * 0.001;
-            const offset = object.position.x * 0.1;
-            object.position.y += Math.sin(time + offset) * 0.005;
-          }
+        if (object instanceof THREE.Mesh) {
+          object.rotation.x += 0.002;
+          object.rotation.y += 0.003;
         }
       });
       
       renderer.render(scene, camera);
-      animationRef.current = requestAnimationFrame(animate);
     };
     
     animate();
     
+    // Handle window resize
+    const handleResize = () => {
+      if (!cameraRef.current || !rendererRef.current || !containerRef.current) return;
+      
+      cameraRef.current.aspect = window.innerWidth / (window.innerHeight * 0.9);
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(window.innerWidth, window.innerHeight * 0.9);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Show the journey after a short delay
+    const journeyTimer = setTimeout(() => {
+      setShowJourney(true);
+    }, 1000);
+
+    // Show the CTA button after a short delay
+    const ctaTimer = setTimeout(() => {
+      setShowCtaButton(true);
+    }, 2000);
+    
+    // Clean up
     return () => {
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(frameIdRef.current);
+      if (rendererRef.current && containerRef.current) {
+        containerRef.current.removeChild(rendererRef.current.domElement);
+      }
+      clearTimeout(journeyTimer);
+      clearTimeout(ctaTimer);
     };
-  };
-
-  const updateScene = (modelType: string, color: string) => {
+  }, []);
+  
+  // Update 3D background when stage changes
+  useEffect(() => {
     if (!sceneRef.current) return;
     
-    // Remove existing objects
+    // Clear previous objects
     while (sceneRef.current.children.length > 0) {
       const object = sceneRef.current.children[0];
       if (object instanceof THREE.Light) {
-        // Keep lights
-        sceneRef.current.remove(sceneRef.current.children[0]);
-      } else {
-        break;
+        sceneRef.current.remove(object);
       }
     }
     
-    // Add ambient light back if needed
-    if (sceneRef.current.children.length === 0) {
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      sceneRef.current.add(ambientLight);
-      
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      directionalLight.position.set(10, 10, 10);
-      sceneRef.current.add(directionalLight);
-      
-      const hemisphereLight = new THREE.HemisphereLight(0xddeeff, 0x202020, 0.7);
-      sceneRef.current.add(hemisphereLight);
-    }
+    // Add lights back
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    sceneRef.current.add(ambientLight);
     
-    // Create 3D model based on stage
-    switch (modelType) {
-      case 'books':
-        createBookModel(color);
-        break;
-      case 'brain':
-        createBrainModel(color);
-        break;
-      case 'chart':
-        createChartModel(color);
-        break;
-      default:
-        createParticleSystem(color);
-    }
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 10);
+    sceneRef.current.add(directionalLight);
     
-    // Add background particles
-    createParticleSystem(color);
-  };
+    // Create new background
+    createBackground(currentStage);
+    
+    // Announce stage change with voice
+    announceStageChange(currentStage);
+  }, [currentStage]);
 
-  const createBookModel = (color: string) => {
+  // Create background based on the current stage
+  const createBackground = (stage: number) => {
     if (!sceneRef.current) return;
-
-    // Create a group for all books
-    const bookGroup = new THREE.Group();
     
-    // Create several books with different sizes and positions
-    const bookColors = [
-      color,
-      new THREE.Color(color).offsetHSL(0.1, 0, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(-0.1, 0, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(0, 0.2, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(0, -0.2, 0).getHexString()
-    ];
+    const backgroundType = journeyStages[stage].background;
     
-    for (let i = 0; i < 5; i++) {
+    switch (backgroundType) {
+      case "Medical":
+        // Create DNA helix
+        createDNAHelix();
+        break;
+      case "Books":
+        // Create floating books
+        createFloatingBooks();
+        break;
+      case "Analytics":
+        // Create charts and graphs
+        createCharts();
+        break;
+      case "Exam":
+        // Create exam papers and question marks
+        createExamPapers();
+        break;
+      case "Success":
+        // Create graduation caps and trophies
+        createSuccessSymbols();
+        break;
+    }
+  };
+  
+  // Create DNA helix for Medical background
+  const createDNAHelix = () => {
+    if (!sceneRef.current) return;
+    
+    const dnaGroup = new THREE.Group();
+    
+    for (let i = 0; i < 20; i++) {
+      // Create helix structure
+      const sphere1 = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 16, 16),
+        new THREE.MeshPhongMaterial({ color: 0x8B5CF6 })
+      );
+      
+      const sphere2 = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 16, 16),
+        new THREE.MeshPhongMaterial({ color: 0xEC4899 })
+      );
+      
+      // Position spheres in helix formation
+      const angle = i * 0.6;
+      sphere1.position.set(
+        Math.cos(angle) * 2,
+        i * 0.4 - 4,
+        Math.sin(angle) * 2
+      );
+      
+      sphere2.position.set(
+        Math.cos(angle + Math.PI) * 2,
+        i * 0.4 - 4,
+        Math.sin(angle + Math.PI) * 2
+      );
+      
+      dnaGroup.add(sphere1);
+      dnaGroup.add(sphere2);
+      
+      // Add connecting rod
+      const rod = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 4, 8),
+        new THREE.MeshPhongMaterial({ color: 0xA5F3FC })
+      );
+      
+      rod.position.set(0, i * 0.4 - 4, 0);
+      rod.rotation.z = angle;
+      dnaGroup.add(rod);
+    }
+    
+    sceneRef.current.add(dnaGroup);
+  };
+  
+  // Create floating books for Books background
+  const createFloatingBooks = () => {
+    if (!sceneRef.current) return;
+    
+    for (let i = 0; i < 15; i++) {
       // Create book
-      const bookWidth = 5 + Math.random();
-      const bookHeight = 0.5 + Math.random() * 0.5;
-      const bookDepth = 7 + Math.random() * 2;
+      const book = new THREE.Mesh(
+        new THREE.BoxGeometry(1.5, 0.2, 1),
+        new THREE.MeshPhongMaterial({ 
+          color: new THREE.Color().setHSL(Math.random(), 0.7, 0.5)
+        })
+      );
       
-      const bookGeometry = new THREE.BoxGeometry(bookWidth, bookHeight, bookDepth);
-      const bookMaterial = new THREE.MeshStandardMaterial({
-        color: bookColors[i],
-        roughness: 0.7,
-        metalness: 0.2
-      });
+      // Random position
+      book.position.set(
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 5
+      );
       
-      const book = new THREE.Mesh(bookGeometry, bookMaterial);
+      // Random rotation
+      book.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
       
-      // Position books in different arrangements
-      const angle = (i / 5) * Math.PI * 2;
-      const radius = 8;
-      book.position.x = Math.sin(angle) * radius;
-      book.position.y = (i * 1.2) - 2;
-      book.position.z = Math.cos(angle) * radius;
-      
-      // Rotate books
-      book.rotation.y = Math.random() * Math.PI;
-      book.rotation.z = Math.random() * 0.2 - 0.1;
-      
-      bookGroup.add(book);
+      sceneRef.current.add(book);
     }
-    
-    // Add a floating notepad
-    const notepadGeometry = new THREE.BoxGeometry(5, 0.2, 7);
-    const notepadMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.8
-    });
-    
-    const notepad = new THREE.Mesh(notepadGeometry, notepadMaterial);
-    notepad.position.set(0, 3, 0);
-    
-    // Add pen
-    const penGeometry = new THREE.CylinderGeometry(0.1, 0.1, 6, 8);
-    const penMaterial = new THREE.MeshStandardMaterial({
-      color: 0x2233aa,
-      metalness: 0.8,
-      roughness: 0.2
-    });
-    
-    const pen = new THREE.Mesh(penGeometry, penMaterial);
-    pen.rotation.z = Math.PI / 4;
-    pen.position.set(2, 3.5, 2);
-    
-    // Add to scene
-    bookGroup.add(notepad);
-    bookGroup.add(pen);
-    bookGroup.rotation.x = Math.PI / 6;
-    sceneRef.current.add(bookGroup);
   };
-
-  const createBrainModel = (color: string) => {
+  
+  // Create charts and graphs for Analytics background
+  const createCharts = () => {
     if (!sceneRef.current) return;
-
-    // Create a brain model using spheres
-    const brainGroup = new THREE.Group();
     
-    // Create primary brain mass
-    const mainGeometry = new THREE.SphereGeometry(5, 16, 16);
-    const mainMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color),
-      roughness: 0.7,
-      metalness: 0.3,
-      transparent: true,
-      opacity: 0.8
-    });
-    
-    const mainBrain = new THREE.Mesh(mainGeometry, mainMaterial);
-    brainGroup.add(mainBrain);
-    
-    // Create brain convolutions with small spheres
-    for (let i = 0; i < 50; i++) {
-      const size = 0.5 + Math.random() * 0.8;
-      const sphereGeometry = new THREE.SphereGeometry(size, 8, 8);
-      
-      // Adjust color for each convolution
-      const hue = new THREE.Color(color);
-      const adjustedColor = hue.offsetHSL(
-        Math.random() * 0.1 - 0.05,
-        Math.random() * 0.2,
-        Math.random() * 0.2 - 0.1
-      );
-      
-      const sphereMaterial = new THREE.MeshStandardMaterial({
-        color: adjustedColor,
-        roughness: 0.5,
-        metalness: 0.4,
-        transparent: true,
-        opacity: 0.9
-      });
-      
-      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-      
-      // Position on the surface of the brain
-      const phi = Math.random() * Math.PI * 2;
-      const theta = Math.random() * Math.PI;
-      const radius = 5;
-      
-      sphere.position.x = radius * Math.sin(theta) * Math.cos(phi);
-      sphere.position.y = radius * Math.sin(theta) * Math.sin(phi);
-      sphere.position.z = radius * Math.cos(theta);
-      
-      brainGroup.add(sphere);
-    }
-    
-    // Add neural connections with lines
-    const linesMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.4
-    });
-    
-    for (let i = 0; i < 30; i++) {
-      const start = new THREE.Vector3(
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10
-      );
-      
-      const end = new THREE.Vector3(
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10
-      );
-      
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-      const line = new THREE.Line(lineGeometry, linesMaterial);
-      
-      brainGroup.add(line);
-    }
-    
-    brainGroup.rotation.x = Math.PI / 6;
-    sceneRef.current.add(brainGroup);
-  };
-
-  const createChartModel = (color: string) => {
-    if (!sceneRef.current) return;
-
-    // Create a group for all chart elements
     const chartGroup = new THREE.Group();
     
-    // Create base platform
-    const baseGeometry = new THREE.BoxGeometry(16, 0.5, 16);
-    const baseMaterial = new THREE.MeshStandardMaterial({
-      color: 0x444444,
-      roughness: 0.7
-    });
-    
-    const base = new THREE.Mesh(baseGeometry, baseMaterial);
-    base.position.y = -4;
-    chartGroup.add(base);
-    
-    // Create chart bars
-    const barColors = [
-      color,
-      new THREE.Color(color).offsetHSL(0.05, 0, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(0.1, 0, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(0.15, 0, 0).getHexString(),
-      new THREE.Color(color).offsetHSL(0.2, 0, 0).getHexString(),
-    ];
-    
-    // Performance chart
+    // Create bar chart
     for (let i = 0; i < 5; i++) {
-      const height = 2 + Math.random() * 6;
-      const barGeometry = new THREE.BoxGeometry(1.5, height, 1.5);
-      const barMaterial = new THREE.MeshStandardMaterial({
-        color: barColors[i],
-        roughness: 0.5,
-        metalness: 0.2
-      });
+      const height = Math.random() * 3 + 1;
+      const bar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, height, 0.5),
+        new THREE.MeshPhongMaterial({ color: 0x3B82F6 })
+      );
       
-      const bar = new THREE.Mesh(barGeometry, barMaterial);
-      bar.position.x = (i - 2) * 3;
-      bar.position.y = -4 + (height / 2);
-      
+      bar.position.set(i * 1.2 - 2.4, height / 2 - 2, -2);
       chartGroup.add(bar);
     }
     
-    // Add floating graph
-    const graphPoints = [];
-    for (let i = 0; i < 10; i++) {
-      // Create a sine wave pattern
-      const x = (i - 5) * 1.2;
-      const y = Math.sin(i * 0.5) * 2 + 4;
-      const z = 0;
-      
-      graphPoints.push(new THREE.Vector3(x, y, z));
-    }
+    // Create circular progress
+    const circle = new THREE.Mesh(
+      new THREE.TorusGeometry(2, 0.3, 16, 32, Math.PI * 1.5),
+      new THREE.MeshPhongMaterial({ color: 0x10B981 })
+    );
     
-    const graphGeometry = new THREE.BufferGeometry().setFromPoints(graphPoints);
-    const graphMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      linewidth: 2
-    });
+    circle.position.set(0, 0, -5);
+    circle.rotation.x = Math.PI / 2;
+    chartGroup.add(circle);
     
-    const graph = new THREE.Line(graphGeometry, graphMaterial);
-    chartGroup.add(graph);
-    
-    // Add data points on the graph
-    for (let i = 0; i < graphPoints.length; i += 2) {
-      const pointGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-      const pointMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        emissive: barColors[i % barColors.length],
-        emissiveIntensity: 0.5
-      });
-      
-      const point = new THREE.Mesh(pointGeometry, pointMaterial);
-      point.position.copy(graphPoints[i]);
-      
-      chartGroup.add(point);
-    }
-    
-    chartGroup.rotation.x = -Math.PI / 12;
     sceneRef.current.add(chartGroup);
   };
-
-  const createParticleSystem = (color: string) => {
+  
+  // Create exam papers for Exam background
+  const createExamPapers = () => {
     if (!sceneRef.current) return;
     
-    // Create particles
-    const particleCount = 1000;
-    const particles = new THREE.BufferGeometry();
-    
-    const positions = new Float32Array(particleCount * 3);
-    
-    // Create particle cloud in the background
-    for (let i = 0; i < particleCount; i++) {
-      // Position particles in a spherical shell
-      const radius = 30 + Math.random() * 20; // Far in the background
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.random() * Math.PI;
+    for (let i = 0; i < 10; i++) {
+      // Create paper
+      const paper = new THREE.Mesh(
+        new THREE.PlaneGeometry(2, 3),
+        new THREE.MeshPhongMaterial({ 
+          color: 0xFFFFFF,
+          side: THREE.DoubleSide
+        })
+      );
       
-      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-      positions[i * 3 + 2] = radius * Math.cos(phi);
+      // Random position and rotation
+      paper.position.set(
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 10
+      );
+      
+      paper.rotation.set(
+        Math.random() * Math.PI / 4,
+        Math.random() * Math.PI / 4,
+        Math.random() * Math.PI / 4
+      );
+      
+      sceneRef.current.add(paper);
+      
+      // Add question mark
+      if (i % 2 === 0) {
+        const questionGroup = new THREE.Group();
+        
+        const circle = new THREE.Mesh(
+          new THREE.TorusGeometry(0.3, 0.1, 16, 32),
+          new THREE.MeshPhongMaterial({ color: 0xF97316 })
+        );
+        
+        const stem = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.1, 0.1, 0.7, 8),
+          new THREE.MeshPhongMaterial({ color: 0xF97316 })
+        );
+        
+        stem.position.y = -0.5;
+        stem.rotation.x = Math.PI / 2;
+        
+        questionGroup.add(circle);
+        questionGroup.add(stem);
+        questionGroup.position.set(
+          Math.random() * 6 - 3,
+          Math.random() * 6 - 3,
+          -5
+        );
+        
+        sceneRef.current.add(questionGroup);
+      }
+    }
+  };
+  
+  // Create success symbols for Success background
+  const createSuccessSymbols = () => {
+    if (!sceneRef.current) return;
+    
+    // Create graduation caps
+    for (let i = 0; i < 5; i++) {
+      const capGroup = new THREE.Group();
+      
+      // Cap base
+      const base = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 0.1, 1),
+        new THREE.MeshPhongMaterial({ color: 0x0F172A })
+      );
+      
+      // Cap top
+      const top = new THREE.Mesh(
+        new THREE.ConeGeometry(0.7, 0.5, 4),
+        new THREE.MeshPhongMaterial({ color: 0x0F172A })
+      );
+      
+      top.position.y = 0.3;
+      top.rotation.y = Math.PI / 4;
+      
+      // Tassel
+      const tassel = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 8, 8),
+        new THREE.MeshPhongMaterial({ color: 0xFCD34D })
+      );
+      
+      tassel.position.set(0.6, 0.1, 0);
+      
+      capGroup.add(base);
+      capGroup.add(top);
+      capGroup.add(tassel);
+      
+      capGroup.position.set(
+        Math.random() * 8 - 4,
+        Math.random() * 8 - 4,
+        Math.random() * 8 - 8
+      );
+      
+      capGroup.rotation.set(
+        Math.random() * Math.PI / 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI / 2
+      );
+      
+      sceneRef.current.add(capGroup);
     }
     
-    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    // Create trophies
+    for (let i = 0; i < 3; i++) {
+      const trophyGroup = new THREE.Group();
+      
+      // Trophy cup
+      const cup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.3, 1, 16),
+        new THREE.MeshPhongMaterial({ color: 0xFCD34D })
+      );
+      
+      // Trophy base
+      const trophyBase = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 0.2, 1),
+        new THREE.MeshPhongMaterial({ color: 0x7C3AED })
+      );
+      
+      trophyBase.position.y = -0.6;
+      
+      trophyGroup.add(cup);
+      trophyGroup.add(trophyBase);
+      
+      trophyGroup.position.set(
+        Math.random() * 10 - 5,
+        Math.random() * 8 - 4,
+        Math.random() * 5 - 10
+      );
+      
+      sceneRef.current.add(trophyGroup);
+    }
+  };
+
+  // Function to announce stage change with voice
+  const announceStageChange = (stage: number) => {
+    if (isSpeaking) return;
     
-    // Create point material with custom shader for glowing effect
-    const particleMaterial = new THREE.PointsMaterial({
-      size: 0.4,
-      color: new THREE.Color(color),
-      transparent: true,
-      opacity: 0.7,
-      blending: THREE.AdditiveBlending,
+    setIsSpeaking(true);
+    
+    const message = journeyStages[stage].title;
+    
+    // Create a custom event that will be handled by voice assistant component
+    const voiceEvent = new CustomEvent('voice-announce', {
+      detail: { message }
     });
     
-    const particleSystem = new THREE.Points(particles, particleMaterial);
-    sceneRef.current.add(particleSystem);
+    document.dispatchEvent(voiceEvent);
+    
+    // Reset speaking state after a delay
+    setTimeout(() => {
+      setIsSpeaking(false);
+    }, 5000);
   };
 
-  const handleNext = () => {
-    setCurrentStage(prev => Math.min(prev + 1, journeyStages.length - 1));
-  };
-
-  const handlePrevious = () => {
-    setCurrentStage(prev => Math.max(prev - 1, 0));
-  };
-
-  const toggleVoiceRecognition = () => {
-    if (speechRef.current) {
-      if (listening) {
-        speechRef.current.stop();
-      } else {
-        speechRef.current.start();
-      }
-      setListening(!listening);
+  // Handle next stage
+  const handleNextStage = () => {
+    if (currentStage < journeyStages.length - 1) {
+      setCurrentStage(currentStage + 1);
+    } else {
+      // Show CTA when reaching the end
+      showExamAnalyzer();
     }
   };
+  
+  // Handle previous stage
+  const handlePrevStage = () => {
+    if (currentStage > 0) {
+      setCurrentStage(currentStage - 1);
+    }
+  };
+  
+  // Voice command handler
+  useEffect(() => {
+    const handleVoiceCommand = (e: any) => {
+      const command = e.detail.command?.toLowerCase();
+      
+      if (command === 'next' || command === 'continue') {
+        handleNextStage();
+      } else if (command === 'previous' || command === 'back') {
+        handlePrevStage();
+      } else if (command === 'start journey') {
+        setCurrentStage(0);
+      } else {
+        // Check if command matches any stage's voice command
+        const stageIndex = journeyStages.findIndex(
+          stage => stage.voiceCommand.toLowerCase() === command
+        );
+        
+        if (stageIndex >= 0) {
+          setCurrentStage(stageIndex);
+        }
+      }
+    };
+    
+    document.addEventListener('voice-command', handleVoiceCommand);
+    
+    return () => {
+      document.removeEventListener('voice-command', handleVoiceCommand);
+    };
+  }, [currentStage]);
+  
+  // Show exam analyzer
+  const showExamAnalyzer = () => {
+    // Dispatch event to open exam analyzer
+    const event = new Event('open-exam-analyzer');
+    window.dispatchEvent(event);
+    
+    toast.success("Let's check your exam readiness!");
+  };
 
-  const handleGetStarted = () => {
-    // Navigate to signup/analyze readiness
+  // Handle NEET exam button click
+  const handleNeetExamClick = () => {
+    // Set user data for NEET exam
+    const userData = {
+      examGoal: "NEET",
+      isNewUser: true,
+      completedOnboarding: false
+    };
+    
+    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("new_user_signup", "true");
+    
+    // Navigate to signup page with NEET exam parameter
+    navigate("/signup?exam=NEET");
   };
 
   return (
-    <div className="w-full relative overflow-hidden min-h-[90vh] bg-gradient-to-b from-purple-950/90 via-indigo-900/80 to-blue-900/90">
-      {/* 3D Background */}
-      <div 
-        ref={threeContainerRef} 
-        className="absolute inset-0 w-full h-full"
-      ></div>
+    <div className="relative overflow-hidden" style={{ height: '90vh' }}>
+      {/* 3D Background container */}
+      <div ref={containerRef} className="absolute inset-0 z-0">
+        {/* 3D scene will render here */}
+      </div>
       
-      {/* Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent to-background/70"></div>
+      {/* Overlay with gradient */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 h-full flex flex-col items-center justify-center">
+      <div className="relative z-10 container mx-auto h-full flex flex-col justify-center items-center px-4 text-center">
+        {/* First launch badge for NEET */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          className="mb-8"
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto pt-16 pb-10"
+          transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
-            Master Your Exam Preparation Journey
-          </h1>
-          <p className="text-lg md:text-xl text-white/90 mb-6">
-            PREPZR combines AI-powered learning, adaptive study plans, and personalized resources
-            to help you achieve exam success.
-          </p>
+          <div 
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg"
+            onClick={handleNeetExamClick}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="mr-1.5 bg-white text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              🎯
+            </span>
+            <span className="font-semibold mr-1">FIRST LAUNCH:</span> 
+            <span className="font-bold">NEET Exam Preparation</span>
+            <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">Click to start</span>
+          </div>
         </motion.div>
         
-        {/* Journey Stage Cards */}
-        <div className="w-full max-w-4xl mx-auto py-8">
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
+          {showJourney && (
             <motion.div
-              key={currentStage}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.5 }}
-              className="glass-card p-8 rounded-2xl backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-lg"
-              style={{
-                background: `linear-gradient(135deg, ${journeyStages[currentStage].color}20, transparent)`,
-                borderColor: `${journeyStages[currentStage].color}30`
-              }}
-            >
-              <div className="flex flex-col md:flex-row gap-6 items-center">
-                <div className="md:w-1/4 flex justify-center">
-                  {currentStage === 0 ? (
-                    <BookOpen className="h-16 w-16 text-white/90" />
-                  ) : currentStage === 1 ? (
-                    <Sparkles className="h-16 w-16 text-white/90" />
-                  ) : (
-                    <GraduationCap className="h-16 w-16 text-white/90" />
-                  )}
-                </div>
-                <div className="md:w-3/4">
-                  <h3 className="text-lg text-white/70 mb-2">{journeyStages[currentStage].subtitle}</h3>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">{journeyStages[currentStage].title}</h2>
-                  <p className="text-white/80">{journeyStages[currentStage].description}</p>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-          
-          {/* Navigation Dots */}
-          <div className="flex justify-center gap-2 mt-6">
-            {journeyStages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentStage(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentStage === index ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/50'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-        
-        {/* CTA Buttons - automatically appear */}
-        <AnimatePresence>
-          {showCTA && (
-            <motion.div
+              key={`stage-${currentStage}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="mt-8 mb-10"
+              className="max-w-4xl mb-8"
             >
-              <HeroButtons onAnalyzeClick={() => window.dispatchEvent(new Event('open-exam-analyzer'))} />
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 gradient-text leading-tight">
+                {journeyStages[currentStage].title}
+              </h1>
+              
+              <h2 className="text-xl md:text-2xl text-primary/80 mb-4">
+                {journeyStages[currentStage].subtitle}
+              </h2>
+              
+              <motion.div
+                className="glass-card p-6 md:p-8 rounded-xl mb-8 max-w-3xl mx-auto"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <p className="text-lg md:text-xl">
+                  {journeyStages[currentStage].description}
+                </p>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
         
-        {/* Voice Control Indicator */}
+        {/* Journey navigation */}
+        {showJourney && (
+          <div className="flex justify-center items-center gap-4 mb-8">
+            <motion.button
+              className={`p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 ${
+                currentStage === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
+              }`}
+              whileHover={currentStage > 0 ? { scale: 1.1 } : {}}
+              whileTap={currentStage > 0 ? { scale: 0.95 } : {}}
+              onClick={handlePrevStage}
+              disabled={currentStage === 0}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </motion.button>
+            
+            {/* Stage indicators */}
+            <div className="flex gap-2">
+              {journeyStages.map((_, index) => (
+                <motion.div
+                  key={`indicator-${index}`}
+                  className={`h-3 w-3 rounded-full ${
+                    index === currentStage ? 'bg-primary' : 'bg-white/30'
+                  }`}
+                  whileHover={{ scale: 1.2 }}
+                  onClick={() => setCurrentStage(index)}
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
+            </div>
+            
+            <motion.button
+              className={`p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 ${
+                currentStage === journeyStages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
+              }`}
+              whileHover={currentStage < journeyStages.length - 1 ? { scale: 1.1 } : {}}
+              whileTap={currentStage < journeyStages.length - 1 ? { scale: 0.95 } : {}}
+              onClick={handleNextStage}
+              disabled={currentStage === journeyStages.length - 1}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </motion.button>
+          </div>
+        )}
+        
+        {/* Voice command hint */}
         <motion.div
+          className="text-sm text-white/70 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute bottom-6 left-6 flex items-center gap-2 text-white/70 text-sm"
+          transition={{ delay: 1.5, duration: 0.5 }}
         >
-          <button
-            onClick={toggleVoiceRecognition}
-            className={`p-2 rounded-full ${listening ? 'bg-red-500/50 animate-pulse' : 'bg-white/10'}`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-              <line x1="12" x2="12" y1="19" y2="22"></line>
-            </svg>
-          </button>
-          {listening && <span>Say "next", "previous", or "start"</span>}
+          Try voice commands: "Next", "Previous", or "{journeyStages[currentStage].voiceCommand}"
         </motion.div>
-
-        {/* Navigation Controls */}
-        <div className="absolute bottom-6 right-6 flex gap-2">
-          <button
-            onClick={handlePrevious}
-            disabled={currentStage === 0}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        
+        {/* CTA Buttons */}
+        <AnimatePresence>
+          {showCtaButton && (
+            <motion.div 
+              className="mt-4"
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ 
+                opacity: 1, 
+                y: 0, 
+                scale: 1,
+                transition: { 
+                  type: "spring",
+                  stiffness: 300,
+                  delay: 0.3
+                }
+              }}
+            >
+              <HeroButtons onAnalyzeClick={showExamAnalyzer} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Exam names */}
+        <ExamNamesBadge />
+        
+        {/* Animated scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          animate={{ 
+            y: [0, 10, 0],
+            opacity: [0.3, 1, 0.3]
+          }}
+          transition={{ 
+            repeat: Infinity, 
+            duration: 2, 
+            ease: "easeInOut" 
+          }}
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className="text-white/70"
           >
-            <ArrowRight className="h-5 w-5 text-white rotate-180" />
-          </button>
-          <button
-            onClick={handleNext}
-            disabled={currentStage === journeyStages.length - 1}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ArrowRight className="h-5 w-5 text-white" />
-          </button>
-        </div>
+            <path d="M12 19V5"></path>
+            <path d="m5 12 7 7 7-7"></path>
+          </svg>
+        </motion.div>
       </div>
+      
+      {/* If mobile, show additional hint */}
+      {isMobile && (
+        <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-white/60 px-4 z-20">
+          Rotate your device for the best experience
+        </div>
+      )}
     </div>
   );
 };
