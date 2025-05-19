@@ -1,10 +1,9 @@
-
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -18,7 +17,6 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
-  interactive3d?: boolean
 }
 
 type CarouselContextProps = {
@@ -28,8 +26,6 @@ type CarouselContextProps = {
   scrollNext: () => void
   canScrollPrev: boolean
   canScrollNext: boolean
-  currentSlide: number
-  interactive3d?: boolean
 } & CarouselProps
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
@@ -56,7 +52,6 @@ const Carousel = React.forwardRef<
       plugins,
       className,
       children,
-      interactive3d,
       ...props
     },
     ref
@@ -70,7 +65,6 @@ const Carousel = React.forwardRef<
     )
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
-    const [currentSlide, setCurrentSlide] = React.useState(0)
 
     const onSelect = React.useCallback((api: CarouselApi) => {
       if (!api) {
@@ -79,7 +73,6 @@ const Carousel = React.forwardRef<
 
       setCanScrollPrev(api.canScrollPrev())
       setCanScrollNext(api.canScrollNext())
-      setCurrentSlide(api.selectedScrollSnap())
     }, [])
 
     const scrollPrev = React.useCallback(() => {
@@ -137,8 +130,6 @@ const Carousel = React.forwardRef<
           scrollNext,
           canScrollPrev,
           canScrollNext,
-          currentSlide,
-          interactive3d,
         }}
       >
         <div
@@ -161,11 +152,11 @@ const CarouselContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { carouselRef, orientation, interactive3d } = useCarousel()
+  const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className={cn("overflow-hidden rounded-xl", interactive3d ? "perspective-1000" : "")}>
-      <motion.div
+    <div ref={carouselRef} className="overflow-hidden">
+      <div
         ref={ref}
         className={cn(
           "flex",
@@ -183,46 +174,18 @@ const CarouselItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const { orientation, interactive3d, currentSlide } = useCarousel()
-  const itemRef = React.useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = React.useState(false)
-  
-  React.useEffect(() => {
-    if (itemRef.current) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsVisible(entry.isIntersecting)
-        },
-        { threshold: 0.5 }
-      )
-      
-      observer.observe(itemRef.current)
-      return () => observer.disconnect()
-    }
-  }, [])
+  const { orientation } = useCarousel()
 
   return (
-    <motion.div
-      ref={(node) => {
-        // @ts-ignore - combining refs
-        if (ref) ref.current = node
-        itemRef.current = node
-      }}
+    <div
+      ref={ref}
       role="group"
       aria-roledescription="slide"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
-        interactive3d ? "preserve-3d transition-transform duration-500" : "",
         className
       )}
-      animate={interactive3d ? {
-        rotateY: isVisible ? 0 : 15,
-        scale: isVisible ? 1 : 0.95,
-        opacity: isVisible ? 1 : 0.8,
-        z: isVisible ? 0 : -100,
-      } : {}}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       {...props}
     />
   )
@@ -241,7 +204,7 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-8 w-8 rounded-full",
+        "absolute  h-8 w-8 rounded-full",
         orientation === "horizontal"
           ? "-left-12 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -287,45 +250,6 @@ const CarouselNext = React.forwardRef<
 })
 CarouselNext.displayName = "CarouselNext"
 
-const CarouselDots = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  const { api, currentSlide } = useCarousel()
-  const [slideCount, setSlideCount] = React.useState(0)
-  
-  React.useEffect(() => {
-    if (api) {
-      setSlideCount(api.scrollSnapList().length)
-    }
-  }, [api])
-
-  return (
-    <div 
-      ref={ref}
-      className={cn("flex justify-center gap-2 mt-4", className)}
-      {...props}
-    >
-      {Array.from({ length: slideCount }).map((_, index) => (
-        <Button
-          key={index}
-          variant="outline"
-          size="sm"
-          className={cn(
-            "h-2 w-2 rounded-full p-0 cursor-pointer",
-            currentSlide === index 
-              ? "bg-primary border-primary" 
-              : "bg-transparent border-muted-foreground"
-          )}
-          onClick={() => api?.scrollTo(index)}
-          aria-label={`Go to slide ${index + 1}`}
-        />
-      ))}
-    </div>
-  )
-})
-CarouselDots.displayName = "CarouselDots"
-
 export {
   type CarouselApi,
   Carousel,
@@ -333,5 +257,4 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-  CarouselDots
 }
