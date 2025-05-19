@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import WelcomeSlider from '@/components/welcome/WelcomeSlider';
+import StudentJourneySlider from '@/components/welcome/StudentJourneySlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -123,12 +123,13 @@ const PostLoginWelcomeBack = () => {
   
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Welcome slider for new users */}
+      {/* Welcome slider with animated student journey */}
       {showSlider && (
         <div className="h-full w-full">
-          <WelcomeSlider 
+          <StudentJourneySlider 
             userName={userData.name || "Student"} 
             onComplete={handleSliderComplete}
+            userData={userData}
           />
         </div>
       )}

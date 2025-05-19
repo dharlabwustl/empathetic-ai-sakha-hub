@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
@@ -19,8 +20,8 @@ const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile
   // Simplified component that renders the redesigned Today's Plan
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
-      <p>Your personalized study schedule is ready!</p>
+      <h2 className="text-2xl font-bold">We Understand Your Mindset, Not Just The Exam</h2>
+      <p>Your personalized study schedule is ready to support your unique learning journey!</p>
     </div>
   );
 };

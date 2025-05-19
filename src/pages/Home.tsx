@@ -14,6 +14,7 @@ import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
+import StudentJourneySection from '@/components/home/StudentJourneySection';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -38,6 +39,9 @@ const Home = () => {
       
       {/* Page content */}
       <HeroSection />
+      
+      {/* Student Journey Section - New Component */}
+      <StudentJourneySection />
       
       {/* UN Sustainability Goals Banner */}
       <div className="container mx-auto px-4 my-8">

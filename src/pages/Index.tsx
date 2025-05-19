@@ -22,6 +22,7 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import { Card, CardContent } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
+import StudentJourneySection from '@/components/home/StudentJourneySection';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -74,6 +75,9 @@ const Index = () => {
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
         <Hero3DSection />
+        
+        {/* Student Journey Section - New Component */}
+        <StudentJourneySection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
