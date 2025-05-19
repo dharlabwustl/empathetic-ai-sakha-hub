@@ -1,507 +1,412 @@
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import {
-  BookOpen, Brain, ArrowLeft, Star, ChevronDown, BookText, FileText, Award
-} from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { 
+  Tabs, TabsList, TabsTrigger, TabsContent 
+} from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  BookOpen, Brain, FlaskConical, CheckCircle, BarChart, 
+  Bookmark, ArrowLeft, GraduationCap
+} from "lucide-react";
 
-// Import our components
-import EnhancedConceptDetail from '@/components/dashboard/student/concepts/EnhancedConceptDetail';
-import { ConceptMasterySection } from '@/components/dashboard/student/concepts/ConceptMasterySection';
-import { ConceptExamSection } from '@/components/dashboard/student/concepts/ConceptExamSection';
-import { ConceptFlashcardsSection } from '@/components/dashboard/student/concepts/ConceptFlashcardsSection';
-import RelatedFlashcards from '@/components/dashboard/student/concepts/RelatedFlashcards';
+// Sample concept data (would normally come from an API/database)
+const demoConceptData = {
+  id: "concept-1",
+  title: "Newton's Second Law of Motion",
+  subject: "Physics",
+  topic: "Classical Mechanics",
+  difficulty: "medium" as const,
+  content: `
+    <h2>Newton's Second Law of Motion</h2>
+    <p>Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
+    <p>It can be mathematically expressed as:</p>
+    <p class="text-center font-bold text-xl my-4">F = ma</p>
+    <p>Where:</p>
+    <ul class="list-disc pl-6 my-4">
+      <li><strong>F</strong> is the net force applied (measured in newtons, N)</li>
+      <li><strong>m</strong> is the mass of the object (measured in kilograms, kg)</li>
+      <li><strong>a</strong> is the acceleration (measured in meters per second squared, m/s²)</li>
+    </ul>
+    <p>This fundamental law forms the backbone of classical mechanics and helps us analyze and predict the motion of objects under the influence of forces.</p>
+  `,
+  masteryLevel: 65,
+  recallAccuracy: 70,
+  quizScore: 75,
+  lastPracticed: "2025-05-10",
+  flashcardsTotal: 10,
+  flashcardsCompleted: 7,
+  examReady: true,
+  formulas: [
+    { id: "f1", formula: "F = ma", description: "Force equals mass times acceleration" },
+    { id: "f2", formula: "a = F/m", description: "Acceleration equals force divided by mass" }
+  ],
+  relatedConcepts: [
+    { id: "c1", title: "Newton's First Law", masteryLevel: 80 },
+    { id: "c2", title: "Newton's Third Law", masteryLevel: 45 },
+    { id: "c3", title: "Work and Energy", masteryLevel: 60 }
+  ]
+};
 
 const ConceptDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{conceptId: string}>();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [masteryLevel, setMasteryLevel] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const { conceptId } = useParams<{ conceptId: string }>();
   const [activeTab, setActiveTab] = useState('content');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
-  // Mock concept data - in a real app this would be fetched from an API
-  const conceptData = {
-    id: conceptId || 'default',
-    title: "Understanding Cell Division",
-    subject: "Biology",
-    topic: "Cell Biology",
-    difficulty: "medium" as const,
-    masteryLevel: 65, // This would come from user's data
-    estimatedTime: 15, // in minutes
-    content: `Cell division is the process by which a parent cell divides into two or more daughter cells. 
-      Cell division usually occurs as part of a larger cell cycle. In eukaryotes, there are two distinct 
-      types of cell division: mitosis and meiosis. Mitosis is for growth and repair, while meiosis is for sexual reproduction.
-      
-      The cell cycle consists of interphase (G₁, S, and G₂ phases) and the mitotic phase (mitosis and cytokinesis). 
-      During interphase, the cell grows and DNA replication occurs. In mitosis, the replicated chromosomes are separated 
-      into two nuclei, and cytokinesis divides the cytoplasm, organelles, and cell membrane.`
-  };
-
-  // Flashcards for this concept
-  const flashcards = [
-    {
-      id: '1',
-      front: 'What are the two main types of cell division in eukaryotes?',
-      back: 'Mitosis and meiosis'
-    },
-    {
-      id: '2',
-      front: 'What is the purpose of mitosis?',
-      back: 'Growth and repair of the organism'
-    },
-    {
-      id: '3',
-      front: 'What is the purpose of meiosis?',
-      back: 'Sexual reproduction'
-    }
-  ];
-
-  // Update mastery level when concept changes
-  useEffect(() => {
-    setMasteryLevel(conceptData.masteryLevel);
-    
-    // Simulate loading state
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, [conceptId, conceptData.masteryLevel]);
-
-  // Show concept loaded toast
-  useEffect(() => {
-    if (!isLoading) {
-      toast({
-        title: "Concept Loaded",
-        description: `Viewing details for: ${conceptData.title}`,
-        duration: 3000,
-      });
-    }
-  }, [isLoading, toast, conceptData.title]);
-
-  // Handle mastery level updates (this would connect to backend in real app)
-  const updateMasteryLevel = (newLevel: number) => {
-    setMasteryLevel(newLevel);
-    toast({
-      title: "Mastery Updated",
-      description: `Your mastery level is now ${newLevel}%`,
-      duration: 3000,
-    });
-  };
-
-  const handleGoBack = () => {
-    navigate('/dashboard/student/concepts');
-  };
-
-  // Loading state with skeleton UI
-  if (isLoading) {
-    return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center space-x-4">
-          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-          <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>
-        </div>
-        <div className="h-8 w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-        </div>
-      </div>
-    );
-  }
-
+  
+  // In a real app, you would fetch data based on conceptId
+  const concept = demoConceptData;
+  
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-950 pb-10">
-      {/* Header - Background with gradient */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-6 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mb-2 text-white hover:bg-white/10"
-            onClick={handleGoBack}
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Concepts
+    <div className="container mx-auto px-4 py-6">
+      {/* Back button and concept header */}
+      <div className="mb-6">
+        <Link to="/dashboard/student/concepts">
+          <Button variant="ghost" className="mb-4 p-0">
+            <ArrowLeft className="h-4 w-4 mr-1" /> Back to concepts
           </Button>
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        </Link>
+        
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 p-6 rounded-lg border border-blue-100 dark:border-blue-800">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <motion.h1 
-                className="text-2xl md:text-3xl font-bold tracking-tight"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                {conceptData.title}
-              </motion.h1>
-              <motion.p 
-                className="text-indigo-100 mt-1"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                {conceptData.subject} &gt; {conceptData.topic}
-              </motion.p>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 text-xs rounded ${
+                  concept.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400' :
+                  concept.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400' :
+                  'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400'
+                }`}>
+                  {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{concept.subject} • {concept.topic}</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold mt-2">{concept.title}</h1>
             </div>
             
-            {/* Mastery badge - prominent display */}
-            <motion.div 
-              className="flex items-center"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-            >
-              <div className="p-2 rounded-full bg-white/10 mr-3">
-                <Brain className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <div className="flex items-baseline">
-                  <span className="text-xl font-bold">{masteryLevel}%</span>
-                  <span className="text-xs text-indigo-100 ml-1">Mastery</span>
-                </div>
-                <div className="w-36 h-2.5 bg-white/20 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${
-                      masteryLevel > 80 ? 'bg-gradient-to-r from-green-400 to-green-300' : 
-                      masteryLevel > 50 ? 'bg-gradient-to-r from-blue-400 to-blue-300' : 
-                      masteryLevel > 30 ? 'bg-gradient-to-r from-amber-400 to-amber-300' : 
-                      'bg-gradient-to-r from-red-400 to-red-300'
-                    }`}
-                    style={{ width: `${masteryLevel}%` }}
-                  />
-                </div>
-              </div>
-            </motion.div>
+            <Button variant="outline" className="flex items-center gap-1">
+              <Bookmark className="h-4 w-4" />
+              Bookmark
+            </Button>
           </div>
         </div>
       </div>
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        {/* Tags section */}
-        <motion.div 
-          className="flex flex-wrap gap-2 items-center mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Badge variant="outline" className={`px-3 py-1 text-sm font-medium ${
-            conceptData.difficulty === "easy" 
-              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 
-            conceptData.difficulty === "medium" 
-              ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800' : 
-            'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
-          }`}>
-            {conceptData.difficulty.charAt(0).toUpperCase() + conceptData.difficulty.slice(1)} Difficulty
-          </Badge>
-          
-          <Badge variant="outline" className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
-            <BookOpen className="h-3 w-3" /> {conceptData.subject}
-          </Badge>
-          
-          <Badge variant="outline" className="flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-400">
-            <Star className="h-3 w-3" /> Popular Concept
-          </Badge>
-          
-          {masteryLevel >= 80 && (
-            <Badge variant="outline" className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-              <Award className="h-3 w-3" /> Mastered
-            </Badge>
-          )}
-        </motion.div>
-        
-        {masteryLevel < 30 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mb-6"
-          >
-            <Alert className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400">
-              <AlertDescription>
-                Your mastery level for this concept is low. Focus on the content and try the practice quizzes to improve your understanding.
-              </AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-
-        {/* Main Layout with Mastery Integration */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content area - 2/3 width on desktop */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Main concept tabs */}
-            <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-              <Tabs 
-                defaultValue="content" 
-                value={activeTab} 
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-                <TabsList className="grid grid-cols-4 mb-2 p-1 bg-gray-100 dark:bg-gray-800/50">
-                  <TabsTrigger value="content" className="flex items-center gap-1">
-                    <BookText className="h-4 w-4" /> Content
-                  </TabsTrigger>
-                  <TabsTrigger value="practice" className="flex items-center gap-1">
-                    <Brain className="h-4 w-4" /> Practice
-                  </TabsTrigger>
-                  <TabsTrigger value="flashcards" className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" /> Flashcards
-                  </TabsTrigger>
-                  <TabsTrigger value="exams" className="flex items-center gap-1">
-                    <Award className="h-4 w-4" /> Exam Prep
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="content" className="p-4">
-                  <EnhancedConceptDetail 
-                    conceptId={conceptData.id}
-                    title={conceptData.title}
-                    subject={conceptData.subject}
-                    topic={conceptData.topic}
-                    difficulty={conceptData.difficulty}
-                    content={conceptData.content}
-                    masteryLevel={masteryLevel}
-                    onMasteryUpdate={updateMasteryLevel}
-                  />
-                </TabsContent>
-
-                <TabsContent value="practice" className="p-0">
-                  <ConceptMasterySection 
-                    conceptId={conceptData.id} 
-                    recallAccuracy={masteryLevel}
-                    quizScore={72}
-                    lastPracticed="2025-05-15"
-                  />
-                </TabsContent>
-
-                <TabsContent value="flashcards" className="p-0">
-                  <ConceptFlashcardsSection 
-                    conceptId={conceptData.id}
-                    conceptTitle={conceptData.title}
-                    flashcardsTotal={8}
-                    flashcardsCompleted={3}
-                  />
-                </TabsContent>
-
-                <TabsContent value="exams" className="p-0">
-                  <ConceptExamSection 
-                    conceptId={conceptData.id}
-                    conceptTitle={conceptData.title}
-                    examReady={masteryLevel > 70}
-                  />
-                </TabsContent>
-              </Tabs>
-            </Card>
+      {/* Content and sidebar layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main content */}
+        <div className="lg:col-span-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-4 mb-4">
+              <TabsTrigger value="content" className="flex items-center gap-1">
+                <BookOpen className="h-4 w-4" /> Content
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex items-center gap-1">
+                <Brain className="h-4 w-4" /> Practice
+              </TabsTrigger>
+              <TabsTrigger value="flashcards" className="flex items-center gap-1">
+                <BarChart className="h-4 w-4" /> Flashcards
+              </TabsTrigger>
+              <TabsTrigger value="exams" className="flex items-center gap-1">
+                <GraduationCap className="h-4 w-4" /> Exams
+              </TabsTrigger>
+            </TabsList>
             
-            {/* Advanced sections - toggleable */}
-            <div className="space-y-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full flex items-center justify-center gap-2 border-dashed"
-              >
-                {showAdvanced ? "Hide" : "Show"} Advanced Learning Tools
-                <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-              </Button>
+            {/* Content Tab */}
+            <TabsContent value="content" className="border rounded-lg p-6">
+              <div dangerouslySetInnerHTML={{ __html: concept.content }} />
               
-              {showAdvanced && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  {/* Advanced sections go here */}
-                  <Card className="border border-gray-200 dark:border-gray-800 shadow-sm p-6">
-                    <h3 className="text-lg font-medium mb-4">Related Flashcards</h3>
-                    <RelatedFlashcards 
-                      flashcards={flashcards}
-                      conceptTitle={conceptData.title}
-                    />
-                  </Card>
-                </motion.div>
-              )}
-            </div>
-          </div>
-          
-          {/* Sidebar - 1/3 width on desktop */}
-          <div className="space-y-6">
-            {/* Mastery Overview Card */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-              <div className="p-6">
-                <h2 className="text-xl font-bold flex items-center mb-4">
-                  <Brain className="h-5 w-5 mr-2" />
-                  Mastery Progress
-                </h2>
+              <div className="mt-8 pt-6 border-t">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <FlaskConical className="h-5 w-5 mr-2 text-blue-600" />
+                  Key Formulas
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {concept.formulas.map(formula => (
+                    <Card key={formula.id}>
+                      <CardContent className="p-4">
+                        <div className="text-center py-2 font-bold text-lg">{formula.formula}</div>
+                        <div className="text-sm text-center text-gray-600 dark:text-gray-400">{formula.description}</div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Practice Tab */}
+            <TabsContent value="practice" className="border rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4 flex items-center">
+                <Brain className="h-5 w-5 mr-2 text-purple-600" />
+                Practice & Quick Recall
+              </h2>
+              
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm font-medium">Recall Accuracy</div>
+                  <div className="text-sm font-medium">{concept.recallAccuracy}%</div>
+                </div>
+                <Progress value={concept.recallAccuracy} className="h-2" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <Card className="bg-blue-50 dark:bg-blue-900/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">Last Practice Session</h3>
+                      <span className="text-sm text-gray-500">
+                        {concept.lastPracticed ? new Date(concept.lastPracticed).toLocaleDateString() : 'Never'}
+                      </span>
+                    </div>
+                    <Button className="w-full mt-4">
+                      Practice Recall
+                    </Button>
+                  </CardContent>
+                </Card>
                 
-                <div className="space-y-6">
-                  {/* Circular progress indicator */}
-                  <div className="flex justify-center">
-                    <div className="relative h-36 w-36">
-                      {/* Background circle */}
-                      <svg className="w-full h-full" viewBox="0 0 100 100">
+                <Card className="bg-purple-50 dark:bg-purple-900/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">Quiz Performance</h3>
+                      <span className="text-sm">
+                        Score: <span className="font-medium">{concept.quizScore}%</span>
+                      </span>
+                    </div>
+                    <Button className="w-full mt-4" variant="outline">
+                      Take Quiz
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+                <h3 className="font-medium mb-2">Practice Tips</h3>
+                <ul className="list-disc pl-6 text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                  <li>Review the formula F = ma and practice applying it to different scenarios</li>
+                  <li>Try calculating acceleration when different forces are applied</li>
+                  <li>Practice identifying all forces acting on an object before applying the formula</li>
+                </ul>
+              </div>
+            </TabsContent>
+            
+            {/* Flashcards Tab */}
+            <TabsContent value="flashcards" className="border rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4 flex items-center">
+                <BarChart className="h-5 w-5 mr-2 text-green-600" />
+                Flashcards
+              </h2>
+              
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm font-medium">Progress</div>
+                  <div className="text-sm">{concept.flashcardsCompleted} of {concept.flashcardsTotal} cards</div>
+                </div>
+                <Progress value={(concept.flashcardsCompleted / concept.flashcardsTotal) * 100} className="h-2" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <Card className="bg-green-50 dark:bg-green-900/20">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-3xl font-bold text-green-700 dark:text-green-400">{concept.flashcardsTotal}</div>
+                    <div className="text-sm text-green-600 dark:text-green-500">Total Cards</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-blue-50 dark:bg-blue-900/20">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{concept.flashcardsCompleted}</div>
+                    <div className="text-sm text-blue-600 dark:text-blue-500">Mastered</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-amber-50 dark:bg-amber-900/20">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-3xl font-bold text-amber-700 dark:text-amber-400">
+                      {concept.flashcardsTotal - concept.flashcardsCompleted}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-500">To Review</div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="flex gap-4">
+                <Button className="flex-1">
+                  Practice All
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  Add New Card
+                </Button>
+              </div>
+            </TabsContent>
+            
+            {/* Exams Tab */}
+            <TabsContent value="exams" className="border rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4 flex items-center">
+                <GraduationCap className="h-5 w-5 mr-2 text-indigo-600" />
+                Exam Readiness
+              </h2>
+              
+              <Card className="mb-6">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row gap-6 items-center">
+                    <div className="w-32 h-32 relative">
+                      <div className="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-green-600">
+                            85%
+                          </div>
+                          <div className="text-xs text-gray-500">Readiness</div>
+                        </div>
+                      </div>
+                      <svg className="w-32 h-32 absolute top-0 left-0 -rotate-90" viewBox="0 0 100 100">
                         <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="none"
-                          stroke="rgba(255,255,255,0.2)"
+                          cx="50" cy="50" r="45" 
+                          className="stroke-gray-200 dark:stroke-gray-700 fill-none"
                           strokeWidth="8"
                         />
-                        {/* Progress circle */}
                         <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          fill="none"
-                          stroke="rgba(255,255,255,0.9)"
+                          cx="50" cy="50" r="45" 
+                          className="stroke-green-500 fill-none"
                           strokeWidth="8"
-                          strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 45}`}
-                          strokeDashoffset={`${2 * Math.PI * 45 * (1 - masteryLevel / 100)}`}
-                          transform="rotate(-90 50 50)"
+                          strokeDashoffset={`${2 * Math.PI * 45 * (1 - 85 / 100)}`}
+                          strokeLinecap="round"
                         />
                       </svg>
-                      {/* Percentage in the middle */}
-                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col">
-                        <span className="text-3xl font-bold">{masteryLevel}%</span>
-                        <span className="text-xs opacity-80">Mastery</span>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold mb-2 flex items-center">
+                        <span className="text-green-600">Exam Ready</span>
+                        <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
+                      </h3>
+                      
+                      <p className="text-muted-foreground mb-4">
+                        You've mastered this concept and are ready to apply it in exams. 
+                        Consider taking practice tests to reinforce your knowledge.
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Button>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Take Practice Test
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Progress stats */}
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="bg-white/10 rounded-lg p-3">
-                      <div className="text-2xl font-bold">72%</div>
-                      <div className="text-xs opacity-80">Quiz Scores</div>
-                    </div>
-                    <div className="bg-white/10 rounded-lg p-3">
-                      <div className="text-2xl font-bold">3/8</div>
-                      <div className="text-xs opacity-80">Flashcards</div>
-                    </div>
-                  </div>
-                  
-                  {/* Next steps based on mastery level */}
-                  <div>
-                    <h3 className="font-medium mb-2">Recommended Next Steps:</h3>
-                    <ul className="space-y-2 text-sm">
-                      {masteryLevel < 50 && (
-                        <>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
-                            <span>Review the concept content thoroughly</span>
-                          </li>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
-                            <span>Create flashcards for key terms</span>
-                          </li>
-                        </>
-                      )}
-                      {masteryLevel >= 50 && masteryLevel < 80 && (
-                        <>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
-                            <span>Practice with the remaining flashcards</span>
-                          </li>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
-                            <span>Take the practice exam to test your knowledge</span>
-                          </li>
-                        </>
-                      )}
-                      {masteryLevel >= 80 && (
-                        <>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">1</div>
-                            <span>Explore related concepts</span>
-                          </li>
-                          <li className="flex items-start">
-                            <div className="mt-0.5 mr-2 h-4 w-4 rounded-full bg-white/20 flex items-center justify-center text-xs">2</div>
-                            <span>Help others by creating quality flashcards</span>
-                          </li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                  
-                  {/* Action button */}
-                  <Button 
-                    className="w-full bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700"
-                    onClick={() => setActiveTab('practice')}
-                  >
-                    {masteryLevel < 50 ? 'Start Learning' : 
-                     masteryLevel < 80 ? 'Continue Practice' : 
-                     'Reinforce Knowledge'}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-            
-            {/* Linked Learning */}
-            <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-              <div className="p-4">
-                <h2 className="text-lg font-medium mb-3">Connected Concepts</h2>
-                <div className="space-y-3">
-                  {['Cell Cycle', 'DNA Replication', 'Chromosomes'].map((item, i) => (
-                    <div key={i} className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className={`h-2 w-2 rounded-full ${
-                          i === 0 ? 'bg-green-500' : 
-                          i === 1 ? 'bg-amber-500' : 'bg-red-500'
-                        } mr-2`}></div>
-                        <span>{item}</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {i === 0 ? '90%' : i === 1 ? '45%' : '10%'}
-                      </Badge>
-                    </div>
-                  ))}
-                  <Button variant="outline" className="w-full text-sm" size="sm">
-                    View Learning Path
-                  </Button>
-                </div>
-              </div>
-            </Card>
-            
-            {/* Exam Integration */}
-            <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-              <div className="p-4">
-                <h2 className="text-lg font-medium mb-3">Exam Application</h2>
-                <div className="space-y-2 text-sm">
-                  <p>This concept appears in:</p>
-                  <div className="space-y-2 mt-3">
-                    <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 flex justify-between items-center">
+                </CardContent>
+              </Card>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Exam Relevance</h3>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-4">
                       <div>
-                        <div className="font-medium">Biology Midterm</div>
-                        <div className="text-xs text-muted-foreground">15% weight</div>
+                        <h4 className="font-medium">High Importance</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          This concept appears frequently in exams and is often worth significant marks.
+                        </p>
                       </div>
-                      <Badge className="bg-blue-500">High</Badge>
-                    </div>
-                    <div className="p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                      
                       <div>
-                        <div className="font-medium">Final Exam</div>
-                        <div className="text-xs text-muted-foreground">8% weight</div>
+                        <h4 className="font-medium">Common Question Types</h4>
+                        <ul className="list-disc pl-6 text-sm text-gray-600 dark:text-gray-400 space-y-1 mt-1">
+                          <li>Numerical problems requiring calculation of force or acceleration</li>
+                          <li>Conceptual understanding of the relationship between force and acceleration</li>
+                          <li>Application to real-world scenarios</li>
+                        </ul>
                       </div>
-                      <Badge variant="outline">Medium</Badge>
                     </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        {/* Right sidebar for mastery info */}
+        <div className="space-y-6">
+          {/* Concept Mastery Card */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Brain className="h-5 w-5 mr-2 text-purple-600" />
+                Concept Mastery
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Your mastery</span>
+                  <span className="font-medium text-blue-600">{concept.masteryLevel}%</span>
+                </div>
+                
+                <Progress value={concept.masteryLevel} className="h-2" />
+                
+                <div className="pt-2 text-sm text-muted-foreground">
+                  {concept.masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+                  {concept.masteryLevel >= 30 && concept.masteryLevel < 50 && "You're making progress. Keep practicing to strengthen your understanding."}
+                  {concept.masteryLevel >= 50 && concept.masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+                  {concept.masteryLevel >= 80 && "Excellent mastery! You can now focus on related concepts."}
+                </div>
+                
+                <Button className="w-full">
+                  Improve Mastery
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Related Concepts Card */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Related Concepts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {concept.relatedConcepts.map((related) => (
+                  <div key={related.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-medium">{related.title}</span>
+                      <span className="text-sm text-gray-500">{related.masteryLevel}%</span>
+                    </div>
+                    <Progress value={related.masteryLevel} className="h-1.5" />
                   </div>
-                  <Button variant="outline" className="w-full text-sm mt-3" size="sm">
-                    View All Exams
-                  </Button>
+                ))}
+                
+                <Button variant="outline" className="w-full mt-2">
+                  View All Related Concepts
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Learning Stats */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Learning Stats</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Time spent</span>
+                  <span className="font-medium">45 minutes</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Last studied</span>
+                  <span className="font-medium">Yesterday</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Review count</span>
+                  <span className="font-medium">5 sessions</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Scheduled next</span>
+                  <span className="font-medium">Tomorrow</span>
                 </div>
               </div>
-            </Card>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

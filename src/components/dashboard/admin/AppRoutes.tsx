@@ -13,7 +13,6 @@ const AdminAppRoutes: React.FC = () => {
         totalRevenue: 15780,
         newUsersToday: 12,
         dailyActiveUsers: [{date: "2025-05-01", count: 100}, {date: "2025-05-02", count: 120}],
-        // Add missing properties to satisfy TypeScript
         subscriptionsByPlan: {
           free: 150,
           basic: 70,
@@ -22,7 +21,7 @@ const AdminAppRoutes: React.FC = () => {
         verifiedMoodImprovement: 65,
         averageMoodScore: 7.8,
         averageTimeSavedPerWeek: 5.2,
-        systemHealthScore: 98,
+        // systemHealthScore: 98, // Removed this property as it doesn't exist in the type
         totalContentItems: 1250,
         averageSessionLength: 28,
         weeklyActiveUsers: 210,

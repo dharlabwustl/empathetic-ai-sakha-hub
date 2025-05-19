@@ -1,17 +1,9 @@
+
 import React from "react";
 import { MoodType } from "@/types/user/base";
 import { Card } from "@/components/ui/card";
 import { getMoodTheme } from "./moodThemes";
 import { motion } from "framer-motion";
-
-interface MoodTheme {
-  emoji: string;
-  label: string;
-  colors: {
-    light: string;
-    dark: string;
-  };
-}
 
 interface MoodTimelineProps {
   moodHistory: Array<{
@@ -36,13 +28,13 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
             className="flex flex-col items-center"
           >
             <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).colors.background}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).backgroundColor}`}
               title={`${entry.mood} on ${entry.timestamp.toLocaleDateString()}`}
             >
               <span className="text-xs">{entry.timestamp.getDate()}</span>
             </div>
             <div className="w-1 h-1 rounded-full mt-1 bg-current" 
-                 style={{ color: getMoodTheme(entry.mood).colors.text }} />
+                 style={{ color: getMoodTheme(entry.mood).textColor }} />
           </motion.div>
         ))}
       </div>
