@@ -25,16 +25,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
+      return "Welcome to PREP-zer, the world's first emotionally aware exam preparation platform. I'm Sakha AI, and I adapt to your learning style to create a hyper-personalized study experience.";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step! I'm Sakha AI, PREPZR's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
+      return "Congratulations on taking this important step! I'm Sakha AI, PREP-zer's exam preparation assistant. Our platform adapts to your learning style to create a personalized study journey that traditional coaching centers can't match.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREPZR free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
+      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans and emotionally intelligent tutoring.";
     } else if (path.includes('/exam-readiness')) {
       return "Welcome to our exam readiness analyzer! I'm Sakha AI. Our analyzer provides detailed insights about your preparation level and recommends specific areas to focus on before your exam.";
     }
     
-    return "Welcome to PREPZR. I'm Sakha AI, your emotionally intelligent exam companion.";
+    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion.";
   };
   
   useEffect(() => {
@@ -46,7 +46,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           const message = getContextMessage(location.pathname, language);
           
           // Create speech synthesis utterance
-          const speech = new SpeechSynthesisUtterance(message);
+          const speech = new SpeechSynthesisUtterance();
+          
+          // Correct PREPZR pronunciation by using proper spelling in the text
+          speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
           speech.lang = language;
           speech.rate = 1.0; // Normal rate for clarity
           speech.pitch = 1.1; // Slightly higher for a more vibrant tone

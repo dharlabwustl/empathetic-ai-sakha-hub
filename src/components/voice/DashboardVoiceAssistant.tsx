@@ -33,7 +33,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           let welcomeMessage = `Congratulations ${userName}! Welcome to your personalized dashboard. I'm Sakha AI, your adaptive learning assistant. `;
           
           // Add UN sustainability goals message
-          welcomeMessage += "PREPZR supports UN Sustainability goals with inclusive and equitable quality education by providing access to personalized learning for all students.";
+          welcomeMessage += "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education by providing access to personalized learning for all students.";
           
           // Add mood-specific content if available
           if (userMood) {
@@ -56,7 +56,10 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           }
           
           // Create speech synthesis utterance
-          const speech = new SpeechSynthesisUtterance(welcomeMessage);
+          const speech = new SpeechSynthesisUtterance();
+          
+          // Correct PREPZR pronunciation by replacing it in the text
+          speech.text = welcomeMessage.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
           speech.lang = language;
           speech.rate = 1.0; // Normal speed for clarity
           speech.pitch = 1.1; // Slightly higher pitch for a more vibrant tone

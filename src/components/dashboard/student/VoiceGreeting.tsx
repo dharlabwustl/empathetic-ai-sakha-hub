@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -111,7 +110,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     // Add engagement-specific greeting with congratulations
     let engagementGreeting = '';
     if (engagement === 'new') {
-      engagementGreeting = `Congratulations ${name}! You've made an excellent choice selecting PREPZR for your exam preparation. `;
+      engagementGreeting = `Congratulations ${name}! You've made an excellent choice selecting PREP-zer for your exam preparation. `;
     } else if (engagement === 'returning') {
       engagementGreeting = `Welcome back ${name}! It's great to see you again. Your commitment to exam preparation is commendable. `;
     } else if (engagement === 'active') {
@@ -119,7 +118,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     }
     
     // Add UN sustainability goals message instead of donation message
-    const sustainabilityMessage = "PREPZR supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
+    const sustainabilityMessage = "PREP-zer supports UN Sustainability goals with inclusive and equitable quality education. We're committed to providing equal access to personalized learning for all students. ";
     
     if (lang === 'en') {
       if (path.includes('/dashboard/student/today')) {
@@ -142,7 +141,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्यों का समर्थन करते हैं और सभी छात्रों के लिए समावेशी और गुणवत्तापूर्ण शिक्षा प्रदान करते हैं। मैं आपका भावनात्मक रूप से बुद्धिमान AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
     }
     
-    return `${timeGreeting} ${name}! Welcome to PREPZR!`;
+    return `${timeGreeting} ${name}! Welcome to PREP-zer!`;
   };
   
   // Create a properly configured speech utterance with vibrant tone
@@ -151,7 +150,10 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     const voices = window.speechSynthesis.getVoices();
     
     // Create speech synthesis utterance
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech = new SpeechSynthesisUtterance();
+    
+    // Correct PREPZR pronunciation by using proper syllable break
+    speech.text = text.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
     speech.lang = lang === 'en' ? 'en-US' : 'hi-IN';
     speech.rate = 0.98; // Slightly slower for clarity
     speech.volume = 0.9;

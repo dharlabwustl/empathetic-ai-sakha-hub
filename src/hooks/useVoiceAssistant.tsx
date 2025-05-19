@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,16 +39,16 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Try to find an Indian English voice by default
-        const preferredVoiceTypes = ['en-IN', 'hi-IN', 'female', 'Google', 'Microsoft'];
+        // Try to find a vibrant voice by default (US English preferred)
+        const preferredVoiceTypes = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US', 'en-GB'];
         
         // Find best matching voice
         let selectedVoice: SpeechSynthesisVoice | null = null;
         
         for (const preferredType of preferredVoiceTypes) {
           const foundVoice = voices.find(voice => 
-            voice.lang?.includes(preferredType) || 
-            voice.name?.includes(preferredType)
+            voice.name?.toLowerCase().includes(preferredType.toLowerCase()) || 
+            voice.lang?.toLowerCase().includes(preferredType.toLowerCase())
           );
           
           if (foundVoice) {
@@ -91,11 +92,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Use clear syllable break for PREPZR pronunciation - "prep" like in preparation + "zer" like in laser
+    // Use clear syllable break for PREPZR pronunciation
     const correctedText = text
-      .replace(/PREPZR/gi, 'Prep-zer')
-      .replace(/prepzr/gi, 'Prep-zer')
-      .replace(/Prepzr/g, 'Prep-zer');
+      .replace(/PREPZR/gi, 'PREP-zer')
+      .replace(/prepzr/gi, 'PREP-zer')
+      .replace(/Prepzr/g, 'PREP-zer');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
