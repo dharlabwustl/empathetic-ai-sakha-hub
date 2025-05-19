@@ -4,42 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/HeaderWithAdmin";
 import Footer from "@/components/layout/Footer";
-import { ChevronRight, Briefcase, Users, Code, PieChart, BookOpen, HeartHandshake } from "lucide-react";
+import { Users, Code, PieChart, BookOpen, HeartHandshake } from "lucide-react";
 
 const Careers = () => {
-  const openPositions = [
-    {
-      title: "Senior AI Engineer",
-      department: "Engineering",
-      location: "Bangalore, India",
-      type: "Full-time"
-    },
-    {
-      title: "UX/UI Designer",
-      department: "Design",
-      location: "Remote",
-      type: "Full-time"
-    },
-    {
-      title: "Education Content Specialist",
-      department: "Content",
-      location: "Mumbai, India",
-      type: "Full-time"
-    },
-    {
-      title: "Marketing Manager",
-      department: "Marketing",
-      location: "Delhi, India",
-      type: "Full-time"
-    },
-    {
-      title: "Customer Success Representative",
-      department: "Support",
-      location: "Remote",
-      type: "Part-time"
-    }
-  ];
-
   const benefits = [
     {
       icon: Users,
@@ -100,29 +67,11 @@ const Careers = () => {
                 </div>
                 
                 <h2 className="text-2xl font-semibold mt-8 mb-4">Open Positions</h2>
-                <div className="space-y-4">
-                  {openPositions.map((position, index) => (
-                    <div 
-                      key={index} 
-                      className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <div>
-                        <h3 className="font-medium text-lg">{position.title}</h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          <Briefcase className="h-4 w-4 mr-1" />
-                          <span>{position.department}</span>
-                          <span className="mx-2">•</span>
-                          <span>{position.location}</span>
-                          <span className="mx-2">•</span>
-                          <span>{position.type}</span>
-                        </div>
-                      </div>
-                      <Button className="mt-3 md:mt-0 md:ml-4 flex items-center">
-                        View Details
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
-                  ))}
+                <div className="p-8 text-center border rounded-lg bg-gray-50 dark:bg-gray-800">
+                  <h3 className="text-xl font-medium mb-2">Exciting opportunities coming soon!</h3>
+                  <p className="mb-4 text-gray-600 dark:text-gray-400">
+                    We're preparing to expand our team with new positions. Check back soon for updates!
+                  </p>
                 </div>
                 
                 <div className="mt-12 text-center">

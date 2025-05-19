@@ -41,8 +41,8 @@ const Sustainability = () => {
               <section className="flex flex-col md:flex-row gap-8 items-center">
                 <div className="md:w-1/2">
                   <img 
-                    src="https://placehold.co/600x400?text=SDG4+Quality+Education" 
-                    alt="UN SDG #4: Quality Education" 
+                    src="/lovable-uploads/a5362222-b359-44ac-9535-98e33299c603.png" 
+                    alt="Students learning in a classroom - UN SDG #4: Quality Education" 
                     className="rounded-lg shadow-md w-full"
                   />
                 </div>

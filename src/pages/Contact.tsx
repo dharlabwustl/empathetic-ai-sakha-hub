@@ -130,8 +130,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-medium">Email</h3>
-                      <p className="text-gray-700 dark:text-gray-300">info@prepzr.com</p>
-                      <p className="text-gray-700 dark:text-gray-300">support@prepzr.com</p>
+                      <p className="text-gray-700 dark:text-gray-300">hello@prepzr.com</p>
                     </div>
                   </div>
                   
@@ -141,8 +140,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-medium">Phone</h3>
-                      <p className="text-gray-700 dark:text-gray-300">+91 98765 43210</p>
-                      <p className="text-gray-700 dark:text-gray-300">+91 88888 77777</p>
+                      <p className="text-gray-700 dark:text-gray-300">+91 8007194747</p>
                     </div>
                   </div>
                   
@@ -152,10 +150,16 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-medium">Address</h3>
+                      <p className="text-gray-700 dark:text-gray-300 mb-3">
+                        <strong>Gurgaon Office:</strong><br />
+                        Plot No. 1, Udyog Vihar Phase 1,<br />
+                        Udyog Vihar, Sector 20,<br />
+                        Gurugram, Haryana 122016, India
+                      </p>
                       <p className="text-gray-700 dark:text-gray-300">
-                        PREPZR Education Pvt. Ltd.<br />
-                        #42, Tech Park, Whitefield<br />
-                        Bangalore - 560066, India
+                        <strong>Patna Office:</strong><br />
+                        Biscomaun Bhawan, West Gandhi Maidan,<br />
+                        South Gandhi Maidan-800001
                       </p>
                     </div>
                   </div>

@@ -25,10 +25,10 @@ const About = () => {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
                 <p className="text-gray-700 dark:text-gray-300">
-                  Founded in 2023, PREPZR was created by a team of educators and technologists who recognized the need for a more personalized approach to exam preparation. We observed that traditional one-size-fits-all learning methods were leaving many students behind and failing to account for individual learning styles and needs.
+                  Founded in 2025, PREPZR is created by Amit Singh and Dr. Atul Sharma, both childhood friends and AI enthusiasts. They recognized the need for a more personalized approach to exam preparation, observing that traditional one-size-fits-all learning methods were leaving many students behind and failing to account for individual learning styles and needs.
                 </p>
                 <p className="text-gray-700 dark:text-gray-300 mt-4">
-                  By leveraging artificial intelligence and learning science, we've developed a platform that adapts to each student's unique learning journey, helping them achieve better results with less stress and more confidence.
+                  By leveraging artificial intelligence and learning science, they've developed a platform that adapts to each student's unique learning journey, helping them achieve better results with less stress and more confidence.
                 </p>
               </section>
               
