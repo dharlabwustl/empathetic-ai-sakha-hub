@@ -3,9 +3,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShieldAlert } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLoginRedirect: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleAdminRedirect = () => {
     // Set admin flag to indicate this is an admin login attempt
@@ -15,6 +17,12 @@ const AdminLoginRedirect: React.FC = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('new_user_signup');
     localStorage.removeItem('google_signup');
+    
+    // Notify user about redirection
+    toast({
+      title: "Admin Login",
+      description: "Redirecting to admin portal..."
+    });
     
     // Direct redirect to admin login page
     navigate('/admin/login');
