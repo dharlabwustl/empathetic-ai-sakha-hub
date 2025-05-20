@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LayoutDashboard, FileCheck, BookOpen, Clock } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface Task {
   id: string;
@@ -22,7 +22,7 @@ interface TodayStudyPlanProps {
 
 const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   
   // Get appropriate icon for each task type
   const getTaskIcon = (type: string) => {
@@ -76,7 +76,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           <LayoutDashboard className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />
         </Button>
       </CardHeader>
-      <CardContent className="space-y-2 px-3 py-2">
+      <CardContent className="space-y-2">
         {tasks.length === 0 ? (
           <div className="text-center py-2">
             <p className={`text-gray-500 ${isMobile ? "text-xs" : "text-sm"}`}>No tasks scheduled for today</p>
@@ -88,7 +88,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
               className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
               onClick={() => handleTaskClick(task)}
             >
-              <div className="flex items-center gap-1 md:gap-2">
+              <div className="flex items-center gap-2">
                 <div className={`p-1 rounded-full ${task.completed ? 'bg-gray-100 dark:bg-gray-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
                   {getTaskIcon(task.type)}
                 </div>

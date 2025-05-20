@@ -1,117 +1,145 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import {
-  Bell,
-  Settings,
-  Sun,
-  Moon,
-  MessageSquare,
-  Search,
-  Menu,
-  LogOut,
-  User,
-  HelpCircle,
-  ChevronDown
-} from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { HelpCircle, Bell, Calendar } from "lucide-react";
+import VoiceAnnouncer from './voice/VoiceAnnouncer';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TopNavigationControlsProps {
-  darkMode: boolean;
-  toggleDarkMode: () => void;
-  showSidebar: boolean;
-  toggleSidebar: () => void;
-  userProfile: {
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-    avatar?: string;
-  };
-  onLogout: () => void;
+  hideSidebar: boolean;
+  onToggleSidebar: () => void;
+  formattedDate: string;
+  formattedTime: string;
+  onOpenTour?: () => void;
+  userName?: string;
+  mood?: string;
+  isFirstTimeUser?: boolean;
+  onViewStudyPlan?: () => void;
 }
 
-const TopNavigationControls = ({
-  darkMode,
-  toggleDarkMode,
-  showSidebar,
-  toggleSidebar,
-  userProfile,
-  onLogout
-}: TopNavigationControlsProps) => {
-  const isMobile = useIsMobile();
-
-  const userName = userProfile?.name || userProfile?.firstName || userProfile?.lastName || "Student";
-  const userAvatar = userProfile?.avatar || "/images/avatars/avatar-1.png";
-
+const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
+  hideSidebar,
+  onToggleSidebar,
+  formattedDate,
+  formattedTime,
+  onOpenTour,
+  userName,
+  mood,
+  isFirstTimeUser,
+  onViewStudyPlan
+}) => {
   return (
-    <div className="flex items-center justify-between w-full py-2 md:py-3 px-3 md:px-6">
-      {/* Left section */}
-      <div className="flex items-center">
-        {/* Menu button (only visible on mobile) */}
-        {isMobile && (
-          <Button
-            variant="ghost"
-            className="mr-2 px-2 rounded-full"
-            onClick={toggleSidebar}
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        )}
-
-        {/* Search bar (hidden on mobile) */}
-        <div className="hidden md:flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1.5">
-          <Search className="h-4 w-4 text-gray-500 dark:text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-transparent border-none outline-none text-sm text-gray-700 dark:text-gray-300 w-40"
-          />
-        </div>
-      </div>
-      
-      {/* Right section */}
-      <div className="flex items-center space-x-1 md:space-x-3">
-        {/* Notification button */}
-        <Button variant="ghost" className="px-2 rounded-full">
-          <Bell className="h-4 w-4" />
-        </Button>
-
-        {/* Help button */}
-        <Button variant="ghost" className="px-2 rounded-full">
-          <HelpCircle className="h-4 w-4" />
-        </Button>
-        
-        {/* Theme toggle */}
-        <div className="hidden md:flex items-center space-x-1.5">
-          <Sun size={16} className="text-gray-500 dark:text-gray-400" />
-          <Switch
-            checked={darkMode}
-            onCheckedChange={toggleDarkMode}
-          />
-          <Moon size={16} className="text-gray-500 dark:text-gray-400" />
+    <TooltipProvider delayDuration={0}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={onToggleSidebar}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Toggle navigation menu</p>
+            </TooltipContent>
+          </Tooltip>
+          <div>
+            <h2 className="text-lg font-semibold">{formattedTime}</h2>
+            <p className="text-muted-foreground text-sm">{formattedDate}</p>
+          </div>
         </div>
         
-        {/* User profile dropdown */}
-        <div className="relative">
-          <Button variant="ghost" className="px-2 rounded-full flex items-center">
-            <img
-              src={userAvatar}
-              alt="User Avatar"
-              className="rounded-full h-7 w-7 mr-2"
-            />
-            <span className="text-sm font-medium hidden md:inline">{userName}</span>
-            <ChevronDown className="h-4 w-4 ml-1" />
-          </Button>
-          {/* Dropdown content (hidden by default) */}
-          {/* Add your dropdown menu items here */}
+        <div className="flex items-center gap-2">
+          {/* Voice Announcer Integration */}
+          <VoiceAnnouncer 
+            userName={userName}
+            mood={mood}
+            isFirstTimeUser={isFirstTimeUser}
+          />
+          
+          {/* Calendar Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="hidden sm:flex items-center gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your study calendar based on your exam goals</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Notification Icon */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                asChild
+              >
+                <a href="/dashboard/student/notifications">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Tour Guide Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenTour}
+                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Tour Guide
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Get a guided tour of the dashboard features</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-
-        {/* Logout button */}
-        <Button variant="ghost" className="px-2 rounded-full" onClick={onLogout}>
-          <LogOut className="h-4 w-4" />
-        </Button>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

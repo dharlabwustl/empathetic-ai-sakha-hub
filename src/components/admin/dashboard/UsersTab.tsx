@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { UserProfileBase } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
-import { SubscriptionType } from '@/types/user/subscription';
 
 export interface UsersTabProps {
   users: UserProfileBase[];
@@ -14,8 +13,8 @@ const UsersTab: React.FC<UsersTabProps> = ({ users }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredUsers = users.filter(user => 
-    (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-    (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   return (
@@ -51,7 +50,7 @@ const UsersTab: React.FC<UsersTabProps> = ({ users }) => {
                 <TableCell>{user.role || 'Student'}</TableCell>
                 <TableCell>
                   {typeof user.subscription === 'object' 
-                    ? user.subscription?.planType 
+                    ? user.subscription.planType 
                     : user.subscription || 'Free'}
                 </TableCell>
                 <TableCell>

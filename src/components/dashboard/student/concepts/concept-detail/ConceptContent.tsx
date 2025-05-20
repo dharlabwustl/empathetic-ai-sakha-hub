@@ -1,237 +1,247 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FlaskConical, BookOpen, DownloadCloud, Share, Copy, Check, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, Copy, BookOpen, Highlighter, Speaker } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import PenLine from './PenLine';
 
-interface ConceptContentProps {
-  title: string;
-  content: string;
-  subtopics?: string[];
-  relatedFormulas?: string[];
-  examples?: {
-    question: string;
-    solution: string;
-  }[];
+interface Formula {
+  id: string;
+  formula: string;
+  description: string;
 }
 
-const ConceptContent: React.FC<ConceptContentProps> = ({
-  title,
-  content,
-  subtopics = [],
-  relatedFormulas = [],
-  examples = []
+interface ConceptContentProps {
+  content: string;
+  conceptId: string;
+  userNotes: string;
+  setUserNotes: React.Dispatch<React.SetStateAction<string>>;
+  handleSaveNotes: () => void;
+  isReadingAloud: boolean;
+  setIsReadingAloud: React.Dispatch<React.SetStateAction<boolean>>;
+  formulas?: Formula[];
+}
+
+const ConceptContent: React.FC<ConceptContentProps> = ({ 
+  content, 
+  conceptId,
+  userNotes,
+  setUserNotes,
+  handleSaveNotes,
+  isReadingAloud,
+  setIsReadingAloud,
+  formulas = []
 }) => {
-  const [activeTab, setActiveTab] = useState("content");
   const [copied, setCopied] = useState(false);
-  const [highlightedText, setHighlightedText] = useState<string>('');
-  const [contentWithHighlights, setContentWithHighlights] = useState(content);
-  
   const { toast } = useToast();
-  
+  const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
+
+  // Set up speech synthesis
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance();
+      utterance.text = content.replace(/<[^>]+>/g, '');
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.onend = () => {
+        setIsReadingAloud(false);
+      };
+      utterance.onerror = () => {
+        setIsReadingAloud(false);
+        toast({
+          title: "Read Aloud Error",
+          description: "There was an error with the text-to-speech functionality.",
+          variant: "destructive",
+        });
+      };
+      setSpeech(utterance);
+
+      return () => {
+        window.speechSynthesis.cancel();
+      };
+    }
+  }, [content, toast, setIsReadingAloud]);
+
+  // Handle read aloud toggle
+  const toggleReadAloud = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (isReadingAloud) {
+        window.speechSynthesis.cancel();
+        setIsReadingAloud(false);
+      } else if (speech) {
+        window.speechSynthesis.speak(speech);
+        setIsReadingAloud(true);
+      }
+    } else {
+      toast({
+        title: "Feature Not Available",
+        description: "Text-to-speech is not supported in your browser.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCopyContent = () => {
-    navigator.clipboard.writeText(content);
+    const plainContent = content.replace(/<[^>]+>/g, '');
+    navigator.clipboard.writeText(plainContent);
     setCopied(true);
     
     toast({
       title: "Content copied",
-      description: "The concept content has been copied to clipboard."
+      description: "The concept content has been copied to your clipboard",
     });
     
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+    setTimeout(() => setCopied(false), 2000);
   };
   
-  const handleTextSelection = useCallback(() => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().length > 0) {
-      setHighlightedText(selection.toString());
-    }
-  }, []);
-  
-  const highlightSelectedText = useCallback(() => {
-    if (highlightedText && highlightedText.length > 0) {
-      // Create a highlighted version with a span
-      const highlightedContent = contentWithHighlights.replace(
-        new RegExp(highlightedText, 'g'),
-        `<span class="bg-yellow-200 dark:bg-yellow-800">${highlightedText}</span>`
-      );
-      
-      setContentWithHighlights(highlightedContent);
-      
-      toast({
-        title: "Text highlighted",
-        description: "The selected text has been highlighted."
-      });
-      
-      // Clear the selection
-      setHighlightedText('');
-    } else {
-      toast({
-        title: "No text selected",
-        description: "Please select text to highlight.",
-        variant: "destructive"
-      });
-    }
-  }, [highlightedText, contentWithHighlights, toast]);
-  
-  const readContentAloud = () => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.rate = 0.9; // Slightly slower rate for better comprehension
-      speechSynthesis.speak(utterance);
-      
-      toast({
-        title: "Reading content",
-        description: "The concept content is being read aloud."
-      });
-    } else {
-      toast({
-        title: "Not supported",
-        description: "Text-to-speech is not supported in your browser.",
-        variant: "destructive"
-      });
-    }
+  const handleShare = () => {
+    toast({
+      title: "Share feature",
+      description: "Share functionality would open a modal with sharing options",
+    });
   };
   
+  const handleDownload = () => {
+    toast({
+      title: "Download PDF",
+      description: "The concept would be downloaded as a PDF",
+    });
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-4">
-      <Card className="overflow-hidden">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)}>
-          <div className="flex items-center justify-between bg-muted/40 px-4 py-2">
-            <TabsList className="bg-transparent">
-              <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
-              <TabsTrigger value="examples" className="text-sm">Examples</TabsTrigger>
-              <TabsTrigger value="related" className="text-sm">Related</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={highlightSelectedText}
-                disabled={!highlightedText}
-                className="h-8 w-8 p-0"
-              >
-                <Highlighter className="h-4 w-4" />
-                <span className="sr-only">Highlight text</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={readContentAloud}
-                className="h-8 w-8 p-0"
-              >
-                <Speaker className="h-4 w-4" />
-                <span className="sr-only">Read aloud</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleCopyContent}
-                className="h-8 w-8 p-0"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                <span className="sr-only">Copy content</span>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: {
+          transition: { staggerChildren: 0.1 }
+        }
+      }}
+      className="space-y-6"
+    >
+      {/* Actions bar */}
+      <motion.div 
+        variants={itemVariants}
+        className="flex flex-wrap gap-2 justify-end"
+      >
+        <Button 
+          variant={isReadingAloud ? "default" : "outline"} 
+          size="sm"
+          className={`flex items-center gap-1 ${isReadingAloud ? "bg-blue-600" : ""}`}
+          onClick={toggleReadAloud}
+        >
+          <Volume2 className="h-4 w-4" />
+          {isReadingAloud ? 'Stop Reading' : 'Read Aloud'}
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={handleCopyContent}
+        >
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          {copied ? 'Copied!' : 'Copy'}
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={handleShare}
+        >
+          <Share className="h-4 w-4" />
+          Share
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={handleDownload}
+        >
+          <DownloadCloud className="h-4 w-4" />
+          Download
+        </Button>
+      </motion.div>
+      
+      {/* Main content */}
+      <motion.div variants={itemVariants}>
+        <Card className="border-0 shadow-md overflow-hidden">
+          <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-xl">
+              <BookOpen className="h-5 w-5 mr-2 text-blue-600" /> Concept Overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div 
+              className="prose dark:prose-invert max-w-none" 
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Notes Section */}
+      <motion.div variants={itemVariants}>
+        <Card className="border-0 shadow-md overflow-hidden">
+          <div className="absolute top-0 left-0 w-2 h-full bg-green-600"></div>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-xl">
+              <PenLine className="h-5 w-5 mr-2 text-green-600" /> Your Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Textarea
+              value={userNotes}
+              onChange={(e) => setUserNotes(e.target.value)}
+              placeholder="Take notes on this concept..."
+              className="min-h-32"
+            />
+            <div className="mt-3 flex justify-end">
+              <Button onClick={handleSaveNotes}>
+                Save Notes
               </Button>
             </div>
-          </div>
-          
-          <TabsContent value="content" className="m-0">
-            <ScrollArea className="h-[500px] p-4 md:p-6" onMouseUp={handleTextSelection}>
-              <div
-                className="prose prose-sm md:prose-base dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: contentWithHighlights }}
-              />
-            </ScrollArea>
-          </TabsContent>
-          
-          <TabsContent value="examples" className="m-0">
-            <ScrollArea className="h-[500px] p-4 md:p-6">
-              {examples.length > 0 ? (
-                <div className="space-y-6">
-                  {examples.map((example, index) => (
-                    <div key={index} className="space-y-2">
-                      <h3 className="text-lg font-medium">Example {index + 1}</h3>
-                      <div className="bg-muted/30 p-3 rounded-md">
-                        <h4 className="text-sm font-medium">Question:</h4>
-                        <p className="text-sm mt-1">{example.question}</p>
-                      </div>
-                      <div className="bg-muted/10 p-3 rounded-md border">
-                        <h4 className="text-sm font-medium">Solution:</h4>
-                        <p className="text-sm mt-1">{example.solution}</p>
-                      </div>
-                      {index < examples.length - 1 && <Separator className="my-4" />}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="text-lg font-medium">No examples available</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Examples for this concept will be added soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </ScrollArea>
-          </TabsContent>
-          
-          <TabsContent value="related" className="m-0">
-            <ScrollArea className="h-[500px] p-4 md:p-6">
-              <div className="space-y-6">
-                {subtopics.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Related Subtopics</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {subtopics.map((subtopic, index) => (
-                        <li key={index} className="text-sm">{subtopic}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {relatedFormulas.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Related Formulas</h3>
-                    <div className="space-y-2">
-                      {relatedFormulas.map((formula, index) => (
-                        <div key={index} className="bg-muted/20 p-3 rounded-md text-center">
-                          <p className="text-sm font-mono">{formula}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {subtopics.length === 0 && relatedFormulas.length === 0 && (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                      <h3 className="text-lg font-medium">No related content</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Related concepts and formulas will be added soon.
-                      </p>
-                    </div>
-                  </div>
-                )}
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Formulas section */}
+      {formulas.length > 0 && (
+        <motion.div variants={itemVariants}>
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 h-full bg-purple-600"></div>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-xl">
+                <FlaskConical className="h-5 w-5 mr-2 text-purple-600" /> Key Formulas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {formulas.map(formula => (
+                  <motion.div 
+                    key={formula.id}
+                    className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="text-center py-2 font-bold text-lg">{formula.formula}</div>
+                    <div className="text-sm text-center text-gray-600 dark:text-gray-400">{formula.description}</div>
+                  </motion.div>
+                ))}
               </div>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
-      </Card>
-    </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
 

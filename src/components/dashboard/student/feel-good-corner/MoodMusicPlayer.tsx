@@ -1,167 +1,164 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Card } from "@/components/ui/card";
-import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
-import { MoodType } from '@/types/user/base';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { 
+  Play, Pause, SkipForward, SkipBack, Volume2, ThumbsUp
+} from 'lucide-react';
 
-export interface MoodMusicPlayerProps {
-  currentMood: MoodType;
-  onMoodChange: (mood: MoodType) => void;
+interface MoodMusicPlayerProps {
+  onLike: () => void;
 }
 
-const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ currentMood, onMoodChange }) => {
+const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ onLike }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(70);
+  const [volume, setVolume] = useState([80]);
   const [currentTrack, setCurrentTrack] = useState(0);
   
-  // Mock tracks based on mood
-  const moodTracks = {
-    [MoodType.HAPPY]: [
-      { title: "Happy Day", artist: "Joy Band", duration: "3:24" },
-      { title: "Sunshine Melody", artist: "Bright Notes", duration: "4:15" },
-    ],
-    [MoodType.MOTIVATED]: [
-      { title: "Power Up", artist: "Motivation Squad", duration: "3:45" },
-      { title: "Achievement Unlocked", artist: "Success Team", duration: "3:12" },
-    ],
-    [MoodType.OKAY]: [
-      { title: "Balanced Mind", artist: "Centered Vibes", duration: "4:02" },
-      { title: "Steady Flow", artist: "Even Keel", duration: "3:56" },
-    ],
-    [MoodType.STRESSED]: [
-      { title: "Calm Waters", artist: "Stress Relief", duration: "5:30" },
-      { title: "Deep Breath", artist: "Tension Release", duration: "6:10" },
-    ],
-    [MoodType.TIRED]: [
-      { title: "Energy Boost", artist: "Revitalize", duration: "4:45" },
-      { title: "Second Wind", artist: "Refreshed", duration: "3:50" },
-    ],
-    [MoodType.FOCUSED]: [
-      { title: "Concentration", artist: "Deep Focus", duration: "7:15" },
-      { title: "Flow State", artist: "Mind Lock", duration: "8:20" },
-    ],
-    [MoodType.CONFUSED]: [
-      { title: "Clarity", artist: "Mind Cleanse", duration: "5:05" },
-      { title: "Direction", artist: "Path Finder", duration: "4:30" },
-    ],
-    [MoodType.SAD]: [
-      { title: "Healing Tones", artist: "Emotion", duration: "6:15" },
-      { title: "Sunny Tomorrow", artist: "Hope", duration: "4:45" },
-    ],
-    [MoodType.CALM]: [
-      { title: "Peaceful Mind", artist: "Tranquil", duration: "6:30" },
-      { title: "Serene Waters", artist: "Still Lake", duration: "5:45" },
-    ],
-  };
-
-  const tracks = moodTracks[currentMood] || moodTracks[MoodType.OKAY];
-
-  const handlePlayPause = () => {
+  const tracks = [
+    { 
+      title: "Calm Waters", 
+      artist: "Mindful Melodies", 
+      duration: "3:45", 
+      mood: "Relaxing",
+      coverUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05"
+    },
+    { 
+      title: "Focus Flow", 
+      artist: "Study Beats", 
+      duration: "4:12", 
+      mood: "Concentrative",
+      coverUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+    },
+    { 
+      title: "Energy Boost", 
+      artist: "Motivation Mix", 
+      duration: "3:28", 
+      mood: "Energizing",
+      coverUrl: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
+    }
+  ];
+  
+  const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
-
-  const handleNext = () => {
+  
+  const nextTrack = () => {
     setCurrentTrack((prev) => (prev + 1) % tracks.length);
   };
-
-  const handlePrev = () => {
-    setCurrentTrack((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
+  
+  const prevTrack = () => {
+    setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
-
-  const handleMoodSelection = (mood: MoodType) => {
-    onMoodChange(mood);
-    setCurrentTrack(0);
-  };
-
+  
   return (
-    <div className="space-y-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold mb-2">Music for your mood</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Listen to music that complements how you're feeling right now
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-        {Object.values(MoodType).filter(mood => !!moodTracks[mood]).map((mood) => (
-          <Button
-            key={mood}
-            variant={currentMood === mood ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleMoodSelection(mood)}
-            className="text-xs capitalize"
-          >
-            {mood.toLowerCase()}
-          </Button>
-        ))}
-      </div>
-      
-      <Card className="p-4">
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <h4 className="font-medium">{tracks[currentTrack].title}</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{tracks[currentTrack].artist}</p>
+    <div className="flex flex-col space-y-4">
+      <Card className="overflow-hidden">
+        <div className="aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-black">
+          <img 
+            src={tracks[currentTrack].coverUrl} 
+            alt={`Cover for ${tracks[currentTrack].title}`}
+            className="w-full h-full object-cover opacity-80"
+          />
+        </div>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl font-bold">{tracks[currentTrack].title}</h3>
+              <p className="text-muted-foreground">{tracks[currentTrack].artist}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                  {tracks[currentTrack].mood}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {tracks[currentTrack].duration}
+                </span>
+              </div>
             </div>
-            <div className="text-sm">{tracks[currentTrack].duration}</div>
+            
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="icon" onClick={prevTrack}>
+                <SkipBack className="h-5 w-5" />
+              </Button>
+              <Button 
+                className="h-14 w-14 rounded-full"
+                onClick={togglePlayPause}
+              >
+                {isPlaying ? (
+                  <Pause className="h-6 w-6" />
+                ) : (
+                  <Play className="h-6 w-6 ml-1" />
+                )}
+              </Button>
+              <Button variant="outline" size="icon" onClick={nextTrack}>
+                <SkipForward className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           
-          <div className="bg-gray-200 dark:bg-gray-700 h-1 w-full rounded-full overflow-hidden">
-            <div 
-              className="bg-primary h-full rounded-full" 
-              style={{ width: isPlaying ? '45%' : '0%', transition: 'width 1s linear' }}
-            ></div>
+          <div className="mt-6">
+            <div className="h-1 w-full bg-gray-200 rounded-full">
+              <div className="h-full bg-blue-600 rounded-full" style={{ width: '35%' }}></div>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>1:19</span>
+              <span>{tracks[currentTrack].duration}</span>
+            </div>
           </div>
           
-          <div className="flex justify-center items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={handlePrev}>
-              <SkipBack className="h-4 w-4" />
-            </Button>
-            <Button onClick={handlePlayPause} className="w-10 h-10 rounded-full">
-              {isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleNext}>
-              <SkipForward className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Volume2 className="h-4 w-4 text-gray-500" />
+          <div className="mt-4 flex items-center gap-4">
+            <Volume2 className="h-5 w-5 text-muted-foreground" />
             <Slider
-              value={[volume]}
+              value={volume}
               min={0}
               max={100}
               step={1}
-              onValueChange={(value) => setVolume(value[0])}
-              className="w-full"
+              className="w-32"
+              onValueChange={setVolume}
             />
+            <span className="text-xs text-muted-foreground">{volume[0]}%</span>
           </div>
-        </div>
+        </CardContent>
       </Card>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-        <Card className="p-3 bg-green-50 dark:bg-green-900/20">
-          <h4 className="font-medium text-sm">Benefits of Music</h4>
-          <ul className="text-xs mt-2 space-y-1 list-disc list-inside text-gray-700 dark:text-gray-300">
-            <li>Reduces stress and anxiety</li>
-            <li>Improves focus and concentration</li>
-            <li>Enhances memory and learning</li>
-          </ul>
-        </Card>
-        <Card className="p-3 bg-blue-50 dark:bg-blue-900/20">
-          <h4 className="font-medium text-sm">Music & Study Tips</h4>
-          <ul className="text-xs mt-2 space-y-1 list-disc list-inside text-gray-700 dark:text-gray-300">
-            <li>Instrumental music is best for studying</li>
-            <li>Maintain consistent volume levels</li>
-            <li>Match music to your task type</li>
-          </ul>
-        </Card>
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-muted-foreground">
+          Music designed to match and enhance your mood
+        </p>
+        <Button variant="outline" onClick={onLike}>
+          <ThumbsUp className="h-4 w-4 mr-2" /> Like This Activity
+        </Button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+        {tracks.map((track, index) => (
+          <Card 
+            key={index} 
+            className={`overflow-hidden cursor-pointer transition-all ${
+              currentTrack === index ? 'ring-2 ring-blue-500' : ''
+            }`}
+            onClick={() => setCurrentTrack(index)}
+          >
+            <div className="aspect-video overflow-hidden">
+              <img 
+                src={track.coverUrl} 
+                alt={`Cover for ${track.title}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <CardContent className="p-3">
+              <h4 className="font-medium">{track.title}</h4>
+              <p className="text-sm text-muted-foreground">{track.artist}</p>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
+                  {track.mood}
+                </span>
+                <span className="text-xs text-muted-foreground">{track.duration}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

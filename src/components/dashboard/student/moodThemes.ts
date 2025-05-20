@@ -18,7 +18,7 @@ type MoodThemes = {
 };
 
 export const moodThemes: MoodThemes = {
-  [MoodType.HAPPY]: {
+  [MoodType.Happy]: {
     backgroundColor: "#FEF3C7",
     textColor: "#92400E",
     borderColor: "#FCD34D",
@@ -29,7 +29,7 @@ export const moodThemes: MoodThemes = {
     message: "You're in a good mood!",
     studyTip: "This is a great time to tackle challenging subjects or start new material."
   },
-  [MoodType.MOTIVATED]: {
+  [MoodType.Motivated]: {
     backgroundColor: "#ECFDF5",
     textColor: "#065F46",
     borderColor: "#6EE7B7",
@@ -40,7 +40,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling motivated today!",
     studyTip: "Channel this energy into your most important topics and aim for deep work sessions."
   },
-  [MoodType.FOCUSED]: {
+  [MoodType.Focused]: {
     backgroundColor: "#EFF6FF",
     textColor: "#1E40AF",
     borderColor: "#93C5FD",
@@ -51,7 +51,7 @@ export const moodThemes: MoodThemes = {
     message: "You're in a focused state of mind!",
     studyTip: "Perfect time for complex problem-solving and detailed conceptual work."
   },
-  [MoodType.NEUTRAL]: {
+  [MoodType.Neutral]: {
     backgroundColor: "#F3F4F6",
     textColor: "#4B5563",
     borderColor: "#D1D5DB",
@@ -62,7 +62,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling neutral today.",
     studyTip: "Good for balanced study sessions across multiple subjects."
   },
-  [MoodType.TIRED]: {
+  [MoodType.Tired]: {
     backgroundColor: "#EEF2FF",
     textColor: "#4338CA",
     borderColor: "#A5B4FC",
@@ -73,7 +73,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling tired today.",
     studyTip: "Try shorter study sessions with more frequent breaks. Focus on review rather than new material."
   },
-  [MoodType.ANXIOUS]: {
+  [MoodType.Anxious]: {
     backgroundColor: "#FEF3C7",
     textColor: "#92400E",
     borderColor: "#FCD34D",
@@ -84,7 +84,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling anxious today.",
     studyTip: "Start with something easy to build confidence. Take breaks for deep breathing exercises."
   },
-  [MoodType.STRESSED]: {
+  [MoodType.Stressed]: {
     backgroundColor: "#FEE2E2",
     textColor: "#B91C1C",
     borderColor: "#FECACA",
@@ -95,7 +95,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling stressed today.",
     studyTip: "Choose review activities over new concepts. Break tasks into smaller chunks."
   },
-  [MoodType.SAD]: {
+  [MoodType.Sad]: {
     backgroundColor: "#F3E8FF",
     textColor: "#6D28D9",
     borderColor: "#DDD6FE",
@@ -106,7 +106,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling down today.",
     studyTip: "Focus on subjects you enjoy. Set small, achievable goals to boost your mood."
   },
-  [MoodType.CURIOUS]: {
+  [MoodType.Curious]: {
     backgroundColor: "#CFFAFE",
     textColor: "#0E7490",
     borderColor: "#A5F3FC",
@@ -117,7 +117,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling curious today!",
     studyTip: "Great time to explore new topics or dive deeper into concepts that interest you."
   },
-  [MoodType.OKAY]: {
+  [MoodType.Okay]: {
     backgroundColor: "#E5E7EB",
     textColor: "#374151",
     borderColor: "#D1D5DB",
@@ -128,7 +128,7 @@ export const moodThemes: MoodThemes = {
     message: "You're feeling okay today.",
     studyTip: "Good for steady progress. Mix review with new material for best results."
   },
-  [MoodType.OVERWHELMED]: {
+  [MoodType.Overwhelmed]: {
     backgroundColor: "#FFEDD5",
     textColor: "#9A3412",
     borderColor: "#FED7AA",
@@ -138,23 +138,12 @@ export const moodThemes: MoodThemes = {
     emoji: "😵",
     message: "You're feeling overwhelmed today.",
     studyTip: "Break work into the smallest possible tasks. Focus on one thing at a time."
-  },
-  [MoodType.CONFUSED]: {
-    backgroundColor: "#DBEAFE",
-    textColor: "#1E40AF",
-    borderColor: "#BFDBFE",
-    darkBackgroundColor: "rgba(37, 99, 235, 0.2)",
-    darkTextColor: "#60A5FA",
-    darkBorderColor: "#2563EB",
-    emoji: "🤔",
-    message: "You're feeling confused today.",
-    studyTip: "Go back to basics. Break complex topics into smaller parts to build understanding."
   }
 };
 
 export const getMoodTheme = (mood: MoodType | undefined): MoodTheme => {
   if (!mood || !(mood in moodThemes)) {
-    return moodThemes[MoodType.NEUTRAL]; // Default to neutral
+    return moodThemes[MoodType.Neutral]; // Default to neutral
   }
   return moodThemes[mood];
 };
