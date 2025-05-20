@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Bookmark } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Star } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface ConceptHeaderProps {
@@ -21,36 +21,47 @@ const ConceptHeader: React.FC<ConceptHeaderProps> = ({
   isBookmarked,
   onBookmarkToggle
 }) => {
+  const difficultyColors = {
+    easy: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    hard: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+  };
+
   return (
     <motion.div 
-      className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 p-6 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm"
-      initial={{ opacity: 0, y: -20 }}
+      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-sm"
+      initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 text-xs rounded ${
-              difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400' :
-              difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400' :
-              'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400'
-            }`}>
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800/50">
+              {subject}
+            </Badge>
+            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50">
+              {topic}
+            </Badge>
+            <Badge variant="outline" className={difficultyColors[difficulty]}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{subject} • {topic}</span>
+            </Badge>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold mt-2 text-gray-900 dark:text-gray-100">{title}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
+            {title}
+          </h1>
         </div>
-        
-        <Button 
-          variant={isBookmarked ? "default" : "outline"} 
-          className={`flex items-center gap-1 ${isBookmarked ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+        <button 
+          className="h-8 w-8 flex items-center justify-center rounded-full"
           onClick={onBookmarkToggle}
+          aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
         >
-          <Bookmark className="h-4 w-4" />
-          {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-        </Button>
+          <Star 
+            className={`h-6 w-6 ${isBookmarked 
+              ? 'text-amber-500 fill-amber-500' 
+              : 'text-gray-400 dark:text-gray-500'}`} 
+          />
+        </button>
       </div>
     </motion.div>
   );

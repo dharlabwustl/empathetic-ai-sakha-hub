@@ -1,20 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, ArrowRight, BarChart2, Layers, BookOpen, Lock } from 'lucide-react';
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-
-interface LinkedConcept {
-  id: string;
-  title: string;
-  subject: string;
-  topic: string;
-  masteryLevel: number;
-  isAccessible: boolean;
-}
 
 interface LinkedConceptsSectionProps {
   conceptId: string;
@@ -28,158 +18,95 @@ const LinkedConceptsSection: React.FC<LinkedConceptsSectionProps> = ({
   topic
 }) => {
   const navigate = useNavigate();
-  const [linkedConcepts, setLinkedConcepts] = useState<LinkedConcept[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // In a real app, this would be fetched from your API
+  const relatedConcepts = [
+    {
+      id: "c1",
+      title: "Newton's First Law of Motion",
+      description: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.",
+      subject: "Physics",
+      topic: "Classical Mechanics",
+      difficulty: "easy" as const
+    },
+    {
+      id: "c2",
+      title: "Newton's Third Law of Motion",
+      description: "For every action, there is an equal and opposite reaction.",
+      subject: "Physics", 
+      topic: "Classical Mechanics",
+      difficulty: "medium" as const
+    },
+    {
+      id: "c3",
+      title: "Conservation of Momentum",
+      description: "The total momentum of a closed system remains constant if no external forces act on it.",
+      subject: "Physics",
+      topic: "Classical Mechanics",
+      difficulty: "hard" as const
+    }
+  ];
 
-  // Mock data fetching of linked concepts
-  useEffect(() => {
-    const fetchLinkedConcepts = async () => {
-      setIsLoading(true);
-      
-      // In a real app, this would be an API call to fetch linked concepts
-      setTimeout(() => {
-        // Mock data for linked concepts
-        const mockLinkedConcepts: LinkedConcept[] = [
-          {
-            id: 'c1',
-            title: 'Newton\'s First Law of Motion',
-            subject: 'Physics',
-            topic: 'Classical Mechanics',
-            masteryLevel: 75,
-            isAccessible: true
-          },
-          {
-            id: 'c2',
-            title: 'Newton\'s Third Law of Motion',
-            subject: 'Physics',
-            topic: 'Classical Mechanics',
-            masteryLevel: 45,
-            isAccessible: true
-          },
-          {
-            id: 'c3',
-            title: 'Momentum Conservation',
-            subject: 'Physics',
-            topic: 'Classical Mechanics',
-            masteryLevel: 60,
-            isAccessible: true
-          },
-          {
-            id: 'c4',
-            title: 'Circular Motion',
-            subject: 'Physics',
-            topic: 'Classical Mechanics',
-            masteryLevel: 30,
-            isAccessible: true
-          },
-          {
-            id: 'c5',
-            title: 'Advanced Applications in Mechanics',
-            subject: 'Physics',
-            topic: 'Classical Mechanics',
-            masteryLevel: 0,
-            isAccessible: false
-          }
-        ];
-        
-        setLinkedConcepts(mockLinkedConcepts);
-        setIsLoading(false);
-      }, 1000);
-    };
-
-    fetchLinkedConcepts();
-  }, [conceptId]);
-
-  const handleNavigateToLinkedConcept = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}`);
+  const handleConceptClick = (relatedConceptId: string) => {
+    navigate(`/dashboard/student/concepts/${relatedConceptId}`);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
-  const getMasteryLevelColor = (level: number) => {
-    if (level >= 80) return "bg-green-500";
-    if (level >= 60) return "bg-blue-500";
-    if (level >= 40) return "bg-yellow-500";
-    if (level > 0) return "bg-red-500";
-    return "bg-gray-300 dark:bg-gray-600";
+  
+  const getDifficultyColor = (difficulty: 'easy' | 'medium' | 'hard') => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'medium':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'hard':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium flex items-center">
-          <Layers className="h-5 w-5 mr-2 text-indigo-500" /> Related Concepts
-        </h2>
-        <Badge variant="outline" className="text-xs">
-          {linkedConcepts.length} related concepts found
-        </Badge>
-      </div>
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4 flex items-center">
+        <ArrowLeft className="h-5 w-5 mr-2 text-blue-600" />
+        Related Concepts
+      </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {linkedConcepts.map((concept) => (
+      <div className="grid grid-cols-1 gap-4">
+        {relatedConcepts.map((concept) => (
           <Card 
-            key={concept.id}
-            className={`overflow-hidden ${concept.isAccessible ? "hover:border-blue-300" : "opacity-80"}`}
+            key={concept.id} 
+            className="p-4 hover:border-blue-300 dark:hover:border-blue-700 cursor-pointer transition-colors"
+            onClick={() => handleConceptClick(concept.id)}
           >
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-medium line-clamp-2">{concept.title}</h3>
-                  {!concept.isAccessible && (
-                    <Badge variant="outline" className="bg-gray-100 dark:bg-gray-800">
-                      <Lock className="h-3 w-3 mr-1" /> Premium
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="text-xs text-muted-foreground">
-                  {concept.subject} • {concept.topic}
-                </div>
-                
-                <div className="mt-2">
-                  <div className="flex justify-between items-center text-xs mb-1">
-                    <span>Mastery Level</span>
-                    <span>{concept.masteryLevel}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full ${getMasteryLevelColor(concept.masteryLevel)}`}
-                      style={{ width: `${concept.masteryLevel}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="pt-2">
-                  <Button 
-                    size="sm"
-                    variant="outline"
-                    className="w-full flex items-center justify-center gap-1"
-                    onClick={() => concept.isAccessible && handleNavigateToLinkedConcept(concept.id)}
-                    disabled={!concept.isAccessible}
-                  >
-                    {concept.isAccessible ? (
-                      <>
-                        <BookOpen className="h-4 w-4 mr-1" />
-                        Study Concept
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="h-4 w-4 mr-1" />
-                        Upgrade to Access
-                      </>
-                    )}
-                  </Button>
-                </div>
+            <div>
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium text-base">{concept.title}</h3>
+                <Badge className={getDifficultyColor(concept.difficulty)}>
+                  {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
+                </Badge>
               </div>
-            </CardContent>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                {concept.description}
+              </p>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800/50">
+                  {concept.subject}
+                </Badge>
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50">
+                  {concept.topic}
+                </Badge>
+              </div>
+            </div>
           </Card>
         ))}
+      </div>
+      
+      <div className="mt-6">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => navigate('/dashboard/student/concepts')}
+        >
+          Browse All Concepts
+        </Button>
       </div>
     </div>
   );
