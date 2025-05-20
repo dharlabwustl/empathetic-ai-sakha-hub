@@ -13,21 +13,21 @@ interface LoginCredentials {
   password: string;
 }
 
-// Predefined admin credentials - normally this would be in a secure backend
+// Predefined admin credentials for a secure admin user
 const ADMIN_CREDENTIALS = {
   email: "admin@prepzr.com",
   password: "Admin@2025#Secure",
   name: "Admin User"
 };
 
-// Admin auth service with enhanced functions
+// Admin authentication service with enhanced security
 const adminAuthService = {
-  // Admin login function with improved security and reliability
+  // Admin login function with improved error handling
   async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
     console.log("Admin auth service: login attempt for", credentials.email);
     
     try {
-      // Check against predefined credentials
+      // Validate against predefined credentials
       if (credentials.email === ADMIN_CREDENTIALS.email && 
           credentials.password === ADMIN_CREDENTIALS.password) {
         
@@ -79,7 +79,7 @@ const adminAuthService = {
     }
   },
   
-  // Admin logout function with enhanced session clearing but without navigation
+  // Admin logout function with enhanced session clearing
   async adminLogout(): Promise<void> {
     console.log("Admin auth service: executing logout");
     

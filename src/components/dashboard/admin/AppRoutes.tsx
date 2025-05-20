@@ -5,6 +5,7 @@ import DashboardStats from '@/components/admin/dashboard/DashboardStats';
 import SubscriptionManager from '@/components/admin/dashboard/SubscriptionManager';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingState from "@/components/admin/dashboard/LoadingState";
+import { AdminDashboardStats } from '@/types/admin';
 
 const AdminAppRoutes: React.FC = () => {
   const { isAdminAuthenticated, isLoading } = useAdminAuth();
@@ -19,7 +20,7 @@ const AdminAppRoutes: React.FC = () => {
   }
 
   // Basic mock data for the dashboard stats
-  const mockDashboardStats = {
+  const mockDashboardStats: Partial<AdminDashboardStats> = {
     totalUsers: 250,
     activeUsers: 180,
     totalRevenue: 15780,
@@ -41,12 +42,20 @@ const AdminAppRoutes: React.FC = () => {
     retentionRate: 85,
     activeMoodTrackers: 150,
     studyTimeConsistencyImprovement: 28,
-    completedStudyPlans: 145
+    completedStudyPlans: 145,
+    verifiedExamConfidenceImprovement: 70,
+    averageConfidenceScore: 8.2,
+    verifiedRetentionRate: 72,
+    activeStudents: 175,
+    verifiedMoodFeatureUsage: 60,
+    moodBasedSessionsCount: 3200,
+    totalSessions: 5400,
+    completedSurveys: 210
   };
 
   return (
     <Routes>
-      <Route path="/" element={<DashboardStats stats={mockDashboardStats} />} />
+      <Route path="/" element={<DashboardStats stats={mockDashboardStats as AdminDashboardStats} />} />
       <Route path="/subscriptions" element={<SubscriptionManager />} />
     </Routes>
   );

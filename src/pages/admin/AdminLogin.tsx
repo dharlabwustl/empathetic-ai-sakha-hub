@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Eye, EyeOff, Loader2, Mail, Lock, ShieldAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
-import adminAuthService from "@/services/auth/adminAuthService";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +18,9 @@ const AdminLogin: React.FC = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { isAdminAuthenticated } = useAdminAuth();
+  const location = useLocation();
+  const { isAdminAuthenticated, loginAdmin, error } = useAdminAuth();
+  const { toast } = useToast();
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
@@ -28,18 +30,33 @@ const AdminLogin: React.FC = () => {
     }
   }, [isAdminAuthenticated, navigate]);
 
+  useEffect(() => {
+    // Update local error state when context error changes
+    if (error) {
+      setLoginError(error);
+    }
+  }, [error]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
     setIsLoading(true);
     
     try {
-      const response = await adminAuthService.adminLogin({ email, password });
+      // Use login function from context
+      const success = await loginAdmin(email, password);
       
-      if (response.success) {
-        navigate('/admin/dashboard', { replace: true });
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: "Welcome to the admin dashboard",
+        });
+        
+        // Get the intended destination or default to dashboard
+        const from = location.state?.from?.pathname || "/admin/dashboard";
+        navigate(from, { replace: true });
       } else {
-        setLoginError(response.message || "Login failed. Please check your credentials.");
+        setLoginError("Login failed. Please check your credentials.");
       }
     } catch (err) {
       console.error("Login error:", err);
