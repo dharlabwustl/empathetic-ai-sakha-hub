@@ -66,7 +66,9 @@ export default function DashboardTabs({
                       className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
                     >
                       <tab.icon size={16} />
-                      <span className={isMobile ? "hidden sm:inline text-xs" : ""}>{tab.label}</span>
+                      <span className={isMobile ? "sr-only sm:not-sr-only text-xs sm:inline" : ""}>
+                        {tab.label}
+                      </span>
                     </TabsTrigger>
                   </motion.div>
                 </TooltipTrigger>
