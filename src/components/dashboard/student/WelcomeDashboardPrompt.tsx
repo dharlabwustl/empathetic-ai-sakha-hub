@@ -1,239 +1,117 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Volume2, CheckCircle, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Check } from 'lucide-react';
 
 interface WelcomeDashboardPromptProps {
-  userName?: string;
-  onComplete?: () => void;
+  userName: string;
+  onComplete: () => void;
 }
 
-const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({ 
-  userName = "Student",
-  onComplete 
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [speechCompleted, setSpeechCompleted] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    // Check if this prompt has been shown before
-    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
-    
-    if (!hasSeenDashboardWelcome) {
-      // Wait a bit before showing the welcome prompt after tour completes
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        
-        // Speak welcome message
-        speakWelcomeMessage();
-        
-        // Listen for voice greeting completion
-        const handleVoiceCompleted = () => {
-          setSpeechCompleted(true);
-          setIsSpeaking(false);
-        };
-        
-        document.addEventListener('voice-greeting-completed', handleVoiceCompleted);
-        
-        return () => {
-          document.removeEventListener('voice-greeting-completed', handleVoiceCompleted);
-        };
-      }, 1500);
-      
-      return () => clearTimeout(timer);
+const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({ userName, onComplete }) => {
+  const [open, setOpen] = useState(true);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const welcomeSteps = [
+    {
+      title: "Welcome to Your Dashboard",
+      description: "This is your personalized learning space. We've customized it based on your preferences.",
+      icon: "👋"
+    },
+    {
+      title: "Track Your Progress",
+      description: "Monitor your study habits, track exam readiness, and see how your mood affects performance.",
+      icon: "📊"
+    },
+    {
+      title: "Ready to Begin?",
+      description: "Let's start your learning journey with PREP-zer!",
+      icon: "🚀"
     }
-  }, [userName]);
-  
-  const speakWelcomeMessage = () => {
-    if ('speechSynthesis' in window) {
-      try {
-        setIsSpeaking(true);
-        
-        // Create enhanced welcome message with congratulations and PREPZR advantages
-        const welcomeText = `Congratulations ${userName} for choosing PREPZR! You've made an excellent decision that sets you apart from others. I'm Sakha AI, your adaptive learning companion. Unlike other platforms that only focus on content, PREPZR understands your unique learning style, emotional state, and cognitive patterns. We've designed your dashboard based on your specific exam goals and learning preferences. Our AI-powered system continually adapts to how you learn, making us better than any conventional study method. We focus on your mindset, not just the exam content. Your Analytics section tracks your progress with precision that other platforms simply can't match, and our concept cards use advanced cognitive science to help you master difficult topics more efficiently than ever before. Welcome to a revolutionary learning experience!`;
-        
-        // Get available voices
-        const voices = window.speechSynthesis.getVoices();
-        
-        // Create speech synthesis utterance
-        const speech = new SpeechSynthesisUtterance();
-        speech.text = welcomeText.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
-        speech.rate = 0.95;
-        speech.pitch = 1.05;
-        speech.volume = 0.9;
-        
-        // Try to find a good voice
-        const preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US'];
-        let selectedVoice = null;
-        
-        for (const name of preferredVoiceNames) {
-          const voice = voices.find(v => 
-            v.name?.toLowerCase().includes(name.toLowerCase()) || 
-            v.lang?.toLowerCase().includes(name.toLowerCase())
-          );
-          if (voice) {
-            selectedVoice = voice;
-            break;
-          }
-        }
-        
-        if (selectedVoice) {
-          speech.voice = selectedVoice;
-        }
-        
-        // Add event listeners
-        speech.onend = () => {
-          setSpeechCompleted(true);
-          setIsSpeaking(false);
-          
-          // Dispatch event that dashboard welcome speech ended
-          document.dispatchEvent(new CustomEvent('dashboard-welcome-completed'));
-        };
-        
-        speech.onerror = () => {
-          setSpeechCompleted(true);
-          setIsSpeaking(false);
-        };
-        
-        // Speak the message
-        window.speechSynthesis.speak(speech);
-        
-      } catch (error) {
-        console.error("Error with welcome speech:", error);
-        setSpeechCompleted(true);
-        setIsSpeaking(false);
-      }
+  ];
+
+  const handleNext = () => {
+    if (currentStep < welcomeSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
     } else {
-      setSpeechCompleted(true);
+      handleComplete();
     }
   };
-  
-  const handleGotIt = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    
-    setIsOpen(false);
+
+  const handleComplete = () => {
+    setOpen(false);
+    // Mark as seen in localStorage
     localStorage.setItem("hasSeenDashboardWelcome", "true");
-    
-    if (onComplete) {
+    // Call the onComplete callback
+    setTimeout(() => {
       onComplete();
-    }
-    
-    toast({
-      title: "Welcome to your dashboard!",
-      description: "Your personalized study journey begins now."
-    });
+    }, 300);
   };
-  
-  const handleExploreFeatures = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    
-    setIsOpen(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
-    
-    // Navigate to features overview or today's plan
-    navigate('/dashboard/student/today');
-    
-    toast({
-      title: "Let's explore your features",
-      description: "Here's your personalized study plan for today"
-    });
-    
-    if (onComplete) {
-      onComplete();
-    }
-  };
-  
-  if (!isOpen) {
-    return null;
-  }
-  
+
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="w-full max-w-md"
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="text-center"
+            >
+              <motion.div 
+                className="text-5xl mb-4 flex justify-center"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
+              >
+                {welcomeSteps[currentStep].icon}
+              </motion.div>
+              <DialogTitle className="text-xl font-bold">
+                {welcomeSteps[currentStep].title}
+              </DialogTitle>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
+                {welcomeSteps[currentStep].description}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </DialogHeader>
+
+        <motion.div 
+          className="flex justify-center mt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
         >
-          <Card className="border-0 shadow-lg">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-            
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-center mb-3">
-                <PrepzrLogo width={70} height={70} className="filter drop-shadow-md" />
-              </div>
-              <CardTitle className="text-center text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Welcome to Your Dashboard!
-              </CardTitle>
-            </CardHeader>
-            
-            <CardContent className="pt-4 pb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`p-2 rounded-full ${isSpeaking ? 'bg-blue-100 animate-pulse' : 'bg-blue-50'}`}>
-                  <Volume2 className="h-6 w-6 text-blue-600" />
-                </div>
-                <p className="text-sm text-gray-600">
-                  {isSpeaking ? "Sakha AI is introducing your dashboard..." : "Introduction completed"}
-                </p>
-              </div>
-              
-              <div className="space-y-3 mt-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <p className="text-sm">Personalized study plan based on your goals</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <p className="text-sm">Emotionally intelligent learning assistant</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <p className="text-sm">Progress tracking and analytics</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <p className="text-sm">Voice assistant available anytime</p>
-                </div>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="flex flex-col gap-3">
-              <Button 
-                className="w-full"
-                variant="default"
-                disabled={!speechCompleted && isSpeaking}
-                onClick={handleExploreFeatures}
-              >
-                Explore Features <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              
-              <Button 
-                className="w-full" 
-                variant="outline"
-                disabled={!speechCompleted && isSpeaking}
-                onClick={handleGotIt}
-              >
-                Got it
-              </Button>
-            </CardFooter>
-          </Card>
+          <div className="flex space-x-2">
+            {welcomeSteps.map((_, idx) => (
+              <div 
+                key={idx} 
+                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                  idx === currentStep ? 'bg-blue-600 scale-125' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              />
+            ))}
+          </div>
         </motion.div>
-      </div>
-    </AnimatePresence>
+
+        <DialogFooter className="mt-6 flex justify-center sm:justify-center">
+          {currentStep === welcomeSteps.length - 1 ? (
+            <Button 
+              onClick={handleComplete}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Check className="mr-2 h-4 w-4" /> Get Started
+            </Button>
+          ) : (
+            <Button onClick={handleNext}>Next</Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

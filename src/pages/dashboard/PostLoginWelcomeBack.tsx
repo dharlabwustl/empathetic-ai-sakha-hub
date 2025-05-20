@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WelcomeSlider from '@/components/welcome/WelcomeSlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
+import WelcomeDashboardPrompt from '@/components/dashboard/student/WelcomeDashboardPrompt';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ const PostLoginWelcomeBack = () => {
   const { toast } = useToast();
   const [userData, setUserData] = useState<any>({});
   const [showSlider, setShowSlider] = useState(true);
+  const [showDashboardPrompt, setShowDashboardPrompt] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
   
@@ -38,13 +40,20 @@ const PostLoginWelcomeBack = () => {
     const isNewUser = localStorage.getItem('new_user_signup') === 'true';
     const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
+    const hasSeenDashboardWelcome = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
     const needsStudyPlanCreation = localStorage.getItem('needs_study_plan_creation') === 'true';
     
     if (isNewUser || isGoogleSignup) {
-      // For new users, show tour immediately after welcome slider
+      // For new users, show welcome slider if they haven't seen it
       if (sawWelcomeSlider) {
         setShowSlider(false);
-        setShowTour(true);
+        // Show dashboard prompt if they haven't seen it
+        if (hasSeenDashboardWelcome) {
+          setShowDashboardPrompt(false);
+          setShowTour(true);
+        } else {
+          setShowDashboardPrompt(true);
+        }
       }
       
       // Ensure we've set the login flag
@@ -60,7 +69,7 @@ const PostLoginWelcomeBack = () => {
     // For returning users who have seen both, skip directly to dashboard
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
-    if (sawWelcomeSlider && sawWelcomeTour) {
+    if (sawWelcomeSlider && hasSeenDashboardWelcome && sawWelcomeTour) {
       // Check if study plan creation is needed
       if (needsStudyPlanCreation) {
         setShowStudyPlanDialog(true);
@@ -71,10 +80,19 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // If they've seen the slider but not the tour, show only the tour
-    if (sawWelcomeSlider && !sawWelcomeTour) {
+    // If they've seen the slider but not the dashboard welcome, show dashboard welcome
+    if (sawWelcomeSlider && !hasSeenDashboardWelcome) {
       setShowSlider(false);
+      setShowDashboardPrompt(true);
+      return;
+    }
+    
+    // If they've seen the slider and dashboard welcome but not the tour, show tour
+    if (sawWelcomeSlider && hasSeenDashboardWelcome && !sawWelcomeTour) {
+      setShowSlider(false);
+      setShowDashboardPrompt(false);
       setShowTour(true);
+      return;
     }
     
     // Auto-redirect after 45 seconds if no action taken
@@ -95,6 +113,13 @@ const PostLoginWelcomeBack = () => {
   const handleSliderComplete = () => {
     localStorage.setItem('sawWelcomeSlider', 'true');
     setShowSlider(false);
+    setShowDashboardPrompt(true);
+  };
+  
+  // Handle dashboard prompt completion
+  const handleDashboardPromptComplete = () => {
+    localStorage.setItem('hasSeenDashboardWelcome', 'true');
+    setShowDashboardPrompt(false);
     setShowTour(true);
   };
   
@@ -133,12 +158,26 @@ const PostLoginWelcomeBack = () => {
         </div>
       )}
       
-      {/* Tour guide after welcome slider */}
+      {/* Dashboard welcome prompt after slider */}
+      {showDashboardPrompt && (
+        <WelcomeDashboardPrompt 
+          userName={userData.name || "Student"}
+          onComplete={handleDashboardPromptComplete}
+        />
+      )}
+      
+      {/* Tour guide after dashboard welcome */}
       {showTour && (
         <div className="h-full w-full">
           <WelcomeTour 
-            userName={userData.name || "Student"}
-            onComplete={handleTourComplete}
+            open={showTour}
+            onOpenChange={setShowTour}
+            onSkipTour={handleTourComplete}
+            onCompleteTour={handleTourComplete}
+            isFirstTimeUser={true}
+            lastActivity={null}
+            suggestedNextAction={null}
+            loginCount={1}
           />
         </div>
       )}
