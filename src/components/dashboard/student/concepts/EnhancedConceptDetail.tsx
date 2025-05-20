@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -11,9 +11,7 @@ import {
   CheckCircle, 
   FlaskConical, 
   RefreshCw, 
-  Star,
-  Volume2, 
-  VolumeX
+  Star
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -21,10 +19,10 @@ import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ConceptContent from './concept-detail/ConceptContent';
 import FormulaTabContent from './concept-detail/FormulaTabContent';
-import QuickRecallSection from './concept-detail/QuickRecallSection';
-import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
-import RevisionSection from './concept-detail/RevisionSection';
+import ConceptFlashcards from './concept-detail/ConceptFlashcards';
+import ConceptExercises from './concept-detail/ConceptExercises';
+import ConceptResources from './concept-detail/ConceptResources';
 
 export interface ConceptDetailProps {
   conceptId: string;
@@ -36,6 +34,9 @@ export interface ConceptDetailProps {
   masteryLevel?: number;
   onMasteryUpdate?: (newLevel: number) => void;
   handleOpenFormulaLab?: () => void;
+  userNotes: string;
+  setUserNotes: (notes: string) => void;
+  handleSaveNotes: () => void;
 }
 
 const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({ 
@@ -47,83 +48,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   content,
   masteryLevel = 0,
   onMasteryUpdate,
-  handleOpenFormulaLab
+  handleOpenFormulaLab,
+  userNotes,
+  setUserNotes,
+  handleSaveNotes
 }) => {
   const [activeTab, setActiveTab] = useState('content');
-  const [isFormulaLabOpen, setIsFormulaLabOpen] = useState(false);
-  const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [validationCompleted, setValidationCompleted] = useState(false);
-  const [quizScore, setQuizScore] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
   const { toast } = useToast();
-
-  const handleSaveNotes = () => {
-    toast({
-      title: "Notes saved successfully",
-      description: "Your notes have been saved for this concept.",
-      variant: "default",
-    });
-  };
-
-  const openFormulaLab = () => {
-    if (handleOpenFormulaLab) {
-      handleOpenFormulaLab();
-    } else {
-      setIsFormulaLabOpen(true);
-      toast({
-        title: "Formula Lab",
-        description: "Opening formula lab...",
-        variant: "default",
-      });
-    }
-    // In a real app, you would navigate to the formula lab page
-  };
-
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    toast({
-      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
-      description: isBookmarked 
-        ? "This concept has been removed from your saved items" 
-        : "This concept has been added to your saved items",
-      variant: "default",
-    });
-  };
-
-  const handleToggleFlag = () => {
-    setIsFlagged(!isFlagged);
-    toast({
-      title: isFlagged ? "Removed from revision" : "Flagged for revision",
-      description: isFlagged 
-        ? "This concept has been removed from your revision list" 
-        : "This concept has been added to your revision list",
-      variant: "default",
-    });
-  };
-
-  // Handle quiz completion and mastery update
-  const handleQuizComplete = (score: number) => {
-    setQuizScore(score);
-    setValidationCompleted(true);
-
-    // Update mastery level based on quiz performance
-    if (onMasteryUpdate) {
-      // Calculate new mastery level (this is a simplified example)
-      const improvement = score / 100 * 20; // Max 20% improvement based on score
-      const newMasteryLevel = Math.min(100, Math.round(masteryLevel + improvement));
-      onMasteryUpdate(newMasteryLevel);
-    }
-
-    toast({
-      title: "Knowledge validation complete",
-      description: `You scored ${score}% on the concept quiz.`,
-      variant: "default",
-    });
-  };
 
   const toggleReadAloud = () => {
     setIsReadingAloud(!isReadingAloud);
@@ -139,6 +74,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
       // Stop reading
       speechSynthesis.cancel();
     }
+  };
+
+  const handleToggleFlag = () => {
+    setIsFlagged(!isFlagged);
+    toast({
+      title: isFlagged ? "Removed from revision" : "Flagged for revision",
+      description: isFlagged 
+        ? "This concept has been removed from your revision list" 
+        : "This concept has been added to your revision list",
+      variant: "default",
+    });
   };
 
   // Main content area - Tabs and content display
@@ -190,16 +136,16 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   <FlaskConical className="h-4 w-4" /> {!isMobile && "Formulas"}
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="recall" 
+                  value="practice" 
                   className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
                 >
                   <Brain className="h-4 w-4" /> {!isMobile && "Practice"}
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="linked" 
+                  value="resources" 
                   className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
                 >
-                  <RefreshCw className="h-4 w-4" /> {!isMobile && "Related"}
+                  <RefreshCw className="h-4 w-4" /> {!isMobile && "Resources"}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tutor" 
@@ -226,25 +172,22 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   <FormulaTabContent 
                     conceptId={conceptId} 
                     conceptTitle={title}
-                    handleOpenFormulaLab={openFormulaLab}
+                    handleOpenFormulaLab={handleOpenFormulaLab}
                   />
                 </TabsContent>
                 
-                <TabsContent value="recall" className="mt-0">
-                  <QuickRecallSection 
-                    conceptId={conceptId} 
-                    title={title} 
-                    content={content}
-                    onQuizComplete={handleQuizComplete}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="linked" className="mt-0">
-                  <LinkedConceptsSection 
+                <TabsContent value="practice" className="mt-0">
+                  <ConceptExercises 
                     conceptId={conceptId}
-                    subject={subject}
-                    topic={topic}
+                    conceptTitle={title}
+                    recallAccuracy={65}
+                    lastPracticed="2023-05-10"
+                    quizScore={75}
                   />
+                </TabsContent>
+                
+                <TabsContent value="resources" className="mt-0">
+                  <ConceptResources conceptId={conceptId} />
                 </TabsContent>
                 
                 <TabsContent value="tutor" className="mt-0">
@@ -277,8 +220,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                 className="justify-start"
                 onClick={toggleReadAloud}
               >
-                {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
-                {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+                {isReadingAloud ? (
+                  <>
+                    <span className="sr-only">Stop reading</span>
+                    Stop Reading
+                  </>
+                ) : (
+                  <>
+                    <span className="sr-only">Read aloud</span>
+                    Read Aloud
+                  </>
+                )}
               </Button>
               
               <Button 
@@ -290,29 +242,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                 <Flag className="h-4 w-4 mr-2" />
                 {isFlagged ? "Remove from Revision" : "Flag for Revision"}
               </Button>
-              
-              {validationCompleted && quizScore !== null && (
-                <div className="flex items-center justify-between px-2 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500 mr-2" />
-                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                      Validation Score
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
-                    {quizScore}%
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
-        
-          {/* Revision Section */}
-          <RevisionSection 
-            conceptId={conceptId}
-            isFlagged={isFlagged}
-            onToggleFlag={handleToggleFlag}
-          />
+          
+          {/* Flashcards preview */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Flashcards</h3>
+            <ConceptFlashcards 
+              flashcardsTotal={8} 
+              flashcardsCompleted={3} 
+            />
+          </div>
         </motion.div>
       </div>
     </div>
