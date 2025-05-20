@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
 
   const slides = [
     {
-      title: "Transforming Exam Preparation",
+      title: "We understand your mindset, not just the exam",
       description: "Our AI-driven platform adapts to your unique learning style for maximum results."
     },
     {
@@ -83,10 +83,10 @@ const HeroSection: React.FC = () => {
                 >
                   <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-300">
-                      We understand your mindset,
+                      {slide.title.split(',')[0]},
                     </span>
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 mt-2">
-                      not just the exam
+                      {slide.title.split(',')[1] || ''}
                     </span>
                   </h1>
                   

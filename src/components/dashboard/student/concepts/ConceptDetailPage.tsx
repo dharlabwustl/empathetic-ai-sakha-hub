@@ -99,7 +99,7 @@ const ConceptDetailPage: React.FC = () => {
       title: "Formula Lab",
       description: "Opening interactive formula lab environment...",
     });
-    // In a real app, you would navigate to the formula lab page
+    // In a real app, you would navigate to the formula lab page or open a modal
   };
   
   const handleShareConcept = () => {

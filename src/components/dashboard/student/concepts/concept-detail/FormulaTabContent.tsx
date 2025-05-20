@@ -42,6 +42,12 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
       formula: "p = mv",
       description: "Momentum equals mass times velocity",
       application: "Used in analyzing collisions and conservation of momentum"
+    },
+    {
+      id: "f4",
+      formula: "E = mc²",
+      description: "Energy equals mass times the speed of light squared",
+      application: "Fundamental equation relating mass and energy"
     }
   ];
 
@@ -108,9 +114,9 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="hidden md:flex">
-          <CarouselPrevious />
-          <CarouselNext />
+        <div className="hidden md:flex justify-between w-full absolute top-1/2 -translate-y-1/2 -left-4 -right-4">
+          <CarouselPrevious className="relative left-0" />
+          <CarouselNext className="relative right-0" />
         </div>
       </Carousel>
 
