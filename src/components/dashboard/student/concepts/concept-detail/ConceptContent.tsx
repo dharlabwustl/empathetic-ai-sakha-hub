@@ -37,7 +37,7 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
     } else {
       // Strip HTML tags for better speech
       const textContent = new DOMParser().parseFromString(content, 'text/html').body.textContent || '';
-      const utterance = new SpeechSynthesis.SpeechSynthesisUtterance(textContent);
+      const utterance = new SpeechSynthesisUtterance(textContent);
       window.speechSynthesis.speak(utterance);
       setIsReadingAloud(true);
     }
