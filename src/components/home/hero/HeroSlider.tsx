@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { Brain, Award, Book } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface HeroSliderProps {
   activeSlide: number;
@@ -30,8 +31,16 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       setAnimationProgress((currentStep / steps) * 100);
     }, intervalTime);
     
-    return () => clearInterval(progressInterval);
-  }, [activeSlide]);
+    // Auto-rotate slides
+    const autoRotateInterval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slideContentList.length);
+    }, duration);
+    
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(autoRotateInterval);
+    };
+  }, [activeSlide, setActiveSlide]);
 
   const slideContentList = [
     {
@@ -41,6 +50,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       image: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
       examType: "JEE",
       examSpecifics: ["Physics", "Chemistry", "Mathematics"],
+      avatarImage: "/lovable-uploads/01d9bec1-6662-487f-8de6-86c1d36cddfd.png",
       animationDelay: 0
     },
     {
@@ -50,6 +60,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       image: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
       examType: "NEET",
       examSpecifics: ["Biology", "Chemistry", "Physics"],
+      avatarImage: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
       animationDelay: 0.2
     },
     {
@@ -59,6 +70,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       image: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
       examType: "UPSC",
       examSpecifics: ["General Studies", "Optional Papers", "Interview"],
+      avatarImage: "/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png",
       animationDelay: 0.4
     }
   ];
@@ -84,6 +96,12 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
 
         {/* 3D floating particles for depth effect */}
         <Particles />
+
+        {/* Student avatar matching the current slide */}
+        <StudentAvatar 
+          activeSlide={activeSlide} 
+          slideContentList={slideContentList} 
+        />
 
         {/* Slide navigation dots and progress indicator */}
         <div className="absolute bottom-0 left-0 w-full p-4">
@@ -116,6 +134,59 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
   );
 };
 
+interface StudentAvatarProps {
+  activeSlide: number;
+  slideContentList: Array<{
+    avatarImage: string;
+    examType: string;
+  }>;
+}
+
+const StudentAvatar: React.FC<StudentAvatarProps> = ({ activeSlide, slideContentList }) => {
+  const currentSlide = slideContentList[activeSlide];
+  
+  return (
+    <motion.div
+      className="absolute -bottom-4 -left-4 z-20"
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.3 }}
+    >
+      <motion.div
+        className="relative"
+        animate={{
+          y: [0, -10, 0],
+          rotate: [0, -5, 0]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          repeatType: "reverse"
+        }}
+      >
+        <Avatar className="w-28 h-28 border-4 border-white dark:border-gray-800 shadow-xl">
+          <AvatarImage src={currentSlide.avatarImage} alt="Student" />
+          <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-2xl font-bold">
+            {currentSlide.examType.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <motion.div
+          className="absolute -right-2 -top-1 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-semibold border-2 border-white dark:border-gray-800"
+          animate={{
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+          }}
+        >
+          {currentSlide.examType}
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 interface SlideItemProps {
   slide: {
     icon: React.ReactNode;
@@ -124,6 +195,7 @@ interface SlideItemProps {
     image: string;
     examType: string;
     examSpecifics: string[];
+    avatarImage: string;
     animationDelay: number;
   };
   index: number;
