@@ -41,6 +41,10 @@ const Login = () => {
       variant: "destructive"
     });
   };
+
+  const handleAdminLogin = () => {
+    navigate('/auth/admin-login');
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -77,7 +81,13 @@ const Login = () => {
               {/* Admin login redirect */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium mb-4">Administrator Login</h3>
-                <AdminLoginRedirect />
+                <Button 
+                  variant="outline"
+                  className="w-full bg-slate-100 hover:bg-slate-200 border-gray-300"
+                  onClick={handleAdminLogin}
+                >
+                  Login as Administrator
+                </Button>
               </div>
             </div>
           </CardContent>

@@ -56,7 +56,7 @@ const RedesignedTodaysPlan: React.FC = () => {
   const handleConceptClick = (conceptId: string) => {
     console.log("RedesignedTodaysPlan - Navigating to concept detail page:", conceptId);
     
-    // Use this specific navigation path
+    // Use this specific navigation path consistently
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 

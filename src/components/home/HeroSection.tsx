@@ -44,10 +44,10 @@ const HeroSection: React.FC = () => {
 
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-300">
-                Master NEET with
+                We understand your mindset,
               </span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 mt-2">
-                Emotional Intelligence
+                not just the exam
               </span>
             </h1>
 
