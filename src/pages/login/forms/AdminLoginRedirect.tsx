@@ -24,7 +24,7 @@ const AdminLoginRedirect: React.FC = () => {
       description: "Redirecting to admin portal..."
     });
     
-    // Direct redirect to admin login page
+    // Redirect directly to admin login page via AdminLogin component
     navigate('/admin/login');
   };
 

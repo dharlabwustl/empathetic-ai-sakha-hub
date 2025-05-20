@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import { Helmet } from 'react-helmet-async';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -65,8 +66,18 @@ const Index = () => {
     };
   }, []);
 
+  // Update document title
+  React.useEffect(() => {
+    document.title = "PREP-zer - Your AI Educational Champion";
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+      <Helmet>
+        <title>PREP-zer - Your AI Educational Champion</title>
+        <meta name="description" content="AI-driven educational platform specially designed for Indian competitive exams like JEE, NEET, UPSC, CAT and more." />
+      </Helmet>
+      
       <Header />
       
       <main>

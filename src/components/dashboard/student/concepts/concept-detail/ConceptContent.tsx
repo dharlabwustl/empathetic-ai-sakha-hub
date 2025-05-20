@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Volume2, VolumeX, Pencil } from "lucide-react";
+import { Volume2, VolumeX, Pencil, Bookmark, BookmarkCheck } from "lucide-react";
 import NoteSection from './NoteSection';
 import ReadAloudSection from './ReadAloudSection';
 
@@ -25,6 +25,7 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
   setIsReadingAloud
 }) => {
   const [showNotesForm, setShowNotesForm] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
   const toggleNotesForm = () => {
     setShowNotesForm(!showNotesForm);
@@ -36,6 +37,10 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
 
   const handleStopReadAloud = () => {
     setIsReadingAloud(false);
+  };
+  
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
   };
   
   return (
@@ -51,6 +56,23 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
       
       {/* Content toolbar */}
       <div className="flex items-center justify-end space-x-2 mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-xs flex items-center gap-1"
+          onClick={toggleBookmark}
+        >
+          {isBookmarked ? (
+            <>
+              <BookmarkCheck className="h-4 w-4 text-green-500" /> Bookmarked
+            </>
+          ) : (
+            <>
+              <Bookmark className="h-4 w-4" /> Bookmark
+            </>
+          )}
+        </Button>
+        
         <Button 
           variant="outline" 
           size="sm" 

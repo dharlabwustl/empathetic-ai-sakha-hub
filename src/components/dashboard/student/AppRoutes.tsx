@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
-import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
+import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';

@@ -9,7 +9,7 @@ const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Auto-rotate slides
+  // Enhanced auto-rotate slides
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 3); // Assuming 3 slides
