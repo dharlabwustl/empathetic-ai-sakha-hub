@@ -4,10 +4,13 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HeroContent from './hero/HeroContent';
 import HeroSlider from './hero/HeroSlider';
+import ImmersiveBackground from './hero/ImmersiveBackground';
+import StoryNarrative from './hero/StoryNarrative';
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [showStory, setShowStory] = useState(false);
 
   // Auto-rotate slides
   useEffect(() => {
@@ -24,68 +27,29 @@ const HeroSection: React.FC = () => {
     window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
   };
 
-  return (
-    <section className="relative overflow-hidden min-h-[90vh] py-16 md:py-24 flex items-center">
-      {/* Background with 3D depth effect */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
-          style={{
-            backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
-            backgroundSize: "40px 40px"
-          }}>
-        </div>
-      
-        {/* Abstract 3D shapes */}
-        <motion.div 
-          className="absolute top-20 left-20 w-72 h-72 bg-blue-400/10 dark:bg-blue-700/5 rounded-full mix-blend-multiply filter blur-xl"
-          animate={{ 
-            scale: [1, 1.2, 1], 
-            x: [0, 30, 0], 
-            y: [0, -50, 0] 
-          }}
-          transition={{ 
-            duration: 15, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        />
-        
-        <motion.div 
-          className="absolute top-40 right-20 w-64 h-64 bg-purple-300/20 dark:bg-purple-700/10 rounded-full mix-blend-multiply filter blur-xl"
-          animate={{ 
-            scale: [1, 0.8, 1], 
-            x: [0, -20, 0], 
-            y: [0, 20, 0] 
-          }}
-          transition={{ 
-            duration: 12, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 2
-          }}
-        />
-      
-        <motion.div 
-          className="absolute bottom-10 left-1/3 w-96 h-96 bg-indigo-300/20 dark:bg-indigo-600/10 rounded-full mix-blend-multiply filter blur-xl"
-          animate={{ 
-            scale: [1, 1.1, 1], 
-            x: [0, 20, 0], 
-            y: [0, 30, 0] 
-          }}
-          transition={{ 
-            duration: 18, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 4
-          }}
-        />
-      </div>
+  // Toggle story narrative
+  const toggleStory = () => {
+    setShowStory(!showStory);
+  };
 
-      <div className="container mx-auto px-4 relative">
+  return (
+    <section className="relative overflow-hidden min-h-[100vh] py-16 md:py-24 flex items-center">
+      {/* 3D Immersive Background */}
+      <ImmersiveBackground activeSlide={activeSlide} />
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+          {/* Story Narrative Overlay */}
+          {showStory && (
+            <StoryNarrative onClose={toggleStory} />
+          )}
+          
           {/* Left Content: Title, description and buttons */}
-          <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
+          <HeroContent 
+            handleExamReadinessClick={handleExamReadinessClick} 
+            toggleStory={toggleStory}
+            showStoryBtn={!showStory}
+          />
           
           {/* Right Content: 3D Animated Slider */}
           <HeroSlider activeSlide={activeSlide} setActiveSlide={setActiveSlide} />

@@ -9,6 +9,7 @@ import ConceptsLandingPage from '@/components/dashboard/student/concepts/Concept
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+import NEETLiveSessionsPage from '@/components/dashboard/student/neet-live/NEETLiveSessionsPage';
 
 const StudentAppRoutes = () => {
   return (
@@ -20,6 +21,7 @@ const StudentAppRoutes = () => {
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/neet-live" element={<NEETLiveSessionsPage />} />
     </Routes>
   );
 };

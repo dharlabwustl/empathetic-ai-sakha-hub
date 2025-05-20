@@ -7,10 +7,11 @@ import { TodaysPlanData } from '@/types/student/todaysPlan';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { SubjectTasksBreakdown } from './SubjectTasksBreakdown';
+import { useNavigate } from 'react-router-dom';
 
 interface NewTodaysPlanViewProps {
   planData: TodaysPlanData | null;
-  onConceptClick: (conceptId: string) => void;
+  onConceptClick?: (conceptId: string) => void;
   isMobile?: boolean;
 }
 
@@ -19,7 +20,19 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   onConceptClick,
   isMobile 
 }) => {
+  const navigate = useNavigate();
+  
   if (!planData) return null;
+  
+  // Handler for concept click
+  const handleConceptClick = (conceptId: string) => {
+    if (onConceptClick) {
+      onConceptClick(conceptId);
+    } else {
+      // Use the consistent URL pattern for concept detail navigation
+      navigate(`/dashboard/student/concepts/${conceptId}`);
+    }
+  };
   
   const renderConceptCard = (concept: any) => {
     return (
@@ -32,7 +45,7 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
             concept.difficulty === 'Medium' ? '#f59e0b' : 
             '#ef4444' 
         }}
-        onClick={() => onConceptClick(concept.id)}
+        onClick={() => handleConceptClick(concept.id)}
       >
         <CardContent className={`p-4 ${isMobile ? 'p-3' : ''}`}>
           <div className="flex items-start justify-between mb-2">

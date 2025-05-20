@@ -1,15 +1,21 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
+import EnhancedCTAButtons from './buttons/EnhancedCTAButtons';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
+  toggleStory: () => void;
+  showStoryBtn?: boolean;
 }
 
-const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
+const HeroContent: React.FC<HeroContentProps> = ({ 
+  handleExamReadinessClick, 
+  toggleStory,
+  showStoryBtn = true
+}) => {
   const painPoints = [
     "Overwhelming syllabus",
     "Ineffective study techniques",
@@ -53,7 +59,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </motion.div>
       
       <motion.p 
-        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8"
+        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -61,7 +67,26 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         Our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Get personalized strategies and overcome exam anxiety with our proven methodology.
       </motion.p>
       
-      <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
+      {/* Read the Student Journey Story button */}
+      {showStoryBtn && (
+        <motion.button
+          onClick={toggleStory}
+          className="mb-6 w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 rounded-lg border border-purple-200 dark:border-purple-800/30 hover:shadow-md transition-all"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+          </svg>
+          Read Aanya's Journey: From Struggle to Success
+        </motion.button>
+      )}
+
+      {/* Enhanced CTA Buttons with NEET Live */}
+      <EnhancedCTAButtons onAnalyzeClick={handleExamReadinessClick} />
 
       {/* Feature checkpoints */}
       <FeatureCheckpoints />
