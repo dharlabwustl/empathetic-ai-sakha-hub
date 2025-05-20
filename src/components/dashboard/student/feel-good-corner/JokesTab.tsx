@@ -1,139 +1,213 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThumbsUp, RefreshCcw } from "lucide-react";
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import { Joke } from "./types";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, ThumbsUp, RefreshCw, Copy, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Joke } from './types';
 
-// Mock data
-const mockJokes = [
-  { id: 1, content: "Why don't scientists trust atoms? Because they make up everything!", likes: 42, author: "PhysicsNerd" },
-  { id: 2, content: "I told my wife she was drawing her eyebrows too high. She looked surprised.", likes: 38, author: "DadJokeMaster" },
-  { id: 3, content: "Why did the scarecrow win an award? Because he was outstanding in his field!", likes: 27, author: "FarmLife" },
-  { id: 4, content: "I'm reading a book about anti-gravity. It's impossible to put down!", likes: 35, author: "ScienceWiz" },
-  { id: 5, content: "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.", likes: 31, author: "MathGeek" },
+// Mock data for jokes
+const mockJokes: Joke[] = [
+  { 
+    id: 1, 
+    content: "Why don't scientists trust atoms? Because they make up everything!", 
+    likes: 120,
+    author: "Science Joker"
+  },
+  { 
+    id: 2, 
+    content: "What did one cell say to his sister cell when she stepped on his toe? Mitosis!", 
+    likes: 98,
+    author: "Biology Prof"
+  },
+  { 
+    id: 3, 
+    content: "I was going to tell a chemistry joke, but all the good ones Argon.", 
+    likes: 156,
+    author: "Chem Student"
+  },
+  { 
+    id: 4, 
+    content: "Why did the math book look sad? Because it had too many problems.", 
+    likes: 201,
+    author: "Math Lover"
+  },
+  { 
+    id: 5, 
+    content: "What did the physics student say when his teacher told him to read chapters 1-10? 'Not a Light matter'!", 
+    likes: 89,
+    author: "Physics Fan"
+  }
 ];
 
 interface JokesTabProps {
-  initialJokes?: Joke[];
+  onLike?: (jokeId: number) => void;
 }
 
-const JokesTab: React.FC<JokesTabProps> = ({ initialJokes = mockJokes }) => {
-  const { toast } = useToast();
-  const [jokes, setJokes] = useState<Joke[]>(initialJokes);
-  const [newJoke, setNewJoke] = useState("");
+const JokesTab: React.FC<JokesTabProps> = ({ onLike = () => {} }) => {
+  const [currentJokeIndex, setCurrentJokeIndex] = useState(0);
   const [likedJokes, setLikedJokes] = useState<number[]>([]);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
   
-  const handleSubmitJoke = () => {
-    if (!newJoke.trim()) return;
-    
-    const newJokeObj = {
-      id: jokes.length + 1,
-      content: newJoke,
-      likes: 0,
-      author: "You"
-    };
-    
-    setJokes([newJokeObj, ...jokes]);
-    
-    toast({
-      title: "Joke submitted!",
-      description: "Your joke has been added to the collection!",
-    });
-    
-    setNewJoke("");
+  const currentJoke = mockJokes[currentJokeIndex];
+  
+  const handleNextJoke = () => {
+    setCurrentJokeIndex((prevIndex) => (prevIndex + 1) % mockJokes.length);
   };
-
-  const handleLikeJoke = (id: number) => {
-    if (likedJokes.includes(id)) {
-      // Unlike
-      setJokes(jokes.map(joke => 
-        joke.id === id ? {...joke, likes: joke.likes - 1} : joke
-      ));
-      setLikedJokes(likedJokes.filter(jokeId => jokeId !== id));
+  
+  const handlePreviousJoke = () => {
+    setCurrentJokeIndex((prevIndex) => (prevIndex - 1 + mockJokes.length) % mockJokes.length);
+  };
+  
+  const handleRandomJoke = () => {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * mockJokes.length);
+    } while (newIndex === currentJokeIndex && mockJokes.length > 1);
+    
+    setCurrentJokeIndex(newIndex);
+  };
+  
+  const handleLikeJoke = () => {
+    if (!likedJokes.includes(currentJoke.id)) {
+      setLikedJokes([...likedJokes, currentJoke.id]);
+      onLike(currentJoke.id);
+      
+      toast({
+        title: "Joke liked!",
+        description: "Thanks for your feedback!",
+        variant: "default"
+      });
     } else {
-      // Like
-      setJokes(jokes.map(joke => 
-        joke.id === id ? {...joke, likes: joke.likes + 1} : joke
-      ));
-      setLikedJokes([...likedJokes, id]);
+      toast({
+        title: "Already liked",
+        description: "You've already liked this joke.",
+        variant: "default"
+      });
     }
   };
   
+  const handleCopyJoke = () => {
+    navigator.clipboard.writeText(currentJoke.content);
+    setCopied(true);
+    
+    toast({
+      title: "Copied to clipboard",
+      description: "You can now share this joke with friends!",
+      variant: "default"
+    });
+    
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
   return (
-    <motion.div 
-      key="jokes"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium">Today's Top Jokes</h3>
+    <div className="space-y-4">
+      <div className="text-center">
+        <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold mb-1`}>Study Break Jokes</h3>
+        <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+          A good laugh improves memory retention by up to 15%!
+        </p>
+      </div>
+      
+      <Card className={`p-5 md:p-6 relative ${
+        currentJokeIndex % 2 === 0 
+          ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20' 
+          : 'bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20'
+      }`}>
+        <div className="min-h-[120px] md:min-h-[150px] flex items-center justify-center">
+          <p className={`text-center ${isMobile ? 'text-lg' : 'text-xl'} font-medium`}>
+            {currentJoke.content}
+          </p>
+        </div>
+        
+        <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+          <span className={isMobile ? 'text-xs' : ''}>By: {currentJoke.author}</span>
+          <div className="flex items-center gap-1">
+            <ThumbsUp className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-blue-500`} />
+            <span className={isMobile ? 'text-xs' : ''}>{currentJoke.likes + (likedJokes.includes(currentJoke.id) ? 1 : 0)}</span>
+          </div>
+        </div>
+        
+        <div className="absolute top-3 right-3 flex items-center gap-1">
           <Button 
             variant="ghost" 
-            size="sm" 
-            className="text-xs"
-            onClick={() => setJokes([...mockJokes])}
+            size="icon"
+            onClick={handleCopyJoke}
+            className={`h-8 w-8 rounded-full ${isMobile ? 'h-7 w-7' : ''}`}
           >
-            <RefreshCcw size={12} className="mr-1" /> Refresh
+            {copied ? (
+              <Check className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-green-500`} />
+            ) : (
+              <Copy className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+            )}
+          </Button>
+        </div>
+      </Card>
+      
+      <div className="flex justify-between items-center">
+        <Button 
+          variant="outline" 
+          onClick={handlePreviousJoke}
+          size={isMobile ? "sm" : "default"}
+        >
+          <ChevronLeft className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+          <span className={isMobile ? 'text-xs' : ''}>Previous</span>
+        </Button>
+        
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRandomJoke}
+            size={isMobile ? "sm" : "default"}
+          >
+            <RefreshCw className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+            <span className={isMobile ? 'text-xs' : ''}>Random Joke</span>
+          </Button>
+          
+          <Button 
+            onClick={handleLikeJoke}
+            variant="outline"
+            disabled={likedJokes.includes(currentJoke.id)}
+            size={isMobile ? "sm" : "default"}
+            className={likedJokes.includes(currentJoke.id) ? 'text-blue-500' : ''}
+          >
+            <ThumbsUp className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+            <span className={isMobile ? 'text-xs' : ''}>{likedJokes.includes(currentJoke.id) ? 'Liked' : 'Like'}</span>
           </Button>
         </div>
         
-        <ScrollArea className="h-[280px] rounded border p-2">
-          <div className="space-y-3">
-            {jokes.map((joke) => (
-              <motion.div 
-                key={joke.id} 
-                className="bg-white rounded-lg p-3 shadow-sm border"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: joke.id * 0.1 }}
-                whileHover={{ scale: 1.01 }}
-              >
-                <p className="text-sm mb-2">{joke.content}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">by @{joke.author}</span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`h-7 gap-1 text-xs ${likedJokes.includes(joke.id) ? 'text-pink-500' : ''}`}
-                    onClick={() => handleLikeJoke(joke.id)}
-                  >
-                    <ThumbsUp size={12} />
-                    {joke.likes}
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </ScrollArea>
-        
-        <div className="pt-2">
-          <p className="text-xs text-gray-500 mb-2">Share your own joke:</p>
-          <div className="flex gap-2">
-            <Textarea 
-              value={newJoke} 
-              onChange={(e) => setNewJoke(e.target.value)} 
-              placeholder="Type your joke here..."
-              className="text-sm min-h-[60px] resize-none"
-            />
-          </div>
-          <div className="flex justify-end mt-2">
-            <Button 
-              size="sm" 
-              className="bg-violet-600 text-xs"
-              onClick={handleSubmitJoke}
-            >
-              Share Joke
-            </Button>
-          </div>
-        </div>
+        <Button 
+          variant="outline" 
+          onClick={handleNextJoke}
+          size={isMobile ? "sm" : "default"}
+        >
+          <span className={isMobile ? 'text-xs' : ''}>Next</span>
+          <ChevronRight className={`${isMobile ? 'h-3 w-3 ml-1' : 'h-4 w-4 ml-2'}`} />
+        </Button>
       </div>
-    </motion.div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+        <Card className={`p-3 bg-green-50 dark:bg-green-900/20 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+          <h4 className="font-medium">Did you know?</h4>
+          <p className="mt-1 text-muted-foreground">
+            Laughter increases dopamine production, which enhances learning ability and memory retention.
+          </p>
+        </Card>
+        <Card className={`p-3 bg-blue-50 dark:bg-blue-900/20 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+          <h4 className="font-medium">Study Tip</h4>
+          <p className="mt-1 text-muted-foreground">
+            Take a 5-minute humor break every hour of study to maintain high cognitive function.
+          </p>
+        </Card>
+      </div>
+      
+      <p className={`text-center text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
+        Joke {currentJokeIndex + 1} of {mockJokes.length}
+      </p>
+    </div>
   );
 };
 

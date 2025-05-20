@@ -1,254 +1,156 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SendHorizontal, Gift, Music, ChevronDown, RefreshCcw } from "lucide-react";
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Send, ThumbsUp } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ChatMessage } from './types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-interface ChillChatPanelProps {
-  onLike: () => void;
+export interface ChillChatPanelProps {
+  onLike?: (id: number) => void;
 }
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot' | 'other';
-  senderName: string;
-  senderAvatar?: string;
-  timestamp: Date;
-}
-
-const botResponses = [
-  "What are you studying for today?",
-  "Taking any breaks between study sessions is important!",
-  "What's your favorite subject to learn about?",
-  "Did you know that regular breaks improve memory retention?",
-  "Music can help with concentration. Got any study playlists?",
-  "Remember to stay hydrated while studying!",
-  "What's your dream college or career goal?",
-  "Sometimes a walk outside can refresh your mind.",
-  "Group study can be really effective - tried it?",
-  "How do you handle stress before big exams?"
-];
-
-const otherUsers = [
-  { name: "Rahul", avatar: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" },
-  { name: "Aditya", avatar: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" },
-  { name: "Priya", avatar: "/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" },
-  { name: "Sneha", avatar: "" }
-];
-
-const initialMessages: Message[] = [
-  {
-    id: '1',
-    text: "Welcome to PREPZR Chill Chat! This is a space to relax and chat with other students.",
-    sender: 'bot',
-    senderName: 'PREPZR Bot',
-    timestamp: new Date(Date.now() - 86400000)
-  },
-  {
-    id: '2',
-    text: "Hi everyone! How's your study session going?",
-    sender: 'other',
-    senderName: otherUsers[0].name,
-    senderAvatar: otherUsers[0].avatar,
-    timestamp: new Date(Date.now() - 3600000)
-  },
-  {
-    id: '3',
-    text: "Just finished my physics revision. Taking a quick break!",
-    sender: 'other',
-    senderName: otherUsers[1].name,
-    senderAvatar: otherUsers[1].avatar,
-    timestamp: new Date(Date.now() - 1800000)
-  },
-  {
-    id: '4',
-    text: "Anyone struggling with organic chemistry? The mechanisms are so tricky!",
-    sender: 'other',
-    senderName: otherUsers[2].name,
-    senderAvatar: otherUsers[2].avatar,
-    timestamp: new Date(Date.now() - 900000)
-  }
-];
-
-const ChillChatPanel: React.FC<ChillChatPanelProps> = ({ onLike }) => {
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
-  const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(7);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+const ChillChatPanel: React.FC<ChillChatPanelProps> = ({ onLike = () => {} }) => {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      text: "Hi there! I'm your chill chat buddy. What's on your mind today? Feel free to share anything that's stressing you out or just chat about your day!",
+      isUser: false
     }
-  }, [messages]);
+  ]);
+  
+  const isMobile = useIsMobile();
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: newMessage,
-      sender: 'user',
-      senderName: 'You',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setNewMessage('');
-
-    // Simulate bot/other user responding
-    setIsTyping(true);
+    if (message.trim() === '') return;
+    
+    // Add user message
+    setMessages([...messages, { text: message, isUser: true }]);
+    
+    // Clear input
+    setMessage('');
+    
+    // Simulate AI response after a short delay
     setTimeout(() => {
-      const willBotRespond = Math.random() > 0.5;
+      const responses = [
+        "That's interesting! Tell me more about that.",
+        "I understand how you feel. It's perfectly normal to have ups and downs.",
+        "Taking breaks is actually good for productivity. You're doing great!",
+        "Remember to be kind to yourself - you're making progress even when it doesn't feel like it.",
+        "What's something small you're looking forward to today?",
+        "Have you tried taking a 5-minute mindfulness break? It can really help reset your mind.",
+        "Sometimes just articulating how you feel can make a big difference. How are you feeling now?",
+        "That's a great perspective! I appreciate you sharing that with me."
+      ];
       
-      if (willBotRespond) {
-        const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: randomResponse,
-          sender: 'bot',
-          senderName: 'PREPZR Bot',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, botMessage]);
-      } else {
-        const randomUser = otherUsers[Math.floor(Math.random() * otherUsers.length)];
-        const otherUserMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: `I'm working on ${Math.random() > 0.5 ? 'biology' : 'mathematics'} right now. It's ${Math.random() > 0.5 ? 'going well!' : 'quite challenging.'}`,
-          sender: 'other',
-          senderName: randomUser.name,
-          senderAvatar: randomUser.avatar,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, otherUserMessage]);
-      }
-      
-      setIsTyping(false);
-    }, 1500);
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      setMessages(prev => [...prev, { text: randomResponse, isUser: false }]);
+    }, 1000);
   };
 
-  const refreshChat = () => {
-    setOnlineUsers(Math.floor(Math.random() * 5) + 5);
-    toast({
-      title: "Chat refreshed",
-      description: "Connected with the latest messages.",
-    });
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const handleLikeMessage = (index: number) => {
+    onLike(index);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-medium">Chill Chat</h2>
-          <Badge variant="outline" className="bg-green-50 text-green-700">
-            {onlineUsers} online
-          </Badge>
+    <div className="flex flex-col h-[60vh] md:h-[50vh]">
+      <ScrollArea className="flex-1 p-2 bg-gray-50 dark:bg-gray-800/50 rounded-t-md">
+        <div className="space-y-4 p-2">
+          {messages.map((msg, index) => (
+            <div 
+              key={index}
+              className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`flex gap-2 ${msg.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                <Avatar className={`h-8 w-8 ${msg.isUser ? 'bg-blue-500' : 'bg-green-500'}`}>
+                  <AvatarFallback>{msg.isUser ? 'U' : 'AI'}</AvatarFallback>
+                  {!msg.isUser && (
+                    <AvatarImage src="/assets/feel-good/assistant-avatar.png" />
+                  )}
+                </Avatar>
+                <Card className={`max-w-xs md:max-w-md p-3 ${
+                  msg.isUser 
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-100' 
+                    : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-100'
+                }`}>
+                  <p className="text-sm">{msg.text}</p>
+                  {!msg.isUser && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-1 mt-1 opacity-70 hover:opacity-100"
+                      onClick={() => handleLikeMessage(index)}
+                    >
+                      <ThumbsUp className="h-3 w-3 mr-1" />
+                      <span className="text-xs">Helpful</span>
+                    </Button>
+                  )}
+                </Card>
+              </div>
+            </div>
+          ))}
         </div>
-        <Button variant="ghost" size="sm" onClick={refreshChat} className="flex items-center gap-1">
-          <RefreshCcw className="h-3.5 w-3.5" />
-          <span>Refresh</span>
+      </ScrollArea>
+      
+      <div className="p-2 bg-white dark:bg-gray-800 border-t flex gap-2 rounded-b-md">
+        <Input 
+          placeholder="Send a message..." 
+          value={message} 
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="flex-1"
+        />
+        <Button onClick={handleSendMessage} size={isMobile ? "sm" : "default"}>
+          <Send className="h-4 w-4" />
+          {!isMobile && <span className="ml-2">Send</span>}
         </Button>
       </div>
-
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          <div className="border-b p-3 flex justify-between items-center bg-muted/30">
-            <CardTitle className="text-base">Student Chat</CardTitle>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </div>
-          
-          <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div 
-                  key={message.id} 
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`flex gap-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-                    {message.sender !== 'user' && (
-                      <Avatar className="h-8 w-8">
-                        {message.sender === 'bot' ? (
-                          <AvatarImage src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" />
-                        ) : (
-                          <AvatarImage src={message.senderAvatar} />
-                        )}
-                        <AvatarFallback>{message.senderName.substring(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    <div>
-                      <div className="flex gap-2 items-center mb-1">
-                        <span className="text-xs text-muted-foreground">
-                          {message.sender !== 'user' ? message.senderName : formatTime(message.timestamp)}
-                        </span>
-                        {message.sender !== 'user' && (
-                          <span className="text-xs text-muted-foreground">{formatTime(message.timestamp)}</span>
-                        )}
-                      </div>
-                      
-                      <div className={`p-3 rounded-lg ${
-                        message.sender === 'user' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : message.sender === 'bot'
-                            ? 'bg-slate-100 border border-slate-200 text-slate-800'
-                            : 'bg-blue-50 border border-blue-100 text-blue-800'
-                      }`}>
-                        {message.text}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 animate-pulse">
-                    Someone is typing...
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-          
-          <div className="p-3 border-t flex gap-2">
-            <Button variant="outline" size="icon" className="shrink-0">
-              <Gift className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" className="shrink-0">
-              <Music className="h-4 w-4" />
-            </Button>
-            <Input 
-              placeholder="Type your message..." 
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              className="flex-1"
-            />
-            <Button onClick={handleSendMessage} className="shrink-0">
-              <SendHorizontal className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-center pt-2">
-        <Button variant="ghost" onClick={onLike}>
-          I'm enjoying this chat!
-        </Button>
+      
+      <div className="mt-4">
+        <h4 className="text-sm font-medium mb-2">Conversation Starters</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setMessage("I'm feeling stressed about my upcoming exam.")}
+            className="text-xs justify-start h-auto py-2"
+          >
+            I'm feeling stressed about my upcoming exam.
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setMessage("How can I stay motivated while studying?")}
+            className="text-xs justify-start h-auto py-2"
+          >
+            How can I stay motivated while studying?
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setMessage("I'm finding it hard to focus today.")}
+            className="text-xs justify-start h-auto py-2"
+          >
+            I'm finding it hard to focus today.
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setMessage("What's a good way to take effective breaks?")}
+            className="text-xs justify-start h-auto py-2"
+          >
+            What's a good way to take effective breaks?
+          </Button>
+        </div>
       </div>
     </div>
   );
