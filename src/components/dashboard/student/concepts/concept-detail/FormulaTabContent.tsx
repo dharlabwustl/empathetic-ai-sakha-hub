@@ -30,7 +30,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold">Key Formulas for {conceptTitle}</h2>
@@ -95,7 +95,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
       
       <div className="mt-8 p-4 border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50 dark:bg-blue-900/20">
         <div className="flex items-start">
-          <BeakerIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3" />
+          <FlaskConical className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3" />
           <div>
             <h3 className="font-medium text-blue-700 dark:text-blue-300">Interactive Formula Lab</h3>
             <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">

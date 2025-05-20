@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SharedPageLayout } from '../SharedPageLayout';
 import EnhancedConceptDetail from './EnhancedConceptDetail';
+import ConceptHeader from './concept-detail/ConceptHeader';
 
 // Sample concept data (would normally come from an API/database)
 const demoConceptData = {
@@ -31,11 +32,15 @@ const demoConceptData = {
 
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
-  const [activeTab, setActiveTab] = useState('content');
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
   
+  const handleBookmarkToggle = () => {
+    setIsBookmarked(!isBookmarked);
+  };
+
   return (
     <SharedPageLayout
       title={concept.title}
@@ -43,15 +48,26 @@ const ConceptDetailPage: React.FC = () => {
       backButtonUrl="/dashboard/student/concepts"
       showBackButton={true}
     >
-      <EnhancedConceptDetail
-        conceptId={conceptId || concept.id}
-        title={concept.title}
-        subject={concept.subject}
-        topic={concept.topic}
-        difficulty={concept.difficulty}
-        content={concept.content}
-        masteryLevel={concept.masteryLevel}
-      />
+      <div className="space-y-6">
+        <ConceptHeader
+          title={concept.title}
+          subject={concept.subject}
+          topic={concept.topic}
+          difficulty={concept.difficulty}
+          isBookmarked={isBookmarked}
+          onBookmarkToggle={handleBookmarkToggle}
+        />
+        
+        <EnhancedConceptDetail
+          conceptId={conceptId || concept.id}
+          title={concept.title}
+          subject={concept.subject}
+          topic={concept.topic}
+          difficulty={concept.difficulty}
+          content={concept.content}
+          masteryLevel={concept.masteryLevel}
+        />
+      </div>
     </SharedPageLayout>
   );
 };

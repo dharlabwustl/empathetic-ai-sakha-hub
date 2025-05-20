@@ -135,83 +135,29 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     }
   };
 
+  // Main content area - Tabs and content display
   return (
     <div className="space-y-6">
-      {/* Concept header with glass morphism effect */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 backdrop-blur-sm rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 shadow-lg p-6"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400' :
-                difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400' :
-                'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400'
-              }`}>
-                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{subject} • {topic}</span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button 
-              variant={isFlagged ? "outline" : "ghost"} 
-              size="sm"
-              onClick={handleToggleFlag}
-              className={`flex items-center gap-1 ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
-            >
-              <Flag className="h-4 w-4" />
-              {isFlagged ? 'Flagged' : 'Flag for Revision'}
-            </Button>
-            
-            <Button 
-              variant={isBookmarked ? "default" : "outline"} 
-              size="sm"
-              className={`flex items-center gap-1 ${isBookmarked ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-              onClick={handleBookmark}
-            >
-              <Star className="h-4 w-4" />
-              {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleReadAloud}
-              className={isReadingAloud ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" : ""}
-            >
-              {isReadingAloud ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-          </div>
+      {/* Progress bar section */}
+      <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
+            <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+            Concept Mastery
+          </h3>
+          <span className="text-sm font-medium">{masteryLevel}%</span>
         </div>
-        
-        {/* Progress bar */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
-              <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
-              Concept Mastery
-            </h3>
-            <span className="text-sm font-medium">{masteryLevel}%</span>
-          </div>
-          <Progress 
-            value={masteryLevel} 
-            className="h-2 bg-gray-200 dark:bg-gray-700"
-          />
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
-            {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
-            {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
-            {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
-          </p>
-        </div>
-      </motion.div>
+        <Progress 
+          value={masteryLevel} 
+          className="h-2 bg-gray-200 dark:bg-gray-700"
+        />
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+          {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
+          {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+          {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
+        </p>
+      </div>
 
       {/* Main content and sidebar layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -257,7 +203,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                 </TabsTrigger>
               </TabsList>
               
-              <div className="p-6">
+              <div className="p-0">
                 <TabsContent value="content" className="mt-0">
                   <ConceptContent 
                     content={content}
@@ -327,6 +273,16 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
               >
                 {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
                 {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`justify-start ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
+                onClick={handleToggleFlag}
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                {isFlagged ? "Remove from Revision" : "Flag for Revision"}
               </Button>
               
               {validationCompleted && quizScore !== null && (
