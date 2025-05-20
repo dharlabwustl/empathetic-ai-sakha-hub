@@ -28,8 +28,6 @@ const RedesignedTodaysPlan: React.FC = () => {
     setActiveView,
     refreshData,
     markTaskCompleted,
-    addBookmark,
-    addNote
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
   
   if (loading) {

@@ -1,23 +1,28 @@
 
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Bell, Calendar } from "lucide-react";
-import VoiceAnnouncer from './voice/VoiceAnnouncer';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Search, Bell, Menu, HelpCircle, Moon, Sun } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { MoodType } from "@/types/user/base";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
-  onOpenTour?: () => void;
   userName?: string;
-  mood?: string;
+  mood?: MoodType | null;
+  onOpenTour?: () => void;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }
@@ -27,119 +32,170 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   onToggleSidebar,
   formattedDate,
   formattedTime,
+  userName = "",
+  mood = null,
   onOpenTour,
-  userName,
-  mood,
   isFirstTimeUser,
   onViewStudyPlan
 }) => {
+  const isMobile = useIsMobile();
+  const [notificationCount, setNotificationCount] = useState(3);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Initialize dark mode from system preference or localStorage
+  useEffect(() => {
+    // Check if user prefers dark mode
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Check if user has a saved preference
+    const savedPreference = localStorage.getItem("darkMode");
+    
+    const shouldUseDarkMode = savedPreference 
+      ? savedPreference === "true"
+      : prefersDark;
+    
+    setDarkMode(shouldUseDarkMode);
+    
+    if (shouldUseDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+  
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    localStorage.setItem("darkMode", (!darkMode).toString());
+    
+    if (!darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={onToggleSidebar}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6"
-                >
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Toggle navigation menu</p>
-            </TooltipContent>
-          </Tooltip>
-          <div>
-            <h2 className="text-lg font-semibold">{formattedTime}</h2>
-            <p className="text-muted-foreground text-sm">{formattedDate}</p>
-          </div>
-        </div>
+    <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center gap-1 md:gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:mr-2"
+          onClick={onToggleSidebar}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle sidebar</span>
+        </Button>
         
-        <div className="flex items-center gap-2">
-          {/* Voice Announcer Integration */}
-          <VoiceAnnouncer 
-            userName={userName}
-            mood={mood}
-            isFirstTimeUser={isFirstTimeUser}
-          />
-          
-          {/* Calendar Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewStudyPlan}
-                className="hidden sm:flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your study calendar based on your exam goals</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Notification Icon */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative"
-                asChild
-              >
-                <a href="/dashboard/student/notifications">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View your notifications</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Tour Guide Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenTour}
-                className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
-              >
-                <HelpCircle className="h-4 w-4" />
-                Tour Guide
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Get a guided tour of the dashboard features</p>
-            </TooltipContent>
-          </Tooltip>
+        <div className="flex flex-col">
+          <span className="text-xs md:text-sm text-muted-foreground">
+            {formattedDate}
+          </span>
+          <span className="text-xs md:text-sm font-semibold">
+            {formattedTime}
+          </span>
         </div>
       </div>
-    </TooltipProvider>
+
+      <div className="flex items-center gap-1 md:gap-2">
+        {/* Dark mode toggle */}
+        <div className="hidden md:flex items-center mr-2">
+          <Switch 
+            checked={darkMode} 
+            onCheckedChange={toggleDarkMode}
+            size="sm" 
+          />
+          <span className="ml-2 text-sm">
+            {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </span>
+        </div>
+
+        {/* Search button */}
+        <Button variant="ghost" size="icon" className="hidden md:flex">
+          <Search className="h-[18px] w-[18px]" />
+          <span className="sr-only">Search</span>
+        </Button>
+
+        {/* Notifications dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-[18px] w-[18px]" />
+              {notificationCount > 0 && (
+                <Badge
+                  className="absolute -top-1 -right-1 h-4 min-w-[16px] p-0 flex items-center justify-center bg-primary text-[10px]"
+                >
+                  {notificationCount}
+                </Badge>
+              )}
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[300px]">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">New concept card available</span>
+                <span className="text-xs text-muted-foreground">
+                  Check out the latest concept card on Physics
+                </span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">Study reminder</span>
+                <span className="text-xs text-muted-foreground">
+                  Time to review your flashcards
+                </span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">New practice quiz</span>
+                <span className="text-xs text-muted-foreground">
+                  Chemistry practice quiz is now available
+                </span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer justify-center text-center">
+              View all notifications
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Help dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <HelpCircle className="h-[18px] w-[18px]" />
+              <span className="sr-only">Help</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Help & Support</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {onOpenTour && (
+              <DropdownMenuItem onClick={onOpenTour}>
+                <span className="mr-2">🚀</span> Take Platform Tour
+                {isFirstTimeUser && <Badge className="ml-2 bg-primary text-[10px]">New</Badge>}
+              </DropdownMenuItem>
+            )}
+            {onViewStudyPlan && (
+              <DropdownMenuItem onClick={onViewStudyPlan}>
+                <span className="mr-2">📚</span> View Study Plan
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={() => window.open('/faq', '_blank')}>
+              <span className="mr-2">❓</span> Frequently Asked Questions
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.open('/contact', '_blank')}>
+              <span className="mr-2">📧</span> Contact Support
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 

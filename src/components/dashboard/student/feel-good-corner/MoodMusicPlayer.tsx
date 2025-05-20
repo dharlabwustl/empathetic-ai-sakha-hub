@@ -5,21 +5,16 @@ import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
 import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
 import { MoodType } from '@/types/user/base';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface MoodMusicPlayerProps {
   currentMood: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
+  onMoodChange: (mood: MoodType) => void;
 }
 
-const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ 
-  currentMood, 
-  onMoodChange = () => {} 
-}) => {
+const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ currentMood, onMoodChange }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
   const [currentTrack, setCurrentTrack] = useState(0);
-  const isMobile = useIsMobile();
   
   // Mock tracks based on mood
   const moodTracks = {
@@ -51,22 +46,14 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({
       { title: "Clarity", artist: "Mind Cleanse", duration: "5:05" },
       { title: "Direction", artist: "Path Finder", duration: "4:30" },
     ],
-    [MoodType.BORED]: [
-      { title: "Inspiration", artist: "Spark", duration: "3:40" },
-      { title: "New Horizons", artist: "Curiosity", duration: "4:25" },
-    ],
-    [MoodType.EXCITED]: [
-      { title: "Channel Energy", artist: "Focus Flow", duration: "3:15" },
-      { title: "Balanced Excitement", artist: "Controlled Fire", duration: "4:05" },
+    [MoodType.SAD]: [
+      { title: "Healing Tones", artist: "Emotion", duration: "6:15" },
+      { title: "Sunny Tomorrow", artist: "Hope", duration: "4:45" },
     ],
     [MoodType.CALM]: [
       { title: "Peaceful Mind", artist: "Tranquil", duration: "6:30" },
       { title: "Serene Waters", artist: "Still Lake", duration: "5:45" },
     ],
-    [MoodType.SAD]: [
-      { title: "Gentle Comfort", artist: "Soft Touch", duration: "4:50" },
-      { title: "Warm Embrace", artist: "Light Through", duration: "5:20" },
-    ]
   };
 
   const tracks = moodTracks[currentMood] || moodTracks[MoodType.OKAY];
@@ -98,7 +85,7 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-        {Object.values(MoodType).map((mood) => (
+        {Object.values(MoodType).filter(mood => !!moodTracks[mood]).map((mood) => (
           <Button
             key={mood}
             variant={currentMood === mood ? "default" : "outline"}
