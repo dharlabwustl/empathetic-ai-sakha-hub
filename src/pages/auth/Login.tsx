@@ -23,17 +23,25 @@ const Login = () => {
     
     // Handle any leftover admin login attempts
     const isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    if (isAdminLoggedIn) {
-      console.log("Admin already logged in, redirecting to admin dashboard");
+    const adminLoginAttempt = localStorage.getItem('admin_login_attempt') === 'true';
+    
+    if (adminLoginAttempt || isAdminLoggedIn) {
+      console.log("Admin login detected, redirecting to admin dashboard");
       
-      // Make sure other login flags are cleared to avoid conflicts
-      localStorage.removeItem('new_user_signup');
-      localStorage.removeItem('google_signup');
+      // Clear the login attempt flag
+      localStorage.removeItem('admin_login_attempt');
       
-      // Use setTimeout to avoid navigation issues
-      setTimeout(() => {
-        navigate('/admin/dashboard', { replace: true });
-      }, 100);
+      if (isAdminLoggedIn) {
+        // Already logged in, go to dashboard
+        setTimeout(() => {
+          navigate('/admin/dashboard', { replace: true });
+        }, 100);
+      } else {
+        // Not logged in yet, go to admin login page
+        setTimeout(() => {
+          navigate('/admin/login', { replace: true });
+        }, 100);
+      }
       return;
     }
     

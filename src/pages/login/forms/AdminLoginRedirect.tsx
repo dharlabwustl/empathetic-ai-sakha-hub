@@ -25,7 +25,9 @@ const AdminLoginRedirect: React.FC = () => {
     });
     
     // Redirect directly to admin login page via AdminLogin component
-    navigate('/admin/login');
+    setTimeout(() => {
+      navigate('/admin/login');
+    }, 100);
   };
 
   return (
