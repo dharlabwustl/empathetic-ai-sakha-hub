@@ -13,6 +13,13 @@ interface LoginCredentials {
   password: string;
 }
 
+// Predefined admin credentials - normally this would be in a secure backend
+const ADMIN_CREDENTIALS = {
+  email: "admin@prepzr.com",
+  password: "Admin@2025#Secure",
+  name: "Admin User"
+};
+
 // Admin auth service with enhanced functions
 const adminAuthService = {
   // Admin login function with improved security and reliability
@@ -20,12 +27,14 @@ const adminAuthService = {
     console.log("Admin auth service: login attempt for", credentials.email);
     
     try {
-      // For demo purposes, allow any email with admin in it
-      if (credentials.email.includes('admin') && credentials.password.length > 0) {
+      // Check against predefined credentials
+      if (credentials.email === ADMIN_CREDENTIALS.email && 
+          credentials.password === ADMIN_CREDENTIALS.password) {
+        
         const adminUser: AdminUser = {
           id: `admin_${Date.now()}`,
-          name: credentials.email.split('@')[0] || "Admin User",
-          email: credentials.email,
+          name: ADMIN_CREDENTIALS.name,
+          email: ADMIN_CREDENTIALS.email,
           role: "admin",
           permissions: ['all']
         };
@@ -56,7 +65,7 @@ const adminAuthService = {
         return {
           success: false,
           data: null,
-          message: "Invalid admin credentials. Email must contain 'admin'."
+          message: "Invalid admin credentials. Please check your email and password."
         };
       }
     } catch (error) {

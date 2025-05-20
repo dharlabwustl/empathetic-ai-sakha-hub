@@ -9,67 +9,45 @@ import { Eye, EyeOff, Loader2, Mail, Lock, ShieldAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
+import adminAuthService from "@/services/auth/adminAuthService";
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { loginAdmin, isAdminAuthenticated, isLoading, error } = useAdminAuth();
+  const { isAdminAuthenticated } = useAdminAuth();
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
-    if (isAdminAuthenticated && !isLoading) {
+    if (isAdminAuthenticated) {
       console.log("Admin already authenticated, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminAuthenticated, isLoading, navigate]);
-
-  // Use error from context if available
-  useEffect(() => {
-    if (error) {
-      setLoginError(error);
-    }
-  }, [error]);
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
+    setIsLoading(true);
     
     try {
-      const success = await loginAdmin(email, password);
-      if (success) {
+      const response = await adminAuthService.adminLogin({ email, password });
+      
+      if (response.success) {
         navigate('/admin/dashboard', { replace: true });
+      } else {
+        setLoginError(response.message || "Login failed. Please check your credentials.");
       }
     } catch (err) {
       console.error("Login error:", err);
       setLoginError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const handleDemoLogin = () => {
-    setEmail("admin@prepzr.com");
-    setPassword("admin123");
-    
-    setTimeout(() => {
-      const form = document.getElementById('admin-login-form');
-      if (form) {
-        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-      }
-    }, 100);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-blue-600 border-blue-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl font-medium">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
@@ -122,6 +100,9 @@ const AdminLogin: React.FC = () => {
                       autoComplete="username"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    For testing: admin@prepzr.com
+                  </p>
                 </div>
                 
                 <div className="space-y-2">
@@ -162,16 +143,10 @@ const AdminLogin: React.FC = () => {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    For testing: Admin@2025#Secure
+                  </p>
                 </div>
-                
-                <Button 
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleDemoLogin}
-                >
-                  Use Demo Admin Account
-                </Button>
               </CardContent>
               
               <CardFooter>

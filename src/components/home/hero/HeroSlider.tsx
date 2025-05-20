@@ -15,14 +15,22 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
     exit: { x: -300, opacity: 0 }
   };
 
-  // Auto-rotate through slides
+  // Track animation progress
+  const [animationProgress, setAnimationProgress] = useState(0);
+  
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % 3);
-    }, 5000); // Change slide every 5 seconds
+    const duration = 5000; // 5 seconds same as rotation interval
+    const intervalTime = 50; // Update every 50ms for smoother progress
+    const steps = duration / intervalTime;
+    let currentStep = 0;
     
-    return () => clearInterval(interval);
-  }, [setActiveSlide]);
+    const progressInterval = setInterval(() => {
+      currentStep = (currentStep + 1) % steps;
+      setAnimationProgress((currentStep / steps) * 100);
+    }, intervalTime);
+    
+    return () => clearInterval(progressInterval);
+  }, [activeSlide]);
 
   const slideContentList = [
     {
@@ -47,23 +55,6 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       animationDelay: 0.4
     }
   ];
-  
-  // Track animation progress
-  const [animationProgress, setAnimationProgress] = useState(0);
-  
-  useEffect(() => {
-    const duration = 5000; // 5 seconds same as rotation interval
-    const intervalTime = 100; // Update every 100ms for smooth progress
-    const steps = duration / intervalTime;
-    let currentStep = 0;
-    
-    const progressInterval = setInterval(() => {
-      currentStep = (currentStep + 1) % steps;
-      setAnimationProgress((currentStep / steps) * 100);
-    }, intervalTime);
-    
-    return () => clearInterval(progressInterval);
-  }, [activeSlide]);
 
   return (
     <div className="w-full lg:w-1/2 relative">
@@ -91,7 +82,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
             <div 
               className="h-1 bg-indigo-600 rounded-full transition-all duration-100 ease-linear"
               style={{ width: `${animationProgress}%` }}
-            ></div>
+            />
           </div>
           
           {/* Navigation dots */}

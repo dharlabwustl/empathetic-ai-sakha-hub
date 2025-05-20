@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Linkedin } from 'lucide-react';
 
 interface ProfileCardProps {
   name: string;
@@ -8,9 +9,10 @@ interface ProfileCardProps {
   bio: string;
   imageSrc: string;
   location: string;
+  linkedinUrl: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, bio, imageSrc, location }) => (
+const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, bio, imageSrc, location, linkedinUrl }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -27,6 +29,17 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, bio, imageSrc, lo
       <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-1">{name}</h3>
       <p className="text-center text-purple-600 dark:text-purple-400 mb-3">{role}</p>
       <p className="text-gray-600 dark:text-gray-300 text-center">{bio}</p>
+      <div className="flex justify-center mt-4">
+        <a 
+          href={linkedinUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          <Linkedin size={16} />
+          <span className="text-sm">LinkedIn Profile</span>
+        </a>
+      </div>
       <p className="text-gray-500 dark:text-gray-400 text-center mt-3 text-sm">Based in {location}</p>
     </div>
   </motion.div>
@@ -56,6 +69,7 @@ const FoundingTeamSection = () => {
             bio="Building AI tech startups in education. Based in India."
             imageSrc="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png"
             location="India"
+            linkedinUrl="https://www.linkedin.com/in/amitsinghrenewed/"
           />
           <ProfileCard
             name="Dr. Atul Sharma"
@@ -63,6 +77,7 @@ const FoundingTeamSection = () => {
             bio="Doctorate in Engineering (USA), IIT Alumni. Research Scientist & Professor focused on advanced AI solutions."
             imageSrc="/lovable-uploads/0fa1cac6-aec8-4484-82f8-54739838449c.png"
             location="USA"
+            linkedinUrl="https://www.linkedin.com/in/sharmaatul11/"
           />
         </div>
       </div>

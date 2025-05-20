@@ -2,17 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 import authService from '@/services/auth/authService';
+import adminAuthService from '@/services/auth/adminAuthService';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogout, isAdminAuthenticated } = useAdminAuth();
+  const { adminUser, isAdminAuthenticated, adminLogout } = useAdminAuth();
   
   // Use state to track login status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -42,10 +43,15 @@ const Header = () => {
         }
       } else if (adminLoggedIn) {
         try {
-          const adminUser = localStorage.getItem('adminUser');
+          // Use the admin user from context if available
           if (adminUser) {
-            const parsedData = JSON.parse(adminUser);
-            setUserName(parsedData.name || "Admin");
+            setUserName(adminUser.name || "Admin");
+          } else {
+            const adminUserData = localStorage.getItem('adminUser');
+            if (adminUserData) {
+              const parsedData = JSON.parse(adminUserData);
+              setUserName(parsedData.name || "Admin");
+            }
           }
         } catch (e) {
           console.error("Error parsing admin data", e);
@@ -70,7 +76,7 @@ const Header = () => {
       window.removeEventListener('auth-state-changed', checkAuthStatus);
       window.removeEventListener('storage', checkAuthStatus as EventListener);
     };
-  }, [isAdminAuthenticated]);
+  }, [isAdminAuthenticated, adminUser]);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -118,9 +124,14 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
               <div className="flex space-x-2 items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  Hi, {userName}
-                </span>
+                <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                    <User size={14} className="text-indigo-600 dark:text-indigo-300" />
+                  </div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {userName}
+                  </span>
+                </div>
                 <Button variant="ghost" asChild>
                   <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
                     {isAdmin ? "Admin Dashboard" : "Dashboard"}
@@ -156,8 +167,13 @@ const Header = () => {
             <div className="flex flex-col space-y-2">
               {isLoggedIn ? (
                 <>
-                  <div className="py-2 px-1 text-sm text-gray-600 dark:text-gray-300">
-                    Hi, {userName}
+                  <div className="py-2 px-1 text-sm flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                      <User size={14} className="text-indigo-600 dark:text-indigo-300" />
+                    </div>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {userName}
+                    </span>
                   </div>
                   <Button variant="ghost" asChild className="justify-start">
                     <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
