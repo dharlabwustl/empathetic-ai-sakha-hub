@@ -25,16 +25,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer! I'm Sakha AI, your intelligent learning companion. Our platform adapts to your unique learning style, helping you prepare for exams more effectively. We understand your mindset, not just the exam content. How can I assist you today?";
+      return "Welcome to PREP-zer. I'm Sakha AI, your adaptive learning assistant. Our platform understands your unique learning style, helping you prepare more effectively for competitive exams. How can I help you today?";
     } else if (path.includes('/signup')) {
-      return "Congratulations on taking this important step toward exam success! I'm Sakha AI, your personalized learning assistant. PREP-zer adapts to your unique learning style to create an engaging and effective study experience. We understand your mindset, not just the exam. Let's begin your journey to academic excellence!";
+      return "Welcome to PREP-zer! I'm Sakha AI. We create personalized study plans based on your learning style, giving you an edge in competitive exams. Need any assistance with signing up?";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your PREP-zer free trial! I'm Sakha AI, your adaptive learning assistant. During this trial, you'll experience our personalized study plans, emotionally intelligent tutoring, and advanced analytics. We understand your mindset, not just the exam. Let's make the most of your trial period!";
+      return "Welcome to your free trial! I'm Sakha AI. You'll experience personalized study plans, emotionally intelligent tutoring, and advanced analytics during this period. What would you like to try first?";
     } else if (path.includes('/exam-readiness')) {
-      return "Welcome to our exam readiness analyzer! I'm Sakha AI, your exam preparation partner. Our comprehensive assessment will evaluate your current preparation level and identify specific areas for improvement. This personalized approach helps us understand your mindset, not just the exam content. Let's discover your exam readiness together!";
+      return "Our exam readiness analyzer will evaluate your current preparation level and identify areas for improvement. This helps us customize your learning path. Would you like to start the assessment?";
     }
     
-    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam companion. We understand your mindset, not just the exam.";
+    return "Welcome to PREP-zer. I'm Sakha AI, your exam preparation assistant.";
   };
   
   useEffect(() => {

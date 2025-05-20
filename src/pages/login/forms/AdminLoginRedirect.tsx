@@ -14,6 +14,7 @@ const AdminLoginRedirect: React.FC = () => {
     // Clear any student login data to prevent conflicts
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('google_signup');
     
     // Direct redirect to admin login page
     navigate('/admin/login');
