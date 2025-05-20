@@ -1,24 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Star, Flag, MessageCircle, Brain, CheckCircle, FlaskConical } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useParams, useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '../SharedPageLayout';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  BookOpen, Star, MessageCircle, Brain, 
+  CheckCircle, FlaskConical, RefreshCw, ArrowLeft
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { motion } from 'framer-motion';
-
-// Import the components we'll need for the tabs
+import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptContent from './concept-detail/ConceptContent';
 import FormulaTabContent from './concept-detail/FormulaTabContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
 import RevisionSection from './concept-detail/RevisionSection';
-import ConceptHeader from './concept-detail/ConceptHeader';
 
 // Sample concept data (would normally come from an API/database)
 const demoConceptData = {
@@ -68,6 +69,7 @@ const demoConceptData = {
 
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
+  const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
@@ -80,6 +82,20 @@ const ConceptDetailPage: React.FC = () => {
   
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
+  
+  const [autoRotateFormulas, setAutoRotateFormulas] = useState(true);
+  const [currentFormulaIndex, setCurrentFormulaIndex] = useState(0);
+  
+  // Auto-rotate formulas
+  useEffect(() => {
+    if (!autoRotateFormulas) return;
+    
+    const interval = setInterval(() => {
+      setCurrentFormulaIndex((prev) => (prev + 1) % concept.formulas.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [autoRotateFormulas, concept.formulas.length]);
   
   const handleBookmarkToggle = () => {
     setIsBookmarked(!isBookmarked);
@@ -104,7 +120,7 @@ const ConceptDetailPage: React.FC = () => {
   const handleOpenFormulaLab = () => {
     toast({
       title: "Formula Lab",
-      description: "Opening formula lab...",
+      description: "Opening formula lab for interactive experimentation...",
     });
     // In a real app, you would navigate to the formula lab page
   };
@@ -160,8 +176,74 @@ const ConceptDetailPage: React.FC = () => {
           onBookmarkToggle={handleBookmarkToggle}
         />
         
+        {/* Auto-rotating formula cards */}
+        <motion.div 
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold flex items-center">
+              <FlaskConical className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+              Key Formulas
+            </h2>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setAutoRotateFormulas(!autoRotateFormulas)}
+            >
+              {autoRotateFormulas ? "Pause" : "Auto-Rotate"}
+            </Button>
+          </div>
+          
+          <div className="relative h-[180px] overflow-hidden">
+            <AnimatePresence mode='wait'>
+              {concept.formulas.map((formula, index) => (
+                index === currentFormulaIndex && (
+                  <motion.div
+                    key={formula.id}
+                    className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-indigo-100 dark:border-indigo-800/30"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <h3 className="text-lg font-medium text-indigo-700 dark:text-indigo-300 mb-2">
+                      {formula.name}
+                    </h3>
+                    <div className="text-2xl font-bold text-center my-4 font-mono">
+                      {formula.formula}
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm">
+                      {formula.description}
+                    </p>
+                  </motion.div>
+                )
+              ))}
+            </AnimatePresence>
+            
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+              {concept.formulas.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentFormulaIndex
+                      ? 'bg-indigo-600 dark:bg-indigo-400' 
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  onClick={() => {
+                    setCurrentFormulaIndex(index);
+                    setAutoRotateFormulas(false);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </motion.div>
+        
         {/* Progress bar section */}
-        <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
               <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
@@ -215,7 +297,7 @@ const ConceptDetailPage: React.FC = () => {
                     value="linked" 
                     className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
                   >
-                    <ArrowLeft className="h-4 w-4" /> {!isMobile && "Related"}
+                    <RefreshCw className="h-4 w-4" /> {!isMobile && "Related"}
                   </TabsTrigger>
                   <TabsTrigger 
                     value="tutor" 
@@ -293,7 +375,7 @@ const ConceptDetailPage: React.FC = () => {
                   className="justify-start"
                   onClick={toggleReadAloud}
                 >
-                  {isReadingAloud ? <MessageCircle className="h-4 w-4 mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
+                  <BookOpen className="h-4 w-4 mr-2" />
                   {isReadingAloud ? "Stop Reading" : "Read Aloud"}
                 </Button>
                 
@@ -303,8 +385,18 @@ const ConceptDetailPage: React.FC = () => {
                   className={`justify-start ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
                   onClick={handleFlagToggle}
                 >
-                  <Flag className="h-4 w-4 mr-2" />
+                  <Star className="h-4 w-4 mr-2" />
                   {isFlagged ? "Remove from Revision" : "Flag for Revision"}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  onClick={handleOpenFormulaLab}
+                >
+                  <FlaskConical className="h-4 w-4 mr-2" />
+                  Open Formula Lab
                 </Button>
                 
                 {validationCompleted && quizScore !== null && (
@@ -329,6 +421,37 @@ const ConceptDetailPage: React.FC = () => {
               isFlagged={isFlagged}
               onToggleFlag={handleFlagToggle}
             />
+            
+            {/* Resources section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Learning Resources</h3>
+              <div className="space-y-3">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Textbook Reference
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  <Brain className="h-4 w-4 mr-2" />
+                  Practice Problems
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Study Plan
+                </Button>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
