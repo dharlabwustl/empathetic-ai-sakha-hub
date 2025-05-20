@@ -18,24 +18,25 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { QuickAccess } from './QuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   tabContents?: Record<string, ReactNode>;
   hideTabsNav?: boolean;
+  showQuickAccess?: boolean;
 }
 
 export default function DashboardTabs({
   activeTab,
   onTabChange,
   tabContents = {},
-  hideTabsNav = false
+  hideTabsNav = false,
+  showQuickAccess = false
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
   
-  // Updated main navigation tabs with more focused menu items
+  // Main navigation tabs with more focused menu items
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
@@ -63,18 +64,17 @@ export default function DashboardTabs({
                   >
                     <TabsTrigger 
                       value={tab.id} 
-                      className={`rounded-lg flex items-center gap-2 py-2.5 ${isMobile ? 'px-3' : 'px-4'} transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm`}
+                      className={`rounded-lg flex items-center gap-1.5 py-2 ${isMobile ? 'px-2.5' : 'px-4'} transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm`}
                     >
                       <tab.icon className={`${isMobile ? 'h-4 w-4' : 'h-[16px] w-[16px]'}`} />
-                      <span className={isMobile ? "sr-only text-xs sm:not-sr-only sm:inline" : ""}>
-                        {isMobile ? tab.label.split(' ')[0] : tab.label}
-                      </span>
+                      {!isMobile && <span>{tab.label}</span>}
+                      {isMobile && tab.id === activeTab && <span className="text-xs">{tab.label.split(' ')[0]}</span>}
                     </TabsTrigger>
                   </motion.div>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="bottom" 
-                  className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg"
+                  className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg"
                 >
                   <p className="text-sm">{tab.description}</p>
                 </TooltipContent>

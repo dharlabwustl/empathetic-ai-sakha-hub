@@ -3,7 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BookOpen, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag, Brain, CheckCircle, FileText } from 'lucide-react';
+import { 
+  BookOpen, 
+  MessageCircle, 
+  Flag, 
+  Brain, 
+  CheckCircle, 
+  FlaskConical, 
+  RefreshCw, 
+  Star,
+  Volume2, 
+  VolumeX
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import useUserNotes from '@/hooks/useUserNotes';
 import ConceptContent from './concept-detail/ConceptContent';
 import FormulaTabContent from './concept-detail/FormulaTabContent';
@@ -11,6 +23,9 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
 import RevisionSection from './concept-detail/RevisionSection';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface ConceptDetailProps {
   conceptId: string;
@@ -39,8 +54,10 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [validationCompleted, setValidationCompleted] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
+  const isMobile = useIsMobile();
 
   const { toast } = useToast();
 
@@ -72,6 +89,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     setIsFormulaLabOpen(true);
   };
 
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked 
+        ? "This concept has been removed from your saved items" 
+        : "This concept has been added to your saved items",
+      variant: "default",
+    });
+  };
+
   const handleToggleFlag = () => {
     setIsFlagged(!isFlagged);
     toast({
@@ -79,7 +107,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
       description: isFlagged 
         ? "This concept has been removed from your revision list" 
         : "This concept has been added to your revision list",
-      variant: isFlagged ? "default" : "default",
+      variant: "default",
     });
   };
 
@@ -103,135 +131,239 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     });
   };
 
+  const toggleReadAloud = () => {
+    setIsReadingAloud(!isReadingAloud);
+    
+    if (!isReadingAloud) {
+      // Start reading
+      const cleanText = content.replace(/<[^>]*>?/gm, '');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsReadingAloud(false);
+      speechSynthesis.speak(utterance);
+    } else {
+      // Stop reading
+      speechSynthesis.cancel();
+    }
+  };
+
   return (
-    <div className="space-y-6 p-1">
-      {/* Action buttons on top */}
-      <div className="flex flex-wrap gap-2 justify-end">
-        <Button 
-          size="sm" 
-          variant="outline"
-          onClick={handleToggleFlag}
-          className={isFlagged ? "border-amber-500 text-amber-500" : ""}
-        >
-          <Flag className="h-4 w-4 mr-1" /> 
-          {isFlagged ? "Remove Flag" : "Flag for Revision"}
-        </Button>
-
-        {validationCompleted && quizScore !== null && (
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="border-green-500 text-green-500"
-          >
-            <CheckCircle className="h-4 w-4 mr-1" /> 
-            Validated: {quizScore}%
-          </Button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-4">
-              <TabsTrigger value="content" className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" /> Content
-              </TabsTrigger>
-              <TabsTrigger value="formulas" className="flex items-center gap-1">
-                <FlaskConical className="h-4 w-4" /> Formulas
-              </TabsTrigger>
-              <TabsTrigger value="recall" className="flex items-center gap-1">
-                <Brain className="h-4 w-4" /> Practice
-              </TabsTrigger>
-              <TabsTrigger value="linked" className="flex items-center gap-1">
-                <RefreshCw className="h-4 w-4" /> Related
-              </TabsTrigger>
-              <TabsTrigger value="tutor" className="flex items-center gap-1">
-                <MessageCircle className="h-4 w-4" /> Ask Tutor
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="content">
-              <ConceptContent 
-                content={content}
-                conceptId={conceptId}
-                userNotes={userNotes}
-                setUserNotes={setUserNotes}
-                handleSaveNotes={handleSaveNotes}
-                isReadingAloud={isReadingAloud} 
-                setIsReadingAloud={setIsReadingAloud}
-              />
-            </TabsContent>
-
-            <TabsContent value="formulas">
-              <FormulaTabContent 
-                conceptId={conceptId} 
-                conceptTitle={title}
-                handleOpenFormulaLab={handleOpenFormulaLab}
-              />
-            </TabsContent>
-
-            <TabsContent value="recall">
-              <QuickRecallSection 
-                conceptId={conceptId} 
-                title={title} 
-                content={content}
-                onQuizComplete={handleQuizComplete}
-              />
-            </TabsContent>
-
-            <TabsContent value="linked">
-              <LinkedConceptsSection 
-                conceptId={conceptId}
-                subject={subject}
-                topic={topic}
-              />
-            </TabsContent>
-
-            <TabsContent value="tutor">
-              <AskTutorSection 
-                conceptId={conceptId}
-                title={title}
-                subject={subject}
-                topic={topic}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        <div className="space-y-6">
-          {/* Mastery Progress Bar */}
-          <div className="p-4 border rounded-lg bg-white shadow-sm dark:bg-gray-800/50">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium flex items-center">
-                <Brain className="h-4 w-4 mr-2 text-blue-600" /> Concept Mastery Progress
-              </h3>
-              <span className="text-sm font-medium">{masteryLevel}%</span>
+    <div className="space-y-6">
+      {/* Concept header with glass morphism effect */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 backdrop-blur-sm rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 shadow-lg p-6"
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400' :
+                difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400' :
+                'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400'
+              }`}>
+                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{subject} • {topic}</span>
             </div>
-            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full ${
-                  masteryLevel > 80 ? 'bg-green-500' : 
-                  masteryLevel > 50 ? 'bg-blue-500' : 
-                  masteryLevel > 30 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${masteryLevel}%` }}
-              />
-            </div>
-            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
-              {masteryLevel >= 30 && masteryLevel < 50 && "You're making progress. Keep practicing to strengthen your understanding."}
-              {masteryLevel >= 50 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
-              {masteryLevel >= 80 && "Excellent mastery! You can now focus on related concepts."}
-            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
           </div>
           
+          <div className="flex items-center gap-2">
+            <Button 
+              variant={isFlagged ? "outline" : "ghost"} 
+              size="sm"
+              onClick={handleToggleFlag}
+              className={`flex items-center gap-1 ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
+            >
+              <Flag className="h-4 w-4" />
+              {isFlagged ? 'Flagged' : 'Flag for Revision'}
+            </Button>
+            
+            <Button 
+              variant={isBookmarked ? "default" : "outline"} 
+              size="sm"
+              className={`flex items-center gap-1 ${isBookmarked ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+              onClick={handleBookmark}
+            >
+              <Star className="h-4 w-4" />
+              {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleReadAloud}
+              className={isReadingAloud ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" : ""}
+            >
+              {isReadingAloud ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
+              <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+              Concept Mastery
+            </h3>
+            <span className="text-sm font-medium">{masteryLevel}%</span>
+          </div>
+          <Progress 
+            value={masteryLevel} 
+            className="h-2 bg-gray-200 dark:bg-gray-700"
+          />
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+            {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
+            {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+            {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Main content and sidebar layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main content area */}
+        <motion.div 
+          className="md:col-span-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-5 p-0 h-auto">
+                <TabsTrigger 
+                  value="content" 
+                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                >
+                  <BookOpen className="h-4 w-4" /> {!isMobile && "Content"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="formulas" 
+                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                >
+                  <FlaskConical className="h-4 w-4" /> {!isMobile && "Formulas"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="recall" 
+                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                >
+                  <Brain className="h-4 w-4" /> {!isMobile && "Practice"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="linked" 
+                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                >
+                  <RefreshCw className="h-4 w-4" /> {!isMobile && "Related"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tutor" 
+                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                >
+                  <MessageCircle className="h-4 w-4" /> {!isMobile && "Ask Tutor"}
+                </TabsTrigger>
+              </TabsList>
+              
+              <div className="p-6">
+                <TabsContent value="content" className="mt-0">
+                  <ConceptContent 
+                    content={content}
+                    conceptId={conceptId}
+                    userNotes={userNotes}
+                    setUserNotes={setUserNotes}
+                    handleSaveNotes={handleSaveNotes}
+                    isReadingAloud={isReadingAloud}
+                    setIsReadingAloud={setIsReadingAloud}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="formulas" className="mt-0">
+                  <FormulaTabContent 
+                    conceptId={conceptId} 
+                    conceptTitle={title}
+                    handleOpenFormulaLab={handleOpenFormulaLab}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="recall" className="mt-0">
+                  <QuickRecallSection 
+                    conceptId={conceptId} 
+                    title={title} 
+                    content={content}
+                    onQuizComplete={handleQuizComplete}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="linked" className="mt-0">
+                  <LinkedConceptsSection 
+                    conceptId={conceptId}
+                    subject={subject}
+                    topic={topic}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="tutor" className="mt-0">
+                  <AskTutorSection 
+                    conceptId={conceptId}
+                    title={title}
+                    subject={subject}
+                    topic={topic}
+                  />
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
+        </motion.div>
+        
+        {/* Right sidebar */}
+        <motion.div 
+          className="space-y-4"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* Quick actions card */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
+            <div className="flex flex-col gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="justify-start"
+                onClick={toggleReadAloud}
+              >
+                {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+              </Button>
+              
+              {validationCompleted && quizScore !== null && (
+                <div className="flex items-center justify-between px-2 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500 mr-2" />
+                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                      Validation Score
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
+                    {quizScore}%
+                  </Badge>
+                </div>
+              )}
+            </div>
+          </div>
+        
           {/* Revision Section */}
           <RevisionSection 
             conceptId={conceptId}
             isFlagged={isFlagged}
             onToggleFlag={handleToggleFlag}
           />
-        </div>
+        </motion.div>
       </div>
     </div>
   );
