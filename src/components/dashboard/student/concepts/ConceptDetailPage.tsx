@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,6 +20,7 @@ import ConceptExercises from './concept-detail/ConceptExercises';
 import ConceptFlashcards from './concept-detail/ConceptFlashcards';
 import ConceptResources from './concept-detail/ConceptResources';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
+import RevisionSection from './concept-detail/RevisionSection';
 
 // Sample concept data (would normally come from an API/database)
 const demoConceptData = {
@@ -62,6 +64,7 @@ const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const [activeTab, setActiveTab] = useState('content');
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isFlagged, setIsFlagged] = useState(false);
   const { toast } = useToast();
   const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
@@ -83,6 +86,16 @@ const ConceptDetailPage: React.FC = () => {
     toast({
       title: "Notes saved",
       description: "Your notes have been saved for this concept.",
+    });
+  };
+
+  const handleToggleFlag = () => {
+    setIsFlagged(!isFlagged);
+    toast({
+      title: isFlagged ? "Removed from revision" : "Flagged for revision",
+      description: isFlagged 
+        ? "This concept has been removed from your revision list" 
+        : "This concept has been added to your revision list",
     });
   };
 
@@ -184,6 +197,13 @@ const ConceptDetailPage: React.FC = () => {
             masteryLevel={concept.masteryLevel}
             relatedConcepts={concept.relatedConcepts}
             examReady={concept.examReady}
+          />
+          
+          {/* Add RevisionSection component */}
+          <RevisionSection 
+            conceptId={concept.id}
+            isFlagged={isFlagged}
+            onToggleFlag={handleToggleFlag}
           />
         </motion.div>
       </div>
