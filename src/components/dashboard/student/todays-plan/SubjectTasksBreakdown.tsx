@@ -1,13 +1,14 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle, Circle, Book, BookOpen, FileText } from 'lucide-react';
 
 export function SubjectTasksBreakdown() {
+  const navigate = useNavigate();
+  
   // Mock data for subjects
   const subjects = [
     {
@@ -116,6 +117,11 @@ export function SubjectTasksBreakdown() {
     console.log(`Toggle completion: ${subjectName} - ${taskType} - ${taskId}`);
     // In a real app, this would update state or call an API
   };
+  
+  // Navigate to concept detail page
+  const handleNavigateToConceptDetail = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -179,9 +185,13 @@ export function SubjectTasksBreakdown() {
                             </div>
                           </div>
                           
-                          <Link to={`/dashboard/student/concepts/${subject.name.toLowerCase()}/${concept.id}`}>
-                            <Button variant="ghost" size="sm">Study</Button>
-                          </Link>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleNavigateToConceptDetail(concept.id)}
+                          >
+                            Study
+                          </Button>
                         </div>
                       ))}
                     </div>

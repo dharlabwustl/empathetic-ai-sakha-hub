@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Clock, Calendar, Book, ArrowRight, CheckCircle } from "lucide-react";
-import { TodaysPlanData, ConceptCard } from "@/types/student/dashboard";
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Book, BookOpen, Brain, FileText, CheckCircle } from 'lucide-react';
+import { TodaysPlanData } from '@/types/student/todaysPlan';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { SubjectTasksBreakdown } from './SubjectTasksBreakdown';
 
 interface NewTodaysPlanViewProps {
   planData: TodaysPlanData | null;
@@ -13,165 +14,140 @@ interface NewTodaysPlanViewProps {
   isMobile?: boolean;
 }
 
-const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
-  planData,
+const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ 
+  planData, 
   onConceptClick,
-  isMobile = false
+  isMobile 
 }) => {
-  if (!planData) {
+  if (!planData) return null;
+  
+  const renderConceptCard = (concept: any) => {
     return (
-      <Card className="border border-gray-200 dark:border-gray-800">
-        <CardContent className="p-6 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No plan data available</p>
+      <Card 
+        key={concept.id} 
+        className="border-l-4 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+        style={{ 
+          borderLeftColor: 
+            concept.difficulty === 'Easy' ? '#22c55e' : 
+            concept.difficulty === 'Medium' ? '#f59e0b' : 
+            '#ef4444' 
+        }}
+        onClick={() => onConceptClick(concept.id)}
+      >
+        <CardContent className={`p-4 ${isMobile ? 'p-3' : ''}`}>
+          <div className="flex items-start justify-between mb-2">
+            <Badge variant={concept.status === 'completed' ? "outline" : "default"} className="mb-2">
+              {concept.status === 'completed' ? "Completed" : "Pending"}
+            </Badge>
+            <Badge variant="outline" className={
+              concept.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
+              concept.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+              'bg-red-50 text-red-700 border-red-200'
+            }>
+              {concept.difficulty}
+            </Badge>
+          </div>
+          
+          <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-base'} mb-1`}>
+            {concept.title}
+          </h3>
+          
+          <div className="mt-2 space-y-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <Book className="h-4 w-4" />
+              <span>{concept.subject}</span>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              <span>{concept.topic}</span>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className="text-xs">
+                {concept.duration} min
+              </Badge>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
-  }
-
+  };
+  
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Overall Progress Section */}
-      <Card className="border border-gray-200 dark:border-gray-800 overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Today's Progress</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {planData.completedTasks} of {planData.totalTasks} tasks completed
-              </p>
+    <div className="space-y-8">
+      {/* Overview Section */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-500">Tasks Completed</h3>
+              <div className="flex items-end">
+                <span className="text-3xl font-bold">{planData.completedTasks}</span>
+                <span className="text-gray-500 ml-1">/ {planData.totalTasks}</span>
+              </div>
+              <Progress 
+                value={(planData.completedTasks / planData.totalTasks) * 100} 
+                className="h-2"
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {planData.estimatedTimeRemaining} remaining
-              </span>
+            
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-500">Time Allocation</h3>
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
+                  <span className="text-xs">Concepts: {planData.timeAllocation.concepts}m</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-purple-500 mr-1"></div>
+                  <span className="text-xs">Flashcards: {planData.timeAllocation.flashcards}m</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                  <span className="text-xs">Practice: {planData.timeAllocation.practiceExams}m</span>
+                </div>
+              </div>
+              <div className="text-sm mt-1">
+                Total: <span className="font-medium">{planData.timeAllocation.total} min</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-col justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Current Streak</h3>
+                <div className="flex items-center mt-1">
+                  <span className="text-3xl font-bold">{planData.streak}</span>
+                  <span className="text-gray-500 ml-1">days</span>
+                </div>
+              </div>
+              <Button className="mt-4 md:mt-0" variant="outline">
+                Download Plan as PDF
+              </Button>
             </div>
           </div>
-          
-          <div className="mt-4">
-            <Progress 
-              value={(planData.completedTasks / planData.totalTasks) * 100}
-              className="h-2 bg-gray-200 dark:bg-gray-700"
-              indicatorClassName="bg-gradient-to-r from-indigo-600 to-purple-600"
-            />
-          </div>
-        </div>
+        </CardContent>
       </Card>
       
-      {/* Learning Sessions */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 px-1">Learning Sessions</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {planData.learningSessions?.map((session, index) => (
-            <Card key={index} className="overflow-hidden border border-gray-200 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300">
-              <CardContent className="p-0">
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{session.title}</h4>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <Badge variant="outline" className="bg-white/50 dark:bg-gray-800/50">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {session.duration}
-                        </Badge>
-                        <Badge variant="outline" className="bg-white/50 dark:bg-gray-800/50">
-                          <Book className="h-3 w-3 mr-1" />
-                          {session.subject}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Badge className={session.completed ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"}>
-                      {session.completed ? "Completed" : "Pending"}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="p-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{session.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {session.scheduledTime}
-                    </span>
-                    <Button variant="ghost" size="sm" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200">
-                      Start Session
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+      {/* Today's Concepts Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Today's Concepts</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {planData.concepts && planData.concepts.length > 0 ? (
+            planData.concepts.map(renderConceptCard)
+          ) : (
+            <Card className="col-span-full">
+              <CardContent className="p-6 text-center">
+                <p className="text-gray-500">No concepts scheduled for today</p>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </div>
       
-      {/* Concept Cards Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 px-1">Concept Cards</h3>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {planData.conceptCards?.map((concept, index) => (
-            <ConceptCardItem 
-              key={index} 
-              concept={concept} 
-              onClick={() => onConceptClick(concept.id)} 
-              isMobile={isMobile}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Subject Tasks Breakdown */}
+      <SubjectTasksBreakdown />
     </div>
-  );
-};
-
-interface ConceptCardItemProps {
-  concept: ConceptCard;
-  onClick: () => void;
-  isMobile?: boolean;
-}
-
-const ConceptCardItem: React.FC<ConceptCardItemProps> = ({ concept, onClick, isMobile }) => {
-  return (
-    <Card 
-      className="overflow-hidden border border-gray-200 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-300"
-      onClick={onClick}
-    >
-      <CardContent className="p-0">
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 p-4 flex items-center justify-between">
-          <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-            {concept.title}
-          </h4>
-          <Badge variant="outline" className="bg-white/50 dark:bg-gray-800/50">
-            {concept.difficulty}
-          </Badge>
-        </div>
-        
-        <div className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-            {concept.description}
-          </p>
-          
-          <div className="flex flex-wrap gap-1 mb-3">
-            {concept.tags.map((tag, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {concept.timeEstimate} • {concept.subject}
-            </span>
-            <Button variant="ghost" size="sm" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 p-0">
-              <span className="sr-only">View concept</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 };
 

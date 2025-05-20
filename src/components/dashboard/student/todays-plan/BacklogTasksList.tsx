@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { Task, TaskType } from '@/types/student/todaysPlan';
 import { Play, BookOpen, Brain, FileText } from 'lucide-react';
 
@@ -11,6 +12,8 @@ interface BacklogTasksListProps {
 }
 
 const BacklogTasksList: React.FC<BacklogTasksListProps> = ({ tasks, onStartTask }) => {
+  const navigate = useNavigate();
+  
   // Get icon based on task type
   const getTaskIcon = (task: Task) => {
     switch (task.type) {
@@ -53,6 +56,15 @@ const BacklogTasksList: React.FC<BacklogTasksListProps> = ({ tasks, onStartTask 
     }
   };
   
+  // Handle task click navigation
+  const handleTaskStart = (task: Task) => {
+    if (task.type === TaskType.Concept) {
+      navigate(`/dashboard/student/concepts/${task.id}`);
+    } else {
+      onStartTask(task.id);
+    }
+  };
+  
   const groupedTasks = groupTasksBySubject();
 
   return (
@@ -81,7 +93,7 @@ const BacklogTasksList: React.FC<BacklogTasksListProps> = ({ tasks, onStartTask 
                     size="sm"
                     variant="ghost"
                     className="h-8"
-                    onClick={() => onStartTask(task.id)}
+                    onClick={() => handleTaskStart(task)}
                   >
                     <Play className="h-3 w-3 mr-1" />
                     Start
