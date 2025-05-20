@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -77,9 +76,10 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
   };
 
   const getSubscriptionBadge = () => {
-    const subscription = typeof profile.subscription === 'string' 
-      ? profile.subscription 
-      : profile.subscription?.planType || 'free';
+    const subscriptionData = profile.subscription || { planType: 'free' };
+    const subscription = typeof subscriptionData === 'string' 
+      ? subscriptionData 
+      : subscriptionData.planType || 'free';
 
     switch (subscription) {
       case 'premium':

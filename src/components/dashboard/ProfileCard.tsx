@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserProfileBase, SubscriptionType } from "@/types/user/base";
+import { UserProfileBase } from "@/types/user/base";
+import { SubscriptionType } from "@/types/user/subscription";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;

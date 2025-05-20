@@ -17,7 +17,22 @@ export enum MoodType {
   BORED = "BORED",
   EXCITED = "EXCITED",
   CALM = "CALM",
-  SAD = "SAD"
+  SAD = "SAD",
+  ANXIOUS = "ANXIOUS",
+  OVERWHELMED = "OVERWHELMED",
+  NEUTRAL = "NEUTRAL",
+  CURIOUS = "CURIOUS"
+}
+
+export enum SubscriptionType {
+  FREE = "FREE",
+  TRIAL = "TRIAL",
+  BASIC = "BASIC",
+  PREMIUM = "PREMIUM",
+  PRO = "PRO",
+  PRO_MONTHLY = "PRO_MONTHLY",
+  PRO_ANNUAL = "PRO_ANNUAL",
+  ENTERPRISE = "ENTERPRISE"
 }
 
 export interface UserProfileBase {
@@ -36,7 +51,12 @@ export interface UserProfileBase {
   grade?: string;
   paymentMethods?: any[];
   billingHistory?: any[];
+  subscription?: any;
+  loginCount?: number;
+  studyStreak?: number;
 }
+
+export type UserProfileType = UserProfileBase;
 
 export type RegisterUserInput = {
   name: string;

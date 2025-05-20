@@ -1,34 +1,35 @@
-
 import React from 'react';
 import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
-import { getMoodEmoji } from './mood-tracking/moodUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MoodSelectorProps {
-  currentMood?: MoodType;
   onMoodSelect: (mood: MoodType) => void;
-  className?: string;
+  currentMood?: MoodType | null;
+  compact?: boolean;
 }
 
-export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
-  const moodOptions = [
-    { type: MoodType.HAPPY, label: 'Happy' },
-    { type: MoodType.FOCUSED, label: 'Focused' },
-    { type: MoodType.MOTIVATED, label: 'Motivated' },
-    { type: MoodType.TIRED, label: 'Tired' },
-    { type: MoodType.STRESSED, label: 'Stressed' },
-    { type: MoodType.CONFUSED, label: 'Confused' },
-    { type: MoodType.ANXIOUS, label: 'Anxious' },
-    { type: MoodType.NEUTRAL, label: 'Neutral' },
-    { type: MoodType.OKAY, label: 'Okay' },
-    { type: MoodType.OVERWHELMED, label: 'Overwhelmed' },
-    { type: MoodType.CURIOUS, label: 'Curious' },
-    { type: MoodType.SAD, label: 'Sad' },
+const MoodSelector: React.FC<MoodSelectorProps> = ({ onMoodSelect, currentMood, compact = false }) => {
+  const isMobile = useIsMobile();
+  
+  const moods = [
+    { type: MoodType.HAPPY, emoji: '😊', label: 'Happy' },
+    { type: MoodType.MOTIVATED, emoji: '💪', label: 'Motivated' },
+    { type: MoodType.FOCUSED, emoji: '🧠', label: 'Focused' },
+    { type: MoodType.CALM, emoji: '😌', label: 'Calm' },
+    { type: MoodType.TIRED, emoji: '😴', label: 'Tired' },
+    { type: MoodType.ANXIOUS, emoji: '😰', label: 'Anxious' },
+    { type: MoodType.OKAY, emoji: '😐', label: 'Okay' },
+    { type: MoodType.STRESSED, emoji: '😓', label: 'Stressed' },
+    { type: MoodType.OVERWHELMED, emoji: '🥴', label: 'Overwhelmed' },
+    { type: MoodType.CURIOUS, emoji: '🤔', label: 'Curious' },
+    { type: MoodType.CONFUSED, emoji: '😕', label: 'Confused' },
+    { type: MoodType.SAD, emoji: '😢', label: 'Sad' }
   ];
-
+  
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {moodOptions.map((mood) => (
+    <div className={`flex flex-wrap gap-2 ${compact ? 'flex-col' : ''}`}>
+      {moods.map((mood) => (
         <Button
           key={mood.type}
           variant={currentMood === mood.type ? "default" : "outline"}
@@ -36,7 +37,7 @@ export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: Mood
           className="flex flex-col items-center p-2 h-auto"
           size="sm"
         >
-          <span className="text-xl mb-1">{getMoodEmoji(mood.type)}</span>
+          <span className="text-xl mb-1">{mood.emoji}</span>
           <span className="text-xs">{mood.label}</span>
         </Button>
       ))}

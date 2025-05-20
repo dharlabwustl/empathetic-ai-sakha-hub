@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ import {
   Clock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SystemLog } from "@/types/admin";
+import { SystemLog } from "@/types/admin/systemLog";
 
 interface IssueResolutionTabProps {
   recentLogs: SystemLog[];

@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
-import { SubscriptionType } from '@/types/user/base';
+import { SubscriptionType } from '@/types/user/subscription';
 
 interface FeatureCardProps {
   title: string;
