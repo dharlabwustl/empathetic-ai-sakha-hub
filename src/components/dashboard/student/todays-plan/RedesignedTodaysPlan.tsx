@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -51,9 +52,11 @@ const RedesignedTodaysPlan: React.FC = () => {
 
   console.log("RedesignedTodaysPlan - Loaded plan data:", planData?.conceptCards?.length || 0, "concept cards");
 
-  // Handle concept click to navigate to concept study page
+  // Handle concept click to navigate to concept detail page
   const handleConceptClick = (conceptId: string) => {
     console.log("RedesignedTodaysPlan - Navigating to concept detail page:", conceptId);
+    
+    // Use this specific navigation path
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 

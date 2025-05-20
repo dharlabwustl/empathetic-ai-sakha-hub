@@ -12,6 +12,8 @@ import NotificationsPage from '@/components/dashboard/student/notifications/Noti
 import NEETLiveSessionsPage from '@/components/dashboard/student/neet-live/NEETLiveSessionsPage';
 
 const StudentAppRoutes = () => {
+  console.log("Rendering StudentAppRoutes");
+  
   return (
     <Routes>
       <Route path="/" element={<StudentDashboard />} />

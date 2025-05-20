@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +26,8 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   // Handler for concept click
   const handleConceptClick = (conceptId: string) => {
     console.log("NewTodaysPlanView - Handle concept click with ID:", conceptId);
+    
+    // Use the callback from parent if provided, otherwise navigate directly
     if (onConceptClick) {
       onConceptClick(conceptId);
     } else {
