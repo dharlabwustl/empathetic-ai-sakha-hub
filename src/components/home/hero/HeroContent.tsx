@@ -36,7 +36,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </div>
       
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-        We understand your minder, not just the exam
+        We understand your mindset, not just the exam
       </h1>
       
       <motion.div 
