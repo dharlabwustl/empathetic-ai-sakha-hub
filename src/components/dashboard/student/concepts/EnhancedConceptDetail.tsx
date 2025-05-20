@@ -35,6 +35,7 @@ export interface ConceptDetailProps {
   content: string;
   masteryLevel?: number;
   onMasteryUpdate?: (newLevel: number) => void;
+  handleOpenFormulaLab?: () => void;
 }
 
 const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({ 
@@ -45,7 +46,8 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   difficulty,
   content,
   masteryLevel = 0,
-  onMasteryUpdate
+  onMasteryUpdate,
+  handleOpenFormulaLab
 }) => {
   const [activeTab, setActiveTab] = useState('content');
   const [isFormulaLabOpen, setIsFormulaLabOpen] = useState(false);
@@ -67,13 +69,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     });
   };
 
-  const handleOpenFormulaLab = () => {
-    setIsFormulaLabOpen(true);
-    toast({
-      title: "Formula Lab",
-      description: "Opening formula lab...",
-      variant: "default",
-    });
+  const openFormulaLab = () => {
+    if (handleOpenFormulaLab) {
+      handleOpenFormulaLab();
+    } else {
+      setIsFormulaLabOpen(true);
+      toast({
+        title: "Formula Lab",
+        description: "Opening formula lab...",
+        variant: "default",
+      });
+    }
     // In a real app, you would navigate to the formula lab page
   };
 
@@ -220,7 +226,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   <FormulaTabContent 
                     conceptId={conceptId} 
                     conceptTitle={title}
-                    handleOpenFormulaLab={handleOpenFormulaLab}
+                    handleOpenFormulaLab={openFormulaLab}
                   />
                 </TabsContent>
                 

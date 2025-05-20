@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SharedPageLayout } from '../SharedPageLayout';
 import EnhancedConceptDetail from './EnhancedConceptDetail';
 import ConceptHeader from './concept-detail/ConceptHeader';
+import { useToast } from '@/hooks/use-toast';
 
 // Sample concept data (would normally come from an API/database)
 const demoConceptData = {
@@ -33,12 +34,27 @@ const demoConceptData = {
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const { toast } = useToast();
   
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
   
   const handleBookmarkToggle = () => {
     setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked 
+        ? "This concept has been removed from your saved items" 
+        : "This concept has been added to your saved items",
+    });
+  };
+
+  const handleOpenFormulaLab = () => {
+    toast({
+      title: "Formula Lab",
+      description: "Opening formula lab...",
+    });
+    // In a real app, you would navigate to the formula lab page
   };
 
   return (
@@ -66,6 +82,7 @@ const ConceptDetailPage: React.FC = () => {
           difficulty={concept.difficulty}
           content={concept.content}
           masteryLevel={concept.masteryLevel}
+          handleOpenFormulaLab={handleOpenFormulaLab}
         />
       </div>
     </SharedPageLayout>
