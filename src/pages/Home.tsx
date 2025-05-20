@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
-import EnhancedHeroSection from '@/components/home/EnhancedHeroSection';
+import HeroSection from '@/components/home/HeroSection';
 import FeatureSection from '@/components/home/FeatureSection';
 import TestimonialSection from '@/components/home/TestimonialSection'; 
 import StatisticsSection from '@/components/home/StatisticsSection';
@@ -9,6 +9,7 @@ import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import SupportSection from '@/components/home/SupportSection';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import { useState } from 'react';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,7 +37,7 @@ const Home = () => {
       <HomePageVoiceAssistant language="en-IN" />
       
       {/* Page content */}
-      <EnhancedHeroSection />
+      <HeroSection />
       
       {/* UN Sustainability Goals Banner - replacing donation message */}
       <div className="container mx-auto px-4 my-8">
