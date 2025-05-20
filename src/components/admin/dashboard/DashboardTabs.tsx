@@ -31,6 +31,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ stats, recentStudents = [
       event: 'User login successful', 
       timestamp: new Date().toISOString(),
       level: 'info' as 'info',
+      source: 'auth-service',
       message: 'User logged in successfully',
       details: { userId: 'user123', ip: '192.168.1.1' } 
     },
@@ -39,6 +40,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ stats, recentStudents = [
       event: 'Database connection failed', 
       timestamp: new Date().toISOString(),
       level: 'error' as 'error',
+      source: 'database-service',
       message: 'Database connection failed',
       details: { database: 'users', error: 'Connection timeout' } 
     },
@@ -47,6 +49,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ stats, recentStudents = [
       event: 'API rate limit exceeded', 
       timestamp: new Date().toISOString(),
       level: 'warning' as 'warning',
+      source: 'api-gateway',
       message: 'API rate limit exceeded',
       details: { endpoint: '/api/users', requestCount: 120, limit: 100 } 
     },

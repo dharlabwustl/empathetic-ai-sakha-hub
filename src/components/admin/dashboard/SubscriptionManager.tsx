@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { SubscriptionTab } from './tabs/SubscriptionTab';
-import { SubscriptionType } from '@/types/user/subscription';
+import SubscriptionTab from './tabs/SubscriptionTab';
+import { SubscriptionType } from '@/types/user/base';
 
 const SubscriptionManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');

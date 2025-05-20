@@ -1,12 +1,18 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { StudyProgressHeader } from "@/components/dashboard/student/study-progress/StudyProgressHeader";
+import StudyProgressHeader from "@/components/dashboard/student/study-progress/StudyProgressHeader";
 import { ProgressStatCards } from "@/components/dashboard/student/study-progress/ProgressStatCards";
 import { WeeklyProgressChart } from "@/components/dashboard/student/study-progress/WeeklyProgressChart";
 import { StudyStreakCard } from "@/components/dashboard/student/study-progress/StudyStreakCard";
-import { PerformanceTabs } from "@/components/dashboard/student/study-progress/PerformanceTabs";
+import PerformanceTabs from "@/components/dashboard/student/study-progress/PerformanceTabs";
 import { UserRole } from "@/types/user/base";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { StudyTimeChart } from "@/components/dashboard/student/study-progress/StudyTimeChart";
+import { QuizzesList } from "@/components/dashboard/student/study-progress/QuizzesList";
+import { TopicsList } from "@/components/dashboard/student/study-progress/TopicsList";
 import { SubjectProgress, StudyStreak } from "@/types/user/study";
 
 interface StudyProgressProps {

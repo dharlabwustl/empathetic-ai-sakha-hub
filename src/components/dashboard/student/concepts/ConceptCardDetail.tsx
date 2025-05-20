@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,7 @@ const mockConcept = {
   chapter: "Mechanics",
   difficulty: "Intermediate",
   estimatedTime: "15 min",
+  timeToMaster: "2-3 hours",
   lastStudied: "3 days ago",
   mastery: 65,
   content: `
@@ -111,6 +113,30 @@ const mockConcept = {
     "The Second Law quantifies the relationship between force, mass, and acceleration",
     "The Third Law describes the symmetry of forces in interactions between objects",
     "These laws provide the foundation for classical mechanics"
+  ],
+  // Added masteryChecklist property
+  masteryChecklist: [
+    { id: "mc1", task: "Read basic explanation", completed: true },
+    { id: "mc2", task: "Watch concept video", completed: true },
+    { id: "mc3", task: "Practice basic problems", completed: true },
+    { id: "mc4", task: "Complete flashcards set", completed: false },
+    { id: "mc5", task: "Take practice quiz", completed: false },
+    { id: "mc6", task: "Explain concept to others", completed: false }
+  ],
+  // Added missing properties
+  subtopics: ["First Law", "Second Law", "Third Law", "Applications of Newton's Laws"],
+  relatedFormulas: ["F = ma", "p = mv", "F * t = m * Δv"],
+  examples: [
+    {
+      title: "Car Crash",
+      description: "During a car crash, passengers continue moving forward due to inertia (Newton's First Law)",
+      imageUrl: "https://placehold.co/600x400?text=Car+Crash+Example"
+    },
+    {
+      title: "Rocket Propulsion",
+      description: "Rockets propel forward by expelling gas backward (Newton's Third Law)",
+      imageUrl: "https://placehold.co/600x400?text=Rocket+Example"
+    }
   ]
 };
 
