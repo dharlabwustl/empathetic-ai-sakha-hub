@@ -43,7 +43,6 @@ const ConceptsSection = () => {
   
   const handleCardClick = (cardId: string) => {
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
-    // Use the route format that matches the route defined in AppRoutes.tsx
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   

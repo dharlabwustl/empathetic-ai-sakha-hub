@@ -52,11 +52,9 @@ const RedesignedTodaysPlan: React.FC = () => {
 
   console.log("RedesignedTodaysPlan - Loaded plan data:", planData?.conceptCards?.length || 0, "concept cards");
 
-  // Handle concept click to navigate to concept detail page
+  // Handle concept click to navigate to concept study page
   const handleConceptClick = (conceptId: string) => {
-    console.log("RedesignedTodaysPlan - Navigating to concept detail page:", conceptId);
-    
-    // Use this specific navigation path consistently
+    console.log("Navigating to concept detail page:", conceptId);
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 

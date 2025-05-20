@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,11 +7,10 @@ import { TodaysPlanData } from '@/types/student/todaysPlan';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { SubjectTasksBreakdown } from './SubjectTasksBreakdown';
-import { useNavigate } from 'react-router-dom';
 
 interface NewTodaysPlanViewProps {
   planData: TodaysPlanData | null;
-  onConceptClick?: (conceptId: string) => void;
+  onConceptClick: (conceptId: string) => void;
   isMobile?: boolean;
 }
 
@@ -19,21 +19,7 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   onConceptClick,
   isMobile 
 }) => {
-  const navigate = useNavigate();
-  
   if (!planData) return null;
-  
-  // Handler for concept click
-  const handleConceptClick = (conceptId: string) => {
-    console.log("NewTodaysPlanView - Handle concept click with ID:", conceptId);
-    
-    // Use the callback from parent if provided, otherwise navigate directly
-    if (onConceptClick) {
-      onConceptClick(conceptId);
-    } else {
-      navigate(`/dashboard/student/concepts/${conceptId}`);
-    }
-  };
   
   const renderConceptCard = (concept: any) => {
     return (
@@ -46,7 +32,7 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
             concept.difficulty === 'Medium' ? '#f59e0b' : 
             '#ef4444' 
         }}
-        onClick={() => handleConceptClick(concept.id)}
+        onClick={() => onConceptClick(concept.id)}
       >
         <CardContent className={`p-4 ${isMobile ? 'p-3' : ''}`}>
           <div className="flex items-start justify-between mb-2">

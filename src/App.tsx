@@ -8,8 +8,7 @@ import SidebarLayout from './components/dashboard/SidebarLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Import pages and components
-import Home from '@/pages/Home'; // Import our new immersive home page
-import Index from '@/pages/Index'; // Keep the old index page for now
+import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
@@ -97,10 +96,8 @@ function App() {
         <AuthProvider>
           <AdminAuthProvider>
             <Routes>
-              {/* Public routes - Use our new immersive Home page */}
-              <Route path="/" element={<Home />} />
-              {/* Keep the old index page accessible via /index path */}
-              <Route path="/index" element={<Index />} />
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />

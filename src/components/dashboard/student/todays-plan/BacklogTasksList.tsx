@@ -58,10 +58,7 @@ const BacklogTasksList: React.FC<BacklogTasksListProps> = ({ tasks, onStartTask 
   
   // Handle task click navigation
   const handleTaskStart = (task: Task) => {
-    console.log("BacklogTasksList - Starting task:", task.id, "of type:", task.type);
-    
     if (task.type === TaskType.Concept) {
-      // Ensure the navigation path is consistent with all other concept detail links
       navigate(`/dashboard/student/concepts/${task.id}`);
     } else {
       onStartTask(task.id);
