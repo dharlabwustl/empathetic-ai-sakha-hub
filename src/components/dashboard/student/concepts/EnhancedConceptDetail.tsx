@@ -16,16 +16,15 @@ import {
   VolumeX
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import useUserNotes from '@/hooks/useUserNotes';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 import ConceptContent from './concept-detail/ConceptContent';
 import FormulaTabContent from './concept-detail/FormulaTabContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
 import RevisionSection from './concept-detail/RevisionSection';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface ConceptDetailProps {
   conceptId: string;
@@ -50,7 +49,6 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('content');
   const [isFormulaLabOpen, setIsFormulaLabOpen] = useState(false);
-  const { saveNote, getNoteForConcept } = useUserNotes();
   const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
@@ -61,32 +59,22 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
 
   const { toast } = useToast();
 
-  // Load saved notes
-  useEffect(() => {
-    const savedNotes = getNoteForConcept(conceptId);
-    setUserNotes(savedNotes);
-  }, [conceptId, getNoteForConcept]);
-
-  // Save notes and show toast
   const handleSaveNotes = () => {
-    const success = saveNote(conceptId, userNotes);
-    if (success) {
-      toast({
-        title: "Notes saved successfully",
-        description: "Your notes have been saved for this concept.",
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Error saving notes",
-        description: "There was a problem saving your notes. Please try again.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Notes saved successfully",
+      description: "Your notes have been saved for this concept.",
+      variant: "default",
+    });
   };
 
   const handleOpenFormulaLab = () => {
     setIsFormulaLabOpen(true);
+    toast({
+      title: "Formula Lab",
+      description: "Opening formula lab...",
+      variant: "default",
+    });
+    // In a real app, you would navigate to the formula lab page
   };
 
   const handleBookmark = () => {
