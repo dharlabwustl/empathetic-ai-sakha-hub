@@ -26,10 +26,10 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   
   // Handler for concept click
   const handleConceptClick = (conceptId: string) => {
+    console.log("NewTodaysPlanView - Handle concept click with ID:", conceptId);
     if (onConceptClick) {
       onConceptClick(conceptId);
     } else {
-      // Use the consistent URL pattern for concept detail navigation
       navigate(`/dashboard/student/concepts/${conceptId}`);
     }
   };

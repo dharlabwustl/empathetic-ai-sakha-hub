@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,7 +39,7 @@ const ConceptsSection = () => {
   }
   
   const handleCardClick = (cardId: string) => {
-    // Navigate to the concept detail page with the updated path
+    console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   

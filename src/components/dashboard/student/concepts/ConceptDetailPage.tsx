@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,11 @@ const ConceptDetailPage: React.FC = () => {
   const { toast } = useToast();
   
   console.log("ConceptDetailPage - Rendering with conceptId:", conceptId);
+  
+  useEffect(() => {
+    console.log("ConceptDetailPage - useEffect with conceptId:", conceptId);
+    // In a real app, you would fetch data based on conceptId here
+  }, [conceptId]);
   
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
