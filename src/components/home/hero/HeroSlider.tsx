@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, User, Book } from 'lucide-react';
 
@@ -46,6 +47,23 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       animationDelay: 0.4
     }
   ];
+  
+  // Track animation progress
+  const [animationProgress, setAnimationProgress] = useState(0);
+  
+  useEffect(() => {
+    const duration = 5000; // 5 seconds same as rotation interval
+    const intervalTime = 100; // Update every 100ms for smooth progress
+    const steps = duration / intervalTime;
+    let currentStep = 0;
+    
+    const progressInterval = setInterval(() => {
+      currentStep = (currentStep + 1) % steps;
+      setAnimationProgress((currentStep / steps) * 100);
+    }, intervalTime);
+    
+    return () => clearInterval(progressInterval);
+  }, [activeSlide]);
 
   return (
     <div className="w-full lg:w-1/2 relative">
@@ -66,12 +84,32 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
           />
         ))}
 
-        {/* Slide navigation dots */}
-        <SlideNavigation 
-          activeSlide={activeSlide}
-          setActiveSlide={setActiveSlide}
-          slideCount={slideContentList.length}
-        />
+        {/* Slide navigation dots and progress indicator */}
+        <div className="absolute bottom-0 left-0 w-full p-4">
+          {/* Progress bar */}
+          <div className="w-full h-1 bg-gray-200 rounded-full mb-3">
+            <div 
+              className="h-1 bg-indigo-600 rounded-full transition-all duration-100 ease-linear"
+              style={{ width: `${animationProgress}%` }}
+            ></div>
+          </div>
+          
+          {/* Navigation dots */}
+          <div className="flex justify-center space-x-2">
+            {slideContentList.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === activeSlide 
+                    ? 'bg-indigo-600 scale-110' 
+                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-indigo-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
       </motion.div>
     </div>
   );
@@ -152,27 +190,6 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
         <p className="text-gray-700 dark:text-gray-300">{slide.description}</p>
       </motion.div>
     </motion.div>
-  );
-};
-
-interface SlideNavigationProps {
-  activeSlide: number;
-  setActiveSlide: (index: number) => void;
-  slideCount: number;
-}
-
-const SlideNavigation: React.FC<SlideNavigationProps> = ({ activeSlide, setActiveSlide, slideCount }) => {
-  return (
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2">
-      {Array.from({ length: slideCount }).map((_, index) => (
-        <button
-          key={index}
-          onClick={() => setActiveSlide(index)}
-          className={`w-3 h-3 rounded-full ${index === activeSlide ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-          aria-label={`Go to slide ${index + 1}`}
-        />
-      ))}
-    </div>
   );
 };
 

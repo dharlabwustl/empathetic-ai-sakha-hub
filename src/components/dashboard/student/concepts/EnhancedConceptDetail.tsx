@@ -6,10 +6,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Book, BookOpen, MessageCircle, Bookmark, Volume2, PenLine, FlaskConical, RefreshCw, Flag, Brain, CheckCircle, FileText } from 'lucide-react';
 import useUserNotes from '@/hooks/useUserNotes';
 import ConceptContent from './concept-detail/ConceptContent';
-import FormulaTabContent from './FormulaTabContent';
+import FormulaTabContent from './concept-detail/FormulaTabContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
+import RevisionSection from './concept-detail/RevisionSection';
 
 export interface ConceptDetailProps {
   conceptId: string;
@@ -128,95 +129,108 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
         )}
       </div>
 
-      <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="content" className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" /> Content
-          </TabsTrigger>
-          <TabsTrigger value="formulas" className="flex items-center gap-1">
-            <FlaskConical className="h-4 w-4" /> Formulas
-          </TabsTrigger>
-          <TabsTrigger value="recall" className="flex items-center gap-1">
-            <Brain className="h-4 w-4" /> Practice
-          </TabsTrigger>
-          <TabsTrigger value="linked" className="flex items-center gap-1">
-            <RefreshCw className="h-4 w-4" /> Related
-          </TabsTrigger>
-          <TabsTrigger value="tutor" className="flex items-center gap-1">
-            <MessageCircle className="h-4 w-4" /> Ask Tutor
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-5 mb-4">
+              <TabsTrigger value="content" className="flex items-center gap-1">
+                <BookOpen className="h-4 w-4" /> Content
+              </TabsTrigger>
+              <TabsTrigger value="formulas" className="flex items-center gap-1">
+                <FlaskConical className="h-4 w-4" /> Formulas
+              </TabsTrigger>
+              <TabsTrigger value="recall" className="flex items-center gap-1">
+                <Brain className="h-4 w-4" /> Practice
+              </TabsTrigger>
+              <TabsTrigger value="linked" className="flex items-center gap-1">
+                <RefreshCw className="h-4 w-4" /> Related
+              </TabsTrigger>
+              <TabsTrigger value="tutor" className="flex items-center gap-1">
+                <MessageCircle className="h-4 w-4" /> Ask Tutor
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="content">
-          <ConceptContent 
-            content={content}
-            conceptId={conceptId}
-            userNotes={userNotes}
-            setUserNotes={setUserNotes}
-            handleSaveNotes={handleSaveNotes}
-            isReadingAloud={isReadingAloud} 
-            setIsReadingAloud={setIsReadingAloud}
-          />
-        </TabsContent>
+            <TabsContent value="content">
+              <ConceptContent 
+                content={content}
+                conceptId={conceptId}
+                userNotes={userNotes}
+                setUserNotes={setUserNotes}
+                handleSaveNotes={handleSaveNotes}
+                isReadingAloud={isReadingAloud} 
+                setIsReadingAloud={setIsReadingAloud}
+              />
+            </TabsContent>
 
-        <TabsContent value="formulas">
-          <FormulaTabContent 
-            conceptId={conceptId} 
-            conceptTitle={title}
-            handleOpenFormulaLab={handleOpenFormulaLab}
-          />
-        </TabsContent>
+            <TabsContent value="formulas">
+              <FormulaTabContent 
+                conceptId={conceptId} 
+                conceptTitle={title}
+                handleOpenFormulaLab={handleOpenFormulaLab}
+              />
+            </TabsContent>
 
-        <TabsContent value="recall">
-          <QuickRecallSection 
-            conceptId={conceptId} 
-            title={title} 
-            content={content}
-            onQuizComplete={handleQuizComplete}
-          />
-        </TabsContent>
+            <TabsContent value="recall">
+              <QuickRecallSection 
+                conceptId={conceptId} 
+                title={title} 
+                content={content}
+                onQuizComplete={handleQuizComplete}
+              />
+            </TabsContent>
 
-        <TabsContent value="linked">
-          <LinkedConceptsSection 
-            conceptId={conceptId}
-            subject={subject}
-            topic={topic}
-          />
-        </TabsContent>
+            <TabsContent value="linked">
+              <LinkedConceptsSection 
+                conceptId={conceptId}
+                subject={subject}
+                topic={topic}
+              />
+            </TabsContent>
 
-        <TabsContent value="tutor">
-          <AskTutorSection 
-            conceptId={conceptId}
-            title={title}
-            subject={subject}
-            topic={topic}
-          />
-        </TabsContent>
-      </Tabs>
-
-      {/* Mastery Progress Bar */}
-      <div className="mt-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-medium flex items-center">
-            <Brain className="h-4 w-4 mr-2 text-blue-600" /> Concept Mastery Progress
-          </h3>
-          <span className="text-sm font-medium">{masteryLevel}%</span>
+            <TabsContent value="tutor">
+              <AskTutorSection 
+                conceptId={conceptId}
+                title={title}
+                subject={subject}
+                topic={topic}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div 
-            className={`h-full rounded-full ${
-              masteryLevel > 80 ? 'bg-green-500' : 
-              masteryLevel > 50 ? 'bg-blue-500' : 
-              masteryLevel > 30 ? 'bg-yellow-500' : 'bg-red-500'
-            }`}
-            style={{ width: `${masteryLevel}%` }}
+
+        <div className="space-y-6">
+          {/* Mastery Progress Bar */}
+          <div className="p-4 border rounded-lg bg-white shadow-sm dark:bg-gray-800/50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium flex items-center">
+                <Brain className="h-4 w-4 mr-2 text-blue-600" /> Concept Mastery Progress
+              </h3>
+              <span className="text-sm font-medium">{masteryLevel}%</span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${
+                  masteryLevel > 80 ? 'bg-green-500' : 
+                  masteryLevel > 50 ? 'bg-blue-500' : 
+                  masteryLevel > 30 ? 'bg-yellow-500' : 'bg-red-500'
+                }`}
+                style={{ width: `${masteryLevel}%` }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+              {masteryLevel >= 30 && masteryLevel < 50 && "You're making progress. Keep practicing to strengthen your understanding."}
+              {masteryLevel >= 50 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+              {masteryLevel >= 80 && "Excellent mastery! You can now focus on related concepts."}
+            </div>
+          </div>
+          
+          {/* Revision Section */}
+          <RevisionSection 
+            conceptId={conceptId}
+            isFlagged={isFlagged}
+            onToggleFlag={handleToggleFlag}
           />
-        </div>
-        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
-          {masteryLevel >= 30 && masteryLevel < 50 && "You're making progress. Keep practicing to strengthen your understanding."}
-          {masteryLevel >= 50 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
-          {masteryLevel >= 80 && "Excellent mastery! You can now focus on related concepts."}
         </div>
       </div>
     </div>

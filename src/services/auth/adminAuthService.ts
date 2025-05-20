@@ -44,12 +44,15 @@ const adminAuthService = {
         // Dispatch event to notify components about auth state change
         window.dispatchEvent(new Event('auth-state-changed'));
         
+        console.log("Admin login successful, data stored in localStorage");
+        
         return {
           success: true,
           data: adminUser,
           message: "Login successful"
         };
       } else {
+        console.log("Admin login failed: invalid credentials");
         return {
           success: false,
           data: null,
@@ -82,6 +85,8 @@ const adminAuthService = {
     
     // Short delay to ensure localStorage changes have propagated
     await new Promise(resolve => setTimeout(resolve, 100));
+    
+    console.log("Admin logout complete, localStorage cleared");
   },
   
   // Get current admin user with improved error handling
@@ -89,8 +94,15 @@ const adminAuthService = {
     try {
       const token = localStorage.getItem("adminToken");
       const userJson = localStorage.getItem("adminUser");
+      const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
       
-      if (!token || !userJson) {
+      console.log("Admin auth check:", { 
+        hasToken: !!token, 
+        hasUserJson: !!userJson, 
+        isAdminLoggedIn 
+      });
+      
+      if (!token || !userJson || !isAdminLoggedIn) {
         return null;
       }
       
@@ -109,9 +121,12 @@ const adminAuthService = {
       
       if (token && isAdminLoggedIn) {
         const userJson = localStorage.getItem("adminUser");
-        return !!userJson && JSON.parse(userJson) !== null;
+        const isValid = !!userJson && JSON.parse(userJson) !== null;
+        console.log("Admin is authenticated:", isValid);
+        return isValid;
       }
       
+      console.log("Admin is not authenticated");
       return false;
     } catch (error) {
       console.error("Error checking admin authentication:", error);

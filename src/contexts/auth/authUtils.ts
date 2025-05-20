@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import authService from '@/services/auth/authService';
+import adminAuthService from '@/services/auth/adminAuthService';
 
 export const useAuthUtils = () => {
   const [error, setError] = useState<string | null>(null);
@@ -12,6 +13,11 @@ export const useAuthUtils = () => {
   const handleLogin = async (email: string, password: string): Promise<boolean> => {
     try {
       setError(null);
+      
+      // Check if this is an admin login attempt (email contains 'admin')
+      if (email.includes('admin')) {
+        return handleAdminLogin(email, password);
+      }
       
       const response = await authService.login({ email, password });
       
@@ -58,8 +64,9 @@ export const useAuthUtils = () => {
   const handleAdminLogin = async (email: string, password: string): Promise<boolean> => {
     try {
       setError(null);
+      console.log("Attempting admin login for:", email);
       
-      const response = await authService.adminLogin({ email, password });
+      const response = await adminAuthService.adminLogin({ email, password });
       
       if (response.success && response.data) {
         toast({
@@ -67,6 +74,7 @@ export const useAuthUtils = () => {
           description: "Welcome to the admin dashboard",
         });
         
+        console.log("Admin login successful, navigating to dashboard");
         navigate('/admin/dashboard');
         return true;
       } else {
@@ -145,7 +153,14 @@ export const useAuthUtils = () => {
 
   const handleLogout = async (): Promise<void> => {
     try {
-      await authService.logout();
+      // Check if user is admin
+      const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
+      
+      if (isAdmin) {
+        await adminAuthService.adminLogout();
+      } else {
+        await authService.logout();
+      }
       
       toast({
         title: "Logged out",
