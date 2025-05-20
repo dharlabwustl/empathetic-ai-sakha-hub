@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -64,6 +63,8 @@ const ConceptDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('content');
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { toast } = useToast();
+  const [userNotes, setUserNotes] = useState('');
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
   
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
@@ -75,6 +76,13 @@ const ConceptDetailPage: React.FC = () => {
       description: isBookmarked 
         ? "This concept has been removed from your saved items" 
         : "This concept has been added to your saved items",
+    });
+  };
+
+  const handleSaveNotes = () => {
+    toast({
+      title: "Notes saved",
+      description: "Your notes have been saved for this concept.",
     });
   };
 
@@ -133,6 +141,12 @@ const ConceptDetailPage: React.FC = () => {
               <ConceptContent 
                 content={concept.content} 
                 formulas={concept.formulas} 
+                conceptId={concept.id}
+                userNotes={userNotes}
+                setUserNotes={setUserNotes}
+                handleSaveNotes={handleSaveNotes}
+                isReadingAloud={isReadingAloud}
+                setIsReadingAloud={setIsReadingAloud}
               />
             </TabsContent>
             

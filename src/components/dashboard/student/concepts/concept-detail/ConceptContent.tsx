@@ -6,6 +6,7 @@ import { FlaskConical, BookOpen, DownloadCloud, Share, Copy, Check, Volume2 } fr
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import PenLine from './PenLine';
 
 interface Formula {
   id: string;

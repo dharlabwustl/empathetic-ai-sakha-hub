@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Flag, Clock, Calendar, CalendarCheck, CalendarPlus, CheckCircle, Plus, Calendar2, BrainCircuit, Bell } from 'lucide-react';
+import { Flag, Clock, Calendar, CalendarCheck, CalendarPlus, CheckCircle, Plus, BrainCircuit, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -100,7 +99,7 @@ const RevisionSection: React.FC<RevisionSectionProps> = ({ conceptId, isFlagged,
                 className={`justify-start ${revisionSchedule === "3 days" ? "bg-amber-500 hover:bg-amber-600" : ""}`}
                 onClick={() => scheduleRevision("3 days")}
               >
-                <Calendar2 className="h-4 w-4 mr-2" />
+                <Calendar className="h-4 w-4 mr-2" />
                 3 days
               </Button>
               <Button 
