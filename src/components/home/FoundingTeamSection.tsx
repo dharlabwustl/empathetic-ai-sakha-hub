@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LinkedIn, Mail } from 'lucide-react';
+import { ExternalLink, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Team member data with LinkedIn profiles
@@ -96,7 +96,7 @@ const FoundingTeamSection = () => {
                     className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-400 transition-colors"
                     aria-label={`${member.name}'s LinkedIn profile`}
                   >
-                    <LinkedIn size={18} />
+                    <ExternalLink size={18} />
                   </a>
                   <a 
                     href={`mailto:${member.email}`} 
