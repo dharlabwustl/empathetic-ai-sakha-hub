@@ -4,7 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCw, AlertTriangle, Check, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { RevisionItem } from '@/types/student/dashboard';
+
+interface RevisionItem {
+  id: string;
+  title: string;
+  subject: string;
+  type: 'concept' | 'flashcard' | 'quiz';
+  priority: 'high' | 'medium' | 'low';
+  dueDate: string;
+  retentionScore: number;
+}
 
 interface RevisionLoopSectionProps {
   revisionItems: RevisionItem[];
