@@ -1,247 +1,145 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Volume2, VolumeX, Save, BookOpen, PenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FlaskConical, BookOpen, DownloadCloud, Share, Copy, Check, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
-import PenLine from './PenLine';
-
-interface Formula {
-  id: string;
-  formula: string;
-  description: string;
-}
+import DOMPurify from 'dompurify';
 
 interface ConceptContentProps {
   content: string;
+  formulas?: Array<{ id: string; formula: string; description: string }>;
   conceptId: string;
   userNotes: string;
-  setUserNotes: React.Dispatch<React.SetStateAction<string>>;
+  setUserNotes: (notes: string) => void;
   handleSaveNotes: () => void;
   isReadingAloud: boolean;
-  setIsReadingAloud: React.Dispatch<React.SetStateAction<boolean>>;
-  formulas?: Formula[];
+  setIsReadingAloud: (isReading: boolean) => void;
 }
 
-const ConceptContent: React.FC<ConceptContentProps> = ({ 
-  content, 
+const ConceptContent: React.FC<ConceptContentProps> = ({
+  content,
+  formulas,
   conceptId,
   userNotes,
   setUserNotes,
   handleSaveNotes,
   isReadingAloud,
-  setIsReadingAloud,
-  formulas = []
+  setIsReadingAloud
 }) => {
-  const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
-  const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
-
-  // Set up speech synthesis
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance();
-      utterance.text = content.replace(/<[^>]+>/g, '');
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      utterance.onend = () => {
-        setIsReadingAloud(false);
-      };
-      utterance.onerror = () => {
-        setIsReadingAloud(false);
-        toast({
-          title: "Read Aloud Error",
-          description: "There was an error with the text-to-speech functionality.",
-          variant: "destructive",
-        });
-      };
-      setSpeech(utterance);
-
-      return () => {
-        window.speechSynthesis.cancel();
-      };
-    }
-  }, [content, toast, setIsReadingAloud]);
-
-  // Handle read aloud toggle
+  // Text-to-speech functionality
   const toggleReadAloud = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (isReadingAloud) {
-        window.speechSynthesis.cancel();
-        setIsReadingAloud(false);
-      } else if (speech) {
-        window.speechSynthesis.speak(speech);
-        setIsReadingAloud(true);
-      }
+    if (isReadingAloud) {
+      window.speechSynthesis.cancel();
+      setIsReadingAloud(false);
     } else {
-      toast({
-        title: "Feature Not Available",
-        description: "Text-to-speech is not supported in your browser.",
-        variant: "destructive",
-      });
+      // Strip HTML tags for better speech
+      const textContent = new DOMParser().parseFromString(content, 'text/html').body.textContent || '';
+      const utterance = new SpeechSynthesis.SpeechSynthesisUtterance(textContent);
+      window.speechSynthesis.speak(utterance);
+      setIsReadingAloud(true);
     }
   };
-
-  const handleCopyContent = () => {
-    const plainContent = content.replace(/<[^>]+>/g, '');
-    navigator.clipboard.writeText(plainContent);
-    setCopied(true);
-    
-    toast({
-      title: "Content copied",
-      description: "The concept content has been copied to your clipboard",
-    });
-    
-    setTimeout(() => setCopied(false), 2000);
-  };
   
-  const handleShare = () => {
-    toast({
-      title: "Share feature",
-      description: "Share functionality would open a modal with sharing options",
-    });
-  };
-  
-  const handleDownload = () => {
-    toast({
-      title: "Download PDF",
-      description: "The concept would be downloaded as a PDF",
-    });
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        visible: {
-          transition: { staggerChildren: 0.1 }
-        }
-      }}
-      className="space-y-6"
-    >
-      {/* Actions bar */}
-      <motion.div 
-        variants={itemVariants}
-        className="flex flex-wrap gap-2 justify-end"
-      >
-        <Button 
-          variant={isReadingAloud ? "default" : "outline"} 
-          size="sm"
-          className={`flex items-center gap-1 ${isReadingAloud ? "bg-blue-600" : ""}`}
-          onClick={toggleReadAloud}
-        >
-          <Volume2 className="h-4 w-4" />
-          {isReadingAloud ? 'Stop Reading' : 'Read Aloud'}
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleCopyContent}
-        >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? 'Copied!' : 'Copy'}
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleShare}
-        >
-          <Share className="h-4 w-4" />
-          Share
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleDownload}
-        >
-          <DownloadCloud className="h-4 w-4" />
-          Download
-        </Button>
-      </motion.div>
-      
-      {/* Main content */}
-      <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-md overflow-hidden">
-          <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-xl">
-              <BookOpen className="h-5 w-5 mr-2 text-blue-600" /> Concept Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div 
-              className="prose dark:prose-invert max-w-none" 
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
-      
-      {/* Notes Section */}
-      <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-md overflow-hidden">
-          <div className="absolute top-0 left-0 w-2 h-full bg-green-600"></div>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-xl">
-              <PenLine className="h-5 w-5 mr-2 text-green-600" /> Your Notes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <Textarea
-              value={userNotes}
-              onChange={(e) => setUserNotes(e.target.value)}
-              placeholder="Take notes on this concept..."
-              className="min-h-32"
-            />
-            <div className="mt-3 flex justify-end">
-              <Button onClick={handleSaveNotes}>
-                Save Notes
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-      
-      {/* Formulas section */}
-      {formulas.length > 0 && (
-        <motion.div variants={itemVariants}>
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-purple-600"></div>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-xl">
-                <FlaskConical className="h-5 w-5 mr-2 text-purple-600" /> Key Formulas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formulas.map(formula => (
-                  <motion.div 
-                    key={formula.id}
-                    className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="text-center py-2 font-bold text-lg">{formula.formula}</div>
-                    <div className="text-sm text-center text-gray-600 dark:text-gray-400">{formula.description}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-    </motion.div>
+    <div className="space-y-6">
+      {/* Content and interactivity tabs */}
+      <Tabs defaultValue="read" className="w-full">
+        <TabsList className="mb-4 w-full justify-start">
+          <TabsTrigger value="read" className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" /> Read
+          </TabsTrigger>
+          <TabsTrigger value="notes" className="flex items-center gap-1">
+            <PenLine className="h-4 w-4" /> Take Notes
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="read">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardContent className="pt-6 relative">
+                {/* Text-to-speech button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={toggleReadAloud}
+                  className="absolute top-2 right-2"
+                >
+                  {isReadingAloud ? (
+                    <>
+                      <VolumeX className="h-4 w-4 mr-1" /> Stop Reading
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-4 w-4 mr-1" /> Read Aloud
+                    </>
+                  )}
+                </Button>
+                
+                {/* Content display */}
+                <div 
+                  className="concept-content prose prose-blue dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+                />
+                
+                {/* Formulas section */}
+                {formulas && formulas.length > 0 && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h3 className="text-lg font-semibold mb-4">Key Formulas</h3>
+                    <div className="space-y-4">
+                      {formulas.map(formula => (
+                        <div key={formula.id} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
+                          <div className="text-center font-mono text-xl mb-2">{formula.formula}</div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{formula.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardContent className="pt-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Your Notes</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Taking notes improves retention by up to 34%. Use this space to summarize key points in your own words.
+                  </p>
+                </div>
+                
+                <Textarea 
+                  value={userNotes}
+                  onChange={(e) => setUserNotes(e.target.value)}
+                  placeholder="Write your notes here..."
+                  className="min-h-[200px]"
+                />
+                
+                <div className="mt-4 flex justify-end">
+                  <Button onClick={handleSaveNotes} className="flex items-center">
+                    <Save className="h-4 w-4 mr-1" /> Save Notes
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

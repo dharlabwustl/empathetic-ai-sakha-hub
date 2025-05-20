@@ -1,39 +1,53 @@
 
-import React, { useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
-import LoadingState from "@/components/admin/dashboard/LoadingState";
+import LoadingState from '@/components/admin/dashboard/LoadingState';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAdminAuthenticated, isLoading, adminUser } = useAdminAuth();
+  const { isAdminAuthenticated, isLoading } = useAdminAuth();
   const location = useLocation();
+  const { toast } = useToast();
 
-  // Debug output
   useEffect(() => {
-    console.log("AdminRouteGuard - Auth state:", { 
-      isAuthenticated: isAdminAuthenticated, 
-      isLoading,
-      user: adminUser?.email
+    // Log authentication status for debugging
+    console.log("AdminRouteGuard: Auth status -", { 
+      isAdminAuthenticated, 
+      isLoading, 
+      path: location.pathname 
     });
-  }, [isAdminAuthenticated, isLoading, adminUser]);
+  }, [isAdminAuthenticated, isLoading, location]);
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return <LoadingState />;
   }
 
-  // If not authenticated, redirect to login with return URL
   if (!isAdminAuthenticated) {
-    console.log("Admin not authenticated, redirecting to login");
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    // Show toast only when actively being redirected (not on initial load)
+    if (location.pathname !== '/admin/login') {
+      toast({
+        title: "Authentication required",
+        description: "Please login to access the admin area",
+        variant: "default"
+      });
+    }
+    
+    // Redirect to login page with the current location to redirect back after login
+    return (
+      <Navigate 
+        to="/admin/login" 
+        state={{ from: location }}
+        replace 
+      />
+    );
   }
 
-  // If authenticated, render children
-  console.log("Admin authenticated, rendering protected content");
+  // If authenticated, render the protected content
   return <>{children}</>;
 };
 

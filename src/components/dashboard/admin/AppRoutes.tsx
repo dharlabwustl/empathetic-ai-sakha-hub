@@ -20,7 +20,7 @@ const AdminAppRoutes: React.FC = () => {
   }
 
   // Basic mock data for the dashboard stats
-  const mockDashboardStats: Partial<AdminDashboardStats> = {
+  const mockDashboardStats: AdminDashboardStats = {
     totalUsers: 250,
     activeUsers: 180,
     totalRevenue: 15780,
@@ -34,7 +34,6 @@ const AdminAppRoutes: React.FC = () => {
     verifiedMoodImprovement: 65,
     averageMoodScore: 7.8,
     averageTimeSavedPerWeek: 5.2,
-    // Adding required properties to fix TypeScript error
     studyPlanEfficiencyImprovement: 45,
     studentsWithVerifiedConsistentHabits: 87,
     studentsWithConsistentHabits: 120,
@@ -55,7 +54,7 @@ const AdminAppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<DashboardStats stats={mockDashboardStats as AdminDashboardStats} />} />
+      <Route path="/" element={<DashboardStats stats={mockDashboardStats} />} />
       <Route path="/subscriptions" element={<SubscriptionManager />} />
     </Routes>
   );

@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, Loader2, Mail, Lock, ShieldAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Loader2, Mail, Lock, ShieldAlert } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@prepzr.com");
+  const [password, setPassword] = useState("Admin@2025#Secure");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +30,8 @@ const AdminLogin: React.FC = () => {
     }
   }, [isAdminAuthenticated, navigate]);
 
+  // Update local error state when context error changes
   useEffect(() => {
-    // Update local error state when context error changes
     if (error) {
       setLoginError(error);
     }
@@ -43,7 +43,7 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Use login function from context
+      console.log("Attempting admin login with:", { email });
       const success = await loginAdmin(email, password);
       
       if (success) {
@@ -54,13 +54,24 @@ const AdminLogin: React.FC = () => {
         
         // Get the intended destination or default to dashboard
         const from = location.state?.from?.pathname || "/admin/dashboard";
+        console.log("Login successful, navigating to:", from);
         navigate(from, { replace: true });
       } else {
         setLoginError("Login failed. Please check your credentials.");
+        toast({
+          title: "Login failed",
+          description: "Invalid credentials. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (err) {
       console.error("Login error:", err);
       setLoginError("An unexpected error occurred");
+      toast({
+        title: "Login error",
+        description: "An error occurred during login",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -115,24 +126,14 @@ const AdminLogin: React.FC = () => {
                       className="pl-9"
                       required
                       autoComplete="username"
+                      disabled={isLoading}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    For testing: admin@prepzr.com
-                  </p>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <Button 
-                      variant="link" 
-                      className="px-0 font-normal text-xs h-auto"
-                      type="button"
-                      onClick={() => navigate("/admin/forgot-password")}
-                    >
-                      Forgot password?
-                    </Button>
                   </div>
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -149,6 +150,7 @@ const AdminLogin: React.FC = () => {
                       className="pl-9 pr-10"
                       required
                       autoComplete="current-password"
+                      disabled={isLoading}
                     />
                     <Button
                       type="button" 
@@ -156,13 +158,11 @@ const AdminLogin: React.FC = () => {
                       size="icon"
                       className="absolute right-0 top-0 h-full"
                       onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    For testing: Admin@2025#Secure
-                  </p>
                 </div>
               </CardContent>
               

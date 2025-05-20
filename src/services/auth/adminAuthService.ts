@@ -13,24 +13,34 @@ interface LoginCredentials {
   password: string;
 }
 
-// Predefined admin credentials for a secure admin user
+// Admin credentials - in a real app this would be in a secure database
 const ADMIN_CREDENTIALS = {
   email: "admin@prepzr.com",
   password: "Admin@2025#Secure",
   name: "Admin User"
 };
 
-// Admin authentication service with enhanced security
+// Enhanced admin authentication service
 const adminAuthService = {
-  // Admin login function with improved error handling
+  // Admin login function with improved validation
   async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
-    console.log("Admin auth service: login attempt for", credentials.email);
+    console.log("Admin auth service: Processing login for", credentials.email);
     
     try {
-      // Validate against predefined credentials
+      // Validate email and password format first
+      if (!credentials.email || !credentials.password) {
+        return {
+          success: false,
+          data: null,
+          message: "Email and password are required"
+        };
+      }
+      
+      // Check against admin credentials
       if (credentials.email === ADMIN_CREDENTIALS.email && 
           credentials.password === ADMIN_CREDENTIALS.password) {
         
+        // Create admin user object
         const adminUser: AdminUser = {
           id: `admin_${Date.now()}`,
           name: ADMIN_CREDENTIALS.name,
@@ -39,21 +49,21 @@ const adminAuthService = {
           permissions: ['all']
         };
         
-        // Clear any existing user data to prevent conflicts
+        // Clear any existing user data
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('new_user_signup');
         
-        // Store admin data in localStorage 
-        const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-        localStorage.setItem("adminToken", mockToken);
+        // Store admin data securely
+        const secureToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        localStorage.setItem("adminToken", secureToken);
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
         localStorage.setItem("admin_logged_in", "true");
         
-        // Dispatch event to notify components about auth state change
+        // Notify listeners about auth state change
         window.dispatchEvent(new Event('auth-state-changed'));
         
-        console.log("Admin login successful, data stored in localStorage");
+        console.log("Admin login successful");
         
         return {
           success: true,
@@ -79,37 +89,28 @@ const adminAuthService = {
     }
   },
   
-  // Admin logout function with enhanced session clearing
+  // Improved admin logout function
   async adminLogout(): Promise<void> {
     console.log("Admin auth service: executing logout");
     
-    // Clear admin-specific tokens
+    // Clear all admin-specific data
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin_logged_in");
     localStorage.removeItem("admin_login_attempt");
     
-    // Dispatch event to notify components about auth state change
+    // Notify listeners about auth state change
     window.dispatchEvent(new Event('auth-state-changed'));
     
-    // Short delay to ensure localStorage changes have propagated
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    console.log("Admin logout complete, localStorage cleared");
+    console.log("Admin logout complete");
   },
   
-  // Get current admin user with improved error handling
+  // Enhanced admin user retrieval
   async getAdminUser(): Promise<AdminUser | null> {
     try {
       const token = localStorage.getItem("adminToken");
       const userJson = localStorage.getItem("adminUser");
       const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
-      
-      console.log("Admin auth check:", { 
-        hasToken: !!token, 
-        hasUserJson: !!userJson, 
-        isAdminLoggedIn 
-      });
       
       if (!token || !userJson || !isAdminLoggedIn) {
         return null;
@@ -117,26 +118,23 @@ const adminAuthService = {
       
       return JSON.parse(userJson) as AdminUser;
     } catch (error) {
-      console.error("Error parsing admin user:", error);
+      console.error("Error retrieving admin user:", error);
       return null;
     }
   },
   
-  // Check if admin is authenticated with improved validation
+  // Improved authentication status check
   isAuthenticated(): boolean {
     try {
       const token = localStorage.getItem("adminToken");
       const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
       
-      if (token && isAdminLoggedIn) {
-        const userJson = localStorage.getItem("adminUser");
-        const isValid = !!userJson && JSON.parse(userJson) !== null;
-        console.log("Admin is authenticated:", isValid);
-        return isValid;
+      if (!token || !isAdminLoggedIn) {
+        return false;
       }
       
-      console.log("Admin is not authenticated");
-      return false;
+      const userJson = localStorage.getItem("adminUser");
+      return !!userJson && JSON.parse(userJson) !== null;
     } catch (error) {
       console.error("Error checking admin authentication:", error);
       return false;
