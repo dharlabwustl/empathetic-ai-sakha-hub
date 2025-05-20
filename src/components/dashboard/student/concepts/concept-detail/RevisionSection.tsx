@@ -1,11 +1,9 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { PenLine, Calendar, Clock, Bell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Flag, Clock, Calendar, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface RevisionSectionProps {
   conceptId: string;
@@ -13,20 +11,22 @@ interface RevisionSectionProps {
   onToggleFlag: () => void;
 }
 
-const RevisionSection: React.FC<RevisionSectionProps> = ({ conceptId, isFlagged, onToggleFlag }) => {
-  const { toast } = useToast();
+const RevisionSection: React.FC<RevisionSectionProps> = ({
+  conceptId,
+  isFlagged,
+  onToggleFlag,
+}) => {
+  // Calculate next revision date (demo purpose)
+  const today = new Date();
+  const nextRevisionDate = new Date(today);
+  nextRevisionDate.setDate(today.getDate() + 3);
 
-  const handleScheduleRevision = () => {
-    toast({
-      title: "Revision scheduled",
-      description: "We'll remind you to review this concept soon",
-    });
-  };
-
-  const handleSetReminder = () => {
-    toast({
-      title: "Reminder set",
-      description: "You'll be reminded to review this concept tomorrow",
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
     });
   };
 
@@ -34,65 +34,68 @@ const RevisionSection: React.FC<RevisionSectionProps> = ({ conceptId, isFlagged,
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.3 }}
+      transition={{ duration: 0.5 }}
     >
-      <Card className={`overflow-hidden border-l-4 transition-all ${
-        isFlagged ? 'border-l-amber-500' : 'border-l-gray-200 dark:border-l-gray-800'
-      }`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-lg">
-            <PenLine className="h-5 w-5 mr-2 text-amber-500" />
-            Revision Planning
+      <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 pb-3 pt-3">
+          <CardTitle className="text-base flex items-center text-gray-900 dark:text-gray-100">
+            <Clock className="h-4 w-4 mr-2 text-amber-600 dark:text-amber-400" />
+            Revision Schedule
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Badge variant={isFlagged ? "secondary" : "outline"} className={
-              isFlagged ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" : ""
-            }>
-              {isFlagged ? "Flagged for revision" : "Not flagged"}
-            </Badge>
-            <Button 
-              variant={isFlagged ? "default" : "outline"} 
-              size="sm"
-              onClick={onToggleFlag}
-              className={isFlagged ? "bg-amber-600 hover:bg-amber-700" : ""}
-            >
-              {isFlagged ? "Unflag" : "Flag for revision"}
-            </Button>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full justify-start text-left" 
-              onClick={handleScheduleRevision}
-            >
-              <Calendar className="h-4 w-4 mr-2 text-blue-600" />
-              <span>Schedule revision session</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full justify-start text-left" 
-              onClick={handleSetReminder}
-            >
-              <Bell className="h-4 w-4 mr-2 text-purple-600" />
-              <span>Set reminder</span>
-            </Button>
-          </div>
-
-          {isFlagged && (
-            <div className="mt-3 pt-3 border-t text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center mb-1">
-                <Clock className="h-3.5 w-3.5 mr-1 text-gray-500" />
-                <span>Next recommended revision: Tomorrow</span>
+        <CardContent className="p-4 space-y-3">
+          {isFlagged ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-sm">Next review</span>
+                </div>
+                <span className="text-sm font-medium">{formatDate(nextRevisionDate)}</span>
               </div>
-              <p className="text-xs opacity-75 mt-1">
-                Revising this concept regularly will improve long-term retention by up to 85%
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-sm">Time to review</span>
+                </div>
+                <span className="text-sm font-medium">7 min</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-4 w-4 mr-2 text-amber-600 dark:text-amber-400" />
+                  <span className="text-sm">Forgetting risk</span>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 font-medium">
+                  Medium
+                </span>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="w-full mt-2 border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400" 
+                size="sm"
+                onClick={onToggleFlag}
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                Remove from Revision List
+              </Button>
+            </div>
+          ) : (
+            <div className="py-2 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                This concept isn't in your revision list yet.
               </p>
+              <Button 
+                variant="outline" 
+                className="border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400" 
+                size="sm"
+                onClick={onToggleFlag}
+              >
+                <Flag className="h-4 w-4 mr-1" />
+                Add to Revision List
+              </Button>
             </div>
           )}
         </CardContent>

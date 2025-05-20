@@ -34,18 +34,24 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   if (loading || !userProfile) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-6">
+    <div className="flex-1 p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-6 w-full max-w-full">
       {/* Page Header with responsive layout */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-        <div className="space-y-1">
-          <h1 className={`${isMobile ? 'text-lg' : 'text-xl sm:text-2xl'} font-bold`}>{title}</h1>
-          {subtitle && <p className={`${isMobile ? 'text-xs' : 'text-sm sm:text-base'} text-muted-foreground`}>{subtitle}</p>}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 mb-2 sm:mb-0">
+        <div className="space-y-0.5">
+          <h1 className={`${isMobile ? 'text-xl' : 'text-xl sm:text-2xl'} font-bold text-gray-900 dark:text-gray-100`}>
+            {title}
+          </h1>
+          {subtitle && 
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-500 dark:text-gray-400 max-w-2xl`}>
+              {subtitle}
+            </p>
+          }
         </div>
         
         {showBackButton && (
@@ -53,7 +59,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
             variant="outline" 
             size={isMobile ? "sm" : "default"} 
             onClick={() => navigate(backButtonUrl)}
-            className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto"
+            className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto mt-1 sm:mt-0"
           >
             <ArrowLeft className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             <span className={isMobile ? "text-xs" : "text-sm"}>Back</span>
@@ -62,7 +68,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
       </div>
       
       {/* Main Content with responsive padding */}
-      <div className={isMobile ? "px-0" : ""}>
+      <div className={`${isMobile ? "px-0 overflow-hidden" : ""} max-w-full`}>
         {children}
       </div>
     </div>

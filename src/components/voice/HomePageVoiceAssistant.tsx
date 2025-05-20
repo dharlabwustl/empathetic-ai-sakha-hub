@@ -22,16 +22,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
                             location.pathname.includes('/free-trial') ||
                             location.pathname.includes('/exam-readiness');
   
-  // Get context-aware message based on page
+  // Get concise, context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform analyzes your learning style and adapts to your unique needs. How may I assist you today?";
+      return "Welcome to PREP-zer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state, giving you a powerful edge in competitive exams. How can I assist you today?";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREP-zer! I'm Sakha AI. We create personalized study plans based on your emotional state and learning style, giving you an edge in competitive exams. Need any assistance with signing up?";
+      return "Welcome to PREP-zer! I'm Sakha AI. We provide hyper-personalized study plans based on your emotional state and learning style. Would you like assistance with signing up?";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of the world's first emotionally intelligent exam prep platform! I'm Sakha AI. You'll experience adaptive learning paths and personalized guidance tailored to your unique needs. What would you like to explore first?";
+      return "Welcome to your free trial of PREP-zer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs. What would you like to explore first?";
     } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your current preparation level and identify areas for improvement. This helps us customize your learning path based on your emotional state and learning style. Ready to begin?";
+      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style. Ready to begin?";
     }
     
     return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";

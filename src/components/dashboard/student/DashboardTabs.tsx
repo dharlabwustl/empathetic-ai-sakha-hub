@@ -39,11 +39,11 @@ export default function DashboardTabs({
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, description: "Personalized academic guidance" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization" },
-    { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation" },
-    { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts" }
+    { id: "academic", label: "Academic", icon: GraduationCap, description: "Personalized academic guidance" },
+    { id: "concepts", label: "Concepts", icon: BookOpen, description: "Key learning concepts" },
+    { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision" },
+    { id: "practice-exam", label: "Practice", icon: FileText, description: "Exam preparation" },
+    { id: "notifications", label: "Alerts", icon: Bell, description: "Updates and alerts" }
   ];
 
   return (
@@ -63,11 +63,11 @@ export default function DashboardTabs({
                   >
                     <TabsTrigger 
                       value={tab.id} 
-                      className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
+                      className={`rounded-lg flex items-center gap-2 py-2.5 ${isMobile ? 'px-3' : 'px-4'} transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm`}
                     >
-                      <tab.icon size={16} />
-                      <span className={isMobile ? "sr-only sm:not-sr-only text-xs sm:inline" : ""}>
-                        {tab.label}
+                      <tab.icon className={`${isMobile ? 'h-4 w-4' : 'h-[16px] w-[16px]'}`} />
+                      <span className={isMobile ? "sr-only text-xs sm:not-sr-only sm:inline" : ""}>
+                        {isMobile ? tab.label.split(' ')[0] : tab.label}
                       </span>
                     </TabsTrigger>
                   </motion.div>

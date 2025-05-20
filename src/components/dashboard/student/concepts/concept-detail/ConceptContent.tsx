@@ -1,12 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FlaskConical, BookOpen, DownloadCloud, Share, Copy, Check, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
-import PenLine from './PenLine';
+import React, { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Volume2, VolumeX, PenLine, Save } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Formula {
   id: string;
@@ -16,232 +14,137 @@ interface Formula {
 
 interface ConceptContentProps {
   content: string;
+  formulas?: Formula[];
   conceptId: string;
   userNotes: string;
   setUserNotes: React.Dispatch<React.SetStateAction<string>>;
   handleSaveNotes: () => void;
   isReadingAloud: boolean;
   setIsReadingAloud: React.Dispatch<React.SetStateAction<boolean>>;
-  formulas?: Formula[];
 }
 
 const ConceptContent: React.FC<ConceptContentProps> = ({ 
   content, 
+  formulas = [], 
   conceptId,
   userNotes,
   setUserNotes,
   handleSaveNotes,
   isReadingAloud,
-  setIsReadingAloud,
-  formulas = []
+  setIsReadingAloud
 }) => {
-  const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
-  const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
-
-  // Set up speech synthesis
+  // Effect for text-to-speech
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance();
-      utterance.text = content.replace(/<[^>]+>/g, '');
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      utterance.onend = () => {
-        setIsReadingAloud(false);
-      };
-      utterance.onerror = () => {
-        setIsReadingAloud(false);
-        toast({
-          title: "Read Aloud Error",
-          description: "There was an error with the text-to-speech functionality.",
-          variant: "destructive",
-        });
-      };
-      setSpeech(utterance);
-
-      return () => {
-        window.speechSynthesis.cancel();
-      };
-    }
-  }, [content, toast, setIsReadingAloud]);
-
-  // Handle read aloud toggle
-  const toggleReadAloud = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (isReadingAloud) {
-        window.speechSynthesis.cancel();
-        setIsReadingAloud(false);
-      } else if (speech) {
-        window.speechSynthesis.speak(speech);
-        setIsReadingAloud(true);
-      }
+    if (isReadingAloud) {
+      const cleanText = content.replace(/<[^>]*>?/gm, '');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsReadingAloud(false);
+      speechSynthesis.speak(utterance);
     } else {
-      toast({
-        title: "Feature Not Available",
-        description: "Text-to-speech is not supported in your browser.",
-        variant: "destructive",
-      });
+      speechSynthesis.cancel();
     }
-  };
 
-  const handleCopyContent = () => {
-    const plainContent = content.replace(/<[^>]+>/g, '');
-    navigator.clipboard.writeText(plainContent);
-    setCopied(true);
-    
-    toast({
-      title: "Content copied",
-      description: "The concept content has been copied to your clipboard",
-    });
-    
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
-  const handleShare = () => {
-    toast({
-      title: "Share feature",
-      description: "Share functionality would open a modal with sharing options",
-    });
-  };
-  
-  const handleDownload = () => {
-    toast({
-      title: "Download PDF",
-      description: "The concept would be downloaded as a PDF",
-    });
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+    return () => {
+      speechSynthesis.cancel();
+    };
+  }, [isReadingAloud, content, setIsReadingAloud]);
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        visible: {
-          transition: { staggerChildren: 0.1 }
-        }
-      }}
-      className="space-y-6"
-    >
-      {/* Actions bar */}
-      <motion.div 
-        variants={itemVariants}
-        className="flex flex-wrap gap-2 justify-end"
-      >
-        <Button 
-          variant={isReadingAloud ? "default" : "outline"} 
+    <div className="space-y-6">
+      {/* Control bar */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Concept Details</h2>
+        <Button
+          variant="outline"
           size="sm"
-          className={`flex items-center gap-1 ${isReadingAloud ? "bg-blue-600" : ""}`}
-          onClick={toggleReadAloud}
+          onClick={() => setIsReadingAloud(!isReadingAloud)}
+          className={isReadingAloud ? "bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700" : ""}
         >
-          <Volume2 className="h-4 w-4" />
-          {isReadingAloud ? 'Stop Reading' : 'Read Aloud'}
+          {isReadingAloud ? (
+            <>
+              <VolumeX className="h-4 w-4 mr-2" />
+              Stop Reading
+            </>
+          ) : (
+            <>
+              <Volume2 className="h-4 w-4 mr-2" />
+              Read Aloud
+            </>
+          )}
         </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleCopyContent}
-        >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? 'Copied!' : 'Copy'}
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleShare}
-        >
-          <Share className="h-4 w-4" />
-          Share
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleDownload}
-        >
-          <DownloadCloud className="h-4 w-4" />
-          Download
-        </Button>
-      </motion.div>
-      
+      </div>
+
       {/* Main content */}
-      <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-md overflow-hidden">
-          <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-xl">
-              <BookOpen className="h-5 w-5 mr-2 text-blue-600" /> Concept Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div 
-              className="prose dark:prose-invert max-w-none" 
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
-      
-      {/* Notes Section */}
-      <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-md overflow-hidden">
-          <div className="absolute top-0 left-0 w-2 h-full bg-green-600"></div>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-xl">
-              <PenLine className="h-5 w-5 mr-2 text-green-600" /> Your Notes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <Textarea
-              value={userNotes}
-              onChange={(e) => setUserNotes(e.target.value)}
-              placeholder="Take notes on this concept..."
-              className="min-h-32"
-            />
-            <div className="mt-3 flex justify-end">
-              <Button onClick={handleSaveNotes}>
-                Save Notes
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-      
-      {/* Formulas section */}
-      {formulas.length > 0 && (
-        <motion.div variants={itemVariants}>
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-purple-600"></div>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-xl">
-                <FlaskConical className="h-5 w-5 mr-2 text-purple-600" /> Key Formulas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formulas.map(formula => (
-                  <motion.div 
-                    key={formula.id}
-                    className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="text-center py-2 font-bold text-lg">{formula.formula}</div>
-                    <div className="text-sm text-center text-gray-600 dark:text-gray-400">{formula.description}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="prose prose-indigo dark:prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+
+      {/* Key formulas section */}
+      {formulas && formulas.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-8"
+        >
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Key Formulas
+          </h3>
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+            {formulas.map((formula) => (
+              <Card key={formula.id} className="overflow-hidden border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-800 dark:to-indigo-950/30">
+                <CardContent className="p-4">
+                  <div className="text-lg font-mono text-center py-2 my-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
+                    {formula.formula}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center mt-2">
+                    {formula.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </motion.div>
       )}
-    </motion.div>
+
+      {/* Notes section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.3 }}
+        className="mt-8"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <PenLine className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Your Notes
+          </h3>
+        </div>
+        
+        <Textarea 
+          value={userNotes} 
+          onChange={(e) => setUserNotes(e.target.value)}
+          placeholder="Write your notes about this concept here..."
+          className="min-h-[150px] resize-y border-indigo-200 dark:border-indigo-900 focus:border-indigo-300 focus:ring-indigo-300"
+        />
+        
+        <div className="flex justify-end mt-3">
+          <Button 
+            onClick={handleSaveNotes}
+            className="flex items-center gap-2"
+            size="sm"
+          >
+            <Save className="h-4 w-4" />
+            Save Notes
+          </Button>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
