@@ -1,0 +1,104 @@
+
+// Archived on 2025-05-20
+// This was the original complete student routes file
+// It's been replaced with the more streamlined AppRoutes.tsx
+
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import ConceptsPage from '@/pages/dashboard/student/ConceptsPage';
+import FlashcardsPage from '@/pages/dashboard/student/FlashcardsPage';
+import PracticeExamsList from '@/pages/dashboard/student/PracticeExamsList';
+import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
+import TutorView from '@/pages/dashboard/student/TutorView';
+import StudentProfile from '@/pages/dashboard/student/StudentProfile';
+import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
+import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
+import SidebarLayout from '@/components/dashboard/SidebarLayout';
+import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
+import NotFoundPage from '@/pages/NotFound';
+import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
+import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
+
+// This file is now archived as redundant
+// See src/components/dashboard/student/AppRoutes.tsx for the current implementation
+
+const StudentRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<StudentDashboard />} />
+      <Route path="/today" element={
+        <SidebarLayout>
+          <TodaysPlanView />
+        </SidebarLayout>
+      } />
+      <Route path="/academic" element={
+        <SidebarLayout>
+          <AcademicAdvisorView />
+        </SidebarLayout>
+      } />
+      <Route path="/concepts" element={
+        <SidebarLayout>
+          <ConceptsPage />
+        </SidebarLayout>
+      } />
+      <Route path="/concepts/:conceptId" element={
+        <SidebarLayout>
+          <ConceptCardDetailPage />
+        </SidebarLayout>
+      } />
+      <Route path="/concept-study/:conceptId" element={
+        <SidebarLayout>
+          <ConceptStudyPage />
+        </SidebarLayout>
+      } />
+      <Route path="/flashcards" element={
+        <SidebarLayout>
+          <FlashcardsPage />
+        </SidebarLayout>
+      } />
+      <Route path="/practice-exam" element={
+        <SidebarLayout>
+          <PracticeExamsList />
+        </SidebarLayout>
+      } />
+      <Route path="/syllabus" element={
+        <SidebarLayout>
+          <ExamSyllabusPage />
+        </SidebarLayout>
+      } />
+      <Route path="/previous-year-analysis" element={
+        <SidebarLayout>
+          <PreviousYearAnalysisPage />
+        </SidebarLayout>
+      } />
+      <Route path="/feel-good-corner" element={
+        <SidebarLayout>
+          <FeelGoodCornerPage />
+        </SidebarLayout>
+      } />
+      <Route path="/tutor" element={
+        <SidebarLayout>
+          <TutorView />
+        </SidebarLayout>
+      } />
+      <Route path="/profile" element={
+        <SidebarLayout>
+          <StudentProfile />
+        </SidebarLayout>
+      } />
+      <Route path="/subscription" element={
+        <SidebarLayout>
+          <SubscriptionPage />
+        </SidebarLayout>
+      } />
+      <Route path="/loading" element={<DashboardLoading />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+};
+
+export default StudentRoutes;

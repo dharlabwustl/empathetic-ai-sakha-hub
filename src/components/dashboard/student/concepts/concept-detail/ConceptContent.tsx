@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Volume2, VolumeX, Save, BookOpen, PenLine } from 'lucide-react';
+import { Volume2, VolumeX, Save, BookOpen, PenLine, ArrowLeft, Highlighter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
+import LoadingState from '@/components/common/LoadingState';
 
 interface ConceptContentProps {
   content: string;
@@ -17,6 +18,8 @@ interface ConceptContentProps {
   handleSaveNotes: () => void;
   isReadingAloud: boolean;
   setIsReadingAloud: (isReading: boolean) => void;
+  isLoading?: boolean;
+  conceptTitle?: string;
 }
 
 const ConceptContent: React.FC<ConceptContentProps> = ({
@@ -27,8 +30,15 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
   setUserNotes,
   handleSaveNotes,
   isReadingAloud,
-  setIsReadingAloud
+  setIsReadingAloud,
+  isLoading = false,
+  conceptTitle = ""
 }) => {
+  const [selectedText, setSelectedText] = useState<string>("");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [showHighlightToolbar, setShowHighlightToolbar] = useState(false);
+  const [highlightPosition, setHighlightPosition] = useState({ top: 0, left: 0 });
+  
   // Text-to-speech functionality
   const toggleReadAloud = () => {
     if (isReadingAloud) {
@@ -38,10 +48,63 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
       // Strip HTML tags for better speech
       const textContent = new DOMParser().parseFromString(content, 'text/html').body.textContent || '';
       const utterance = new SpeechSynthesisUtterance(textContent);
+      
+      // Set Indian English voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const indianVoice = voices.find(voice => voice.lang === 'en-IN');
+      if (indianVoice) {
+        utterance.voice = indianVoice;
+      }
+      
+      utterance.rate = 0.95; // Slightly slower for better comprehension
+      utterance.onend = () => setIsReadingAloud(false);
+      
       window.speechSynthesis.speak(utterance);
       setIsReadingAloud(true);
     }
   };
+  
+  // Handle text selection for highlighting
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim() !== "" && contentRef.current?.contains(selection.anchorNode)) {
+        setSelectedText(selection.toString());
+        
+        // Show highlight toolbar near the selection
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        setHighlightPosition({
+          top: rect.top - 40, // Position above the selection
+          left: rect.left + rect.width / 2 - 50 // Center horizontally
+        });
+        
+        setShowHighlightToolbar(true);
+      } else {
+        setShowHighlightToolbar(false);
+      }
+    };
+    
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => document.removeEventListener("selectionchange", handleSelectionChange);
+  }, []);
+  
+  // Handle highlighting text
+  const handleHighlight = (color: string) => {
+    if (selectedText && contentRef.current) {
+      // Add to notes with formatting
+      const highlightedNote = `<mark style="background-color:${color};">${selectedText}</mark>`;
+      setUserNotes(prev => `${prev}\n\n${highlightedNote} - Important point from ${conceptTitle}`);
+      
+      // Hide the toolbar
+      setShowHighlightToolbar(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <LoadingState message="Loading concept content..." />;
+  }
   
   return (
     <div className="space-y-6">
@@ -84,6 +147,7 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
                 
                 {/* Content display */}
                 <div 
+                  ref={contentRef}
                   className="concept-content prose prose-blue dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
                 />
@@ -139,6 +203,42 @@ const ConceptContent: React.FC<ConceptContentProps> = ({
           </motion.div>
         </TabsContent>
       </Tabs>
+      
+      {/* Highlight toolbar */}
+      {showHighlightToolbar && (
+        <div 
+          className="fixed bg-white dark:bg-gray-800 shadow-lg rounded-md p-2 flex gap-2 z-50 border border-gray-200 dark:border-gray-700"
+          style={{
+            top: `${highlightPosition.top}px`,
+            left: `${highlightPosition.left}px`,
+          }}
+        >
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="p-1 h-8 w-8" 
+            onClick={() => handleHighlight('#FFEB3B')}
+          >
+            <div className="w-4 h-4 bg-yellow-300 rounded-full" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="p-1 h-8 w-8" 
+            onClick={() => handleHighlight('#4CAF50')}
+          >
+            <div className="w-4 h-4 bg-green-500 rounded-full" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="p-1 h-8 w-8" 
+            onClick={() => handleHighlight('#03A9F4')}
+          >
+            <div className="w-4 h-4 bg-blue-400 rounded-full" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
