@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { Brain, Award, Book } from 'lucide-react';
@@ -17,7 +18,6 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
 
   // Track animation progress
   const [animationProgress, setAnimationProgress] = useState(0);
-  const animationRef = useRef<number>(0);
   
   useEffect(() => {
     const duration = 5000; // 5 seconds same as rotation interval
@@ -44,31 +44,31 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
   const slideContentList = [
     {
       icon: <Brain size={48} className="text-indigo-500 drop-shadow-md" />,
-      title: "JEE Advanced Preparation",
-      description: "Specialized coaching and practice for India's toughest engineering entrance exam",
+      title: "Ananya's NEET Journey",
+      description: "\"PREP-zer helped me find patterns in my study habits that I never noticed before!\"",
       image: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
-      examType: "JEE",
-      examSpecifics: ["Physics", "Chemistry", "Mathematics"],
+      examType: "NEET",
+      examSpecifics: ["Improved by 15%", "Personalized Plan", "Weekly Progress"],
       avatarImage: "/lovable-uploads/01d9bec1-6662-487f-8de6-86c1d36cddfd.png",
       animationDelay: 0
     },
     {
       icon: <Book size={48} className="text-purple-500 drop-shadow-md" />,
-      title: "NEET Medical Preparation",
-      description: "Comprehensive strategies for NEET medical entrance success",
+      title: "Raj's JEE Success",
+      description: "\"The AI tutor identified my weak areas and transformed how I approach problem-solving!\"",
       image: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
-      examType: "NEET",
-      examSpecifics: ["Biology", "Chemistry", "Physics"],
+      examType: "JEE",
+      examSpecifics: ["Rank improved 300+", "Stress Reduction", "Smart Flashcards"],
       avatarImage: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
       animationDelay: 0.2
     },
     {
       icon: <Award size={48} className="text-blue-500 drop-shadow-md" />,
-      title: "UPSC Civil Services",
-      description: "Systematic approach for India's most prestigious civil services examination",
+      title: "Priya's UPSC Achievement",
+      description: "\"From overwhelmed to organized - the concept maps and daily plans made all the difference!\"",
       image: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
       examType: "UPSC",
-      examSpecifics: ["General Studies", "Optional Papers", "Interview"],
+      examSpecifics: ["Selected in CSE", "Topic Mastery", "Mood-based Study"],
       avatarImage: "/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png",
       animationDelay: 0.4
     }
@@ -230,14 +230,14 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
       }}
       className={`flex flex-col items-center justify-center ${index === activeSlide ? 'z-10' : 'z-0'}`}
     >
-      {/* Exam Badge */}
+      {/* Student Story Badge */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: slide.animationDelay + 0.2, duration: 0.4 }}
         className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-6 rounded-full shadow-lg z-20"
       >
-        {slide.examType}
+        Student Success Story
       </motion.div>
       
       {/* Main content with 3D effect */}
@@ -258,7 +258,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
             ease: "easeInOut" 
           }}
           style={{ transformStyle: 'preserve-3d' }}
-          className="relative mb-8"
+          className="relative mb-8 cursor-pointer"
         >
           <div className="absolute inset-0 bg-gradient-to-b from-indigo-100 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-3xl transform -rotate-3 scale-105 -z-10" />
           
@@ -291,19 +291,19 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
           style={{ transformStyle: 'preserve-3d', transform: 'translateZ(30px)' }}
         >
           <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
-          <p className="text-gray-700 dark:text-gray-300 mb-4">{slide.description}</p>
+          <p className="text-gray-700 dark:text-gray-300 mb-4 italic">{slide.description}</p>
           
-          {/* Subject pills */}
+          {/* Student achievement pills */}
           <div className="flex flex-wrap justify-center gap-2 mt-2">
-            {slide.examSpecifics.map((subject, idx) => (
+            {slide.examSpecifics.map((achievement, idx) => (
               <motion.span
                 key={idx}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 + slide.animationDelay + (idx * 0.1), duration: 0.3 }}
-                className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-200 text-xs px-3 py-1 rounded-full"
+                className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 text-xs px-3 py-1 rounded-full"
               >
-                {subject}
+                {achievement}
               </motion.span>
             ))}
           </div>

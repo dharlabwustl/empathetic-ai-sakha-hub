@@ -26,19 +26,22 @@ const HeroSection: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden min-h-[90vh] py-16 md:py-24 flex items-center">
-      {/* Background with 3D depth effect */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
+      {/* Enhanced 3D Background with depth effect */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50" />
+        
+        {/* Animated grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
           style={{
             backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
             backgroundSize: "40px 40px"
-          }}>
-        </div>
+          }}
+        />
       
-        {/* Abstract 3D shapes */}
+        {/* Abstract floating 3D shapes */}
         <motion.div 
-          className="absolute top-20 left-20 w-72 h-72 bg-blue-400/10 dark:bg-blue-700/5 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-20 left-20 w-96 h-96 bg-blue-400/10 dark:bg-blue-700/5 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.2, 1], 
             x: [0, 30, 0], 
@@ -52,7 +55,7 @@ const HeroSection: React.FC = () => {
         />
         
         <motion.div 
-          className="absolute top-40 right-20 w-64 h-64 bg-purple-300/20 dark:bg-purple-700/10 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-40 right-10 w-80 h-80 bg-purple-300/20 dark:bg-purple-700/10 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 0.8, 1], 
             x: [0, -20, 0], 
@@ -67,7 +70,7 @@ const HeroSection: React.FC = () => {
         />
       
         <motion.div 
-          className="absolute bottom-10 left-1/3 w-96 h-96 bg-indigo-300/20 dark:bg-indigo-600/10 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-10 left-1/3 w-96 h-96 bg-green-300/20 dark:bg-green-600/10 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.1, 1], 
             x: [0, 20, 0], 
@@ -87,11 +90,11 @@ const HeroSection: React.FC = () => {
           {/* Left Content: Title, description and buttons */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
-          {/* Right Content: 3D Animated Slider */}
+          {/* Right Content: 3D Animated Slider with Student Stories */}
           <HeroSlider activeSlide={activeSlide} setActiveSlide={setActiveSlide} />
         </div>
         
-        {/* Scroll indicator */}
+        {/* Enhanced 3D scroll indicator */}
         <motion.div 
           className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
           animate={{ y: [0, 10, 0] }}
