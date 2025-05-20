@@ -38,7 +38,7 @@ const AdminAppRoutes: React.FC = () => {
     studentsWithVerifiedConsistentHabits: 87,
     studentsWithConsistentHabits: 120,
     totalStudents: 250,
-    retentionRate: 85,
+    // Remove the invalid retentionRate property
     activeMoodTrackers: 150,
     studyTimeConsistencyImprovement: 28,
     completedStudyPlans: 145,

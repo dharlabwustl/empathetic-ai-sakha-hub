@@ -10,3 +10,10 @@ export interface Joke {
   likes: number;
   author: string;
 }
+
+export interface Video {
+  id: number;
+  title: string;
+  thumbnail: string;
+  duration: string;
+}

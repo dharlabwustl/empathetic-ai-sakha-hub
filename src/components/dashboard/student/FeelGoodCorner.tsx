@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { MoodType } from '@/types/user/base';
 
 const FeelGoodCorner: React.FC = () => {
   return (

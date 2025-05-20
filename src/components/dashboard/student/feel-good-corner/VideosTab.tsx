@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Video } from "./types";
 
 // Mock data
-const mockVideos = [
+const mockVideos: Video[] = [
   { id: 1, title: "When Physics Goes Wrong", thumbnail: "https://source.unsplash.com/random/300x200?comedy", duration: "0:30" },
   { id: 2, title: "Funny Animal Bloopers", thumbnail: "https://source.unsplash.com/random/300x200?animals", duration: "0:27" },
   { id: 3, title: "Study Break Comedy", thumbnail: "https://source.unsplash.com/random/300x200?laugh", duration: "0:30" },
@@ -38,7 +38,7 @@ const VideosTab: React.FC<VideosTabProps> = ({ initialVideos = mockVideos }) => 
       <div className="space-y-4">
         <h3 className="font-medium">30-Second Laugh Break</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {mockVideos.map((video) => (
+          {initialVideos.map((video) => (
             <motion.div 
               key={video.id} 
               className="rounded-lg overflow-hidden border bg-white shadow-sm"

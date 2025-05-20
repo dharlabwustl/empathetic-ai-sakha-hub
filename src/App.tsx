@@ -138,11 +138,11 @@ function App() {
               } />
               
               {/* Add other admin routes */}
-              {adminRoutes.map((route, index) => (
+              {adminRoutes.map((route) => (
                 <Route 
-                  key={index} 
-                  path={route.path} 
-                  element={route.element}
+                  key={route.key} 
+                  path={route.props.path} 
+                  element={route.props.element}
                 />
               ))}
 
