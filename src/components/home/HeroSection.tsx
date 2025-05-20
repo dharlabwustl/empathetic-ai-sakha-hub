@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,16 @@ import { ArrowRight, Heart, Target, Users, GraduationCap, BookOpen, Brain } from
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto-rotate slides
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGetStarted = () => {
     navigate('/signup');
@@ -15,6 +25,21 @@ const HeroSection: React.FC = () => {
   const handleExploreStudyPlans = () => {
     navigate('/study-plans');
   };
+
+  const slides = [
+    {
+      title: "Transforming Exam Preparation",
+      description: "Our AI-driven platform adapts to your unique learning style for maximum results."
+    },
+    {
+      title: "Personalized Learning Paths",
+      description: "Custom study plans that evolve with your progress and emotional state."
+    },
+    {
+      title: "Master Concepts, Not Just Facts",
+      description: "Deep understanding through interactive visualizations and targeted practice."
+    }
+  ];
 
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 text-white">
@@ -42,19 +67,47 @@ const HeroSection: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-300">
-                We understand your mindset,
-              </span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 mt-2">
-                not just the exam
-              </span>
-            </h1>
+            {/* Dynamic title with transitions */}
+            <div className="h-32 md:h-24">
+              {slides.map((slide, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: activeSlide === index ? 1 : 0,
+                    y: activeSlide === index ? 0 : 20
+                  }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute"
+                  style={{ display: activeSlide === index ? 'block' : 'none' }}
+                >
+                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-300">
+                      We understand your mindset,
+                    </span>
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 mt-2">
+                      not just the exam
+                    </span>
+                  </h1>
+                  
+                  <p className="text-xl text-gray-300 max-w-xl mt-4">
+                    {slide.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
 
-            <p className="text-xl text-gray-300 max-w-xl">
-              The first exam preparation platform that adapts to your unique learning style and emotional state, 
-              delivering personalized study experiences for maximum results.
-            </p>
+            {/* Slider navigation dots */}
+            <div className="flex space-x-2">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-3 h-3 rounded-full transition-colors duration-300 ${activeSlide === idx ? 'bg-indigo-400' : 'bg-gray-600'}`}
+                  onClick={() => setActiveSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
 
             <div className="flex flex-wrap gap-4">
               <Button 

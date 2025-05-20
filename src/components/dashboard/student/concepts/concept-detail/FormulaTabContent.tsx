@@ -1,9 +1,16 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FlaskConical, Lightbulb, Target, ArrowRight } from "lucide-react";
+import { FlaskConical, Lightbulb, Target, ArrowRight, BookOpen } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export interface FormulaTabContentProps {
   conceptId: string;
@@ -45,6 +52,20 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
     "Variable manipulation practice",
     "Real-world application examples"
   ];
+  
+  // Auto-rotate carousel
+  const [api, setApi] = useState<any>();
+  
+  useEffect(() => {
+    if (!api) return;
+    
+    // Set up auto-rotation
+    const autoRotateInterval = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+    
+    return () => clearInterval(autoRotateInterval);
+  }, [api]);
 
   return (
     <div className="p-6 space-y-8">
@@ -61,34 +82,37 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
         </Button>
       </div>
 
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {formulas.map((formula) => (
-          <Card 
-            key={formula.id} 
-            className="overflow-hidden border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-800 dark:to-indigo-950/30"
-          >
-            <CardContent className="p-6">
-              <div className="text-xl font-mono text-center py-3 my-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                {formula.formula}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">
-                {formula.description}
-              </p>
-              <div className="mt-4 flex items-start gap-2">
-                <Target className="h-4 w-4 text-indigo-600 dark:text-indigo-400 mt-0.5" />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  <span className="font-medium">Application:</span> {formula.application}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </motion.div>
+      {/* Switched to carousel for auto-rotation */}
+      <Carousel setApi={setApi} className="w-full">
+        <CarouselContent>
+          {formulas.map((formula) => (
+            <CarouselItem key={formula.id} className="md:basis-1/2">
+              <Card 
+                className="overflow-hidden border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-800 dark:to-indigo-950/30"
+              >
+                <CardContent className="p-6">
+                  <div className="text-xl font-mono text-center py-3 my-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                    {formula.formula}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">
+                    {formula.description}
+                  </p>
+                  <div className="mt-4 flex items-start gap-2">
+                    <Target className="h-4 w-4 text-indigo-600 dark:text-indigo-400 mt-0.5" />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="font-medium">Application:</span> {formula.application}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <div className="hidden md:flex">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
+      </Carousel>
 
       <div className="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-indigo-100 dark:border-indigo-800/30">
         <div className="flex items-start gap-4">
