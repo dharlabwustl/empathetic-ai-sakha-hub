@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,13 +56,17 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
 
   const handleCardClick = (e: React.MouseEvent) => {
     console.log("ConceptCard - Clicked with id:", id);
+    // Use the route format that matches the route defined in AppRoutes.tsx
     navigate(`/dashboard/student/concepts/${id}`);
+    if (onView) onView();
   };
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("ConceptCard - Study Now clicked with id:", id);
+    // Use the route format that matches the route defined in AppRoutes.tsx
     navigate(`/dashboard/student/concepts/${id}`);
+    if (onView) onView();
   };
 
   return (
