@@ -36,6 +36,8 @@ const ConceptDetailPage: React.FC = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { toast } = useToast();
   
+  console.log("ConceptDetailPage - Rendering with conceptId:", conceptId);
+  
   // In a real app, you would fetch data based on conceptId
   const concept = demoConceptData;
   

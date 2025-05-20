@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,7 +58,6 @@ const BacklogTasksList: React.FC<BacklogTasksListProps> = ({ tasks, onStartTask 
   // Handle task click navigation
   const handleTaskStart = (task: Task) => {
     if (task.type === TaskType.Concept) {
-      // Updated to use the consistent URL pattern
       navigate(`/dashboard/student/concepts/${task.id}`);
     } else {
       onStartTask(task.id);

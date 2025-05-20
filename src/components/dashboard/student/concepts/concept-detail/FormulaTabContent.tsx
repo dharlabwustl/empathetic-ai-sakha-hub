@@ -15,6 +15,8 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   conceptTitle,
   handleOpenFormulaLab 
 }) => {
+  console.log("FormulaTabContent - Rendering with conceptId:", conceptId);
+  
   // Sample formulas for this concept (in a real app, these would come from API)
   const formulas = [
     { id: "f1", formula: "F = ma", description: "Force equals mass times acceleration", variables: [
