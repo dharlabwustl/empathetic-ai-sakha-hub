@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -12,8 +13,9 @@ import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import EnhancedVoiceAssistant from '@/components/voice/EnhancedVoiceAssistant';
+import TourGuide from '@/components/dashboard/student/tour/TourGuide';
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -23,6 +25,7 @@ const StudentDashboard = () => {
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
+  const [showTourGuide, setShowTourGuide] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -159,6 +162,7 @@ const StudentDashboard = () => {
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
+    setShowTourGuide(true); // Show the comprehensive tour guide after welcome prompt
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -168,12 +172,12 @@ const StudentDashboard = () => {
     navigate('/dashboard/student?new=true');
   };
 
-  const handleOpenVoiceAssistant = () => {
-    setShowVoiceAssistant(true);
+  const handleOpenTourGuide = () => {
+    setShowTourGuide(true);
   };
 
-  const handleCloseVoiceAssistant = () => {
-    setShowVoiceAssistant(false);
+  const handleCloseTourGuide = () => {
+    setShowTourGuide(false);
   };
 
   const handleNavigationCommand = (route: string) => {
@@ -241,6 +245,7 @@ const StudentDashboard = () => {
         onMoodChange={handleMoodChange}
         onProfileImageUpdate={handleProfileImageUpdate}
         upcomingEvents={upcomingEvents}
+        onOpenTourGuide={handleOpenTourGuide}
       >
         {getTabContent()}
       </DashboardLayout>
@@ -257,7 +262,7 @@ const StudentDashboard = () => {
         loginCount={userProfile.loginCount}
       />
 
-      {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
+      {/* Dashboard Welcome Prompt - shows after tour completion */}
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
@@ -265,25 +270,24 @@ const StudentDashboard = () => {
         />
       )}
 
-      {/* Enhanced Voice Greeting with UN sustainability goals message */}
+      {/* Voice Greeting */}
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en"
+        language={getPreferredAccent()}
       />
       
-      {/* Enhanced Dashboard Voice Assistant that considers user mood */}
-      <DashboardVoiceAssistant
+      {/* Enhanced Voice Assistant */}
+      <EnhancedVoiceAssistant
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
-        userMood={currentMood}
-      />
-
-      {/* NEW: Floating voice assistant button with settings panel */}
-      <FloatingVoiceButton 
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
+        currentScreen="dashboard"
         onNavigationCommand={handleNavigationCommand}
+      />
+      
+      {/* Comprehensive Tour Guide */}
+      <TourGuide 
+        isOpen={showTourGuide} 
+        onClose={handleCloseTourGuide} 
       />
     </>
   );
