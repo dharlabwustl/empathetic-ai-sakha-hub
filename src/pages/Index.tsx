@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import Hero3DSection from '@/components/home/Hero3DSection';
@@ -20,18 +20,11 @@ import { useNavigate } from 'react-router-dom';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import { Helmet } from 'react-helmet-async';
-import VoiceSettingsMenu from '@/components/voice/VoiceSettingsMenu';
 
 const Index = () => {
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  
-  // Get saved voice preference
-  const getSavedVoicePreference = (): string => {
-    return localStorage.getItem('preferred_voice_language') || 'en-GB'; // Default to UK English
-  };
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -72,18 +65,8 @@ const Index = () => {
     };
   }, []);
 
-  // Update document title
-  React.useEffect(() => {
-    document.title = "PREP-zer - Your AI Educational Champion";
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
-      <Helmet>
-        <title>PREP-zer - Your AI Educational Champion</title>
-        <meta name="description" content="AI-driven educational platform specially designed for Indian competitive exams like JEE, NEET, UPSC, CAT and more." />
-      </Helmet>
-      
       <Header />
       
       <main>
@@ -139,12 +122,7 @@ const Index = () => {
       <Footer />
       
       {/* Enhanced homepage voice assistant with improved Indian English guidance */}
-      <HomePageVoiceAssistant language={getSavedVoicePreference()} />
-      
-      {/* Voice settings menu (displayed in the floating button area) */}
-      <div className="fixed bottom-20 right-6 z-50">
-        <VoiceSettingsMenu />
-      </div>
+      <HomePageVoiceAssistant language="en-IN" />
       
       {/* Floating Voice Assistant button */}
       <div className="fixed bottom-6 right-6 z-50">
@@ -172,7 +150,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language={getSavedVoicePreference()}
+          language="en-IN"  // Default to Indian English
         />
       )}
     </div>

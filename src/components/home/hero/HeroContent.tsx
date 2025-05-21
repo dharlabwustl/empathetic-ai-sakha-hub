@@ -14,8 +14,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
   const painPoints = [
     "Overwhelming syllabus",
     "Ineffective study techniques",
-    "Lack of personalized guidance",
-    "Exam anxiety & stress"
+    "Lack of personalized guidance"
   ];
   
   return (
@@ -38,7 +37,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </div>
       
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-        Your AI Educational Champion
+        Your journey from student to exam champion starts here
       </h1>
       
       <motion.div 

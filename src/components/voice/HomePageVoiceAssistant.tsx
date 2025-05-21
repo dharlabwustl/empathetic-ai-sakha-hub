@@ -15,18 +15,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const { toast } = useToast();
   const location = useLocation();
   
-  // Get the saved voice preference from local storage
-  const getSavedVoicePreference = () => {
-    const savedLanguage = localStorage.getItem('preferred_voice_language');
-    if (savedLanguage) {
-      return savedLanguage;
-    }
-    return 'en-GB'; // Default to UK English
-  };
-  
-  // Use the saved voice preference
-  const preferredLanguage = getSavedVoicePreference();
-  
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
@@ -61,14 +49,14 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // Use a timeout to ensure the component is fully mounted
       const timer = setTimeout(() => {
         try {
-          const message = getContextMessage(location.pathname, preferredLanguage);
+          const message = getContextMessage(location.pathname, language);
           
           // Create speech synthesis utterance
           const speech = new SpeechSynthesisUtterance();
           
           // Correct PREPZR pronunciation by using proper spelling in the text
           speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
-          speech.lang = preferredLanguage;
+          speech.lang = language;
           speech.rate = 0.98; // Normal rate for clarity
           speech.pitch = 1.05; // Slightly higher for a more vibrant tone
           speech.volume = 0.9;
@@ -76,15 +64,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
           
-          // Define voice preferences based on language
-          let preferredVoiceNames = [];
-          if (preferredLanguage === 'en-GB') {
-            preferredVoiceNames = ['Google UK English Female', 'Microsoft Libby', 'English United Kingdom', 'British', 'en-GB'];
-          } else if (preferredLanguage === 'en-IN') { 
-            preferredVoiceNames = ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India'];
-          } else {
-            preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US'];
-          }
+          // Try to find a clear, vibrant voice - preferring Indian English voices for en-IN
+          const preferredVoiceNames = language === 'en-IN' 
+            ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India']
+            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
           
           // Try to find a preferred voice
           let selectedVoice = null;
@@ -147,7 +130,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [greetingPlayed, shouldPlayGreeting, location.pathname, preferredLanguage, audioMuted, toast]);
+  }, [greetingPlayed, shouldPlayGreeting, location.pathname, language, audioMuted, toast]);
   
   // Listen for custom events to mute/unmute
   useEffect(() => {

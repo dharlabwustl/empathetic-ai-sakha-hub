@@ -12,8 +12,8 @@ import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("admin@prepzr.com"); // Pre-filled for testing
-  const [password, setPassword] = useState("Admin@2025#Secure"); // Pre-filled for testing
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
