@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HeroContent from './hero/HeroContent';
@@ -8,14 +8,26 @@ import HeroSlider from './hero/HeroSlider';
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeSlide, setActiveSlide] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-rotate slides
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Set new interval
+    intervalRef.current = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 3); // Assuming 3 slides
     }, 5000); // Change slide every 5 seconds
     
-    return () => clearInterval(interval);
+    // Cleanup on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   // Handler for exam readiness analyzer

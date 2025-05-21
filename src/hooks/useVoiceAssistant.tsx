@@ -1,31 +1,20 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-interface VoiceAssistantSettings {
-  enabled: boolean;
-  muted: boolean;
-  volume: number;
-  rate: number;
-  pitch: number;
-  voice: SpeechSynthesisVoice | null;
-}
+import { getPreferredAccent, DEFAULT_VOICE_SETTINGS, getBestVoiceForLanguage } from '@/components/dashboard/student/voice/voiceUtils';
+import type { VoiceSettings, SupportedLanguage } from '@/components/dashboard/student/voice/voiceUtils';
 
 interface UseVoiceAssistantProps {
   userName?: string;
-  initialSettings?: Partial<VoiceAssistantSettings>;
+  initialSettings?: Partial<VoiceSettings>;
 }
 
 export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }: UseVoiceAssistantProps) => {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<VoiceAssistantSettings>({
-    enabled: true,
-    muted: false,
-    volume: 0.8,
-    rate: 1.0,
-    pitch: 1.0,
-    voice: null,
-    ...initialSettings
+  const [settings, setSettings] = useState<VoiceSettings>({
+    ...DEFAULT_VOICE_SETTINGS,
+    ...initialSettings,
+    language: initialSettings.language || getPreferredAccent()
   });
 
   const [isListening, setIsListening] = useState(false);
@@ -39,28 +28,8 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Try to find a vibrant voice by default (US English preferred)
-        const preferredVoiceTypes = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US', 'en-GB'];
-        
-        // Find best matching voice
-        let selectedVoice: SpeechSynthesisVoice | null = null;
-        
-        for (const preferredType of preferredVoiceTypes) {
-          const foundVoice = voices.find(voice => 
-            voice.name?.toLowerCase().includes(preferredType.toLowerCase()) || 
-            voice.lang?.toLowerCase().includes(preferredType.toLowerCase())
-          );
-          
-          if (foundVoice) {
-            selectedVoice = foundVoice;
-            break;
-          }
-        }
-        
-        // If no preferred voice is found, use the first available voice
-        if (!selectedVoice && voices.length > 0) {
-          selectedVoice = voices[0];
-        }
+        // Find best matching voice for the selected language
+        const selectedVoice = getBestVoiceForLanguage(voices, settings.language);
         
         if (selectedVoice) {
           setSettings(prev => ({ ...prev, voice: selectedVoice }));
@@ -81,7 +50,7 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         window.speechSynthesis.onvoiceschanged = null;
       }
     };
-  }, []);
+  }, [settings.language]);
   
   // Function to speak text
   const speakText = (text: string) => {
@@ -108,6 +77,7 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     utterance.volume = settings.volume;
     utterance.rate = settings.rate;
     utterance.pitch = settings.pitch;
+    utterance.lang = settings.language;
     
     // Set event handlers
     utterance.onstart = () => setIsSpeaking(true);
@@ -151,11 +121,22 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   };
   
   // Update settings
-  const updateSettings = (newSettings: Partial<VoiceAssistantSettings>) => {
+  const updateSettings = (newSettings: Partial<VoiceSettings>) => {
     setSettings(prev => ({
       ...prev,
       ...newSettings
     }));
+    
+    // If language changed, we need to find a new voice
+    if (newSettings.language && newSettings.language !== settings.language) {
+      const newVoice = getBestVoiceForLanguage(availableVoices, newSettings.language);
+      if (newVoice) {
+        setSettings(prev => ({ ...prev, voice: newVoice }));
+      }
+      
+      // Save preferred accent to localStorage
+      localStorage.setItem('preferred_voice_accent', newSettings.language);
+    }
     
     // If muting, stop any ongoing speech
     if (newSettings.muted && isSpeaking && window.speechSynthesis) {
