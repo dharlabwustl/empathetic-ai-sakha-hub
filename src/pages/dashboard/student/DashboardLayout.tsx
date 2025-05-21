@@ -43,7 +43,6 @@ interface DashboardLayoutProps {
     time: string;
     type: "exam" | "task" | "revision";
   }>;
-  onOpenTourGuide?: () => void;
 }
 
 const DashboardLayout = ({
@@ -69,8 +68,7 @@ const DashboardLayout = ({
   onMoodChange,
   children,
   onProfileImageUpdate,
-  upcomingEvents = [],
-  onOpenTourGuide
+  upcomingEvents = []
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -141,7 +139,7 @@ const DashboardLayout = ({
             onToggleSidebar={onToggleSidebar}
             formattedDate={formattedDate}
             formattedTime={formattedTime}
-            onOpenTour={onOpenTourGuide}
+            onOpenTour={handleOpenTour}
             userName={userProfile.name}
             mood={currentMood}
             isFirstTimeUser={isFirstTimeUser}

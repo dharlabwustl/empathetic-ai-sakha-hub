@@ -68,7 +68,7 @@ const ConceptDetailPage: React.FC = () => {
       setUserNotes(savedNotes);
       
     }, 500);
-  }, [conceptId, getNoteForConcept]);
+  }, [conceptId]);
 
   // Handle saving notes
   const handleSaveNotes = () => {
@@ -156,9 +156,6 @@ const ConceptDetailPage: React.FC = () => {
           masteryLevel={masteryLevel}
           onMasteryUpdate={handleMasteryUpdate}
           handleOpenFormulaLab={handleOpenFormulaLab}
-          userNotes={userNotes}
-          setUserNotes={setUserNotes}
-          handleSaveNotes={handleSaveNotes}
         />
       </div>
     </SharedPageLayout>

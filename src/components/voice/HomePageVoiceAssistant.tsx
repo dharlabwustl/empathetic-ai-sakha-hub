@@ -1,90 +1,162 @@
 
-import React, { useState, useEffect } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { getPreferredAccent } from '@/components/dashboard/student/voice/voiceUtils';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface HomePageVoiceAssistantProps {
   language?: string;
 }
 
 const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = getPreferredAccent()
+  language = 'en-US'
 }) => {
+  const [greetingPlayed, setGreetingPlayed] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(false);
   const { toast } = useToast();
-  const [hasSpoken, setHasSpoken] = useState(false);
+  const location = useLocation();
   
-  useEffect(() => {
-    const hasVisitedBefore = localStorage.getItem('has_visited_home') === 'true';
-    
-    // Check if voice is muted
-    const isVoiceMuted = localStorage.getItem('voice_assistant_muted') === 'true';
-    const isVoiceDisabled = localStorage.getItem('voice_assistant_enabled') === 'false';
-    
-    if (!hasVisitedBefore && !isVoiceMuted && !isVoiceDisabled && !hasSpoken) {
-      // First time visitor
-      setTimeout(() => {
-        speakWelcome();
-        localStorage.setItem('has_visited_home', 'true');
-        setHasSpoken(true);
-      }, 2000);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Check if the current location is appropriate for voice greeting
+  const shouldPlayGreeting = location.pathname === '/' || 
+                            location.pathname.includes('/signup') ||
+                            location.pathname.includes('/welcome') ||
+                            location.pathname.includes('/free-trial') ||
+                            location.pathname.includes('/exam-readiness');
   
-  const speakWelcome = () => {
-    if (!('speechSynthesis' in window)) {
-      return;
+  // Get concise, context-aware message based on page
+  const getContextMessage = (path: string, lang: string) => {
+    if (path === '/') {
+      return "Welcome to PREP-zer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state, giving you a powerful edge in competitive exams. How can I assist you today?";
+    } else if (path.includes('/signup')) {
+      return "Welcome to PREP-zer! I'm Sakha AI. We provide hyper-personalized study plans based on your emotional state and learning style. Would you like assistance with signing up?";
+    } else if (path.includes('/free-trial')) {
+      return "Welcome to your free trial of PREP-zer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs. What would you like to explore first?";
+    } else if (path.includes('/exam-readiness')) {
+      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style. Ready to begin?";
     }
     
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    let welcomeText;
-    
-    // Different welcome text based on language
-    if (language === 'hi-IN') {
-      welcomeText = "नमस्ते और प्रेप-ज़र में आपका स्वागत है। हम आपकी परीक्षा की तैयारी में मदद करने के लिए यहां हैं।";
-    } else if (language === 'en-IN') {
-      welcomeText = "Namaste and welcome to PREP-zer. We're here to help you ace your exams with personalized guidance.";
-    } else if (language === 'en-GB') {
-      welcomeText = "Welcome to PREP-zer. We're here to help you ace your exams with personalised guidance and intelligent study plans.";
-    } else {
-      welcomeText = "Welcome to PREP-zer. We're here to help you ace your exams with personalized guidance and intelligent study plans.";
-    }
-    
-    const utterance = new SpeechSynthesisUtterance(welcomeText);
-    utterance.lang = language;
-    
-    // Get available voices
-    const voices = window.speechSynthesis.getVoices();
-    
-    // Try to find a language-matching voice
-    const matchingVoices = voices.filter(voice => voice.lang.startsWith(language));
-    
-    if (matchingVoices.length > 0) {
-      // Prefer female voices
-      const femaleVoice = matchingVoices.find(voice => 
-        !voice.name.toLowerCase().includes('male') || 
-        voice.name.toLowerCase().includes('female')
-      );
-      utterance.voice = femaleVoice || matchingVoices[0];
-    }
-    
-    // Event handlers
-    utterance.onend = () => {
-      // Prompt user about voice assistant
-      toast({
-        title: "Voice Assistant Available",
-        description: "Click the voice button in the bottom right corner for voice help.",
-        duration: 5000,
-      });
-    };
-    
-    // Speak
-    window.speechSynthesis.speak(utterance);
+    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
   };
   
-  return null; // This component only handles the voice functionality
+  useEffect(() => {
+    // Load mute preference
+    const muteSetting = localStorage.getItem('voice_assistant_muted');
+    if (muteSetting === 'true') {
+      setAudioMuted(true);
+    }
+    
+    // Only play the greeting if speech synthesis is supported and we're on the right page
+    if ('speechSynthesis' in window && !greetingPlayed && shouldPlayGreeting && !audioMuted) {
+      // Use a timeout to ensure the component is fully mounted
+      const timer = setTimeout(() => {
+        try {
+          const message = getContextMessage(location.pathname, language);
+          
+          // Create speech synthesis utterance
+          const speech = new SpeechSynthesisUtterance();
+          
+          // Correct PREPZR pronunciation by using proper spelling in the text
+          speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+          speech.lang = language;
+          speech.rate = 0.98; // Normal rate for clarity
+          speech.pitch = 1.05; // Slightly higher for a more vibrant tone
+          speech.volume = 0.9;
+          
+          // Get available voices
+          const voices = window.speechSynthesis.getVoices();
+          
+          // Try to find a clear, vibrant voice - preferring Indian English voices for en-IN
+          const preferredVoiceNames = language === 'en-IN' 
+            ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India']
+            : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
+          
+          // Try to find a preferred voice
+          let selectedVoice = null;
+          for (const name of preferredVoiceNames) {
+            const voice = voices.find(v => 
+              v.name?.toLowerCase().includes(name.toLowerCase()) || 
+              v.lang?.toLowerCase().includes(name.toLowerCase())
+            );
+            if (voice) {
+              selectedVoice = voice;
+              break;
+            }
+          }
+          
+          // If still no voice selected, use any available voice
+          if (!selectedVoice && voices.length > 0) {
+            selectedVoice = voices[0];
+          }
+          
+          // Set the selected voice if found
+          if (selectedVoice) {
+            speech.voice = selectedVoice;
+          }
+          
+          // Handle events
+          speech.onstart = () => console.log("Voice greeting started");
+          speech.onend = () => {
+            setGreetingPlayed(true);
+            console.log("Voice greeting completed");
+            
+            // Dispatch an event that voice greeting has completed
+            document.dispatchEvent(new CustomEvent('voice-greeting-completed'));
+          };
+          speech.onerror = (e) => {
+            console.error("Speech synthesis error", e);
+            setGreetingPlayed(true);
+          };
+          
+          // Speak the message
+          window.speechSynthesis.speak(speech);
+          
+          // Show toast notification
+          toast({
+            title: "Sakha AI Voice Assistant",
+            description: "Voice assistance is available on this page",
+            duration: 3000,
+          });
+        } catch (error) {
+          console.error("Error playing greeting:", error);
+          setGreetingPlayed(true);
+        }
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    // Cleanup function to cancel any ongoing speech when component unmounts
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [greetingPlayed, shouldPlayGreeting, location.pathname, language, audioMuted, toast]);
+  
+  // Listen for custom events to mute/unmute
+  useEffect(() => {
+    const handleMuteEvent = () => {
+      setAudioMuted(true);
+      localStorage.setItem('voice_assistant_muted', 'true');
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+    
+    const handleUnmuteEvent = () => {
+      setAudioMuted(false);
+      localStorage.setItem('voice_assistant_muted', 'false');
+    };
+    
+    document.addEventListener('voice-assistant-mute', handleMuteEvent);
+    document.addEventListener('voice-assistant-unmute', handleUnmuteEvent);
+    
+    return () => {
+      document.removeEventListener('voice-assistant-mute', handleMuteEvent);
+      document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
+    };
+  }, []);
+  
+  return null; // This component doesn't render any UI
 };
 
 export default HomePageVoiceAssistant;
