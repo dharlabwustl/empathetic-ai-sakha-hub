@@ -13,13 +13,7 @@ import {
   RefreshCw, 
   Star,
   Volume2, 
-  VolumeX,
-  Award,
-  LightbulbIcon,
-  History,
-  MessageSquare,
-  ArrowUpRight,
-  CheckSquare,
+  VolumeX
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -31,8 +25,6 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
 import AskTutorSection from './concept-detail/AskTutorSection';
 import RevisionSection from './concept-detail/RevisionSection';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 export interface ConceptDetailProps {
   conceptId: string;
@@ -65,40 +57,9 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [validationCompleted, setValidationCompleted] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
   const isMobile = useIsMobile();
 
   const { toast } = useToast();
-
-  // Insight data
-  const conceptInsights = {
-    importance: 'High',
-    frequentlyAsked: true,
-    lastRevised: '3 days ago',
-    examFrequency: '85%',
-    relatedInsights: [
-      'This concept appears in at least 1 question every year',
-      'Often combined with Conservation of Energy in problems',
-      'Visual representations help 78% of students understand better'
-    ]
-  };
-
-  // Learning analytics
-  const learningAnalytics = {
-    averageTimeSpent: '15 minutes',
-    completionRate: '92%',
-    studentsStruggling: '23%',
-    topMisconception: 'Confusion between weight and mass'
-  };
-
-  // Learn history (mock data)
-  const learnHistory = [
-    { date: '2023-05-15', activity: 'First viewed', duration: '10m', score: null },
-    { date: '2023-05-18', activity: 'Revisited concept', duration: '8m', score: null },
-    { date: '2023-05-20', activity: 'Took quiz', duration: '5m', score: '80%' },
-    { date: '2023-05-25', activity: 'Revision', duration: '12m', score: null },
-    { date: '2023-06-01', activity: 'Practice test', duration: '4m', score: '90%' }
-  ];
 
   const handleSaveNotes = () => {
     toast({
@@ -119,6 +80,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
         variant: "default",
       });
     }
+    // In a real app, you would navigate to the formula lab page
   };
 
   const handleBookmark = () => {
@@ -179,69 +141,28 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     }
   };
 
-  // Difficulty badge color
-  const difficultyColor = {
-    easy: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
-    medium: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/30',
-    hard: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/30'
-  };
-
   // Main content area - Tabs and content display
   return (
     <div className="space-y-6">
-      {/* Header info section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <Badge variant="outline" className="bg-indigo-100 dark:bg-indigo-900/20 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/30">
-            {subject}
-          </Badge>
-          <Badge variant="outline" className="bg-violet-100 dark:bg-violet-900/20 text-violet-800 dark:text-violet-300 border-violet-200 dark:border-violet-800/30">
-            {topic}
-          </Badge>
-          <Badge variant="outline" className={difficultyColor[difficulty]}>
-            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-          </Badge>
+      {/* Progress bar section */}
+      <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
+            <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+            Concept Mastery
+          </h3>
+          <span className="text-sm font-medium">{masteryLevel}%</span>
         </div>
-        
-        {/* Mastery progress */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center">
-              <Brain className="h-4 w-4 mr-1.5 text-indigo-500" /> 
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Concept Mastery</span>
-            </div>
-            <span className="text-sm font-medium">{masteryLevel}%</span>
-          </div>
-          <Progress 
-            value={masteryLevel} 
-            className="h-2 bg-gray-100 dark:bg-gray-700"
-          />
-        </div>
-        
-        {/* Badges and insights */}
-        <div className="flex flex-wrap gap-3 mt-2">
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
-            <Award className="h-3.5 w-3.5 mr-1 text-amber-500" />
-            <span>Importance: {conceptInsights.importance}</span>
-          </div>
-          
-          {conceptInsights.frequentlyAsked && (
-            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
-              <Star className="h-3.5 w-3.5 mr-1 text-amber-500" />
-              <span>Frequently Asked</span>
-            </div>
-          )}
-          
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
-            <History className="h-3.5 w-3.5 mr-1 text-blue-500" />
-            <span>Last Revised: {conceptInsights.lastRevised}</span>
-          </div>
-          
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
-            <LightbulbIcon className="h-3.5 w-3.5 mr-1 text-purple-500" />
-            <span>Exam Frequency: {conceptInsights.examFrequency}</span>
-          </div>
-        </div>
+        <Progress 
+          value={masteryLevel} 
+          className="h-2 bg-gray-200 dark:bg-gray-700"
+        />
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+          {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
+          {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+          {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
+        </p>
       </div>
 
       {/* Main content and sidebar layout */}
@@ -347,151 +268,45 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           {/* Quick actions card */}
-          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <div className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <CheckSquare className="h-4 w-4 text-indigo-500" /> 
-                Quick Actions
-              </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
+            <div className="flex flex-col gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="justify-start"
+                onClick={toggleReadAloud}
+              >
+                {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+              </Button>
               
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="justify-start h-9 text-xs"
-                  onClick={toggleReadAloud}
-                >
-                  {isReadingAloud ? <VolumeX className="h-3.5 w-3.5 mr-1.5" /> : <Volume2 className="h-3.5 w-3.5 mr-1.5" />}
-                  {isReadingAloud ? "Stop" : "Read Aloud"}
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={`justify-start h-9 text-xs ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
-                  onClick={handleToggleFlag}
-                >
-                  <Flag className="h-3.5 w-3.5 mr-1.5" />
-                  {isFlagged ? "Remove Flag" : "Flag"}
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="justify-start h-9 text-xs"
-                  onClick={openFormulaLab}
-                >
-                  <FlaskConical className="h-3.5 w-3.5 mr-1.5" />
-                  Formula Lab
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={`justify-start h-9 text-xs ${isBookmarked ? 'border-blue-500 text-blue-600 dark:border-blue-700 dark:text-blue-400' : ''}`}
-                  onClick={handleBookmark}
-                >
-                  <Star className="h-3.5 w-3.5 mr-1.5" />
-                  {isBookmarked ? "Bookmarked" : "Bookmark"}
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`justify-start ${isFlagged ? 'border-amber-500 text-amber-600 dark:border-amber-700 dark:text-amber-400' : ''}`}
+                onClick={handleToggleFlag}
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                {isFlagged ? "Remove from Revision" : "Flag for Revision"}
+              </Button>
               
               {validationCompleted && quizScore !== null && (
                 <div className="flex items-center justify-between px-2 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md">
                   <div className="flex items-center">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-500 mr-2" />
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500 mr-2" />
                     <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                      Quiz Score
+                      Validation Score
                     </span>
                   </div>
-                  <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 text-xs h-5">
+                  <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
                     {quizScore}%
                   </Badge>
                 </div>
               )}
-            </CardContent>
-          </Card>
-          
-          {/* Learning Insights */}
-          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <div className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <LightbulbIcon className="h-4 w-4 text-amber-500" /> 
-                Learning Insights
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                {conceptInsights.relatedInsights.map((insight, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="h-1.5 w-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0" />
-                    <p className="text-xs">{insight}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">Avg. Time Spent</div>
-                  <div className="font-medium">{learningAnalytics.averageTimeSpent}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">Completion Rate</div>
-                  <div className="font-medium">{learningAnalytics.completionRate}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">Students Struggling</div>
-                  <div className="font-medium">{learningAnalytics.studentsStruggling}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400">Top Misconception</div>
-                  <div className="font-medium text-red-600 dark:text-red-400 truncate" title={learningAnalytics.topMisconception}>
-                    {learningAnalytics.topMisconception}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Learn History Button */}
-          <Button 
-            variant="outline" 
-            className="w-full justify-between"
-            onClick={() => setShowHistory(!showHistory)}
-          >
-            <span className="flex items-center">
-              <History className="h-4 w-4 mr-2" />
-              Your Learn History
-            </span>
-            <ArrowUpRight className="h-4 w-4" />
-          </Button>
-          
-          {/* History dropdown */}
-          {showHistory && (
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm animate-accordion-down">
-              <CardContent className="p-4 space-y-2">
-                <div className="text-sm font-medium">Your Activity History</div>
-                <div className="space-y-2">
-                  {learnHistory.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-xs py-1.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                      <div>
-                        <div className="font-medium">{item.activity}</div>
-                        <div className="text-gray-500">{item.date}</div>
-                      </div>
-                      <div className="text-right">
-                        <div>{item.duration}</div>
-                        {item.score && (
-                          <div className="font-medium text-green-600 dark:text-green-400">{item.score}</div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          
+            </div>
+          </div>
+        
           {/* Revision Section */}
           <RevisionSection 
             conceptId={conceptId}
@@ -500,48 +315,6 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
           />
         </motion.div>
       </div>
-      
-      {/* Style for content */}
-      <style jsx global>{`
-        .concept-content h2 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: #4F46E5;
-          margin-top: 1.5rem;
-          margin-bottom: 0.75rem;
-        }
-        
-        .concept-content h3 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: #6366F1;
-          margin-top: 1.25rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        .concept-content p {
-          margin-bottom: 1rem;
-          line-height: 1.6;
-        }
-        
-        .concept-content ul {
-          list-style-type: disc;
-          margin-left: 1.5rem;
-          margin-bottom: 1rem;
-        }
-        
-        .concept-content li {
-          margin-bottom: 0.5rem;
-        }
-        
-        .dark .concept-content h2 {
-          color: #818CF8;
-        }
-        
-        .dark .concept-content h3 {
-          color: #A5B4FC;
-        }
-      `}</style>
     </div>
   );
 };
