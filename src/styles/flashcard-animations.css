@@ -16,4 +16,165 @@
   transform: rotateY(180deg);
 }
 
-/* Add these to your global CSS or component specific CSS */
+/* Flip animation */
+.flip-card-container {
+  perspective: 1000px;
+}
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Card entrance animations */
+.card-enter-animation {
+  animation: cardEnter 0.5s ease-out forwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card exit animations */
+.card-exit-animation {
+  animation: cardExit 0.5s ease-in forwards;
+}
+
+@keyframes cardExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Card swipe animations */
+.card-swipe-right {
+  animation: swipeRight 0.5s ease-out forwards;
+}
+
+@keyframes swipeRight {
+  from {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(200px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+.card-swipe-left {
+  animation: swipeLeft 0.5s ease-out forwards;
+}
+
+@keyframes swipeLeft {
+  from {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-200px) rotate(-20deg);
+    opacity: 0;
+  }
+}
+
+/* Card stack effect */
+.card-stack {
+  position: relative;
+}
+
+.card-stack-item {
+  position: absolute;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.card-stack-item:nth-child(1) {
+  z-index: 3;
+}
+
+.card-stack-item:nth-child(2) {
+  transform: translateY(10px) scale(0.98);
+  opacity: 0.9;
+  z-index: 2;
+}
+
+.card-stack-item:nth-child(3) {
+  transform: translateY(20px) scale(0.96);
+  opacity: 0.8;
+  z-index: 1;
+}
+
+/* Pulse animation for important elements */
+.pulse-subtle {
+  animation: pulseSoft 2s infinite;
+}
+
+@keyframes pulseSoft {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* Shake animation for wrong answers */
+.shake {
+  animation: shakeEffect 0.4s linear;
+}
+
+@keyframes shakeEffect {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Success animation for correct answers */
+.success-pulse {
+  animation: successPulse 0.6s ease-in-out;
+}
+
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

@@ -14,9 +14,11 @@ import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
+import StudentJourneyTourGuide from '@/components/dashboard/student/StudentJourneyTourGuide';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  const [showTourGuide, setShowTourGuide] = useState(false);
   const navigate = useNavigate();
   
   const handleOpenVoiceAssistant = () => {
@@ -31,13 +33,36 @@ const Home = () => {
     navigate(route);
   };
 
+  const handleExamReadinessClick = () => {
+    // First, check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    
+    if (isLoggedIn) {
+      // If logged in, show tour guide
+      setShowTourGuide(true);
+    } else {
+      // If not logged in, redirect to login page
+      navigate('/login');
+    }
+  };
+
+  const handleCloseTourGuide = () => {
+    setShowTourGuide(false);
+  };
+
+  const handleCompleteTourGuide = () => {
+    setShowTourGuide(false);
+    // Navigate to dashboard after completing tour
+    navigate('/dashboard/student');
+  };
+
   return (
     <MainLayout>
       {/* Voice assistance */}
       <HomePageVoiceAssistant language="en-IN" />
       
       {/* Page content */}
-      <HeroSection />
+      <HeroSection handleExamReadinessClick={handleExamReadinessClick} />
       
       {/* UN Sustainability Goals Banner - replacing donation message */}
       <div className="container mx-auto px-4 my-8">
@@ -88,6 +113,13 @@ const Home = () => {
           language="en-IN"
         />
       )}
+      
+      {/* Student Journey Tour Guide */}
+      <StudentJourneyTourGuide
+        isVisible={showTourGuide}
+        onClose={handleCloseTourGuide}
+        onComplete={handleCompleteTourGuide}
+      />
     </MainLayout>
   );
 };

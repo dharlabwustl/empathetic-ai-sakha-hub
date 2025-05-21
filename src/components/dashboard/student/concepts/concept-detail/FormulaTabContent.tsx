@@ -1,9 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Beaker, Brain, Calculator, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { FlaskConical, ArrowRight, Lightbulb, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface FormulaTabContentProps {
@@ -17,218 +16,130 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   conceptTitle,
   handleOpenFormulaLab
 }) => {
-  const [activeFormulaIndex, setActiveFormulaIndex] = useState(0);
+  const [selectedFormula, setSelectedFormula] = useState<string | null>(null);
   
-  // Simulated formulas (in a real app, these would come from an API)
+  // Mock formulas - in a real app this would come from an API
   const formulas = [
     {
-      id: 'formula-1',
-      name: 'Force',
-      formula: 'F = m * a',
-      description: 'Force equals mass times acceleration',
-      units: 'Newtons (N)',
+      id: 'formula1',
+      name: "Newton's Second Law",
+      formula: "F = ma",
+      description: "Force equals mass times acceleration.",
       variables: [
-        { symbol: 'F', description: 'Force', unit: 'N' },
-        { symbol: 'm', description: 'Mass', unit: 'kg' },
-        { symbol: 'a', description: 'Acceleration', unit: 'm/s²' }
+        { symbol: "F", name: "Force", unit: "N (Newtons)" },
+        { symbol: "m", name: "Mass", unit: "kg (kilograms)" },
+        { symbol: "a", name: "Acceleration", unit: "m/s² (meters per second squared)" }
       ]
     },
     {
-      id: 'formula-2',
-      name: 'Kinetic Energy',
-      formula: 'KE = (1/2) * m * v²',
-      description: 'Kinetic energy equals half of mass times velocity squared',
-      units: 'Joules (J)',
+      id: 'formula2',
+      name: "Momentum",
+      formula: "p = mv",
+      description: "Momentum equals mass times velocity.",
       variables: [
-        { symbol: 'KE', description: 'Kinetic Energy', unit: 'J' },
-        { symbol: 'm', description: 'Mass', unit: 'kg' },
-        { symbol: 'v', description: 'Velocity', unit: 'm/s' }
+        { symbol: "p", name: "Momentum", unit: "kg·m/s" },
+        { symbol: "m", name: "Mass", unit: "kg (kilograms)" },
+        { symbol: "v", name: "Velocity", unit: "m/s (meters per second)" }
       ]
     },
     {
-      id: 'formula-3',
-      name: 'Gravitational Potential Energy',
-      formula: 'PE = m * g * h',
-      description: 'Potential energy equals mass times gravity times height',
-      units: 'Joules (J)',
+      id: 'formula3',
+      name: "Kinetic Energy",
+      formula: "KE = ½mv²",
+      description: "Kinetic energy equals half of mass times velocity squared.",
       variables: [
-        { symbol: 'PE', description: 'Potential Energy', unit: 'J' },
-        { symbol: 'm', description: 'Mass', unit: 'kg' },
-        { symbol: 'g', description: 'Gravitational acceleration', unit: 'm/s²' },
-        { symbol: 'h', description: 'Height', unit: 'm' }
+        { symbol: "KE", name: "Kinetic Energy", unit: "J (Joules)" },
+        { symbol: "m", name: "Mass", unit: "kg (kilograms)" },
+        { symbol: "v", name: "Velocity", unit: "m/s (meters per second)" }
       ]
     }
   ];
-
-  // Auto rotate formulas
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveFormulaIndex(prevIndex => (prevIndex + 1) % formulas.length);
-    }, 5000); // Change formula every 5 seconds
-    
-    return () => clearInterval(interval);
-  }, [formulas.length]);
   
-  const nextFormula = () => {
-    setActiveFormulaIndex(prevIndex => (prevIndex + 1) % formulas.length);
+  const handleFormulaClick = (formulaId: string) => {
+    setSelectedFormula(formulaId === selectedFormula ? null : formulaId);
   };
 
-  const prevFormula = () => {
-    setActiveFormulaIndex(prevIndex => (prevIndex - 1 + formulas.length) % formulas.length);
-  };
-  
   return (
-    <div className="p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Calculator className="h-6 w-6 text-blue-600" />
-            Formulas for {conceptTitle}
-          </h2>
-          <p className="text-muted-foreground mt-1">
-            Master the key formulas and practice with interactive problems
-          </p>
+    <div className="p-4">
+      <div className="mb-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800/30 p-4">
+        <div className="flex items-start gap-3">
+          <div className="bg-indigo-100 dark:bg-indigo-800/40 p-2 rounded-lg">
+            <FlaskConical className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-medium text-indigo-900 dark:text-indigo-300 mb-1">
+              Formula Reference for {conceptTitle}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              Master these key formulas to fully understand this concept and solve related problems effectively.
+            </p>
+            <Button 
+              onClick={handleOpenFormulaLab}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2"
+            >
+              Open Formula Lab <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        
-        <Button onClick={handleOpenFormulaLab} className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-          <Beaker className="h-5 w-5" />
-          Open Formula Lab
-        </Button>
       </div>
       
-      {/* Formula carousel */}
-      <div className="relative pt-10 pb-14">
-        <div className="absolute top-0 left-0 w-full flex justify-center gap-2 mb-4">
-          {formulas.map((_, index) => (
-            <span
-              key={index}
-              className={`h-2 w-2 rounded-full ${
-                index === activeFormulaIndex
-                  ? 'bg-blue-600'
-                  : 'bg-gray-300 dark:bg-gray-600'
-              }`}
-            />
-          ))}
-        </div>
-        
-        <div className="flex items-center justify-center">
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-0 z-10"
-            onClick={prevFormula}
+      <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-4">Key Formulas</h3>
+      
+      <div className="space-y-3">
+        {formulas.map(formula => (
+          <Card 
+            key={formula.id}
+            className={`border ${selectedFormula === formula.id ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-700'} overflow-hidden transition-all duration-200`}
           >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          
-          <div className="overflow-hidden w-full">
             <div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${activeFormulaIndex * 100}%)` }}
+              className="p-4 cursor-pointer"
+              onClick={() => handleFormulaClick(formula.id)}
             >
-              {formulas.map((formula, index) => (
-                <motion.div 
-                  key={formula.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ 
-                    opacity: index === activeFormulaIndex ? 1 : 0,
-                    scale: index === activeFormulaIndex ? 1 : 0.95
-                  }}
-                  transition={{ duration: 0.4 }}
-                  className="min-w-full px-4"
-                >
-                  <Card className="overflow-hidden border-t-4 border-t-blue-500">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-semibold text-blue-700">{formula.name}</h3>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          {formula.units}
-                        </Badge>
-                      </div>
-                      
-                      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md mb-4 flex items-center justify-center">
-                        <div className="text-2xl font-mono text-center">
-                          {formula.formula}
-                        </div>
-                      </div>
-                      
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">{formula.description}</p>
-                      
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Variables:</h4>
-                      <div className="grid grid-cols-3 gap-2">
-                        {formula.variables.map((variable, idx) => (
-                          <div key={idx} className="text-sm bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                            <span className="font-mono font-semibold">{variable.symbol}</span>: {variable.description} ({variable.unit})
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="flex justify-end mt-4">
-                        <Button variant="outline" size="sm" className="flex items-center gap-2 mr-2">
-                          <Brain className="h-4 w-4" />
-                          Practice
-                        </Button>
-                        <Button size="sm" className="flex items-center gap-2">
-                          <Calculator className="h-4 w-4" />
-                          Solve
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-0 z-10"
-            onClick={nextFormula}
-          >
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        {/* Auto-rotation indicator */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="w-full h-1 bg-gray-200 dark:bg-gray-700">
-            <motion.div 
-              className="h-full bg-blue-600"
-              initial={{ width: "0%" }}
-              animate={{ width: "100%" }}
-              transition={{ 
-                duration: 5,
-                repeat: Infinity,
-                repeatType: "loop"
-              }}
-            />
-          </div>
-        </div>
-      </div>
-      
-      {/* Additional formulas grid (abbreviated view) */}
-      <div className="mt-10">
-        <h3 className="font-medium text-lg mb-4">All Related Formulas</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {formulas.map(formula => (
-            <Card 
-              key={formula.id}
-              className="hover:border-blue-300 dark:hover:border-blue-700 cursor-pointer transition-colors"
-              onClick={() => setActiveFormulaIndex(formulas.findIndex(f => f.id === formula.id))}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">{formula.name}</h4>
-                  <Badge variant="outline">{formula.units}</Badge>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-center font-mono">
+              <div className="flex justify-between items-center">
+                <div className="font-medium">{formula.name}</div>
+                <div className="text-lg font-mono bg-white dark:bg-gray-800 px-3 py-1 rounded-md border border-gray-200 dark:border-gray-700">
                   {formula.formula}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+            </div>
+            
+            {selectedFormula === formula.id && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="px-4 pb-4 pt-2 border-t border-indigo-200 dark:border-indigo-800/50"
+              >
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <Lightbulb className="h-4 w-4 inline-block mr-2 text-amber-500" />
+                  {formula.description}
+                </div>
+                
+                <div className="space-y-1 text-sm">
+                  <div className="font-medium mb-1 text-gray-700 dark:text-gray-300">Variables:</div>
+                  {formula.variables.map((variable, idx) => (
+                    <div key={idx} className="flex items-center text-gray-600 dark:text-gray-400 ml-1">
+                      <div className="w-8 font-mono font-semibold text-indigo-600 dark:text-indigo-400">{variable.symbol}</div>
+                      <div className="flex-1">{variable.name}</div>
+                      <div className="text-gray-500 dark:text-gray-500 text-xs">{variable.unit}</div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 text-right">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400"
+                  >
+                    <BookOpen className="h-4 w-4" /> Learn More
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </Card>
+        ))}
       </div>
     </div>
   );
