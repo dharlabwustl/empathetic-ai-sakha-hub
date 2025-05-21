@@ -82,7 +82,7 @@ const Home = () => {
         onNavigationCommand={handleNavigationCommand}
       />
       
-      {/* Tour Guide */}
+      {/* Tour Guide - Make sure we're using the latest version */}
       <TourGuide 
         isOpen={showTourGuide} 
         onClose={() => setShowTourGuide(false)} 

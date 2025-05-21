@@ -42,7 +42,7 @@ const tourSteps = [
     title: "Your Academic Advisor",
     description: "This is your personalized hub where you get exam-specific details and an overview of your learning journey.",
     icon: Brain,
-    image: "/images/tour/advisor.png", // You'll need to add these images
+    image: "/images/tour/advisor.png", 
     route: "/dashboard/student/academic-advisor",
     detailedDescription: "Your Academic Advisor provides personalized guidance based on your learning style, goals, and progress. It analyzes your strengths and weaknesses to recommend the most effective study strategies.",
     voicePrompt: "Welcome to your Academic Advisor. This is where your personalized learning journey begins. The advisor will help you understand your exam requirements and create a tailored study plan."
@@ -126,6 +126,11 @@ const TourGuide: React.FC<TourGuideProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen && step) {
       speakMessage(step.voicePrompt || step.description);
+    }
+    
+    // Reset to first step when dialog is closed
+    if (!isOpen) {
+      setCurrentStep(0);
     }
   }, [isOpen, currentStep, step, speakMessage]);
 
@@ -219,7 +224,7 @@ const TourGuide: React.FC<TourGuideProps> = ({ isOpen, onClose }) => {
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     <div className="p-2 rounded-full bg-primary/10 mr-3">
-                      <step.icon className="w-6 h-6 text-primary" />
+                      {React.createElement(step.icon, { className: "w-6 h-6 text-primary" })}
                     </div>
                     <h3 className="text-xl font-semibold">{step.title}</h3>
                   </div>
@@ -252,21 +257,23 @@ const TourGuide: React.FC<TourGuideProps> = ({ isOpen, onClose }) => {
           <Tabs defaultValue="1" className="w-full">
             <TabsList className="grid grid-cols-4 mb-4">
               {tourSteps.slice(0, 4).map((step) => (
-                <TabsTrigger key={step.id} value={step.id.toString()}>
-                  <step.icon className="w-4 h-4 mr-1" /> {step.title}
+                <TabsTrigger key={step.id} value={String(step.id)}>
+                  {React.createElement(step.icon, { className: "w-4 h-4 mr-1" })}
+                  <span className="hidden sm:inline">{step.title}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
             <TabsList className="grid grid-cols-3 mb-6">
               {tourSteps.slice(4).map((step) => (
-                <TabsTrigger key={step.id} value={step.id.toString()}>
-                  <step.icon className="w-4 h-4 mr-1" /> {step.title}
+                <TabsTrigger key={step.id} value={String(step.id)}>
+                  {React.createElement(step.icon, { className: "w-4 h-4 mr-1" })}
+                  <span className="hidden sm:inline">{step.title}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
             
             {tourSteps.map((step) => (
-              <TabsContent key={step.id} value={step.id.toString()} className="space-y-4">
+              <TabsContent key={step.id} value={String(step.id)} className="space-y-4">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   {step.image && (
                     <div className="w-full h-48 bg-gray-200 dark:bg-gray-700">
@@ -293,7 +300,7 @@ const TourGuide: React.FC<TourGuideProps> = ({ isOpen, onClose }) => {
           </Tabs>
         )}
 
-        <DialogFooter className={`${viewMode === 'carousel' ? 'flex justify-between sm:justify-between' : 'justify-end'}`}>
+        <DialogFooter className={viewMode === 'carousel' ? 'flex justify-between sm:justify-between' : 'justify-end'}>
           {viewMode === 'carousel' && (
             <div className="flex gap-2">
               <Button 
