@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -245,7 +246,7 @@ const HeroSection: React.FC = () => {
           </svg>
         </motion.div>
         
-        {/* NEW: NEET Exam Badge */}
+        {/* NEET Exam Badge */}
         <motion.div
           className="hidden md:block absolute top-[20%] left-[30%] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -368,6 +369,129 @@ const HeroSection: React.FC = () => {
               }}
             />
           ))}
+        </motion.div>
+
+        {/* NEW: Additional elements to match the dashboard post-login view */}
+        
+        {/* Learning path indicators */}
+        <motion.div
+          className="hidden md:block absolute top-[30%] left-[50%] w-40 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-blue-300/30 dark:border-blue-700/30"
+          animate={{ 
+            y: [0, -10, 0],
+            x: [0, 10, 0],
+            rotateZ: [0, 1, 0],
+          }}
+          transition={{ 
+            duration: 10, 
+            repeat: Infinity, 
+            repeatType: "reverse",
+            delay: 2
+          }}
+          style={{ 
+            transformStyle: "preserve-3d",
+            transform: "rotateX(-8deg) rotateY(5deg)"
+          }}
+        >
+          <div className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Learning Path</div>
+          <div className="flex items-center gap-1 mt-2">
+            <motion.div 
+              className="h-3 w-3 rounded-full bg-green-500"
+              animate={{
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatDelay: 1
+              }}
+            />
+            <div className="h-0.5 w-4 bg-gray-400/50" />
+            <div className="h-3 w-3 rounded-full bg-indigo-500" />
+            <div className="h-0.5 w-4 bg-gray-400/50" />
+            <motion.div 
+              className="h-3 w-3 rounded-full bg-purple-500/50"
+              animate={{
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity
+              }}
+            />
+            <div className="h-0.5 w-4 bg-gray-400/50" />
+            <div className="h-3 w-3 rounded-full bg-gray-400/50" />
+          </div>
+          <div className="text-xs text-center text-gray-600 dark:text-gray-400 mt-2">
+            Physics Units: 2/4 complete
+          </div>
+        </motion.div>
+
+        {/* Concept connection lines */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.1 }}>
+          <motion.path 
+            d="M200,150 C300,100 400,250 500,200" 
+            stroke="url(#gradient1)" 
+            strokeWidth="1" 
+            fill="none"
+            strokeDasharray="5,5"
+            animate={{
+              strokeDashoffset: [0, 100]
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.path 
+            d="M700,200 C600,300 500,250 400,350" 
+            stroke="url(#gradient2)" 
+            strokeWidth="1" 
+            fill="none"
+            strokeDasharray="5,5"
+            animate={{
+              strokeDashoffset: [0, -100]
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <defs>
+            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#9333ea" stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* AI Assistant floating icon */}
+        <motion.div 
+          className="hidden md:block absolute bottom-[15%] right-[15%] p-3 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full backdrop-blur-sm"
+          animate={{ 
+            y: [0, -10, 0],
+            boxShadow: [
+              "0 0 10px 2px rgba(139, 92, 246, 0.3)",
+              "0 0 20px 5px rgba(139, 92, 246, 0.5)",
+              "0 0 10px 2px rgba(139, 92, 246, 0.3)"
+            ]
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity, 
+            repeatType: "reverse"
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M8 12h8"></path>
+          </svg>
         </motion.div>
       </div>
 

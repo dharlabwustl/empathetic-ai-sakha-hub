@@ -3,13 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
-import { Volume2, VolumeX, ArrowLeft } from 'lucide-react';
+import { Volume2, VolumeX, ArrowLeft, Mic } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const [activeField, setActiveField] = useState('');
 
   // Handle voice announcement for new users
   const startWelcomeAnnouncement = () => {
@@ -90,6 +92,64 @@ const Signup = () => {
     navigate('/');
   };
 
+  // Voice recognition for form filling
+  const startVoiceInput = (fieldName: string) => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert("Your browser doesn't support voice recognition");
+      return;
+    }
+    
+    setIsListening(true);
+    setActiveField(fieldName);
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    
+    recognition.onstart = () => {
+      console.log(`Listening for field: ${fieldName}`);
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      
+      // Handle different fields
+      if (fieldName === 'name') {
+        document.getElementById('name-field')?.setAttribute('value', transcript);
+      } else if (fieldName === 'email') {
+        document.getElementById('email-field')?.setAttribute('value', transcript.replace(/\s+/g, '').toLowerCase());
+      } else if (fieldName === 'password') {
+        document.getElementById('password-field')?.setAttribute('value', transcript.replace(/\s+/g, ''));
+      } else if (fieldName === 'mobile') {
+        document.getElementById('mobile-field')?.setAttribute('value', transcript.replace(/\D/g, ''));
+      } else if (fieldName === 'student') {
+        const studentOption = document.querySelector('input[value="student"]');
+        if (studentOption) {
+          (studentOption as HTMLInputElement).checked = true;
+          
+          // Trigger any event handlers
+          const event = new Event('change', { bubbles: true });
+          studentOption.dispatchEvent(event);
+        }
+      }
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+      setActiveField('');
+    };
+    
+    recognition.onerror = () => {
+      setIsListening(false);
+      setActiveField('');
+    };
+    
+    recognition.start();
+  };
+
   useEffect(() => {
     // Set up NEET exam as the default exam choice
     localStorage.setItem('selected_exam', 'NEET');
@@ -158,11 +218,22 @@ const Signup = () => {
     
     // Add event listener for page navigation
     window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Stop speech when navigating away
+    const handleRouteChange = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
     
     // Cleanup
     return () => {
       clearInterval(progressInterval);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handleRouteChange);
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -245,6 +316,54 @@ const Signup = () => {
           <p className="text-sm text-indigo-600 mt-4 animate-pulse">
             You can use voice commands! Say "Select Student" to continue
           </p>
+          
+          {/* Voice command buttons */}
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <button 
+              onClick={() => startVoiceInput('student')}
+              className={`text-xs px-2 py-1 rounded-full flex items-center ${
+                activeField === 'student' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              <Mic className="h-3 w-3 mr-1" />
+              Student Role
+            </button>
+            <button 
+              onClick={() => startVoiceInput('name')}
+              className={`text-xs px-2 py-1 rounded-full flex items-center ${
+                activeField === 'name' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              <Mic className="h-3 w-3 mr-1" />
+              Name
+            </button>
+            <button 
+              onClick={() => startVoiceInput('email')}
+              className={`text-xs px-2 py-1 rounded-full flex items-center ${
+                activeField === 'email' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              <Mic className="h-3 w-3 mr-1" />
+              Email
+            </button>
+            <button 
+              onClick={() => startVoiceInput('mobile')}
+              className={`text-xs px-2 py-1 rounded-full flex items-center ${
+                activeField === 'mobile' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              <Mic className="h-3 w-3 mr-1" />
+              Mobile
+            </button>
+          </div>
+          
+          {/* Hidden form fields for voice input */}
+          <div className="hidden">
+            <input id="name-field" type="text" />
+            <input id="email-field" type="email" />
+            <input id="password-field" type="password" />
+            <input id="mobile-field" type="tel" />
+          </div>
           
           {/* Mute button */}
           <button 

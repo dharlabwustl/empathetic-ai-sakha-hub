@@ -22,6 +22,7 @@ const StudentLoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginType, setLoginType] = useState<"email" | "phone">("email");
   const [isListening, setIsListening] = useState(false);
+  const [listeningField, setListeningField] = useState<string | null>(null);
 
   // Check for saved credentials when component mounts
   useEffect(() => {
@@ -122,8 +123,8 @@ const StudentLoginForm: React.FC = () => {
     navigate("/forgot-password");
   };
 
-  // Voice recognition for login form
-  const startVoiceRecognition = () => {
+  // Voice recognition for login form - enhanced for better field input
+  const startVoiceRecognition = (field?: string) => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
         title: "Voice input not supported",
@@ -134,6 +135,9 @@ const StudentLoginForm: React.FC = () => {
     }
     
     setIsListening(true);
+    if (field) {
+      setListeningField(field);
+    }
     
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -143,17 +147,62 @@ const StudentLoginForm: React.FC = () => {
     recognition.interimResults = false;
     
     recognition.onstart = () => {
-      toast({
-        title: "Listening...",
-        description: "Say your email or 'demo login'",
-      });
+      if (field) {
+        toast({
+          title: `Listening for ${field}...`,
+          description: `Say your ${field}`,
+        });
+      } else {
+        toast({
+          title: "Listening...",
+          description: "Say your email or 'demo login'",
+        });
+      }
     };
     
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript.toLowerCase();
       
-      if (transcript.includes('demo') || transcript.includes('login as demo')) {
+      // If specific field input is requested
+      if (field === 'email') {
+        if (transcript.includes('@')) {
+          setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
+          setLoginType('email');
+        } else {
+          toast({
+            title: "Invalid email format",
+            description: "Please include an @ in your email",
+          });
+        }
+      } 
+      else if (field === 'phone') {
+        const phoneNumber = transcript.replace(/\D/g, '');
+        if (phoneNumber.length >= 10) {
+          setCredentials(prev => ({ ...prev, emailOrPhone: phoneNumber }));
+          setLoginType('phone');
+        } else {
+          toast({
+            title: "Invalid phone number",
+            description: "Please provide a valid phone number",
+          });
+        }
+      }
+      else if (field === 'password') {
+        setCredentials(prev => ({ ...prev, password: transcript.replace(/\s+/g, '') }));
+      }
+      // General voice commands
+      else if (transcript.includes('demo') || transcript.includes('login as demo')) {
         handleDemoLogin();
+      } else if (transcript.includes('login') || transcript.includes('submit')) {
+        handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+      } else if (transcript.includes('switch to email')) {
+        setLoginType('email');
+      } else if (transcript.includes('switch to phone')) {
+        setLoginType('phone');
+      } else if (transcript.includes('show password')) {
+        setShowPassword(true);
+      } else if (transcript.includes('hide password')) {
+        setShowPassword(false);
       } else if (transcript.includes('@')) {
         // Likely an email
         setLoginType('email');
@@ -162,17 +211,9 @@ const StudentLoginForm: React.FC = () => {
         // Likely a phone number
         setLoginType('phone');
         setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
-      } else if (transcript.includes('password')) {
-        // Extract password after the word "password"
-        const passwordMatch = transcript.match(/password\s+(.+)$/i);
-        if (passwordMatch && passwordMatch[1]) {
-          setCredentials(prev => ({ ...prev, password: passwordMatch[1].trim() }));
-        }
-      } else if (transcript.includes('submit') || transcript.includes('login')) {
-        handleSubmit({ preventDefault: () => {} } as React.FormEvent);
       } else {
         toast({
-          title: "Voice input not recognized",
+          title: "Voice command not recognized",
           description: "Please try again with clear commands",
         });
       }
@@ -180,10 +221,12 @@ const StudentLoginForm: React.FC = () => {
     
     recognition.onend = () => {
       setIsListening(false);
+      setListeningField(null);
     };
     
     recognition.onerror = () => {
       setIsListening(false);
+      setListeningField(null);
       toast({
         title: "Voice recognition error",
         description: "Please try again or use keyboard input",
@@ -194,8 +237,26 @@ const StudentLoginForm: React.FC = () => {
     recognition.start();
   };
 
+  // Return to home
+  const goToHomePage = () => {
+    navigate("/");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Back to Home button */}
+      <div className="mb-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex items-center text-sm"
+          onClick={goToHomePage}
+        >
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Back to Home
+        </Button>
+      </div>
+      
       {loginError && (
         <Alert variant="destructive">
           <AlertDescription>{loginError}</AlertDescription>
@@ -225,6 +286,15 @@ const StudentLoginForm: React.FC = () => {
                 className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
                 autoComplete="email"
               />
+              <Button
+                type="button" 
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full"
+                onClick={() => startVoiceRecognition('email')}
+              >
+                <Mic size={16} className={listeningField === 'email' ? "text-red-500 animate-pulse" : ""} />
+              </Button>
             </div>
           </TabsContent>
           
@@ -244,6 +314,15 @@ const StudentLoginForm: React.FC = () => {
                 className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
                 autoComplete="tel"
               />
+              <Button
+                type="button" 
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full"
+                onClick={() => startVoiceRecognition('phone')}
+              >
+                <Mic size={16} className={listeningField === 'phone' ? "text-red-500 animate-pulse" : ""} />
+              </Button>
             </div>
           </TabsContent>
         </Tabs>
@@ -274,15 +353,26 @@ const StudentLoginForm: React.FC = () => {
             className={`pl-9 pr-10 ${loginError && !credentials.password ? "border-red-500" : ""}`}
             autoComplete="current-password"
           />
-          <Button
-            type="button" 
-            variant="ghost"
-            size="icon"
-            className="absolute right-0 top-0 h-full"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-          </Button>
+          <div className="absolute right-0 top-0 h-full flex">
+            <Button
+              type="button" 
+              variant="ghost"
+              size="icon"
+              className="h-full"
+              onClick={() => startVoiceRecognition('password')}
+            >
+              <Mic size={16} className={listeningField === 'password' ? "text-red-500 animate-pulse" : ""} />
+            </Button>
+            <Button
+              type="button" 
+              variant="ghost"
+              size="icon"
+              className="h-full"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -302,7 +392,7 @@ const StudentLoginForm: React.FC = () => {
           variant="outline"
           size="sm"
           className="flex items-center gap-1"
-          onClick={startVoiceRecognition}
+          onClick={() => startVoiceRecognition()}
           disabled={isListening || isLoading}
         >
           <Mic size={14} className={isListening ? "animate-pulse text-red-500" : ""} />
