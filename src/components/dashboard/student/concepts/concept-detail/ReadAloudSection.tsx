@@ -1,8 +1,8 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Pause, Play, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface ReadAloudSectionProps {
   text: string;
@@ -10,241 +10,117 @@ interface ReadAloudSectionProps {
   onStop: () => void;
 }
 
-const ReadAloudSection: React.FC<ReadAloudSectionProps> = ({
-  text,
-  isActive,
-  onStop
-}) => {
+const ReadAloudSection: React.FC<ReadAloudSectionProps> = ({ text, isActive, onStop }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentSentence, setCurrentSentence] = useState(0);
-  const [sentences, setSentences] = useState<string[]>([]);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(80);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
   
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const intervalRef = useRef<number | null>(null);
+  // Format time in mm:ss format
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
   
-  // Split text into sentences for better control
+  // Calculate estimated reading time based on average reading speed
   useEffect(() => {
-    // Simple sentence splitting (this could be improved)
-    const sentenceArray = text
-      .replace(/([.?!])\s*(?=[A-Z])/g, "$1|")
-      .split("|")
-      .filter(sentence => sentence.trim().length > 0);
-    
-    setSentences(sentenceArray);
+    if (text) {
+      const words = text.split(/\s+/).length;
+      const timeInSeconds = Math.floor(words / 2.5); // Assuming 150 words per minute reading speed (2.5 words per second)
+      setTotalTime(timeInSeconds);
+    }
   }, [text]);
   
-  // Setup speech synthesis
+  // Progress tracking
   useEffect(() => {
-    if (!isActive) return;
+    let intervalId: number | null = null;
     
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = sentences[currentSentence] || text;
-    speech.rate = 0.95;
-    speech.pitch = 1.0;
-    speech.volume = volume / 100;
-    
-    // Get available voices
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex'];
-    
-    // Try to find a preferred voice
-    let selectedVoice = null;
-    for (const name of preferredVoiceNames) {
-      const voice = voices.find(v => v.name?.includes(name));
-      if (voice) {
-        selectedVoice = voice;
-        break;
-      }
-    }
-    
-    // If no preferred voice found, use the first available
-    if (selectedVoice) {
-      speech.voice = selectedVoice;
-    } else if (voices.length > 0) {
-      speech.voice = voices[0];
-    }
-    
-    // Store current speech utterance
-    speechRef.current = speech;
-    
-    // Handle speech events
-    speech.onend = () => {
-      if (currentSentence < sentences.length - 1) {
-        setCurrentSentence(prev => prev + 1);
-      } else {
-        setProgress(100);
-        onStop();
-      }
-    };
-    
-    speech.onerror = (e) => {
-      console.error("Speech synthesis error", e);
-      onStop();
-    };
-    
-    // Start speaking if not paused
-    if (!isPaused) {
-      window.speechSynthesis.speak(speech);
-      
-      // Update progress every 100ms
-      intervalRef.current = window.setInterval(() => {
-        const progressValue = ((currentSentence + 1) / sentences.length) * 100;
-        setProgress(progressValue > 100 ? 100 : progressValue);
-      }, 100);
+    if (isActive && !isPaused) {
+      intervalId = window.setInterval(() => {
+        setElapsedTime(prev => {
+          const newTime = prev + 1;
+          const newProgress = (newTime / totalTime) * 100;
+          setProgress(Math.min(newProgress, 100));
+          
+          if (newProgress >= 100) {
+            onStop();
+            return 0;
+          }
+          
+          return newTime;
+        });
+      }, 1000);
     }
     
     return () => {
-      window.speechSynthesis.cancel();
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (intervalId !== null) {
+        clearInterval(intervalId);
       }
     };
-  }, [isActive, isPaused, currentSentence, sentences, volume, text]);
+  }, [isActive, isPaused, totalTime, onStop]);
   
-  // Handle component unmount
-  useEffect(() => {
-    return () => {
-      window.speechSynthesis.cancel();
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-  
-  // Handle play/pause
-  const togglePlayPause = () => {
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+    
     if (isPaused) {
-      setIsPaused(false);
-      if (speechRef.current) {
-        window.speechSynthesis.speak(speechRef.current);
-      }
+      // Resume speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      speechSynthesis.speak(utterance);
     } else {
-      setIsPaused(true);
-      window.speechSynthesis.pause();
+      // Pause speech
+      speechSynthesis.pause();
     }
   };
   
-  // Handle volume change
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    setIsMuted(newVolume <= 0);
-    
-    if (speechRef.current) {
-      speechRef.current.volume = newVolume / 100;
-    }
-  };
-  
-  // Toggle mute
-  const toggleMute = () => {
-    if (isMuted) {
-      setIsMuted(false);
-      setVolume(80);
-      if (speechRef.current) {
-        speechRef.current.volume = 0.8;
-      }
-    } else {
-      setIsMuted(true);
-      setVolume(0);
-      if (speechRef.current) {
-        speechRef.current.volume = 0;
-      }
-    }
-  };
-  
-  // Skip to next sentence
-  const skipNext = () => {
-    if (currentSentence < sentences.length - 1) {
-      window.speechSynthesis.cancel();
-      setCurrentSentence(prev => prev + 1);
-    }
-  };
-  
-  // Skip to previous sentence
-  const skipPrevious = () => {
-    if (currentSentence > 0) {
-      window.speechSynthesis.cancel();
-      setCurrentSentence(prev => prev - 1);
-    }
+  const handleStop = () => {
+    speechSynthesis.cancel();
+    setElapsedTime(0);
+    setProgress(0);
+    onStop();
   };
   
   return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
+    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Volume2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <span className="font-medium text-blue-700 dark:text-blue-300">Reading Aloud</span>
+        </div>
+        
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          {formatTime(elapsedTime)} / {formatTime(totalTime)}
+        </div>
+      </div>
+      
+      <Progress value={progress} className="h-1.5 mb-3" />
+      
+      <div className="flex justify-end gap-2">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
-          className="h-8 w-8 p-0 rounded-full"
-          onClick={skipPrevious}
-          disabled={currentSentence === 0}
+          className="h-8 px-3"
+          onClick={togglePause}
         >
-          <SkipBack className="h-4 w-4" />
+          {isPaused ? (
+            <>
+              <Play className="h-3 w-3 mr-1" /> Resume
+            </>
+          ) : (
+            <>
+              <Pause className="h-3 w-3 mr-1" /> Pause
+            </>
+          )}
         </Button>
         
         <Button 
           variant="outline" 
           size="sm" 
-          className="h-8 w-8 p-0 rounded-full"
-          onClick={togglePlayPause}
+          className="h-8 px-3" 
+          onClick={handleStop}
         >
-          {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 w-8 p-0 rounded-full"
-          onClick={skipNext}
-          disabled={currentSentence === sentences.length - 1}
-        >
-          <SkipForward className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <div className="flex-1 mx-4">
-        <div className="text-xs text-gray-500 mb-1">
-          {currentSentence + 1} of {sentences.length} sentences
-        </div>
-        <div className="bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-          <div 
-            className="bg-indigo-600 dark:bg-indigo-500 h-full rounded-full" 
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 w-8 p-0 rounded-full"
-          onClick={toggleMute}
-        >
-          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </Button>
-        
-        <div className="w-24 hidden sm:block">
-          <Slider 
-            value={[volume]} 
-            min={0} 
-            max={100} 
-            step={1}
-            onValueChange={handleVolumeChange}
-            className="w-full"
-          />
-        </div>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="text-xs"
-          onClick={onStop}
-        >
-          Stop
+          <VolumeX className="h-3 w-3 mr-1" /> Stop
         </Button>
       </div>
     </div>

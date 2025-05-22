@@ -174,13 +174,11 @@ const ConceptFlashcards: React.FC<ConceptFlashcardsProps> = ({ flashcards }) => 
         </div>
       </div>
       
-      <style>
-        {`
-          .perspective-1000 {
-            perspective: 1000px;
-          }
-        `}
-      </style>
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+      `}</style>
     </div>
   );
 };

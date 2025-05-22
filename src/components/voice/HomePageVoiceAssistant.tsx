@@ -21,7 +21,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const timeoutRef = useRef<number | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
-  const previousPathRef = useRef<string>(location.pathname);
   
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -79,17 +78,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   
   // Stop speech when route changes
   useEffect(() => {
-    // If the path has changed, clean up immediately
-    if (previousPathRef.current !== location.pathname) {
-      console.log("Route changed, stopping speech:", previousPathRef.current, "->", location.pathname);
-      cleanupVoiceResources();
-      previousPathRef.current = location.pathname;
-      
-      // Reset greeting played status when changing to a new page
-      if (!location.pathname.includes(previousPathRef.current.split('/')[1])) {
-        setGreetingPlayed(false);
-      }
-    }
+    cleanupVoiceResources();
     
     // Restart with delay to prevent overlapping speech/recognition
     const restartTimer = setTimeout(() => {
@@ -347,15 +336,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         }, 1000);
       }
     };
-
-    // Handle route changes via the History API
-    const handleLocationChange = () => {
-      console.log("Location changed via History API");
-      cleanupVoiceResources();
-    };
-
-    // Listen for programmatic navigation through the History API
-    window.addEventListener('popstate', handleLocationChange);
     
     // Load mute preference
     const muteSetting = localStorage.getItem('voice_assistant_muted');
@@ -378,7 +358,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       document.removeEventListener('voice-assistant-mute', handleMuteEvent);
       document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('popstate', handleLocationChange);
       cleanupVoiceResources();
     };
   }, [greetingPlayed, shouldPlayGreeting, audioMuted]);
