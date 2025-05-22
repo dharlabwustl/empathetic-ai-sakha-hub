@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap } from 'lucide-react';
+import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap, RotateCw } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
@@ -25,18 +25,18 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       highlight: "Master difficult concepts with ease"
     },
     {
-      title: "Performance Analytics",
-      description: "Track your progress with detailed insights",
-      icon: <PieChart className="h-5 w-5" />,
+      title: "Revision Loops",
+      description: "Smart spaced repetition for maximum retention",
+      icon: <RotateCw className="h-5 w-5" />,
       image: "/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png",
-      highlight: "Know exactly where you stand"
+      highlight: "Never forget what you've learned"
     },
     {
-      title: "Practice Exams",
-      description: "Realistic exam simulations with instant feedback",
-      icon: <GraduationCap className="h-5 w-5" />,
+      title: "Exam Readiness",
+      description: "Track your exam preparation progress with analytics",
+      icon: <PieChart className="h-5 w-5" />,
       image: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
-      highlight: "Build confidence through practice"
+      highlight: "Know exactly when you're ready"
     },
     {
       title: "AI Tutor",

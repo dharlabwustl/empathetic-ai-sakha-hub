@@ -6,6 +6,7 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
+import RevisionLoopSection from '@/components/dashboard/student/dashboard-sections/RevisionLoopSection';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -72,6 +73,37 @@ const DashboardContent = ({
   // Example weak and strong areas
   const weakAreas = ['Organic Chemistry', 'Thermodynamics', 'Vectors'];
   const strongAreas = ['Algebra', 'Mechanics', 'Biology'];
+  
+  // Example revision items
+  const revisionItems = [
+    {
+      id: '1',
+      title: 'Thermodynamics - First Law',
+      subject: 'Physics',
+      type: 'concept',
+      priority: 'high',
+      dueDate: new Date().toISOString(),
+      retentionScore: 45
+    },
+    {
+      id: '2',
+      title: 'Periodic Table Elements',
+      subject: 'Chemistry',
+      type: 'flashcard',
+      priority: 'medium',
+      dueDate: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+      retentionScore: 72
+    },
+    {
+      id: '3',
+      title: 'Cell Structure Quiz',
+      subject: 'Biology',
+      type: 'quiz',
+      priority: 'low',
+      dueDate: new Date(Date.now() + 172800000).toISOString(), // Day after tomorrow
+      retentionScore: 88
+    }
+  ];
 
   // Generate tab contents once
   const tabContents = generateTabContents({
@@ -116,6 +148,13 @@ const DashboardContent = ({
             weakAreas={weakAreas}
             strongAreas={strongAreas}
           />
+        </div>
+      )}
+      
+      {/* Revision Loop Section */}
+      {activeTab === 'overview' && (
+        <div className="mb-6">
+          <RevisionLoopSection revisionItems={revisionItems} />
         </div>
       )}
       

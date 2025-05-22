@@ -19,10 +19,10 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -69,30 +69,54 @@ const StudentDashboard = () => {
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
-    // For new users who haven't seen the tour
-    if (isNew && !hasSeenTour) {
-      setShowSplash(false);
-      setShowTourModal(true);
-      setIsFirstTimeUser(true);
-      console.log("New user detected, showing welcome tour");
-    } 
-    // For new users who have seen the tour but not the dashboard welcome
-    else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
-      setShowSplash(false);
-      setShowTourModal(false);
-      setShowWelcomePrompt(true);
-      setIsFirstTimeUser(true);
-      console.log("New user needs dashboard welcome prompt");
+    if (isNew) {
+      // Clear the URL parameter to avoid looping
+      if (params.get('new') === 'true') {
+        params.delete('new');
+        navigate({
+          pathname: location.pathname,
+          search: params.toString()
+        }, { replace: true });
+      }
+      
+      // For new users, show onboarding if needed
+      if (showOnboarding) {
+        setShowSplash(false);
+        setShowTourModal(false);
+        setShowWelcomePrompt(false);
+      }
+      // Otherwise, if they haven't seen the tour, show it
+      else if (!hasSeenTour) {
+        setShowSplash(false);
+        setShowTourModal(true);
+        setShowWelcomePrompt(false);
+        setIsFirstTimeUser(true);
+        console.log("New user detected, showing welcome tour");
+      } 
+      // If they've seen the tour but not the welcome prompt, show that
+      else if (hasSeenTour && !hasSeenDashboardWelcome) {
+        setShowSplash(false);
+        setShowTourModal(false);
+        setShowWelcomePrompt(true);
+        setIsFirstTimeUser(true);
+        console.log("New user needs dashboard welcome prompt");
+      }
+      // If they've seen both, don't show anything special
+      else {
+        const hasSeen = sessionStorage.getItem("hasSeenSplash");
+        setShowSplash(!hasSeen);
+        setShowTourModal(false);
+        setShowWelcomePrompt(false);
+      }
     }
     // For returning users
     else {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
-      
-      // Make sure we don't show the tour for returning users who have seen it
       setShowTourModal(false);
+      setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
-      console.log("Returning user detected, not showing welcome tour");
+      console.log("Returning user detected");
     }
     
     // Try to get saved mood from local storage
@@ -100,15 +124,17 @@ const StudentDashboard = () => {
     if (savedMood) {
       setCurrentMood(savedMood);
     }
-  }, [location]);
+  }, [location, navigate, showOnboarding]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
-    // For new users, show the tour after splash
+    // For new users that haven't seen the tour, show it after splash
     const isNew = localStorage.getItem('new_user_signup') === 'true';
-    if (isNew) {
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
+    
+    if (isNew && !hasSeenTour) {
       setShowTourModal(true);
       setIsFirstTimeUser(true);
     }
@@ -140,8 +166,12 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // After skipping tour, show welcome dashboard prompt
-    setShowWelcomePrompt(true);
+    // After skipping tour, check if they need to see welcome prompt
+    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
+    if (!hasSeenDashboardWelcome) {
+      setShowWelcomePrompt(true);
+    }
     
     console.log("Tour skipped and marked as seen");
   };
@@ -151,14 +181,19 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // After completing tour, show welcome dashboard prompt
-    setShowWelcomePrompt(true);
+    // After completing tour, check if they need to see welcome prompt
+    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
+    if (!hasSeenDashboardWelcome) {
+      setShowWelcomePrompt(true);
+    }
     
     console.log("Tour completed and marked as seen");
   };
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
+    localStorage.setItem("hasSeenDashboardWelcome", "true");
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -177,6 +212,10 @@ const StudentDashboard = () => {
   };
 
   const handleNavigationCommand = (route: string) => {
+    // Stop any voice announcements when navigating
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     navigate(route);
   };
 
@@ -226,7 +265,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showTourModal}
+        showWelcomeTour={false} // Never show welcome tour here - we handle it separately
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -246,18 +285,20 @@ const StudentDashboard = () => {
       </DashboardLayout>
       
       {/* Welcome Tour Modal - will show once for new users */}
-      <WelcomeTour
-        open={showTourModal}
-        onOpenChange={setShowTourModal}
-        onSkipTour={handleSkipTourWrapper}
-        onCompleteTour={handleCompleteTourWrapper}
-        isFirstTimeUser={isFirstTimeUser}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
-      />
+      {showTourModal && (
+        <WelcomeTour
+          open={showTourModal}
+          onOpenChange={setShowTourModal}
+          onSkipTour={handleSkipTourWrapper}
+          onCompleteTour={handleCompleteTourWrapper}
+          isFirstTimeUser={isFirstTimeUser}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
+          loginCount={userProfile.loginCount}
+        />
+      )}
 
-      {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
+      {/* Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
@@ -279,7 +320,7 @@ const StudentDashboard = () => {
         userMood={currentMood}
       />
 
-      {/* NEW: Floating voice assistant button with settings panel */}
+      {/* Floating voice assistant button with settings panel */}
       <FloatingVoiceButton 
         userName={userProfile.name || userProfile.firstName || 'Student'}
         language="en-IN"
