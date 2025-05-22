@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/home/HeroSection';
+import Hero3DSection from '@/components/home/Hero3DSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -71,7 +70,7 @@ const Index = () => {
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
-        <HeroSection />
+        <Hero3DSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
