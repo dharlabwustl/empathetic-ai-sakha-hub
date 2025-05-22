@@ -22,6 +22,7 @@ const Hero3DSection: React.FC = () => {
     particles: THREE.Points;
     gridHelper: THREE.GridHelper;
     neuronParticles: THREE.Points;
+    educationSymbols: THREE.Group;
     clock: THREE.Clock;
     animationId: number | null;
   } | null>(null);
@@ -52,6 +53,119 @@ const Hero3DSection: React.FC = () => {
     };
   }, []);
 
+  // Create and initialize educational symbols for the scene
+  const createEducationSymbols = () => {
+    if (!sceneRef.current) return;
+    
+    const group = new THREE.Group();
+    const symbolCount = 30;
+    
+    // Educational symbols and shapes
+    const symbolGeometries = [
+      // Small book shape
+      new THREE.BoxGeometry(0.8, 0.1, 1),
+      // Graduation cap shape with cylinder and cone
+      new THREE.ConeGeometry(0.5, 0.5, 4),
+      // Pencil shape
+      new THREE.CylinderGeometry(0.1, 0.1, 1.5, 6),
+      // Molecule shape (sphere)
+      new THREE.SphereGeometry(0.3, 8, 8),
+      // Test tube shape
+      new THREE.CylinderGeometry(0.15, 0.15, 1, 8),
+      // Formula symbol (thin box)
+      new THREE.BoxGeometry(1, 0.05, 0.05),
+      // Calculator shape
+      new THREE.BoxGeometry(0.6, 0.8, 0.1),
+      // Atom core (small sphere)
+      new THREE.SphereGeometry(0.2, 16, 16),
+      // Certificate shape
+      new THREE.PlaneGeometry(0.8, 1),
+      // Microscope base
+      new THREE.CylinderGeometry(0.3, 0.4, 0.3, 8)
+    ];
+    
+    // Materials with soft colors and translucency
+    const materials = [
+      new THREE.MeshPhongMaterial({ color: 0x6d28d9, transparent: true, opacity: 0.7 }), // Purple
+      new THREE.MeshPhongMaterial({ color: 0x4f46e5, transparent: true, opacity: 0.6 }), // Indigo
+      new THREE.MeshPhongMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.7 }), // Blue
+      new THREE.MeshPhongMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.6 }), // Violet
+      new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: 0.7 }), // Purple
+    ];
+    
+    // Create symbols and add to group
+    for (let i = 0; i < symbolCount; i++) {
+      // Pick random geometry and material
+      const geometry = symbolGeometries[Math.floor(Math.random() * symbolGeometries.length)];
+      const material = materials[Math.floor(Math.random() * materials.length)];
+      
+      // Create mesh
+      const symbol = new THREE.Mesh(geometry, material);
+      
+      // Position randomly in scene space
+      symbol.position.set(
+        (Math.random() - 0.5) * 100, // x
+        (Math.random() - 0.5) * 100, // y
+        (Math.random() - 0.5) * 100  // z
+      );
+      
+      // Random rotation
+      symbol.rotation.set(
+        Math.random() * Math.PI, 
+        Math.random() * Math.PI, 
+        Math.random() * Math.PI
+      );
+      
+      // Store initial position for animation
+      (symbol as any).initialY = symbol.position.y;
+      (symbol as any).initialX = symbol.position.x;
+      (symbol as any).initialZ = symbol.position.z;
+      
+      // Random scale
+      const scale = Math.random() * 0.5 + 0.5;
+      symbol.scale.set(scale, scale, scale);
+      
+      // Add to group
+      group.add(symbol);
+    }
+    
+    // Add formula rings (electron paths)
+    for (let i = 0; i < 8; i++) {
+      const radius = Math.random() * 10 + 5;
+      const tubeRadius = 0.06;
+      const radialSegments = 8;
+      const tubularSegments = 50;
+      
+      const geometry = new THREE.TorusGeometry(radius, tubeRadius, radialSegments, tubularSegments);
+      const material = new THREE.MeshPhongMaterial({ 
+        color: 0x8b5cf6, 
+        transparent: true, 
+        opacity: 0.3 + Math.random() * 0.3 
+      });
+      
+      const torus = new THREE.Mesh(geometry, material);
+      
+      // Random position
+      torus.position.set(
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80
+      );
+      
+      // Random rotation
+      torus.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      );
+      
+      group.add(torus);
+    }
+    
+    sceneRef.current.scene.add(group);
+    sceneRef.current.educationSymbols = group;
+  };
+
   // Initialize and animate THREE.js scene
   useEffect(() => {
     if (!threeContainerRef.current) return;
@@ -66,7 +180,7 @@ const Hero3DSection: React.FC = () => {
       const scene = new THREE.Scene();
       
       // Add fog for depth
-      scene.fog = new THREE.FogExp2(0x4338ca, 0.005);
+      scene.fog = new THREE.FogExp2(0x4338ca, 0.0025);
       
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.z = 30;
@@ -89,7 +203,7 @@ const Hero3DSection: React.FC = () => {
       
       // Create particle system
       const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 1000;
+      const particlesCount = 1500;
       
       const posArray = new Float32Array(particlesCount * 3);
       const scaleArray = new Float32Array(particlesCount);
@@ -126,7 +240,7 @@ const Hero3DSection: React.FC = () => {
       scene.add(particles);
       
       // Add neuron-like particles that connect with lines
-      const neuronCount = 200;
+      const neuronCount = 250;
       const neuronGeometry = new THREE.BufferGeometry();
       const neuronPositions = new Float32Array(neuronCount * 3);
       
@@ -150,7 +264,7 @@ const Hero3DSection: React.FC = () => {
       scene.add(neuronParticles);
       
       // Create neural connections
-      const connections = 100;
+      const connections = 150;
       for (let i = 0; i < connections; i++) {
         // Create random connections between particles
         const idx1 = Math.floor(Math.random() * neuronCount);
@@ -216,9 +330,13 @@ const Hero3DSection: React.FC = () => {
         particles,
         gridHelper,
         neuronParticles,
+        educationSymbols: new THREE.Group(), // Initialize with empty group
         clock,
         animationId: null
       };
+      
+      // Create education symbols
+      createEducationSymbols();
       
       // Handle window resize
       const handleResize = () => {
@@ -243,7 +361,7 @@ const Hero3DSection: React.FC = () => {
     const animate = () => {
       if (!sceneRef.current) return;
       
-      const { scene, camera, renderer, particles, gridHelper, neuronParticles, clock } = sceneRef.current;
+      const { scene, camera, renderer, particles, gridHelper, neuronParticles, educationSymbols, clock } = sceneRef.current;
       
       const elapsedTime = clock.getElapsedTime();
       
@@ -262,6 +380,19 @@ const Hero3DSection: React.FC = () => {
       camera.position.x = Math.sin(elapsedTime * 0.2) * 2;
       camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 1;
       camera.lookAt(0, 0, 0);
+      
+      // Animate educational symbols
+      educationSymbols.children.forEach((symbol: THREE.Object3D) => {
+        if ((symbol as any).initialY !== undefined) {
+          // Float up and down
+          symbol.position.y = (symbol as any).initialY + Math.sin(elapsedTime + (symbol as any).initialY * 5) * 2;
+          // Gentle rotation
+          symbol.rotation.x += 0.002;
+          symbol.rotation.y += 0.003;
+          // Subtle left-right movement
+          symbol.position.x = (symbol as any).initialX + Math.sin(elapsedTime * 0.5 + (symbol as any).initialX) * 0.5;
+        }
+      });
       
       // Render scene
       renderer.render(scene, camera);
@@ -354,6 +485,32 @@ const Hero3DSection: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Floating particles overlay */}
+      <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-indigo-500/20"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              scale: Math.random() * 0.5 + 0.5,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              x: [0, Math.random() * 40 - 20, 0],
+              opacity: [0, 0.8, 0],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              ease: "linear",
+              delay: Math.random() * 10,
+            }}
+          />
+        ))}
       </div>
     </section>
   );

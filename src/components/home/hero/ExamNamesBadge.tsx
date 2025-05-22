@@ -92,14 +92,19 @@ const ExamNamesBadge = () => {
             className="absolute -inset-2 rounded-full blur-md"
             animate={{ 
               background: [
-                'radial-gradient(circle, rgba(79,70,229,0.5) 0%, rgba(139,92,246,0.3) 100%)',
-                'radial-gradient(circle, rgba(139,92,246,0.6) 0%, rgba(79,70,229,0.4) 100%)',
-                'radial-gradient(circle, rgba(79,70,229,0.5) 0%, rgba(139,92,246,0.3) 100%)'
+                'radial-gradient(circle, rgba(79,70,229,0.7) 0%, rgba(139,92,246,0.5) 100%)',
+                'radial-gradient(circle, rgba(139,92,246,0.8) 0%, rgba(79,70,229,0.6) 100%)',
+                'radial-gradient(circle, rgba(79,70,229,0.7) 0%, rgba(139,92,246,0.5) 100%)'
               ],
               scale: [1, 1.3, 1],
-              opacity: [0.6, 0.9, 0.6]
+              opacity: [0.7, 1, 0.7],
+              boxShadow: [
+                '0 0 10px 2px rgba(139,92,246,0.6)',
+                '0 0 20px 4px rgba(139,92,246,0.8)',
+                '0 0 10px 2px rgba(139,92,246,0.6)'
+              ]
             }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             style={{ transform: "translateZ(-5px)" }}
           />
           
@@ -110,8 +115,8 @@ const ExamNamesBadge = () => {
               className="relative"
             >
               <motion.div 
-                className="absolute inset-0 rounded-full bg-amber-400/50 blur-sm"
-                animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0.2, 0.6] }}
+                className="absolute inset-0 rounded-full bg-amber-400 blur-sm"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0.3, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
               <GraduationCap size={16} className="text-amber-300" />
@@ -119,9 +124,13 @@ const ExamNamesBadge = () => {
             
             <motion.span
               animate={{ 
-                textShadow: ["0px 0px 0px rgba(255,255,255,0)", "0px 0px 8px rgba(255,255,255,0.8)", "0px 0px 0px rgba(255,255,255,0)"]
+                textShadow: [
+                  "0px 0px 2px rgba(255,255,255,0.5)",
+                  "0px 0px 10px rgba(255,255,255,0.9)",
+                  "0px 0px 2px rgba(255,255,255,0.5)"
+                ]
               }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: 1.5, repeat: Infinity }}
               className="font-semibold tracking-wide text-base"
             >
               NEET
