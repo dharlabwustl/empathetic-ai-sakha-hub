@@ -15,7 +15,7 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
-import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 
@@ -40,7 +40,7 @@ const StudentRoutes = () => {
       } />
       <Route path="/concepts/:conceptId" element={
         <SidebarLayout>
-          <ConceptCardDetailPage />
+          <ConceptDetailPage />
         </SidebarLayout>
       } />
       <Route path="/concept-study/:conceptId" element={

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { BookOpen, FlaskConical, BookmarkPlus, BookMarked, Video, MessageSquare, Settings } from 'lucide-react';
+import { BookOpen, FlaskConical, BookmarkPlus, BookMarked, Video, MessageSquare, Settings, Brain, Zap, ListChecks } from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 import ConceptHeader from './concept-detail/ConceptHeader';
@@ -14,6 +14,7 @@ import ConceptContent from './concept-detail/ConceptContent';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import ConceptFlashcards from './concept-detail/ConceptFlashcards';
 import ConceptResources from './concept-detail/ConceptResources';
+import ConceptExercises from './concept-detail/ConceptExercises';
 import FormulaTabContent from './FormulaTabContent';
 
 // Mock data for concept cards - in a real app this would come from an API
@@ -207,7 +208,13 @@ const ConceptDetailPage = () => {
                     value="practice" 
                     className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
                   >
-                    <FlaskConical className="h-4 w-4 mr-2" /> Practice
+                    <Brain className="h-4 w-4 mr-2" /> Practice
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="formulas" 
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
+                  >
+                    <Zap className="h-4 w-4 mr-2" /> Formulas
                   </TabsTrigger>
                   <TabsTrigger 
                     value="flashcards" 
@@ -220,6 +227,12 @@ const ConceptDetailPage = () => {
                     className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
                   >
                     <Video className="h-4 w-4 mr-2" /> Resources
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="mcq" 
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
+                  >
+                    <ListChecks className="h-4 w-4 mr-2" /> MCQs
                   </TabsTrigger>
                 </TabsList>
                 
@@ -236,6 +249,16 @@ const ConceptDetailPage = () => {
                 </TabsContent>
                 
                 <TabsContent value="practice" className="pt-0 m-0">
+                  <ConceptExercises 
+                    conceptId={conceptId || ''}
+                    conceptTitle={concept.title}
+                    recallAccuracy={75}
+                    lastPracticed="2025-05-15"
+                    quizScore={68}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="formulas" className="pt-0 m-0">
                   <FormulaTabContent 
                     conceptId={conceptId || ''}
                     conceptTitle={concept.title}
@@ -249,6 +272,19 @@ const ConceptDetailPage = () => {
                 
                 <TabsContent value="resources" className="pt-0 m-0">
                   <ConceptResources conceptId={concept.id} />
+                </TabsContent>
+                
+                <TabsContent value="mcq" className="pt-0 m-0">
+                  <div className="p-6">
+                    <h2 className="text-xl font-bold mb-4">Multiple Choice Questions</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Test your understanding of Newton's Second Law with these practice questions.
+                    </p>
+                    <Card className="p-6 bg-gray-50 dark:bg-gray-800/50">
+                      <p>MCQ questions will be available soon. Check back later for practice questions!</p>
+                      <Button className="mt-4">Request MCQs</Button>
+                    </Card>
+                  </div>
                 </TabsContent>
               </Tabs>
             </Card>
