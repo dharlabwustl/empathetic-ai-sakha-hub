@@ -35,6 +35,56 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
 
+      {/* NEET Live Now Glowing Badge */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mb-4 inline-block"
+      >
+        <motion.div 
+          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-lg relative overflow-hidden"
+          animate={{ 
+            boxShadow: ["0 0 10px rgba(16, 185, 129, 0.5)", "0 0 20px rgba(16, 185, 129, 0.7)", "0 0 10px rgba(16, 185, 129, 0.5)"] 
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          {/* Pulsating dot */}
+          <motion.span 
+            className="h-2 w-2 bg-white rounded-full"
+            animate={{ 
+              opacity: [1, 0.5, 1],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+          
+          {/* Glowing text */}
+          <motion.span
+            animate={{ 
+              textShadow: [
+                "0 0 5px rgba(255,255,255,0.5)",
+                "0 0 10px rgba(255,255,255,0.7)",
+                "0 0 5px rgba(255,255,255,0.5)"
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="font-bold"
+          >
+            NEET is live now!
+          </motion.span>
+          
+          {/* Glowing overlay */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+            animate={{
+              left: ["-100%", "100%"],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+      </motion.div>
+
       {/* Welcome Message - New Position */}
       <motion.div
         className="mb-4 text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
@@ -42,7 +92,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Welcome to PREPZR - tomorrow's learning experience and your AI study companion.
+        Welcome to PREPZR - We are world's first emotionally aware, hyper personalized an adaptive exam prep platform.
       </motion.div>
 
       <motion.h1
@@ -85,7 +135,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
+        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
       >
         <p className="text-base text-gray-700 dark:text-gray-300">
           Our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 

@@ -39,6 +39,68 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     studyLocation: "Say where you usually study",
   };
   
+  // Command recognition for field selection
+  const fieldCommandMap: Record<string, string> = {
+    "name": "name",
+    "email": "email",
+    "mobile": "mobile",
+    "phone": "mobile",
+    "number": "mobile",
+    "password": "password",
+    "confirm password": "confirmPassword",
+    "goal": "goal",
+    "exam": "goal",
+    "role": "role",
+    "institute": "institute",
+    "college": "institute",
+    "school": "institute",
+    "exam date": "examDate",
+    "study hours": "studyHours",
+    "hours": "studyHours",
+    "study location": "studyLocation",
+    "location": "studyLocation",
+  };
+  
+  // Function to find field by voice command
+  const findFieldByCommand = (command: string): string | null => {
+    const lowerCommand = command.toLowerCase().trim();
+    
+    // Direct match
+    if (fieldCommandMap[lowerCommand]) {
+      return fieldCommandMap[lowerCommand];
+    }
+    
+    // Partial match
+    for (const [key, value] of Object.entries(fieldCommandMap)) {
+      if (lowerCommand.includes(key)) {
+        return value;
+      }
+    }
+    
+    return null;
+  };
+  
+  // Function to focus on a field by id
+  const focusFieldById = (id: string) => {
+    try {
+      const field = document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
+      if (field) {
+        field.focus();
+        setActiveField(id);
+        setIsFieldPromptVisible(true);
+        setTimeout(() => setIsFieldPromptVisible(false), 3000);
+        
+        // Acknowledge field selection
+        toast({
+          title: "Field Selected",
+          description: `Now say your ${id} information`,
+        });
+      }
+    } catch (error) {
+      console.error("Error focusing field:", error);
+    }
+  };
+  
   // Get currently focused element and set as active field
   const handleFieldFocus = () => {
     const activeElement = document.activeElement as HTMLElement;
@@ -75,33 +137,60 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       const last = event.results.length - 1;
       const transcript = event.results[last][0].transcript.trim();
       
-      if (activeField && event.results[last].isFinal) {
-        let processedText = transcript;
+      // Check if transcript is a field selection command
+      if (event.results[last].isFinal) {
+        const fieldId = findFieldByCommand(transcript);
         
-        // Process email input (replace "at" with @ and "dot" with .)
-        if (activeField === 'email') {
-          processedText = processedText
-            .toLowerCase()
-            .replace(/\s+at\s+/g, '@')
-            .replace(/\s+dot\s+/g, '.')
-            .replace(/\s+/g, '');
+        if (fieldId && !activeField) {
+          // This is a command to select a field
+          focusFieldById(fieldId);
+          return;
         }
         
-        // Process mobile input (remove spaces for numbers)
-        if (activeField === 'mobile') {
-          processedText = processedText
-            .replace(/\D/g, '')
-            .substring(0, 10);
+        // Process value for active field
+        if (activeField) {
+          let processedText = transcript;
+          
+          // Process email input (replace "at" with @ and "dot" with .)
+          if (activeField === 'email') {
+            processedText = processedText
+              .toLowerCase()
+              .replace(/\s+at\s+/g, '@')
+              .replace(/\s+dot\s+/g, '.')
+              .replace(/\s+/g, '');
+          }
+          
+          // Process mobile input (remove spaces for numbers)
+          if (activeField === 'mobile') {
+            processedText = processedText
+              .replace(/\D/g, '')
+              .substring(0, 10);
+          }
+          
+          // Pass final transcript to parent component
+          onVoiceInput(activeField, processedText);
+          
+          // Show success toast instead of speaking
+          toast({
+            title: "Voice Input Captured",
+            description: `${activeField}: ${transcript.substring(0, 30)}${transcript.length > 30 ? '...' : ''}`,
+          });
+          
+          // Check for commands to submit or move to next step
+          if (["next", "submit", "continue", "proceed"].some(cmd => 
+            transcript.toLowerCase().includes(cmd))) {
+            
+            // Find and click the next/submit button
+            const submitButtons = document.querySelectorAll('button[type="submit"]');
+            const nextButtons = document.querySelectorAll('button:not([type="button"])');
+            
+            if (submitButtons.length > 0) {
+              (submitButtons[0] as HTMLButtonElement).click();
+            } else if (nextButtons.length > 0) {
+              (nextButtons[0] as HTMLButtonElement).click();
+            }
+          }
         }
-        
-        // Pass final transcript to parent component
-        onVoiceInput(activeField, processedText);
-        
-        // Show success toast instead of speaking
-        toast({
-          title: "Voice Captured",
-          description: `${activeField}: ${transcript.substring(0, 30)}${transcript.length > 30 ? '...' : ''}`,
-        });
       }
     };
     
@@ -129,22 +218,24 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       initSpeechRecognition();
     }
     
-    if (recognitionRef.current && activeField) {
+    if (recognitionRef.current) {
       try {
         recognitionRef.current.start();
         setIsListening(true);
         
         toast({
           title: "Listening...",
-          description: `Speak now for ${activeField}`,
+          description: activeField 
+            ? `Speak now for ${activeField}` 
+            : "Say a field name (like 'name', 'email', 'mobile')",
         });
       } catch (err) {
         console.error("Error starting speech recognition:", err);
       }
     } else {
       toast({
-        title: "Click on a field first",
-        description: "Tap any form field before using voice",
+        title: "Voice Recognition Unavailable",
+        description: "Please try again or use keyboard input",
       });
     }
   };
@@ -286,7 +377,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
               variant={isListening ? "destructive" : "default"}
               className="w-10 h-10 rounded-full"
               onClick={isListening ? stopListening : startListening}
-              disabled={!activeField}
               title={isListening ? "Stop listening" : "Start listening"}
             >
               {isListening ? (
@@ -326,9 +416,26 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
               >
                 {activeField}
               </motion.span>
-            ) : 'Click on a field'}
+            ) : (
+              <span className="text-blue-600 font-medium">Say field name</span>
+            )}
           </div>
         </div>
+        
+        {/* Help text */}
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-2 bg-blue-50 dark:bg-blue-900/30 p-2 rounded text-xs text-blue-700 dark:text-blue-300 shadow-sm"
+        >
+          <p className="mb-1 font-medium">Voice Commands:</p>
+          <ul className="list-disc pl-4 space-y-1">
+            <li>Say <span className="font-medium">"name"</span> to select name field</li>
+            <li>Say <span className="font-medium">"email"</span> to select email field</li>
+            <li>Say <span className="font-medium">"next"</span> to continue</li>
+          </ul>
+        </motion.div>
         
         {/* Pulsing hint when field is active but not listening */}
         {activeField && !isListening && (
