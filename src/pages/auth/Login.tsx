@@ -81,23 +81,23 @@ const Login = () => {
   }, [navigate, isAuthenticated, location.search]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/30 dark:to-amber-950/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-950/20">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
         language="en"
       />
-      <div className="text-center p-8 rounded-lg bg-white/90 dark:bg-orange-950/40 shadow-lg w-full max-w-md flex flex-col items-center border border-orange-200 dark:border-orange-800/30">
+      <div className="text-center p-8 rounded-lg bg-white/90 dark:bg-blue-950/40 shadow-lg w-full max-w-md flex flex-col items-center border border-blue-200 dark:border-blue-800/30">
         {isProcessing ? (
           <>
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-orange-600 dark:text-orange-400" />
-            <p className="text-xl font-medium text-orange-800 dark:text-orange-300">Preparing your dashboard...</p>
-            <p className="text-sm text-orange-600/70 dark:text-orange-400/70 mt-2">Please wait while we load your personalized experience</p>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-blue-600 dark:text-blue-400" />
+            <p className="text-xl font-medium text-blue-800 dark:text-blue-300">Preparing your dashboard...</p>
+            <p className="text-sm text-blue-600/70 dark:text-blue-400/70 mt-2">Please wait while we load your personalized experience</p>
           </>
         ) : (
           <>
-            <p className="text-xl font-medium text-orange-800 dark:text-orange-300">Redirecting to login page...</p>
-            <p className="text-sm text-orange-600/70 dark:text-orange-400/70 mt-2">You'll be redirected in a moment</p>
+            <p className="text-xl font-medium text-blue-800 dark:text-blue-300">Redirecting to login page...</p>
+            <p className="text-sm text-blue-600/70 dark:text-blue-400/70 mt-2">You'll be redirected in a moment</p>
           </>
         )}
       </div>

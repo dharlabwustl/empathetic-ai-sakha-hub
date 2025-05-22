@@ -2,18 +2,23 @@
 import React from 'react';
 
 interface PrepzrLogoProps {
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   className?: string;
 }
 
-const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ width = 180, height = 60, className = '' }) => {
+const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
+  width = 120, 
+  height = 'auto',
+  className = '' 
+}) => {
   return (
-    <div style={{ width, height }} className={`flex items-center justify-center ${className}`}>
+    <div className={`flex flex-col items-center ${className}`} style={{ width, height }}>
       <img 
-        src="/lovable-uploads/5efe900b-dae0-453f-a1fc-d43c2ccc0f68.png" 
-        alt="PREPZR Logo" 
-        className="h-full object-contain"
+        src="/lovable-uploads/8f5b4c23-6323-41cd-9d0d-cca84f710783.png" 
+        alt="PREPZR Logo"
+        style={{ width: '100%', height: 'auto' }}
+        className="max-w-full"
       />
     </div>
   );

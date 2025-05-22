@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HeroContent from './hero/HeroContent';
 import DashboardPreview from './hero/DashboardPreview';
@@ -32,11 +32,11 @@ const HeroSection: React.FC = () => {
     >
       {/* Enhanced 3D Background with exam-themed effects */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-orange-950/80 dark:via-gray-900 dark:to-amber-950/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-blue-950/80 dark:via-gray-900 dark:to-indigo-950/80" />
         
         {/* Abstract floating 3D shapes - Knowledge bubbles */}
         <motion.div 
-          className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-orange-400/15 to-amber-400/10 dark:from-orange-700/10 dark:to-amber-700/5 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-blue-400/15 to-indigo-400/10 dark:from-blue-700/10 dark:to-indigo-700/5 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.2, 1], 
             x: [0, 30, 0], 
@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
         />
         
         <motion.div 
-          className="absolute top-40 right-10 w-80 h-80 bg-gradient-to-r from-amber-300/20 to-orange-300/20 dark:from-amber-700/10 dark:to-orange-700/10 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-40 right-10 w-80 h-80 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 dark:from-indigo-700/10 dark:to-blue-700/10 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 0.8, 1], 
             x: [0, -20, 0], 
@@ -65,7 +65,7 @@ const HeroSection: React.FC = () => {
         />
       
         <motion.div 
-          className="absolute bottom-10 left-1/3 w-96 h-96 bg-gradient-to-r from-amber-300/20 to-orange-300/20 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-10 left-1/3 w-96 h-96 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 dark:from-indigo-600/10 dark:to-blue-600/10 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.1, 1], 
             x: [0, 20, 0], 
@@ -87,7 +87,7 @@ const HeroSection: React.FC = () => {
           transition={{ delay: 1 }}
         >
           <motion.div 
-            className="w-full h-full bg-gradient-to-r from-orange-500/30 to-amber-500/30 rounded-lg border border-orange-200 dark:border-orange-700/30 shadow-lg"
+            className="w-full h-full bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-lg border border-blue-200 dark:border-blue-700/30 shadow-lg"
             animate={{ 
               rotateX: [0, 15, 0, -15, 0],
               rotateY: [0, -15, 0, 15, 0],
@@ -101,7 +101,7 @@ const HeroSection: React.FC = () => {
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-orange-700 dark:text-orange-300 text-lg font-bold opacity-70">NEET</span>
+              <span className="text-blue-700 dark:text-blue-300 text-lg font-bold opacity-70">NEET</span>
             </div>
           </motion.div>
         </motion.div>
@@ -113,7 +113,7 @@ const HeroSection: React.FC = () => {
           transition={{ delay: 1.5 }}
         >
           <motion.div 
-            className="w-full h-full bg-gradient-to-r from-amber-500/30 to-orange-500/30 rounded-lg border border-amber-200 dark:border-amber-700/30 shadow-lg"
+            className="w-full h-full bg-gradient-to-r from-indigo-500/30 to-blue-500/30 rounded-lg border border-indigo-200 dark:border-indigo-700/30 shadow-lg"
             animate={{ 
               rotateX: [0, -20, 0, 20, 0],
               rotateY: [0, 20, 0, -20, 0],
@@ -128,7 +128,7 @@ const HeroSection: React.FC = () => {
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-amber-700 dark:text-amber-300 text-sm font-bold opacity-70">JEE</span>
+              <span className="text-indigo-700 dark:text-indigo-300 text-sm font-bold opacity-70">JEE</span>
             </div>
           </motion.div>
         </motion.div>
@@ -140,7 +140,7 @@ const HeroSection: React.FC = () => {
           transition={{ delay: 2 }}
         >
           <motion.div 
-            className="w-full h-full bg-gradient-to-r from-amber-500/30 to-orange-500/30 rounded-full border border-amber-200 dark:border-amber-700/30 shadow-lg"
+            className="w-full h-full bg-gradient-to-r from-indigo-500/30 to-blue-500/30 rounded-full border border-indigo-200 dark:border-indigo-700/30 shadow-lg"
             animate={{ 
               rotateX: [0, 10, 0, -10, 0],
               rotateY: [0, -10, 0, 10, 0],
@@ -155,7 +155,7 @@ const HeroSection: React.FC = () => {
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-amber-700 dark:text-amber-300 text-lg font-bold opacity-70">UPSC</span>
+              <span className="text-indigo-700 dark:text-indigo-300 text-lg font-bold opacity-70">UPSC</span>
             </div>
           </motion.div>
         </motion.div>
@@ -164,7 +164,7 @@ const HeroSection: React.FC = () => {
         <div 
           className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
           style={{
-            backgroundImage: "linear-gradient(#FFA500 1px, transparent 1px), linear-gradient(to right, #FFA500 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(#4DB2EC 1px, transparent 1px), linear-gradient(to right, #4DB2EC 1px, transparent 1px)",
             backgroundSize: "40px 40px"
           }}
         />
@@ -173,7 +173,7 @@ const HeroSection: React.FC = () => {
         <div className="absolute inset-0 overflow-hidden">
           {/* Books */}
           <motion.div
-            className="absolute top-[15%] left-[10%] w-6 h-8 bg-orange-600/20 rounded-sm"
+            className="absolute top-[15%] left-[10%] w-6 h-8 bg-blue-600/20 rounded-sm"
             animate={{
               y: [0, -15, 0],
               rotate: [0, 5, 0, -5, 0],
@@ -188,7 +188,7 @@ const HeroSection: React.FC = () => {
           
           {/* Formula */}
           <motion.div
-            className="absolute top-[25%] right-[20%] text-orange-600/30 text-xl font-bold"
+            className="absolute top-[25%] right-[20%] text-blue-600/30 text-xl font-bold"
             animate={{
               y: [0, -10, 0],
               opacity: [0.3, 0.6, 0.3]
@@ -204,7 +204,7 @@ const HeroSection: React.FC = () => {
           
           {/* Test paper */}
           <motion.div
-            className="absolute bottom-[30%] left-[30%] w-10 h-14 bg-gradient-to-b from-white/80 to-orange-100/80 dark:from-gray-800/50 dark:to-orange-900/30 rounded-sm"
+            className="absolute bottom-[30%] left-[30%] w-10 h-14 bg-gradient-to-b from-white/80 to-blue-100/80 dark:from-gray-800/50 dark:to-blue-900/30 rounded-sm"
             animate={{
               y: [0, -10, 0],
               rotate: [0, -3, 0, 3, 0],
@@ -216,9 +216,9 @@ const HeroSection: React.FC = () => {
               repeatType: "loop"
             }}
           >
-            <div className="h-1 w-8 bg-orange-600/30 rounded-full mt-2 ml-1"></div>
-            <div className="h-1 w-6 bg-orange-600/30 rounded-full mt-2 ml-1"></div>
-            <div className="h-1 w-7 bg-orange-600/30 rounded-full mt-2 ml-1"></div>
+            <div className="h-1 w-8 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
+            <div className="h-1 w-6 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
+            <div className="h-1 w-7 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
           </motion.div>
         </div>
       </div>

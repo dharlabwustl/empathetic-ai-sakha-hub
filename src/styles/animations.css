@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: rgba(255, 165, 0, 0.2); /* Orange */
+  background-color: rgba(77, 178, 236, 0.2); /* Light blue */
   z-index: 0;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -42,31 +42,31 @@
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #f97316, #ffa500);
+  background-image: linear-gradient(to right, #4DB2EC, #1E88E5);
 }
 
-/* Colors for Sakha AI */
+/* Colors for PREPZR App */
 :root {
-  --sakha-blue: #ffa500; /* Orange */
-  --sakha-purple: #f97316; /* Darker orange */
-  --sakha-light-blue: #fdba74; /* Light orange */
-  --sakha-lavender: #fed7aa; /* Very light orange */
+  --prepzr-blue: #4DB2EC; /* Light blue */
+  --prepzr-dark-blue: #1E88E5; /* Darker blue */
+  --prepzr-light-blue: #90CAF9; /* Very light blue */
+  --prepzr-lightest-blue: #BBDEFB; /* Extremely light blue */
   
   /* Gradient Color Variables for Methodology Section */
-  --blue-500: #f97316; /* Orange */
-  --cyan-400: #fdba74; /* Light orange */
-  --purple-500: #f97316; /* Orange */
-  --violet-400: #fdba74; /* Light orange */
-  --green-500: #f97316; /* Orange */
-  --teal-400: #fdba74; /* Light orange */
-  --orange-500: #f97316; /* Orange */
-  --amber-400: #ffa500; /* Orange */
-  --pink-500: #f97316; /* Orange */
-  --rose-400: #fdba74; /* Light orange */
-  --indigo-500: #f97316; /* Orange */
-  --blue-400: #ffa500; /* Orange */
-  --red-500: #f97316; /* Orange */
-  --orange-400: #ffa500; /* Orange */
+  --blue-500: #2196F3; /* PREPZR Blue */
+  --cyan-400: #4DB2EC; /* Light blue */
+  --purple-500: #3F51B5; /* Indigo */
+  --violet-400: #5C6BC0; /* Light indigo */
+  --green-500: #2196F3; /* Using blue instead */
+  --teal-400: #4DB2EC; /* Light blue */
+  --orange-500: #2196F3; /* Using blue instead */
+  --amber-400: #4DB2EC; /* Light blue */
+  --pink-500: #2196F3; /* Using blue instead */
+  --rose-400: #4DB2EC; /* Light blue */
+  --indigo-500: #3F51B5; /* Indigo */
+  --blue-400: #4DB2EC; /* Light blue */
+  --red-500: #2196F3; /* Using blue instead */
+  --orange-400: #4DB2EC; /* Light blue */
 }
 
 /* Engine Animation */
@@ -87,7 +87,7 @@
   animation: rotate 10s linear infinite reverse;
 }
 
-/* Additional orange-themed animations */
+/* Additional blue-themed animations */
 @keyframes float {
   0%, 100% {
     transform: translateY(0);
@@ -101,25 +101,25 @@
   animation: float 6s ease-in-out infinite;
 }
 
-@keyframes glow-orange {
+@keyframes glow-blue {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(255, 165, 0, 0.4);
+    box-shadow: 0 0 5px rgba(77, 178, 236, 0.4);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 165, 0, 0.7);
+    box-shadow: 0 0 20px rgba(77, 178, 236, 0.7);
   }
 }
 
-.animate-glow-orange {
-  animation: glow-orange 3s ease-in-out infinite;
+.animate-glow-blue {
+  animation: glow-blue 3s ease-in-out infinite;
 }
 
 @keyframes border-pulse {
   0%, 100% {
-    border-color: rgba(255, 165, 0, 0.5);
+    border-color: rgba(77, 178, 236, 0.5);
   }
   50% {
-    border-color: rgba(255, 165, 0, 0.9);
+    border-color: rgba(77, 178, 236, 0.9);
   }
 }
 
@@ -127,13 +127,13 @@
   animation: border-pulse 2s ease-in-out infinite;
 }
 
-/* 3D perspective effects for orange theme */
-.orange-card-3d {
+/* 3D perspective effects for blue theme */
+.blue-card-3d {
   transform-style: preserve-3d;
   transition: transform 0.5s ease;
 }
 
-.orange-card-3d:hover {
+.blue-card-3d:hover {
   transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
-  box-shadow: 0 15px 35px rgba(255, 165, 0, 0.2);
+  box-shadow: 0 15px 35px rgba(77, 178, 236, 0.2);
 }

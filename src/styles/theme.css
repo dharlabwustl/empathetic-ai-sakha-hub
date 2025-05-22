@@ -1,98 +1,99 @@
+
 @layer base {
   :root {
-    --background: 35 100% 97%; /* Light orange background */
+    --background: 206 100% 97%; /* Light blue background */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 35 50% 20%; /* Dark orange text for better contrast */
+    --card-foreground: 206 50% 20%; /* Dark blue text for better contrast */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 35 50% 20%;
+    --popover-foreground: 206 50% 20%;
 
-    --primary: 35 100% 50%; /* #FFA500 (Orange) */
+    --primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 35 90% 45%; /* Darker orange for secondary */
+    --secondary: 206 87% 52%; /* Darker blue for secondary */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 35 20% 96%; /* Light orange for muted background */
-    --muted-foreground: 35 40% 40%; /* Medium orange for muted text */
+    --muted: 206 20% 96%; /* Light blue for muted background */
+    --muted-foreground: 206 40% 40%; /* Medium blue for muted text */
 
-    --accent: 35 100% 96%; /* Light orange for accent */
-    --accent-foreground: 35 80% 30%; /* Dark orange for accent text */
+    --accent: 206 100% 96%; /* Light blue for accent */
+    --accent-foreground: 206 80% 30%; /* Dark blue for accent text */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 35 30% 90%; /* Light orange border */
-    --input: 35 30% 90%;
-    --ring: 35 100% 50%; /* #FFA500 (Orange) */
+    --border: 206 30% 90%; /* Light blue border */
+    --input: 206 30% 90%;
+    --ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
 
     --radius: 0.75rem;
 
-    --sidebar-background: 35 100% 97%; /* Light orange sidebar */
-    --sidebar-foreground: 35 50% 20%; /* Dark orange text */
-    --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
+    --sidebar-background: 206 100% 97%; /* Light blue sidebar */
+    --sidebar-foreground: 206 50% 20%; /* Dark blue text */
+    --sidebar-primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 35 30% 94%;
-    --sidebar-accent-foreground: 35 80% 30%;
-    --sidebar-border: 35 30% 90%;
-    --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
+    --sidebar-accent: 206 30% 94%;
+    --sidebar-accent-foreground: 206 80% 30%;
+    --sidebar-border: 206 30% 90%;
+    --sidebar-ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
     
-    /* Vibrant orange theme colors */
-    --sakha-light-blue: 35 100% 85%; /* Light orange */
-    --sakha-blue: 35 90% 60%; /* Medium orange */
-    --sakha-purple: 35 100% 50%; /* #FFA500 (Orange) */
-    --sakha-pink: 35 80% 69%; /* Soft orange */
-    --sakha-lavender: 35 60% 94%; /* Very light orange */
-    --sakha-deep-blue: 35 70% 40%; /* Deep orange */
+    /* Vibrant blue theme colors */
+    --sakha-light-blue: 206 100% 85%; /* Light blue */
+    --sakha-blue: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
+    --sakha-purple: 206 87% 52%; /* Darker blue */
+    --sakha-pink: 206 80% 69%; /* Soft blue */
+    --sakha-lavender: 206 60% 94%; /* Very light blue */
+    --sakha-deep-blue: 206 70% 40%; /* Deep blue */
   }
 
   .dark {
-    --background: 35 40% 10%; /* Dark orange background */
-    --foreground: 35 30% 90%; /* Light orange text */
+    --background: 206 40% 10%; /* Dark blue background */
+    --foreground: 206 30% 90%; /* Light blue text */
 
-    --card: 35 50% 12%; /* Dark orange card */
-    --card-foreground: 35 30% 90%; /* Light orange text */
+    --card: 206 50% 12%; /* Dark blue card */
+    --card-foreground: 206 30% 90%; /* Light blue text */
 
-    --popover: 35 50% 12%;
-    --popover-foreground: 35 30% 90%;
+    --popover: 206 50% 12%;
+    --popover-foreground: 206 30% 90%;
 
-    --primary: 35 100% 50%; /* #FFA500 (Orange) */
-    --primary-foreground: 35 10% 10%; /* Very dark text for contrast */
+    --primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
+    --primary-foreground: 206 10% 10%; /* Very dark text for contrast */
 
-    --secondary: 35 90% 45%; /* Darker orange for secondary */
+    --secondary: 206 87% 52%; /* Darker blue for secondary */
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 35 25% 20%; /* Dark muted background */
-    --muted-foreground: 35 35% 65%; /* Light muted text */
+    --muted: 206 25% 20%; /* Dark muted background */
+    --muted-foreground: 206 35% 65%; /* Light muted text */
 
-    --accent: 35 30% 25%; /* Dark orange for accent in dark mode */
-    --accent-foreground: 35 40% 90%; /* Light text on accent */
+    --accent: 206 30% 25%; /* Dark blue for accent in dark mode */
+    --accent-foreground: 206 40% 90%; /* Light text on accent */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 35 25% 25%; /* Dark orange border */
-    --input: 35 25% 25%;
-    --ring: 35 100% 50%; /* #FFA500 (Orange) */
+    --border: 206 25% 25%; /* Dark blue border */
+    --input: 206 25% 25%;
+    --ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
 
-    --sidebar-background: 35 50% 12%;
-    --sidebar-foreground: 35 30% 90%;
-    --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
+    --sidebar-background: 206 50% 12%;
+    --sidebar-foreground: 206 30% 90%;
+    --sidebar-primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 30% 18%;
-    --sidebar-accent-foreground: 35 30% 90%;
-    --sidebar-border: 35 35% 25%;
-    --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
+    --sidebar-accent: 206 30% 18%;
+    --sidebar-accent-foreground: 206 30% 90%;
+    --sidebar-border: 206 35% 25%;
+    --sidebar-ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
     
-    /* Updated Sakha colors for dark mode */
-    --sakha-light-blue: 35 80% 75%; /* Light orange */
-    --sakha-blue: 35 76% 60%; /* Medium orange */
-    --sakha-purple: 35 73% 60%; /* #FFA500 (Orange) */
-    --sakha-pink: 35 73% 69%; /* Soft orange */
-    --sakha-lavender: 35 60% 94%; /* Very light orange */
-    --sakha-deep-blue: 35 70% 40%; /* Deep orange */
+    /* Updated blue colors for dark mode */
+    --sakha-light-blue: 206 80% 75%; /* Light blue */
+    --sakha-blue: 206 76% 60%; /* Medium blue */
+    --sakha-purple: 206 73% 60%; /* Darker blue */
+    --sakha-pink: 206 73% 69%; /* Soft blue */
+    --sakha-lavender: 206 60% 94%; /* Very light blue */
+    --sakha-deep-blue: 206 70% 40%; /* Deep blue */
   }
 }
 
@@ -101,7 +102,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-500;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600;
 }
 
 /* Avatar glow effect */
@@ -111,7 +112,7 @@
 
 .avatar-glow::before {
   content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 opacity-75 blur-sm animate-pulse;
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 opacity-75 blur-sm animate-pulse;
   z-index: -1;
 }
 
@@ -131,10 +132,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.4);
+    box-shadow: 0 0 5px 2px rgba(77, 178, 236, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 5px rgba(255, 165, 0, 0.7);
+    box-shadow: 0 0 15px 5px rgba(77, 178, 236, 0.7);
   }
 }
 
@@ -149,11 +150,11 @@
 
 /* New student-focused styles */
 .exam-card {
-  @apply bg-white rounded-xl p-6 border border-orange-100 hover:border-orange-300 hover:shadow-lg transition-all cursor-pointer;
+  @apply bg-white rounded-xl p-6 border border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer;
 }
 
 .feature-highlight {
-  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 p-6 text-white;
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 p-6 text-white;
 }
 
 .feature-highlight::before {
@@ -162,29 +163,29 @@
 }
 
 .student-badge {
-  @apply bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
+  @apply bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
 }
 
-/* New additions for vibrant orange theme */
-.orange-gradient-bg {
-  @apply bg-gradient-to-br from-orange-50 via-orange-100/30 to-amber-50;
+/* New additions for vibrant blue theme */
+.blue-gradient-bg {
+  @apply bg-gradient-to-br from-blue-50 via-blue-100/30 to-indigo-50;
 }
 
-.dark .orange-gradient-bg {
-  @apply bg-gradient-to-br from-orange-900/40 via-orange-800/20 to-amber-900/30;
+.dark .blue-gradient-bg {
+  @apply bg-gradient-to-br from-blue-900/40 via-blue-800/20 to-indigo-900/30;
 }
 
 /* Enhanced gradient buttons */
-.btn-gradient-orange {
-  @apply bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white;
+.btn-gradient-blue {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white;
 }
 
-/* Card with subtle orange border */
-.orange-card {
-  @apply bg-white border border-orange-200 dark:bg-gray-800 dark:border-orange-800/40;
+/* Card with subtle blue border */
+.blue-card {
+  @apply bg-white border border-blue-200 dark:bg-gray-800 dark:border-blue-800/40;
 }
 
-/* Orange accent text */
-.text-orange-accent {
-  @apply text-orange-600 dark:text-orange-400;
+/* Blue accent text */
+.text-blue-accent {
+  @apply text-blue-600 dark:text-blue-400;
 }

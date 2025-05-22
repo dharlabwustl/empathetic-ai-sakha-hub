@@ -1,400 +1,286 @@
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, CheckCircle, Lightbulb, Trophy, BookOpen, BarChart3 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
   setActiveFeature: (index: number) => void;
 }
 
+// Icons for feature highlights
+const FeatureIcon = ({ children }: { children: React.ReactNode }) => (
+  <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+    {children}
+  </div>
+);
+
 const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setActiveFeature }) => {
   const features = [
     {
-      id: "overview",
+      id: "smart-dashboard",
       title: "Smart Dashboard",
-      description: "AI-powered personalized dashboard with performance insights",
-      icon: BarChart3,
-      preview: (
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-xl p-4 shadow-lg border border-orange-200 dark:border-orange-800/30">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-orange-700 dark:text-orange-300">Your Progress</h3>
-              <span className="text-sm text-orange-500 font-medium">75% Complete</span>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="w-full bg-orange-100 dark:bg-orange-900/30 h-2 rounded-full">
-                <div className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full w-3/4"></div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800/20 text-center">
-                  <p className="text-xs text-orange-600 dark:text-orange-400">Daily Streak</p>
-                  <p className="text-xl font-bold text-orange-700 dark:text-orange-300">7</p>
-                </div>
-                
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800/20 text-center">
-                  <p className="text-xs text-orange-600 dark:text-orange-400">Accuracy</p>
-                  <p className="text-xl font-bold text-orange-700 dark:text-orange-300">92%</p>
-                </div>
-                
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800/20 text-center">
-                  <p className="text-xs text-orange-600 dark:text-orange-400">Concept Mastery</p>
-                  <p className="text-xl font-bold text-orange-700 dark:text-orange-300">32</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 p-3 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Lightbulb className="h-5 w-5 text-orange-500 mt-1 flex-shrink-0" />
-                <p className="text-sm text-orange-800 dark:text-orange-200">Focus on Physics concepts today based on your learning pattern!</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      description: "Personalized overview of your study progress and activities.",
+      image: "https://placehold.co/600x400/e3f2fd/1976d2?text=Smart+Dashboard",
+      color: "from-blue-600 to-blue-500"
     },
     {
       id: "adaptive-plan",
       title: "Adaptive Study Plan",
-      description: "Personalized study plans that adjust to your learning pace",
-      icon: CheckCircle,
-      preview: (
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-xl p-4 shadow-lg border border-orange-200 dark:border-orange-800/30">
-          <h3 className="text-lg font-semibold mb-3 text-orange-700 dark:text-orange-300">Your Adaptive Plan</h3>
-          
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border-l-4 border-orange-500">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-orange-200 dark:bg-orange-800/50 rounded-full flex items-center justify-center text-orange-700 dark:text-orange-300 font-medium">1</div>
-                <div>
-                  <p className="font-medium text-orange-700 dark:text-orange-300">Physics - Kinematics</p>
-                  <p className="text-xs text-orange-600/70 dark:text-orange-400/70">30 min • High priority</p>
-                </div>
-              </div>
-              <div className="bg-orange-100 dark:bg-orange-800/30 text-orange-800 dark:text-orange-200 text-xs px-2 py-1 rounded-full">
-                Current
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-orange-50/50 dark:bg-orange-900/10 rounded-lg border-l-4 border-orange-300">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-orange-100 dark:bg-orange-800/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 font-medium">2</div>
-                <div>
-                  <p className="font-medium text-orange-600 dark:text-orange-400">Chemistry - Atomic Structure</p>
-                  <p className="text-xs text-orange-500/70 dark:text-orange-400/70">45 min • Medium priority</p>
-                </div>
-              </div>
-              <div className="bg-orange-50 dark:bg-orange-800/20 text-orange-600 dark:text-orange-400 text-xs px-2 py-1 rounded-full">
-                Next
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-orange-50/50 dark:bg-orange-900/10 rounded-lg border-l-4 border-orange-200">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-orange-100/70 dark:bg-orange-800/20 rounded-full flex items-center justify-center text-orange-500 dark:text-orange-400/80 font-medium">3</div>
-                <div>
-                  <p className="font-medium text-orange-500 dark:text-orange-400/80">Biology - Cell Structure</p>
-                  <p className="text-xs text-orange-400/70 dark:text-orange-300/70">20 min • Review</p>
-                </div>
-              </div>
-              <div className="bg-orange-50 dark:bg-orange-800/20 text-orange-500 dark:text-orange-400/80 text-xs px-2 py-1 rounded-full">
-                Later
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-4 bg-orange-100/70 dark:bg-orange-900/30 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <Trophy className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Adaptive Suggestion</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Based on your learning patterns, we've increased focus on Physics today and reduced Biology content.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      description: "Learning plan that adapts to your performance and preferences.",
+      image: "https://placehold.co/600x400/e3f2fd/1976d2?text=Adaptive+Study+Plan",
+      color: "from-blue-500 to-indigo-600"
     },
     {
       id: "flashcard-recall",
-      title: "Flashcard Recall",
-      description: "Powerful spaced repetition for better memory retention",
-      icon: CheckCircle,
-      preview: (
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-xl p-4 shadow-lg border border-orange-200 dark:border-orange-800/30">
-          <h3 className="text-lg font-semibold mb-3 text-orange-700 dark:text-orange-300">Flashcard Recall</h3>
-          
-          <div className="relative perspective-1000 h-48 mb-4">
-            <div className="absolute inset-0 preserve-3d backface-hidden bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg shadow-lg p-4 flex items-center justify-center text-white">
-              <p className="text-lg font-medium text-center">What is Newton's Second Law of Motion?</p>
-            </div>
-            <div className="absolute inset-0 preserve-3d backface-hidden rotate-y-180 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col gap-2">
-              <p className="text-base text-orange-800 dark:text-orange-200">F = ma</p>
-              <p className="text-sm text-orange-700 dark:text-orange-300">Force equals mass times acceleration</p>
-              <div className="text-xs text-orange-600 dark:text-orange-400 mt-auto">
-                The rate of change of momentum is proportional to the force applied, and occurs in the direction of the force.
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-between items-center mb-3">
-            <div className="text-sm text-orange-600 dark:text-orange-400">
-              <span className="font-medium">7</span> remaining today
-            </div>
-            
-            <div className="flex gap-1">
-              <span className="h-2 w-2 rounded-full bg-orange-500"></span>
-              <span className="h-2 w-2 rounded-full bg-orange-200 dark:bg-orange-800"></span>
-              <span className="h-2 w-2 rounded-full bg-orange-200 dark:bg-orange-800"></span>
-            </div>
-            
-            <div className="text-sm text-orange-600 dark:text-orange-400">
-              <span className="font-medium">68%</span> recall
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30">
-              Hard
-            </Button>
-            <Button variant="outline" className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30">
-              Medium
-            </Button>
-            <Button variant="outline" className="border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/30">
-              Easy
-            </Button>
-          </div>
-        </div>
-      )
+      title: "Flashcard Recall System",
+      description: "Spaced repetition system for maximum memory retention.",
+      image: "https://placehold.co/600x400/e3f2fd/1976d2?text=Flashcard+Recall",
+      color: "from-indigo-600 to-blue-600"
     },
     {
       id: "formula-practice",
       title: "Formula Practice",
-      description: "Interactive tools to master key academic formulas",
-      icon: CheckCircle,
-      preview: (
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-xl p-4 shadow-lg border border-orange-200 dark:border-orange-800/30">
-          <h3 className="text-lg font-semibold mb-3 text-orange-700 dark:text-orange-300">Formula Practice</h3>
-          
-          <div className="p-3 bg-orange-50/80 dark:bg-orange-900/20 rounded-lg mb-3">
-            <p className="font-medium text-orange-700 dark:text-orange-300 mb-1">Kinematic Equation</p>
-            <div className="text-lg font-mono text-center py-2 text-orange-800 dark:text-orange-200">
-              v = u + at
-            </div>
-            <div className="grid grid-cols-4 gap-2 mt-2">
-              <div className="text-center">
-                <div className="text-xs text-orange-500 dark:text-orange-400 mb-1">v</div>
-                <input 
-                  type="text" 
-                  className="w-full text-center p-1 border border-orange-300 dark:border-orange-700 rounded bg-white dark:bg-gray-800 text-orange-800 dark:text-orange-200" 
-                  placeholder="?"
-                />
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-orange-500 dark:text-orange-400 mb-1">u</div>
-                <input 
-                  type="text" 
-                  className="w-full text-center p-1 border border-orange-300 dark:border-orange-700 rounded bg-white dark:bg-gray-800 text-orange-800 dark:text-orange-200" 
-                  value="5"
-                  readOnly
-                />
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-orange-500 dark:text-orange-400 mb-1">a</div>
-                <input 
-                  type="text" 
-                  className="w-full text-center p-1 border border-orange-300 dark:border-orange-700 rounded bg-white dark:bg-gray-800 text-orange-800 dark:text-orange-200" 
-                  value="2"
-                  readOnly
-                />
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-orange-500 dark:text-orange-400 mb-1">t</div>
-                <input 
-                  type="text" 
-                  className="w-full text-center p-1 border border-orange-300 dark:border-orange-700 rounded bg-white dark:bg-gray-800 text-orange-800 dark:text-orange-200" 
-                  value="3"
-                  readOnly
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-sm text-orange-600 dark:text-orange-400">
-              Formula practice progress:
-            </div>
-            <div className="text-sm font-medium text-orange-700 dark:text-orange-300">
-              12/20
-            </div>
-          </div>
-          
-          <div className="w-full bg-orange-100 dark:bg-orange-800/40 h-2 rounded-full mb-4">
-            <div className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full" style={{width: '60%'}}></div>
-          </div>
-          
-          <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700">
-            Check Answer
-          </Button>
-        </div>
-      )
+      description: "Interactive practice for physics, chemistry, and math equations.",
+      image: "https://placehold.co/600x400/e3f2fd/1976d2?text=Formula+Practice",
+      color: "from-blue-500 to-blue-600"
     },
     {
       id: "syllabus-integration",
-      title: "Syllabus Integration",
-      description: "Concepts linked to your exam syllabus for better organization",
-      icon: BookOpen,
-      preview: (
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-xl p-4 shadow-lg border border-orange-200 dark:border-orange-800/30">
-          <h3 className="text-lg font-semibold mb-3 text-orange-700 dark:text-orange-300">Syllabus Integration</h3>
-          
-          <div className="border border-orange-200 dark:border-orange-800/30 rounded-lg overflow-hidden mb-4">
-            <div className="p-3 bg-orange-100/60 dark:bg-orange-900/40 border-b border-orange-200 dark:border-orange-800/30 flex justify-between items-center">
-              <span className="font-medium text-orange-700 dark:text-orange-300">NEET Physics</span>
-              <span className="text-xs bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 px-2 py-0.5 rounded-full">65% Complete</span>
-            </div>
-            
-            <div className="divide-y divide-orange-100 dark:divide-orange-900/30">
-              <div className="p-3 flex justify-between items-center hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                  <span className="text-orange-700 dark:text-orange-300">Mechanics</span>
-                </div>
-                <span className="text-xs text-orange-500 dark:text-orange-400">21/25 concepts</span>
-              </div>
-              
-              <div className="p-3 flex justify-between items-center hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                  <span className="text-orange-700 dark:text-orange-300">Thermodynamics</span>
-                </div>
-                <span className="text-xs text-orange-500 dark:text-orange-400">15/20 concepts</span>
-              </div>
-              
-              <div className="p-3 flex justify-between items-center hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                  <span className="text-orange-700 dark:text-orange-300">Optics</span>
-                </div>
-                <span className="text-xs text-orange-500 dark:text-orange-400">8/18 concepts</span>
-              </div>
-              
-              <div className="p-3 flex justify-between items-center hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                  <span className="text-orange-700 dark:text-orange-300">Modern Physics</span>
-                </div>
-                <span className="text-xs text-orange-500 dark:text-orange-400">3/15 concepts</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-orange-50/70 dark:bg-orange-900/20 p-3 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Lightbulb className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Exam Strategy</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Focus on Modern Physics next as it's the least covered area in your preparation.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      title: "Exam Syllabus Integration",
+      description: "Track your progress through the official exam syllabus.",
+      image: "https://placehold.co/600x400/e3f2fd/1976d2?text=Syllabus+Integration",
+      color: "from-blue-600 to-indigo-500"
     }
   ];
 
-  const handlePrevious = () => {
-    setActiveFeature((prev) => (prev === 0 ? features.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setActiveFeature((prev) => (prev === features.length - 1 ? 0 : prev + 1));
-  };
-
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 40 }}
+      className="w-full lg:w-1/2 perspective-1000"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.5 }}
-      className="w-full lg:w-1/2"
+      transition={{ duration: 0.8, delay: 0.3 }}
     >
-      <div className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-sm border border-white/20 dark:border-gray-800/30 rounded-3xl overflow-hidden shadow-2xl perspective-1000 lg:min-h-[530px]">
-        <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-red-500"></div>
-              <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-              <div className="h-3 w-3 rounded-full bg-green-500"></div>
-            </div>
-            <span className="text-sm font-medium">{features[activeFeature].title}</span>
-          </div>
-          <div className="flex items-center text-xs">
-            <span className="bg-white/20 px-2 py-0.5 rounded text-white">PREPZR Dashboard</span>
-          </div>
+      <div className="relative">
+        {/* Feature selection controls */}
+        <div className="mb-6 flex flex-wrap gap-2 justify-center">
+          {features.map((feature, index) => (
+            <button
+              key={feature.id}
+              onClick={() => setActiveFeature(index)}
+              className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                activeFeature === index 
+                  ? `bg-gradient-to-r ${feature.color} text-white font-medium shadow-md`
+                  : 'bg-white/70 hover:bg-white border border-blue-100 text-blue-700'
+              }`}
+            >
+              {feature.title}
+            </button>
+          ))}
         </div>
-        
-        {/* Feature preview area */}
-        <div className="relative overflow-hidden p-4 bg-gradient-to-br from-orange-50/90 to-amber-50/80 dark:from-orange-950/80 dark:to-amber-950/80">
-          <AnimatePresence mode="wait">
+
+        {/* Feature preview */}
+        <div className="relative rounded-2xl overflow-hidden bg-white shadow-xl border border-blue-200 dark:border-blue-800/30 preserve-3d transition-all duration-500 transform hover:scale-[1.02]">
+          {/* Dashboard header */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="text-white font-bold">PREPZR Dashboard</div>
+            </div>
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 rounded-full bg-white/30"></div>
+              <div className="w-3 h-3 rounded-full bg-white/30"></div>
+              <div className="w-3 h-3 rounded-full bg-white/30"></div>
+            </div>
+          </div>
+
+          {/* Welcome banner */}
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800/30">
+            <h3 className="text-blue-800 dark:text-blue-200 font-medium">Welcome to PREPZR</h3>
+            <p className="text-blue-600 dark:text-blue-300 text-sm">
+              World's first emotionally aware, hyper personalized, adaptive exam prep platform.
+            </p>
+          </div>
+
+          {/* Feature content */}
+          <div className="p-4 h-64 overflow-hidden relative">
             <motion.div
-              key={features[activeFeature].id}
+              key={activeFeature}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="preserve-3d"
+              className="absolute inset-0 p-4"
             >
-              {features[activeFeature].preview}
+              <div className="flex flex-col h-full">
+                <h3 className={`text-lg font-medium mb-2 bg-gradient-to-r ${features[activeFeature].color} bg-clip-text text-transparent`}>
+                  {features[activeFeature].title}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
+                  {features[activeFeature].description}
+                </p>
+                
+                {/* Smart Dashboard View */}
+                {activeFeature === 0 && (
+                  <div className="flex-1 grid grid-cols-2 gap-3">
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                      <div className="text-xs text-blue-700 font-medium">Study Streak</div>
+                      <div className="text-2xl font-bold text-blue-900">14 days</div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                      <div className="text-xs text-blue-700 font-medium">Exam Readiness</div>
+                      <div className="text-2xl font-bold text-blue-900">78%</div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                      <div className="text-xs text-blue-700 font-medium">Focus Time</div>
+                      <div className="text-2xl font-bold text-blue-900">4.5 hrs</div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                      <div className="text-xs text-blue-700 font-medium">Concepts Mastered</div>
+                      <div className="text-2xl font-bold text-blue-900">127</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Adaptive Study Plan View */}
+                {activeFeature === 1 && (
+                  <div className="flex-1 flex flex-col">
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-blue-800 font-medium">Physics - Wave Optics</div>
+                        <div className="text-xs text-blue-500">9:00 AM - 10:30 AM</div>
+                      </div>
+                      <div className="mt-1 text-xs text-blue-600">Personalized for your learning style</div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-blue-800 font-medium">Chemistry - Organic Reactions</div>
+                        <div className="text-xs text-blue-500">11:00 AM - 12:30 PM</div>
+                      </div>
+                      <div className="mt-1 text-xs text-blue-600">Based on your recent performance</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-3 rounded-lg border border-blue-200">
+                      <div className="text-sm text-blue-800 font-medium">AI Recommendation</div>
+                      <div className="mt-1 text-xs text-blue-700">Focus more on Thermodynamics based on test results</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Flashcard Recall System View */}
+                {activeFeature === 2 && (
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex-1 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100 flex items-center justify-center mb-3 perspective-1000">
+                      <div className="bg-white p-4 rounded-lg shadow-md text-center w-full preserve-3d transform transition-all duration-500 animate-float-subtle">
+                        <div className="text-sm text-blue-800 font-medium mb-2">What is Newton's First Law?</div>
+                        <div className="text-xs text-blue-600 italic">Tap to flip</div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <div className="flex-1 bg-red-50 p-2 rounded-lg border border-red-100 text-center">
+                        <div className="text-xs text-red-700">Review</div>
+                      </div>
+                      <div className="flex-1 bg-yellow-50 p-2 rounded-lg border border-yellow-100 text-center">
+                        <div className="text-xs text-yellow-700">Hard</div>
+                      </div>
+                      <div className="flex-1 bg-green-50 p-2 rounded-lg border border-green-100 text-center">
+                        <div className="text-xs text-green-700">Easy</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Formula Practice View */}
+                {activeFeature === 3 && (
+                  <div className="flex-1 flex flex-col">
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3">
+                      <div className="text-center">
+                        <div className="text-lg font-medium text-blue-800 mb-2">E = mc²</div>
+                        <div className="text-xs text-blue-600">Energy-Mass Equivalence</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mb-3">
+                      <div className="flex-1 bg-white p-2 rounded-lg border border-blue-100 text-center">
+                        <div className="text-xs text-blue-700">Practice</div>
+                      </div>
+                      <div className="flex-1 bg-white p-2 rounded-lg border border-blue-100 text-center">
+                        <div className="text-xs text-blue-700">Derivation</div>
+                      </div>
+                      <div className="flex-1 bg-white p-2 rounded-lg border border-blue-100 text-center">
+                        <div className="text-xs text-blue-700">Applications</div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-3 rounded-lg border border-blue-200">
+                      <div className="text-sm text-blue-800 font-medium">Multi-technique Learning</div>
+                      <div className="text-xs text-blue-700 mt-1">Visual, practical, and conceptual approaches</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Syllabus Integration View */}
+                {activeFeature === 4 && (
+                  <div className="flex-1 flex flex-col">
+                    <div className="mb-3">
+                      <div className="text-sm text-blue-800 font-medium mb-2">NEET Syllabus Progress</div>
+                      <div className="flex items-center mb-1">
+                        <div className="text-xs text-blue-700 w-24">Physics</div>
+                        <div className="flex-1 bg-blue-100 rounded-full h-2">
+                          <div className="bg-blue-500 h-2 rounded-full" style={{width: '75%'}}></div>
+                        </div>
+                        <div className="text-xs text-blue-700 ml-2">75%</div>
+                      </div>
+                      <div className="flex items-center mb-1">
+                        <div className="text-xs text-blue-700 w-24">Chemistry</div>
+                        <div className="flex-1 bg-blue-100 rounded-full h-2">
+                          <div className="bg-blue-500 h-2 rounded-full" style={{width: '82%'}}></div>
+                        </div>
+                        <div className="text-xs text-blue-700 ml-2">82%</div>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="text-xs text-blue-700 w-24">Biology</div>
+                        <div className="flex-1 bg-blue-100 rounded-full h-2">
+                          <div className="bg-blue-500 h-2 rounded-full" style={{width: '68%'}}></div>
+                        </div>
+                        <div className="text-xs text-blue-700 ml-2">68%</div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-3 rounded-lg border border-blue-200">
+                      <div className="text-sm text-blue-800 font-medium">Exam Readiness Score</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="text-xs text-blue-700">
+                          Based on syllabus coverage and test performance
+                        </div>
+                        <div className="text-lg font-bold text-blue-900">78%</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </motion.div>
-          </AnimatePresence>
+          </div>
+
+          {/* Feature benefit list */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 border-t border-blue-100 dark:border-blue-800/30">
+            <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Key Benefits:</h4>
+            <ul className="space-y-1.5">
+              <li className="flex items-center text-xs text-blue-700 dark:text-blue-300">
+                <Check className="h-3.5 w-3.5 mr-2 text-blue-600 dark:text-blue-400" />
+                Hyper-personalized learning experience
+              </li>
+              <li className="flex items-center text-xs text-blue-700 dark:text-blue-300">
+                <Check className="h-3.5 w-3.5 mr-2 text-blue-600 dark:text-blue-400" />
+                Adaptive to your learning style and performance
+              </li>
+              <li className="flex items-center text-xs text-blue-700 dark:text-blue-300">
+                <Check className="h-3.5 w-3.5 mr-2 text-blue-600 dark:text-blue-400" />
+                Complete exam syllabus coverage
+              </li>
+            </ul>
+          </div>
         </div>
         
-        {/* Dashboard navigation */}
-        <div className="bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm p-3 flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handlePrevious}
-            className="flex items-center gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700 hover:bg-orange-100/50 dark:hover:bg-orange-900/30"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          
-          <div className="flex gap-1">
-            {features.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveFeature(index)}
-                className={`h-2 rounded-full transition-all ${
-                  index === activeFeature 
-                    ? "bg-orange-500 w-6" 
-                    : "bg-orange-200 dark:bg-orange-800 w-2"
-                }`}
-              />
-            ))}
-          </div>
-          
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleNext}
-            className="flex items-center gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700 hover:bg-orange-100/50 dark:hover:bg-orange-900/30"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      {/* Feature description */}
-      <div className="mt-4 text-center">
-        <h3 className="text-xl font-semibold text-orange-800 dark:text-orange-300">{features[activeFeature].title}</h3>
-        <p className="text-orange-600 dark:text-orange-400">{features[activeFeature].description}</p>
+        {/* Floating 3D elements around the dashboard */}
+        <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-blue-200/50 dark:bg-blue-800/20 rounded-full filter blur-xl animate-blob"></div>
+        <div className="absolute -top-5 right-16 w-16 h-16 bg-indigo-200/50 dark:bg-indigo-800/20 rounded-full filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 -right-8 w-20 h-20 bg-blue-200/50 dark:bg-blue-800/20 rounded-full filter blur-xl animate-blob animation-delay-4000"></div>
       </div>
     </motion.div>
   );
