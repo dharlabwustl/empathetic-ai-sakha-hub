@@ -76,10 +76,27 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
     
+    // Stop any ongoing speech when the component unmounts
     return () => {
       if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
         window.speechSynthesis.onvoiceschanged = null;
       }
+    };
+  }, []);
+  
+  // Stop voice when page changes (listening to route changes)
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
   
@@ -92,11 +109,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Use clear syllable break for PREPZR pronunciation
+    // Always use "PREPZR" not "PREP-zer"
     const correctedText = text
-      .replace(/PREPZR/gi, 'PREP-zer')
-      .replace(/prepzr/gi, 'PREP-zer')
-      .replace(/Prepzr/g, 'PREP-zer');
+      .replace(/PREP-zer/gi, 'PREPZR')
+      .replace(/Prepzr/g, 'PREPZR')
+      .replace(/prepzr/gi, 'PREPZR');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
@@ -116,6 +133,8 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     
     // Speak
     window.speechSynthesis.speak(utterance);
+    
+    return utterance;
   };
   
   // Function to start listening
@@ -148,6 +167,14 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   // Function to stop listening
   const stopListening = () => {
     setIsListening(false);
+  };
+  
+  // Function to stop speaking
+  const stopSpeaking = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
   
   // Update settings
@@ -198,6 +225,7 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     speakText,
     startListening,
     stopListening,
+    stopSpeaking,
     updateSettings,
     toggleMute,
     toggleEnabled

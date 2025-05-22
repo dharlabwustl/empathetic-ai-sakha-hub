@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import HeroSection from '@/components/home/HeroSection';
 import FeatureSection from '@/components/home/FeatureSection';
@@ -9,11 +9,10 @@ import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import SupportSection from '@/components/home/SupportSection';
 import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import { useState } from 'react';
-import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
+import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 
 const Home = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
@@ -30,6 +29,15 @@ const Home = () => {
   const handleNavigationCommand = (route: string) => {
     navigate(route);
   };
+
+  // Stop any voice announcements when route changes
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   return (
     <MainLayout>

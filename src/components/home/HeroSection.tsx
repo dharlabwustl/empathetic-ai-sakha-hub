@@ -1,13 +1,23 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HeroContent from './hero/HeroContent';
-import HeroSlider from './hero/HeroSlider';
+import DashboardPreview from './hero/DashboardPreview';
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Automatically cycle through dashboard features
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature(prev => (prev + 1) % 5);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Handler for exam readiness analyzer
   const handleExamReadinessClick = () => {
@@ -16,31 +26,14 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative overflow-hidden min-h-[85vh] py-10 md:py-16 flex items-center">
+    <section 
+      ref={sectionRef}
+      className="relative overflow-hidden min-h-screen py-12 md:py-16 lg:py-0 flex items-center"
+    >
       {/* Enhanced 3D Background with premium exam-themed effects */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-purple-50/80 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50" />
         
-        {/* 3D books and study materials pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.05] dark:opacity-[0.08]" 
-          style={{
-            backgroundImage: "url('/lovable-uploads/bffd91d7-243d-42d9-bbd9-52133e18f4b6.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "blur(1px)"
-          }}
-        />
-        
-        {/* Animated grid pattern representing exam paper */}
-        <div 
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
-          style={{
-            backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
-            backgroundSize: "40px 40px"
-          }}
-        />
-      
         {/* Abstract floating 3D shapes - Knowledge bubbles */}
         <motion.div 
           className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-blue-400/15 to-purple-400/10 dark:from-blue-700/10 dark:to-purple-700/5 rounded-full mix-blend-multiply filter blur-xl"
@@ -86,76 +79,24 @@ const HeroSection: React.FC = () => {
           }}
         />
         
-        {/* Floating paper and book elements */}
-        <motion.div
-          className="absolute top-[15%] right-[30%] w-24 h-16 bg-white/50 dark:bg-white/10 rounded-md shadow-lg transform rotate-12"
-          animate={{
-            y: [0, -15, 0],
-            rotate: [12, 5, 12],
-            opacity: [0.5, 0.7, 0.5]
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
+        {/* Animated grid pattern representing exam paper */}
+        <div 
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
           style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0.7), rgba(240,240,255,0.5))",
-            boxShadow: "0 5px 15px rgba(0,0,100,0.1)"
-          }}
-        />
-        
-        <motion.div
-          className="absolute bottom-[25%] left-[20%] w-20 h-28 bg-blue-100/70 dark:bg-blue-900/20 rounded-sm shadow-lg transform -rotate-6"
-          animate={{
-            y: [0, 10, 0],
-            rotate: [-6, -10, -6],
-            opacity: [0.6, 0.8, 0.6]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: 3
-          }}
-          style={{
-            backgroundImage: "linear-gradient(to right, rgba(200,220,255,0.7), rgba(220,230,255,0.5))",
-            boxShadow: "0 5px 15px rgba(0,0,100,0.15)"
+            backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
+            backgroundSize: "40px 40px"
           }}
         />
       </div>
 
       <div className="container mx-auto px-4 relative">
-        <div className="flex flex-col lg:flex-row items-center gap-8">
+        <div className="flex flex-col lg:flex-row items-center gap-8 justify-between min-h-[85vh]">
           {/* Left Content: Title, description and buttons */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
-          {/* Right Content: Enhanced 3D Slider */}
-          <HeroSlider activeSlide={activeSlide} setActiveSlide={setActiveSlide} />
+          {/* Right Content: Enhanced 3D Dashboard Preview */}
+          <DashboardPreview activeFeature={activeFeature} setActiveFeature={setActiveFeature} />
         </div>
-        
-        {/* Enhanced 3D prompt - subtly positioned at bottom */}
-        <motion.div 
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity"
-          animate={{ y: [0, 5, 0] }}
-          transition={{ 
-            duration: 2, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        >
-          <div className="w-5 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center">
-            <motion.div 
-              className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full mt-2"
-              animate={{ y: [0, 15, 0] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity, 
-                repeatType: "loop" 
-              }}
-            />
-          </div>
-        </motion.div>
       </div>
     </section>
   );

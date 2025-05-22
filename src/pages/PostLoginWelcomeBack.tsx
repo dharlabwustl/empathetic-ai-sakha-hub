@@ -17,7 +17,6 @@ const PostLoginWelcomeBack = () => {
   const [userName, setUserName] = useState("Student");
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [showSkipDialog, setShowSkipDialog] = useState(false);
-  const [additionalPromptDisplayed, setAdditionalPromptDisplayed] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -96,13 +95,14 @@ const PostLoginWelcomeBack = () => {
     return () => clearTimeout(timer);
   }, [navigate, toast]);
 
-  // Flag to prevent additional prompts after tour completes
+  // Stop any voice announcements when component unmounts or route changes
   useEffect(() => {
-    if (showTour) {
-      localStorage.setItem('suppress_additional_prompts', 'true');
-      setAdditionalPromptDisplayed(true);
-    }
-  }, [showTour]);
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const handleSliderComplete = () => {
     // Mark that they've seen the welcome slider
@@ -120,7 +120,6 @@ const PostLoginWelcomeBack = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.setItem('suppress_additional_prompts', 'true');
-    setAdditionalPromptDisplayed(true);
     // Use direct location change to ensure we go to the dashboard
     setShowSkipDialog(false);
     window.location.href = '/dashboard/student';
@@ -135,10 +134,9 @@ const PostLoginWelcomeBack = () => {
   };
   
   const handleTourComplete = () => {
-    // Mark that they've seen the welcome tour and suppress additional prompts
+    // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.setItem('suppress_additional_prompts', 'true');
-    setAdditionalPromptDisplayed(true);
     // Use direct location change to ensure we go to the dashboard
     window.location.href = '/dashboard/student';
     toast({

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { UserRole } from "@/types/user/base";
-import { BookOpen, CheckCircle2 } from "lucide-react";
+import { BookOpen, CheckCircle2, Sparkles } from "lucide-react";
 
 interface GoalStepProps {
   role: UserRole;
@@ -13,6 +13,7 @@ interface GoalStepProps {
 
 const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
   const [selectedGoal, setSelectedGoal] = useState<string>("NEET"); // Auto-select NEET
+  const [showAnimation, setShowAnimation] = useState(true);
 
   // Only show NEET as an option
   const studentGoals = [
@@ -21,7 +22,8 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
       title: "NEET",
       description: "National Eligibility cum Entrance Test for Medical Studies",
       color: "bg-green-600",
-      benefit: "Become a medical professional and make a difference in people's lives"
+      benefit: "Become a medical professional and make a difference in people's lives",
+      benefit2: "We'll personalize your study plan focusing on Biology, Physics, and Chemistry specifically for NEET"
     }
   ];
   
@@ -29,7 +31,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onGoalSelect("NEET");
-    }, 1500);
+    }, 2500); // Slightly longer to allow animation to complete
     
     return () => clearTimeout(timer);
   }, [onGoalSelect]);
@@ -52,6 +54,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="relative"
           >
             <Card
               className={`p-4 cursor-pointer border-2 transition-all ${
@@ -65,7 +68,13 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
                   className={`h-10 w-10 rounded-full ${goal.color} text-white flex items-center justify-center font-bold`}
                 >
                   {selectedGoal === goal.id ? (
-                    <CheckCircle2 className="h-5 w-5" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                    >
+                      <CheckCircle2 className="h-5 w-5" />
+                    </motion.div>
                   ) : (
                     <BookOpen className="h-5 w-5" />
                   )}
@@ -77,16 +86,44 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
                   </p>
                   
                   <motion.div 
-                    className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md text-sm text-green-700 dark:text-green-300 border border-green-100 dark:border-green-800/50"
+                    className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-md text-sm text-green-700 dark:text-green-300 border border-green-100 dark:border-green-800/50"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     transition={{ delay: 0.3, duration: 0.5 }}
                   >
                     <span className="font-medium">Why this matters:</span> {goal.benefit}
                   </motion.div>
+                  
+                  <motion.div 
+                    className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                  >
+                    <span className="font-medium">How we'll help:</span> {goal.benefit2}
+                  </motion.div>
                 </div>
               </div>
             </Card>
+            
+            {/* Selection animation */}
+            {showAnimation && (
+              <motion.div 
+                className="absolute inset-0 border-2 border-blue-500 dark:border-blue-600 rounded-lg z-10 pointer-events-none"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ 
+                  opacity: [0, 1, 0],
+                  scale: [0.95, 1.05, 1.1],
+                }}
+                transition={{ 
+                  duration: 1,
+                  ease: "easeInOut",
+                  repeat: 2,
+                  repeatType: "reverse" 
+                }}
+                onAnimationComplete={() => setShowAnimation(false)}
+              />
+            )}
           </motion.div>
         ))}
       </div>
@@ -110,10 +147,11 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
       <div className="pt-4">
         <Button
           type="button"
-          className="w-full"
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           disabled={!selectedGoal}
           onClick={() => onGoalSelect(selectedGoal)}
         >
+          <Sparkles className="w-4 h-4 mr-2" />
           Continue
         </Button>
         <p className="text-center text-xs text-gray-500 mt-2">
