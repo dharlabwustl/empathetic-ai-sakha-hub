@@ -82,7 +82,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
         transition={{ duration: 0.8 }}
         className="relative h-[450px] md:h-[550px] perspective-1000"
       >
-        {/* 3D animated slide content with student success stories */}
+        {/* 3D animated slide content - automatically rotating */}
         {slideContentList.map((slide, index) => (
           <SlideItem 
             key={index}

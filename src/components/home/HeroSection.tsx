@@ -81,7 +81,7 @@ const HeroSection: React.FC = () => {
           {/* Left Content: Title, description and buttons */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
-          {/* Right Content: Enhanced 3D Slider with student avatars */}
+          {/* Right Content: Enhanced 3D Slider */}
           <HeroSlider activeSlide={activeSlide} setActiveSlide={setActiveSlide} />
         </div>
         
