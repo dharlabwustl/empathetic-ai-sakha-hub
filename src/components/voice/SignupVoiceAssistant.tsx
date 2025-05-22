@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Mic, MicOff, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'react-router-dom';
 
 interface SignupVoiceAssistantProps {
   onVoiceInput: (fieldName: string, text: string) => void;
@@ -18,11 +19,13 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
   const [targetField, setTargetField] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const location = useLocation();
   
   const recognitionRef = useRef<any>(null);
   const timeoutRef = useRef<number | null>(null);
   const cooldownRef = useRef<boolean>(false);
   const lastCommandTimeRef = useRef<number>(0);
+  const previousPathRef = useRef<string>(location.pathname);
   
   // Clean up function to ensure proper resource management
   const cleanupRecognition = () => {
@@ -52,15 +55,37 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     setIsListening(false);
   };
   
+  // Stop any ongoing speech synthesis when component unmounts or visibility changes
+  const stopSpeech = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
+    // Also clean up recognition
+    cleanupRecognition();
+  };
+  
   // Reset everything when component unmounts or visibility changes
   useEffect(() => {
-    return cleanupRecognition;
+    return () => {
+      stopSpeech();
+      cleanupRecognition();
+    };
   }, []);
+  
+  // Watch for location changes to stop speech
+  useEffect(() => {
+    if (previousPathRef.current !== location.pathname) {
+      stopSpeech();
+      previousPathRef.current = location.pathname;
+    }
+  }, [location.pathname]);
   
   // Handle changes in the open state
   useEffect(() => {
     if (!isOpen) {
       cleanupRecognition();
+      stopSpeech();
     }
   }, [isOpen]);
   
