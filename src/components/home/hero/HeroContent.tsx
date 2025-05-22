@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import HeroButtons from './HeroButtons';
-import FeatureCheckpoints from './FeatureCheckpoints';
-import StudentJourneyBadge from './StudentJourneyBadge';
-import ExamNamesBadge from './ExamNamesBadge';
+import HeroButtons from './hero/HeroButtons';
+import FeatureCheckpoints from './hero/FeatureCheckpoints';
+import StudentJourneyBadge from './hero/StudentJourneyBadge';
+import ExamNamesBadge from './hero/ExamNamesBadge';
 import { Sparkles, CheckCircle2, BrainCircuit } from 'lucide-react';
 
 interface HeroContentProps {
@@ -67,8 +67,46 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">into exam triumph</span>
       </motion.h1>
       
+      {/* Success statistics - Moved higher for immediate visibility */}
+      <motion.div
+        className="flex flex-wrap gap-3 mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30 rounded-full py-1 px-3">
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <span className="text-sm text-green-700 dark:text-green-300 font-medium">92% improved scores</span>
+        </div>
+        <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-full py-1 px-3">
+          <CheckCircle2 className="h-4 w-4 text-indigo-500" />
+          <span className="text-sm text-indigo-700 dark:text-indigo-300 font-medium">50000+ success stories</span>
+        </div>
+        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-full py-1 px-3">
+          <CheckCircle2 className="h-4 w-4 text-amber-500" />
+          <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">2.5x study efficiency</span>
+        </div>
+      </motion.div>
+
+      {/* CTA buttons - Moved higher for visibility without scrolling */}
+      <div className="mb-6">
+        <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
+      </div>
+      
+      {/* Exam Names Badge */}
+      <ExamNamesBadge />
+      
+      <motion.p 
+        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mt-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here with PREPZR.
+      </motion.p>
+      
       <motion.div 
-        className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-4"
+        className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-4"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
@@ -92,44 +130,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           ))}
         </ul>
       </motion.div>
-      
-      <motion.p 
-        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
-      </motion.p>
-      
-      {/* Success statistics */}
-      <motion.div
-        className="flex flex-wrap gap-3 mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30 rounded-full py-1 px-3">
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
-          <span className="text-sm text-green-700 dark:text-green-300 font-medium">92% improved scores</span>
-        </div>
-        <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-full py-1 px-3">
-          <CheckCircle2 className="h-4 w-4 text-indigo-500" />
-          <span className="text-sm text-indigo-700 dark:text-indigo-300 font-medium">50000+ success stories</span>
-        </div>
-        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-full py-1 px-3">
-          <CheckCircle2 className="h-4 w-4 text-amber-500" />
-          <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">2.5x study efficiency</span>
-        </div>
-      </motion.div>
-      
-      {/* Exam Names Badge */}
-      <ExamNamesBadge />
-      
-      <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
 
-      {/* Feature checkpoints */}
-      <FeatureCheckpoints />
+      {/* Feature checkpoints moved to bottom since they're less critical for first impression */}
+      <div className="mt-6">
+        <FeatureCheckpoints />
+      </div>
     </motion.div>
   );
 };
