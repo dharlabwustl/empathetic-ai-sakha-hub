@@ -80,7 +80,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* New description text as requested */}
+      {/* Emotional Connection Highlight */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,8 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
       >
         <p className="text-base text-gray-700 dark:text-gray-300">
-          We are world's first <span className="font-semibold text-indigo-700 dark:text-indigo-400">emotionally aware, hyper personalized and adaptive exam prep platform</span>. Our <span className="font-semibold text-purple-700 dark:text-purple-400">AI-driven platform</span> is specifically designed for Indian competitive exams like NEET, JEE, UPSC, and CAT.
+          Our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 
+          <span className="font-semibold text-purple-700 dark:text-purple-400"> NEET, JEE, UPSC, and CAT</span>.
         </p>
       </motion.div>
       

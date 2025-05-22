@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import HeroContent from './hero/HeroContent';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
-import DashboardPreview from './hero/DashboardPreview';
 
 // Array of 3D animation paths
 const animations = [
@@ -11,23 +10,6 @@ const animations = [
   "/animations/student-success.svg",
   "/animations/learning-journey.svg",
   "/animations/exam-prep.svg"
-];
-
-// Exam symbols for the 3D background
-const examSymbols = [
-  { type: 'formula', value: 'E=mc²', color: 0x8b5cf6 },
-  { type: 'formula', value: 'a²+b²=c²', color: 0x4c1d95 },
-  { type: 'formula', value: 'F=ma', color: 0x6d28d9 },
-  { type: 'formula', value: 'pV=nRT', color: 0x4338ca },
-  { type: 'symbol', value: 'Σ', color: 0x8b5cf6 },
-  { type: 'symbol', value: '∫', color: 0x6d28d9 },
-  { type: 'symbol', value: 'π', color: 0x4c1d95 },
-  { type: 'symbol', value: '±', color: 0x3730a3 },
-  { type: 'symbol', value: '∇', color: 0x3730a3 },
-  { type: 'subject', value: 'Physics', color: 0x4c1d95 },
-  { type: 'subject', value: 'Chemistry', color: 0x6d28d9 },
-  { type: 'subject', value: 'Biology', color: 0x8b5cf6 },
-  { type: 'subject', value: 'Mathematics', color: 0x4338ca }
 ];
 
 const Hero3DSection: React.FC = () => {
@@ -42,7 +24,6 @@ const Hero3DSection: React.FC = () => {
     neuronParticles: THREE.Points;
     clock: THREE.Clock;
     animationId: number | null;
-    textSprites: THREE.Sprite[];
   } | null>(null);
   
   // Function to handle opening exam readiness analyzer
@@ -71,46 +52,7 @@ const Hero3DSection: React.FC = () => {
     };
   }, []);
 
-  // Create a text sprite for the 3D scene
-  const createTextSprite = (text: string, color: number, size = 0.5) => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) return null;
-    
-    canvas.width = 256;
-    canvas.height = 128;
-    
-    context.fillStyle = 'rgba(0,0,0,0)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Text properties
-    context.font = '600 32px Arial';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    
-    // Text gradient
-    const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
-    context.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
-    
-    // Create sprite material
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-    
-    const spriteMaterial = new THREE.SpriteMaterial({ 
-      map: texture,
-      transparent: true,
-      alphaTest: 0.1,
-      opacity: 0.8
-    });
-    
-    const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(size, size * 0.5, 1);
-    
-    return sprite;
-  };
-
-  // Initialize and animate THREE.js scene with educational elements
+  // Initialize and animate THREE.js scene
   useEffect(() => {
     if (!threeContainerRef.current) return;
     
@@ -145,7 +87,7 @@ const Hero3DSection: React.FC = () => {
       gridHelper.rotation.x = Math.PI / 2;
       scene.add(gridHelper);
       
-      // Create neural network particle system
+      // Create particle system
       const particlesGeometry = new THREE.BufferGeometry();
       const particlesCount = 1000;
       
@@ -246,21 +188,6 @@ const Hero3DSection: React.FC = () => {
         }
       }
       
-      // Add exam-related text sprites
-      const textSprites: THREE.Sprite[] = [];
-      examSymbols.forEach(symbol => {
-        const sprite = createTextSprite(symbol.value, symbol.color, 2 + Math.random() * 2);
-        if (sprite) {
-          sprite.position.set(
-            (Math.random() - 0.5) * 100,
-            (Math.random() - 0.5) * 100,
-            (Math.random() - 0.5) * 100
-          );
-          scene.add(sprite);
-          textSprites.push(sprite);
-        }
-      });
-      
       // Add some ambient light to illuminate the scene
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambientLight);
@@ -290,8 +217,7 @@ const Hero3DSection: React.FC = () => {
         gridHelper,
         neuronParticles,
         clock,
-        animationId: null,
-        textSprites
+        animationId: null
       };
       
       // Handle window resize
@@ -317,7 +243,7 @@ const Hero3DSection: React.FC = () => {
     const animate = () => {
       if (!sceneRef.current) return;
       
-      const { scene, camera, renderer, particles, gridHelper, neuronParticles, clock, textSprites } = sceneRef.current;
+      const { scene, camera, renderer, particles, gridHelper, neuronParticles, clock } = sceneRef.current;
       
       const elapsedTime = clock.getElapsedTime();
       
@@ -331,22 +257,6 @@ const Hero3DSection: React.FC = () => {
       
       // Move grid to create flying effect
       gridHelper.position.z = (elapsedTime * 5) % 20 - 10;
-      
-      // Animate text sprites
-      textSprites.forEach((sprite, i) => {
-        const speed = 0.2 + (i % 5) * 0.05;
-        sprite.position.y += Math.sin(elapsedTime * speed) * 0.02;
-        sprite.position.x += Math.cos(elapsedTime * speed * 0.7) * 0.01;
-        
-        // Reset position if sprite goes too far
-        if (Math.abs(sprite.position.x) > 60 || Math.abs(sprite.position.y) > 60 || Math.abs(sprite.position.z) > 60) {
-          sprite.position.set(
-            (Math.random() - 0.5) * 80,
-            (Math.random() - 0.5) * 80,
-            (Math.random() - 0.5) * 80
-          );
-        }
-      });
       
       // Add slight camera movement for more immersion
       camera.position.x = Math.sin(elapsedTime * 0.2) * 2;
@@ -388,12 +298,8 @@ const Hero3DSection: React.FC = () => {
         {/* Left side - Main content */}
         <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
         
-        {/* Right side - Dashboard Preview and 3D animation */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center items-center mb-8 lg:mb-0">
-          {/* Dashboard Preview */}
-          <DashboardPreview />
-          
-          {/* 3D animation */}
+        {/* Right side - 3D animation */}
+        <div className="w-full lg:w-1/2 flex justify-center items-center mb-8 lg:mb-0">
           <div className="relative w-full max-w-xl aspect-square">
             <AnimatePresence mode="wait">
               <motion.div
