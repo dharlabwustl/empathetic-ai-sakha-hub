@@ -160,6 +160,64 @@ const HeroSection: React.FC = () => {
           </motion.div>
         </motion.div>
         
+        {/* 3D Books floating in air */}
+        <motion.div
+          className="absolute top-[35%] left-[15%] w-20 h-28 perspective-1000"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5 }}
+        >
+          <motion.div 
+            className="w-full h-full bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-md border border-blue-300 dark:border-blue-700/30 shadow-lg"
+            animate={{ 
+              rotateY: [0, 40, 0, -10, 0],
+              rotateX: [0, 10, 0, -5, 0],
+              translateZ: [0, 20, 0, -10, 0],
+              translateY: [0, -10, 0]
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              repeatType: "loop"
+            }}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white text-xs font-bold opacity-70 rotate-90">PHYSICS</span>
+            </div>
+            <div className="absolute left-0 top-0 bottom-0 w-2 bg-blue-700/70"></div>
+          </motion.div>
+        </motion.div>
+        
+        <motion.div
+          className="absolute bottom-[25%] right-[20%] w-24 h-32 perspective-1000"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.8 }}
+        >
+          <motion.div 
+            className="w-full h-full bg-gradient-to-r from-blue-400/40 to-blue-500/40 rounded-md border border-blue-300 dark:border-blue-700/30 shadow-lg"
+            animate={{ 
+              rotateY: [0, -30, 0, 15, 0],
+              rotateX: [0, -8, 0, 4, 0],
+              translateZ: [0, -20, 0, 15, 0],
+              translateY: [0, -15, 0]
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              repeatType: "loop",
+              delay: 1
+            }}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white text-xs font-bold opacity-70 rotate-90">CHEMISTRY</span>
+            </div>
+            <div className="absolute left-0 top-0 bottom-0 w-2 bg-blue-500/70"></div>
+          </motion.div>
+        </motion.div>
+        
         {/* Animated grid pattern representing exam paper */}
         <div 
           className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
@@ -169,58 +227,53 @@ const HeroSection: React.FC = () => {
           }}
         />
         
-        {/* Floating educational symbols */}
-        <div className="absolute inset-0 overflow-hidden">
-          {/* Books */}
-          <motion.div
-            className="absolute top-[15%] left-[10%] w-6 h-8 bg-blue-600/20 rounded-sm"
-            animate={{
-              y: [0, -15, 0],
-              rotate: [0, 5, 0, -5, 0],
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              repeatType: "loop"
-            }}
-          />
-          
-          {/* Formula */}
-          <motion.div
-            className="absolute top-[25%] right-[20%] text-blue-600/30 text-xl font-bold"
-            animate={{
-              y: [0, -10, 0],
-              opacity: [0.3, 0.6, 0.3]
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: "loop"
-            }}
-          >
-            E=mc²
-          </motion.div>
-          
-          {/* Test paper */}
-          <motion.div
-            className="absolute bottom-[30%] left-[30%] w-10 h-14 bg-gradient-to-b from-white/80 to-blue-100/80 dark:from-gray-800/50 dark:to-blue-900/30 rounded-sm"
-            animate={{
-              y: [0, -10, 0],
-              rotate: [0, -3, 0, 3, 0],
-              opacity: [0.4, 0.7, 0.4]
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              repeatType: "loop"
-            }}
-          >
-            <div className="h-1 w-8 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
-            <div className="h-1 w-6 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
-            <div className="h-1 w-7 bg-blue-600/30 rounded-full mt-2 ml-1"></div>
-          </motion.div>
-        </div>
+        {/* Floating formula elements */}
+        <motion.div
+          className="absolute top-[45%] right-[25%] text-blue-600/30 text-xl font-bold"
+          animate={{
+            y: [0, -10, 0],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            repeatType: "loop"
+          }}
+        >
+          E=mc²
+        </motion.div>
+        
+        <motion.div
+          className="absolute top-[30%] right-[40%] text-blue-600/30 text-xl font-bold"
+          animate={{
+            y: [0, -8, 0],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            repeatType: "loop",
+            delay: 1
+          }}
+        >
+          PV=nRT
+        </motion.div>
+        
+        <motion.div
+          className="absolute bottom-[40%] left-[35%] text-blue-600/30 text-xl font-bold"
+          animate={{
+            y: [0, -12, 0],
+            opacity: [0.2, 0.5, 0.2]
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            repeatType: "loop",
+            delay: 2
+          }}
+        >
+          F=ma
+        </motion.div>
       </div>
 
       <div className="container mx-auto px-4 relative">

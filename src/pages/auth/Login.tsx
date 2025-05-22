@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.removeItem('new_user_signup');
       localStorage.removeItem('google_signup');
       
-      // Use direct relative path instead of domain-prefixed path
+      // Use relative path instead of domain-prefixed path
       setTimeout(() => {
         navigate('/admin/dashboard', { replace: true });
       }, 100);
@@ -63,7 +63,8 @@ const Login = () => {
     if (isAuthenticated || isLoggedIn) {
       console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
-        navigate(returnTo, { replace: true });
+        // Use relative path to navigate, not absolute path with domain prefix
+        navigate(returnTo.replace(/^https?:\/\/[^\/]+/, ''), { replace: true });
       }, 100);
       return;
     }

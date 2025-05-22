@@ -53,19 +53,19 @@
   --prepzr-lightest-blue: #BBDEFB; /* Extremely light blue */
   
   /* Gradient Color Variables for Methodology Section */
-  --blue-500: #2196F3; /* PREPZR Blue */
+  --blue-500: #4DB2EC; /* PREPZR Blue */
   --cyan-400: #4DB2EC; /* Light blue */
   --purple-500: #3F51B5; /* Indigo */
   --violet-400: #5C6BC0; /* Light indigo */
-  --green-500: #2196F3; /* Using blue instead */
+  --green-500: #4DB2EC; /* Using blue instead */
   --teal-400: #4DB2EC; /* Light blue */
-  --orange-500: #2196F3; /* Using blue instead */
+  --orange-500: #4DB2EC; /* Using blue instead */
   --amber-400: #4DB2EC; /* Light blue */
-  --pink-500: #2196F3; /* Using blue instead */
+  --pink-500: #4DB2EC; /* Using blue instead */
   --rose-400: #4DB2EC; /* Light blue */
   --indigo-500: #3F51B5; /* Indigo */
   --blue-400: #4DB2EC; /* Light blue */
-  --red-500: #2196F3; /* Using blue instead */
+  --red-500: #4DB2EC; /* Using blue instead */
   --orange-400: #4DB2EC; /* Light blue */
 }
 
