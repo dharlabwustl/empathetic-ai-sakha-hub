@@ -2,15 +2,11 @@
 import { UserAnswer, TestResults } from '../types';
 
 export const generateReadinessReport = (answers: UserAnswer[], examType: string): TestResults => {
-  // For readiness, we'll calculate based on answer selection (index 0-3)
-  let totalWeight = 0;
-  let totalScore = 0;
-  
-  // Subject-wise tracking
+  // Subject-wise tracking with proper weightages
   const subjectScores = {
-    biology: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.5 }, // 50% weightage
-    physics: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.25 }, // 25% weightage
-    chemistry: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.25 } // 25% weightage
+    biology: { total: 0, correct: 0, incorrect: 0, score: 0, percentage: 0, weight: 0.5 }, // 50% weightage
+    physics: { total: 0, correct: 0, incorrect: 0, score: 0, percentage: 0, weight: 0.25 }, // 25% weightage
+    chemistry: { total: 0, correct: 0, incorrect: 0, score: 0, percentage: 0, weight: 0.25 } // 25% weightage
   };
   
   // Points system: +4 for correct, -1 for incorrect
@@ -34,10 +30,6 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
       // Track question count for each subject
       subjectScores[subject].total++;
       
-      // Extract option index from the answer - choices are indexed from 0
-      // Format of answer is typically "1", "2", "3", "4" for options
-      const optionIndex = parseInt(answer.answer) - 1;
-      
       // Add points based on correctness
       if (answer.isCorrect) {
         subjectScores[subject].correct++;
@@ -50,6 +42,8 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
   });
   
   // Calculate subject-wise percentages
+  let totalWeightedScore = 0;
+  
   Object.keys(subjectScores).forEach(subject => {
     const subjectData = subjectScores[subject];
     const maxPossibleScore = subjectData.total * CORRECT_POINTS;
@@ -65,11 +59,11 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
     
     // Add weighted score to total
     const weightedScore = subjectScores[subject].percentage * subjectScores[subject].weight;
-    totalScore += weightedScore;
+    totalWeightedScore += weightedScore;
   });
   
   // Round the final score
-  const score = Math.round(totalScore);
+  const score = Math.round(totalWeightedScore);
   
   // Determine level based on score
   let level = '';

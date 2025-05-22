@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import Hero3DSection from '@/components/home/Hero3DSection';
@@ -47,7 +47,7 @@ const Index = () => {
   };
 
   // Listen for events
-  React.useEffect(() => {
+  useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
     };
@@ -59,9 +59,16 @@ const Index = () => {
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
     document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     
+    // Init slider autoplay
+    const initSliderInterval = setInterval(() => {
+      // Dispatch an event to trigger slider movement
+      document.dispatchEvent(new CustomEvent('hero-slider-next'));
+    }, 5000); // Change slide every 5 seconds
+    
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
       document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
+      clearInterval(initSliderInterval);
     };
   }, []);
 

@@ -47,9 +47,12 @@ const FormulaReference: React.FC<FormulaReferenceProps> = ({
   
   React.useEffect(() => {
     // Attempt to render LaTeX if MathJax is available
-    if (typeof window !== 'undefined' && window.MathJax) {
+    if (typeof window !== 'undefined') {
       try {
-        window.MathJax.typeset();
+        // Check if MathJax is available and has the typeset function
+        if (window.MathJax && typeof window.MathJax.typeset === 'function') {
+          window.MathJax.typeset();
+        }
       } catch (error) {
         console.error('Error rendering LaTeX:', error);
       }
@@ -143,5 +146,15 @@ const FormulaReference: React.FC<FormulaReferenceProps> = ({
     </div>
   );
 };
+
+// Add a TypeScript interface to Window
+declare global {
+  interface Window {
+    MathJax?: {
+      typeset: () => void;
+      [key: string]: any;
+    }
+  }
+}
 
 export default FormulaReference;

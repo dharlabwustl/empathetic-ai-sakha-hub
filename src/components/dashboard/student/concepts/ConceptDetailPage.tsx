@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import EnhancedConceptDetail from './EnhancedConceptDetail';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useToast } from '@/hooks/use-toast';
 import ConceptHeader from './concept-detail/ConceptHeader';
@@ -11,6 +10,9 @@ import { ConceptMasterySection } from './ConceptMasterySection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useUserNotes from '@/hooks/useUserNotes';
 import { Helmet } from 'react-helmet';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Brain, Book, ArrowRight, CheckCircle2, BookOpen, FileText } from 'lucide-react';
 
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -192,60 +194,117 @@ const ConceptDetailPage: React.FC = () => {
         <title>{conceptData.title} - Concept Study</title>
       </Helmet>
       
-      <div className="space-y-4 sm:space-y-6">
-        <ConceptHeader 
-          title={conceptData.title}
-          subject={conceptData.subject}
-          topic={conceptData.topic}
-          difficulty={conceptData.difficulty}
-          isBookmarked={isBookmarked}
-          onBookmarkToggle={handleBookmarkToggle}
-        />
+      <ConceptHeader 
+        title={conceptData.title}
+        subject={conceptData.subject}
+        topic={conceptData.topic}
+        difficulty={conceptData.difficulty}
+        isBookmarked={isBookmarked}
+        onBookmarkToggle={handleBookmarkToggle}
+      />
+      
+      <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
+        <TabsList className="grid grid-cols-4 mb-8">
+          <TabsTrigger value="content" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            <span>Content</span>
+          </TabsTrigger>
+          <TabsTrigger value="flashcards" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span>Flashcards</span>
+          </TabsTrigger>
+          <TabsTrigger value="formulas" className="flex items-center gap-2">
+            <Book className="h-4 w-4" />
+            <span>Formulas</span>
+          </TabsTrigger>
+          <TabsTrigger value="mastery" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            <span>Mastery</span>
+          </TabsTrigger>
+        </TabsList>
         
-        <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 mb-8">
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
-            <TabsTrigger value="formulas">Formulas</TabsTrigger>
-            <TabsTrigger value="mastery">Mastery</TabsTrigger>
-          </TabsList>
+        <TabsContent value="content" className="space-y-6">
+          <Card className="p-6">
+            <div className="prose dark:prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: conceptData.content }} />
+            </div>
+            
+            <div className="mt-8 border-t pt-4 flex justify-between items-center">
+              <div>
+                <h4 className="text-sm font-medium mb-1">Master this concept</h4>
+                <p className="text-sm text-muted-foreground">Practice with flashcards and exercises</p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab('flashcards')}
+                  className="flex items-center gap-1"
+                >
+                  Study Flashcards
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('formulas')}
+                  className="flex items-center gap-1"
+                >
+                  View Formulas <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </Card>
           
-          <TabsContent value="content" className="space-y-6">
-            <EnhancedConceptDetail
-              conceptId={conceptData.id}
-              title={conceptData.title}
-              subject={conceptData.subject}
-              topic={conceptData.topic}
-              difficulty={conceptData.difficulty}
-              content={conceptData.content}
-              masteryLevel={masteryLevel}
-              onMasteryUpdate={handleMasteryUpdate}
-              handleOpenFormulaLab={handleOpenFormulaLab}
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-4">Your Notes</h3>
+            <textarea
+              className="w-full min-h-[150px] p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+              placeholder="Take notes on this concept..."
+              value={userNotes}
+              onChange={(e) => setUserNotes(e.target.value)}
             />
-          </TabsContent>
+            <div className="mt-4 flex justify-end">
+              <Button onClick={handleSaveNotes}>
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Save Notes
+              </Button>
+            </div>
+          </Card>
           
-          <TabsContent value="flashcards">
-            <ConceptFlashcards flashcards={mockFlashcards} />
-          </TabsContent>
-          
-          <TabsContent value="formulas">
-            <FormulaReference 
-              formulas={mockFormulas} 
-              conceptTitle={conceptData.title}
-              handleOpenFormulaLab={handleOpenFormulaLab}
-            />
-          </TabsContent>
-          
-          <TabsContent value="mastery">
-            <ConceptMasterySection 
-              conceptId={conceptData.id} 
-              recallAccuracy={masteryLevel}
-              quizScore={70}
-              lastPracticed="2023-05-20"
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-4 flex items-center">
+              <Brain className="mr-2 h-5 w-5 text-indigo-500" />
+              Practice Questions
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Test your understanding</h4>
+                <p className="text-sm mb-3">Solve problems to reinforce your knowledge of this concept.</p>
+                <Button>Start Practice Quiz</Button>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="flashcards">
+          <ConceptFlashcards flashcards={mockFlashcards} />
+        </TabsContent>
+        
+        <TabsContent value="formulas">
+          <FormulaReference 
+            formulas={mockFormulas} 
+            conceptTitle={conceptData.title}
+            handleOpenFormulaLab={handleOpenFormulaLab}
+          />
+        </TabsContent>
+        
+        <TabsContent value="mastery">
+          <ConceptMasterySection 
+            conceptId={conceptData.id} 
+            recallAccuracy={masteryLevel}
+            quizScore={70}
+            lastPracticed="2023-05-20"
+          />
+        </TabsContent>
+      </Tabs>
     </SharedPageLayout>
   );
 };
