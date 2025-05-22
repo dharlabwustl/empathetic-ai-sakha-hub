@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { useLocation } from 'react-router-dom';
 import { Mic, MicOff } from 'lucide-react';
@@ -18,6 +18,7 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
 }) => {
   const { toast } = useToast();
   const location = useLocation();
+  const wasListeningRef = useRef(false);
   
   // Define field mappings based on current step
   const getFieldMappings = () => {
@@ -120,6 +121,23 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       }
     }
     
+    // Try to fill in a form field if command contains field-specific text
+    const foundField = Object.keys(fieldMappings).find(field => 
+      command.toLowerCase().includes(field.toLowerCase())
+    );
+    
+    if (foundField && fieldId) {
+      // Extract the value (everything after the field name + some buffer words)
+      const regex = new RegExp(`${foundField}\\s*(is|as|to|:|for)?\\s*(.*)`, 'i');
+      const match = command.match(regex);
+      
+      if (match && match[2]) {
+        const value = match[2].trim();
+        onVoiceInput(fieldId, value);
+        return;
+      }
+    }
+    
     // Notify user if we couldn't understand the command
     toast({
       title: "Command not recognized",
@@ -137,7 +155,7 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     fieldMappings,
     onCommandDetected: handleCommandDetected,
     language: 'en-US',
-    autoStart: isOpen
+    autoStart: false // Changed to false to prevent automatic start
   });
   
   // Effect to handle cleanup on route change
@@ -148,13 +166,24 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     };
   }, [location.pathname, cleanup]);
   
-  // Effect to start/stop listening based on isOpen prop
+  // Effect to start/stop listening based on isOpen prop with debouncing to avoid conflicts
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     if (isOpen && !isListening) {
-      startListening();
-    } else if (!isOpen && isListening) {
+      // Small delay to ensure any previous instance is fully cleaned up
+      timeoutId = setTimeout(() => {
+        startListening();
+        wasListeningRef.current = true;
+      }, 300);
+    } else if (!isOpen && wasListeningRef.current) {
       stopListening();
+      wasListeningRef.current = false;
     }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [isOpen, isListening, startListening, stopListening]);
   
   if (!isOpen) return null;
