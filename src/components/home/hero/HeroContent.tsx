@@ -35,11 +35,21 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
 
+      {/* Welcome Message - New Position */}
+      <motion.div
+        className="mb-4 text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        Welcome to PREPZR - tomorrow's learning experience and your AI study companion.
+      </motion.div>
+
       <motion.h1
         className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
       >
         <span className="relative inline-block">
           <motion.span 

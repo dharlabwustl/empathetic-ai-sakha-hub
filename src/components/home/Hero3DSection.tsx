@@ -21,6 +21,7 @@ const Hero3DSection: React.FC = () => {
     renderer: THREE.WebGLRenderer;
     particles: THREE.Points;
     gridHelper: THREE.GridHelper;
+    neuronParticles: THREE.Points;
     clock: THREE.Clock;
     animationId: number | null;
   } | null>(null);
@@ -63,6 +64,10 @@ const Hero3DSection: React.FC = () => {
       
       // Create scene, camera, renderer
       const scene = new THREE.Scene();
+      
+      // Add fog for depth
+      scene.fog = new THREE.FogExp2(0x4338ca, 0.005);
+      
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.z = 30;
       camera.position.y = 5;
@@ -76,22 +81,22 @@ const Hero3DSection: React.FC = () => {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
       
-      // Create immersive grid
-      const gridHelper = new THREE.GridHelper(200, 40, 0x3730a3, 0x4338ca);
+      // Create immersive grid with more depth
+      const gridHelper = new THREE.GridHelper(500, 100, 0x3730a3, 0x4338ca);
       gridHelper.position.y = -10;
       gridHelper.rotation.x = Math.PI / 2;
       scene.add(gridHelper);
       
       // Create particle system
       const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 500;
+      const particlesCount = 1000;
       
       const posArray = new Float32Array(particlesCount * 3);
       const scaleArray = new Float32Array(particlesCount);
       
       for (let i = 0; i < particlesCount * 3; i+=3) {
         // Position particles in a sphere
-        const radius = 50 * Math.random() + 20;
+        const radius = 80 * Math.random() + 20;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos((Math.random() * 2) - 1);
         
@@ -108,7 +113,7 @@ const Hero3DSection: React.FC = () => {
       
       // Create shader material for particles
       const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.5,
+        size: 0.7,
         color: 0x8b5cf6,
         transparent: true,
         opacity: 0.6,
@@ -119,6 +124,69 @@ const Hero3DSection: React.FC = () => {
       // Create particle system
       const particles = new THREE.Points(particlesGeometry, particlesMaterial);
       scene.add(particles);
+      
+      // Add neuron-like particles that connect with lines
+      const neuronCount = 200;
+      const neuronGeometry = new THREE.BufferGeometry();
+      const neuronPositions = new Float32Array(neuronCount * 3);
+      
+      for (let i = 0; i < neuronCount * 3; i += 3) {
+        neuronPositions[i] = (Math.random() - 0.5) * 100;
+        neuronPositions[i + 1] = (Math.random() - 0.5) * 100;
+        neuronPositions[i + 2] = (Math.random() - 0.5) * 100;
+      }
+      
+      neuronGeometry.setAttribute('position', new THREE.BufferAttribute(neuronPositions, 3));
+      
+      const neuronMaterial = new THREE.PointsMaterial({
+        size: 1,
+        color: 0x4c1d95,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const neuronParticles = new THREE.Points(neuronGeometry, neuronMaterial);
+      scene.add(neuronParticles);
+      
+      // Create neural connections
+      const connections = 100;
+      for (let i = 0; i < connections; i++) {
+        // Create random connections between particles
+        const idx1 = Math.floor(Math.random() * neuronCount);
+        const idx2 = Math.floor(Math.random() * neuronCount);
+        
+        const x1 = neuronPositions[idx1 * 3];
+        const y1 = neuronPositions[idx1 * 3 + 1];
+        const z1 = neuronPositions[idx1 * 3 + 2];
+        
+        const x2 = neuronPositions[idx2 * 3];
+        const y2 = neuronPositions[idx2 * 3 + 1];
+        const z2 = neuronPositions[idx2 * 3 + 2];
+        
+        // Only connect if within reasonable distance
+        const distance = Math.sqrt(
+          Math.pow(x2 - x1, 2) + 
+          Math.pow(y2 - y1, 2) + 
+          Math.pow(z2 - z1, 2)
+        );
+        
+        if (distance < 40) {
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(x1, y1, z1),
+            new THREE.Vector3(x2, y2, z2)
+          ]);
+          
+          const lineMaterial = new THREE.LineBasicMaterial({ 
+            color: 0x6d28d9,
+            transparent: true,
+            opacity: 0.2 + Math.random() * 0.2
+          });
+          
+          const line = new THREE.Line(lineGeometry, lineMaterial);
+          scene.add(line);
+        }
+      }
       
       // Add some ambient light to illuminate the scene
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -134,6 +202,11 @@ const Hero3DSection: React.FC = () => {
       pointLight.position.set(0, 10, 10);
       scene.add(pointLight);
       
+      // Add a second moving light
+      const movingLight = new THREE.PointLight(0x3730a3, 1.5, 100);
+      movingLight.position.set(30, 0, 30);
+      scene.add(movingLight);
+      
       const clock = new THREE.Clock();
       
       sceneRef.current = {
@@ -142,6 +215,7 @@ const Hero3DSection: React.FC = () => {
         renderer,
         particles,
         gridHelper,
+        neuronParticles,
         clock,
         animationId: null
       };
@@ -169,7 +243,7 @@ const Hero3DSection: React.FC = () => {
     const animate = () => {
       if (!sceneRef.current) return;
       
-      const { scene, camera, renderer, particles, gridHelper, clock } = sceneRef.current;
+      const { scene, camera, renderer, particles, gridHelper, neuronParticles, clock } = sceneRef.current;
       
       const elapsedTime = clock.getElapsedTime();
       
@@ -177,8 +251,17 @@ const Hero3DSection: React.FC = () => {
       particles.rotation.y = elapsedTime * 0.05;
       particles.rotation.x = elapsedTime * 0.025;
       
+      // Animate neuron particles
+      neuronParticles.rotation.y = elapsedTime * 0.03;
+      neuronParticles.rotation.z = elapsedTime * 0.01;
+      
       // Move grid to create flying effect
       gridHelper.position.z = (elapsedTime * 5) % 20 - 10;
+      
+      // Add slight camera movement for more immersion
+      camera.position.x = Math.sin(elapsedTime * 0.2) * 2;
+      camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 1;
+      camera.lookAt(0, 0, 0);
       
       // Render scene
       renderer.render(scene, camera);
