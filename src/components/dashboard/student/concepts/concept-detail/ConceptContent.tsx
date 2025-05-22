@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Volume2, VolumeX, BookmarkPlus, Copy, Bookmark, BookOpen, MessageCircle, Highlighter, Microphone } from "lucide-react";
+import { Volume2, VolumeX, BookmarkPlus, Copy, Bookmark, BookOpen, MessageCircle, Highlighter } from "lucide-react";
 import NoteSection from './NoteSection';
 import ReadAloudSection from './ReadAloudSection';
 import { useToast } from '@/hooks/use-toast';
