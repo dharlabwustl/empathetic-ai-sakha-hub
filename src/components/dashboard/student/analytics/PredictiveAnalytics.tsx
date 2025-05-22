@@ -9,11 +9,11 @@ import { Clock, Lightbulb, Target, TrendingUp } from 'lucide-react';
 const PredictiveAnalytics: React.FC = () => {
   // Mock data for exam readiness forecast
   const examReadinessData = [
-    { week: '4 Weeks Ago', readiness: 62 },
-    { week: '3 Weeks Ago', readiness: 68 },
-    { week: '2 Weeks Ago', readiness: 73 },
-    { week: 'Last Week', readiness: 78 },
-    { week: 'Current', readiness: 82 },
+    { week: '4 Weeks Ago', readiness: 62, predicted: false },
+    { week: '3 Weeks Ago', readiness: 68, predicted: false },
+    { week: '2 Weeks Ago', readiness: 73, predicted: false },
+    { week: 'Last Week', readiness: 78, predicted: false },
+    { week: 'Current', readiness: 82, predicted: false },
     { week: 'Next Week', readiness: 87, predicted: true },
     { week: 'Week 2', readiness: 91, predicted: true },
     { week: 'Week 3', readiness: 94, predicted: true },
@@ -86,7 +86,7 @@ const PredictiveAnalytics: React.FC = () => {
                     stroke="#8884d8" 
                     strokeWidth={2} 
                     dot={{ r: 4 }}
-                    strokeDasharray={(d) => d.predicted ? "5 5" : "0"}
+                    strokeDasharray={(d: any) => d.predicted ? "5 5" : "0"}
                   />
                 </LineChart>
               </ResponsiveContainer>

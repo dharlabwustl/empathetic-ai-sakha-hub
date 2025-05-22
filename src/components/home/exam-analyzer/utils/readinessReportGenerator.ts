@@ -17,13 +17,14 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
       totalWeight += 3; // max possible score per question
       
       // Add points based on selected option (higher index = better readiness)
-      totalScore += optionIndex;
+      // Ensure we handle NaN cases by providing a default of 0
+      totalScore += isNaN(optionIndex) ? 0 : optionIndex;
     }
   });
   
   // Convert to percentage, ensuring we avoid division by zero
-  const score = answers.length > 0 
-    ? Math.floor((totalScore / (answers.length * 3)) * 100) 
+  const score = totalWeight > 0 
+    ? Math.floor((totalScore / totalWeight) * 100) 
     : 0;
   
   // Determine level based on score

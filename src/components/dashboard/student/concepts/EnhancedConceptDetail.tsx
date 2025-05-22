@@ -13,7 +13,9 @@ import {
   RefreshCw, 
   Star,
   Volume2, 
-  VolumeX
+  VolumeX,
+  FileText,
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -57,9 +59,19 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [validationCompleted, setValidationCompleted] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [timeSpent, setTimeSpent] = useState(0);
   const isMobile = useIsMobile();
 
   const { toast } = useToast();
+
+  // Track time spent on the concept
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeSpent(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSaveNotes = () => {
     toast({
@@ -141,28 +153,102 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
     }
   };
 
+  const formatTimeSpent = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  // Estimated read time (words per minute)
+  const getEstimatedReadTime = () => {
+    const cleanText = content.replace(/<[^>]*>?/gm, '');
+    const wordCount = cleanText.split(/\s+/).length;
+    const readTimeMinutes = Math.ceil(wordCount / 200);
+    return `~${readTimeMinutes} min read`;
+  };
+
+  const getDifficultyColor = (diff: string) => {
+    switch(diff) {
+      case 'easy': return 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400';
+      case 'medium': return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'hard': return 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20 dark:text-gray-400';
+    }
+  };
+
   // Main content area - Tabs and content display
   return (
     <div className="space-y-6">
-      {/* Progress bar section */}
-      <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
-            <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
-            Concept Mastery
-          </h3>
-          <span className="text-sm font-medium">{masteryLevel}%</span>
+      {/* Learning insights */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Mastery Level */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
+              <Brain className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+              Concept Mastery
+            </h3>
+            <Badge variant="outline" className={`text-xs ${getDifficultyColor(difficulty)}`}>
+              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+            </Badge>
+          </div>
+          <Progress 
+            value={masteryLevel} 
+            className="h-2 bg-gray-200 dark:bg-gray-700"
+          />
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
+            {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
+            {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
+            {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
+          </p>
         </div>
-        <Progress 
-          value={masteryLevel} 
-          className="h-2 bg-gray-200 dark:bg-gray-700"
-        />
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          {masteryLevel < 30 && "You're just getting started. Continue learning to improve mastery."}
-          {masteryLevel >= 30 && masteryLevel < 60 && "Making good progress. Keep practicing to reinforce your understanding."}
-          {masteryLevel >= 60 && masteryLevel < 80 && "Good understanding! Complete the practice quizzes to validate your knowledge."}
-          {masteryLevel >= 80 && "Excellent mastery! You've got a solid grasp of this concept."}
-        </p>
+
+        {/* Reading Time */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300">
+              <Clock className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+              Reading Time
+            </h3>
+            <span className="text-xs text-gray-500">{getEstimatedReadTime()}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="text-sm">Time spent:</div>
+            <div className="text-sm font-medium">{formatTimeSpent(timeSpent)}</div>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full mt-2 justify-center text-sm"
+            onClick={toggleReadAloud}
+          >
+            {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+            {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+          </Button>
+        </div>
+
+        {/* Subject Info */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+          <h3 className="text-sm font-medium flex items-center text-gray-700 dark:text-gray-300 mb-2">
+            <FileText className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" /> 
+            Subject Information
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Subject:</span>
+              <Badge variant="secondary" className="font-normal">{subject}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Topic:</span>
+              <Badge variant="secondary" className="font-normal">{topic}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Last Updated:</span>
+              <span className="text-xs text-gray-500">2 days ago</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main content and sidebar layout */}
@@ -176,41 +262,43 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
         >
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
             <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-5 p-0 h-auto">
-                <TabsTrigger 
-                  value="content" 
-                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
-                >
-                  <BookOpen className="h-4 w-4" /> {!isMobile && "Content"}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="formulas" 
-                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
-                >
-                  <FlaskConical className="h-4 w-4" /> {!isMobile && "Formulas"}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="recall" 
-                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
-                >
-                  <Brain className="h-4 w-4" /> {!isMobile && "Practice"}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="linked" 
-                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
-                >
-                  <RefreshCw className="h-4 w-4" /> {!isMobile && "Related"}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tutor" 
-                  className="flex items-center gap-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
-                >
-                  <MessageCircle className="h-4 w-4" /> {!isMobile && "Ask Tutor"}
-                </TabsTrigger>
-              </TabsList>
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <TabsList className="flex h-auto p-0 bg-transparent">
+                  <TabsTrigger 
+                    value="content" 
+                    className="flex items-center gap-1 py-3 px-4 rounded-none border-b-2 border-transparent text-gray-500 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                  >
+                    <BookOpen className="h-4 w-4" /> {!isMobile && "Content"}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="formulas" 
+                    className="flex items-center gap-1 py-3 px-4 rounded-none border-b-2 border-transparent text-gray-500 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                  >
+                    <FlaskConical className="h-4 w-4" /> {!isMobile && "Formulas"}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="recall" 
+                    className="flex items-center gap-1 py-3 px-4 rounded-none border-b-2 border-transparent text-gray-500 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                  >
+                    <Brain className="h-4 w-4" /> {!isMobile && "Practice"}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="linked" 
+                    className="flex items-center gap-1 py-3 px-4 rounded-none border-b-2 border-transparent text-gray-500 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                  >
+                    <RefreshCw className="h-4 w-4" /> {!isMobile && "Related"}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="tutor" 
+                    className="flex items-center gap-1 py-3 px-4 rounded-none border-b-2 border-transparent text-gray-500 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600"
+                  >
+                    <MessageCircle className="h-4 w-4" /> {!isMobile && "Ask Tutor"}
+                  </TabsTrigger>
+                </TabsList>
+              </div>
               
               <div className="p-0">
-                <TabsContent value="content" className="mt-0">
+                <TabsContent value="content" className="m-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                   <ConceptContent 
                     content={content}
                     conceptId={conceptId}
@@ -222,7 +310,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="formulas" className="mt-0">
+                <TabsContent value="formulas" className="m-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                   <FormulaTabContent 
                     conceptId={conceptId} 
                     conceptTitle={title}
@@ -230,7 +318,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="recall" className="mt-0">
+                <TabsContent value="recall" className="m-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                   <QuickRecallSection 
                     conceptId={conceptId} 
                     title={title} 
@@ -239,7 +327,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="linked" className="mt-0">
+                <TabsContent value="linked" className="m-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                   <LinkedConceptsSection 
                     conceptId={conceptId}
                     subject={subject}
@@ -247,7 +335,7 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="tutor" className="mt-0">
+                <TabsContent value="tutor" className="m-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                   <AskTutorSection 
                     conceptId={conceptId}
                     title={title}
@@ -269,8 +357,8 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
         >
           {/* Quick actions card */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Quick Actions</h3>
-            <div className="flex flex-col gap-2">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Learning Tools</h3>
+            <div className="grid grid-cols-2 gap-2">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -278,7 +366,17 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                 onClick={toggleReadAloud}
               >
                 {isReadingAloud ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
-                {isReadingAloud ? "Stop Reading" : "Read Aloud"}
+                {isReadingAloud ? "Stop" : "Read Aloud"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`justify-start ${isBookmarked ? 'border-blue-500 text-blue-600 dark:border-blue-700 dark:text-blue-400' : ''}`}
+                onClick={handleBookmark}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                {isBookmarked ? "Bookmarked" : "Bookmark"}
               </Button>
               
               <Button 
@@ -288,23 +386,33 @@ const EnhancedConceptDetail: React.FC<ConceptDetailProps> = ({
                 onClick={handleToggleFlag}
               >
                 <Flag className="h-4 w-4 mr-2" />
-                {isFlagged ? "Remove from Revision" : "Flag for Revision"}
+                {isFlagged ? "Flagged" : "Flag"}
               </Button>
               
-              {validationCompleted && quizScore !== null && (
-                <div className="flex items-center justify-between px-2 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500 mr-2" />
-                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                      Validation Score
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
-                    {quizScore}%
-                  </Badge>
-                </div>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="justify-start"
+                onClick={() => setActiveTab('tutor')}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Ask Tutor
+              </Button>
             </div>
+            
+            {validationCompleted && quizScore !== null && (
+              <div className="flex items-center justify-between px-2 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md mt-3">
+                <div className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500 mr-2" />
+                  <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                    Validation Score
+                  </span>
+                </div>
+                <Badge variant="outline" className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
+                  {quizScore}%
+                </Badge>
+              </div>
+            )}
           </div>
         
           {/* Revision Section */}
