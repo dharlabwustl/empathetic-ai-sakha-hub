@@ -38,6 +38,15 @@ export const useVoiceCommands = ({
     submit: ['submit', 'create account', 'sign up', 'signup', 'register', 'continue', 'next'],
     back: ['back', 'go back', 'previous', 'return'],
     agree: ['agree', 'terms', 'accept terms', 'accept'],
+    age: ['age', 'my age', 'years old'],
+    gender: ['gender', 'sex'],
+    address: ['address', 'location', 'my address'],
+    city: ['city', 'town'],
+    state: ['state', 'province'],
+    country: ['country', 'nation'],
+    zipcode: ['zipcode', 'zip code', 'postal code', 'pin code'],
+    dateOfBirth: ['date of birth', 'birth date', 'dob', 'birthday'],
+    examDate: ['exam date', 'test date', 'examination date'],
   };
 
   // Find field by voice command
@@ -49,42 +58,66 @@ export const useVoiceCommands = ({
     const directField = Object.keys(fieldMappings).find(fieldId => 
       command === fieldId.toLowerCase() ||
       command === `${fieldId.toLowerCase()} field` ||
-      command === `select ${fieldId.toLowerCase()}`
+      command === `select ${fieldId.toLowerCase()}` ||
+      command.includes(`${fieldId.toLowerCase()}`)
     );
     
     if (directField) {
+      console.log('Direct field match found:', directField);
       return directField;
     }
     
-    // Pattern match
+    // Pattern match with improved matching for signup form fields
     for (const [key, patterns] of Object.entries(commandPatterns)) {
       if (patterns.some(pattern => 
         command === pattern ||
         command === `${pattern} field` ||
         command.includes(`select ${pattern}`) ||
         command.includes(`go to ${pattern}`) ||
-        command.includes(`fill ${pattern}`)
+        command.includes(`fill ${pattern}`) ||
+        command.includes(pattern)
       )) {
         // Find the matching field ID in the mappings
         const matchingField = Object.keys(fieldMappings).find(fieldId => 
-          fieldId.toLowerCase().includes(key.toLowerCase())
+          fieldId.toLowerCase().includes(key.toLowerCase()) || 
+          key.toLowerCase().includes(fieldId.toLowerCase())
         );
         
         if (matchingField) {
+          console.log('Pattern match found:', matchingField, 'from pattern:', key);
           return matchingField;
         }
       }
     }
     
+    // Fallback for common field types that may not follow naming conventions
+    if (command.includes('age') || command.includes('old')) {
+      return Object.keys(fieldMappings).find(id => id.toLowerCase().includes('age'));
+    }
+    
+    if (command.includes('institute') || command.includes('school') || command.includes('college')) {
+      return Object.keys(fieldMappings).find(id => id.toLowerCase().includes('institute'));
+    }
+    
+    if (command.includes('exam') || command.includes('test date')) {
+      return Object.keys(fieldMappings).find(id => id.toLowerCase().includes('exam'));
+    }
+    
+    console.log('No field match found for command:', command);
     return null;
   };
 
   // Handle setting a specific value in a field
   const setFieldValue = (fieldId: string, value: string) => {
+    console.log('Attempting to set field value:', fieldId, value);
     const field = document.getElementById(fieldId) as HTMLInputElement | HTMLSelectElement;
-    if (!field) return false;
+    if (!field) {
+      console.error('Field not found:', fieldId);
+      return false;
+    }
     
     const fieldType = fieldMappings[fieldId]?.type || 'text';
+    console.log('Field type:', fieldType);
     
     // Apply appropriate value based on field type
     switch (fieldType) {

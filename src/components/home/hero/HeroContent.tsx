@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
@@ -22,10 +23,77 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       transition={{ duration: 0.8, delay: 0.1 }}
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
-      {/* Enhanced 3D Immersive Background Elements */}
+      {/* Enhanced 3D Immersive Background Elements for entire hero section */}
       <div className="absolute -z-10 inset-0 overflow-hidden pointer-events-none">
-        {/* Dynamic glowing particles with depth effect */}
-        {[...Array(40)].map((_, i) => (
+        {/* 3D floating grid pattern with continuous movement */}
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(rgba(79,70,229,0.03) 1px, transparent 1px), 
+                        linear-gradient(90deg, rgba(79,70,229,0.03) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px',
+            perspective: "1000px",
+            transformStyle: "preserve-3d",
+            opacity: 0.7,
+          }}
+          animate={{
+            backgroundPosition: ['0px 0px', '40px 40px'],
+            rotateX: [15, 5, 15],
+            rotateY: [-5, 5, -5],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+            backgroundPosition: {
+              duration: 30,
+              repeat: Infinity,
+              ease: "linear"
+            }
+          }}
+        />
+        
+        {/* Dynamic flowing gradients with continuous movement */}
+        <motion.div
+          className="absolute -left-1/4 -top-1/4 w-[150%] h-[150%]" 
+          style={{
+            background: "radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, rgba(79, 70, 229, 0.03) 25%, rgba(99, 102, 241, 0.02) 50%, transparent 70%)",
+            transformStyle: "preserve-3d",
+          }}
+          animate={{
+            x: ['-5%', '5%', '-5%'],
+            y: ['-5%', '5%', '-5%'],
+            scale: [1, 1.05, 1],
+            opacity: [0.7, 0.9, 0.7],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <motion.div
+          className="absolute -right-1/4 -bottom-1/4 w-[120%] h-[120%]" 
+          style={{
+            background: "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.03) 25%, rgba(6, 182, 212, 0.02) 50%, transparent 70%)",
+            transformStyle: "preserve-3d",
+          }}
+          animate={{
+            x: ['5%', '-5%', '5%'],
+            y: ['5%', '-5%', '5%'],
+            scale: [1.05, 1, 1.05],
+            opacity: [0.7, 0.9, 0.7],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Dynamic floating particles with continuous movement */}
+        {[...Array(30)].map((_, i) => (
           <motion.div
             key={`particle-${i}`}
             className="absolute rounded-full bg-gradient-radial"
@@ -38,25 +106,25 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               filter: `blur(${Math.random() * 2}px)`,
               boxShadow: `0 0 ${Math.random() * 10 + 5}px rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, ${Math.random() * 255}, 0.${Math.floor(Math.random() * 8 + 2)})`,
               zIndex: Math.floor(Math.random() * 20) - 10,
-              transform: `translateZ(${Math.random() * 50 - 25}px)`
+              transform: `translateZ(${Math.random() * 50 - 25}px)`,
+              opacity: Math.random() * 0.6 + 0.2,
             }}
             animate={{
-              x: [0, Math.random() * 70 - 35],
-              y: [0, Math.random() * 70 - 35],
-              opacity: [0.4, 0.8, 0.4],
+              x: [0, Math.random() * 100 - 50],
+              y: [0, Math.random() * 100 - 50],
+              opacity: [0.3, 0.8, 0.3],
               scale: [1, Math.random() * 0.5 + 1.2, 1],
-              filter: [`blur(${Math.random() * 2}px)`, `blur(${Math.random() * 3 + 1}px)`, `blur(${Math.random() * 2}px)`],
             }}
             transition={{
-              duration: Math.random() * 10 + 10,
+              duration: Math.random() * 20 + 15,
               repeat: Infinity,
               repeatType: "reverse",
-              ease: "easeInOut",
+              ease: "linear",
             }}
           />
         ))}
 
-        {/* 3D Rotating educational symbols with glow effect */}
+        {/* 3D Rotating educational symbols with continuous movement */}
         {[
           { icon: "➕", color: "rgba(147, 51, 234, 0.4)", size: 1.2 }, // Math symbol
           { icon: "🧪", color: "rgba(79, 70, 229, 0.4)", size: 1.3 },  // Science symbol
@@ -85,8 +153,8 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               scale: item.size,
             }}
             animate={{
-              y: [0, Math.random() * 50 - 25],
-              x: [0, Math.random() * 50 - 25],
+              y: [0, Math.random() * 100 - 50],
+              x: [0, Math.random() * 100 - 50],
               rotateX: [0, 360],
               rotateY: [0, 360],
               rotateZ: [0, 360],
@@ -99,56 +167,47 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               ],
             }}
             transition={{
-              duration: Math.random() * 25 + 20,
+              duration: Math.random() * 45 + 30,
               repeat: Infinity,
               repeatType: "reverse",
-              ease: "easeInOut",
+              ease: "linear",
             }}
           >
             {item.icon}
           </motion.div>
         ))}
 
-        {/* Enhanced abstract 3D layers with depth */}
-        <motion.div
-          className="absolute -right-40 -bottom-40 w-96 h-96 rounded-full bg-gradient-to-r from-purple-300/30 to-blue-300/30 blur-3xl"
-          style={{ 
-            transform: "translateZ(-30px) rotateX(20deg)",
-            transformStyle: "preserve-3d"
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.4, 0.7, 0.4],
-            filter: ["blur(40px)", "blur(60px)", "blur(40px)"],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
-        
-        <motion.div
-          className="absolute -left-40 -top-20 w-[30rem] h-[30rem] rounded-full bg-gradient-to-r from-blue-300/30 to-indigo-400/30 blur-3xl"
-          style={{ 
-            transform: "translateZ(-20px) rotateY(15deg)",
-            transformStyle: "preserve-3d"
-          }}
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.6, 0.3],
-            filter: ["blur(40px)", "blur(70px)", "blur(40px)"],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
+        {/* Pulsating glow orbs with continuous movement */}
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={`orb-${i}`}
+            className="absolute rounded-full opacity-20"
+            style={{
+              background: `radial-gradient(circle, rgba(${Math.random() * 100 + 100}, ${Math.random() * 100 + 100}, ${Math.random() * 200 + 55}, 0.3) 0%, rgba(${Math.random() * 100 + 100}, ${Math.random() * 100 + 100}, ${Math.random() * 200 + 55}, 0) 70%)`,
+              width: `${Math.random() * 40 + 20}%`,
+              height: `${Math.random() * 40 + 20}%`,
+              left: `${Math.random() * 80}%`,
+              top: `${Math.random() * 80}%`,
+              filter: "blur(60px)",
+            }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1],
+              x: [0, Math.random() * 40 - 20, 0],
+              y: [0, Math.random() * 40 - 20, 0],
+            }}
+            transition={{
+              duration: 20 + i * 5,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "linear",
+            }}
+          />
+        ))}
 
-        {/* Enhanced light beams with volumetric effect */}
+        {/* Moving light beams with volumetric effect */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-2/3 h-32 bg-gradient-to-r from-transparent via-indigo-400/15 to-transparent rotate-45 blur-md"
+          className="absolute top-1/4 left-1/4 w-2/3 h-32 bg-gradient-to-r from-transparent via-indigo-400/10 to-transparent rotate-45 blur-md"
           style={{
             transform: "translateZ(-10px) rotateX(45deg)",
             transformStyle: "preserve-3d"
@@ -156,17 +215,19 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           animate={{
             opacity: [0, 0.7, 0],
             width: ["40%", "70%", "40%"],
+            x: ["-25%", "25%", "-25%"],
             filter: ["blur(10px)", "blur(20px)", "blur(10px)"],
           }}
           transition={{
-            duration: 8,
+            duration: 20,
             repeat: Infinity,
             repeatType: "reverse",
+            ease: "linear",
           }}
         />
         
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-1/2 h-24 bg-gradient-to-r from-transparent via-blue-400/15 to-transparent -rotate-45 blur-md"
+          className="absolute bottom-1/4 right-1/4 w-1/2 h-24 bg-gradient-to-r from-transparent via-blue-400/10 to-transparent -rotate-45 blur-md"
           style={{
             transform: "translateZ(-15px) rotateX(-30deg)",
             transformStyle: "preserve-3d"
@@ -174,27 +235,17 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           animate={{
             opacity: [0, 0.6, 0],
             width: ["30%", "60%", "30%"],
+            x: ["25%", "-25%", "25%"],
             filter: ["blur(10px)", "blur(25px)", "blur(10px)"],
           }}
           transition={{
-            duration: 10,
+            duration: 25,
             repeat: Infinity,
             repeatType: "reverse",
-            delay: 2,
+            ease: "linear",
           }}
         />
 
-        {/* 3D grid pattern with perspective */}
-        <div className="absolute inset-0" style={{
-          background: `linear-gradient(rgba(79,70,229,0.05) 1px, transparent 1px), 
-                      linear-gradient(90deg, rgba(79,70,229,0.05) 1px, transparent 1px)`,
-          backgroundSize: '20px 20px',
-          perspective: "1000px",
-          transform: "rotateX(60deg) scale(2.5) translateZ(-50px)",
-          opacity: 0.4,
-          transformStyle: "preserve-3d",
-        }} />
-        
         {/* Floating educational formulas with physics appearance */}
         {[
           "E = mc²", 
@@ -215,16 +266,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               zIndex: -3
             }}
             animate={{
-              y: [0, Math.random() * 30 - 15],
-              x: [0, Math.random() * 30 - 15],
+              y: [0, Math.random() * 70 - 35],
+              x: [0, Math.random() * 70 - 35],
               opacity: [0.1, 0.25, 0.1],
               scale: [0.9, 1.1, 0.9],
             }}
             transition={{
-              duration: 15 + Math.random() * 10,
+              duration: 20 + Math.random() * 15,
               repeat: Infinity,
               repeatType: "reverse",
-              ease: "easeInOut"
+              ease: "linear"
             }}
           >
             {formula}
