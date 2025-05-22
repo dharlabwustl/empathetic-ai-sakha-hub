@@ -29,7 +29,9 @@ const Login = () => {
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
-      navigate('/dashboard/student', { replace: true });
+      
+      // Direct to the correct URL
+      window.location.href = "https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student";
       return;
     }
   }, [navigate]);
