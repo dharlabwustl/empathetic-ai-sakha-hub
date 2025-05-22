@@ -29,7 +29,7 @@ const FeatureGrid: React.FC = () => {
         ))}
       </motion.div>
 
-      {/* Takeaway points with enhanced animation */}
+      {/* Takeaway points with animation */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -42,25 +42,12 @@ const FeatureGrid: React.FC = () => {
             key={index}
             custom={index}
             variants={fadeInUpStaggered(index * 0.1)}
-            whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-            animate={{
-              y: [0, -5, 0],
-              transition: {
-                repeat: Infinity,
-                repeatType: "reverse",
-                duration: 2,
-                delay: index * 0.2
-              }
-            }}
+            whileHover={{ scale: 1.05 }}
             className={`bg-gradient-to-br ${point.color} px-5 py-3 rounded-full shadow-lg flex items-center gap-2 group transition-all duration-300`}
           >
             <motion.div
               className="text-white rounded-full p-1.5 bg-white/20"
-              animate={{
-                rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1],
-                transition: { repeat: Infinity, duration: 3, delay: index * 0.3 }
-              }}
+              {...bounceAnimation}
             >
               {point.icon}
             </motion.div>
