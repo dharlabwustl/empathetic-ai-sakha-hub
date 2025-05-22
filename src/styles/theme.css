@@ -40,12 +40,12 @@
     --sidebar-ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
     
     /* Updated colors for a more vibrant orange theme */
-    --sakha-light-blue: 35 100% 85%;
-    --sakha-blue: 35 90% 60%;
-    --sakha-purple: 35 100% 50%; /* Updated to #FFA500 (Orange) */
-    --sakha-pink: 35 80% 69%;
-    --sakha-lavender: 35 60% 94%;
-    --sakha-deep-blue: 35 70% 40%;
+    --sakha-light-blue: 35 100% 85%; /* Changed to light orange */
+    --sakha-blue: 35 90% 60%; /* Changed to medium orange */
+    --sakha-purple: 35 100% 50%; /* Changed to #FFA500 (Orange) */
+    --sakha-pink: 35 80% 69%; /* Changed to soft orange */
+    --sakha-lavender: 35 60% 94%; /* Changed to very light orange */
+    --sakha-deep-blue: 35 70% 40%; /* Changed to deep orange */
   }
 
   .dark {
@@ -87,12 +87,12 @@
     --sidebar-ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
     
     /* Updated Sakha colors for dark mode */
-    --sakha-light-blue: 35 80% 75%;
-    --sakha-blue: 35 76% 60%;
-    --sakha-purple: 35 73% 60%;
-    --sakha-pink: 35 73% 69%;
-    --sakha-lavender: 35 60% 94%;
-    --sakha-deep-blue: 35 70% 40%;
+    --sakha-light-blue: 35 80% 75%; /* Changed to light orange */
+    --sakha-blue: 35 76% 60%; /* Changed to medium orange */
+    --sakha-purple: 35 73% 60%; /* Changed to #FFA500 (Orange) */
+    --sakha-pink: 35 73% 69%; /* Changed to soft orange */
+    --sakha-lavender: 35 60% 94%; /* Changed to very light orange */
+    --sakha-deep-blue: 35 70% 40%; /* Changed to deep orange */
   }
 }
 

@@ -124,7 +124,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                   
                   {/* Animated cursor */}
                   <motion.div 
-                    className="absolute w-5 h-5 border-2 border-yellow-400 rounded-full flex items-center justify-center pointer-events-none"
+                    className="absolute w-5 h-5 border-2 border-orange-400 rounded-full flex items-center justify-center pointer-events-none"
                     animate={{ 
                       x: [100, 250, 180, 300],
                       y: [150, 100, 200, 120],
@@ -136,7 +136,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                       repeatType: "reverse"
                     }}
                   >
-                    <div className="w-1 h-1 bg-yellow-400 rounded-full"></div>
+                    <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
                   </motion.div>
                   
                   {/* Click effect */}
@@ -155,6 +155,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     style={{ left: '220px', top: '140px' }}
                   />
 
+                  {/* Feature-specific interactive elements */}
                   {/* Exam Readiness Score - visible for the Exam Readiness feature */}
                   {activeFeature === 3 && (
                     <motion.div
@@ -209,6 +210,111 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                         </div>
                       </div>
                     </motion.div>
+                  )}
+
+                  {/* Smart Study Plan interactive elements */}
+                  {activeFeature === 0 && (
+                    <>
+                      <motion.div
+                        className="absolute top-20 left-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-md p-2"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                          <span className="text-xs text-white">Physics: 2h completed</span>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div
+                        className="absolute top-40 right-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-md p-2"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="text-xs text-white">Biology: Next up</span>
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+
+                  {/* Concept Cards interactive elements */}
+                  {activeFeature === 1 && (
+                    <motion.div 
+                      className="absolute top-1/4 right-1/4 w-40 h-32 bg-orange-500/90 rounded-lg p-3 shadow-lg rotate-3 transform-gpu"
+                      initial={{ opacity: 0, y: 20, rotateY: 90 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        rotateY: [90, 0, 10, 0],
+                        z: [0, 50, 20, 0]
+                      }}
+                      transition={{ 
+                        delay: 0.3,
+                        duration: 1.5,
+                        ease: "easeOut"
+                      }}
+                      style={{ transformStyle: "preserve-3d" }}
+                    >
+                      <h4 className="text-white text-xs font-bold mb-1">Photosynthesis</h4>
+                      <p className="text-white/90 text-xs">The process used by plants to convert light energy into chemical energy</p>
+                      <div className="absolute bottom-2 right-2 text-xs bg-white/20 rounded-full px-2 py-0.5">Tap to flip</div>
+                    </motion.div>
+                  )}
+
+                  {/* AI Tutor chat simulation */}
+                  {activeFeature === 4 && (
+                    <div className="absolute inset-0 flex flex-col">
+                      <div className="p-4 overflow-hidden flex-1">
+                        <motion.div 
+                          className="mb-3 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 mr-16"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 }}
+                        >
+                          <p className="text-xs text-gray-800 dark:text-white">Can you explain the Krebs cycle?</p>
+                        </motion.div>
+                        
+                        <motion.div 
+                          className="mb-3 bg-orange-500 rounded-lg p-2 ml-16"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 1 }}
+                        >
+                          <p className="text-xs text-white">The Krebs cycle is a series of chemical reactions used by all aerobic organisms to release stored energy. It takes place in the mitochondria.</p>
+                        </motion.div>
+                        
+                        <motion.div 
+                          className="mb-3 bg-orange-500 rounded-lg p-2 ml-16"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 2 }}
+                        >
+                          <p className="text-xs text-white">Would you like me to explain the specific steps?</p>
+                        </motion.div>
+                        
+                        <motion.div
+                          className="absolute bottom-20 left-0 right-0 h-6"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0, 1, 1, 0] }}
+                          transition={{ 
+                            delay: 3, 
+                            duration: 1.5,
+                            repeat: Infinity,
+                            repeatDelay: 2
+                          }}
+                        >
+                          <div className="flex gap-2 justify-center items-center">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </div>
                   )}
                 </motion.div>
               </AnimatePresence>
