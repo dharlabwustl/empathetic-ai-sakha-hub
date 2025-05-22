@@ -124,13 +124,6 @@ const StudentDashboard = () => {
     if (savedMood) {
       setCurrentMood(savedMood);
     }
-
-    // Stop any voice announcements when navigating or when component unmounts
-    return () => {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
   }, [location, navigate, showOnboarding]);
   
   const handleSplashComplete = () => {
@@ -172,16 +165,30 @@ const StudentDashboard = () => {
     handleSkipTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
-    // Also set welcome prompt as seen to avoid showing it after the tour
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
+    
+    // After skipping tour, check if they need to see welcome prompt
+    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
+    if (!hasSeenDashboardWelcome) {
+      setShowWelcomePrompt(true);
+    }
+    
+    console.log("Tour skipped and marked as seen");
   };
 
   const handleCompleteTourWrapper = () => {
     handleCompleteTour();
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
-    // Also set welcome prompt as seen to avoid showing it after the tour
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
+    
+    // After completing tour, check if they need to see welcome prompt
+    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
+    if (!hasSeenDashboardWelcome) {
+      setShowWelcomePrompt(true);
+    }
+    
+    console.log("Tour completed and marked as seen");
   };
 
   const handleWelcomePromptComplete = () => {
@@ -205,7 +212,7 @@ const StudentDashboard = () => {
   };
 
   const handleNavigationCommand = (route: string) => {
-    // Stop voice announcements when navigating
+    // Stop any voice announcements when navigating
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }

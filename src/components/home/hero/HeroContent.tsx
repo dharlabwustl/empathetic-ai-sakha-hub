@@ -15,7 +15,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     "Build unshakable confidence",
     "Study stress-free with AI guidance",
     "Master complex topics faster",
-    "Improve exam readiness score everyday",
+    "Improve retention by 70%",
     "Track progress with clear metrics"
   ];
 
@@ -50,7 +50,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         transition={{ duration: 0.4 }}
         className="mb-2"
       >
-        <h2 className="text-sm md:text-base text-orange-600 dark:text-orange-400 font-medium">
+        <h2 className="text-sm md:text-base text-indigo-600 dark:text-indigo-400 font-medium">
           Welcome to PREPZR - tomorrow's learning experience:
         </h2>
       </motion.div>
@@ -63,7 +63,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       >
         <span className="relative inline-block">
           <motion.span 
-            className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
             animate={{ 
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
             }}
@@ -72,7 +72,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             Transform your struggle
           </motion.span>
           <motion.span
-            className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-orange-600 to-yellow-600 rounded-full"
+            className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
             initial={{ scaleX: 0, originX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
@@ -80,7 +80,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </span>
         <br />
         <motion.span 
-          className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600"
+          className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
           animate={{ 
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
           }}
@@ -95,11 +95,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg p-3 border border-orange-100 dark:border-orange-800/30 shadow-inner"
+        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
       >
         <p className="text-base text-gray-700 dark:text-gray-300">
-          Our <span className="font-semibold text-orange-700 dark:text-orange-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 
-          <span className="font-semibold text-amber-700 dark:text-amber-400"> NEET, JEE, UPSC, and CAT</span>. We understand your mindset, not just the exam.
+          Our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 
+          <span className="font-semibold text-purple-700 dark:text-purple-400"> NEET, JEE, UPSC, and CAT</span>.
         </p>
       </motion.div>
       
@@ -108,9 +108,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-800/30"
+        className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30"
       >
-        <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-2">Key Benefits:</h3>
+        <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-2">Key Benefits:</h3>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {keyBenefits.map((benefit, idx) => (
             <motion.li
@@ -132,7 +132,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         {/* Primary CTA */}
         <motion.button
           onClick={handleFreeTrialClick}
-          className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -146,7 +146,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         {/* Secondary CTA */}
         <motion.button
           onClick={handleExamReadinessClick}
-          className="w-full border-2 border-amber-300 hover:border-amber-400 dark:border-amber-700 dark:hover:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 py-3 px-6 rounded-xl flex items-center justify-center"
+          className="w-full border-2 border-purple-300 hover:border-purple-400 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-xl flex items-center justify-center"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -166,7 +166,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="mt-4 text-center"
       >
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Join <span className="font-medium text-orange-600 dark:text-orange-400">2 million+</span> students already on their path to success
+          Join <span className="font-medium text-indigo-600 dark:text-indigo-400">2 million+</span> students already on their path to success
         </p>
       </motion.div>
     </motion.div>
