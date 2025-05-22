@@ -17,6 +17,7 @@ const PostLoginWelcomeBack = () => {
   const [userName, setUserName] = useState("Student");
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [showSkipDialog, setShowSkipDialog] = useState(false);
+  const [additionalPromptDisplayed, setAdditionalPromptDisplayed] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -58,6 +59,12 @@ const PostLoginWelcomeBack = () => {
       
       // Ensure we've set the login flag
       localStorage.setItem('isLoggedIn', 'true');
+      
+      // Set free trial plan automatically
+      localStorage.setItem('user_plan', 'FREE_TRIAL');
+      localStorage.setItem('trial_start_date', Date.now().toString());
+      localStorage.setItem('trial_days', '7');
+      
       return;
     }
     
@@ -89,6 +96,14 @@ const PostLoginWelcomeBack = () => {
     return () => clearTimeout(timer);
   }, [navigate, toast]);
 
+  // Flag to prevent additional prompts after tour completes
+  useEffect(() => {
+    if (showTour) {
+      localStorage.setItem('suppress_additional_prompts', 'true');
+      setAdditionalPromptDisplayed(true);
+    }
+  }, [showTour]);
+
   const handleSliderComplete = () => {
     // Mark that they've seen the welcome slider
     localStorage.setItem('sawWelcomeSlider', 'true');
@@ -104,6 +119,8 @@ const PostLoginWelcomeBack = () => {
   const confirmSkipTour = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.setItem('suppress_additional_prompts', 'true');
+    setAdditionalPromptDisplayed(true);
     // Use direct location change to ensure we go to the dashboard
     setShowSkipDialog(false);
     window.location.href = '/dashboard/student';
@@ -118,13 +135,15 @@ const PostLoginWelcomeBack = () => {
   };
   
   const handleTourComplete = () => {
-    // Mark that they've seen the welcome tour
+    // Mark that they've seen the welcome tour and suppress additional prompts
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.setItem('suppress_additional_prompts', 'true');
+    setAdditionalPromptDisplayed(true);
     // Use direct location change to ensure we go to the dashboard
     window.location.href = '/dashboard/student';
     toast({
       title: "Tour Completed!",
-      description: "You're all set to start using PREPZR. Happy studying!"
+      description: "You're all set to start using PREPZR."
     });
   };
 

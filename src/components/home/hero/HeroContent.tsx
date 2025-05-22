@@ -12,10 +12,12 @@ interface HeroContentProps {
 }
 
 const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
-  const painPoints = [
-    "Overwhelming syllabus",
-    "Ineffective study techniques",
-    "Lack of personalized guidance"
+  const keyBenefits = [
+    "Build unshakable confidence",
+    "Study stress-free with AI guidance",
+    "Master complex topics faster",
+    "Improve retention by 70%",
+    "Track progress with clear metrics"
   ];
   
   return (
@@ -62,6 +64,18 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <Sparkles className="w-3 h-3" /> Success Rate 94%
         </motion.div>
       </div>
+      
+      {/* Welcome message - New intro message */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="mb-2"
+      >
+        <h2 className="text-sm md:text-base text-indigo-600 dark:text-indigo-400 font-medium">
+          Welcome to PREPZR - tomorrow's learning experience:
+        </h2>
+      </motion.div>
       
       <motion.h1
         className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3"
@@ -120,40 +134,38 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
       
-      <motion.div 
-        className="mb-4 bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-3 shadow-sm"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3 }}
+      {/* CTA Buttons - Moved up for better visibility */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="mb-4"
       >
-        <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1 flex items-center">
-          <BrainCircuit className="mr-2 h-4 w-4" />
-          Your Preparation Challenges
-        </h3>
-        <ul className="space-y-1">
-          {painPoints.map((point, idx) => (
-            <motion.li 
+        <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
+      </motion.div>
+      
+      {/* Key benefits section - New section for 5 key benefits */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30"
+      >
+        <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-2">Key Benefits:</h3>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-1">
+          {keyBenefits.map((benefit, idx) => (
+            <motion.li
               key={idx}
               className="flex items-center text-xs text-gray-700 dark:text-gray-300"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + idx * 0.1 }}
+              transition={{ delay: 0.7 + (idx * 0.1) }}
             >
-              <span className="h-1.5 w-1.5 bg-red-500 rounded-full mr-2" />
-              {point}
+              <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 mr-2" />
+              {benefit}
             </motion.li>
           ))}
         </ul>
-      </motion.div>
-      
-      {/* CTA Buttons moved up for better visibility */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-4"
-      >
-        <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
       </motion.div>
       
       <motion.p 

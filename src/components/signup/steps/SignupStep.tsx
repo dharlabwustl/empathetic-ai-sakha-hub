@@ -8,8 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
-import { Star, Eye, EyeOff, Info } from "lucide-react";
+import { Star, Eye, EyeOff, Info, Tabs, TabsContent, TabsList, TabsTrigger } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 
 interface SignupStepProps {
   onSubmit: (formValues: { 
@@ -48,6 +49,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fact, setFact] = useState("");
+  const [signupMethod, setSignupMethod] = useState<"mobile" | "email">("mobile");
   const [passwordValid, setPasswordValid] = useState({
     length: false,
     uppercase: false,
@@ -89,9 +91,9 @@ const SignupStep: React.FC<SignupStepProps> = ({
   };
 
   const handleRequestOtp = () => {
-    if (!formValues.mobile) {
+    if (signupMethod === "mobile" && !formValues.mobile) {
       toast({
-        title: "Please fill in all fields",
+        title: "Please enter mobile number",
         description: "We need your mobile number to proceed.",
         variant: "destructive"
       });
@@ -139,8 +141,18 @@ const SignupStep: React.FC<SignupStepProps> = ({
       return;
     }
     
-    if (formValues.name && formValues.mobile && formValues.otp && formValues.password && formValues.email) {
-      onSubmit(formValues);
+    // Check required fields based on signup method
+    if (formValues.name && formValues.password) {
+      if ((signupMethod === "mobile" && formValues.mobile && formValues.otp) ||
+          (signupMethod === "email" && formValues.email)) {
+        onSubmit(formValues);
+      } else {
+        toast({
+          title: "Please fill in all required fields",
+          description: "All fields marked with * are required to create your account.",
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Please fill in all required fields",
@@ -217,36 +229,106 @@ const SignupStep: React.FC<SignupStepProps> = ({
           />
         </div>
 
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+        {/* Signup Method Toggle */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+          <div className="flex justify-center space-x-2 mb-4">
+            <Button
+              type="button"
+              variant={signupMethod === "mobile" ? "default" : "outline"}
+              className={`w-full ${signupMethod === "mobile" ? "bg-purple-600" : ""}`}
+              onClick={() => setSignupMethod("mobile")}
+            >
+              Mobile Number
+            </Button>
+            <Button
+              type="button"
+              variant={signupMethod === "email" ? "default" : "outline"}
+              className={`w-full ${signupMethod === "email" ? "bg-purple-600" : ""}`}
+              onClick={() => setSignupMethod("email")}
+            >
+              Email Address
+            </Button>
           </div>
-          <Input 
-            id="email" 
-            name="email" 
-            type="email"
-            value={formValues.email} 
-            onChange={handleFormChange} 
-            required 
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Your email address"
-          />
-        </div>
-        
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
-          </div>
-          <Input 
-            id="mobile" 
-            name="mobile" 
-            value={formValues.mobile} 
-            onChange={handleFormChange} 
-            required 
-            type="tel"
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="+91 9876543210"
-          />
+
+          {signupMethod === "mobile" ? (
+            <>
+              <motion.div
+                key="mobile-input"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-2">
+                  <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
+                </div>
+                <Input 
+                  id="mobile" 
+                  name="mobile" 
+                  value={formValues.mobile} 
+                  onChange={handleFormChange} 
+                  required={signupMethod === "mobile"}
+                  type="tel"
+                  className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="+91 9876543210"
+                />
+                
+                {formValues.mobile && (
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={handleRequestOtp}
+                    className="w-full mt-2 border-purple-500 text-purple-600 hover:bg-purple-50"
+                  >
+                    Get OTP
+                  </Button>
+                )}
+                
+                {formValues.mobile && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-3"
+                  >
+                    <Label htmlFor="otp">OTP <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="otp" 
+                      name="otp" 
+                      value={formValues.otp} 
+                      onChange={handleFormChange} 
+                      required={signupMethod === "mobile"}
+                      className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="Enter OTP"
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            </>
+          ) : (
+            <motion.div
+              key="email-input"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-2">
+                <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+              </div>
+              <Input 
+                id="email" 
+                name="email" 
+                type="email"
+                value={formValues.email} 
+                onChange={handleFormChange} 
+                required={signupMethod === "email"}
+                className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                placeholder="Your email address"
+              />
+            </motion.div>
+          )}
         </div>
         
         <div>
@@ -284,11 +366,31 @@ const SignupStep: React.FC<SignupStepProps> = ({
               <div className="w-full bg-gray-200 rounded-full h-1.5">
                 <div className={`h-1.5 rounded-full ${getPasswordStrengthColor()}`} style={{ width: passwordStrengthWidth() }}></div>
               </div>
+              <div className="text-xs text-right mt-1">
+                <span className="text-gray-500">
+                  Password strength: 
+                  <span className={`ml-1 font-medium ${
+                    Object.values(passwordValid).filter(Boolean).length <= 2 ? "text-red-500" : 
+                    Object.values(passwordValid).filter(Boolean).length <= 4 ? "text-yellow-500" : 
+                    "text-green-500"
+                  }`}>
+                    {Object.values(passwordValid).filter(Boolean).length <= 2 ? "Weak" : 
+                     Object.values(passwordValid).filter(Boolean).length <= 4 ? "Medium" : 
+                     "Strong"}
+                  </span>
+                </span>
+              </div>
             </div>
           )}
 
-          {showPasswordRequirements && (
-            <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 mt-2">
+          {/* Always show password requirements below the password field */}
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            transition={{ duration: 0.3 }}
+            className="mt-2"
+          >
+            <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-500 mr-2" />
               <AlertDescription className="text-xs">
                 <div className="font-medium mb-1">Password must contain:</div>
@@ -301,7 +403,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
                 </ul>
               </AlertDescription>
             </Alert>
-          )}
+          </motion.div>
         </div>
 
         <div>
@@ -349,32 +451,6 @@ const SignupStep: React.FC<SignupStepProps> = ({
             placeholder="Your school or institute name"
           />
         </div>
-        
-        {formValues.mobile && (
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={handleRequestOtp}
-            className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
-          >
-            Get OTP
-          </Button>
-        )}
-        
-        {formValues.mobile && (
-          <div>
-            <Label htmlFor="otp">OTP <span className="text-red-500">*</span></Label>
-            <Input 
-              id="otp" 
-              name="otp" 
-              value={formValues.otp} 
-              onChange={handleFormChange} 
-              required 
-              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-              placeholder="Enter OTP"
-            />
-          </div>
-        )}
         
         <div className="flex items-center space-x-2">
           <Checkbox 
