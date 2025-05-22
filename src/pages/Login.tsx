@@ -29,6 +29,7 @@ const Login = () => {
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
+      // Make sure we navigate to the correct dashboard URL, NOT app subdomain
       navigate('/dashboard/student', { replace: true });
       return;
     }
