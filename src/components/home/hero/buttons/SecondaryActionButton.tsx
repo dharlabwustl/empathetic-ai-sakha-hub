@@ -39,7 +39,7 @@ const SecondaryActionButton: React.FC = () => {
       >
         <BookOpen className="h-5 w-5 mr-2 group-hover:animate-pulse" />
         <span className="relative">
-          <span>Start Your Journey</span>
+          <span>7-Day Free Trial</span>
           <motion.span 
             className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400 dark:bg-indigo-500"
             initial={{ scaleX: 0 }}

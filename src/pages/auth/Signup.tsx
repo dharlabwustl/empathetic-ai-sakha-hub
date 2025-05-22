@@ -19,7 +19,7 @@ const Signup = () => {
     
     // Welcome message for new users
     const welcomeText = 
-      "Congratulations on joining PREP-zer! I'm Sakha AI, your personalized learning companion. " +
+      "Congratulations on joining PREPZR! I'm Sakha AI, your personalized learning companion. " +
       "I'm setting up your adaptive study environment based on proven learning methodologies. " +
       "In just a moment, we'll guide you through a quick tour of our platform to help you " +
       "get the most out of your preparation journey. I'll be with you every step of the way!";
@@ -79,6 +79,9 @@ const Signup = () => {
   };
 
   useEffect(() => {
+    // Set up NEET exam as the default exam choice
+    localStorage.setItem('selected_exam', 'NEET');
+    
     // Set the flag that this is a new user signup
     localStorage.setItem('new_user_signup', 'true');
     localStorage.setItem('isLoggedIn', 'true');
@@ -95,11 +98,17 @@ const Signup = () => {
       name: "New User",
       email: `user${Date.now()}@example.com`,
       role: 'student',
-      isFirstTimeUser: true
+      isFirstTimeUser: true,
+      selectedExam: 'NEET' // Set NEET as default exam
     };
     
     // Store it in localStorage for downstream components
     localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Set free trial plan automatically
+    localStorage.setItem('user_plan', 'FREE_TRIAL');
+    localStorage.setItem('trial_start_date', Date.now().toString());
+    localStorage.setItem('trial_days', '7');
     
     // Start welcome announcement
     setTimeout(() => {
@@ -175,7 +184,7 @@ const Signup = () => {
             </motion.div>
           </div>
           <p className="text-xl font-medium">Setting up your personalized learning experience...</p>
-          <p className="text-sm text-gray-500 mt-2">Creating your adaptive study plan tailored to your needs</p>
+          <p className="text-sm text-gray-500 mt-2">Creating your adaptive NEET study plan</p>
           
           {/* Mute button */}
           <button 

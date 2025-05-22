@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Brain, CalendarDays, FileText, BookOpen, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, CalendarDays, FileText, Brain, ExternalLink, ChevronLeft, ChevronRight, ClipboardCheck, BookMarked, FileQuestion } from 'lucide-react';
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -37,22 +37,22 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   
   const steps = [
     {
-      title: "Welcome to Your Learning Dashboard",
+      title: "Your Academic Advisor",
       content: (
         <div className="space-y-4">
           <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Brain className="mr-2 h-5 w-5 text-blue-500" />
-              Your Command Center
+              Your Study Plan
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              This is your personalized space for exam preparation. Track progress, 
-              access study materials, and get tailored recommendations.
+              Your academic advisor creates personalized study plans based on your exam requirements and learning style.
+              This is your first stop for guidance on what to study.
             </p>
             
-            {/* Interactive element - Simple question */}
+            {/* Interactive element */}
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <p className="text-sm font-medium mb-2">Quick Check: What would you like to focus on first?</p>
+              <p className="text-sm font-medium mb-2">What would you like to see first?</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button 
                   variant="outline" 
@@ -60,7 +60,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                   className="text-xs"
                   onClick={() => setHasInteracted(true)}
                 >
-                  Study Planning
+                  My Study Schedule
                 </Button>
                 <Button 
                   variant="outline" 
@@ -68,7 +68,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                   className="text-xs"
                   onClick={() => setHasInteracted(true)}
                 >
-                  Practice Tests
+                  Exam Requirements
                 </Button>
               </div>
             </div>
@@ -77,87 +77,190 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       )
     },
     {
-      title: "Your Learning Tools",
+      title: "Today's Study Plan",
       content: (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
-              <h4 className="text-sm font-medium mb-1 flex items-center">
-                <BookOpen className="mr-2 h-4 w-4 text-indigo-500" />
-                Concept Cards
-              </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Master key concepts with detailed explanations and visual aids.
-              </p>
-            </div>
+          <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
+            <h3 className="text-md font-medium mb-2 flex items-center">
+              <CalendarDays className="mr-2 h-5 w-5 text-indigo-500" />
+              Daily Learning Roadmap
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Focus on what matters today with your personalized daily plan. Complete tasks to stay on track for your exam.
+            </p>
             
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
-              <h4 className="text-sm font-medium mb-1 flex items-center">
-                <FileText className="mr-2 h-4 w-4 text-emerald-500" />
-                Practice Exams
-              </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Test your knowledge with exam-like questions and analytics.
-              </p>
-            </div>
-            
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
-              <h4 className="text-sm font-medium mb-1 flex items-center">
-                <CalendarDays className="mr-2 h-4 w-4 text-purple-500" />
-                Smart Study Plans
-              </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Follow your personalized schedule optimized for your goals.
-              </p>
-            </div>
-            
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
-              <h4 className="text-sm font-medium mb-1 flex items-center">
-                <ExternalLink className="mr-2 h-4 w-4 text-amber-500" />
-                AI Tutor
-              </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Get instant help with difficult concepts and study strategies.
-              </p>
-            </div>
-          </div>
-          
-          {/* Interactive sample question */}
-          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/50">
-            <h4 className="font-medium text-sm mb-2">Sample Question:</h4>
-            <p className="text-sm mb-3">Which of the following is Newton's First Law?</p>
-            <div className="space-y-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start text-xs"
-                onClick={() => setHasInteracted(true)}
-              >
-                A. Force equals mass times acceleration
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start text-xs"
-                onClick={() => setHasInteracted(true)}
-              >
-                B. An object in motion stays in motion unless acted upon by an external force
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start text-xs"
-                onClick={() => setHasInteracted(true)}
-              >
-                C. Every action has an equal and opposite reaction
-              </Button>
+            {/* Example daily task */}
+            <div className="mt-3 border border-indigo-100 dark:border-indigo-900/30 rounded-lg overflow-hidden">
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 border-b border-indigo-100 dark:border-indigo-900/30">
+                <h4 className="text-xs font-medium text-indigo-700 dark:text-indigo-300">Today's Tasks</h4>
+              </div>
+              <div className="p-3 space-y-2">
+                <div className="flex items-center">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0 mr-2"
+                    onClick={() => setHasInteracted(true)}
+                  >
+                    <div className="h-4 w-4 border border-indigo-400 dark:border-indigo-500 rounded-sm"></div>
+                  </Button>
+                  <span className="text-xs">Read Chapter 5: Cell Division (45 min)</span>
+                </div>
+                <div className="flex items-center">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0 mr-2"
+                    onClick={() => setHasInteracted(true)}
+                  >
+                    <div className="h-4 w-4 border border-indigo-400 dark:border-indigo-500 rounded-sm"></div>
+                  </Button>
+                  <span className="text-xs">Solve 10 practice problems on DNA Structure</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )
     },
     {
-      title: "You're Ready to Go!",
+      title: "Concept Cards & Flashcards",
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
+              <h4 className="text-sm font-medium mb-1 flex items-center">
+                <BookOpen className="mr-2 h-4 w-4 text-indigo-500" />
+                Master Key Concepts
+              </h4>
+              <p className="text-xs text-gray-600 dark:text-gray-300">
+                Concept cards break down complex topics with visual aids and clear explanations.
+              </p>
+              
+              {/* Mini concept card example */}
+              <div className="mt-3 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-2 rounded border border-indigo-100 dark:border-indigo-900/30">
+                <h5 className="text-xs font-medium text-indigo-700 dark:text-indigo-300">DNA Structure</h5>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">A double helix structure with complementary base pairs...</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs mt-1 h-6 px-2 text-indigo-600 dark:text-indigo-400"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  View concept →
+                </Button>
+              </div>
+            </div>
+            
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
+              <h4 className="text-sm font-medium mb-1 flex items-center">
+                <BookMarked className="mr-2 h-4 w-4 text-emerald-500" />
+                Flashcards for Quick Review
+              </h4>
+              <p className="text-xs text-gray-600 dark:text-gray-300">
+                Test your knowledge with interactive flashcards that adapt to your learning progress.
+              </p>
+              
+              {/* Flashcard example */}
+              <div className="mt-2 flex justify-center">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="text-xs py-5 px-4 w-full max-w-[200px] bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  <span className="text-center w-full">Tap to see the function of mitochondria</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Practice Exams & Past Papers",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-purple-100 dark:border-purple-900/50 shadow-sm">
+            <h4 className="text-sm font-medium mb-1 flex items-center">
+              <FileText className="mr-2 h-4 w-4 text-purple-500" />
+              Practice Exams
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-300">
+              Test your knowledge with exam-like questions and get detailed analytics to improve your performance.
+            </p>
+            
+            {/* Practice exam example */}
+            <div className="mt-3 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-xs">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium">Biology Mock Test</span>
+                <span className="text-purple-600 dark:text-purple-300">45 min</span>
+              </div>
+              <div className="flex space-x-1">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-xs h-6 px-2 flex-1"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  Start Exam
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-6 px-2"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  Details
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-amber-100 dark:border-amber-900/50 shadow-sm">
+            <h4 className="text-sm font-medium mb-1 flex items-center">
+              <FileQuestion className="mr-2 h-4 w-4 text-amber-500" />
+              Previous Year Papers
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-300">
+              Master real exam patterns by practicing with previous year papers with detailed solutions.
+            </p>
+            
+            {/* Previous papers list */}
+            <ul className="mt-2 space-y-1">
+              <li>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs w-full justify-start h-6 px-2"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  <span className="flex justify-between w-full">
+                    <span>NEET 2023 Paper</span>
+                    <span className="text-amber-600 dark:text-amber-400 text-xs">Solve</span>
+                  </span>
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs w-full justify-start h-6 px-2"
+                  onClick={() => setHasInteracted(true)}
+                >
+                  <span className="flex justify-between w-full">
+                    <span>NEET 2022 Paper</span>
+                    <span className="text-amber-600 dark:text-amber-400 text-xs">Solve</span>
+                  </span>
+                </Button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Your Learning Journey Begins!",
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
@@ -167,12 +270,28 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
             <p className="text-center text-sm">
               You're all set to begin your successful exam preparation journey with PREPZR.
             </p>
+            
+            <div className="mt-4 flex justify-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-800/50 max-w-xs">
+                <div className="flex items-start space-x-3">
+                  <div className="bg-green-100 dark:bg-green-800/30 p-1.5 rounded-full">
+                    <ClipboardCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Start with Today's Plan</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                      We recommend beginning with your daily study plan to stay on track for your exam goals.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           
           {suggestedNextAction && (
-            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800/50">
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800/50">
               <h3 className="text-sm font-medium mb-1">Suggested Next Action:</h3>
-              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">{suggestedNextAction}</p>
+              <p className="text-sm text-blue-800 dark:text-blue-300">{suggestedNextAction}</p>
             </div>
           )}
         </div>

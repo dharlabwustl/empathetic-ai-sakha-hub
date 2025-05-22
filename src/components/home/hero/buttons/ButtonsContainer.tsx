@@ -15,9 +15,9 @@ const ButtonsContainer: React.FC<ButtonsContainerProps> = ({ onAnalyzeClick }) =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.5 }}
-      className="flex flex-col sm:flex-row flex-wrap gap-5 mb-8 relative z-20"
+      className="flex flex-row sm:flex-row flex-wrap gap-5 mb-8 relative z-20"
     >
-      <div className="relative order-2 sm:order-1">
+      <div className="relative order-1">
         <motion.div 
           className="absolute -inset-2 bg-indigo-500/20 dark:bg-indigo-500/30 rounded-full blur-md -z-10"
           animate={{ 
@@ -34,7 +34,7 @@ const ButtonsContainer: React.FC<ButtonsContainerProps> = ({ onAnalyzeClick }) =
         <PrimaryActionButton onAnalyzeClick={onAnalyzeClick} />
       </div>
       
-      <div className="order-1 sm:order-2">
+      <div className="order-2">
         <SecondaryActionButton />
       </div>
       

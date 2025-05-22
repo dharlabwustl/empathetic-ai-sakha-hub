@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -22,6 +24,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginType, setLoginType] = useState<"email" | "phone">("email");
 
   // Check for saved credentials when component mounts
   useEffect(() => {
@@ -43,7 +46,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
 
   const validateForm = () => {
     if (!credentials.emailOrPhone) {
-      setLoginError("Email or phone number is required");
+      setLoginError(loginType === "email" ? "Email is required" : "Phone number is required");
       return false;
     }
     if (!credentials.password) {
@@ -78,11 +81,20 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       
       toast({
         title: "Login successful",
-        description: "Welcome back to Prepzr"
+        description: "Welcome back to PREPZR"
       });
       
-      // Navigate to student dashboard
-      navigate("/dashboard/student", { replace: true });
+      // Redirect to app subdomain for dashboard
+      const isLocalhost = window.location.hostname.includes('localhost');
+      const dashboardUrl = isLocalhost 
+        ? "/dashboard/student" 
+        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
+      
+      if (isLocalhost) {
+        navigate(dashboardUrl, { replace: true });
+      } else {
+        window.location.href = dashboardUrl;
+      }
     } catch (error) {
       console.error("Login error:", error);
       setLoginError("Invalid email/phone or password");
@@ -108,8 +120,17 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         description: "Welcome to the demo account"
       });
       
-      // Navigate to student dashboard
-      navigate("/dashboard/student", { replace: true });
+      // Redirect to app subdomain for dashboard
+      const isLocalhost = window.location.hostname.includes('localhost');
+      const dashboardUrl = isLocalhost 
+        ? "/dashboard/student" 
+        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
+      
+      if (isLocalhost) {
+        navigate(dashboardUrl, { replace: true });
+      } else {
+        window.location.href = dashboardUrl;
+      }
     } catch (error) {
       console.error("Demo login error:", error);
       setLoginError("Demo login failed. Please try again.");
@@ -131,22 +152,50 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-            <Mail size={16} />
-          </div>
-          <Input
-            id="emailOrPhone"
-            name="emailOrPhone"
-            type="text"
-            placeholder="Email or Phone Number"
-            value={credentials.emailOrPhone}
-            onChange={handleChange}
-            className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
-            autoComplete="email tel"
-          />
-        </div>
+        <Tabs defaultValue="email" onValueChange={(val) => setLoginType(val as "email" | "phone")} className="w-full">
+          <TabsList className="grid grid-cols-2 mb-2">
+            <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="phone">Phone</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="email" className="mt-0">
+            <Label htmlFor="emailOrPhone">Email Address</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                <Mail size={16} />
+              </div>
+              <Input
+                id="emailOrPhone"
+                name="emailOrPhone"
+                type="email"
+                placeholder="Enter your email"
+                value={credentials.emailOrPhone}
+                onChange={handleChange}
+                className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
+                autoComplete="email"
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="phone" className="mt-0">
+            <Label htmlFor="emailOrPhone">Phone Number</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                <Phone size={16} />
+              </div>
+              <Input
+                id="emailOrPhone"
+                name="emailOrPhone"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={credentials.emailOrPhone}
+                onChange={handleChange}
+                className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
+                autoComplete="tel"
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
       
       <div className="space-y-2">

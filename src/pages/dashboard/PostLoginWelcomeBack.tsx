@@ -75,7 +75,8 @@ const PostLoginWelcomeBack = () => {
         setShowStudyPlanDialog(true);
         localStorage.removeItem('needs_study_plan_creation');
       } else {
-        navigate('/dashboard/student');
+        // Redirect to app subdomain for dashboard
+        redirectToDashboard();
       }
       return;
     }
@@ -99,7 +100,7 @@ const PostLoginWelcomeBack = () => {
     const timer = setTimeout(() => {
       // Before redirecting, ensure login flag is set
       localStorage.setItem('isLoggedIn', 'true');
-      navigate('/dashboard/student');
+      redirectToDashboard();
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to your dashboard."
@@ -133,12 +134,22 @@ const PostLoginWelcomeBack = () => {
       localStorage.removeItem('needs_study_plan_creation');
       setShowStudyPlanDialog(true);
     } else {
-      navigateToDashboard();
+      redirectToDashboard();
     }
   };
   
-  const navigateToDashboard = () => {
-    navigate('/dashboard/student');
+  const redirectToDashboard = () => {
+    // Redirect to app subdomain for dashboard
+    const isLocalhost = window.location.hostname.includes('localhost');
+    const dashboardUrl = isLocalhost 
+      ? '/dashboard/student' 
+      : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
+    
+    if (isLocalhost) {
+      navigate(dashboardUrl);
+    } else {
+      window.location.href = dashboardUrl;
+    }
   };
   
   const handleCreateStudyPlan = () => {
@@ -203,7 +214,7 @@ const PostLoginWelcomeBack = () => {
           </div>
           
           <DialogFooter className="sm:justify-between">
-            <Button variant="outline" onClick={navigateToDashboard}>Skip for now</Button>
+            <Button variant="outline" onClick={redirectToDashboard}>Skip for now</Button>
             <Button onClick={handleCreateStudyPlan}>Create Study Plan</Button>
           </DialogFooter>
         </DialogContent>
