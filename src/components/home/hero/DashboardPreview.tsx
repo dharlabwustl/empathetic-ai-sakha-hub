@@ -58,7 +58,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       <div className="relative w-full max-w-lg perspective-1000 preserve-3d">
         {/* Animated screen glow */}
         <motion.div 
-          className="absolute inset-2 bg-blue-400/20 dark:bg-blue-500/20 rounded-xl blur-xl"
+          className="absolute inset-2 bg-orange-400/20 dark:bg-orange-500/20 rounded-xl blur-xl"
           animate={{ 
             opacity: [0.5, 0.8, 0.5],
             scale: [0.98, 1.01, 0.98]
@@ -94,7 +94,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
               </div>
               <div className="text-white text-xs font-medium">PREPZR Dashboard</div>
               <div className="flex items-center">
-                <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse mr-1"></div>
+                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse mr-1"></div>
                 <div className="text-xs text-gray-400">Live</div>
               </div>
             </div>
@@ -154,6 +154,62 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     }}
                     style={{ left: '220px', top: '140px' }}
                   />
+
+                  {/* Exam Readiness Score - visible for the Exam Readiness feature */}
+                  {activeFeature === 3 && (
+                    <motion.div
+                      className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg p-3 shadow-lg"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="text-white text-xs font-medium mb-1">Exam Readiness Score</div>
+                      <div className="flex items-center">
+                        <motion.div 
+                          className="h-2 bg-white/30 rounded-full w-32 overflow-hidden"
+                        >
+                          <motion.div 
+                            className="h-full bg-white rounded-full"
+                            initial={{ width: '20%' }}
+                            animate={{ width: '75%' }}
+                            transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
+                          />
+                        </motion.div>
+                        <motion.div 
+                          className="ml-2 text-white font-bold text-sm"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 2 }}
+                        >
+                          75%
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Revision Loop Animation - visible for the Revision Loops feature */}
+                  {activeFeature === 2 && (
+                    <motion.div
+                      className="absolute top-10 right-10"
+                      initial={{ opacity: 0, rotate: 0 }}
+                      animate={{ 
+                        opacity: 1, 
+                        rotate: 360 
+                      }}
+                      transition={{ 
+                        delay: 0.3, 
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                    >
+                      <div className="w-12 h-12 rounded-full border-2 border-orange-400 border-dashed flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-orange-500/30 flex items-center justify-center">
+                          <div className="w-4 h-4 rounded-full bg-orange-500" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -167,7 +223,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     onClick={() => setActiveFeature(index)}
                     className={`flex flex-col items-center p-2 rounded ${
                       activeFeature === index 
-                        ? 'bg-blue-500/20 text-blue-400'
+                        ? 'bg-orange-500/20 text-orange-400'
                         : 'text-gray-400 hover:text-gray-200'
                     } transition-colors`}
                     whileHover={{ scale: 1.05 }}
@@ -180,7 +236,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     
                     {activeFeature === index && (
                       <motion.div 
-                        className="h-0.5 w-full bg-blue-400 mt-1"
+                        className="h-0.5 w-full bg-orange-400 mt-1"
                         layoutId="activeIndicator"
                       />
                     )}
