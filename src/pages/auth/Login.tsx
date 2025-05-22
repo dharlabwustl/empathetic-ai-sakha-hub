@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.removeItem('new_user_signup');
       localStorage.removeItem('google_signup');
       
-      // Use relative path instead of domain-prefixed path
+      // Use setTimeout to avoid navigation issues
       setTimeout(() => {
         navigate('/admin/dashboard', { replace: true });
       }, 100);
@@ -63,8 +63,7 @@ const Login = () => {
     if (isAuthenticated || isLoggedIn) {
       console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
-        // Use relative path to navigate, not absolute path with domain prefix
-        navigate(returnTo.replace(/^https?:\/\/[^\/]+/, ''), { replace: true });
+        navigate(returnTo, { replace: true });
       }, 100);
       return;
     }
@@ -82,23 +81,23 @@ const Login = () => {
   }, [navigate, isAuthenticated, location.search]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-950/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900 dark:to-slate-900">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
         language="en"
       />
-      <div className="text-center p-8 rounded-lg bg-white/90 dark:bg-blue-950/40 shadow-lg w-full max-w-md flex flex-col items-center border border-blue-200 dark:border-blue-800/30">
+      <div className="text-center p-8 rounded-lg bg-white dark:bg-gray-800 shadow-lg w-full max-w-md flex flex-col items-center">
         {isProcessing ? (
           <>
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-blue-600 dark:text-blue-400" />
-            <p className="text-xl font-medium text-blue-800 dark:text-blue-300">Preparing your dashboard...</p>
-            <p className="text-sm text-blue-600/70 dark:text-blue-400/70 mt-2">Please wait while we load your personalized experience</p>
+            <p className="text-xl font-medium">Preparing your dashboard...</p>
+            <p className="text-sm text-muted-foreground mt-2">Please wait while we load your personalized experience</p>
           </>
         ) : (
           <>
-            <p className="text-xl font-medium text-blue-800 dark:text-blue-300">Redirecting to login page...</p>
-            <p className="text-sm text-blue-600/70 dark:text-blue-400/70 mt-2">You'll be redirected in a moment</p>
+            <p className="text-xl font-medium">Redirecting to login page...</p>
+            <p className="text-sm text-muted-foreground mt-2">You'll be redirected in a moment</p>
           </>
         )}
       </div>

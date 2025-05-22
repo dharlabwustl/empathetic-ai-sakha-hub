@@ -1,181 +1,284 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const StudentLoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+interface StudentLoginFormProps {
+  activeTab: string;
+}
+
+const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const { toast } = useToast();
+  const [credentials, setCredentials] = useState({ emailOrPhone: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginType, setLoginType] = useState<"email" | "phone">("email");
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
+  // Check for saved credentials when component mounts
+  useEffect(() => {
+    const savedEmailOrPhone = localStorage.getItem("prepzr_remembered_login");
+    if (savedEmailOrPhone) {
+      setCredentials(prev => ({ ...prev, emailOrPhone: savedEmailOrPhone }));
+      setRememberMe(true);
     }
+
+    // Clear any admin login attempt flag when in student login
+    localStorage.removeItem('admin_login_attempt');
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({ ...prev, [name]: value }));
+    if (loginError) setLoginError(null);
+  };
+
+  const validateForm = () => {
+    if (!credentials.emailOrPhone) {
+      setLoginError(loginType === "email" ? "Email is required" : "Phone number is required");
+      return false;
+    }
+    if (!credentials.password) {
+      setLoginError("Password is required");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Clear any existing admin session
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
       
-      // Always succeed for demo purposes
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', email);
+      // Login as student
+      await login(credentials.emailOrPhone, credentials.password);
       
-      // Success message
+      // Handle remember me functionality
+      if (rememberMe) {
+        localStorage.setItem("prepzr_remembered_login", credentials.emailOrPhone);
+      } else {
+        localStorage.removeItem("prepzr_remembered_login");
+      }
+      
       toast({
-        title: "Success",
-        description: "Login successful!",
+        title: "Login successful",
+        description: "Welcome back to PREPZR"
       });
       
-      // Redirect to dashboard - important to use relative path here
-      navigate('/dashboard/student', { replace: true });
+      // Redirect to app subdomain for dashboard
+      const isLocalhost = window.location.hostname.includes('localhost');
+      const dashboardUrl = isLocalhost 
+        ? "/dashboard/student" 
+        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
       
+      if (isLocalhost) {
+        navigate(dashboardUrl, { replace: true });
+      } else {
+        window.location.href = dashboardUrl;
+      }
     } catch (error) {
       console.error("Login error:", error);
-      toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Please try again.",
-        variant: "destructive",
-      });
+      setLoginError("Invalid email/phone or password");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setLoginError(null);
+    
+    try {
+      // Clear any existing admin session
+      localStorage.removeItem('admin_logged_in');
+      localStorage.removeItem('admin_user');
+      
+      // Login with demo credentials
+      await login("demo@prepzr.com", "demo123");
+      
+      toast({
+        title: "Demo Login successful",
+        description: "Welcome to the demo account"
+      });
+      
+      // Redirect to app subdomain for dashboard
+      const isLocalhost = window.location.hostname.includes('localhost');
+      const dashboardUrl = isLocalhost 
+        ? "/dashboard/student" 
+        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
+      
+      if (isLocalhost) {
+        navigate(dashboardUrl, { replace: true });
+      } else {
+        window.location.href = dashboardUrl;
+      }
+    } catch (error) {
+      console.error("Demo login error:", error);
+      setLoginError("Demo login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {loginError && (
+        <Alert variant="destructive">
+          <AlertDescription>{loginError}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-blue-700 dark:text-blue-300">
-          Email Address
-        </label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full"
-          required
-        />
+        <Tabs defaultValue="email" onValueChange={(val) => setLoginType(val as "email" | "phone")} className="w-full">
+          <TabsList className="grid grid-cols-2 mb-2">
+            <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="phone">Phone</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="email" className="mt-0">
+            <Label htmlFor="emailOrPhone">Email Address</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                <Mail size={16} />
+              </div>
+              <Input
+                id="emailOrPhone"
+                name="emailOrPhone"
+                type="email"
+                placeholder="Enter your email"
+                value={credentials.emailOrPhone}
+                onChange={handleChange}
+                className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
+                autoComplete="email"
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="phone" className="mt-0">
+            <Label htmlFor="emailOrPhone">Phone Number</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                <Phone size={16} />
+              </div>
+              <Input
+                id="emailOrPhone"
+                name="emailOrPhone"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={credentials.emailOrPhone}
+                onChange={handleChange}
+                className={`pl-9 ${loginError && !credentials.emailOrPhone ? "border-red-500" : ""}`}
+                autoComplete="tel"
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
       
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-blue-700 dark:text-blue-300">
-          Password
-        </label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Password</Label>
+          <Button
+            type="button"
+            variant="link"
+            className="p-0 h-auto text-xs"
+            onClick={handleForgotPassword}
+          >
+            Forgot password?
+          </Button>
+        </div>
         <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <Lock size={16} />
+          </div>
           <Input
             id="password"
+            name="password"
             type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full pr-10"
-            required
+            value={credentials.password}
+            onChange={handleChange}
+            className={`pl-9 pr-10 ${loginError && !credentials.password ? "border-red-500" : ""}`}
+            autoComplete="current-password"
           />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+          <Button
+            type="button" 
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-full"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </button>
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </Button>
         </div>
       </div>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            id="remember-me"
-            name="remember-me"
-            type="checkbox"
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="remember-me" className="ml-2 block text-sm text-blue-700 dark:text-blue-300">
-            Remember me
-          </label>
-        </div>
-        
-        <div className="text-sm">
-          <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
-            Forgot password?
-          </a>
-        </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox 
+          id="remember" 
+          checked={rememberMe}
+          onCheckedChange={(checked) => setRememberMe(!!checked)}
+        />
+        <Label htmlFor="remember" className="text-sm">Remember me</Label>
       </div>
       
-      <Button
-        type="submit"
-        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
-        disabled={isLoading}
-      >
-        {isLoading ? "Signing in..." : "Sign in"}
-      </Button>
-      
-      <div className="mt-4">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-              Or continue with
-            </span>
-          </div>
-        </div>
+      <div className="space-y-2">
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Login
+            </>
+          )}
+        </Button>
         
-        <div className="mt-6 grid grid-cols-3 gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            <svg className="h-5 w-5 text-[#4285F4]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.79-1.677-4.184-2.702-6.735-2.702-5.514 0-9.977 4.463-9.977 9.977s4.463 9.977 9.977 9.977c8.317 0 10.141-7.721 9.312-11.618h-9.312z"/>
-            </svg>
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            <svg className="h-5 w-5 text-[#4267B2]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7h-2.54v-2.9h2.54v-2.2c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.77l-.44 2.9h-2.33v7c4.78-.75 8.44-4.9 8.44-9.9 0-5.53-4.5-10.02-10-10.02z"/>
-            </svg>
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            <svg className="h-5 w-5 text-black dark:text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M22.068 10.897c0-.808-.071-1.583-.2-2.329h-9.535v4.404h5.465a4.669 4.669 0 01-2.027 3.066v2.532h3.282c1.923-1.773 3.015-4.387 3.015-7.673z"/>
-              <path d="M12.333 22c2.743 0 5.046-.907 6.727-2.462l-3.282-2.532c-.913.611-2.071.969-3.445.969-2.648 0-4.893-1.788-5.699-4.187H3.469v2.613A10.196 10.196 0 0012.333 22z"/>
-              <path d="M6.634 13.788a6.1 6.1 0 01-.323-1.927c0-.67.114-1.32.323-1.927V7.321H3.469a10.11 10.11 0 000 9.08l3.165-2.613z"/>
-              <path d="M12.333 5.875c1.489 0 2.827.511 3.884 1.519l2.914-2.914C17.189 2.73 14.887 1.778 12.333 1.778a10.196 10.196 0 00-8.864 5.11l3.165 2.613c.806-2.4 3.051-4.187 5.699-4.187z"/>
-            </svg>
-          </Button>
-        </div>
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full mt-2" 
+          onClick={handleDemoLogin}
+          disabled={isLoading}
+        >
+          Use Demo Account
+        </Button>
+      </div>
+      
+      <div className="text-center text-sm">
+        <span className="text-gray-500">Don't have an account? </span>
+        <Button variant="link" className="p-0 h-auto" onClick={() => navigate("/signup")}>
+          Sign up
+        </Button>
       </div>
     </form>
   );

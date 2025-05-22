@@ -64,51 +64,66 @@ const StudentDashboard = () => {
 
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
-    const checkOnboardingStatus = () => {
-      const params = new URLSearchParams(location.search);
-      const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
-      const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
-      const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
-      
-      // Clear any previous states to avoid double display
-      setShowSplash(false);
-      setShowTourModal(false);
-      setShowWelcomePrompt(false);
-      
-      if (isNew) {
-        // Only show onboarding if needed
-        if (showOnboarding) {
-          // Only onboarding needs to be shown, don't show other screens
-          console.log("Showing onboarding flow");
-        }
-        // If they haven't seen the tour and are not in onboarding, show tour
-        else if (!hasSeenTour) {
-          setShowTourModal(true);
-          setIsFirstTimeUser(true);
-          console.log("New user detected, showing welcome tour");
-        } 
-        // If they've seen the tour but not the welcome prompt, show that
-        else if (hasSeenTour && !hasSeenDashboardWelcome) {
-          setShowWelcomePrompt(true);
-          setIsFirstTimeUser(true);
-          console.log("New user needs dashboard welcome prompt");
-        }
-        // If they've seen both, just show splash if needed
-        else {
-          const hasSeen = sessionStorage.getItem("hasSeenSplash");
-          setShowSplash(!hasSeen);
-        }
+    const params = new URLSearchParams(location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
+    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
+    if (isNew) {
+      // Clear the URL parameter to avoid looping
+      if (params.get('new') === 'true') {
+        params.delete('new');
+        navigate({
+          pathname: location.pathname,
+          search: params.toString()
+        }, { replace: true });
       }
-      // For returning users
+      
+      // For new users, show onboarding if needed
+      if (showOnboarding) {
+        setShowSplash(false);
+        setShowTourModal(false);
+        setShowWelcomePrompt(false);
+      }
+      // Otherwise, if they haven't seen the tour, show it
+      else if (!hasSeenTour) {
+        setShowSplash(false);
+        setShowTourModal(true);
+        setShowWelcomePrompt(false);
+        setIsFirstTimeUser(true);
+        console.log("New user detected, showing welcome tour");
+      } 
+      // If they've seen the tour but not the welcome prompt, show that
+      else if (hasSeenTour && !hasSeenDashboardWelcome) {
+        setShowSplash(false);
+        setShowTourModal(false);
+        setShowWelcomePrompt(true);
+        setIsFirstTimeUser(true);
+        console.log("New user needs dashboard welcome prompt");
+      }
+      // If they've seen both, don't show anything special
       else {
         const hasSeen = sessionStorage.getItem("hasSeenSplash");
         setShowSplash(!hasSeen);
-        setIsFirstTimeUser(false);
-        console.log("Returning user detected");
+        setShowTourModal(false);
+        setShowWelcomePrompt(false);
       }
-    };
+    }
+    // For returning users
+    else {
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+      setShowTourModal(false);
+      setShowWelcomePrompt(false);
+      setIsFirstTimeUser(false);
+      console.log("Returning user detected");
+    }
     
-    checkOnboardingStatus();
+    // Try to get saved mood from local storage
+    const savedMood = getCurrentMoodFromLocalStorage();
+    if (savedMood) {
+      setCurrentMood(savedMood);
+    }
   }, [location, navigate, showOnboarding]);
   
   const handleSplashComplete = () => {
@@ -151,8 +166,9 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // Immediately check if we should show welcome prompt
+    // After skipping tour, check if they need to see welcome prompt
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
     if (!hasSeenDashboardWelcome) {
       setShowWelcomePrompt(true);
     }
@@ -165,8 +181,9 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // Immediately check if we should show welcome prompt
+    // After completing tour, check if they need to see welcome prompt
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
+    
     if (!hasSeenDashboardWelcome) {
       setShowWelcomePrompt(true);
     }

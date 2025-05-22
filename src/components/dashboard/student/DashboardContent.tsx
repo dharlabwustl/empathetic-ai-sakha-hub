@@ -7,8 +7,6 @@ import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
 import RevisionLoopSection from '@/components/dashboard/student/dashboard-sections/RevisionLoopSection';
-import SyllabusIntegrationSection from '@/components/dashboard/student/dashboard-sections/SyllabusIntegrationSection';
-import RecallImprovementSection from '@/components/dashboard/student/dashboard-sections/RecallImprovementSection';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -150,20 +148,6 @@ const DashboardContent = ({
             weakAreas={weakAreas}
             strongAreas={strongAreas}
           />
-        </div>
-      )}
-      
-      {/* Syllabus Integration Section - For the main dashboard */}
-      {activeTab === 'overview' && (
-        <div className="mb-6">
-          <SyllabusIntegrationSection examType="NEET" />
-        </div>
-      )}
-      
-      {/* Recall Improvement & Formula Practice Section */}
-      {activeTab === 'overview' && (
-        <div className="mb-6">
-          <RecallImprovementSection />
         </div>
       )}
       

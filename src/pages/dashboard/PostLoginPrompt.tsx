@@ -79,7 +79,7 @@ const PostLoginPrompt = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-gray-900 dark:via-gray-900 dark:to-amber-950/20 flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -107,7 +107,7 @@ const PostLoginPrompt = () => {
           <CardContent className="space-y-4">
             <Button 
               variant="default" 
-              className="w-full justify-start gap-3 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md"
+              className="w-full justify-start gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
               onClick={goToTodaysPlan}
             >
               <Calendar className="h-5 w-5" />
@@ -118,10 +118,10 @@ const PostLoginPrompt = () => {
             {pendingTask && (
               <Button 
                 variant="outline" 
-                className="w-full justify-start gap-3 border-orange-200 dark:border-orange-900 hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/50"
+                className="w-full justify-start gap-3 border-blue-200 dark:border-blue-900 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50"
                 onClick={continuePendingTask}
               >
-                <ClipboardCheck className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <ClipboardCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <span className="flex-1 text-left">
                   <span className="font-medium">Continue:</span> {pendingTask}
                 </span>
@@ -131,10 +131,10 @@ const PostLoginPrompt = () => {
             
             <Button 
               variant="outline" 
-              className="w-full justify-start gap-3 border-amber-200 dark:border-amber-900 hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/50"
+              className="w-full justify-start gap-3 border-purple-200 dark:border-purple-900 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50"
               onClick={() => navigate("/dashboard/student/concepts")}
             >
-              <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <span className="flex-1 text-left">Explore Concept Cards</span>
               <ArrowRight className="h-4 w-4" />
             </Button>

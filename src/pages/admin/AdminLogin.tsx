@@ -67,7 +67,7 @@ const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="flex flex-col items-center justify-center w-full px-4 py-12">
         <div className="mb-8">
           <Link to="/">
@@ -77,12 +77,12 @@ const AdminLogin: React.FC = () => {
         
         <div className="w-full max-w-md">
           <Card className="shadow-xl">
-            <CardHeader className="space-y-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white">
+            <CardHeader className="space-y-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
               <CardTitle className="text-2xl flex items-center justify-center gap-2">
                 <ShieldAlert size={24} />
                 Admin Portal
               </CardTitle>
-              <CardDescription className="text-orange-100">
+              <CardDescription className="text-blue-100">
                 Enter your admin credentials to access the dashboard
               </CardDescription>
             </CardHeader>
@@ -168,7 +168,7 @@ const AdminLogin: React.FC = () => {
               
               <CardFooter>
                 <Button 
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800" 
                   disabled={isLoading} 
                   type="submit"
                 >
@@ -186,7 +186,7 @@ const AdminLogin: React.FC = () => {
           </Card>
           
           <div className="mt-6 text-center">
-            <Link to="/login" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
+            <Link to="/login" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
               Back to Student Login
             </Link>
           </div>

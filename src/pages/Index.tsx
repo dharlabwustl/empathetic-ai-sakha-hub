@@ -66,28 +66,12 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-indigo-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-indigo-950/30 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
         <HeroSection />
-        
-        {/* Welcome to PREPZR section with tagline */}
-        <motion.section
-          className="container mx-auto px-4 py-8 mb-8 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-blue-800 dark:text-blue-300 mb-4">
-            Welcome to PREPZR
-          </h2>
-          <p className="text-xl md:text-2xl text-blue-600 dark:text-blue-400 max-w-3xl mx-auto">
-            World's first emotionally aware, hyper personalized, adaptive exam prep platform.
-          </p>
-        </motion.section>
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -98,7 +82,7 @@ const Index = () => {
           transition={{ duration: 0.7 }}
         >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
               Smart Data. Real Impact. Humanizing exam prep.
             </h2>
           </div>
@@ -143,7 +127,7 @@ const Index = () => {
       {/* Floating Voice Assistant button */}
       <div className="fixed bottom-6 right-6 z-50">
         <motion.button
-          className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.8 }}

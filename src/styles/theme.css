@@ -1,98 +1,99 @@
+
 @layer base {
   :root {
-    --background: 206 100% 97%; /* Light blue background */
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 206 50% 20%; /* Dark blue text for better contrast */
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 206 50% 20%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 199 100% 57%; /* #4DB2EC (PREPZR Blue) */
+    --primary: 266 73% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 199 100% 50%; /* Darker blue for secondary */
+    --secondary: 262 76% 60%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 206 20% 96%; /* Light blue for muted background */
-    --muted-foreground: 206 40% 40%; /* Medium blue for muted text */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 206 100% 96%; /* Light blue for accent */
-    --accent-foreground: 206 80% 30%; /* Dark blue for accent text */
+    --accent: 266 73% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 206 30% 90%; /* Light blue border */
-    --input: 206 30% 90%;
-    --ring: 199 100% 57%; /* #4DB2EC (PREPZR Blue) */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 266 73% 60%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 206 100% 97%; /* Light blue sidebar */
-    --sidebar-foreground: 206 50% 20%; /* Dark blue text */
-    --sidebar-primary: 199 100% 57%; /* #4DB2EC (PREPZR Blue) */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 266 73% 60%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 206 30% 94%;
-    --sidebar-accent-foreground: 206 80% 30%;
-    --sidebar-border: 206 30% 90%;
-    --sidebar-ring: 199 100% 57%; /* #4DB2EC (PREPZR Blue) */
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 266 73% 60%;
     
-    /* Vibrant blue theme colors */
-    --sakha-light-blue: 199 100% 85%; /* Light blue */
-    --sakha-blue: 199 100% 57%; /* #4DB2EC (PREPZR Blue) */
-    --sakha-purple: 199 100% 45%; /* Darker blue */
-    --sakha-pink: 199 80% 69%; /* Soft blue */
-    --sakha-lavender: 206 60% 94%; /* Very light blue */
-    --sakha-deep-blue: 199 70% 40%; /* Deep blue */
+    /* Updated Sakha colors for a more vibrant purple theme */
+    --sakha-light-blue: 266 100% 85%;
+    --sakha-blue: 262 76% 60%;
+    --sakha-purple: 266 73% 60%;
+    --sakha-pink: 284 73% 69%;
+    --sakha-lavender: 266 60% 94%;
+    --sakha-deep-blue: 264 70% 40%;
   }
 
   .dark {
-    --background: 206 40% 10%; /* Dark blue background */
-    --foreground: 206 30% 90%; /* Light blue text */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 206 50% 12%; /* Dark blue card */
-    --card-foreground: 206 30% 90%; /* Light blue text */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 206 50% 12%;
-    --popover-foreground: 206 30% 90%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
-    --primary-foreground: 206 10% 10%; /* Very dark text for contrast */
+    --primary: 266 73% 60%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 206 87% 52%; /* Darker blue for secondary */
+    --secondary: 262 76% 60%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 206 25% 20%; /* Dark muted background */
-    --muted-foreground: 206 35% 65%; /* Light muted text */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 206 30% 25%; /* Dark blue for accent in dark mode */
-    --accent-foreground: 206 40% 90%; /* Light text on accent */
+    --accent: 266 30% 25%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 206 25% 25%; /* Dark blue border */
-    --input: 206 25% 25%;
-    --ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 266 73% 60%;
 
-    --sidebar-background: 206 50% 12%;
-    --sidebar-foreground: 206 30% 90%;
-    --sidebar-primary: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 266 73% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 206 30% 18%;
-    --sidebar-accent-foreground: 206 30% 90%;
-    --sidebar-border: 206 35% 25%;
-    --sidebar-ring: 206 87% 62%; /* #4DB2EC (PREPZR Blue) */
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 266 73% 60%;
     
-    /* Updated blue colors for dark mode */
-    --sakha-light-blue: 206 80% 75%; /* Light blue */
-    --sakha-blue: 206 76% 60%; /* Medium blue */
-    --sakha-purple: 206 73% 60%; /* Darker blue */
-    --sakha-pink: 206 73% 69%; /* Soft blue */
-    --sakha-lavender: 206 60% 94%; /* Very light blue */
-    --sakha-deep-blue: 206 70% 40%; /* Deep blue */
+    /* Updated Sakha colors for dark mode */
+    --sakha-light-blue: 266 80% 75%;
+    --sakha-blue: 262 76% 60%;
+    --sakha-purple: 266 73% 60%;
+    --sakha-pink: 284 73% 69%;
+    --sakha-lavender: 266 60% 94%;
+    --sakha-deep-blue: 264 70% 40%;
   }
 }
 
@@ -101,7 +102,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-400;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
 }
 
 /* Avatar glow effect */
@@ -111,7 +112,7 @@
 
 .avatar-glow::before {
   content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 opacity-75 blur-sm animate-pulse;
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 opacity-75 blur-sm animate-pulse;
   z-index: -1;
 }
 
@@ -131,10 +132,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(77, 178, 236, 0.4);
+    box-shadow: 0 0 5px 2px rgba(139, 92, 246, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 5px rgba(77, 178, 236, 0.7);
+    box-shadow: 0 0 15px 5px rgba(139, 92, 246, 0.7);
   }
 }
 
@@ -149,11 +150,11 @@
 
 /* New student-focused styles */
 .exam-card {
-  @apply bg-white rounded-xl p-6 border border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer;
+  @apply bg-white rounded-xl p-6 border border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer;
 }
 
 .feature-highlight {
-  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 p-6 text-white;
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600 to-violet-600 p-6 text-white;
 }
 
 .feature-highlight::before {
@@ -162,29 +163,5 @@
 }
 
 .student-badge {
-  @apply bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
-}
-
-/* New additions for vibrant blue theme */
-.blue-gradient-bg {
-  @apply bg-gradient-to-br from-blue-50 via-blue-100/30 to-indigo-50;
-}
-
-.dark .blue-gradient-bg {
-  @apply bg-gradient-to-br from-blue-900/40 via-blue-800/20 to-indigo-900/30;
-}
-
-/* Enhanced gradient buttons */
-.btn-gradient-blue {
-  @apply bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white;
-}
-
-/* Card with subtle blue border */
-.blue-card {
-  @apply bg-white border border-blue-200 dark:bg-gray-800 dark:border-blue-800/40;
-}
-
-/* Blue accent text */
-.text-blue-accent {
-  @apply text-blue-600 dark:text-blue-400;
+  @apply bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
 }

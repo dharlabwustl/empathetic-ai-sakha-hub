@@ -30,33 +30,23 @@
   /* Reset headings to appropriate sizes */
   h1 {
     font-size: 2rem;
-    @apply text-blue-600 dark:text-blue-400;
   }
   h2 {
     font-size: 1.5rem;
-    @apply text-blue-600 dark:text-blue-400;
   }
   h3 {
     font-size: 1.25rem;
-    @apply text-blue-600 dark:text-blue-400;
   }
   h4 {
     font-size: 1.125rem;
-    @apply text-blue-500 dark:text-blue-300;
   }
   h5, h6 {
     font-size: 1rem;
-    @apply text-blue-500 dark:text-blue-300;
   }
 
   /* Ensure form elements have correct font size */
   input, textarea, select, button {
     font-size: 16px !important;
-  }
-  
-  /* Change default link colors */
-  a {
-    @apply text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300;
   }
 }
 
@@ -66,11 +56,11 @@
   }
   
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
   }
   
   .avatar-pulse {
-    @apply absolute w-full h-full rounded-full animate-pulse bg-blue-300/50;
+    @apply absolute w-full h-full rounded-full animate-pulse bg-purple-300/50;
   }
   
   .chat-container {
@@ -82,7 +72,7 @@
   }
   
   .user-message {
-    @apply chat-message bg-blue-600 text-white ml-auto;
+    @apply chat-message bg-purple-600 text-white ml-auto;
   }
   
   .bot-message {
@@ -90,12 +80,12 @@
   }
   
   .floating-avatar {
-    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg cursor-pointer z-50 animate-float;
+    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg cursor-pointer z-50 animate-float;
   }
 
   /* New UI components */
   .input-field {
-    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all;
   }
   
   .card-hover {
@@ -103,7 +93,7 @@
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
+    @apply bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
   }
 
   /* Avatar with eye movement */
@@ -128,7 +118,7 @@
   }
   
   .tab-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-blue-300 rounded-full;
+    @apply bg-purple-300 rounded-full;
   }
   
   .tab-scrollbar::-webkit-scrollbar-track {
@@ -257,4 +247,19 @@ p, div, span, a, li, td, th {
 /* Standard container padding */
 .container {
   padding: 1rem;
+}
+
+/* Dashboard specific styles */
+.dashboard-card {
+  @apply p-4;
+}
+
+/* Standard table sizes */
+table {
+  font-size: 1rem;
+}
+
+/* Standard button sizes */
+button {
+  padding: 0.5rem 1rem;
 }

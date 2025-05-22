@@ -43,7 +43,7 @@ const SharedNavigation = () => {
 
   return (
     <TooltipProvider>
-      <div className="p-3 bg-white/90 dark:bg-blue-950/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 dark:border-blue-800/30 sticky top-0 z-10 mb-6">
+      <div className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10 mb-6">
         <div className="flex items-center justify-between overflow-x-auto">
           <div className="flex space-x-1 md:space-x-2">
             {navigationTabs.map((tab) => (
@@ -56,7 +56,7 @@ const SharedNavigation = () => {
                     <Button
                       variant={isActive(tab.path) ? "default" : "ghost"}
                       size="sm"
-                      className={`flex items-center gap-1 whitespace-nowrap text-xs md:text-sm ${isActive(tab.path) ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'text-blue-700 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-400'}`}
+                      className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
                       onClick={() => navigate(tab.path)}
                     >
                       <tab.icon className="h-4 w-4 mr-1" />

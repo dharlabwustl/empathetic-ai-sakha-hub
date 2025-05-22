@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: rgba(77, 178, 236, 0.2); /* Light blue */
+  background-color: rgba(59, 130, 246, 0.2); /* blue */
   z-index: 0;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -42,31 +42,31 @@
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #4DB2EC, #1E88E5);
+  background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
 }
 
-/* Colors for PREPZR App */
+/* Colors for Sakha AI */
 :root {
-  --prepzr-blue: #4DB2EC; /* Light blue */
-  --prepzr-dark-blue: #1E88E5; /* Darker blue */
-  --prepzr-light-blue: #90CAF9; /* Very light blue */
-  --prepzr-lightest-blue: #BBDEFB; /* Extremely light blue */
+  --sakha-blue: #3b82f6;
+  --sakha-purple: #8b5cf6;
+  --sakha-light-blue: #93c5fd;
+  --sakha-lavender: #c4b5fd;
   
   /* Gradient Color Variables for Methodology Section */
-  --blue-500: #4DB2EC; /* PREPZR Blue */
-  --cyan-400: #4DB2EC; /* Light blue */
-  --purple-500: #3F51B5; /* Indigo */
-  --violet-400: #5C6BC0; /* Light indigo */
-  --green-500: #4DB2EC; /* Using blue instead */
-  --teal-400: #4DB2EC; /* Light blue */
-  --orange-500: #4DB2EC; /* Using blue instead */
-  --amber-400: #4DB2EC; /* Light blue */
-  --pink-500: #4DB2EC; /* Using blue instead */
-  --rose-400: #4DB2EC; /* Light blue */
-  --indigo-500: #3F51B5; /* Indigo */
-  --blue-400: #4DB2EC; /* Light blue */
-  --red-500: #4DB2EC; /* Using blue instead */
-  --orange-400: #4DB2EC; /* Light blue */
+  --blue-500: #3b82f6;
+  --cyan-400: #22d3ee;
+  --purple-500: #8b5cf6;
+  --violet-400: #a78bfa;
+  --green-500: #22c55e;
+  --teal-400: #2dd4bf;
+  --orange-500: #f97316;
+  --amber-400: #fbbf24;
+  --pink-500: #ec4899;
+  --rose-400: #fb7185;
+  --indigo-500: #6366f1;
+  --blue-400: #60a5fa;
+  --red-500: #ef4444;
+  --orange-400: #fb923c;
 }
 
 /* Engine Animation */
@@ -85,55 +85,4 @@
 
 .rotate-fast {
   animation: rotate 10s linear infinite reverse;
-}
-
-/* Additional blue-themed animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes glow-blue {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(77, 178, 236, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(77, 178, 236, 0.7);
-  }
-}
-
-.animate-glow-blue {
-  animation: glow-blue 3s ease-in-out infinite;
-}
-
-@keyframes border-pulse {
-  0%, 100% {
-    border-color: rgba(77, 178, 236, 0.5);
-  }
-  50% {
-    border-color: rgba(77, 178, 236, 0.9);
-  }
-}
-
-.animate-border-pulse {
-  animation: border-pulse 2s ease-in-out infinite;
-}
-
-/* 3D perspective effects for blue theme */
-.blue-card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease;
-}
-
-.blue-card-3d:hover {
-  transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
-  box-shadow: 0 15px 35px rgba(77, 178, 236, 0.2);
 }
