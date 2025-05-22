@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: rgba(255, 165, 0, 0.2); /* Changed to orange */
+  background-color: rgba(255, 165, 0, 0.2); /* Orange */
   z-index: 0;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -47,10 +47,10 @@
 
 /* Colors for Sakha AI */
 :root {
-  --sakha-blue: #ffa500; /* Changed to orange */
-  --sakha-purple: #f97316; /* Changed to darker orange */
-  --sakha-light-blue: #fdba74; /* Changed to light orange */
-  --sakha-lavender: #fed7aa; /* Changed to very light orange */
+  --sakha-blue: #ffa500; /* Orange */
+  --sakha-purple: #f97316; /* Darker orange */
+  --sakha-light-blue: #fdba74; /* Light orange */
+  --sakha-lavender: #fed7aa; /* Very light orange */
   
   /* Gradient Color Variables for Methodology Section */
   --blue-500: #f97316; /* Orange */
@@ -85,4 +85,55 @@
 
 .rotate-fast {
   animation: rotate 10s linear infinite reverse;
+}
+
+/* Additional orange-themed animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes glow-orange {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 165, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.7);
+  }
+}
+
+.animate-glow-orange {
+  animation: glow-orange 3s ease-in-out infinite;
+}
+
+@keyframes border-pulse {
+  0%, 100% {
+    border-color: rgba(255, 165, 0, 0.5);
+  }
+  50% {
+    border-color: rgba(255, 165, 0, 0.9);
+  }
+}
+
+.animate-border-pulse {
+  animation: border-pulse 2s ease-in-out infinite;
+}
+
+/* 3D perspective effects for orange theme */
+.orange-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+
+.orange-card-3d:hover {
+  transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+  box-shadow: 0 15px 35px rgba(255, 165, 0, 0.2);
 }

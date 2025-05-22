@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle, Lightbulb, Trophy, BookOpen, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

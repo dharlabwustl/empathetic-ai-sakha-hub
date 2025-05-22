@@ -21,7 +21,6 @@ const Login = () => {
     // Check admin auth first
     if (localStorage.getItem('admin_logged_in') === 'true') {
       console.log("Admin already logged in, redirecting to admin dashboard");
-      // Fix: Remove app. prefix by using direct relative paths
       navigate('/admin/dashboard', { replace: true });
       return;
     }
@@ -30,7 +29,6 @@ const Login = () => {
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
-      // Fix: Remove app. prefix by using direct relative paths
       navigate('/dashboard/student', { replace: true });
       return;
     }
@@ -45,7 +43,7 @@ const Login = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100/30 via-white to-amber-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100/70 via-orange-50/50 to-amber-100/60 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="User"
@@ -57,10 +55,10 @@ const Login = () => {
             <PrepzrLogo width={240} height="auto" />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Welcome Back</h1>
-          <p className="mt-2 text-gray-600">Login to continue your learning journey</p>
+          <p className="mt-2 text-orange-700 dark:text-orange-300">Login to continue your learning journey</p>
         </div>
         
-        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
+        <Card className="shadow-xl border-orange-200 dark:border-orange-800/30 overflow-hidden animate-fade-in">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white">
             <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
             <CardDescription className="text-orange-100">
@@ -68,24 +66,24 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-white/90 dark:bg-orange-950/20">
             <div className="flex flex-col space-y-6">
               {/* Student login form */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Student Login</h3>
+                <h3 className="text-lg font-medium mb-4 text-orange-800 dark:text-orange-200">Student Login</h3>
                 <LoginPage onError={handleLoginError} />
               </div>
               
               {/* Admin login redirect */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-medium mb-4">Administrator Login</h3>
+              <div className="border-t border-orange-200 dark:border-orange-800/30 pt-6">
+                <h3 className="text-lg font-medium mb-4 text-orange-800 dark:text-orange-200">Administrator Login</h3>
                 <AdminLoginRedirect />
               </div>
             </div>
           </CardContent>
           
-          <CardFooter className="flex justify-center border-t pt-6">
-            <p className="text-sm text-gray-600">
+          <CardFooter className="flex justify-center border-t border-orange-200 dark:border-orange-800/30 pt-6 bg-orange-50/80 dark:bg-orange-950/20">
+            <p className="text-sm text-orange-700 dark:text-orange-300">
               Don't have an account?{" "}
               <Link to="/signup" className="text-orange-600 hover:text-orange-700 font-medium hover:underline">
                 Sign Up
@@ -94,8 +92,8 @@ const Login = () => {
           </CardFooter>
         </Card>
         
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-orange-600 hover:underline">Contact Support</a></p>
+        <div className="mt-6 text-center text-sm text-orange-600 dark:text-orange-400">
+          <p>Need help? <a href="#" className="text-orange-700 dark:text-orange-300 hover:underline">Contact Support</a></p>
         </div>
       </div>
     </div>

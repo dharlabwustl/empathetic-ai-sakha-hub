@@ -32,11 +32,11 @@ const HeroSection: React.FC = () => {
     >
       {/* Enhanced 3D Background with exam-themed effects */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/80 via-white to-yellow-50/80 dark:from-gray-950 dark:via-gray-900 dark:to-orange-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-orange-950/80 dark:via-gray-900 dark:to-amber-950/80" />
         
         {/* Abstract floating 3D shapes - Knowledge bubbles */}
         <motion.div 
-          className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-orange-400/15 to-yellow-400/10 dark:from-orange-700/10 dark:to-yellow-700/5 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-orange-400/15 to-amber-400/10 dark:from-orange-700/10 dark:to-amber-700/5 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.2, 1], 
             x: [0, 30, 0], 
@@ -65,7 +65,7 @@ const HeroSection: React.FC = () => {
         />
       
         <motion.div 
-          className="absolute bottom-10 left-1/3 w-96 h-96 bg-gradient-to-r from-yellow-300/20 to-amber-300/20 dark:from-yellow-600/10 dark:to-amber-600/10 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-10 left-1/3 w-96 h-96 bg-gradient-to-r from-amber-300/20 to-orange-300/20 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full mix-blend-multiply filter blur-xl"
           animate={{ 
             scale: [1, 1.1, 1], 
             x: [0, 20, 0], 
@@ -140,7 +140,7 @@ const HeroSection: React.FC = () => {
           transition={{ delay: 2 }}
         >
           <motion.div 
-            className="w-full h-full bg-gradient-to-r from-yellow-500/30 to-orange-500/30 rounded-full border border-yellow-200 dark:border-yellow-700/30 shadow-lg"
+            className="w-full h-full bg-gradient-to-r from-amber-500/30 to-orange-500/30 rounded-full border border-amber-200 dark:border-amber-700/30 shadow-lg"
             animate={{ 
               rotateX: [0, 10, 0, -10, 0],
               rotateY: [0, -10, 0, 10, 0],
@@ -155,7 +155,7 @@ const HeroSection: React.FC = () => {
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-yellow-700 dark:text-yellow-300 text-lg font-bold opacity-70">UPSC</span>
+              <span className="text-amber-700 dark:text-amber-300 text-lg font-bold opacity-70">UPSC</span>
             </div>
           </motion.div>
         </motion.div>
@@ -164,7 +164,7 @@ const HeroSection: React.FC = () => {
         <div 
           className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
           style={{
-            backgroundImage: "linear-gradient(#FFB347 1px, transparent 1px), linear-gradient(to right, #FFB347 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(#FFA500 1px, transparent 1px), linear-gradient(to right, #FFA500 1px, transparent 1px)",
             backgroundSize: "40px 40px"
           }}
         />

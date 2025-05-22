@@ -66,7 +66,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-orange-50/30 to-amber-50 dark:from-orange-950/30 dark:via-gray-900 dark:to-amber-950/30 overflow-hidden">
       <Header />
       
       <main>

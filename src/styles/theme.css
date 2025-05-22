@@ -1,14 +1,13 @@
-
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 35 100% 97%; /* Light orange background */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 35 50% 20%; /* Dark orange text for better contrast */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 35 50% 20%;
 
     --primary: 35 100% 50%; /* #FFA500 (Orange) */
     --primary-foreground: 210 40% 98%;
@@ -16,84 +15,84 @@
     --secondary: 35 90% 45%; /* Darker orange for secondary */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 35 20% 96%; /* Light orange for muted background */
+    --muted-foreground: 35 40% 40%; /* Medium orange for muted text */
 
     --accent: 35 100% 96%; /* Light orange for accent */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent-foreground: 35 80% 30%; /* Dark orange for accent text */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 35 30% 90%; /* Light orange border */
+    --input: 35 30% 90%;
     --ring: 35 100% 50%; /* #FFA500 (Orange) */
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-background: 35 100% 97%; /* Light orange sidebar */
+    --sidebar-foreground: 35 50% 20%; /* Dark orange text */
     --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-accent: 35 30% 94%;
+    --sidebar-accent-foreground: 35 80% 30%;
+    --sidebar-border: 35 30% 90%;
     --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
     
-    /* Updated colors for a more vibrant orange theme */
-    --sakha-light-blue: 35 100% 85%; /* Changed to light orange */
-    --sakha-blue: 35 90% 60%; /* Changed to medium orange */
-    --sakha-purple: 35 100% 50%; /* Changed to #FFA500 (Orange) */
-    --sakha-pink: 35 80% 69%; /* Changed to soft orange */
-    --sakha-lavender: 35 60% 94%; /* Changed to very light orange */
-    --sakha-deep-blue: 35 70% 40%; /* Changed to deep orange */
+    /* Vibrant orange theme colors */
+    --sakha-light-blue: 35 100% 85%; /* Light orange */
+    --sakha-blue: 35 90% 60%; /* Medium orange */
+    --sakha-purple: 35 100% 50%; /* #FFA500 (Orange) */
+    --sakha-pink: 35 80% 69%; /* Soft orange */
+    --sakha-lavender: 35 60% 94%; /* Very light orange */
+    --sakha-deep-blue: 35 70% 40%; /* Deep orange */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 35 40% 10%; /* Dark orange background */
+    --foreground: 35 30% 90%; /* Light orange text */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 35 50% 12%; /* Dark orange card */
+    --card-foreground: 35 30% 90%; /* Light orange text */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 35 50% 12%;
+    --popover-foreground: 35 30% 90%;
 
     --primary: 35 100% 50%; /* #FFA500 (Orange) */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 35 10% 10%; /* Very dark text for contrast */
 
     --secondary: 35 90% 45%; /* Darker orange for secondary */
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 35 25% 20%; /* Dark muted background */
+    --muted-foreground: 35 35% 65%; /* Light muted text */
 
     --accent: 35 30% 25%; /* Dark orange for accent in dark mode */
-    --accent-foreground: 210 40% 98%;
+    --accent-foreground: 35 40% 90%; /* Light text on accent */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 35 25% 25%; /* Dark orange border */
+    --input: 35 25% 25%;
     --ring: 35 100% 50%; /* #FFA500 (Orange) */
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-background: 35 50% 12%;
+    --sidebar-foreground: 35 30% 90%;
     --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 35 30% 18%;
+    --sidebar-accent-foreground: 35 30% 90%;
+    --sidebar-border: 35 35% 25%;
     --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
     
     /* Updated Sakha colors for dark mode */
-    --sakha-light-blue: 35 80% 75%; /* Changed to light orange */
-    --sakha-blue: 35 76% 60%; /* Changed to medium orange */
-    --sakha-purple: 35 73% 60%; /* Changed to #FFA500 (Orange) */
-    --sakha-pink: 35 73% 69%; /* Changed to soft orange */
-    --sakha-lavender: 35 60% 94%; /* Changed to very light orange */
-    --sakha-deep-blue: 35 70% 40%; /* Changed to deep orange */
+    --sakha-light-blue: 35 80% 75%; /* Light orange */
+    --sakha-blue: 35 76% 60%; /* Medium orange */
+    --sakha-purple: 35 73% 60%; /* #FFA500 (Orange) */
+    --sakha-pink: 35 73% 69%; /* Soft orange */
+    --sakha-lavender: 35 60% 94%; /* Very light orange */
+    --sakha-deep-blue: 35 70% 40%; /* Deep orange */
   }
 }
 
@@ -164,4 +163,28 @@
 
 .student-badge {
   @apply bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
+}
+
+/* New additions for vibrant orange theme */
+.orange-gradient-bg {
+  @apply bg-gradient-to-br from-orange-50 via-orange-100/30 to-amber-50;
+}
+
+.dark .orange-gradient-bg {
+  @apply bg-gradient-to-br from-orange-900/40 via-orange-800/20 to-amber-900/30;
+}
+
+/* Enhanced gradient buttons */
+.btn-gradient-orange {
+  @apply bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white;
+}
+
+/* Card with subtle orange border */
+.orange-card {
+  @apply bg-white border border-orange-200 dark:bg-gray-800 dark:border-orange-800/40;
+}
+
+/* Orange accent text */
+.text-orange-accent {
+  @apply text-orange-600 dark:text-orange-400;
 }

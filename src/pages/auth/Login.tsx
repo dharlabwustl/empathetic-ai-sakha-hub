@@ -54,7 +54,6 @@ const Login = () => {
       // Redirect directly to welcome flow, skipping login
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
-        // Fix: Remove app. prefix from domain routing - use relative path
         navigate('/welcome-flow', { replace: true });
       }, 100);
       return;
@@ -64,7 +63,6 @@ const Login = () => {
     if (isAuthenticated || isLoggedIn) {
       console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
-        // Fix: Remove app. prefix from domain routing - use relative path
         navigate(returnTo, { replace: true });
       }, 100);
       return;
@@ -73,7 +71,6 @@ const Login = () => {
     // If not authenticated, redirect to welcome-back after a short delay
     console.log("User not authenticated, redirecting to welcome-back");
     setTimeout(() => {
-      // Fix: Remove app. prefix from domain routing - use relative path
       navigate(`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     }, 300);
     
@@ -84,13 +81,13 @@ const Login = () => {
   }, [navigate, isAuthenticated, location.search]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 dark:from-gray-900 dark:to-amber-950/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/30 dark:to-amber-950/20">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
         language="en"
       />
-      <div className="text-center p-8 rounded-lg bg-white dark:bg-gray-800 shadow-lg w-full max-w-md flex flex-col items-center">
+      <div className="text-center p-8 rounded-lg bg-white/90 dark:bg-orange-950/40 shadow-lg w-full max-w-md flex flex-col items-center border border-orange-200 dark:border-orange-800/30">
         {isProcessing ? (
           <>
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-orange-600 dark:text-orange-400" />
