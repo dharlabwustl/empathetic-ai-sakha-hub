@@ -3,6 +3,7 @@
 interface Window {
   SpeechRecognition: typeof SpeechRecognition;
   webkitSpeechRecognition: typeof SpeechRecognition;
+  currentSpeech?: SpeechSynthesisUtterance;
 }
 
 interface SpeechRecognitionEvent extends Event {
