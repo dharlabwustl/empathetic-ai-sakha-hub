@@ -1,12 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { BookOpen, FlaskConical, BookmarkPlus, BookMarked, Video, MessageSquare, Settings, Brain, Zap, ListChecks } from 'lucide-react';
+import { 
+  BookOpen, FlaskConical, BookmarkPlus, BookMarked, Video, 
+  MessageSquare, Brain, Zap, ListChecks, ArrowLeft 
+} from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 import ConceptHeader from './concept-detail/ConceptHeader';
@@ -98,6 +101,7 @@ const mockConcept = {
 };
 
 const ConceptDetailPage = () => {
+  const navigate = useNavigate();
   const { conceptId } = useParams<{ conceptId: string }>();
   const [concept, setConcept] = useState(mockConcept);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -134,6 +138,10 @@ const ConceptDetailPage = () => {
     console.log("Opening formula interactive lab");
   };
 
+  const handleBackButtonClick = () => {
+    navigate('/concepts');
+  };
+
   // Stop speech if user changes tabs or navigates away
   useEffect(() => {
     return () => {
@@ -144,12 +152,20 @@ const ConceptDetailPage = () => {
   }, [isReadingAloud]);
   
   return (
-    <SharedPageLayout
-      title={concept.title}
-      subtitle={`${concept.subject} > ${concept.topic}`}
-      showBackButton={true}
-      backButtonUrl="/dashboard/student/concepts"
-    >
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Back button */}
+      <div className="mb-4">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+          onClick={handleBackButtonClick}
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to Concepts
+        </Button>
+      </div>
+
       <div className="space-y-6">
         {/* Concept Header */}
         <ConceptHeader
@@ -278,7 +294,7 @@ const ConceptDetailPage = () => {
                   <div className="p-6">
                     <h2 className="text-xl font-bold mb-4">Multiple Choice Questions</h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Test your understanding of Newton's Second Law with these practice questions.
+                      Test your understanding of {concept.title} with these practice questions.
                     </p>
                     <Card className="p-6 bg-gray-50 dark:bg-gray-800/50">
                       <p>MCQ questions will be available soon. Check back later for practice questions!</p>
@@ -300,7 +316,7 @@ const ConceptDetailPage = () => {
           </div>
         </div>
       </div>
-    </SharedPageLayout>
+    </div>
   );
 };
 
