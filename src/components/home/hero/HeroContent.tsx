@@ -42,32 +42,43 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
 
-      {/* NEET Live Now badge */}
+      {/* Welcome message and NEET Live Now badge */}
       <motion.div
-        className="flex gap-2 mb-4"
+        className="flex flex-col gap-2 mb-4"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <motion.div 
-          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2 shadow-md"
-          initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
+        <motion.div
+          className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <span className="inline-block h-2 w-2 rounded-full bg-white animate-pulse"></span>
-          NEET Exam Preparation Live Now!
+          Welcome to PREPZR - Tomorrow's learning experience
         </motion.div>
         
-        <motion.div 
-          className="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center"
-          initial={{ scale: 1 }}
-          animate={{ scale: [1, 1.03, 1] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-        >
-          <span className="mr-1">New</span>
-          AI Study companion
-        </motion.div>
+        <div className="flex gap-2">
+          <motion.div 
+            className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2 shadow-md"
+            initial={{ scale: 1 }}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <span className="inline-block h-2 w-2 rounded-full bg-white animate-pulse"></span>
+            NEET Exam Preparation Live Now!
+          </motion.div>
+          
+          <motion.div 
+            className="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center"
+            initial={{ scale: 1 }}
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          >
+            <span className="mr-1">New</span>
+            AI Study companion
+          </motion.div>
+        </div>
       </motion.div>
       
       <motion.h1

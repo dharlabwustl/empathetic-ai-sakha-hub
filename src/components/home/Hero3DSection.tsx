@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import HeroContent from './hero/HeroContent';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Array of 3D animation paths (these would be your actual 3D animations)
+// Array of 3D animation paths
 const animations = [
   "/animations/brain-animation.svg",
   "/animations/student-success.svg",
@@ -42,8 +42,130 @@ const Hero3DSection: React.FC = () => {
 
   return (
     <section className="min-h-[85vh] relative overflow-hidden">
-      {/* Background gradient */}
+      {/* 3D Immersive Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 opacity-50"></div>
+      
+      {/* Floating elements for immersive background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Floating circles */}
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={`circle-${i}`}
+            className={`absolute rounded-full bg-gradient-to-r ${
+              i % 3 === 0 ? "from-blue-400/30 to-purple-400/20" : 
+              i % 3 === 1 ? "from-green-400/20 to-blue-400/10" : 
+              "from-purple-400/20 to-pink-400/10"
+            }`}
+            style={{
+              width: `${30 + Math.random() * 70}px`,
+              height: `${30 + Math.random() * 70}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              zIndex: 1
+            }}
+            animate={{
+              y: [Math.random() * 20, -Math.random() * 20, Math.random() * 20],
+              x: [Math.random() * 20, -Math.random() * 20, Math.random() * 20],
+              opacity: [0.5, 0.8, 0.5]
+            }}
+            transition={{
+              duration: 8 + Math.random() * 7,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+        
+        {/* Floating math symbols */}
+        {['∫', '∑', 'π', '√', 'Δ', '∞', 'θ', 'μ'].map((symbol, i) => (
+          <motion.div
+            key={`symbol-${i}`}
+            className="absolute text-lg md:text-xl lg:text-2xl text-purple-500/20 dark:text-purple-300/20 font-bold"
+            style={{
+              left: `${5 + Math.random() * 90}%`,
+              top: `${5 + Math.random() * 90}%`,
+              zIndex: 1
+            }}
+            animate={{
+              y: [Math.random() * 30, -Math.random() * 30, Math.random() * 30],
+              x: [Math.random() * 30, -Math.random() * 30, Math.random() * 30],
+              rotate: [0, 180, 360],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: 15 + Math.random() * 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            {symbol}
+          </motion.div>
+        ))}
+        
+        {/* Blob shapes */}
+        <motion.div
+          className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-r from-purple-400/10 to-blue-400/5 rounded-full filter blur-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            x: [-20, 20, -20],
+            y: [-20, 20, -20]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        <motion.div
+          className="absolute top-20 right-20 w-1/4 h-1/4 bg-gradient-to-r from-blue-400/10 to-green-400/5 rounded-full filter blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            x: [20, -20, 20],
+            y: [20, -20, 20]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Exam Readiness Indicator */}
+        <motion.div
+          className="absolute hidden md:block md:top-[20%] md:right-[30%] lg:top-[30%] lg:right-[15%] p-1 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-xl backdrop-blur-sm z-10 border border-indigo-200 dark:border-indigo-900"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 1 }}
+        >
+          <div className="p-2">
+            <div className="text-xs text-gray-600 dark:text-gray-300 mb-1 font-medium">Exam Readiness</div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-24 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-600" 
+                  initial={{ width: "0%" }}
+                  animate={{ width: "68%" }}
+                  transition={{ delay: 2, duration: 1.5 }}
+                />
+              </div>
+              <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">68%</span>
+            </div>
+          </div>
+        </motion.div>
+        
+        {/* Happy Student Avatar */}
+        <motion.div
+          className="absolute hidden md:block bottom-[15%] left-[20%] bg-white/90 dark:bg-gray-800/90 rounded-full overflow-hidden shadow-lg z-10 border-2 border-green-300 dark:border-green-700"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 2, duration: 0.5, type: "spring" }}
+        >
+          <img 
+            src="/lovable-uploads/c22d3091-93f3-466d-ac2a-a871167e98e4.png" 
+            alt="Happy student" 
+            className="w-16 h-16 object-cover"
+          />
+          <motion.div 
+            className="absolute bottom-0 left-0 right-0 h-1.5 bg-green-500" 
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 2.5, duration: 0.8 }}
+          />
+        </motion.div>
+      </div>
       
       {/* Content container */}
       <div className="container mx-auto px-4 py-16 flex flex-col-reverse lg:flex-row items-center justify-between relative z-10">

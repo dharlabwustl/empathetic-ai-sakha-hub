@@ -202,6 +202,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         setAudioPlayed(true);
       };
       
+      // Store speech object globally to be able to cancel it when navigating away
+      window.currentSpeech = speech;
+      
       // Play the speech
       window.speechSynthesis.speak(speech);
       
