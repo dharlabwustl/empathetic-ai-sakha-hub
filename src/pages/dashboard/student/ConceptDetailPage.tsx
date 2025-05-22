@@ -1,687 +1,598 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ConceptsPageLayout } from '@/components/dashboard/student/concept-cards/ConceptsPageLayout';
-import { Sparkles, BookOpen, FlaskConical, Video, AlertCircle, Lightbulb, BarChart2, RefreshCw, FileText, MessageSquare, Eye, Cube, Ruler, Star, ArrowRight, ThumbsUp, Medal } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-// Mock data for concept
-const conceptMockData = {
-  id: "physics-ohms-law",
-  title: "Ohm's Law",
-  subject: "Physics",
-  description: "Ohm's law states that the current through a conductor between two points is directly proportional to the voltage across the two points.",
-  masteryLevel: 65,
-  formula: "V = I × R",
-  variables: [
-    { symbol: "V", name: "Voltage", unit: "volts (V)" },
-    { symbol: "I", name: "Current", unit: "amperes (A)" },
-    { symbol: "R", name: "Resistance", unit: "ohms (Ω)" }
-  ],
-  content: "<p>Ohm's Law is one of the most fundamental principles in electrical engineering and physics. Discovered by German physicist Georg Ohm in 1827, it describes the relationship between voltage, current, and resistance in an electrical circuit.</p><p>The law states that the current flowing through a conductor is <strong>directly proportional</strong> to the voltage across it, given that the physical conditions (like temperature) remain constant.</p><h3>The Formula</h3><p>Mathematically, Ohm's Law is expressed as:</p><p class='formula'>V = I × R</p><p>Where:<br/>- V is the voltage across the conductor in volts (V)<br/>- I is the current through the conductor in amperes (A)<br/>- R is the resistance of the conductor in ohms (Ω)</p><h3>Understanding through Analogy</h3><p>Think of electricity flowing through a wire like water flowing through a pipe:</p><ul><li>Voltage (V) is like the water pressure pushing the water through the pipe</li><li>Current (I) is like the rate of water flow through the pipe</li><li>Resistance (R) is like the narrowness of the pipe that restricts the water flow</li></ul><p>Just as higher water pressure leads to more water flow, higher voltage leads to more current. Similarly, just as a narrower pipe restricts water flow, higher resistance restricts current flow.</p>",
-  relatedConcepts: [
-    { id: "physics-kirchhoffs-laws", title: "Kirchhoff's Laws" },
-    { id: "physics-electrical-power", title: "Electrical Power" },
-    { id: "physics-resistivity", title: "Resistivity and Conductivity" }
-  ],
-  commonMistakes: [
-    "Forgetting that Ohm's Law applies only to ohmic conductors",
-    "Mixing up the units of measurement",
-    "Not accounting for temperature changes affecting resistance",
-    "Applying the law to complete circuits when it's meant for individual components"
-  ],
-  examQuestions: [
-    {
-      question: "If a circuit has a resistance of 5Ω and a current of 2A flows through it, what is the voltage across the circuit?",
-      options: ["7V", "10V", "3V", "2.5V"],
-      correct: 1,
-      explanation: "Using Ohm's Law: V = I × R = 2A × 5Ω = 10V"
-    },
-    {
-      question: "A 12V battery is connected to a circuit with a resistance of 6Ω. What is the current flowing through the circuit?",
-      options: ["72A", "2A", "0.5A", "18A"],
-      correct: 1,
-      explanation: "Using Ohm's Law: I = V ÷ R = 12V ÷ 6Ω = 2A"
-    }
-  ],
-  recallQuestions: [
-    {
-      question: "What is the formula for Ohm's Law?",
-      answer: "V = I × R"
-    },
-    {
-      question: "What are the SI units for voltage, current, and resistance?",
-      answer: "Voltage: volts (V), Current: amperes (A), Resistance: ohms (Ω)"
-    },
-    {
-      question: "Who discovered Ohm's Law?",
-      answer: "Georg Ohm in 1827"
-    }
-  ],
-  analytics: {
-    timesStudied: 15,
-    averageTimeSpent: "8 minutes",
-    lastStudied: "2 days ago",
-    strengths: ["Formula application", "Basic understanding"],
-    weaknesses: ["Complex circuit applications", "Temperature effects"]
-  },
-  visualAids: [
-    { type: "image", url: "/lovable-uploads/ohms-law-triangle.png", caption: "Ohm's Law Triangle" },
-    { type: "image", url: "/lovable-uploads/circuit-diagram.png", caption: "Simple Circuit Diagram" }
-  ],
-  videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-  simulationUrl: "https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_en.html"
-};
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { 
+  ArrowLeft, Star, BookOpen, Brain, Activity, 
+  Link as LinkIcon, RefreshCcw, FileText, Volume2, 
+  Zap, BookMarked, MessageSquare
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import useUserNotes from '@/hooks/useUserNotes';
 
 const ConceptDetailPage = () => {
-  const { conceptId } = useParams();
-  const navigate = useNavigate();
-  const [concept, setConcept] = useState(conceptMockData);
+  const { conceptId } = useParams<{ conceptId: string }>();
   const [activeTab, setActiveTab] = useState("learn");
-  const [isLoading, setIsLoading] = useState(true);
-  const [readingMode, setReadingMode] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
-
-  useEffect(() => {
-    // Simulate loading data from an API
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, [conceptId]);
-
-  // Handle different tabs
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [userNotes, setUserNotes] = useState("");
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
+  const { toast } = useToast();
+  const { saveNote, getNoteForConcept } = useUserNotes();
+  
+  // Mock data - in a real app, this would come from an API
+  const conceptData = {
+    id: conceptId || '1',
+    title: "Newton's Second Law of Motion",
+    subject: "Physics",
+    topic: "Mechanics",
+    content: `
+      <h2 id="introduction">Introduction to Newton's Second Law</h2>
+      <p>Newton's Second Law of Motion describes the relationship between an object's mass, its acceleration, and the force applied to it. It is one of the fundamental laws of classical mechanics.</p>
+      
+      <h2 id="formula">The Formula</h2>
+      <p>The mathematical representation of Newton's Second Law is:</p>
+      <p><strong>F = ma</strong></p>
+      <p>Where:</p>
+      <ul>
+        <li>F is the net force acting on the object (measured in Newtons, N)</li>
+        <li>m is the mass of the object (measured in kilograms, kg)</li>
+        <li>a is the acceleration of the object (measured in meters per second squared, m/s²)</li>
+      </ul>
+      
+      <h2 id="implications">Implications of the Law</h2>
+      <p>This law implies that:</p>
+      <ol>
+        <li>The acceleration of an object is directly proportional to the net force acting on it</li>
+        <li>The acceleration of an object is inversely proportional to its mass</li>
+        <li>The direction of acceleration is in the direction of the net force</li>
+      </ol>
+    `,
+    difficulty: "medium" as 'easy' | 'medium' | 'hard',
+    masteryLevel: 65,
+    lastPracticed: "2023-06-15T10:30:00Z",
+    quizScore: 78
   };
+  
+  const relatedConcepts = [
+    {
+      id: "c1",
+      title: "Newton's First Law of Motion",
+      masteryLevel: 85
+    },
+    {
+      id: "c2",
+      title: "Newton's Third Law of Motion",
+      masteryLevel: 72
+    },
+    {
+      id: "c3",
+      title: "Conservation of Momentum",
+      masteryLevel: 45
+    }
+  ];
+  
+  const formulas = [
+    {
+      id: "f1",
+      name: "Newton's Second Law",
+      latex: "F = ma",
+      description: "Force equals mass times acceleration"
+    },
+    {
+      id: "f2",
+      name: "Weight Formula",
+      latex: "W = mg",
+      description: "Weight equals mass times gravitational acceleration"
+    }
+  ];
+  
+  const analyticsData = {
+    masteryTrend: [
+      { date: "Jan", value: 25 },
+      { date: "Feb", value: 30 },
+      { date: "Mar", value: 45 },
+      { date: "Apr", value: 55 },
+      { date: "May", value: 65 }
+    ],
+    timeSpent: 143, // minutes
+    practiceCount: 12,
+    revisionsCompleted: 8,
+    questionsAttempted: 24,
+    questionsCorrect: 18
+  };
+  
+  // Load user notes when component mounts
+  useEffect(() => {
+    if (conceptId) {
+      const loadedNotes = getNoteForConcept(conceptId);
+      setUserNotes(loadedNotes);
+    }
+  }, [conceptId, getNoteForConcept]);
 
-  if (isLoading) {
-    return (
-      <ConceptsPageLayout showBackButton title="Loading Concept..." subtitle="Please wait while we prepare your learning experience">
-        <div className="flex flex-col items-center justify-center p-10 space-y-4">
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full"
-          />
-          <p className="text-gray-500">Loading concept data...</p>
-        </div>
-      </ConceptsPageLayout>
-    );
-  }
-
+  const handleSaveNotes = () => {
+    if (conceptId) {
+      saveNote(conceptId, userNotes);
+      toast({
+        title: "Notes saved",
+        description: "Your notes have been saved successfully"
+      });
+    }
+  };
+  
+  const handleToggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked ? "Concept removed from your saved items" : "Concept added to your saved items"
+    });
+  };
+  
+  const toggleReadAloud = () => {
+    setIsReadingAloud(!isReadingAloud);
+    
+    if (!isReadingAloud) {
+      // Start reading the content aloud
+      const textToRead = conceptData.content.replace(/<[^>]*>?/gm, '');
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      // Stop reading
+      window.speechSynthesis.cancel();
+    }
+  };
+  
   return (
-    <ConceptsPageLayout 
-      showBackButton 
-      title={concept.title} 
-      subtitle={`${concept.subject} Concept`}
-    >
-      <div className="space-y-6">
-        {/* Mastery & Recall Tracker Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm"
+    <div className="px-4 py-6 max-w-7xl mx-auto">
+      {/* Back Button & Title */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Link to="/dashboard/student/concepts">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Concepts</span>
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold ml-4 hidden md:block">{conceptData.title}</h1>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={handleToggleBookmark}
+          className="ml-auto"
         >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-2 md:space-y-0">
-            <div>
-              <h3 className="text-lg font-semibold flex items-center">
-                <Sparkles className="h-5 w-5 text-yellow-500 mr-2" />
-                Mastery Progress
-              </h3>
-              <p className="text-sm text-gray-500">Track your understanding and recall of this concept</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                Last studied: {concept.analytics.lastStudied}
-              </Badge>
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800">
-                Studied {concept.analytics.timesStudied} times
-              </Badge>
+          <Star 
+            className={`h-5 w-5 ${isBookmarked 
+              ? 'text-yellow-500 fill-yellow-500' 
+              : 'text-gray-400'}`} 
+          />
+        </Button>
+      </div>
+      
+      {/* Mobile Title */}
+      <h1 className="text-2xl font-bold mb-4 md:hidden">{conceptData.title}</h1>
+      
+      {/* Concept Header Card */}
+      <Card className="p-4 mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-400">
+            {conceptData.subject}
+          </Badge>
+          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:border-purple-700 dark:text-purple-400">
+            {conceptData.topic}
+          </Badge>
+          <Badge variant="outline" className={
+            conceptData.difficulty === "easy" 
+              ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:border-green-700 dark:text-green-400"
+              : conceptData.difficulty === "medium" 
+              ? "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-400"
+              : "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400"
+          }>
+            {conceptData.difficulty.charAt(0).toUpperCase() + conceptData.difficulty.slice(1)} Difficulty
+          </Badge>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Mastery Level</div>
+            <div className="flex items-center">
+              <Progress 
+                value={conceptData.masteryLevel} 
+                className="h-2 w-24 md:w-40 mr-2"
+                indicatorClassName={
+                  conceptData.masteryLevel > 80 ? 'bg-green-500' : 
+                  conceptData.masteryLevel > 50 ? 'bg-blue-500' : 
+                  'bg-yellow-500'
+                }
+              />
+              <span className="text-sm font-medium">{conceptData.masteryLevel}%</span>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-blue-700 dark:text-blue-300">Overall Mastery</span>
-                <Star className="h-4 w-4 text-yellow-500" />
-              </div>
-              <div className="relative pt-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold inline-block text-blue-600 dark:text-blue-400">
-                      {concept.masteryLevel}% Complete
-                    </span>
-                  </div>
-                </div>
-                <div className="flex h-2 mb-4 overflow-hidden rounded bg-blue-200 dark:bg-blue-700/30">
-                  <motion.div 
-                    className="bg-gradient-to-r from-blue-400 to-blue-600"
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${concept.masteryLevel}%` }}
-                    transition={{ duration: 1, ease: "easeInOut" }}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-green-700 dark:text-green-300">Recall Accuracy</span>
-                <ThumbsUp className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="relative pt-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold inline-block text-green-600 dark:text-green-400">
-                      82% Correct
-                    </span>
-                  </div>
-                </div>
-                <div className="flex h-2 mb-4 overflow-hidden rounded bg-green-200 dark:bg-green-700/30">
-                  <motion.div 
-                    className="bg-gradient-to-r from-green-400 to-green-600"
-                    initial={{ width: "0%" }}
-                    animate={{ width: "82%" }}
-                    transition={{ duration: 1, ease: "easeInOut" }}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-purple-700 dark:text-purple-300">Practice Questions</span>
-                <Medal className="h-4 w-4 text-purple-500" />
-              </div>
-              <div className="relative pt-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold inline-block text-purple-600 dark:text-purple-400">
-                      7/10 Completed
-                    </span>
-                  </div>
-                </div>
-                <div className="flex h-2 mb-4 overflow-hidden rounded bg-purple-200 dark:bg-purple-700/30">
-                  <motion.div 
-                    className="bg-gradient-to-r from-purple-400 to-purple-600"
-                    initial={{ width: "0%" }}
-                    animate={{ width: "70%" }}
-                    transition={{ duration: 1, ease: "easeInOut" }}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-800">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-amber-700 dark:text-amber-300">Time Invested</span>
-                <Clock className="h-4 w-4 text-amber-500" />
-              </div>
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{concept.analytics.averageTimeSpent}</p>
-              <p className="text-xs text-amber-500 dark:text-amber-400">per study session</p>
-            </div>
-          </div>
-        </motion.div>
-        
-        {/* AI Insights Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 p-4 shadow-sm"
-        >
-          <div className="flex items-center mb-3">
-            <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-800/30 mr-3">
-              <Lightbulb className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-indigo-700 dark:text-indigo-300">AI Insights</h3>
-          </div>
-          <div className="pl-12">
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
-              <span className="font-semibold">Focus on:</span> Complex circuit applications and temperature effects on resistance.
-            </p>
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
-              <span className="font-semibold">Tip:</span> Practice calculating current in circuits with multiple resistors to solidify your understanding.
-            </p>
-            <Button variant="link" className="text-indigo-600 dark:text-indigo-400 p-0 flex items-center">
-              <span>Get personalized study plan</span>
-              <ArrowRight className="ml-1 h-4 w-4" />
+          <div className="flex items-center">
+            <Button 
+              onClick={toggleReadAloud}
+              variant={isReadingAloud ? "default" : "outline"}
+              size="sm" 
+              className="flex items-center gap-1"
+            >
+              <Volume2 className="h-4 w-4" />
+              {isReadingAloud ? "Stop Reading" : "Read Aloud"}
             </Button>
           </div>
-        </motion.div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="learn" value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid grid-cols-4 md:grid-cols-8 mb-4">
-            <TabsTrigger value="learn" className="flex items-center justify-center">
-              <BookOpen className="h-4 w-4 mr-2" />
-              <span>Learn</span>
-            </TabsTrigger>
-            <TabsTrigger value="visual" className="flex items-center justify-center">
-              <Eye className="h-4 w-4 mr-2" />
-              <span>Visual</span>
-            </TabsTrigger>
-            <TabsTrigger value="simulation" className="flex items-center justify-center">
-              <Cube className="h-4 w-4 mr-2" />
-              <span>3D Simulation</span>
-            </TabsTrigger>
-            <TabsTrigger value="formula" className="flex items-center justify-center">
-              <Ruler className="h-4 w-4 mr-2" />
-              <span>Formula Lab</span>
-            </TabsTrigger>
-            <TabsTrigger value="video" className="flex items-center justify-center">
-              <Video className="h-4 w-4 mr-2" />
-              <span>Video</span>
-            </TabsTrigger>
-            <TabsTrigger value="mistakes" className="flex items-center justify-center">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              <span>Common Mistakes</span>
-            </TabsTrigger>
-            <TabsTrigger value="recall" className="hidden md:flex items-center justify-center">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              <span>Recall</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="hidden md:flex items-center justify-center">
-              <BarChart2 className="h-4 w-4 mr-2" />
-              <span>Analytics</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <div className={`p-4 rounded-lg ${readingMode ? "bg-amber-50 dark:bg-amber-950/20" : "bg-white dark:bg-gray-900"} border border-gray-200 dark:border-gray-800 transition-colors duration-300`}>
-            {/* Learn Tab */}
-            <TabsContent value="learn" className="space-y-4 mt-0">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold">Learn: {concept.title}</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setReadingMode(!readingMode)}
-                  className="text-amber-600 border-amber-200 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-950/30"
-                >
-                  {readingMode ? "Exit Reading Mode" : "Reading Mode"}
-                </Button>
-              </div>
+        </div>
+      </Card>
+      
+      {/* Main Content with Tabs */}
+      <Tabs defaultValue="learn" className="w-full">
+        <TabsList className="flex w-full overflow-x-auto hide-scrollbar p-1 bg-muted mb-4">
+          <TabsTrigger value="learn" className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" /> Learn
+          </TabsTrigger>
+          <TabsTrigger value="recall" className="flex items-center gap-1">
+            <Brain className="h-4 w-4" /> Recall
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-1">
+            <Activity className="h-4 w-4" /> Analytics
+          </TabsTrigger>
+          <TabsTrigger value="connected" className="flex items-center gap-1">
+            <LinkIcon className="h-4 w-4" /> Connected
+          </TabsTrigger>
+          <TabsTrigger value="revision" className="flex items-center gap-1">
+            <RefreshCcw className="h-4 w-4" /> Revision
+          </TabsTrigger>
+          <TabsTrigger value="exam" className="flex items-center gap-1">
+            <FileText className="h-4 w-4" /> Exam
+          </TabsTrigger>
+          <TabsTrigger value="notes" className="flex items-center gap-1">
+            <BookMarked className="h-4 w-4" /> Notes
+          </TabsTrigger>
+          <TabsTrigger value="discuss" className="flex items-center gap-1">
+            <MessageSquare className="h-4 w-4" /> Discuss
+          </TabsTrigger>
+        </TabsList>
+        
+        {/* Learn Tab Content */}
+        <TabsContent value="learn" className="space-y-4">
+          <Card className="p-6">
+            <div className="prose dark:prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: conceptData.content }} />
               
-              <div className={`prose dark:prose-invert max-w-none ${readingMode ? "text-lg" : ""}`} 
-                dangerouslySetInnerHTML={{ __html: concept.content }}>
-              </div>
-              
-              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
-                <h4 className="font-medium mb-2">Quick Formula Reference</h4>
-                <Card className="bg-gray-50 dark:bg-gray-900 p-3 flex justify-center items-center">
-                  <div className="text-center">
-                    <p className="text-xl font-semibold mb-2">{concept.formula}</p>
-                    <div className="grid grid-cols-3 gap-2 text-sm">
-                      {concept.variables.map(variable => (
-                        <div key={variable.symbol} className="bg-white dark:bg-gray-800 rounded p-2 text-center">
-                          <span className="font-medium">{variable.symbol}</span>: {variable.name} <span className="text-gray-500">({variable.unit})</span>
-                        </div>
-                      ))}
-                    </div>
+              <h2>Key Formulas</h2>
+              {formulas.map((formula) => (
+                <div key={formula.id} className="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mb-3">
+                  <div className="font-semibold mb-1">{formula.name}</div>
+                  <div className="text-lg font-mono bg-white dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-800">
+                    {formula.latex}
                   </div>
-                </Card>
-              </div>
-              
-              <div className="flex justify-end space-x-2 mt-4">
-                <Button variant="outline" size="sm">
-                  Add Notes
-                </Button>
-                <Button size="sm">
-                  Mark as Completed
-                </Button>
-              </div>
-            </TabsContent>
-
-            {/* Visual Tab */}
-            <TabsContent value="visual" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Visual Learning</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {concept.visualAids.map((aid, index) => (
-                  <motion.div 
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.2 }}
-                    className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700"
-                  >
-                    <img 
-                      src={aid.url} 
-                      alt={aid.caption} 
-                      className="w-full h-48 object-contain bg-gray-50 dark:bg-gray-900"
-                    />
-                    <div className="p-4">
-                      <p className="text-center text-gray-700 dark:text-gray-300">{aid.caption}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <h4 className="font-semibold mb-3">Interactive Diagrams</h4>
-                <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Interactive diagram would be displayed here</p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{formula.description}</div>
                 </div>
-              </div>
-            </TabsContent>
-
-            {/* 3D Simulation Tab */}
-            <TabsContent value="simulation" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">3D Simulation</h3>
-              <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                <iframe 
-                  src={concept.simulationUrl}
-                  title="Ohm's Law Simulation"
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">How to use this simulation</h4>
-                <ul className="list-disc pl-5 text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>Adjust the voltage slider to see how it affects current</li>
-                  <li>Change the resistance to observe the relationship between resistance and current</li>
-                  <li>Note how the formula values update in real-time</li>
-                  <li>Try extreme values to test the limits of Ohm's Law</li>
-                </ul>
-              </div>
-            </TabsContent>
-
-            {/* Formula Lab Tab */}
-            <TabsContent value="formula" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Formula Lab</h3>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mb-6">
-                <div className="text-center mb-4">
-                  <h4 className="text-2xl font-bold text-blue-700 dark:text-blue-300">{concept.formula}</h4>
-                  <p className="text-blue-600 dark:text-blue-400">Ohm's Law Formula</p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  {concept.variables.map(variable => (
-                    <div key={variable.symbol} className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-                      <div className="text-center">
-                        <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{variable.symbol}</span>
-                        <p className="font-medium">{variable.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{variable.unit}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-6">
-                  <h4 className="font-medium mb-2">Formula Rearrangements</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <p className="text-lg font-semibold">V = I × R</p>
-                      <p className="text-sm text-gray-500">Find voltage</p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <p className="text-lg font-semibold">I = V ÷ R</p>
-                      <p className="text-sm text-gray-500">Find current</p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <p className="text-lg font-semibold">R = V ÷ I</p>
-                      <p className="text-sm text-gray-500">Find resistance</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <h4 className="font-medium mb-3">Formula Calculator</h4>
-                <Card className="p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Voltage (V)</label>
-                      <input type="number" className="w-full p-2 border rounded" placeholder="Enter value..." />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Current (I)</label>
-                      <input type="number" className="w-full p-2 border rounded" placeholder="Enter value..." />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Resistance (R)</label>
-                      <input type="number" className="w-full p-2 border rounded" placeholder="Enter value..." />
-                    </div>
-                  </div>
-                  <div className="mt-4 flex justify-center">
-                    <Button>Calculate</Button>
-                  </div>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Video Tab */}
-            <TabsContent value="video" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Video Explanation</h3>
-              <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                <iframe 
-                  src={concept.videoUrl}
-                  title="Video explanation of Ohm's Law"
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="p-3">
-                  <h4 className="font-medium">Key Points</h4>
-                  <ul className="mt-2 text-sm list-disc pl-4">
-                    <li>Basic definition of Ohm's Law</li>
-                    <li>Relationship between voltage, current, and resistance</li>
-                    <li>Real-world applications</li>
-                  </ul>
-                </Card>
-                <Card className="p-3">
-                  <h4 className="font-medium">Video Notes</h4>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Take notes while watching the video to improve recall and understanding.
-                  </p>
-                  <Button variant="outline" size="sm" className="mt-2">Open Notes</Button>
-                </Card>
-                <Card className="p-3">
-                  <h4 className="font-medium">Related Videos</h4>
-                  <div className="mt-2 space-y-2 text-sm">
-                    <div className="flex items-center">
-                      <Video className="h-3 w-3 mr-2" />
-                      <span>Kirchhoff's Laws Explained</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Video className="h-3 w-3 mr-2" />
-                      <span>Solving Circuit Problems</span>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Common Mistakes Tab */}
-            <TabsContent value="mistakes" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Common Mistakes</h3>
-              <div className="space-y-4">
-                {concept.commonMistakes.map((mistake, idx) => (
-                  <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-l-4 border-red-400 dark:border-red-600"
-                  >
-                    <div className="flex">
-                      <AlertCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-red-700 dark:text-red-300">Mistake #{idx + 1}</h4>
-                        <p className="mt-1 text-red-600 dark:text-red-400">{mistake}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
-                <h4 className="font-medium text-green-800 dark:text-green-300 mb-2 flex items-center">
-                  <FlaskConical className="h-4 w-4 mr-2" />
-                  Pro Tips to Avoid These Mistakes
-                </h4>
-                <ul className="list-disc pl-5 text-green-700 dark:text-green-300 space-y-1">
-                  <li>Always check the units you're using in calculations</li>
-                  <li>Remember that Ohm's Law applies to ohmic materials only</li>
-                  <li>Draw circuit diagrams to visualize the problem</li>
-                  <li>Practice with varied problems to build intuition</li>
-                </ul>
-              </div>
-            </TabsContent>
-
-            {/* Recall Tab */}
-            <TabsContent value="recall" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Recall & Retention</h3>
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg p-4 mb-4">
-                <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">Flashcard Review</h4>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm min-h-[200px] flex items-center justify-center">
-                  <div className="text-center">
-                    <p className="text-xl mb-4">What is the formula for Ohm's Law?</p>
-                    <Button>Show Answer</Button>
-                  </div>
-                </div>
-                <div className="flex justify-between mt-4">
-                  <Button variant="outline" size="sm">
-                    Previous Card
-                  </Button>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Card 1 of 5
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Next Card
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <h4 className="font-medium mb-3">Quick Questions</h4>
-                <div className="space-y-4">
-                  {concept.recallQuestions.map((q, idx) => (
-                    <Card key={idx} className="p-4">
-                      <h5 className="font-medium">{q.question}</h5>
-                      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <Button variant="ghost" size="sm">Show Answer</Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Analytics Tab */}
-            <TabsContent value="analytics" className="mt-0">
-              <h3 className="text-xl font-semibold mb-4">Your Analytics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="p-4">
-                  <h4 className="font-medium mb-3">Strengths</h4>
-                  <ul className="space-y-2">
-                    {concept.analytics.strengths.map((strength, idx) => (
-                      <li key={idx} className="flex items-center">
-                        <div className="h-4 w-4 rounded-full bg-green-400 mr-2"></div>
-                        <span>{strength}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-                <Card className="p-4">
-                  <h4 className="font-medium mb-3">Areas to Improve</h4>
-                  <ul className="space-y-2">
-                    {concept.analytics.weaknesses.map((weakness, idx) => (
-                      <li key={idx} className="flex items-center">
-                        <div className="h-4 w-4 rounded-full bg-amber-400 mr-2"></div>
-                        <span>{weakness}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </div>
-              
-              <div className="mt-6">
-                <h4 className="font-medium mb-3">Study History</h4>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <div className="h-40 flex items-center justify-center">
-                    <p className="text-gray-500">Study history chart would be displayed here</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <h4 className="font-medium mb-3">Performance on Related Concepts</h4>
-                <div className="space-y-2">
-                  {concept.relatedConcepts.map((related, idx) => (
-                    <div key={idx} className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg flex justify-between items-center">
-                      <span>{related.title}</span>
-                      <div className="w-32">
-                        <Progress value={Math.floor(Math.random() * 100)} className="h-2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Recall Tab Content */}
+        <TabsContent value="recall" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <Brain className="h-5 w-5 mr-2 text-purple-600" /> 
+              Quick Recall Practice
+            </h2>
             
-            {/* Secondary tabs that appear on small screens */}
-            <div className="md:hidden mt-6 border-t border-gray-200 dark:border-gray-800 pt-4">
-              <h3 className="text-lg font-semibold mb-3">Additional Resources</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="text-left flex justify-start" onClick={() => setActiveTab("recall")}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  <span>Recall</span>
-                </Button>
-                <Button variant="outline" className="text-left flex justify-start" onClick={() => setActiveTab("analytics")}>
-                  <BarChart2 className="h-4 w-4 mr-2" />
-                  <span>Analytics</span>
-                </Button>
-                <Button variant="outline" className="text-left flex justify-start" onClick={() => navigate('/notes')}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  <span>Notes</span>
-                </Button>
-                <Button variant="outline" className="text-left flex justify-start" onClick={() => navigate('/discuss')}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  <span>Discuss</span>
-                </Button>
+            <div className="space-y-6">
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+                <h3 className="font-medium mb-2">What does Newton's Second Law state?</h3>
+                <Button className="w-full mb-2">Show Answer</Button>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Hint: It's about force, mass, and acceleration.
+                </div>
+              </div>
+              
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+                <h3 className="font-medium mb-2">Write the formula for Newton's Second Law</h3>
+                <Button className="w-full mb-2">Show Answer</Button>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Hint: It involves force, mass, and acceleration variables.
+                </div>
+              </div>
+              
+              <Button className="w-full">Generate More Recall Questions</Button>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Analytics Tab Content */}
+        <TabsContent value="analytics" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <Activity className="h-5 w-5 mr-2 text-blue-600" /> 
+              Learning Analytics
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Mastery Progress</h3>
+                  <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-end justify-between p-4">
+                    {analyticsData.masteryTrend.map((point, index) => (
+                      <div key={index} className="flex flex-col items-center">
+                        <div 
+                          className="bg-blue-500 w-8 rounded-t-sm" 
+                          style={{ height: `${point.value}%` }}
+                        ></div>
+                        <div className="text-xs mt-1">{point.date}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium mb-2">Time Spent Learning</h3>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    {analyticsData.timeSpent} <span className="text-lg font-normal text-gray-600 dark:text-gray-400">minutes</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Practice Sessions</div>
+                  <div className="text-2xl font-bold">{analyticsData.practiceCount}</div>
+                </div>
+                
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800/30">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Revisions</div>
+                  <div className="text-2xl font-bold">{analyticsData.revisionsCompleted}</div>
+                </div>
+                
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Questions Attempted</div>
+                  <div className="text-2xl font-bold">{analyticsData.questionsAttempted}</div>
+                </div>
+                
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Questions Correct</div>
+                  <div className="text-2xl font-bold">{analyticsData.questionsCorrect}</div>
+                </div>
               </div>
             </div>
-          </div>
-        </Tabs>
+          </Card>
+        </TabsContent>
         
-        {/* Related Concepts Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-6"
-        >
-          <h3 className="text-lg font-semibold mb-3">Related Concepts</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {concept.relatedConcepts.map((related, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ scale: 1.03 }}
-                className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800 shadow-sm cursor-pointer"
-                onClick={() => navigate(`/concept/${related.id}`)}
-              >
-                <h4 className="font-medium">{related.title}</h4>
-                <div className="mt-2 flex justify-between items-center">
-                  <Badge variant="secondary">Physics</Badge>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
+        {/* Connected Tab Content */}
+        <TabsContent value="connected" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <LinkIcon className="h-5 w-5 mr-2 text-indigo-600" /> 
+              Connected Concepts
+            </h2>
+            
+            <div className="space-y-4">
+              {relatedConcepts.map(concept => (
+                <div key={concept.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium">{concept.title}</h3>
+                    <Badge className={
+                      concept.masteryLevel > 80 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : 
+                      concept.masteryLevel > 50 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" : 
+                      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                    }>
+                      {concept.masteryLevel}% Mastery
+                    </Badge>
+                  </div>
+                  
+                  <Progress 
+                    value={concept.masteryLevel} 
+                    className="h-1 mt-2"
+                    indicatorClassName={
+                      concept.masteryLevel > 80 ? 'bg-green-500' : 
+                      concept.masteryLevel > 50 ? 'bg-blue-500' : 
+                      'bg-yellow-500'
+                    }
+                  />
+                  
+                  <div className="flex justify-end mt-3">
+                    <Link to={`/dashboard/student/concepts/${concept.id}`}>
+                      <Button variant="outline" size="sm">Go to Concept</Button>
+                    </Link>
+                  </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </ConceptsPageLayout>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Revision Tab Content */}
+        <TabsContent value="revision" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <RefreshCcw className="h-5 w-5 mr-2 text-green-600" /> 
+              Revision Plan
+            </h2>
+            
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800/30">
+                <h3 className="font-medium mb-2">Spaced Repetition Schedule</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <span>First review</span>
+                    <Badge variant="outline" className="bg-gray-100">Completed</Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <span>Second review (3 days)</span>
+                    <Badge variant="outline" className="bg-gray-100">Tomorrow</Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                    <span>Third review (7 days)</span>
+                    <Badge variant="outline" className="bg-gray-100">In 6 days</Badge>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium mb-2">Quick Revision Notes</h3>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>F = ma is the mathematical form of Newton's Second Law</li>
+                    <li>The acceleration of an object is directly proportional to the net force acting on it</li>
+                    <li>The acceleration of an object is inversely proportional to its mass</li>
+                    <li>The direction of acceleration is in the direction of the net force</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <Button className="w-full">
+                <Zap className="h-4 w-4 mr-2" /> Start Quick Revision Session
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Exam Tab Content */}
+        <TabsContent value="exam" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <FileText className="h-5 w-5 mr-2 text-red-600" /> 
+              Exam Practice
+            </h2>
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-medium mb-3">Previous Year Questions</h3>
+                <div className="space-y-3">
+                  <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="font-medium mb-1">NEET 2022</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      A particle of mass 'm' is projected with a velocity v = kv<sub>e</sub> (where v<sub>e</sub> is the escape velocity and k is a constant). The maximum height above the surface of earth attained by the particle is...
+                    </p>
+                    <Button variant="outline" size="sm">View Solution</Button>
+                  </div>
+                  
+                  <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="font-medium mb-1">NEET 2021</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      A block of mass m is placed on a smooth inclined wedge of inclination θ. The wedge is given an acceleration 'a' such that the block remains stationary relative to the wedge. The force of reaction on the block will be...
+                    </p>
+                    <Button variant="outline" size="sm">View Solution</Button>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium mb-3">Practice Tests</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Button variant="outline">
+                    Basic Level Test (5 Questions)
+                  </Button>
+                  <Button variant="outline">
+                    Advanced Level Test (10 Questions)
+                  </Button>
+                </div>
+              </div>
+              
+              <Button className="w-full">
+                Generate New Practice Questions
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Notes Tab Content */}
+        <TabsContent value="notes" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <BookMarked className="h-5 w-5 mr-2 text-amber-600" /> 
+              Your Notes
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="mb-4">
+                <textarea
+                  value={userNotes}
+                  onChange={(e) => setUserNotes(e.target.value)}
+                  placeholder="Type your notes here..."
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md p-3 min-h-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
+                />
+              </div>
+              
+              <div className="flex justify-end">
+                <Button onClick={handleSaveNotes}>
+                  Save Notes
+                </Button>
+              </div>
+              
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
+                <h3 className="font-medium mb-2">Note Taking Tips</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                  <li>Focus on key concepts and formulas</li>
+                  <li>Use your own words to improve understanding</li>
+                  <li>Create connections with other concepts</li>
+                  <li>Note common problem patterns and solutions</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        {/* Discuss Tab Content */}
+        <TabsContent value="discuss" className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <MessageSquare className="h-5 w-5 mr-2 text-violet-600" /> 
+              Discuss With AI Tutor
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-100 dark:border-violet-800/30">
+                <h3 className="font-medium mb-2">Ask Questions About This Concept</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Not sure about something? Ask our AI tutor any questions about Newton's Second Law.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type your question here..."
+                    className="flex-1 border border-gray-300 dark:border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:bg-gray-800"
+                  />
+                  <Button>Ask</Button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Suggested Questions:</div>
+                <div className="grid grid-cols-1 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start">
+                    How does Newton's Second Law relate to momentum?
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start">
+                    Can you explain Newton's Second Law with everyday examples?
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start">
+                    What are common misconceptions about Newton's Second Law?
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </div>
   );
 };
 
