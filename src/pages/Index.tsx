@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import Hero3DSection from '@/components/home/Hero3DSection';
+import HeroSection from '@/components/home/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -59,16 +59,9 @@ const Index = () => {
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
     document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     
-    // Init slider autoplay
-    const initSliderInterval = setInterval(() => {
-      // Dispatch an event to trigger slider movement
-      document.dispatchEvent(new CustomEvent('hero-slider-next'));
-    }, 5000); // Change slide every 5 seconds
-    
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
       document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
-      clearInterval(initSliderInterval);
     };
   }, []);
 
@@ -78,7 +71,7 @@ const Index = () => {
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
-        <Hero3DSection />
+        <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
