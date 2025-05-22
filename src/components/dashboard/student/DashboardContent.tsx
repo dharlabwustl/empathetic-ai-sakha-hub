@@ -78,8 +78,8 @@ const DashboardContent = ({
   const revisionItems = [
     {
       id: '1',
-      title: 'Thermodynamics - First Law',
-      subject: 'Physics',
+      title: 'Cell Organelles',
+      subject: 'Biology',
       type: 'concept',
       priority: 'high',
       dueDate: new Date().toISOString(),
@@ -87,21 +87,21 @@ const DashboardContent = ({
     },
     {
       id: '2',
-      title: 'Periodic Table Elements',
+      title: 'Acid-Base Reactions',
       subject: 'Chemistry',
       type: 'flashcard',
       priority: 'medium',
       dueDate: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-      retentionScore: 72
+      retentionScore: 65
     },
     {
       id: '3',
-      title: 'Cell Structure Quiz',
-      subject: 'Biology',
+      title: 'Newton's Laws of Motion',
+      subject: 'Physics',
       type: 'quiz',
       priority: 'low',
       dueDate: new Date(Date.now() + 172800000).toISOString(), // Day after tomorrow
-      retentionScore: 88
+      retentionScore: 85
     }
   ];
 
@@ -151,7 +151,7 @@ const DashboardContent = ({
         </div>
       )}
       
-      {/* Revision Loop Section */}
+      {/* Revision Loop Section - For the main dashboard */}
       {activeTab === 'overview' && (
         <div className="mb-6">
           <RevisionLoopSection revisionItems={revisionItems} />

@@ -4,7 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCw, AlertTriangle, Check, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { RevisionItem } from '@/types/student/dashboard';
+import { motion } from 'framer-motion';
+
+interface RevisionItem {
+  id: string;
+  title: string;
+  subject: string;
+  type: string;
+  priority: string;
+  dueDate: string;
+  retentionScore: number;
+}
 
 interface RevisionLoopSectionProps {
   revisionItems: RevisionItem[];
@@ -58,10 +68,13 @@ const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionItems
         
         <div className="space-y-3">
           {revisionItems && revisionItems.length > 0 ? (
-            revisionItems.map(item => (
-              <div 
+            revisionItems.map((item, index) => (
+              <motion.div 
                 key={item.id}
                 className="p-3 border rounded-lg bg-gradient-to-r from-amber-50/50 to-white dark:from-amber-900/10 dark:to-gray-800/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.4 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -99,7 +112,7 @@ const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionItems
                     Review Now
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))
           ) : (
             <div className="text-center py-6 text-muted-foreground">

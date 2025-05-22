@@ -41,27 +41,18 @@ const PostLoginWelcomeBack = () => {
     const isGoogleSignup = localStorage.getItem('google_signup') === 'true';
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     const hasSeenDashboardWelcome = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
-    const hasSeenTour = localStorage.getItem('hasSeenTour') === 'true';
     const needsStudyPlanCreation = localStorage.getItem('needs_study_plan_creation') === 'true';
     
     if (isNewUser || isGoogleSignup) {
       // For new users, show welcome slider if they haven't seen it
       if (sawWelcomeSlider) {
         setShowSlider(false);
-        
-        // Show tour if they haven't seen it, otherwise show dashboard prompt
-        if (!hasSeenTour) {
-          setShowTour(true);
+        // Show dashboard prompt if they haven't seen it
+        if (hasSeenDashboardWelcome) {
           setShowDashboardPrompt(false);
-        } 
-        // Show dashboard prompt if they haven't seen it but have seen tour
-        else if (!hasSeenDashboardWelcome) {
+          setShowTour(true);
+        } else {
           setShowDashboardPrompt(true);
-          setShowTour(false);
-        }
-        // If they've seen both, redirect
-        else {
-          redirectToDashboard();
         }
       }
       
@@ -75,8 +66,10 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // For returning users who have seen everything, skip directly to dashboard
-    if (sawWelcomeSlider && hasSeenDashboardWelcome && hasSeenTour) {
+    // For returning users who have seen both, skip directly to dashboard
+    const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
+    
+    if (sawWelcomeSlider && hasSeenDashboardWelcome && sawWelcomeTour) {
       // Check if study plan creation is needed
       if (needsStudyPlanCreation) {
         setShowStudyPlanDialog(true);
@@ -88,19 +81,18 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // If they've seen the slider but not tour, show tour
-    if (sawWelcomeSlider && !hasSeenTour) {
+    // If they've seen the slider but not the dashboard welcome, show dashboard welcome
+    if (sawWelcomeSlider && !hasSeenDashboardWelcome) {
       setShowSlider(false);
-      setShowTour(true);
-      setShowDashboardPrompt(false);
+      setShowDashboardPrompt(true);
       return;
     }
     
-    // If they've seen the slider and tour but not the dashboard welcome, show dashboard welcome
-    if (sawWelcomeSlider && hasSeenTour && !hasSeenDashboardWelcome) {
+    // If they've seen the slider and dashboard welcome but not the tour, show tour
+    if (sawWelcomeSlider && hasSeenDashboardWelcome && !sawWelcomeTour) {
       setShowSlider(false);
-      setShowTour(false);
-      setShowDashboardPrompt(true);
+      setShowDashboardPrompt(false);
+      setShowTour(true);
       return;
     }
     
@@ -122,21 +114,20 @@ const PostLoginWelcomeBack = () => {
   const handleSliderComplete = () => {
     localStorage.setItem('sawWelcomeSlider', 'true');
     setShowSlider(false);
-    setShowTour(true); // Show tour first
-    setShowDashboardPrompt(false);
-  };
-  
-  // Handle tour completion
-  const handleTourComplete = () => {
-    localStorage.setItem('hasSeenTour', 'true');
-    setShowTour(false);
-    setShowDashboardPrompt(true); // Then show dashboard prompt
+    setShowDashboardPrompt(true);
   };
   
   // Handle dashboard prompt completion
   const handleDashboardPromptComplete = () => {
     localStorage.setItem('hasSeenDashboardWelcome', 'true');
     setShowDashboardPrompt(false);
+    setShowTour(true);
+  };
+  
+  // Handle tour completion
+  const handleTourComplete = () => {
+    localStorage.setItem('sawWelcomeTour', 'true');
+    setShowTour(false);
     
     // Check if study plan creation is needed (for new/Google signup users)
     if (localStorage.getItem('needs_study_plan_creation') === 'true') {
@@ -178,8 +169,16 @@ const PostLoginWelcomeBack = () => {
         </div>
       )}
       
-      {/* Tour guide after welcome slider */}
-      {showTour && !showSlider && (
+      {/* Dashboard welcome prompt after slider */}
+      {showDashboardPrompt && (
+        <WelcomeDashboardPrompt 
+          userName={userData.name || "Student"}
+          onComplete={handleDashboardPromptComplete}
+        />
+      )}
+      
+      {/* Tour guide after dashboard welcome */}
+      {showTour && (
         <div className="h-full w-full">
           <WelcomeTour 
             open={showTour}
@@ -192,14 +191,6 @@ const PostLoginWelcomeBack = () => {
             loginCount={1}
           />
         </div>
-      )}
-      
-      {/* Dashboard welcome prompt after tour */}
-      {showDashboardPrompt && !showTour && !showSlider && (
-        <WelcomeDashboardPrompt 
-          userName={userData.name || "Student"}
-          onComplete={handleDashboardPromptComplete}
-        />
       )}
       
       {/* Study Plan Creation Dialog for Google signup users */}
