@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Mic, MicOff, Volume2, VolumeX, CheckCircle } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,38 +21,22 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [isFieldPromptVisible, setIsFieldPromptVisible] = useState(false);
-  const [voiceCommands, setVoiceCommands] = useState<Record<string, boolean>>({});
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   
-  // Field specific voice prompts - made shorter and direct
+  // Field specific voice prompts - made shorter and more direct
   const fieldPrompts: Record<string, string> = {
-    name: "Your name",
-    email: "Your email",
-    mobile: "Your mobile number",
-    password: "Your password",
-    confirmPassword: "Confirm password",
-    goal: "Your exam goal",
-    role: "Student or tutor", 
-    institute: "Your institute name",
-    examDate: "Your exam date",
-    studyHours: "Daily study hours",
-    studyLocation: "Where you study",
-  };
-
-  // List of supported voice commands for automatic field recognition
-  const voiceFieldTriggers: Record<string, string[]> = {
-    name: ["name", "my name", "full name", "username"],
-    email: ["email", "email address", "mail"],
-    mobile: ["mobile", "phone", "number", "mobile number", "phone number"],
-    password: ["password", "pass", "secret"],
-    confirmPassword: ["confirm", "confirm password", "repeat password", "same password"],
-    goal: ["goal", "exam goal", "aim", "target", "exam"],
-    role: ["role", "student", "tutor", "teacher"],
-    institute: ["institute", "school", "college"],
-    examDate: ["exam date", "date", "when", "test date"],
-    studyHours: ["hours", "time", "study hours", "study time"],
-    studyLocation: ["location", "where", "place", "study location"]
+    name: "Say your name",
+    email: "Say your email",
+    mobile: "Say your mobile number",
+    password: "Say your password",
+    confirmPassword: "Confirm your password",
+    goal: "Say which exam you're preparing for",
+    role: "Say student or tutor", 
+    institute: "Say your institute name",
+    examDate: "Say your exam date",
+    studyHours: "Say daily study hours",
+    studyLocation: "Say where you usually study",
   };
   
   // Get currently focused element and set as active field
@@ -65,39 +49,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       setIsFieldPromptVisible(true);
       setTimeout(() => setIsFieldPromptVisible(false), 3000);
     }
-  };
-  
-  // Identify field by spoken command
-  const identifyFieldByCommand = (transcript: string): string | null => {
-    const lowerTranscript = transcript.toLowerCase();
-    
-    for (const [fieldId, triggers] of Object.entries(voiceFieldTriggers)) {
-      for (const trigger of triggers) {
-        if (lowerTranscript.includes(trigger)) {
-          return fieldId;
-        }
-      }
-    }
-    
-    return null;
-  };
-  
-  // Focus field programmatically
-  const focusField = (fieldId: string) => {
-    const inputElement = document.getElementById(fieldId) as HTMLInputElement;
-    if (inputElement) {
-      inputElement.focus();
-      setActiveField(fieldId);
-      
-      toast({
-        title: `Field selected: ${fieldId}`,
-        description: "Now say your information",
-        duration: 2000,
-      });
-      
-      return true;
-    }
-    return false;
   };
   
   // Initialize speech recognition
@@ -124,21 +75,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       const last = event.results.length - 1;
       const transcript = event.results[last][0].transcript.trim();
       
-      // Check if this is a command to select a field
-      if (!activeField && event.results[last].isFinal) {
-        const detectedField = identifyFieldByCommand(transcript);
-        if (detectedField) {
-          const focused = focusField(detectedField);
-          if (focused) {
-            // Field was successfully focused, restart listening for field content
-            setTimeout(() => {
-              startListening();
-            }, 500);
-            return;
-          }
-        }
-      }
-      
       if (activeField && event.results[last].isFinal) {
         let processedText = transcript;
         
@@ -161,18 +97,11 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
         // Pass final transcript to parent component
         onVoiceInput(activeField, processedText);
         
-        // Show success toast
+        // Show success toast instead of speaking
         toast({
-          title: "Voice input captured",
-          description: processedText.substring(0, 30) + (processedText.length > 30 ? '...' : ''),
-          icon: <CheckCircle className="h-4 w-4 text-green-500" />
+          title: "Voice Captured",
+          description: `${activeField}: ${transcript.substring(0, 30)}${transcript.length > 30 ? '...' : ''}`,
         });
-        
-        // Track which fields have been filled by voice
-        setVoiceCommands(prev => ({
-          ...prev,
-          [activeField]: true
-        }));
       }
     };
     
@@ -200,19 +129,23 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       initSpeechRecognition();
     }
     
-    if (recognitionRef.current) {
+    if (recognitionRef.current && activeField) {
       try {
         recognitionRef.current.start();
         setIsListening(true);
         
         toast({
-          title: activeField ? `Listening for ${activeField}...` : "Listening for field name...",
-          description: activeField ? "Speak now" : "Say field name like 'name', 'email', etc.",
-          duration: 2000
+          title: "Listening...",
+          description: `Speak now for ${activeField}`,
         });
       } catch (err) {
         console.error("Error starting speech recognition:", err);
       }
+    } else {
+      toast({
+        title: "Click on a field first",
+        description: "Tap any form field before using voice",
+      });
     }
   };
   
@@ -265,30 +198,39 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     window.speechSynthesis.speak(utterance);
   };
   
-  // Short welcome guidance for current step
+  // Set up event listeners for field focus
   useEffect(() => {
-    if (isOpen && !isMuted) {
-      // Very brief step guidance
-      const stepGuidance: Record<string, string> = {
-        role: "Select your role",
-        goal: "Choose your exam goal",
-        demographics: "Say your details",
-        personality: "Select your personality",
-        habits: "Tell us your study habits",
-        signup: "Complete your signup"
-      };
-      
-      if (currentStep && stepGuidance[currentStep]) {
-        setTimeout(() => {
-          speakText(stepGuidance[currentStep] + ". Say field name or click on any field.");
-        }, 500);
-      }
+    // Voice guidance for the current step - shortened and more direct
+    const stepGuidance: Record<string, string> = {
+      role: "Select your role: student or tutor",
+      goal: "Select your exam goal",
+      demographics: "Enter your details",
+      personality: "Select your personality",
+      sentiment: "How are you feeling today?",
+      habits: "Tell us about your study habits",
+      interests: "Select your interests",
+      signup: "Complete your signup details"
+    };
+    
+    // Provide guidance when step changes - only on initial load
+    if (currentStep && stepGuidance[currentStep] && isOpen && !isMuted) {
+      setTimeout(() => {
+        speakText(stepGuidance[currentStep]);
+      }, 500);
     }
-
+    
     // Add focus event listeners
     document.addEventListener('focusin', handleFieldFocus);
     
+    // Load available voices
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        // Voices loaded
+      };
+    }
+    
     return () => {
+      // Clean up
       document.removeEventListener('focusin', handleFieldFocus);
       
       if (recognitionRef.current) {
@@ -327,38 +269,13 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
         )}
       </AnimatePresence>
       
-      {/* Voice command indication */}
-      <motion.div 
-        className="fixed top-24 right-6 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 max-w-xs"
-        initial={{ opacity: 0, scale: 0.9, x: 20 }}
-        animate={{ opacity: 1, scale: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <p className="text-xs font-medium mb-2">Say field name to focus, then speak to fill:</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          {Object.keys(fieldPrompts).map(field => (
-            <div key={field} className="flex items-center gap-1">
-              <div className={`h-2 w-2 rounded-full ${voiceCommands[field] ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
-              <span>{field}</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-      
       {/* Voice Assistant Controls */}
       <motion.div 
-        className="fixed bottom-20 right-6 z-50 flex space-x-2"
+        className="fixed bottom-20 right-6 z-50"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
       >
-        {/* Field focus button */}
-        <motion.div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-2 flex items-center gap-2">
-          <p className="text-xs font-medium">
-            {activeField ? `Field: ${activeField}` : 'No field selected'}
-          </p>
-        </motion.div>
-        
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 flex items-center gap-2">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -369,6 +286,7 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
               variant={isListening ? "destructive" : "default"}
               className="w-10 h-10 rounded-full"
               onClick={isListening ? stopListening : startListening}
+              disabled={!activeField}
               title={isListening ? "Stop listening" : "Start listening"}
             >
               {isListening ? (
@@ -398,25 +316,36 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
               {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </Button>
           </motion.div>
+          
+          <div className="text-xs max-w-[150px] truncate">
+            {activeField ? (
+              <motion.span 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                key={activeField}
+              >
+                {activeField}
+              </motion.span>
+            ) : 'Click on a field'}
+          </div>
         </div>
-      </motion.div>
-      
-      {/* Listening status indicator */}
-      {isListening && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-        >
+        
+        {/* Pulsing hint when field is active but not listening */}
+        {activeField && !isListening && (
           <motion.div 
-            className="bg-indigo-600/90 text-white rounded-full p-8 flex items-center justify-center"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            className="absolute -top-2 -right-2"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.5 }}
           >
-            <Mic size={48} />
+            <motion.div
+              className="h-4 w-4 rounded-full bg-indigo-500"
+              animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            />
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
     </>
   );
 };
