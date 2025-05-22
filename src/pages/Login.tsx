@@ -98,6 +98,33 @@ const Login = () => {
     };
   }, [navigate, toast]);
   
+  // Add function to stop any ongoing speech when leaving page
+  useEffect(() => {
+    // Ensure voice stops when navigating away
+    const handlePageChange = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (window.currentSpeech) {
+        window.currentSpeech = undefined;
+      }
+    };
+    
+    // Attach event listeners
+    window.addEventListener('beforeunload', handlePageChange);
+    window.addEventListener('popstate', handlePageChange);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handlePageChange);
+      window.removeEventListener('popstate', handlePageChange);
+      
+      // Also cancel speech when component unmounts
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+  
   const handleLoginError = (error: string) => {
     toast({
       title: "Login failed",

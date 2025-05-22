@@ -66,7 +66,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         >
           <span className="mr-1">New</span>
-          AI Tutor
+          AI Study companion
         </motion.div>
       </motion.div>
       

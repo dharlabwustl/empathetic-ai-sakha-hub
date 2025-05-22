@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -193,6 +193,17 @@ const Signup = () => {
         userName="New User"
         language="en"
       />
+      
+      {/* Back to Home button */}
+      <motion.button
+        onClick={goToHomePage}
+        className="absolute top-4 left-4 text-sm flex items-center px-3 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <ArrowLeft className="mr-1 h-4 w-4" />
+        Back to Home
+      </motion.button>
       
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

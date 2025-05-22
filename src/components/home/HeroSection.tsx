@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -30,8 +29,8 @@ const HeroSection: React.FC = () => {
       ref={sectionRef}
       className="relative overflow-hidden min-h-screen py-12 md:py-16 lg:py-0 flex items-center"
     >
-      {/* Enhanced Immersive 3D Background with interactive elements */}
-      <div className="absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
+      {/* Enhanced Immersive 3D Background with interactive elements - matching post-login dashboard */}
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
         {/* 3D Grid Pattern */}
         <div className="absolute inset-0 perspective-1000">
           <div 
@@ -119,66 +118,6 @@ const HeroSection: React.FC = () => {
           >
             <div className="absolute inset-y-0 left-0 w-2 bg-indigo-700/50 rounded-l-md"></div>
           </div>
-        </motion.div>
-
-        <motion.div 
-          className="hidden md:block absolute bottom-[25%] right-[20%] w-20 h-24"
-          style={{ 
-            transformStyle: "preserve-3d", 
-            perspective: "1000px" 
-          }}
-          animate={{ 
-            y: [0, 10, 0],
-            rotateZ: [0, -3, 0], 
-            rotateY: [0, -15, 0]
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            ease: "easeInOut",
-            delay: 2
-          }}
-        >
-          <div 
-            className="absolute inset-0 rounded-md"
-            style={{
-              background: "linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.2))",
-              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-              backdropFilter: "blur(2px)",
-              transform: "translateZ(5px)"
-            }}
-          >
-            <div className="absolute inset-y-0 left-0 w-2 bg-green-700/50 rounded-l-md"></div>
-          </div>
-        </motion.div>
-
-        {/* Floating Formula Cards */}
-        <motion.div
-          className="hidden md:block absolute top-1/3 left-[8%] w-32 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-white/30 dark:border-gray-700/30"
-          animate={{ 
-            y: [0, 10, 0],
-            rotateZ: [0, -3, 0],
-          }}
-          transition={{ 
-            duration: 7, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(10deg) rotateY(15deg)"
-          }}
-        >
-          <motion.div className="text-xs text-indigo-800 dark:text-indigo-300 font-mono">
-            E = mc<sup>2</sup>
-          </motion.div>
-          <motion.div className="text-xs text-purple-800 dark:text-purple-300 font-mono mt-2">
-            F = ma
-          </motion.div>
-          <motion.div className="text-xs text-blue-800 dark:text-blue-300 font-mono mt-2">
-            PV = nRT
-          </motion.div>
         </motion.div>
 
         {/* Floating Chemistry Formula */}
