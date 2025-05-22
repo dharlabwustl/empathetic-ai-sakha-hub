@@ -1,3 +1,4 @@
+
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -9,7 +10,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --primary: 35 100% 50%; /* #FFA500 (Orange) */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 35 90% 45%; /* Darker orange for secondary */
@@ -26,18 +27,18 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --ring: 35 100% 50%; /* #FFA500 (Orange) */
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
     
     /* Updated colors for a more vibrant orange theme */
     --sakha-light-blue: 35 100% 85%; /* Changed to light orange */
@@ -58,7 +59,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --primary: 35 100% 50%; /* #FFA500 (Orange) */
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 35 90% 45%; /* Darker orange for secondary */
@@ -75,16 +76,16 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --ring: 35 100% 50%; /* #FFA500 (Orange) */
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --sidebar-primary: 35 100% 50%; /* #FFA500 (Orange) */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 35 100% 50%; /* Updated to #FFA500 (Orange) */
+    --sidebar-ring: 35 100% 50%; /* #FFA500 (Orange) */
     
     /* Updated Sakha colors for dark mode */
     --sakha-light-blue: 35 80% 75%; /* Changed to light orange */
@@ -101,7 +102,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-500;
 }
 
 /* Avatar glow effect */
@@ -111,7 +112,7 @@
 
 .avatar-glow::before {
   content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 opacity-75 blur-sm animate-pulse;
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 opacity-75 blur-sm animate-pulse;
   z-index: -1;
 }
 
@@ -131,10 +132,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 5px rgba(139, 92, 246, 0.7);
+    box-shadow: 0 0 15px 5px rgba(255, 165, 0, 0.7);
   }
 }
 
@@ -149,11 +150,11 @@
 
 /* New student-focused styles */
 .exam-card {
-  @apply bg-white rounded-xl p-6 border border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer;
+  @apply bg-white rounded-xl p-6 border border-orange-100 hover:border-orange-300 hover:shadow-lg transition-all cursor-pointer;
 }
 
 .feature-highlight {
-  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600 to-violet-600 p-6 text-white;
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 p-6 text-white;
 }
 
 .feature-highlight::before {
@@ -162,5 +163,5 @@
 }
 
 .student-badge {
-  @apply bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
+  @apply bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
 }

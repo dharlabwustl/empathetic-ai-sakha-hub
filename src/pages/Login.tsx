@@ -43,7 +43,7 @@ const Login = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100/30 via-white to-amber-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="User"
@@ -59,9 +59,9 @@ const Login = () => {
         </div>
         
         <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-violet-700 text-white">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white">
             <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
-            <CardDescription className="text-blue-100">
+            <CardDescription className="text-orange-100">
               Choose your account type below to continue
             </CardDescription>
           </CardHeader>
@@ -85,7 +85,7 @@ const Login = () => {
           <CardFooter className="flex justify-center border-t pt-6">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+              <Link to="/signup" className="text-orange-600 hover:text-orange-700 font-medium hover:underline">
                 Sign Up
               </Link>
             </p>
@@ -93,7 +93,7 @@ const Login = () => {
         </Card>
         
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-blue-600 hover:underline">Contact Support</a></p>
+          <p>Need help? <a href="#" className="text-orange-600 hover:underline">Contact Support</a></p>
         </div>
       </div>
     </div>

@@ -1,374 +1,385 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap, RotateCw } from 'lucide-react';
+import { Calendar, BookMarked, BarChart3, BookOpen, Zap } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
-  setActiveFeature: React.Dispatch<React.SetStateAction<number>>;
+  setActiveFeature: (index: number) => void;
 }
 
 const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setActiveFeature }) => {
+  // Dashboard features
   const features = [
     {
-      title: "Smart Study Plan",
-      description: "AI-generated study plans personalized to your learning style and pace",
+      name: "Smart Study Plan",
       icon: <Calendar className="h-5 w-5" />,
-      image: "/lovable-uploads/16da1ff5-9fab-4b4b-bd21-5977748acd16.png",
-      highlight: "Your daily progress at a glance"
+      color: "text-orange-600 dark:text-orange-400",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+      previewImage: "/lovable-uploads/study-plan-preview.png", // Placeholder - update when you have actual images
     },
     {
-      title: "Concept Cards",
-      description: "Interactive visual learning for complex topics",
-      icon: <BookMarked className="h-5 w-5" />,
-      image: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
-      highlight: "Master difficult concepts with ease"
-    },
-    {
-      title: "Revision Loops",
-      description: "Smart spaced repetition for maximum retention",
-      icon: <RotateCw className="h-5 w-5" />,
-      image: "/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png",
-      highlight: "Never forget what you've learned"
-    },
-    {
-      title: "Exam Readiness",
-      description: "Track your exam preparation progress with analytics",
-      icon: <PieChart className="h-5 w-5" />,
-      image: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
-      highlight: "Know exactly when you're ready"
-    },
-    {
-      title: "AI Tutor",
-      description: "24/7 support for all your academic queries",
+      name: "AI Tutor",
       icon: <BookOpen className="h-5 w-5" />,
-      image: "/lovable-uploads/357a0e22-3fec-4a5c-808e-0540d5f7ba05.png",
-      highlight: "Never get stuck again"
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+      previewImage: "/lovable-uploads/ai-tutor-preview.png", // Placeholder - update when you have actual images
+    },
+    {
+      name: "Exam Readiness",
+      icon: <BarChart3 className="h-5 w-5" />,
+      color: "text-orange-600 dark:text-orange-400",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+      previewImage: "/lovable-uploads/exam-readiness-preview.png", // Placeholder - update when you have actual images
+    },
+    {
+      name: "Concept Cards",
+      icon: <BookMarked className="h-5 w-5" />,
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+      previewImage: "/lovable-uploads/concept-cards-preview.png", // Placeholder - update when you have actual images
+    },
+    {
+      name: "Revision Loops",
+      icon: <Zap className="h-5 w-5" />,
+      color: "text-orange-600 dark:text-orange-400", 
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+      previewImage: "/lovable-uploads/revision-loops-preview.png", // Placeholder - update when you have actual images
     },
   ];
 
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.5 }}
-      className="w-full lg:w-1/2 flex flex-col items-center relative"
-    >
-      {/* Dashboard preview container with 3D effect */}
-      <div className="relative w-full max-w-lg perspective-1000 preserve-3d">
-        {/* Animated screen glow */}
-        <motion.div 
-          className="absolute inset-2 bg-orange-400/20 dark:bg-orange-500/20 rounded-xl blur-xl"
-          animate={{ 
-            opacity: [0.5, 0.8, 0.5],
-            scale: [0.98, 1.01, 0.98]
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-        />
+  // Default preview content - Exam readiness score visualization
+  const examReadinessContent = (
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Exam Readiness Score</h3>
+      
+      <div className="flex justify-center mb-6">
+        <div className="relative">
+          {/* Circular progress indicator */}
+          <svg className="w-32 h-32">
+            <circle 
+              cx="64" 
+              cy="64" 
+              r="58" 
+              stroke="#FFA50033" 
+              strokeWidth="12" 
+              fill="transparent" 
+              className="dark:opacity-30"
+            />
+            <circle 
+              cx="64" 
+              cy="64" 
+              r="58"
+              stroke="#FFA500" 
+              strokeWidth="12" 
+              strokeDasharray="365" 
+              strokeDashoffset="127" 
+              fill="transparent" 
+              strokeLinecap="round" 
+              transform="rotate(-90 64 64)" 
+              className="transition-all duration-1000"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center flex-col">
+            <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">65%</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">+7% this week</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span className="font-medium text-gray-700 dark:text-gray-300">Physics</span>
+            <span className="text-orange-600 dark:text-orange-400">72%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: "72%" }}></div>
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span className="font-medium text-gray-700 dark:text-gray-300">Chemistry</span>
+            <span className="text-orange-600 dark:text-orange-400">58%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: "58%" }}></div>
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span className="font-medium text-gray-700 dark:text-gray-300">Biology</span>
+            <span className="text-orange-600 dark:text-orange-400">65%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: "65%" }}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
-        {/* Dashboard frame */}
-        <motion.div 
-          className="relative bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-950 rounded-xl shadow-xl overflow-hidden border border-gray-700 depth-shadow"
-          animate={{ 
-            rotateX: [0, 2, 0, -2, 0], 
-            rotateY: [0, -3, 0, 3, 0] 
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-        >
-          {/* Screen content */}
-          <div className="p-1 relative">
-            {/* Dashboard header */}
-            <div className="bg-gradient-to-r from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800 p-3 rounded-t-lg flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                <div className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
-                <div className="h-3 w-3 rounded-full bg-green-500"></div>
-              </div>
-              <div className="text-white text-xs font-medium">PREPZR Dashboard</div>
-              <div className="flex items-center">
-                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse mr-1"></div>
-                <div className="text-xs text-gray-400">Live</div>
-              </div>
+  // Feature-specific previews
+  const featurePreviews = [
+    // Study Plan Preview
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Personalized Study Plan</h3>
+      <div className="space-y-3">
+        <div className="p-3 border border-orange-200 dark:border-orange-900/50 rounded-md bg-orange-50 dark:bg-orange-900/20">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+              <span className="font-medium">Physics - Motion Laws</span>
             </div>
-
-            {/* Feature images/content with animated transitions */}
-            <div className="relative aspect-video w-full bg-gray-50 dark:bg-gray-900 overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeFeature}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0"
-                >
-                  <img 
-                    src={features[activeFeature].image} 
-                    alt={features[activeFeature].title}
-                    className="w-full h-full object-cover object-top"
-                  />
-                  
-                  {/* Feature highlight overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <h3 className="text-white font-bold">{features[activeFeature].title}</h3>
-                    <p className="text-white/80 text-sm">{features[activeFeature].highlight}</p>
-                  </div>
-                  
-                  {/* Animated cursor */}
-                  <motion.div 
-                    className="absolute w-5 h-5 border-2 border-orange-400 rounded-full flex items-center justify-center pointer-events-none"
-                    animate={{ 
-                      x: [100, 250, 180, 300],
-                      y: [150, 100, 200, 120],
-                      scale: [1, 0.8, 1]
-                    }}
-                    transition={{ 
-                      duration: 5,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                  >
-                    <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
-                  </motion.div>
-                  
-                  {/* Click effect */}
-                  <motion.div
-                    className="absolute w-8 h-8 bg-white/30 rounded-full pointer-events-none"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ 
-                      scale: [0, 1, 1.5],
-                      opacity: [0, 0.5, 0]
-                    }}
-                    transition={{ 
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 2.5
-                    }}
-                    style={{ left: '220px', top: '140px' }}
-                  />
-
-                  {/* Feature-specific interactive elements */}
-                  {/* Exam Readiness Score - visible for the Exam Readiness feature */}
-                  {activeFeature === 3 && (
-                    <motion.div
-                      className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg p-3 shadow-lg"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <div className="text-white text-xs font-medium mb-1">Exam Readiness Score</div>
-                      <div className="flex items-center">
-                        <motion.div 
-                          className="h-2 bg-white/30 rounded-full w-32 overflow-hidden"
-                        >
-                          <motion.div 
-                            className="h-full bg-white rounded-full"
-                            initial={{ width: '20%' }}
-                            animate={{ width: '75%' }}
-                            transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
-                          />
-                        </motion.div>
-                        <motion.div 
-                          className="ml-2 text-white font-bold text-sm"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 2 }}
-                        >
-                          75%
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Revision Loop Animation - visible for the Revision Loops feature */}
-                  {activeFeature === 2 && (
-                    <motion.div
-                      className="absolute top-10 right-10"
-                      initial={{ opacity: 0, rotate: 0 }}
-                      animate={{ 
-                        opacity: 1, 
-                        rotate: 360 
-                      }}
-                      transition={{ 
-                        delay: 0.3, 
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "linear"
-                      }}
-                    >
-                      <div className="w-12 h-12 rounded-full border-2 border-orange-400 border-dashed flex items-center justify-center">
-                        <div className="w-8 h-8 rounded-full bg-orange-500/30 flex items-center justify-center">
-                          <div className="w-4 h-4 rounded-full bg-orange-500" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Smart Study Plan interactive elements */}
-                  {activeFeature === 0 && (
-                    <>
-                      <motion.div
-                        className="absolute top-20 left-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-md p-2"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                          <span className="text-xs text-white">Physics: 2h completed</span>
-                        </div>
-                      </motion.div>
-                      
-                      <motion.div
-                        className="absolute top-40 right-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-md p-2"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.8 }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <span className="text-xs text-white">Biology: Next up</span>
-                        </div>
-                      </motion.div>
-                    </>
-                  )}
-
-                  {/* Concept Cards interactive elements */}
-                  {activeFeature === 1 && (
-                    <motion.div 
-                      className="absolute top-1/4 right-1/4 w-40 h-32 bg-orange-500/90 rounded-lg p-3 shadow-lg rotate-3 transform-gpu"
-                      initial={{ opacity: 0, y: 20, rotateY: 90 }}
-                      animate={{ 
-                        opacity: 1, 
-                        y: 0,
-                        rotateY: [90, 0, 10, 0],
-                        z: [0, 50, 20, 0]
-                      }}
-                      transition={{ 
-                        delay: 0.3,
-                        duration: 1.5,
-                        ease: "easeOut"
-                      }}
-                      style={{ transformStyle: "preserve-3d" }}
-                    >
-                      <h4 className="text-white text-xs font-bold mb-1">Photosynthesis</h4>
-                      <p className="text-white/90 text-xs">The process used by plants to convert light energy into chemical energy</p>
-                      <div className="absolute bottom-2 right-2 text-xs bg-white/20 rounded-full px-2 py-0.5">Tap to flip</div>
-                    </motion.div>
-                  )}
-
-                  {/* AI Tutor chat simulation */}
-                  {activeFeature === 4 && (
-                    <div className="absolute inset-0 flex flex-col">
-                      <div className="p-4 overflow-hidden flex-1">
-                        <motion.div 
-                          className="mb-3 bg-gray-200 dark:bg-gray-700 rounded-lg p-2 mr-16"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 }}
-                        >
-                          <p className="text-xs text-gray-800 dark:text-white">Can you explain the Krebs cycle?</p>
-                        </motion.div>
-                        
-                        <motion.div 
-                          className="mb-3 bg-orange-500 rounded-lg p-2 ml-16"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 1 }}
-                        >
-                          <p className="text-xs text-white">The Krebs cycle is a series of chemical reactions used by all aerobic organisms to release stored energy. It takes place in the mitochondria.</p>
-                        </motion.div>
-                        
-                        <motion.div 
-                          className="mb-3 bg-orange-500 rounded-lg p-2 ml-16"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 2 }}
-                        >
-                          <p className="text-xs text-white">Would you like me to explain the specific steps?</p>
-                        </motion.div>
-                        
-                        <motion.div
-                          className="absolute bottom-20 left-0 right-0 h-6"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [0, 1, 1, 0] }}
-                          transition={{ 
-                            delay: 3, 
-                            duration: 1.5,
-                            repeat: Infinity,
-                            repeatDelay: 2
-                          }}
-                        >
-                          <div className="flex gap-2 justify-center items-center">
-                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+            <span className="text-sm text-orange-600">9:00 - 10:30 AM</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Complete problems 1-15 from Newton's Laws chapter</p>
+        </div>
+        
+        <div className="p-3 border border-green-200 dark:border-green-900/50 rounded-md bg-green-50 dark:bg-green-900/20">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+              <span className="font-medium">Biology - Cell Structure</span>
             </div>
-
-            {/* Feature selector/navigation */}
-            <div className="bg-gray-800 dark:bg-gray-800 p-2 rounded-b-lg">
-              <div className="flex justify-between items-center">
-                {features.map((feature, index) => (
-                  <motion.button
-                    key={index}
-                    onClick={() => setActiveFeature(index)}
-                    className={`flex flex-col items-center p-2 rounded ${
-                      activeFeature === index 
-                        ? 'bg-orange-500/20 text-orange-400'
-                        : 'text-gray-400 hover:text-gray-200'
-                    } transition-colors`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <div className="p-1.5 rounded-full bg-gray-700/50">
-                      {feature.icon}
-                    </div>
-                    <span className="text-xs mt-1 hidden md:block">{feature.title.split(" ")[0]}</span>
-                    
-                    {activeFeature === index && (
-                      <motion.div 
-                        className="h-0.5 w-full bg-orange-400 mt-1"
-                        layoutId="activeIndicator"
-                      />
-                    )}
-                  </motion.button>
-                ))}
+            <span className="text-sm text-green-600">11:00 - 12:30 PM</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Review cell organelles and take practice quiz</p>
+        </div>
+        
+        <div className="p-3 border border-purple-200 dark:border-purple-900/50 rounded-md bg-purple-50 dark:bg-purple-900/20">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+              <span className="font-medium">Chemistry - Organic Compounds</span>
+            </div>
+            <span className="text-sm text-purple-600">2:00 - 3:30 PM</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Study functional groups and naming conventions</p>
+        </div>
+      </div>
+    </div>,
+    
+    // AI Tutor Preview
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">24/7 AI Tutor</h3>
+      <div className="border rounded-lg overflow-hidden">
+        <div className="bg-orange-100 dark:bg-orange-900/30 p-3 border-b">
+          <div className="flex items-center">
+            <span className="font-medium">Chemistry Help</span>
+          </div>
+        </div>
+        <div className="p-4 space-y-4">
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+              <span className="text-orange-600 font-medium">ME</span>
+            </div>
+            <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg max-w-[80%]">
+              <p className="text-sm">Can you explain how to balance this chemical equation: H₂ + O₂ → H₂O</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-3 justify-end">
+            <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-lg max-w-[80%]">
+              <p className="text-sm">
+                To balance this equation, we need equal atoms on both sides:
+                <br /><br />
+                Step 1: Count the atoms on each side.
+                <br />
+                Left: 2 H atoms, 2 O atoms
+                <br />
+                Right: 2 H atoms, 1 O atom
+                <br /><br />
+                Step 2: We need to balance oxygen by adding a coefficient to H₂O:
+                <br />
+                H₂ + O₂ → 2H₂O
+                <br /><br />
+                Step 3: Verify all atoms are balanced:
+                <br />
+                Left: 2 H atoms, 2 O atoms
+                <br />
+                Right: 4 H atoms, 2 O atoms
+                <br /><br />
+                Step 4: We need to balance hydrogen by updating the H₂ coefficient:
+                <br />
+                2H₂ + O₂ → 2H₂O
+                <br /><br />
+                Now we have:
+                <br />
+                Left: 4 H atoms, 2 O atoms
+                <br />
+                Right: 4 H atoms, 2 O atoms
+                <br /><br />
+                The balanced equation is: 2H₂ + O₂ → 2H₂O
+              </p>
+            </div>
+            <div className="flex-shrink-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-medium">AI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    
+    // Exam Readiness Preview (already defined above)
+    examReadinessContent,
+    
+    // Concept Cards Preview
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Interactive Concept Cards</h3>
+      <div className="flex justify-center">
+        <div className="perspective-1000 w-full max-w-xs">
+          <div className="relative preserve-3d h-60 w-full transition-all duration-500 hover:rotate-y-180">
+            <div className="absolute backface-hidden w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 border border-orange-200 dark:border-orange-800/30 rounded-lg p-5 flex flex-col">
+              <h4 className="font-bold text-lg text-orange-800 dark:text-orange-300 mb-2">Photosynthesis</h4>
+              <p className="text-gray-700 dark:text-gray-300 flex-grow text-sm">
+                The process by which green plants and certain microorganisms transform light energy into chemical energy.
+              </p>
+              <div className="text-xs text-right text-orange-600 dark:text-orange-400 mt-2">Tap to flip</div>
+            </div>
+            
+            <div className="absolute backface-hidden w-full h-full rotate-y-180 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-orange-200 dark:border-orange-800/30 rounded-lg p-5">
+              <h4 className="font-bold text-orange-800 dark:text-orange-300 mb-2">Key Points:</h4>
+              <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                <li>Takes place in chloroplasts</li>
+                <li>Converts CO₂ + H₂O → glucose + O₂</li>
+                <li>Requires sunlight, chlorophyll</li>
+                <li>Two phases: light-dependent reactions and Calvin cycle</li>
+              </ul>
+              <div className="flex justify-end mt-4">
+                <div className="bg-orange-200 dark:bg-orange-800/50 text-orange-800 dark:text-orange-300 text-xs px-2 py-1 rounded">
+                  Biology
+                </div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
-      
-      {/* Feature description */}
-      <motion.div 
-        className="mt-6 text-center max-w-md"
-        animate={{ opacity: 1 }}
-        initial={{ opacity: 0 }}
-        transition={{ delay: 1 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-          {features[activeFeature].title}
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          {features[activeFeature].description}
-        </p>
-      </motion.div>
-    </motion.div>
+    </div>,
+    
+    // Revision Loops Preview
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Revision Loops</h3>
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-orange-200 dark:bg-orange-800/50 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
+                <span className="text-white font-bold">85%</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium">Newton's Laws of Motion</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Next review: Tomorrow</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-amber-200 dark:bg-amber-800/50 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
+                <span className="text-white font-bold">62%</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium">Periodic Table Elements</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Next review: Today</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-red-200 dark:bg-red-800/50 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                <span className="text-white font-bold">43%</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium">Organic Chemistry Functional Groups</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Review now!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  ];
+
+  return (
+    <div className="flex-1 w-full lg:w-1/2 max-w-lg mx-auto lg:mx-0 lg:mr-4 xl:mr-0">
+      <div className="relative mx-auto">
+        {/* Dashboard Window with macOS style header */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+          {/* Browser-like header */}
+          <div className="bg-gray-100 dark:bg-gray-900 p-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+            <div className="flex space-x-1.5 mr-4">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div className="flex-1 text-center">
+              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">
+                PREPZR Dashboard
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard Content */}
+          <div className="p-4 bg-orange-50/50 dark:bg-gray-900/50">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-orange-800 dark:text-orange-300">Dashboard</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Welcome, Rahul</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+                R
+              </div>
+            </div>
+
+            {/* Feature navigation tabs */}
+            <div className="flex overflow-x-auto space-x-1 py-2 mb-4 scrollbar-thin scrollbar-thumb-orange-200 dark:scrollbar-thumb-orange-800 scrollbar-track-transparent">
+              {features.map((feature, index) => (
+                <button 
+                  key={index}
+                  onClick={() => setActiveFeature(index)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-sm transition-all ${
+                    activeFeature === index 
+                      ? `${feature.bgColor} ${feature.color} font-medium` 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {feature.icon}
+                  <span>{feature.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Feature preview section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden h-[320px] relative shadow-inner">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFeature}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  {featurePreviews[activeFeature]}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative elements around the dashboard */}
+        <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-orange-200 to-amber-300 dark:from-orange-700/30 dark:to-amber-700/30 rounded-full blur-2xl opacity-50 -z-10"></div>
+        <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-amber-200 to-orange-200 dark:from-amber-700/30 dark:to-orange-700/30 rounded-full blur-xl opacity-50 -z-10"></div>
+      </div>
+    </div>
   );
 };
 

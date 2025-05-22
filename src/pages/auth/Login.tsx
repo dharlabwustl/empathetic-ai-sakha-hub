@@ -54,6 +54,7 @@ const Login = () => {
       // Redirect directly to welcome flow, skipping login
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
+        // Fix: Remove app. prefix from domain routing
         navigate('/welcome-flow', { replace: true });
       }, 100);
       return;
@@ -63,6 +64,7 @@ const Login = () => {
     if (isAuthenticated || isLoggedIn) {
       console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
+        // Fix: Remove app. prefix from domain routing
         navigate(returnTo, { replace: true });
       }, 100);
       return;
@@ -71,6 +73,7 @@ const Login = () => {
     // If not authenticated, redirect to welcome-back after a short delay
     console.log("User not authenticated, redirecting to welcome-back");
     setTimeout(() => {
+      // Fix: Remove app. prefix from domain routing
       navigate(`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     }, 300);
     
@@ -81,7 +84,7 @@ const Login = () => {
   }, [navigate, isAuthenticated, location.search]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900 dark:to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 dark:from-gray-900 dark:to-amber-950/20">
       <VoiceGreeting 
         isFirstTimeUser={false}
         userName="Student"
@@ -90,14 +93,14 @@ const Login = () => {
       <div className="text-center p-8 rounded-lg bg-white dark:bg-gray-800 shadow-lg w-full max-w-md flex flex-col items-center">
         {isProcessing ? (
           <>
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-blue-600 dark:text-blue-400" />
-            <p className="text-xl font-medium">Preparing your dashboard...</p>
-            <p className="text-sm text-muted-foreground mt-2">Please wait while we load your personalized experience</p>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-6 text-orange-600 dark:text-orange-400" />
+            <p className="text-xl font-medium text-orange-800 dark:text-orange-300">Preparing your dashboard...</p>
+            <p className="text-sm text-orange-600/70 dark:text-orange-400/70 mt-2">Please wait while we load your personalized experience</p>
           </>
         ) : (
           <>
-            <p className="text-xl font-medium">Redirecting to login page...</p>
-            <p className="text-sm text-muted-foreground mt-2">You'll be redirected in a moment</p>
+            <p className="text-xl font-medium text-orange-800 dark:text-orange-300">Redirecting to login page...</p>
+            <p className="text-sm text-orange-600/70 dark:text-orange-400/70 mt-2">You'll be redirected in a moment</p>
           </>
         )}
       </div>
