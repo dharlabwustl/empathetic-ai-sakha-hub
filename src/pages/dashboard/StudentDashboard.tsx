@@ -9,7 +9,6 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
-import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
@@ -22,7 +21,7 @@ const StudentDashboard = () => {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
+  // Remove the showWelcomePrompt state to stop the additional prompt after the tour
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -67,7 +66,6 @@ const StudentDashboard = () => {
     const params = new URLSearchParams(location.search);
     const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
-    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
     // For new users who haven't seen the tour
     if (isNew && !hasSeenTour) {
@@ -76,15 +74,7 @@ const StudentDashboard = () => {
       setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
     } 
-    // For new users who have seen the tour but not the dashboard welcome
-    else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
-      setShowSplash(false);
-      setShowTourModal(false);
-      setShowWelcomePrompt(true);
-      setIsFirstTimeUser(true);
-      console.log("New user needs dashboard welcome prompt");
-    }
-    // For returning users
+    // For returning users, just check if they've seen the splash screen
     else {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
@@ -140,9 +130,7 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // After skipping tour, show welcome dashboard prompt
-    setShowWelcomePrompt(true);
-    
+    // Remove welcome dashboard prompt after tour
     console.log("Tour skipped and marked as seen");
   };
 
@@ -151,21 +139,8 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // After completing tour, show welcome dashboard prompt
-    setShowWelcomePrompt(true);
-    
+    // Remove welcome dashboard prompt after tour
     console.log("Tour completed and marked as seen");
-  };
-
-  const handleWelcomePromptComplete = () => {
-    setShowWelcomePrompt(false);
-  };
-
-  const handleCompleteOnboardingWrapper = () => {
-    handleCompleteOnboarding();
-    // Set the new user flag to show tour after onboarding
-    localStorage.setItem('new_user_signup', 'true');
-    navigate('/dashboard/student?new=true');
   };
 
   const handleOpenVoiceAssistant = () => {
@@ -254,17 +229,11 @@ const StudentDashboard = () => {
         isFirstTimeUser={isFirstTimeUser}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
+        loginCount={loginCount}
       />
 
-      {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
-      {showWelcomePrompt && (
-        <WelcomeDashboardPrompt 
-          userName={userProfile.name || userProfile.firstName || 'Student'}
-          onComplete={handleWelcomePromptComplete}
-        />
-      )}
-
+      {/* Removed WelcomeDashboardPrompt component that was showing after tour completion */}
+      
       {/* Enhanced Voice Greeting with UN sustainability goals message */}
       <VoiceGreeting 
         isFirstTimeUser={isFirstTimeUser} 

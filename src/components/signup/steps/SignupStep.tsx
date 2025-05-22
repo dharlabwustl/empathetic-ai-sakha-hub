@@ -1,434 +1,380 @@
 
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { useOnboarding } from "../OnboardingContext";
-import { motion } from "framer-motion";
-import { Star, Eye, EyeOff, Info } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Loader2, Eye, EyeOff, Check, X, Mail, Smartphone, Shield } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { TabsList, TabsTrigger, Tabs, TabsContent } from '@/components/ui/tabs';
 
 interface SignupStepProps {
-  onSubmit: (formValues: { 
-    name: string; 
-    mobile: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    otp: string; 
-    institute?: string;
-    agreeTerms: boolean 
-  }) => void;
+  onSubmit: (formValues: { name: string; mobile: string; email: string; password: string; otp: string }) => void;
   isLoading: boolean;
-  handlePasswordRequirementsFocus?: () => void;
-  showPasswordRequirements?: boolean;
 }
 
-const SignupStep: React.FC<SignupStepProps> = ({ 
-  onSubmit, 
-  isLoading,
-  handlePasswordRequirementsFocus,
-  showPasswordRequirements 
-}) => {
-  const { toast } = useToast();
-  const { onboardingData } = useOnboarding();
+const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
+  const [activeTab, setActiveTab] = useState<'mobile' | 'email'>('mobile');
   const [formValues, setFormValues] = useState({
-    name: "",
-    mobile: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    otp: "",
-    institute: "",
-    agreeTerms: false
+    name: '',
+    mobile: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    otp: ''
   });
+  const [showOtpField, setShowOtpField] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [fact, setFact] = useState("");
-  const [passwordValid, setPasswordValid] = useState({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false
-  });
-  const examFacts = {
-    "NEET": [
-      "India needs 2.5 million doctors by 2030 - huge opportunities ahead!",
-      "Medical professionals are among the most respected careers globally.",
-      "AIIMS Delhi sees over 10,000 patients daily - imagine the impact you'll make!"
-    ]
-  };
+  const [otpSent, setOtpSent] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | null>(null);
 
-  useEffect(() => {
-    if (onboardingData.examGoal) {
-      const facts = examFacts[onboardingData.examGoal as keyof typeof examFacts] || [];
-      const randomFact = facts[Math.floor(Math.random() * facts.length)];
-      setFact(randomFact);
-    }
-  }, [onboardingData.examGoal]);
-
-  useEffect(() => {
-    // Validate password as user types
-    const password = formValues.password;
-    setPasswordValid({
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[@$!%*?&]/.test(password)
-    });
-  }, [formValues.password]);
-
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+    
+    // Check password strength when password field changes
+    if (name === 'password') {
+      checkPasswordStrength(value);
+    }
   };
 
-  const handleRequestOtp = () => {
-    if (!formValues.mobile) {
-      toast({
-        title: "Please fill in all fields",
-        description: "We need your mobile number to proceed.",
-        variant: "destructive"
-      });
+  const checkPasswordStrength = (password: string) => {
+    if (password.length === 0) {
+      setPasswordStrength(null);
       return;
     }
     
-    toast({
-      title: "OTP Sent",
-      description: "A verification code has been sent to your mobile.",
-    });
+    if (password.length < 8) {
+      setPasswordStrength('weak');
+      return;
+    }
     
-    setFormValues({ ...formValues, otp: "1234" }); // Auto-fill OTP for demo
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    const strength = 
+      (hasUpperCase ? 1 : 0) +
+      (hasLowerCase ? 1 : 0) +
+      (hasNumbers ? 1 : 0) +
+      (hasSpecialChars ? 1 : 0);
+      
+    if (strength <= 2) {
+      setPasswordStrength('weak');
+    } else if (strength === 3) {
+      setPasswordStrength('medium');
+    } else {
+      setPasswordStrength('strong');
+    }
+  };
+
+  const handleRequestOtp = () => {
+    // Simulate OTP sending
+    setOtpSent(true);
+    setShowOtpField(true);
+    
+    // In a real app, this would make an API call to send OTP
+    setTimeout(() => {
+      // For demo, let's auto-fill OTP
+      setFormValues((prev) => ({ ...prev, otp: '123456' }));
+    }, 1000);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formValues.agreeTerms) {
-      toast({
-        title: "Terms & Conditions Required",
-        description: "Please agree to our terms and conditions to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check if passwords match
     if (formValues.password !== formValues.confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please ensure both passwords are the same",
-        variant: "destructive"
-      });
+      alert("Passwords don't match");
       return;
     }
     
-    // Check password requirements
-    const allValid = Object.values(passwordValid).every(Boolean);
-    if (!allValid) {
-      toast({
-        title: "Password doesn't meet requirements",
-        description: "Please follow the password guidelines",
-        variant: "destructive"
-      });
+    if (passwordStrength === 'weak') {
+      alert("Please choose a stronger password");
       return;
     }
     
-    if (formValues.name && formValues.mobile && formValues.otp && formValues.password && formValues.email) {
-      onSubmit(formValues);
+    // For email login, we don't need OTP validation
+    if (activeTab === 'email' || showOtpField) {
+      onSubmit({
+        name: formValues.name,
+        mobile: activeTab === 'mobile' ? formValues.mobile : '',
+        email: activeTab === 'email' ? formValues.email : '',
+        password: formValues.password,
+        otp: formValues.otp
+      });
     } else {
-      toast({
-        title: "Please fill in all required fields",
-        description: "All fields marked with * are required to create your account.",
-        variant: "destructive"
-      });
+      // For mobile without OTP, request OTP first
+      handleRequestOtp();
     }
-  };
-
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google Sign Up",
-      description: "Google authentication would be implemented here",
-    });
-    
-    // In a real app this would trigger OAuth flow
-    // For now we just pass some dummy data
-    onSubmit({
-      name: "Google User",
-      mobile: "9999999999",
-      email: "google@example.com",
-      password: "Google@Auth123",
-      confirmPassword: "Google@Auth123",
-      otp: "verified", 
-      institute: onboardingData.institute || "",
-      agreeTerms: true
-    });
   };
 
   const getPasswordStrengthColor = () => {
-    const validCount = Object.values(passwordValid).filter(Boolean).length;
-    if (validCount <= 2) return "bg-red-500";
-    if (validCount <= 4) return "bg-yellow-500";
-    return "bg-green-500";
+    switch (passwordStrength) {
+      case 'weak': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'strong': return 'bg-green-500';
+      default: return 'bg-gray-300';
+    }
   };
 
-  const passwordStrengthWidth = () => {
-    const validCount = Object.values(passwordValid).filter(Boolean).length;
-    return `${(validCount / 5) * 100}%`;
+  const renderPasswordRequirements = () => {
+    const requirements = [
+      { label: 'At least 8 characters', met: formValues.password.length >= 8 },
+      { label: 'Contains uppercase letter', met: /[A-Z]/.test(formValues.password) },
+      { label: 'Contains number', met: /[0-9]/.test(formValues.password) },
+      { label: 'Contains special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(formValues.password) },
+    ];
+
+    return (
+      <div className="text-xs space-y-1 mt-1 text-gray-600 dark:text-gray-400">
+        {requirements.map((req, idx) => (
+          <div key={idx} className="flex items-center">
+            {req.met ? (
+              <Check className="h-3 w-3 mr-1 text-green-500" />
+            ) : (
+              <X className="h-3 w-3 mr-1 text-gray-400" />
+            )}
+            <span className={req.met ? 'text-green-600 dark:text-green-400' : ''}>{req.label}</span>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="space-y-6">
-      {fact && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-100 dark:border-purple-800"
-        >
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-              <Star className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            </div>
-            <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
-              {fact}
-            </p>
-          </div>
-        </motion.div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
-          </div>
-          <Input 
-            id="name" 
-            name="name" 
-            value={formValues.name} 
-            onChange={handleFormChange} 
-            required 
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Your full name"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
-          </div>
-          <Input 
-            id="email" 
-            name="email" 
-            type="email"
-            value={formValues.email} 
-            onChange={handleFormChange} 
-            required 
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Your email address"
-          />
-        </div>
-        
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
-          </div>
-          <Input 
-            id="mobile" 
-            name="mobile" 
-            value={formValues.mobile} 
-            onChange={handleFormChange} 
-            required 
-            type="tel"
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="+91 9876543210"
-          />
-        </div>
-        
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
-          </div>
-          <div className="relative">
-            <Input 
-              id="password" 
-              name="password" 
-              type={showPassword ? "text" : "password"}
-              value={formValues.password} 
-              onChange={handleFormChange} 
-              onFocus={handlePasswordRequirementsFocus}
-              required 
-              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
-              placeholder="Create a strong password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5 text-gray-400" />
-              ) : (
-                <Eye className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
-          </div>
-
-          {/* Password strength indicator */}
-          {formValues.password && (
-            <div className="mt-1">
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div className={`h-1.5 rounded-full ${getPasswordStrengthColor()}`} style={{ width: passwordStrengthWidth() }}></div>
-              </div>
-            </div>
-          )}
-
-          {showPasswordRequirements && (
-            <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 mt-2">
-              <Info className="h-4 w-4 text-blue-500 mr-2" />
-              <AlertDescription className="text-xs">
-                <div className="font-medium mb-1">Password must contain:</div>
-                <ul className="space-y-1 pl-4 list-disc">
-                  <li className={passwordValid.length ? "text-green-600" : ""}>Minimum 8 characters</li>
-                  <li className={passwordValid.uppercase ? "text-green-600" : ""}>At least one uppercase letter (A-Z)</li>
-                  <li className={passwordValid.lowercase ? "text-green-600" : ""}>At least one lowercase letter (a-z)</li>
-                  <li className={passwordValid.number ? "text-green-600" : ""}>At least one number (0-9)</li>
-                  <li className={passwordValid.special ? "text-green-600" : ""}>At least one special character (@$!%*?&)</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="confirmPassword">Confirm Password <span className="text-red-500">*</span></Label>
-          </div>
-          <div className="relative">
-            <Input 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              type={showConfirmPassword ? "text" : "password"}
-              value={formValues.confirmPassword} 
-              onChange={handleFormChange} 
-              required 
-              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
-              placeholder="Confirm your password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-5 w-5 text-gray-400" />
-              ) : (
-                <Eye className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
-          </div>
-          {formValues.password && formValues.confirmPassword && formValues.password !== formValues.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
-          )}
-        </div>
-        
-        <div>
-          <div className="mb-2">
-            <Label htmlFor="institute">School / Institute <span className="text-sm text-muted-foreground">(Optional)</span></Label>
-          </div>
-          <Input 
-            id="institute" 
-            name="institute" 
-            value={formValues.institute} 
-            onChange={handleFormChange}
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Your school or institute name"
-          />
-        </div>
-        
-        {formValues.mobile && (
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={handleRequestOtp}
-            className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
+    <div className="w-full max-w-md mx-auto">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center mb-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            className="bg-gradient-to-br from-indigo-500 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
-            Get OTP
-          </Button>
-        )}
-        
-        {formValues.mobile && (
-          <div>
-            <Label htmlFor="otp">OTP <span className="text-red-500">*</span></Label>
-            <Input 
-              id="otp" 
-              name="otp" 
-              value={formValues.otp} 
-              onChange={handleFormChange} 
-              required 
-              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-              placeholder="Enter OTP"
-            />
-          </div>
-        )}
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="terms" 
-            checked={formValues.agreeTerms} 
-            onCheckedChange={(checked) => {
-              setFormValues({ ...formValues, agreeTerms: checked === true });
-            }}
-          />
-          <label
-            htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            I agree to the{" "}
-            <Link to="/terms" className="text-purple-600 hover:underline">
-              Terms & Conditions
-            </Link>
-          </label>
-        </div>
-        
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
-          disabled={isLoading}
-        >
-          {isLoading ? "Creating Account..." : "Create Account"}
-        </Button>
-        
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300"></span>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or continue with</span>
-          </div>
-        </div>
-        
-        <Button 
-          type="button"
-          variant="outline" 
-          className="w-full"
-          onClick={handleGoogleSignup}
-        >
-          <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
-          Sign up with Google
-        </Button>
-        
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
+            <Shield className="h-8 w-8 text-white" />
+          </motion.div>
+          <h2 className="text-2xl font-bold mb-2">Create your account</h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            Enter your details to complete signup
           </p>
         </div>
-      </form>
+
+        <Tabs defaultValue="mobile" className="w-full" value={activeTab} onValueChange={(value) => setActiveTab(value as 'mobile' | 'email')}>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="mobile" className="flex items-center gap-1">
+              <Smartphone className="h-4 w-4" />
+              <span>Mobile</span>
+            </TabsTrigger>
+            <TabsTrigger value="email" className="flex items-center gap-1">
+              <Mail className="h-4 w-4" />
+              <span>Email</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Your full name"
+                value={formValues.name}
+                onChange={handleInputChange}
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <TabsContent value="mobile" className="space-y-4 mt-0 pt-0">
+              <div>
+                <Label htmlFor="mobile">Mobile Number</Label>
+                <div className="flex mt-1">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                    +91
+                  </span>
+                  <Input
+                    id="mobile"
+                    name="mobile"
+                    type="tel"
+                    placeholder="Your mobile number"
+                    value={formValues.mobile}
+                    onChange={handleInputChange}
+                    required
+                    className="rounded-l-none"
+                    pattern="[0-9]{10}"
+                    title="Please enter a valid 10-digit mobile number"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  We'll send you a verification code
+                </p>
+              </div>
+
+              {showOtpField && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Label htmlFor="otp">Verification Code</Label>
+                  <Input
+                    id="otp"
+                    name="otp"
+                    placeholder="Enter 6-digit OTP"
+                    value={formValues.otp}
+                    onChange={handleInputChange}
+                    required={showOtpField}
+                    className="mt-1"
+                  />
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-gray-500">
+                      {otpSent ? "OTP sent to your mobile" : ""}
+                    </span>
+                    {otpSent && (
+                      <button
+                        type="button"
+                        className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        onClick={handleRequestOtp}
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="email" className="space-y-4 mt-0 pt-0">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Your email address"
+                  value={formValues.email}
+                  onChange={handleInputChange}
+                  required={activeTab === 'email'}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  We'll send you important updates and notifications
+                </p>
+              </div>
+            </TabsContent>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a password"
+                    value={formValues.password}
+                    onChange={handleInputChange}
+                    required
+                    className="pr-10"
+                    minLength={8}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+
+                {formValues.password && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2"
+                  >
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className={`h-2 flex-grow rounded-full ${getPasswordStrengthColor()}`}></div>
+                      <span className="text-xs text-gray-500 w-16">
+                        {passwordStrength === 'weak' && 'Weak'}
+                        {passwordStrength === 'medium' && 'Medium'}
+                        {passwordStrength === 'strong' && 'Strong'}
+                      </span>
+                    </div>
+                    {renderPasswordRequirements()}
+                  </motion.div>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formValues.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    className="pr-10"
+                  />
+                </div>
+                {formValues.password && formValues.confirmPassword && formValues.password !== formValues.confirmPassword && (
+                  <p className="text-sm text-red-500 mt-1">Passwords don't match</p>
+                )}
+                {formValues.password && formValues.confirmPassword && formValues.password === formValues.confirmPassword && (
+                  <p className="text-sm text-green-500 mt-1 flex items-center">
+                    <Check className="h-4 w-4 mr-1" /> Passwords match
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="pt-2"
+            >
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+                disabled={isLoading || (showOtpField && !formValues.otp)}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account
+                  </>
+                ) : showOtpField ? (
+                  'Create Account'
+                ) : (
+                  activeTab === 'mobile' ? 'Send OTP' : 'Create Account'
+                )}
+              </Button>
+            </motion.div>
+
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+              By signing up, you agree to our{' '}
+              <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                Privacy Policy
+              </a>
+            </p>
+          </form>
+        </Tabs>
+      </motion.div>
     </div>
   );
 };
