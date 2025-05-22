@@ -1,509 +1,133 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
 import HeroContent from './hero/HeroContent';
-import DashboardPreview from './hero/DashboardPreview';
+import ImprovedHeroBackground from './hero/ImprovedHeroBackground';
 
-const HeroSection: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeFeature, setActiveFeature] = useState(0);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  // Automatically cycle through dashboard features
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveFeature(prev => (prev + 1) % 6); 
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Handler for exam readiness analyzer
+const HeroSection = () => {
+  const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
+  
   const handleExamReadinessClick = () => {
-    // Dispatch event to open the exam readiness analyzer
-    window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
+    setShowExamAnalyzer(true);
+  };
+  
+  const handleCloseExamAnalyzer = () => {
+    setShowExamAnalyzer(false);
   };
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative overflow-hidden min-h-screen py-12 md:py-16 lg:py-0 flex items-center"
-    >
-      {/* Enhanced Immersive 3D Background with interactive elements - matching post-login dashboard */}
-      <div className="absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
-        {/* 3D Grid Pattern */}
-        <div className="absolute inset-0 perspective-1000">
-          <div 
-            className="absolute inset-0 opacity-[0.05] dark:opacity-[0.07]" 
-            style={{
-              backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-              transform: "rotateX(60deg) scale(3) translateY(-10%)"
-            }}
-          />
-        </div>
-        
-        {/* Large Knowledge Spheres (Background Gradient Bubbles) */}
-        <motion.div 
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-400/10 to-indigo-400/5 dark:from-blue-700/10 dark:to-indigo-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            x: [0, 30, 0], 
-            y: [0, -20, 0] 
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        />
-        
-        <motion.div 
-          className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-400/10 to-pink-400/5 dark:from-purple-700/10 dark:to-pink-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.03, 1], 
-            x: [0, -20, 0], 
-            y: [0, 20, 0] 
-          }}
-          transition={{ 
-            duration: 25, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 2
-          }}
-        />
-        
-        <motion.div 
-          className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-green-400/10 to-emerald-400/5 dark:from-green-700/10 dark:to-emerald-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            x: [0, -30, 0], 
-            y: [0, 30, 0] 
-          }}
-          transition={{ 
-            duration: 18, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 1
-          }}
-        />
-
-        {/* Floating 3D Books */}
-        <motion.div 
-          className="hidden md:block absolute top-[15%] left-[15%] w-16 h-20"
-          style={{ 
-            transformStyle: "preserve-3d", 
-            perspective: "1000px" 
-          }}
-          animate={{ 
-            y: [0, -15, 0],
-            rotateZ: [0, 5, 0], 
-            rotateY: [0, 10, 0]
-          }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            ease: "easeInOut" 
-          }}
-        >
-          <div 
-            className="absolute inset-0 rounded-md"
-            style={{
-              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(79, 70, 229, 0.2))",
-              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-              backdropFilter: "blur(2px)",
-              transform: "translateZ(5px)"
-            }}
-          >
-            <div className="absolute inset-y-0 left-0 w-2 bg-indigo-700/50 rounded-l-md"></div>
-          </div>
-        </motion.div>
-
-        {/* Floating Chemistry Formula */}
-        <motion.div
-          className="hidden md:block absolute bottom-[30%] left-[20%] w-40 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-white/30 dark:border-gray-700/30"
-          animate={{ 
-            y: [0, -8, 0],
-            rotateZ: [0, 2, 0],
-          }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 3
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-5deg) rotateY(-5deg)"
-          }}
-        >
-          <div className="text-xs text-purple-800 dark:text-purple-300 font-mono text-center">
-            H<sub>2</sub>SO<sub>4</sub> + 2NaOH → Na<sub>2</sub>SO<sub>4</sub> + 2H<sub>2</sub>O
-          </div>
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-2"></div>
-          <div className="text-xs text-center text-gray-600 dark:text-gray-400">Acid-Base Neutralization</div>
-        </motion.div>
-
-        {/* Floating Exam Card */}
-        <motion.div
-          className="hidden md:block absolute bottom-[40%] right-[10%] w-40 h-24 bg-white/40 dark:bg-gray-800/40 rounded-lg shadow-lg p-3 backdrop-blur-sm border border-white/30 dark:border-gray-700/30"
-          animate={{ 
-            y: [0, -15, 0],
-            rotateZ: [0, 2, 0],
-          }}
-          transition={{ 
-            duration: 9, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 1
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-5deg) rotateY(-10deg)"
-          }}
-        >
-          <div className="text-xs font-medium text-gray-800 dark:text-gray-200 mb-2">
-            Exam Readiness Score
-          </div>
-          <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
-              initial={{ width: '30%' }}
-              animate={{ width: '85%' }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
-            />
-          </div>
-          <div className="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-400">
-            <span>Day 1</span>
-            <span>Day 30</span>
-          </div>
-          <div className="text-xs text-green-600 dark:text-green-400 font-medium text-center mt-2">
-            85% Ready for NEET!
-          </div>
-        </motion.div>
-
-        {/* Floating Student Avatar with Happiness Indicator */}
-        <motion.div
-          className="hidden md:block absolute top-[40%] right-[18%] flex flex-col items-center"
-          animate={{ 
-            y: [0, -10, 0],
-            scale: [1, 1.05, 1]
-          }}
-          transition={{ 
-            duration: 5, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 3
-          }}
-        >
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500/50 shadow-lg">
-            <img 
-              src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" 
-              alt="Happy Student" 
-              className="w-full h-full object-cover" 
-            />
-          </div>
-          <motion.div 
-            className="mt-1 flex"
-            animate={{
-              scale: [1, 1.2, 1]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: 2
-            }}
-          >
-            <span role="img" aria-label="happy">😄</span>
-            <span role="img" aria-label="celebration">🎉</span>
-          </motion.div>
-        </motion.div>
-        
-        {/* Floating Brain Icon (representing AI) */}
-        <motion.div
-          className="hidden md:block absolute top-[15%] right-[25%] text-indigo-600/70 dark:text-indigo-400/70"
-          animate={{ 
-            y: [0, -8, 0],
-            rotate: [0, 10, 0],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ 
-            duration: 6, 
-            repeat: Infinity, 
-            repeatType: "reverse"
-          }}
-          style={{ filter: "drop-shadow(0 0 8px rgba(79, 70, 229, 0.3))" }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 1 7.92 12.446a9 9 0 1 1 -16.626 0a7.5 7.5 0 0 1 7.92 -12.445c.13 0 .262 0 .393 0z"></path>
-            <path d="M10 8l1 -2l1 2"></path>
-            <path d="M18 11l2 1l-2 1"></path>
-            <path d="M11 18l-2 2l-2 -2"></path>
-            <path d="M7 4l-2 2l2 2"></path>
-          </svg>
-        </motion.div>
-        
-        {/* NEET Exam Badge */}
-        <motion.div
-          className="hidden md:block absolute top-[20%] left-[30%] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            y: [0, -5, 0]
-          }}
-          transition={{ 
-            y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
-            opacity: { duration: 0.5 },
-            scale: { duration: 0.5 }
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(5deg) rotateY(-5deg)"
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-white animate-pulse"></div>
-            <span className="text-sm font-bold">NEET Exam Live!</span>
-          </div>
-        </motion.div>
-        
-        {/* Pulsing Success Indicators */}
-        {[
-          { top: '25%', left: '25%', delay: 0 },
-          { top: '60%', left: '15%', delay: 2 },
-          { top: '30%', right: '20%', delay: 4 },
-          { top: '70%', right: '25%', delay: 1 },
-        ].map((pos, i) => (
-          <motion.div
-            key={i}
-            className="hidden md:block absolute w-8 h-8"
-            style={{ ...pos }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ 
-              scale: [0, 1, 1.5, 1],
-              opacity: [0, 0.7, 0, 0]
-            }}
-            transition={{ 
-              duration: 3,
-              repeat: Infinity,
-              delay: pos.delay,
-              repeatDelay: 5
-            }}
-          >
-            <div className="w-full h-full rounded-full bg-green-500/30" />
-          </motion.div>
-        ))}
-        
-        {/* Animated light rays */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-[120%] pointer-events-none">
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.2, 0.1]
-            }}
-            transition={{ 
-              duration: 5, 
-              repeat: Infinity, 
-              repeatType: "reverse" 
-            }}
-            style={{
-              clipPath: "polygon(48% 0%, 52% 0%, 60% 100%, 40% 100%)"
-            }}
-          />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1]
-            }}
-            transition={{ 
-              duration: 7, 
-              repeat: Infinity, 
-              repeatType: "reverse",
-              delay: 2
-            }}
-            style={{
-              clipPath: "polygon(45% 0%, 49% 0%, 35% 100%, 25% 100%)"
-            }}
-          />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.25, 0.1]
-            }}
-            transition={{ 
-              duration: 6, 
-              repeat: Infinity, 
-              repeatType: "reverse",
-              delay: 1
-            }}
-            style={{
-              clipPath: "polygon(51% 0%, 55% 0%, 75% 100%, 65% 100%)"
-            }}
-          />
-        </div>
-        
-        {/* Dashboard-style particle effects */}
-        <motion.div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-blue-400/20"
-              initial={{ 
-                x: Math.random() * 100 + "%", 
-                y: -10,
-                opacity: 0.1 + Math.random() * 0.3
-              }}
-              animate={{ 
-                y: "100vh",
-                opacity: [null, 0]
-              }}
-              transition={{ 
-                duration: 10 + Math.random() * 20,
-                repeat: Infinity,
-                delay: Math.random() * 10,
-                ease: "linear"
-              }}
-            />
-          ))}
-        </motion.div>
-
-        {/* NEW: Additional elements to match the dashboard post-login view */}
-        
-        {/* Learning path indicators */}
-        <motion.div
-          className="hidden md:block absolute top-[30%] left-[50%] w-40 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-blue-300/30 dark:border-blue-700/30"
-          animate={{ 
-            y: [0, -10, 0],
-            x: [0, 10, 0],
-            rotateZ: [0, 1, 0],
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 2
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-8deg) rotateY(5deg)"
-          }}
-        >
-          <div className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Learning Path</div>
-          <div className="flex items-center gap-1 mt-2">
-            <motion.div 
-              className="h-3 w-3 rounded-full bg-green-500"
-              animate={{
-                scale: [1, 1.2, 1]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1
-              }}
-            />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <div className="h-3 w-3 rounded-full bg-indigo-500" />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <motion.div 
-              className="h-3 w-3 rounded-full bg-purple-500/50"
-              animate={{
-                opacity: [0.5, 1, 0.5]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity
-              }}
-            />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <div className="h-3 w-3 rounded-full bg-gray-400/50" />
-          </div>
-          <div className="text-xs text-center text-gray-600 dark:text-gray-400 mt-2">
-            Physics Units: 2/4 complete
-          </div>
-        </motion.div>
-
-        {/* Concept connection lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.1 }}>
-          <motion.path 
-            d="M200,150 C300,100 400,250 500,200" 
-            stroke="url(#gradient1)" 
-            strokeWidth="1" 
-            fill="none"
-            strokeDasharray="5,5"
-            animate={{
-              strokeDashoffset: [0, 100]
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.path 
-            d="M700,200 C600,300 500,250 400,350" 
-            stroke="url(#gradient2)" 
-            strokeWidth="1" 
-            fill="none"
-            strokeDasharray="5,5"
-            animate={{
-              strokeDashoffset: [0, -100]
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <defs>
-            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#9333ea" stopOpacity="0.3" />
-            </linearGradient>
-            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* AI Assistant floating icon */}
-        <motion.div 
-          className="hidden md:block absolute bottom-[15%] right-[15%] p-3 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full backdrop-blur-sm"
-          animate={{ 
-            y: [0, -10, 0],
-            boxShadow: [
-              "0 0 10px 2px rgba(139, 92, 246, 0.3)",
-              "0 0 20px 5px rgba(139, 92, 246, 0.5)",
-              "0 0 10px 2px rgba(139, 92, 246, 0.3)"
-            ]
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            repeatType: "reverse"
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 16v-4"></path>
-            <path d="M8 12h8"></path>
-          </svg>
-        </motion.div>
-      </div>
-
-      <div className="container mx-auto px-4 relative">
-        <div className="flex flex-col lg:flex-row items-center gap-8 justify-between min-h-[85vh]">
-          {/* Left Content: Title, description and buttons */}
+    <section className="min-h-[80vh] w-full relative overflow-hidden py-20 flex items-center">
+      {/* Improved 3D background that matches dashboard style */}
+      <ImprovedHeroBackground />
+      
+      {/* Semi-transparent overlay for text readability */}
+      <div className="absolute inset-0 bg-white/40 dark:bg-gray-900/40 z-10" />
+      
+      {/* Main content container */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+          {/* Left content with text and CTA */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
-          {/* Right Content: Enhanced 3D Dashboard Preview */}
-          <DashboardPreview activeFeature={activeFeature} setActiveFeature={setActiveFeature} />
+          {/* Right content with 3D imagery/mockup */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center">
+            <div className="relative w-full max-w-lg h-[500px] perspective-1000">
+              {/* Floating dashboard mockup with 3D effect */}
+              <div 
+                className="absolute w-full h-full top-0 left-0 preserve-3d"
+                style={{ 
+                  transform: "rotateY(-10deg) rotateX(5deg) translateZ(0)",
+                  transformStyle: "preserve-3d"
+                }}
+              >
+                <div className="absolute inset-0 bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-800 preserve-3d">
+                  {/* Dashboard mockup content would go here */}
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 p-4 flex flex-col">
+                    {/* Header area */}
+                    <div className="h-12 mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm flex items-center px-4">
+                      <div className="w-32 h-4 bg-indigo-200 dark:bg-indigo-700 rounded-full"></div>
+                      <div className="ml-auto flex space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-800"></div>
+                        <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-800"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Main content area */}
+                    <div className="flex-1 flex gap-4">
+                      {/* Sidebar */}
+                      <div className="w-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col items-center py-4 space-y-4">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-800"></div>
+                        ))}
+                      </div>
+                      
+                      {/* Dashboard cards */}
+                      <div className="flex-1 space-y-4">
+                        {/* KPI row */}
+                        <div className="flex gap-4">
+                          {[...Array(3)].map((_, i) => (
+                            <div 
+                              key={i} 
+                              className="h-24 flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 flex flex-col"
+                            >
+                              <div className="w-12 h-3 bg-indigo-200 dark:bg-indigo-700 rounded-full mb-2"></div>
+                              <div className="w-16 h-5 bg-purple-200 dark:bg-purple-700 rounded-full mt-auto"></div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Chart area */}
+                        <div className="h-40 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                          <div className="w-full h-full flex items-end space-x-2">
+                            {[...Array(7)].map((_, i) => (
+                              <div 
+                                key={i}
+                                className="flex-1 bg-gradient-to-t from-indigo-500 to-purple-500 rounded-t-md"
+                                style={{ height: `${Math.random() * 80 + 10}%` }}
+                              ></div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Activities section */}
+                        <div className="h-32 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="w-24 h-3 bg-indigo-200 dark:bg-indigo-700 rounded-full"></div>
+                            <div className="w-10 h-3 bg-purple-200 dark:bg-purple-700 rounded-full"></div>
+                          </div>
+                          <div className="space-y-2">
+                            {[...Array(3)].map((_, i) => (
+                              <div key={i} className="flex items-center">
+                                <div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-800 mr-2"></div>
+                                <div className="flex-1 h-3 bg-gray-100 dark:bg-gray-700 rounded-full"></div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Subtle drop shadow for 3D effect */}
+                <div 
+                  className="absolute -bottom-10 -right-10 w-[90%] h-[20%] bg-blue-900/10 dark:bg-blue-500/10 blur-2xl rounded-full"
+                  style={{ transform: "translateZ(-50px)" }}
+                ></div>
+                
+                {/* Hover glow effect */}
+                <div 
+                  className="absolute -inset-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ transform: "translateZ(-30px)" }}
+                ></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      
+      {/* Exam Readiness Analyzer pop-up */}
+      {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
     </section>
   );
 };
