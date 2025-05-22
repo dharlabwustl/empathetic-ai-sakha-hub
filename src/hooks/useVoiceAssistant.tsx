@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useLocation } from 'react-router-dom';
 
 interface VoiceAssistantSettings {
   enabled: boolean;
@@ -19,7 +18,6 @@ interface UseVoiceAssistantProps {
 
 export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }: UseVoiceAssistantProps) => {
   const { toast } = useToast();
-  const location = useLocation();
   const [settings, setSettings] = useState<VoiceAssistantSettings>({
     enabled: true,
     muted: false,
@@ -88,16 +86,6 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   }, []);
   
   // Stop voice when page changes (listening to route changes)
-  useEffect(() => {
-    // Stop speech when location changes
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-    
-  }, [location.pathname]);
-  
-  // Also listen for history changes through popstate event
   useEffect(() => {
     const handleRouteChange = () => {
       if (window.speechSynthesis) {

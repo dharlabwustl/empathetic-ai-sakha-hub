@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -70,18 +69,14 @@ const StudentDashboard = () => {
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
-    // Ensure we only show one prompt - prioritize the tour for new users
+    // For new users who haven't seen the tour
     if (isNew && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      setShowWelcomePrompt(false); // Ensure welcome prompt is not shown simultaneously
       setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
-      
-      // Mark that the user has seen the dashboard welcome to prevent double prompts
-      localStorage.setItem("hasSeenDashboardWelcome", "true");
     } 
-    // Only show welcome prompt if tour has been seen but welcome hasn't
+    // For new users who have seen the tour but not the dashboard welcome
     else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
       setShowSplash(false);
       setShowTourModal(false);
@@ -94,11 +89,10 @@ const StudentDashboard = () => {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // Make sure we don't show any prompts for returning users who have seen them
+      // Make sure we don't show the tour for returning users who have seen it
       setShowTourModal(false);
-      setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
-      console.log("Returning user detected, not showing welcome prompts");
+      console.log("Returning user detected, not showing welcome tour");
     }
     
     // Try to get saved mood from local storage
@@ -146,10 +140,8 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // Do not show welcome dashboard prompt immediately after tour
-    // This fixes the double prompt issue
-    setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
+    // After skipping tour, show welcome dashboard prompt
+    setShowWelcomePrompt(true);
     
     console.log("Tour skipped and marked as seen");
   };
@@ -159,17 +151,14 @@ const StudentDashboard = () => {
     setShowTourModal(false);
     localStorage.setItem("hasSeenTour", "true");
     
-    // Do not show welcome dashboard prompt immediately after tour
-    // This fixes the double prompt issue
-    setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
+    // After completing tour, show welcome dashboard prompt
+    setShowWelcomePrompt(true);
     
     console.log("Tour completed and marked as seen");
   };
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -237,7 +226,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showTourModal} // Use our controlled state instead
+        showWelcomeTour={showTourModal}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -268,7 +257,7 @@ const StudentDashboard = () => {
         loginCount={userProfile.loginCount}
       />
 
-      {/* Welcome Dashboard Prompt - shows after tour completion if enabled */}
+      {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
@@ -290,7 +279,7 @@ const StudentDashboard = () => {
         userMood={currentMood}
       />
 
-      {/* Floating voice assistant button with settings panel */}
+      {/* NEW: Floating voice assistant button with settings panel */}
       <FloatingVoiceButton 
         userName={userProfile.name || userProfile.firstName || 'Student'}
         language="en-IN"
