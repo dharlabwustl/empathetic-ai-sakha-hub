@@ -73,6 +73,7 @@ const StudentDashboard = () => {
     if (isNew && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
+      setShowWelcomePrompt(false); // Make sure only one modal shows
       setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
     } 
@@ -89,8 +90,9 @@ const StudentDashboard = () => {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // Make sure we don't show the tour for returning users who have seen it
+      // Make sure we don't show the tour or welcome prompt for returning users who have seen them
       setShowTourModal(false);
+      setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
       console.log("Returning user detected, not showing welcome tour");
     }
@@ -106,11 +108,15 @@ const StudentDashboard = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
-    // For new users, show the tour after splash
+    // For new users, show the tour after splash, but make sure welcome prompt is not shown simultaneously
     const isNew = localStorage.getItem('new_user_signup') === 'true';
     if (isNew) {
-      setShowTourModal(true);
-      setIsFirstTimeUser(true);
+      const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
+      if (!hasSeenTour) {
+        setShowTourModal(true);
+        setShowWelcomePrompt(false);
+        setIsFirstTimeUser(true);
+      }
     }
     
     if (!currentMood) {
@@ -159,6 +165,7 @@ const StudentDashboard = () => {
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
+    localStorage.setItem("hasSeenDashboardWelcome", "true");
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -226,7 +233,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showTourModal}
+        showWelcomeTour={false} // Always false here since we handle it separately below
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -257,7 +264,7 @@ const StudentDashboard = () => {
         loginCount={userProfile.loginCount}
       />
 
-      {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
+      {/* Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
@@ -279,7 +286,7 @@ const StudentDashboard = () => {
         userMood={currentMood}
       />
 
-      {/* NEW: Floating voice assistant button with settings panel */}
+      {/* Floating voice assistant button with settings panel */}
       <FloatingVoiceButton 
         userName={userProfile.name || userProfile.firstName || 'Student'}
         language="en-IN"

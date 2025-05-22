@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface HeroContentProps {
@@ -15,7 +15,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     "Build unshakable confidence",
     "Study stress-free with AI guidance",
     "Master complex topics faster",
-    "Improve retention by 70%",
+    "Improving exam readiness score everyday",
     "Track progress with clear metrics"
   ];
 
@@ -38,7 +38,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="absolute -top-2 -right-2 md:top-0 md:-right-8 z-30 transform rotate-12"
       >
         <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1 rounded-lg shadow-lg flex items-center gap-2">
-          <Award className="h-5 w-5 text-amber-100" />
           <span className="font-bold text-sm">PREMIUM</span>
         </div>
       </motion.div>
@@ -69,7 +68,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           >
-            Transform your struggle
+            We understand your mindset,
           </motion.span>
           <motion.span
             className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
@@ -86,7 +85,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           }}
           transition={{ duration: 15, delay: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          into exam triumph
+          not just the exam
         </motion.span>
       </motion.h1>
 
