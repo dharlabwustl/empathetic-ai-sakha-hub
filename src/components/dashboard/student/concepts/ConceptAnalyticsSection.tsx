@@ -80,9 +80,8 @@ const ConceptAnalyticsSection: React.FC<ConceptAnalyticsSectionProps> = ({
             
             <Progress value={overallMastery} className="mt-4 h-2" 
               style={{
-                background: '#e5e7eb',
-                '--progress-value': `${overallMastery}%`
-              } as React.CSSProperties} 
+                background: '#e5e7eb'
+              }} 
             />
             
             <div className="mt-4 flex flex-col gap-2">

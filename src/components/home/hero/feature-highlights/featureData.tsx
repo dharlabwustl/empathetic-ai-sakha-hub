@@ -4,7 +4,12 @@ import {
   BookOpen, 
   BarChart3, 
   Heart, 
-  GraduationCap
+  GraduationCap,
+  Smile,
+  Zap,
+  Clock,
+  Shield,
+  Award
 } from 'lucide-react';
 
 export interface FeaturePoint {
@@ -13,6 +18,12 @@ export interface FeaturePoint {
   description: string;
   color: string;
   delay: number;
+}
+
+export interface TakeawayPoint {
+  icon: React.ReactNode;
+  title: string;
+  color: string;
 }
 
 export const featurePoints: FeaturePoint[] = [
@@ -43,5 +54,33 @@ export const featurePoints: FeaturePoint[] = [
     description: "Complete preparation system for any competitive exam",
     color: "from-purple-500 to-violet-600",
     delay: 0.3
+  }
+];
+
+export const takeawayPoints: TakeawayPoint[] = [
+  {
+    icon: <Award className="text-white" size={18} />,
+    title: "Confidence Builder",
+    color: "from-green-500 to-emerald-600"
+  },
+  {
+    icon: <GraduationCap className="text-white" size={18} />,
+    title: "Exam Success",
+    color: "from-blue-500 to-indigo-600"
+  },
+  {
+    icon: <Clock className="text-white" size={18} />,
+    title: "Time Saver",
+    color: "from-amber-500 to-orange-600"
+  },
+  {
+    icon: <Shield className="text-white" size={18} />,
+    title: "Stress-Free",
+    color: "from-purple-500 to-violet-600"
+  },
+  {
+    icon: <Smile className="text-white" size={18} />,
+    title: "Happy Learning",
+    color: "from-pink-500 to-rose-600"
   }
 ];

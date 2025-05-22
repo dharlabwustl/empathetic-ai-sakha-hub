@@ -1,9 +1,9 @@
-
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExamNamesBadge from './ExamNamesBadge';
+import * as THREE from 'three';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
@@ -11,10 +11,124 @@ interface HeroContentProps {
 
 const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
   const navigate = useNavigate();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   
   const handleFreeTrialClick = () => {
     navigate('/signup');
   };
+
+  // Initialize and animate the 3D background
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    // Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75, 
+      window.innerWidth / window.innerHeight, 
+      0.1, 
+      1000
+    );
+    camera.position.z = 30;
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.current,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    rendererRef.current = renderer;
+
+    // Create particles
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 1500;
+    const posArray = new Float32Array(particlesCount * 3);
+    const colors = new Float32Array(particlesCount * 3);
+
+    for (let i = 0; i < particlesCount * 3; i++) {
+      // Position
+      posArray[i] = (Math.random() - 0.5) * 70;
+
+      // Colors - gradient from blue to purple
+      if (i % 3 === 0) {
+        colors[i] = Math.random() * 0.3 + 0.2; // R - low for blue/purple
+      } else if (i % 3 === 1) {
+        colors[i] = Math.random() * 0.3; // G - low for blue/purple
+      } else {
+        colors[i] = Math.random() * 0.5 + 0.5; // B - high for blue/purple
+      }
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    // Material
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.1,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      sizeAttenuation: true
+    });
+
+    // Points
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+
+    // Add some soft lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 2);
+    scene.add(ambientLight);
+
+    // Animate on mouse movement
+    let mouseX = 0;
+    let mouseY = 0;
+    const mouseMoveHandler = (event: MouseEvent) => {
+      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    };
+    document.addEventListener('mousemove', mouseMoveHandler);
+
+    // Handle window resize
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      // Rotate based on mouse position
+      particlesMesh.rotation.x += 0.0003;
+      particlesMesh.rotation.y += 0.0005;
+
+      // Subtle response to mouse movement
+      particlesMesh.rotation.y += mouseX * 0.0003;
+      particlesMesh.rotation.x += mouseY * 0.0003;
+
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      
+      scene.remove(particlesMesh);
+      particlesGeometry.dispose();
+      particlesMaterial.dispose();
+      
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
+    };
+  }, []);
   
   return (
     <motion.div 
@@ -23,6 +137,19 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       transition={{ duration: 0.8, delay: 0.1 }}
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
+      {/* 3D Background Canvas */}
+      <canvas 
+        ref={canvasRef} 
+        className="absolute top-0 left-0 w-full h-full -z-10"
+        style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          pointerEvents: 'none',
+          opacity: 0.6
+        }}
+      />
+
       {/* Premium Experience Badge */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}

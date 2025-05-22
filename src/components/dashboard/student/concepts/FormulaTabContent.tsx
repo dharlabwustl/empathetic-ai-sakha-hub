@@ -12,7 +12,7 @@ export interface FormulaTabContentProps {
   handleOpenFormulaLab: () => void;
 }
 
-const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
+export const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   conceptId,
   conceptTitle,
   handleOpenFormulaLab
@@ -233,5 +233,3 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
     </div>
   );
 };
-
-export default FormulaTabContent;
