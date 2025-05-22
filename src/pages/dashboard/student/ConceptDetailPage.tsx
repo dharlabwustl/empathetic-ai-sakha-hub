@@ -1,727 +1,569 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { SidebarLayout } from '@/components/dashboard/SidebarLayout';
-import { ConceptMasterySection } from '@/components/dashboard/student/concepts/ConceptMasterySection';
-import LoadingState from '@/components/common/LoadingState';
-import ErrorState from '@/components/common/ErrorState';
-import { ConceptCard as ConceptCardType } from '@/types/user/conceptCard';
-import ConceptHeader from '@/components/dashboard/student/concepts/concept-detail/ConceptHeader';
-import ConceptSidebar from '@/components/dashboard/student/concepts/concept-detail/ConceptSidebar';
+import { ConceptsPageLayout } from '@/components/dashboard/student/concept-cards/ConceptsPageLayout';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { 
-  Book, 
-  Brain, 
-  Video, 
-  FileText, 
-  MessageSquare, 
-  Repeat, 
-  PieChart, 
-  FlaskConical, 
-  Cube, 
-  Eye,
-  AlertCircle
+  BookOpen, Star, CalendarCheck, Brain, Check, Award, 
+  PlayCircle, FileQuestion, BarChart2, Network, RepeatIcon, 
+  ExternalLink, MessageSquare, Lightbulb, Code, 
+  Cylinder, Beaker, Video, AlertTriangle
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
 
-// Mock data for concept detail
-const mockConcept: ConceptCardType = {
-  id: "concept-1",
-  title: "Ohm's Law",
-  description: "The relationship between voltage, current, and resistance in electrical circuits.",
-  subject: "Physics",
-  chapter: "Electricity",
-  topic: "Circuit Theory",
-  difficulty: "medium",
-  completed: false,
-  progress: 65,
-  relatedConcepts: [],
-  content: "Ohm's Law states that the current through a conductor between two points is directly proportional to the voltage across the two points, and inversely proportional to the resistance between them. The mathematical equation is I = V/R, where I is the current (in amperes), V is the voltage (in volts), and R is the resistance (in ohms).",
-  examples: [
-    "A circuit with a 9V battery and a 3Ω resistor will have a current of I = V/R = 9V/3Ω = 3A",
-    "If the current in a circuit is 2A and the resistance is 5Ω, then the voltage is V = IR = 2A × 5Ω = 10V"
-  ],
-  commonMistakes: [
-    "Confusing current and voltage",
-    "Forgetting to convert units",
-    "Not accounting for total resistance in a circuit"
-  ],
-  examRelevance: "Very high - appears in 80% of exams",
-  recallAccuracy: 75,
-  quizScore: 65,
-  lastPracticed: "2023-08-15",
-  timeSuggestion: 30,
-  flashcardsTotal: 12,
-  flashcardsCompleted: 8,
-  examReady: false,
-  bookmarked: true,
-  estimatedTime: 30,
-  keyPoints: [
-    "Ohm's Law: I = V/R",
-    "Current is directly proportional to voltage",
-    "Current is inversely proportional to resistance",
-    "Only applies to ohmic conductors"
-  ],
-  formulas: [
-    "I = V/R (current = voltage / resistance)",
-    "V = IR (voltage = current × resistance)",
-    "R = V/I (resistance = voltage / current)",
-    "P = VI (power = voltage × current)"
-  ],
-  notes: [
-    "Remember that real conductors may not strictly follow Ohm's law under all conditions",
-    "Temperature can affect resistance and therefore the relationship",
-    "For non-ohmic conductors, the relationship is not linear"
-  ],
-  masteryLevel: 65,
-  mastery: {
-    level: "Intermediate",
-    percentage: 65
-  },
-  videos: [
-    {
-      id: "vid1",
-      title: "Understanding Ohm's Law",
-      url: "https://www.youtube.com/watch?v=videoid1",
-      duration: "8:24",
-      thumbnail: "https://via.placeholder.com/320x180"
-    },
-    {
-      id: "vid2",
-      title: "Solving Ohm's Law Problems",
-      url: "https://www.youtube.com/watch?v=videoid2",
-      duration: "12:05",
-      thumbnail: "https://via.placeholder.com/320x180"
-    }
-  ],
-  resources: [
-    {
-      id: "res1",
-      title: "Ohm's Law Practice Problems",
-      type: "PDF",
-      url: "#"
-    },
-    {
-      id: "res2",
-      title: "Interactive Ohm's Law Calculator",
-      type: "Tool",
-      url: "#"
-    }
-  ],
-  practiceQuestions: [
-    {
-      id: "q1",
-      question: "If a circuit has a resistance of 4Ω and a current of 2A, what is the voltage?",
-      options: ["2V", "4V", "8V", "16V"],
-      correctAnswer: "8V",
-      explanation: "Using V = IR, V = 2A × 4Ω = 8V",
-      difficulty: "easy"
-    },
-    {
-      id: "q2",
-      question: "Which of the following correctly states Ohm's Law?",
-      options: [
-        "Voltage is inversely proportional to current",
-        "Current is directly proportional to resistance",
-        "Current is directly proportional to voltage and inversely proportional to resistance",
-        "Resistance is directly proportional to current"
-      ],
-      correctAnswer: "Current is directly proportional to voltage and inversely proportional to resistance",
-      explanation: "Ohm's Law states that I = V/R, which means current is directly proportional to voltage and inversely proportional to resistance.",
-      difficulty: "medium"
-    }
-  ]
-};
+// Define mock concept data
+interface Concept {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  subject: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  progress: number;
+  mastery: number;
+  timeSpent: string;
+  lastStudied: string;
+  isBookmarked: boolean;
+  tags: string[];
+  relatedConcepts: RelatedConcept[];
+}
 
-// Mock data for related concepts
-const mockRelatedConcepts = [
-  {
-    id: "concept-2",
-    title: "Kirchhoff's Laws",
-    masteryLevel: 45
-  },
-  {
-    id: "concept-3",
-    title: "Series Circuits",
-    masteryLevel: 70
-  },
-  {
-    id: "concept-4",
-    title: "Parallel Circuits",
-    masteryLevel: 60
-  }
-];
+interface RelatedConcept {
+  id: string;
+  title: string;
+  subject: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  relation: string;
+}
+
+interface MasteryKPI {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  color: string;
+}
 
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [concept, setConcept] = useState<ConceptCardType | null>(null);
+  const [concept, setConcept] = useState<Concept | null>(null);
+  const [activeTab, setActiveTab] = useState('learn');
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [activeTab, setActiveTab] = useState("learn");
-  
-  // Fetch concept data
+  const [masteryKpis, setMasteryKpis] = useState<MasteryKPI[]>([]);
+
+  // Mock data loading effect
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        if (conceptId) {
-          // In a real app, this would be an API call
-          setConcept(mockConcept);
-          setIsBookmarked(mockConcept.bookmarked || false);
-          setLoading(false);
+    // In a real app, we would fetch this data from an API
+    const mockConcept: Concept = {
+      id: conceptId || 'default',
+      title: 'Newton\'s Laws of Motion',
+      description: 'The three fundamental laws that form the foundation for classical mechanics.',
+      content: `
+        <h2>Newton's First Law of Motion</h2>
+        <p>An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+        
+        <h2>Newton's Second Law of Motion</h2>
+        <p>The acceleration of an object as produced by a net force is directly proportional to the magnitude of the net force, in the same direction as the net force, and inversely proportional to the mass of the object.</p>
+        <p>The equation form is: F = ma</p>
+        
+        <h2>Newton's Third Law of Motion</h2>
+        <p>For every action, there is an equal and opposite reaction.</p>
+        
+        <h3>Applications</h3>
+        <p>These laws describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.</p>
+      `,
+      subject: 'Physics',
+      difficulty: 'medium',
+      progress: 65,
+      mastery: 72,
+      timeSpent: '3h 45m',
+      lastStudied: '2 days ago',
+      isBookmarked: true,
+      tags: ['Mechanics', 'Classical Physics', 'NEET', 'JEE'],
+      relatedConcepts: [
+        {
+          id: 'momentum',
+          title: 'Momentum and Impulse',
+          subject: 'Physics',
+          difficulty: 'medium',
+          relation: 'Builds on Newton\'s laws'
+        },
+        {
+          id: 'energy',
+          title: 'Work, Energy, and Power',
+          subject: 'Physics',
+          difficulty: 'medium',
+          relation: 'Related application'
+        },
+        {
+          id: 'circular-motion',
+          title: 'Circular Motion',
+          subject: 'Physics',
+          difficulty: 'hard',
+          relation: 'Advanced application'
         }
-      } catch (err) {
-        setError("Failed to load concept data. Please try again.");
-        setLoading(false);
+      ]
+    };
+    
+    setConcept(mockConcept);
+    setIsBookmarked(mockConcept.isBookmarked);
+    
+    // Set KPIs
+    setMasteryKpis([
+      {
+        label: 'Recall Accuracy',
+        value: 78,
+        icon: <Brain className="h-4 w-4" />,
+        color: 'bg-blue-500'
+      },
+      {
+        label: 'Practice Score',
+        value: 72,
+        icon: <FileQuestion className="h-4 w-4" />,
+        color: 'bg-green-500'
+      },
+      {
+        label: 'Revision Consistency',
+        value: 65,
+        icon: <RepeatIcon className="h-4 w-4" />,
+        color: 'bg-purple-500'
+      },
+      {
+        label: 'Content Coverage',
+        value: 85,
+        icon: <BookOpen className="h-4 w-4" />,
+        color: 'bg-amber-500'
       }
-    }, 1000);
+    ]);
   }, [conceptId]);
-  
-  // Handle bookmark toggle
-  const handleBookmarkToggle = () => {
-    setIsBookmarked(prev => !prev);
-    toast({
-      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
-      description: isBookmarked ? "Concept removed from your bookmarks" : "Concept added to your bookmarks",
-    });
+
+  // Get difficulty color
+  const getDifficultyColor = (difficulty: 'easy' | 'medium' | 'hard') => {
+    switch(difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'hard':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    }
   };
-  
-  if (loading) {
-    return <LoadingState message="Loading concept details..." />;
-  }
-  
-  if (error || !concept) {
+
+  // Get mastery color
+  const getMasteryColor = (value: number) => {
+    if (value >= 80) return 'bg-green-500';
+    if (value >= 60) return 'bg-yellow-500';
+    if (value >= 40) return 'bg-blue-500';
+    return 'bg-gray-500';
+  };
+
+  // Toggle bookmark
+  const handleToggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+  };
+
+  // Handle formula lab click
+  const handleOpenFormulaLab = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`);
+  };
+
+  if (!concept) {
     return (
-      <ErrorState 
-        title="Error loading concept"
-        message={error || "Concept data not found."}
-        action={
-          <Button onClick={() => navigate("/dashboard/student/concepts")}>
-            Back to Concepts
-          </Button>
-        }
-      />
+      <ConceptsPageLayout showBackButton={true}>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-pulse text-xl">Loading concept...</div>
+        </div>
+      </ConceptsPageLayout>
     );
   }
-  
+
   return (
-    <SidebarLayout>
-      <Helmet>
-        <title>{concept.title} - PREPZR</title>
-      </Helmet>
-      
-      <div className="container mx-auto p-4">
-        {/* Back button navigation */}
-        <Button
-          variant="ghost"
-          className="mb-4"
-          onClick={() => navigate("/dashboard/student/concepts")}
-        >
-          ← Back to Concepts
-        </Button>
-        
-        {/* Main content grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content area - 2/3 width on large screens */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Concept header with title and metadata */}
-            <ConceptHeader
-              title={concept.title}
-              subject={concept.subject}
-              topic={concept.topic || concept.subject}
-              difficulty={concept.difficulty}
-              isBookmarked={isBookmarked}
-              onBookmarkToggle={handleBookmarkToggle}
-            />
-            
-            {/* Mastery tracker card */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                  <Brain className="h-5 w-5 text-indigo-500" />
-                  Mastery & Recall Tracker
-                </h2>
-                <Badge variant="outline" className={
-                  concept.mastery?.level === "Expert" || concept.masteryLevel >= 90 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-                  concept.mastery?.level === "Advanced" || concept.masteryLevel >= 75 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" :
-                  concept.mastery?.level === "Intermediate" || concept.masteryLevel >= 60 ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400" :
-                  "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-                }>
-                  {concept.mastery?.level || "Intermediate"} Level
+    <ConceptsPageLayout
+      showBackButton={true}
+      title={concept.title}
+      subtitle={`${concept.subject} - ${concept.tags.join(', ')}`}
+    >
+      <div className="space-y-6">
+        {/* Header with meta information */}
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className={`${getDifficultyColor(concept.difficulty)} px-2 py-1`}>
+                {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)} Difficulty
+              </Badge>
+              <Badge variant="outline" className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border-indigo-200">
+                {concept.subject}
+              </Badge>
+              {concept.tags.map((tag, i) => (
+                <Badge key={i} variant="outline" className="bg-gray-50 dark:bg-gray-800">
+                  {tag}
                 </Badge>
+              ))}
+            </div>
+            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center">
+                <CalendarCheck className="h-4 w-4 mr-1" />
+                Last studied {concept.lastStudied}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-900/50">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Mastery Level</div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold">{concept.masteryLevel}%</div>
-                    <div className="text-xs text-indigo-600 dark:text-indigo-400">+5% this week</div>
-                  </div>
-                  <Progress value={concept.masteryLevel || 0} className="h-1 mt-2" />
-                </div>
-                
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Recall Accuracy</div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold">{concept.recallAccuracy}%</div>
-                    <div className="text-xs text-blue-600 dark:text-blue-400">Last: 3 days ago</div>
-                  </div>
-                  <Progress value={concept.recallAccuracy || 0} className="h-1 mt-2" />
-                </div>
-                
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-900/50">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Quiz Score</div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold">{concept.quizScore}%</div>
-                    <div className="text-xs text-purple-600 dark:text-purple-400">Last: 1 week ago</div>
-                  </div>
-                  <Progress value={concept.quizScore || 0} className="h-1 mt-2" />
-                </div>
+              <div className="flex items-center">
+                <Award className="h-4 w-4 mr-1" />
+                {concept.timeSpent} total study time
               </div>
-              
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/50 mb-2">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <div className="text-sm font-medium text-indigo-700 dark:text-indigo-300">AI Insights</div>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-1.5">
-                  Your recall accuracy has improved 10% in the last two weeks. Focus on the "Current vs. Voltage Relationship" subtopic to reach mastery level.
-                </p>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mt-4">
-                <Button size="sm" variant="outline" className="text-xs">Review Now</Button>
-                <Button size="sm" variant="outline" className="text-xs">Take Quiz</Button>
-                <Button size="sm" variant="outline" className="text-xs">Practice Recall</Button>
-              </div>
-            </motion.div>
-            
-            {/* Tabs section with all content areas */}
-            <Tabs defaultValue="learn" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full overflow-x-auto flex no-scrollbar pb-0.5">
-                <TabsTrigger value="learn" className="flex items-center gap-1">
-                  <Book className="h-4 w-4" />
-                  <span>Learn</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="visual" className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" />
-                  <span>Visual</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="3d" className="flex items-center gap-1">
-                  <Cube className="h-4 w-4" />
-                  <span>3D Simulation</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="formula" className="flex items-center gap-1">
-                  <FlaskConical className="h-4 w-4" />
-                  <span>Formula Lab</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="video" className="flex items-center gap-1">
-                  <Video className="h-4 w-4" />
-                  <span>Video</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="mistakes" className="flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>Common Mistakes</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="recall" className="flex items-center gap-1">
-                  <Brain className="h-4 w-4" />
-                  <span>Recall</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="analytics" className="flex items-center gap-1">
-                  <PieChart className="h-4 w-4" />
-                  <span>Analytics</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="revision" className="flex items-center gap-1">
-                  <Repeat className="h-4 w-4" />
-                  <span>Revision</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="notes" className="flex items-center gap-1">
-                  <FileText className="h-4 w-4" />
-                  <span>Notes</span>
-                </TabsTrigger>
-                
-                <TabsTrigger value="discuss" className="flex items-center gap-1">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>Discuss</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              {/* Learn tab content */}
-              <TabsContent value="learn" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <article className="prose dark:prose-invert max-w-none">
-                      <h2>Understanding {concept.title}</h2>
-                      <p>{concept.content}</p>
-                      
-                      {concept.keyPoints && concept.keyPoints.length > 0 && (
-                        <>
-                          <h3>Key Points</h3>
-                          <ul>
-                            {concept.keyPoints.map((point, idx) => (
-                              <li key={idx}>{point}</li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                      
-                      {concept.examples && concept.examples.length > 0 && (
-                        <>
-                          <h3>Examples</h3>
-                          <ol>
-                            {concept.examples.map((example, idx) => (
-                              <li key={idx}>{example}</li>
-                            ))}
-                          </ol>
-                        </>
-                      )}
-                      
-                      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
-                        <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2 mb-2">
-                          <span className="p-1 bg-blue-100 dark:bg-blue-800 rounded-md">
-                            <Book className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          </span>
-                          Exam Relevance
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {concept.examRelevance || "This concept frequently appears in exams and is considered essential knowledge."}
-                        </p>
-                      </div>
-                    </article>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Visual tab content */}
-              <TabsContent value="visual" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Visual Learning</h2>
-                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 flex items-center justify-center">
-                      <p className="text-gray-500 dark:text-gray-400">Visual representation of {concept.title}</p>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300 mb-4">
-                      Visual learning helps reinforce concepts through diagrams, graphs, and illustrations. 
-                      Seeing the relationship between variables makes it easier to understand complex topics.
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* 3D Simulation tab content */}
-              <TabsContent value="3d" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">3D Interactive Simulation</h2>
-                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 flex items-center justify-center">
-                      <p className="text-gray-500 dark:text-gray-400">3D simulation of {concept.title}</p>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300 mb-4">
-                      Interact with a 3D model to understand how changing variables affects outcomes. 
-                      This hands-on approach builds intuitive understanding of the concept.
-                    </p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">Reset Simulation</Button>
-                      <Button variant="outline" size="sm">Toggle Variables</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Formula Lab tab content */}
-              <TabsContent value="formula" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Formula Lab</h2>
-                    {concept.formulas && concept.formulas.length > 0 ? (
-                      <div className="space-y-4">
-                        {concept.formulas.map((formula, idx) => (
-                          <div key={idx} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                            <div className="font-mono text-lg text-center my-2">{formula}</div>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              <Button size="sm" variant="outline">Practice</Button>
-                              <Button size="sm" variant="outline">Derivation</Button>
-                              <Button size="sm" variant="outline">Calculator</Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>No formulas available for this concept.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Video tab content */}
-              <TabsContent value="video" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Video Lessons</h2>
-                    {concept.videos && concept.videos.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {concept.videos.map((video) => (
-                          <div key={video.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                            <div className="aspect-video bg-gray-100 dark:bg-gray-800 relative">
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Button variant="ghost" className="rounded-full h-12 w-12 flex items-center justify-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="p-3">
-                              <h3 className="font-medium text-gray-900 dark:text-gray-100">{video.title}</h3>
-                              <div className="flex items-center justify-between mt-1">
-                                <span className="text-sm text-gray-500 dark:text-gray-400">{video.duration}</span>
-                                <Button variant="ghost" size="sm">Watch</Button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>No videos available for this concept.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Common Mistakes tab content */}
-              <TabsContent value="mistakes" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Common Mistakes to Avoid</h2>
-                    {concept.commonMistakes && concept.commonMistakes.length > 0 ? (
-                      <div className="space-y-4">
-                        {concept.commonMistakes.map((mistake, idx) => (
-                          <div key={idx} className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
-                            <div className="flex items-start gap-3">
-                              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
-                              <div>
-                                <h3 className="font-medium text-red-800 dark:text-red-300 mb-1">Mistake #{idx + 1}</h3>
-                                <p className="text-gray-700 dark:text-gray-300">{mistake}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>No common mistakes listed for this concept.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Recall tab content */}
-              <TabsContent value="recall" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Active Recall</h2>
-                    <p className="mb-4">Test your understanding with these active recall questions:</p>
-                    <div className="space-y-4">
-                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="font-medium mb-2">What is the formula for {concept.title}?</h3>
-                        <Button className="mr-2">Show Answer</Button>
-                        <Button variant="outline">Next Question</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Analytics tab content */}
-              <TabsContent value="analytics" className="focus-visible:outline-none focus-visible:ring-0">
-                <ConceptMasterySection 
-                  conceptId={concept.id}
-                  recallAccuracy={concept.recallAccuracy}
-                  quizScore={concept.quizScore}
-                  lastPracticed={concept.lastPracticed}
-                />
-              </TabsContent>
-              
-              {/* Revision tab content */}
-              <TabsContent value="revision" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Revision Plan</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="font-medium mb-2">Spaced Repetition Schedule</h3>
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex justify-between">
-                            <span>First revision</span>
-                            <span className="font-medium">Today</span>
-                          </li>
-                          <li className="flex justify-between">
-                            <span>Second revision</span>
-                            <span className="font-medium">In 3 days</span>
-                          </li>
-                          <li className="flex justify-between">
-                            <span>Third revision</span>
-                            <span className="font-medium">In 1 week</span>
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="font-medium mb-2">Memory Anchors</h3>
-                        <p className="text-sm">Use these memory techniques to improve recall:</p>
-                        <ul className="list-disc ml-5 mt-2 text-sm">
-                          <li>Visualize a battery pushing electrons through a resistor</li>
-                          <li>Remember "VIR" as "Very Important Relationship"</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Notes tab content */}
-              <TabsContent value="notes" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Your Notes</h2>
-                    {concept.notes && concept.notes.length > 0 ? (
-                      <div className="space-y-2 mb-4">
-                        {concept.notes.map((note, idx) => (
-                          <div key={idx} className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-100 dark:border-yellow-900/50">
-                            {note}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="mb-4">No notes yet. Add your first note below.</p>
-                    )}
-                    <div className="flex gap-2">
-                      <Button>Add Note</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* Discuss tab content */}
-              <TabsContent value="discuss" className="focus-visible:outline-none focus-visible:ring-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-bold mb-4">Discuss with AI Tutor</h2>
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 max-h-96 overflow-y-auto mb-4">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="bg-blue-100 dark:bg-blue-900 rounded-full w-8 h-8 flex items-center justify-center shrink-0">
-                            <Brain className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                            <p>Hello! I'm your AI tutor. What would you like to know about {concept.title}?</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <input 
-                        type="text" 
-                        className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                        placeholder="Ask a question about this concept..." 
-                      />
-                      <Button>Ask</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            </div>
           </div>
           
-          {/* Sidebar - 1/3 width on large screens */}
-          <div className="space-y-6">
-            <ConceptSidebar
-              masteryLevel={concept.masteryLevel || 0}
-              relatedConcepts={mockRelatedConcepts}
-              examReady={concept.examReady || false}
-            />
-            
-            {/* Quick practice actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className={`${isBookmarked ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/30' : ''}`}
+              onClick={handleToggleBookmark}
             >
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 px-4 py-3">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Quick Practice</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Take a Quiz
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Brain className="mr-2 h-4 w-4" />
-                  Practice Flashcards
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <FlaskConical className="mr-2 h-4 w-4" />
-                  Formula Practice
-                </Button>
-              </div>
-            </motion.div>
-            
-            {/* Recommended resources */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-            >
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 px-4 py-3">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Recommended Resources</h3>
-              </div>
-              <div className="p-4 space-y-3">
-                {concept.resources && concept.resources.map((resource) => (
-                  <a 
-                    key={resource.id}
-                    href={resource.url}
-                    className="flex items-center justify-between p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                  >
-                    <div className="flex items-center">
-                      {resource.type === 'PDF' && <FileText className="mr-2 h-4 w-4 text-red-500" />}
-                      {resource.type === 'Tool' && <FlaskConical className="mr-2 h-4 w-4 text-blue-500" />}
-                      {resource.type === 'Video' && <Video className="mr-2 h-4 w-4 text-green-500" />}
-                      <span className="text-sm">{resource.title}</span>
-                    </div>
-                    <Badge variant="outline">{resource.type}</Badge>
-                  </a>
-                ))}
-              </div>
-            </motion.div>
+              <Star className={`h-4 w-4 mr-1.5 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'}`} />
+              {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+            </Button>
+            <Button size="sm">
+              <BookOpen className="h-4 w-4 mr-1.5" />
+              Start Learning
+            </Button>
           </div>
         </div>
+
+        {/* Mastery & Progress Tracker */}
+        <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border-indigo-100 dark:border-indigo-800/30 overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Overall Mastery */}
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Award className="h-5 w-5 mr-2 text-indigo-600" />
+                  Mastery Progress
+                </h3>
+                
+                <div className="flex justify-between mb-2 items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Mastery</span>
+                  <span className="text-2xl font-bold text-indigo-600">{concept.mastery}%</span>
+                </div>
+                
+                <div className="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full mb-6">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${concept.mastery}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className={`h-full ${getMasteryColor(concept.mastery)} rounded-full`}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {masteryKpis.map((kpi, index) => (
+                    <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center">
+                          <div className={`p-1.5 rounded-full ${kpi.color.replace('bg-', 'bg-').replace('500', '100')} ${kpi.color.replace('bg-', 'text-')}`}>
+                            {kpi.icon}
+                          </div>
+                          <span className="ml-2 text-sm font-medium">{kpi.label}</span>
+                        </div>
+                        <span className="text-lg font-bold">{kpi.value}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${kpi.value}%` }}
+                          transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
+                          className={`h-full ${kpi.color} rounded-full`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* AI Insights */}
+              <div className="flex-1 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold mb-3 flex items-center">
+                  <Lightbulb className="h-5 w-5 mr-2 text-amber-500" />
+                  AI Learning Insights
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm">You're making excellent progress on understanding Newton's First Law examples.</p>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm">You might need more practice with force calculations in Second Law problems.</p>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <Lightbulb className="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm">Try connecting Third Law concepts with real-world applications to improve recall.</p>
+                  </div>
+                  
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full mt-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20"
+                  >
+                    View Detailed Analytics
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main content with tabs */}
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full h-auto flex flex-wrap justify-start bg-gray-100/50 dark:bg-gray-800/50 p-1">
+            <TabsTrigger value="learn" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Learn
+            </TabsTrigger>
+            <TabsTrigger value="visual" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Code className="h-4 w-4 mr-2" />
+              Visual
+            </TabsTrigger>
+            <TabsTrigger value="simulation" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Cylinder className="h-4 w-4 mr-2" />
+              3D Simulation
+            </TabsTrigger>
+            <TabsTrigger value="formula" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Beaker className="h-4 w-4 mr-2" />
+              Formula Lab
+            </TabsTrigger>
+            <TabsTrigger value="video" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Video className="h-4 w-4 mr-2" />
+              Video
+            </TabsTrigger>
+            <TabsTrigger value="mistakes" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Common Mistakes
+            </TabsTrigger>
+            <TabsTrigger value="recall" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Brain className="h-4 w-4 mr-2" />
+              Recall
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <BarChart2 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="connected" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <Network className="h-4 w-4 mr-2" />
+              Connected
+            </TabsTrigger>
+            <TabsTrigger value="revision" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <RepeatIcon className="h-4 w-4 mr-2" />
+              Revision
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <FileQuestion className="h-4 w-4 mr-2" />
+              Notes
+            </TabsTrigger>
+            <TabsTrigger value="discuss" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Discuss
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Learn Tab Content */}
+          <TabsContent value="learn" className="border rounded-md mt-6">
+            <div className="p-6">
+              <div 
+                className="prose dark:prose-invert max-w-none" 
+                dangerouslySetInnerHTML={{ __html: concept.content }}
+              />
+              <div className="mt-6 flex justify-end">
+                <Button>
+                  <Check className="h-4 w-4 mr-2" />
+                  Mark as Learned
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Visual Tab Content */}
+          <TabsContent value="visual" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Visual Learning</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-64 flex items-center justify-center">
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <Code className="h-12 w-12 mx-auto mb-2" />
+                    <p>Interactive visualization content will appear here.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold">Visual Explanation</h3>
+                  <p>Visual diagrams and illustrations help understand key concepts by providing clear representations of physical phenomena and relationships.</p>
+                  <Button variant="outline" className="w-full">
+                    Launch Interactive Visualizer
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* 3D Simulation Tab Content */}
+          <TabsContent value="simulation" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">3D Simulation</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-64 flex items-center justify-center">
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <Cylinder className="h-12 w-12 mx-auto mb-2" />
+                    <p>3D simulation content will appear here.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold">Interactive 3D Models</h3>
+                  <p>Manipulate 3D models to better understand physical principles and see concepts in action from multiple perspectives.</p>
+                  <Button variant="outline" className="w-full">
+                    Launch 3D Simulator
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Formula Lab Tab Content */}
+          <TabsContent value="formula" className="border rounded-md mt-6">
+            <FormulaTabContent 
+              conceptId={conceptId || ''}
+              conceptTitle={concept.title}
+              handleOpenFormulaLab={handleOpenFormulaLab}
+            />
+          </TabsContent>
+          
+          {/* Video Tab Content */}
+          <TabsContent value="video" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Video Explanations</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-64 flex items-center justify-center">
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <PlayCircle className="h-12 w-12 mx-auto mb-2" />
+                    <p>Video content will appear here.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold">Video Lectures</h3>
+                  <p>Watch expert educators explain complex topics in clear, concise video lessons with demonstrations and examples.</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="w-full">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Full Screen
+                    </Button>
+                    <Button className="w-full">
+                      <PlayCircle className="h-4 w-4 mr-2" />
+                      Play Video
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Common Mistakes Tab Content */}
+          <TabsContent value="mistakes" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <AlertTriangle className="h-6 w-6 mr-2 text-amber-500" />
+                Common Mistakes
+              </h2>
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-2">Confusing Mass and Weight</h3>
+                    <p className="text-muted-foreground mb-4">Students often confuse mass (a measure of inertia) with weight (the force of gravity).</p>
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 p-3 rounded-md">
+                      <h4 className="font-medium text-amber-800 dark:text-amber-300">Correct Understanding:</h4>
+                      <p className="text-sm mt-1">Mass is measured in kilograms (kg) and is constant, while weight is measured in Newtons (N) and varies with gravitational field strength.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-2">Misapplying Newton's Third Law</h3>
+                    <p className="text-muted-foreground mb-4">Students often incorrectly think the action-reaction pair acts on the same object.</p>
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 p-3 rounded-md">
+                      <h4 className="font-medium text-amber-800 dark:text-amber-300">Correct Understanding:</h4>
+                      <p className="text-sm mt-1">Newton's Third Law pairs always act on different objects. The force the Earth exerts on you (your weight) acts on you, while the equal and opposite force you exert acts on the Earth.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Placeholder content for other tabs */}
+          <TabsContent value="recall" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Recall Practice</h2>
+              <p className="text-gray-500 dark:text-gray-400">Testing your recall with active questioning helps cement your understanding.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="analytics" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Your Learning Analytics</h2>
+              <p className="text-gray-500 dark:text-gray-400">Detailed analytics on your learning progress will appear here.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="connected" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Connected Concepts</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {concept.relatedConcepts.map((related, index) => (
+                  <Card key={index} className="cursor-pointer hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+                    <CardContent className="p-4">
+                      <Badge variant="outline" className={`${getDifficultyColor(related.difficulty)} mb-2`}>
+                        {related.difficulty}
+                      </Badge>
+                      <h3 className="font-semibold mb-1">{related.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{related.subject}</p>
+                      <p className="text-xs bg-blue-50 dark:bg-blue-900/20 p-1.5 rounded">{related.relation}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="revision" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Revision Plan</h2>
+              <p className="text-gray-500 dark:text-gray-400">Your personalized revision schedule will appear here.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="notes" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Your Notes</h2>
+              <p className="text-gray-500 dark:text-gray-400">Your saved notes will appear here.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="discuss" className="border rounded-md mt-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Discuss with AI Tutor</h2>
+              <p className="text-gray-500 dark:text-gray-400">Chat with our AI tutor to get answers to your questions.</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </SidebarLayout>
+    </ConceptsPageLayout>
   );
 };
 
