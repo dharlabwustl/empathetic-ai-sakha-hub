@@ -8,30 +8,53 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, Eye, EyeOff, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SignupStepProps {
   onSubmit: (formValues: { 
     name: string; 
-    mobile: string; 
+    mobile: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
     otp: string; 
     institute?: string;
     agreeTerms: boolean 
   }) => void;
   isLoading: boolean;
+  handlePasswordRequirementsFocus?: () => void;
+  showPasswordRequirements?: boolean;
 }
 
-const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
+const SignupStep: React.FC<SignupStepProps> = ({ 
+  onSubmit, 
+  isLoading,
+  handlePasswordRequirementsFocus,
+  showPasswordRequirements 
+}) => {
   const { toast } = useToast();
   const { onboardingData } = useOnboarding();
   const [formValues, setFormValues] = useState({
     name: "",
     mobile: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     otp: "",
     institute: "",
     agreeTerms: false
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fact, setFact] = useState("");
+  const [passwordValid, setPasswordValid] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
   const examFacts = {
     "NEET": [
       "India needs 2.5 million doctors by 2030 - huge opportunities ahead!",
@@ -47,6 +70,18 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       setFact(randomFact);
     }
   }, [onboardingData.examGoal]);
+
+  useEffect(() => {
+    // Validate password as user types
+    const password = formValues.password;
+    setPasswordValid({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[@$!%*?&]/.test(password)
+    });
+  }, [formValues.password]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,13 +117,34 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       });
       return;
     }
+
+    // Check if passwords match
+    if (formValues.password !== formValues.confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure both passwords are the same",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    if (formValues.name && formValues.mobile && formValues.otp) {
+    // Check password requirements
+    const allValid = Object.values(passwordValid).every(Boolean);
+    if (!allValid) {
+      toast({
+        title: "Password doesn't meet requirements",
+        description: "Please follow the password guidelines",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formValues.name && formValues.mobile && formValues.otp && formValues.password && formValues.email) {
       onSubmit(formValues);
     } else {
       toast({
-        title: "Please fill in all fields",
-        description: "All fields are required to create your account.",
+        title: "Please fill in all required fields",
+        description: "All fields marked with * are required to create your account.",
         variant: "destructive"
       });
     }
@@ -105,10 +161,25 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     onSubmit({
       name: "Google User",
       mobile: "9999999999",
+      email: "google@example.com",
+      password: "Google@Auth123",
+      confirmPassword: "Google@Auth123",
       otp: "verified", 
       institute: onboardingData.institute || "",
       agreeTerms: true
     });
+  };
+
+  const getPasswordStrengthColor = () => {
+    const validCount = Object.values(passwordValid).filter(Boolean).length;
+    if (validCount <= 2) return "bg-red-500";
+    if (validCount <= 4) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
+  const passwordStrengthWidth = () => {
+    const validCount = Object.values(passwordValid).filter(Boolean).length;
+    return `${(validCount / 5) * 100}%`;
   };
 
   return (
@@ -133,7 +204,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <div className="mb-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
           </div>
           <Input 
             id="name" 
@@ -145,10 +216,26 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             placeholder="Your full name"
           />
         </div>
+
+        <div>
+          <div className="mb-2">
+            <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+          </div>
+          <Input 
+            id="email" 
+            name="email" 
+            type="email"
+            value={formValues.email} 
+            onChange={handleFormChange} 
+            required 
+            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+            placeholder="Your email address"
+          />
+        </div>
         
         <div>
           <div className="mb-2">
-            <Label htmlFor="mobile">Mobile Number</Label>
+            <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
           </div>
           <Input 
             id="mobile" 
@@ -160,6 +247,93 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
             placeholder="+91 9876543210"
           />
+        </div>
+        
+        <div>
+          <div className="mb-2">
+            <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
+          </div>
+          <div className="relative">
+            <Input 
+              id="password" 
+              name="password" 
+              type={showPassword ? "text" : "password"}
+              value={formValues.password} 
+              onChange={handleFormChange} 
+              onFocus={handlePasswordRequirementsFocus}
+              required 
+              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
+              placeholder="Create a strong password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              ) : (
+                <Eye className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Password strength indicator */}
+          {formValues.password && (
+            <div className="mt-1">
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className={`h-1.5 rounded-full ${getPasswordStrengthColor()}`} style={{ width: passwordStrengthWidth() }}></div>
+              </div>
+            </div>
+          )}
+
+          {showPasswordRequirements && (
+            <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 mt-2">
+              <Info className="h-4 w-4 text-blue-500 mr-2" />
+              <AlertDescription className="text-xs">
+                <div className="font-medium mb-1">Password must contain:</div>
+                <ul className="space-y-1 pl-4 list-disc">
+                  <li className={passwordValid.length ? "text-green-600" : ""}>Minimum 8 characters</li>
+                  <li className={passwordValid.uppercase ? "text-green-600" : ""}>At least one uppercase letter (A-Z)</li>
+                  <li className={passwordValid.lowercase ? "text-green-600" : ""}>At least one lowercase letter (a-z)</li>
+                  <li className={passwordValid.number ? "text-green-600" : ""}>At least one number (0-9)</li>
+                  <li className={passwordValid.special ? "text-green-600" : ""}>At least one special character (@$!%*?&)</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <div>
+          <div className="mb-2">
+            <Label htmlFor="confirmPassword">Confirm Password <span className="text-red-500">*</span></Label>
+          </div>
+          <div className="relative">
+            <Input 
+              id="confirmPassword" 
+              name="confirmPassword" 
+              type={showConfirmPassword ? "text" : "password"}
+              value={formValues.confirmPassword} 
+              onChange={handleFormChange} 
+              required 
+              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
+              placeholder="Confirm your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3"
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              ) : (
+                <Eye className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+          {formValues.password && formValues.confirmPassword && formValues.password !== formValues.confirmPassword && (
+            <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+          )}
         </div>
         
         <div>
@@ -189,7 +363,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         
         {formValues.mobile && (
           <div>
-            <Label htmlFor="otp">OTP</Label>
+            <Label htmlFor="otp">OTP <span className="text-red-500">*</span></Label>
             <Input 
               id="otp" 
               name="otp" 
@@ -224,7 +398,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         <Button 
           type="submit" 
           className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
-          disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp || !formValues.agreeTerms}
+          disabled={isLoading}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
