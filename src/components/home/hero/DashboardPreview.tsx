@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap, Brain, Calculator, Clock, Book, ChevronRight, Target } from 'lucide-react';
+import { Brain, Calendar, BookMarked, Clock, Calculator, Target } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
