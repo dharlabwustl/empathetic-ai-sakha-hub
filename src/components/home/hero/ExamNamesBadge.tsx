@@ -29,7 +29,7 @@ const ExamNamesBadge = () => {
       transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
     >
       <GraduationCap size={14} />
-    </motion.div> },
+    </motion.div>, isLive: true },
     { name: "JEE", icon: <GraduationCap size={14} /> },
     { name: "UPSC", icon: <Award size={14} /> },
     { name: "GATE", icon: <Star size={14} /> },
@@ -73,7 +73,7 @@ const ExamNamesBadge = () => {
           ))}
         </div>
 
-        {/* Enhanced NEET Exam Badge with glowing 3D effect */}
+        {/* Enhanced NEET Exam Badge with intense glowing 3D effect */}
         <motion.div
           className="relative z-10"
           initial={{ z: 0 }}
@@ -87,19 +87,19 @@ const ExamNamesBadge = () => {
           }}
           onClick={handleNeetExamClick}
         >
-          {/* Enhanced animated glowing background */}
+          {/* Enhanced animated glowing background with pulsing effect */}
           <motion.div 
-            className="absolute -inset-2 rounded-full blur-md"
+            className="absolute -inset-2 rounded-full blur-lg"
             animate={{ 
               background: [
-                'radial-gradient(circle, rgba(79,70,229,0.5) 0%, rgba(139,92,246,0.3) 100%)',
-                'radial-gradient(circle, rgba(139,92,246,0.6) 0%, rgba(79,70,229,0.4) 100%)',
-                'radial-gradient(circle, rgba(79,70,229,0.5) 0%, rgba(139,92,246,0.3) 100%)'
+                'radial-gradient(circle, rgba(79,70,229,0.7) 0%, rgba(139,92,246,0.5) 100%)',
+                'radial-gradient(circle, rgba(139,92,246,0.8) 0%, rgba(79,70,229,0.6) 100%)',
+                'radial-gradient(circle, rgba(79,70,229,0.7) 0%, rgba(139,92,246,0.5) 100%)'
               ],
               scale: [1, 1.3, 1],
-              opacity: [0.6, 0.9, 0.6]
+              opacity: [0.8, 1, 0.8]
             }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             style={{ transform: "translateZ(-5px)" }}
           />
           
@@ -110,22 +110,44 @@ const ExamNamesBadge = () => {
               className="relative"
             >
               <motion.div 
-                className="absolute inset-0 rounded-full bg-amber-400/50 blur-sm"
-                animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0.2, 0.6] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-full bg-amber-400/80 blur-md"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0.3, 0.6] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
               />
               <GraduationCap size={16} className="text-amber-300" />
             </motion.div>
             
-            <motion.span
-              animate={{ 
-                textShadow: ["0px 0px 0px rgba(255,255,255,0)", "0px 0px 8px rgba(255,255,255,0.8)", "0px 0px 0px rgba(255,255,255,0)"]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="font-semibold tracking-wide text-base"
-            >
-              NEET
-            </motion.span>
+            <div className="flex items-center">
+              <motion.span
+                animate={{ 
+                  textShadow: ["0px 0px 0px rgba(255,255,255,0)", "0px 0px 10px rgba(255,255,255,0.8)", "0px 0px 0px rgba(255,255,255,0)"]
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="font-semibold tracking-wide text-base"
+              >
+                NEET
+              </motion.span>
+              
+              {/* "Live now" indicator with pulsing animation */}
+              <motion.div 
+                className="ml-2 flex items-center gap-1 bg-green-600/80 px-1.5 py-0.5 rounded-full text-xs font-medium"
+                animate={{ 
+                  boxShadow: [
+                    "0 0 0px rgba(22, 163, 74, 0.5)",
+                    "0 0 10px rgba(22, 163, 74, 0.8)",
+                    "0 0 0px rgba(22, 163, 74, 0.5)"
+                  ]
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <motion.span 
+                  className="h-1.5 w-1.5 bg-green-300 rounded-full" 
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+                <span>LIVE NOW</span>
+              </motion.div>
+            </div>
           </Badge>
         </motion.div>
         

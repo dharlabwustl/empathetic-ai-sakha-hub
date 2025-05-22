@@ -12,6 +12,12 @@ const animations = [
   "/animations/exam-prep.svg"
 ];
 
+// Education-related icons for the 3D scene
+const educationIcons = [
+  "🧠", "📚", "🔬", "✏️", "📐", "🧪", "🧮", "📝", "🔎", "📊", 
+  "📈", "🧬", "⚛️", "🔭", "🧫", "📓", "🎓", "🏆", "💼", "🖥️"
+];
+
 const Hero3DSection: React.FC = () => {
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState(0);
   const threeContainerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +29,7 @@ const Hero3DSection: React.FC = () => {
     gridHelper: THREE.GridHelper;
     neuronParticles: THREE.Points;
     clock: THREE.Clock;
+    textSprites: THREE.Sprite[];
     animationId: number | null;
   } | null>(null);
   
@@ -66,7 +73,7 @@ const Hero3DSection: React.FC = () => {
       const scene = new THREE.Scene();
       
       // Add fog for depth
-      scene.fog = new THREE.FogExp2(0x4338ca, 0.005);
+      scene.fog = new THREE.FogExp2(0x4338ca, 0.004);
       
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.z = 30;
@@ -89,14 +96,15 @@ const Hero3DSection: React.FC = () => {
       
       // Create particle system
       const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 1000;
+      const particlesCount = 1500; // Increased particle count
       
       const posArray = new Float32Array(particlesCount * 3);
       const scaleArray = new Float32Array(particlesCount);
+      const colorArray = new Float32Array(particlesCount * 3);
       
       for (let i = 0; i < particlesCount * 3; i+=3) {
         // Position particles in a sphere
-        const radius = 80 * Math.random() + 20;
+        const radius = 100 * Math.random() + 20; // Larger radius
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos((Math.random() * 2) - 1);
         
@@ -106,17 +114,23 @@ const Hero3DSection: React.FC = () => {
         
         // Random scale for particles
         scaleArray[i/3] = Math.random() * 2 + 0.5;
+        
+        // Random colors for particles - purples and blues
+        colorArray[i] = 0.4 + Math.random() * 0.2; // R
+        colorArray[i+1] = 0.4 + Math.random() * 0.3; // G
+        colorArray[i+2] = 0.8 + Math.random() * 0.2; // B
       }
       
       particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
       particlesGeometry.setAttribute('scale', new THREE.BufferAttribute(scaleArray, 1));
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
       
       // Create shader material for particles
       const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.7,
-        color: 0x8b5cf6,
+        size: 0.8,
+        vertexColors: true,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.7,
         blending: THREE.AdditiveBlending,
         sizeAttenuation: true
       });
@@ -126,23 +140,23 @@ const Hero3DSection: React.FC = () => {
       scene.add(particles);
       
       // Add neuron-like particles that connect with lines
-      const neuronCount = 200;
+      const neuronCount = 250;
       const neuronGeometry = new THREE.BufferGeometry();
       const neuronPositions = new Float32Array(neuronCount * 3);
       
       for (let i = 0; i < neuronCount * 3; i += 3) {
-        neuronPositions[i] = (Math.random() - 0.5) * 100;
-        neuronPositions[i + 1] = (Math.random() - 0.5) * 100;
-        neuronPositions[i + 2] = (Math.random() - 0.5) * 100;
+        neuronPositions[i] = (Math.random() - 0.5) * 150;
+        neuronPositions[i + 1] = (Math.random() - 0.5) * 150;
+        neuronPositions[i + 2] = (Math.random() - 0.5) * 150;
       }
       
       neuronGeometry.setAttribute('position', new THREE.BufferAttribute(neuronPositions, 3));
       
       const neuronMaterial = new THREE.PointsMaterial({
-        size: 1,
-        color: 0x4c1d95,
+        size: 1.2,
+        color: 0x6d28d9,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.9,
         blending: THREE.AdditiveBlending
       });
       
@@ -150,7 +164,7 @@ const Hero3DSection: React.FC = () => {
       scene.add(neuronParticles);
       
       // Create neural connections
-      const connections = 100;
+      const connections = 150;
       for (let i = 0; i < connections; i++) {
         // Create random connections between particles
         const idx1 = Math.floor(Math.random() * neuronCount);
@@ -171,16 +185,16 @@ const Hero3DSection: React.FC = () => {
           Math.pow(z2 - z1, 2)
         );
         
-        if (distance < 40) {
+        if (distance < 50) {
           const lineGeometry = new THREE.BufferGeometry().setFromPoints([
             new THREE.Vector3(x1, y1, z1),
             new THREE.Vector3(x2, y2, z2)
           ]);
           
           const lineMaterial = new THREE.LineBasicMaterial({ 
-            color: 0x6d28d9,
+            color: 0x8b5cf6,
             transparent: true,
-            opacity: 0.2 + Math.random() * 0.2
+            opacity: 0.2 + Math.random() * 0.3
           });
           
           const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -188,8 +202,46 @@ const Hero3DSection: React.FC = () => {
         }
       }
       
+      // Add education-related text sprites
+      const textSprites: THREE.Sprite[] = [];
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      
+      if (context) {
+        canvas.width = 64;
+        canvas.height = 64;
+        
+        educationIcons.forEach((icon) => {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          context.font = '48px Arial';
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillText(icon, canvas.width / 2, canvas.height / 2);
+          
+          const texture = new THREE.Texture(canvas);
+          texture.needsUpdate = true;
+          
+          const material = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: 0.8
+          });
+          
+          const sprite = new THREE.Sprite(material);
+          sprite.scale.set(10, 10, 10);
+          sprite.position.set(
+            (Math.random() - 0.5) * 200,
+            (Math.random() - 0.5) * 200,
+            (Math.random() - 0.5) * 200
+          );
+          scene.add(sprite);
+          textSprites.push(sprite);
+        });
+      }
+      
       // Add some ambient light to illuminate the scene
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
       scene.add(ambientLight);
       
       // Add directional light for depth
@@ -216,6 +268,7 @@ const Hero3DSection: React.FC = () => {
         particles,
         gridHelper,
         neuronParticles,
+        textSprites,
         clock,
         animationId: null
       };
@@ -243,7 +296,7 @@ const Hero3DSection: React.FC = () => {
     const animate = () => {
       if (!sceneRef.current) return;
       
-      const { scene, camera, renderer, particles, gridHelper, neuronParticles, clock } = sceneRef.current;
+      const { scene, camera, renderer, particles, gridHelper, neuronParticles, textSprites, clock } = sceneRef.current;
       
       const elapsedTime = clock.getElapsedTime();
       
@@ -255,12 +308,39 @@ const Hero3DSection: React.FC = () => {
       neuronParticles.rotation.y = elapsedTime * 0.03;
       neuronParticles.rotation.z = elapsedTime * 0.01;
       
+      // Animate text sprites
+      textSprites.forEach((sprite, i) => {
+        // Make the sprites float around
+        sprite.position.x += Math.sin(elapsedTime * 0.5 + i) * 0.05;
+        sprite.position.y += Math.cos(elapsedTime * 0.3 + i * 0.5) * 0.05;
+        
+        // Make sprites slowly move towards the center
+        const dist = Math.sqrt(
+          sprite.position.x * sprite.position.x + 
+          sprite.position.y * sprite.position.y + 
+          sprite.position.z * sprite.position.z
+        );
+        
+        if (dist > 150) {
+          sprite.position.x *= 0.995;
+          sprite.position.y *= 0.995;
+          sprite.position.z *= 0.995;
+        }
+        
+        // Random pulse effect
+        sprite.scale.set(
+          10 + Math.sin(elapsedTime + i) * 1,
+          10 + Math.sin(elapsedTime + i) * 1,
+          1
+        );
+      });
+      
       // Move grid to create flying effect
       gridHelper.position.z = (elapsedTime * 5) % 20 - 10;
       
       // Add slight camera movement for more immersion
-      camera.position.x = Math.sin(elapsedTime * 0.2) * 2;
-      camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 1;
+      camera.position.x = Math.sin(elapsedTime * 0.2) * 3;
+      camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 1.5;
       camera.lookAt(0, 0, 0);
       
       // Render scene
@@ -301,6 +381,7 @@ const Hero3DSection: React.FC = () => {
         {/* Right side - 3D animation */}
         <div className="w-full lg:w-1/2 flex justify-center items-center mb-8 lg:mb-0">
           <div className="relative w-full max-w-xl aspect-square">
+            {/* 3D dashboard preview */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={animations[currentAnimationIndex]}
@@ -326,9 +407,9 @@ const Hero3DSection: React.FC = () => {
               </motion.div>
             </AnimatePresence>
             
-            {/* 3D Glow effect behind animation */}
+            {/* Enhanced 3D Glow effect behind animation */}
             <motion.div
-              className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-2xl"
+              className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl"
               animate={{ 
                 scale: [0.8, 1.2, 0.8],
                 opacity: [0.3, 0.7, 0.3],
