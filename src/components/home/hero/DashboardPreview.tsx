@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Calendar, BookMarked, Clock, Calculator, Target } from 'lucide-react';
+import { Brain, Calendar, BookMarked, Clock, Calculator, Target, BookOpen, Check, FileText, TrendingUp, Star } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
@@ -9,6 +9,33 @@ interface DashboardPreviewProps {
 }
 
 const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setActiveFeature }) => {
+  const [animateProgress, setAnimateProgress] = useState(false);
+  const [showNewConcept, setShowNewConcept] = useState(false);
+  const [flashcardFlip, setFlashcardFlip] = useState(false);
+
+  // Auto animate certain elements based on active feature
+  useEffect(() => {
+    if (activeFeature === 4) { // Formula Practice
+      const timer = setTimeout(() => setAnimateProgress(true), 1000);
+      return () => clearTimeout(timer);
+    } else if (activeFeature === 2) { // Concept Cards
+      const timer = setTimeout(() => setShowNewConcept(true), 1500);
+      return () => {
+        clearTimeout(timer);
+        setShowNewConcept(false);
+      };
+    } else if (activeFeature === 3) { // Flashcard System
+      const timer = setTimeout(() => setFlashcardFlip(true), 2000);
+      const resetTimer = setTimeout(() => setFlashcardFlip(false), 4000);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(resetTimer);
+      };
+    } else {
+      setAnimateProgress(false);
+    }
+  }, [activeFeature]);
+
   const features = [
     {
       title: "Smart Dashboard",
@@ -53,6 +80,324 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       highlight: "Always know where you stand"
     },
   ];
+
+  // Function to render specific interactive elements based on active feature
+  const renderFeatureInteractivity = () => {
+    switch (activeFeature) {
+      case 0: // Smart Dashboard
+        return (
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800/80 backdrop-blur-sm p-3 rounded-lg border border-blue-500/30 z-20">
+            <div className="text-xs text-white mb-1 text-center">Daily Progress Summary</div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col items-center">
+                <div className="text-blue-400 text-lg font-bold">85%</div>
+                <div className="text-xs text-gray-300">Completion</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-green-400 text-lg font-bold">12</div>
+                <div className="text-xs text-gray-300">Concepts</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-amber-400 text-lg font-bold">3.5h</div>
+                <div className="text-xs text-gray-300">Study Time</div>
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 1: // Adaptive Study Plan
+        return (
+          <motion.div 
+            className="absolute top-20 right-8 bg-indigo-900/80 backdrop-blur-sm p-3 rounded-lg border border-indigo-500/30 z-20 w-40"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="text-xs text-indigo-200 mb-2">Today's Priority Topics:</div>
+            <ul className="space-y-1">
+              {['Thermodynamics', 'Organic Chemistry', 'Cell Biology'].map((topic, i) => (
+                <motion.li 
+                  key={i}
+                  className="flex items-center text-xs text-white"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 + i * 0.2 }}
+                >
+                  <div className="h-1.5 w-1.5 bg-indigo-400 rounded-full mr-1"></div>
+                  {topic}
+                </motion.li>
+              ))}
+            </ul>
+            
+            <motion.div 
+              className="mt-3 bg-indigo-700/50 p-1.5 rounded text-xs text-white flex items-center justify-between"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 1.3 }}
+            >
+              <span>Start Now</span>
+              <div className="h-4 w-4 bg-indigo-500 rounded-full flex items-center justify-center">→</div>
+            </motion.div>
+          </motion.div>
+        );
+
+      case 2: // Concept Cards
+        return (
+          <AnimatePresence>
+            {showNewConcept && (
+              <motion.div
+                className="absolute top-1/4 left-1/2 transform -translate-x-1/2 bg-purple-900/90 backdrop-blur-sm p-3 rounded-lg border border-purple-500/30 z-30 w-64"
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                transition={{ type: "spring" }}
+              >
+                <div className="text-sm text-white font-medium mb-2">New Concept Unlocked!</div>
+                <div className="text-xs text-purple-200 mb-2">DNA Replication</div>
+                <div className="bg-purple-800/60 rounded p-2 text-xs text-white">
+                  Learn how DNA creates exact copies of itself during cell division through the process of replication.
+                </div>
+                <div className="flex justify-between items-center mt-3">
+                  <div className="flex items-center text-xs text-purple-200">
+                    <BookOpen className="h-3 w-3 mr-1" />
+                    <span>10 min read</span>
+                  </div>
+                  <div className="bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                    Start Learning
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        );
+        
+      case 3: // Flashcard System
+        return (
+          <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20 w-72">
+            <motion.div 
+              className="relative h-40 w-full perspective-1000"
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: flashcardFlip ? 180 : 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Front side */}
+              <motion.div 
+                className="absolute inset-0 bg-gray-700/90 backdrop-blur-sm p-4 rounded-lg border border-amber-500/30 flex flex-col items-center justify-center backface-hidden"
+                style={{ backfaceVisibility: "hidden" }}
+              >
+                <div className="text-amber-400 text-sm mb-2">Question:</div>
+                <div className="text-white text-center font-medium">
+                  What enzyme is responsible for unwinding the DNA helix during replication?
+                </div>
+                <div className="mt-4 text-xs text-gray-300">Tap to reveal answer</div>
+              </motion.div>
+              
+              {/* Back side */}
+              <motion.div 
+                className="absolute inset-0 bg-amber-900/80 backdrop-blur-sm p-4 rounded-lg border border-amber-500/30 flex flex-col items-center justify-center rotate-y-180 backface-hidden"
+                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              >
+                <div className="text-amber-300 text-sm mb-2">Answer:</div>
+                <div className="text-white text-center font-medium">
+                  DNA Helicase
+                </div>
+                <div className="mt-4 flex justify-around w-full">
+                  <div className="flex items-center text-xs text-red-300">
+                    <div className="h-4 w-4 rounded-full bg-red-500/30 flex items-center justify-center mr-1">✕</div>
+                    Hard
+                  </div>
+                  <div className="flex items-center text-xs text-amber-300">
+                    <div className="h-4 w-4 rounded-full bg-amber-500/30 flex items-center justify-center mr-1">•</div>
+                    Medium
+                  </div>
+                  <div className="flex items-center text-xs text-green-300">
+                    <div className="h-4 w-4 rounded-full bg-green-500/30 flex items-center justify-center mr-1">✓</div>
+                    Easy
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+            
+            <motion.div 
+              className="mt-3 flex justify-between"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: flashcardFlip ? 1 : 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="text-xs text-amber-500">Next review: 3 days</div>
+              <div className="text-xs text-amber-500">32/100 cards</div>
+            </motion.div>
+          </div>
+        );
+        
+      case 4: // Formula Practice
+        return (
+          <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 z-20">
+            <motion.div
+              className="bg-emerald-900/80 backdrop-blur-sm p-4 rounded-lg border border-emerald-500/30 w-64"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="text-emerald-200 text-sm font-medium mb-2">Formula Practice</div>
+              <div className="text-white text-center py-2 font-mono">
+                PV = nRT
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                {['P = ?', 'V = 2L', 'n = 1 mol', 'T = 300K'].map((item, i) => (
+                  <div key={i} className="bg-emerald-800/60 p-1.5 rounded text-xs text-white text-center">
+                    {item}
+                  </div>
+                ))}
+              </div>
+              
+              <motion.div 
+                className="mt-4 bg-emerald-700 h-1.5 rounded-full overflow-hidden"
+                initial={{ width: "100%" }}
+              >
+                <motion.div 
+                  className="h-full bg-emerald-400"
+                  initial={{ width: "0%" }}
+                  animate={{ width: animateProgress ? "65%" : "0%" }}
+                  transition={{ delay: 0.5, duration: 1.5 }}
+                />
+              </motion.div>
+              <div className="mt-1 flex justify-between text-xs text-emerald-200">
+                <span>Progress</span>
+                <span>{animateProgress ? "65%" : "0%"}</span>
+              </div>
+            </motion.div>
+          </div>
+        );
+        
+      case 5: // Exam Readiness
+        return (
+          <>
+            <motion.div
+              className="absolute top-20 left-10 flex items-center gap-2 z-30"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.5, type: "spring" }}
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg">
+                  <img 
+                    src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" 
+                    alt="Happy Student" 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <motion.div 
+                  className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity,
+                    delay: 1 
+                  }}
+                >
+                  +1
+                </motion.div>
+                <motion.div
+                  className="absolute -bottom-1 -right-1 text-lg"
+                  animate={{ 
+                    rotate: [0, 15, 0, -15, 0]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    delay: 1.5
+                  }}
+                >
+                  🎉
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="absolute right-10 top-20 flex items-center z-30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <div className="bg-gray-800/90 backdrop-blur-sm p-3 rounded-lg border border-indigo-500/30">
+                <div className="text-xs text-white mb-1">Exam Readiness</div>
+                <motion.div 
+                  className="h-2 w-36 bg-gray-700 rounded-full overflow-hidden"
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+                    initial={{ width: '40%' }}
+                    animate={{ width: '76%' }}
+                    transition={{ 
+                      duration: 1.5,
+                      ease: "easeOut",
+                      delay: 1.2
+                    }}
+                  />
+                </motion.div>
+                <div className="flex justify-between items-center mt-1 text-xs text-gray-300">
+                  <span>Day 1</span>
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2.7 }}
+                    className="text-indigo-300"
+                  >
+                    76%
+                  </motion.span>
+                  <span>Day 30</span>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              className="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-20 w-80"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <div className="bg-gray-800/90 backdrop-blur-sm p-3 rounded-lg border border-blue-500/30">
+                <div className="text-sm text-blue-400 font-medium mb-2">Subject Readiness</div>
+                <div className="space-y-2">
+                  {[
+                    { subject: "Physics", progress: 82, color: "bg-blue-500" },
+                    { subject: "Chemistry", progress: 67, color: "bg-purple-500" },
+                    { subject: "Biology", progress: 91, color: "bg-green-500" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center">
+                      <div className="w-24 text-xs text-white">{item.subject}</div>
+                      <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div 
+                          className={`h-full ${item.color}`}
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${item.progress}%` }}
+                          transition={{ delay: 1.5 + i * 0.3, duration: 1 }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-xs text-white ml-2">{item.progress}%</div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex items-center justify-between mt-4">
+                  <div className="text-xs text-blue-300">Predicted NEET Score: 620/720</div>
+                  <div className="flex items-center text-xs text-green-400">
+                    <Star className="h-3 w-3 mr-1" fill="currentColor" />
+                    <span>Top 5%</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        );
+        
+      default:
+        return null;
+    }
+  };
 
   return (
     <motion.div 
@@ -154,9 +499,12 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     <p className="text-white/80 text-sm">{features[activeFeature].highlight}</p>
                   </div>
                   
+                  {/* Interactive feature UI elements */}
+                  {renderFeatureInteractivity()}
+                  
                   {/* Animated cursor */}
                   <motion.div 
-                    className="absolute w-5 h-5 border-2 border-yellow-400 rounded-full flex items-center justify-center pointer-events-none"
+                    className="absolute w-5 h-5 border-2 border-yellow-400 rounded-full flex items-center justify-center pointer-events-none z-20"
                     animate={{ 
                       x: [100, 250, 180, 300],
                       y: [150, 100, 200, 120],
@@ -170,108 +518,6 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                   >
                     <div className="w-1 h-1 bg-yellow-400 rounded-full"></div>
                   </motion.div>
-                  
-                  {/* Click effect */}
-                  <motion.div
-                    className="absolute w-8 h-8 bg-white/30 rounded-full pointer-events-none"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ 
-                      scale: [0, 1, 1.5],
-                      opacity: [0, 0.5, 0]
-                    }}
-                    transition={{ 
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 2.5
-                    }}
-                    style={{ left: '220px', top: '140px' }}
-                  />
-
-                  {/* Exam readiness progress indicator */}
-                  {activeFeature === 5 && (
-                    <motion.div 
-                      className="absolute right-10 top-20 flex items-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      <div className="bg-gray-800/80 backdrop-blur-sm p-3 rounded-lg border border-indigo-500/30">
-                        <div className="text-xs text-white mb-1">Exam Readiness</div>
-                        <motion.div 
-                          className="h-2 w-28 bg-gray-700 rounded-full overflow-hidden"
-                          initial={{ opacity: 0.5 }}
-                          animate={{ opacity: 1 }}
-                        >
-                          <motion.div 
-                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
-                            initial={{ width: '40%' }}
-                            animate={{ width: '76%' }}
-                            transition={{ 
-                              duration: 1.5,
-                              ease: "easeOut",
-                              delay: 0.8
-                            }}
-                          />
-                        </motion.div>
-                        <div className="flex justify-between items-center mt-1 text-xs text-gray-300">
-                          <span>Day 1</span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2.3 }}
-                            className="text-indigo-300"
-                          >
-                            76%
-                          </motion.span>
-                          <span>Day 30</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Happy student avatar for exam readiness */}
-                  {activeFeature === 5 && (
-                    <motion.div
-                      className="absolute left-10 top-20"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 1, type: "spring" }}
-                    >
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg">
-                          <img 
-                            src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" 
-                            alt="Happy Student" 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        <motion.div 
-                          className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
-                          animate={{ y: [0, -4, 0] }}
-                          transition={{ 
-                            duration: 1.5, 
-                            repeat: Infinity,
-                            delay: 2 
-                          }}
-                        >
-                          +1
-                        </motion.div>
-                        <motion.div
-                          className="absolute -bottom-1 -right-1 text-lg"
-                          animate={{ 
-                            rotate: [0, 15, 0, -15, 0]
-                          }}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            delay: 2.5
-                          }}
-                        >
-                          🎉
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
