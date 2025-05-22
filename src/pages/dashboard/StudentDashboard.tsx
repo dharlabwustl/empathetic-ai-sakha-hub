@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -70,31 +69,28 @@ const StudentDashboard = () => {
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
-    // Important: Fix for double tour/prompt issue - make sure we only show one UI element at a time
+    // For new users who haven't seen the tour
     if (isNew && !hasSeenTour) {
-      // For new users who haven't seen the tour
       setShowSplash(false);
       setShowTourModal(true);
-      setShowWelcomePrompt(false); // Ensure welcome prompt is hidden
       setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
     } 
+    // For new users who have seen the tour but not the dashboard welcome
     else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
-      // For new users who have seen the tour but not the dashboard welcome
       setShowSplash(false);
-      setShowTourModal(false); // Ensure tour is hidden
+      setShowTourModal(false);
       setShowWelcomePrompt(true);
       setIsFirstTimeUser(true);
       console.log("New user needs dashboard welcome prompt");
     }
+    // For returning users
     else {
-      // For returning users
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // Make sure we don't show the tour or prompt for returning users who have seen it
+      // Make sure we don't show the tour for returning users who have seen it
       setShowTourModal(false);
-      setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
       console.log("Returning user detected, not showing welcome tour");
     }
@@ -112,17 +108,8 @@ const StudentDashboard = () => {
     
     // For new users, show the tour after splash
     const isNew = localStorage.getItem('new_user_signup') === 'true';
-    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
-    const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
-    
-    if (isNew && !hasSeenTour) {
+    if (isNew) {
       setShowTourModal(true);
-      setShowWelcomePrompt(false);
-      setIsFirstTimeUser(true);
-    } 
-    else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
-      setShowTourModal(false);
-      setShowWelcomePrompt(true);
       setIsFirstTimeUser(true);
     }
     
@@ -172,7 +159,6 @@ const StudentDashboard = () => {
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -240,7 +226,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false}  {/* Important: We manage tour state independently */}
+        showWelcomeTour={showTourModal}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -260,18 +246,16 @@ const StudentDashboard = () => {
       </DashboardLayout>
       
       {/* Welcome Tour Modal - will show once for new users */}
-      {showTourModal && (
-        <WelcomeTour
-          open={showTourModal}
-          onOpenChange={setShowTourModal}
-          onSkipTour={handleSkipTourWrapper}
-          onCompleteTour={handleCompleteTourWrapper}
-          isFirstTimeUser={isFirstTimeUser}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          loginCount={userProfile.loginCount}
-        />
-      )}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={isFirstTimeUser}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+      />
 
       {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (

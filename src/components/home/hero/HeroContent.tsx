@@ -69,7 +69,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           >
-            We understand your mindset
+            Transform your struggle
           </motion.span>
           <motion.span
             className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
@@ -86,7 +86,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           }}
           transition={{ duration: 15, delay: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          not just the exam
+          into exam triumph
         </motion.span>
       </motion.h1>
 
