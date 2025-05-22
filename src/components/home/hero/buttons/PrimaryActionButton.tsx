@@ -8,31 +8,9 @@ interface PrimaryActionButtonProps {
 }
 
 const PrimaryActionButton: React.FC<PrimaryActionButtonProps> = ({ onAnalyzeClick }) => {
-  // Helper function to handle subdomain navigation
-  const handleClick = (e: React.MouseEvent) => {
-    if (onAnalyzeClick) {
-      onAnalyzeClick();
-    } else {
-      // Redirect to app subdomain if no specific onClick handler
-      const hostname = window.location.hostname;
-      // Check if we're already on the app subdomain
-      if (!hostname.startsWith('app.')) {
-        // If local development, use different approach
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          window.location.href = `/signup`;
-        } else {
-          // For production, redirect to app subdomain
-          const domain = hostname.includes('.') ? 
-            hostname.substring(hostname.indexOf('.') + 1) : hostname;
-          window.location.href = `https://app.${domain}/signup`;
-        }
-      }
-    }
-  };
-
   return (
     <motion.button
-      onClick={handleClick}
+      onClick={onAnalyzeClick}
       className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 sm:px-7 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-sm sm:text-base"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}

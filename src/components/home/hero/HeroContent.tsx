@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import ButtonsContainer from './buttons/ButtonsContainer';
+import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
 import ExamNamesBadge from './ExamNamesBadge';
-import { Sparkles, CheckCircle2, BrainCircuit, Lightbulb, Star } from 'lucide-react';
+import { Sparkles, CheckCircle2, BrainCircuit } from 'lucide-react';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
@@ -46,67 +46,38 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </div>
       
-      {/* Premium Emotional Badge */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.7 }}
-        className="mb-4 inline-block"
-      >
-        <div className="bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10 dark:from-indigo-400/20 dark:via-purple-400/20 dark:to-pink-400/20 border border-indigo-200 dark:border-indigo-800 p-1.5 rounded-full">
-          <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent font-semibold text-sm px-3 flex items-center">
-            <Star className="h-3 w-3 mr-1 text-amber-500" /> Your Path to Exam Excellence
-          </span>
-        </div>
-      </motion.div>
-      
       <motion.h1
-        className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <div className="mb-2 relative">
-          <span className="relative inline-block">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              Transform your struggle
-            </span>
-            <motion.span
-              className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
-              initial={{ scaleX: 0, originX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-            />
+        <span className="relative inline-block">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
+            Transform your struggle
           </span>
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="relative"
-        >
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">into exam triumph</span>
-          <motion.div 
-            className="absolute -right-8 -top-5 rotate-12"
-            animate={{ y: [0, -5, 0], rotate: [12, 15, 12] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Lightbulb className="h-7 w-7 text-amber-500 fill-amber-100 dark:fill-amber-900/50" />
-          </motion.div>
-        </motion.div>
+          <motion.span
+            className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
+          />
+        </span>
+        <br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">into exam triumph</span>
       </motion.h1>
       
       <motion.div 
-        className="mb-5 bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-3 shadow-sm"
+        className="mb-4 bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-3 shadow-sm"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <h3 className="text-base font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center">
+        <h3 className="text-base font-semibold text-red-600 dark:text-red-400 mb-1 flex items-center">
           <BrainCircuit className="mr-2 h-5 w-5" />
           Your Preparation Challenges
         </h3>
-        <ul className="space-y-1.5">
+        <ul className="space-y-1">
           {painPoints.map((point, idx) => (
             <motion.li 
               key={idx}
@@ -153,7 +124,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </motion.div>
       
       {/* CTA buttons - moved up for immediate visibility */}
-      <ButtonsContainer onAnalyzeClick={handleExamReadinessClick} />
+      <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
       
       {/* Exam Names Badge */}
       <ExamNamesBadge />

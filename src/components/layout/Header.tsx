@@ -118,25 +118,6 @@ const Header = () => {
     }
   };
   
-  // Helper function to handle subdomain navigation
-  const handleSubdomainNavigation = (path: string) => {
-    const hostname = window.location.hostname;
-    // Check if we're already on the app subdomain
-    if (!hostname.startsWith('app.')) {
-      // If local development, use different approach
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        navigate(path);
-      } else {
-        // For production, redirect to app subdomain
-        const domain = hostname.includes('.') ? 
-          hostname.substring(hostname.indexOf('.') + 1) : hostname;
-        window.location.href = `https://app.${domain}${path}`;
-      }
-    } else {
-      navigate(path);
-    }
-  };
-  
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
@@ -155,8 +136,10 @@ const Header = () => {
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   Hi, {userName}
                 </span>
-                <Button variant="ghost" onClick={() => handleSubdomainNavigation(isAdmin ? "/admin/dashboard" : "/dashboard/student")}>
-                  {isAdmin ? "Admin Dashboard" : "Dashboard"}
+                <Button variant="ghost" asChild>
+                  <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
+                    {isAdmin ? "Admin Dashboard" : "Dashboard"}
+                  </Link>
                 </Button>
                 <Button variant="ghost" onClick={handleLogout}>
                   Logout
@@ -164,11 +147,11 @@ const Header = () => {
               </div>
             ) : (
               <div className="flex space-x-2">
-                <Button variant="ghost" onClick={() => handleSubdomainNavigation("/login")}>
-                  Login
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Login</Link>
                 </Button>
-                <Button variant="default" onClick={() => handleSubdomainNavigation("/signup")}>
-                  Sign Up
+                <Button variant="default" asChild>
+                  <Link to="/signup">Sign Up</Link>
                 </Button>
               </div>
             )}
@@ -192,8 +175,10 @@ const Header = () => {
                   <div className="py-2 px-1 text-sm text-gray-600 dark:text-gray-300">
                     Hi, {userName}
                   </div>
-                  <Button variant="ghost" onClick={() => handleSubdomainNavigation(isAdmin ? "/admin/dashboard" : "/dashboard/student")} className="justify-start">
-                    {isAdmin ? "Admin Dashboard" : "Dashboard"}
+                  <Button variant="ghost" asChild className="justify-start">
+                    <Link to={isAdmin ? "/admin/dashboard" : "/dashboard/student"}>
+                      {isAdmin ? "Admin Dashboard" : "Dashboard"}
+                    </Link>
                   </Button>
                   <Button variant="ghost" onClick={handleLogout} className="justify-start">
                     Logout
@@ -201,11 +186,11 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={() => handleSubdomainNavigation("/login")} className="justify-start">
-                    Login
+                  <Button variant="ghost" asChild className="justify-start">
+                    <Link to="/login">Login</Link>
                   </Button>
-                  <Button variant="default" onClick={() => handleSubdomainNavigation("/signup")} className="justify-start">
-                    Sign Up
+                  <Button variant="default" asChild className="justify-start">
+                    <Link to="/signup">Sign Up</Link>
                   </Button>
                 </>
               )}
