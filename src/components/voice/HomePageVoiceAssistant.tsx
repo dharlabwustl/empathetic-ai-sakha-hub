@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +12,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
 }) => {
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
+  const [isActivelyListening, setIsActivelyListening] = useState(false);
+  const lastCommandTimeRef = useRef<number>(0);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,16 +29,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get concise, context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
+      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant.";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREPZR signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
+      return "Welcome to PREPZR signup. You can use voice commands to fill in the form. Click the microphone button when you're ready to speak.";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of PREPZR's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
+      return "Welcome to your free trial of PREPZR's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning.";
     } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.";
+      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement.";
     }
     
-    return "Welcome to PREPZR. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
+    return "Welcome to PREPZR. I'm Sakha AI, your exam preparation assistant.";
   };
   
   // Stop speech when route changes
@@ -43,15 +46,33 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    
+    // Also abort any ongoing speech recognition on route change
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
+      } catch (error) {
+        console.error("Error stopping recognition on route change:", error);
+      }
+    }
+    
+    setIsActivelyListening(false);
+    
   }, [location.pathname]);
   
-  // Setup voice command recognition
+  // Setup voice command recognition with improved handling to avoid continuous prompting
   useEffect(() => {
     let recognition: any = null;
     
     const setupVoiceRecognition = () => {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         return null;
+      }
+      
+      // Skip setting up recognition if we already have an active instance
+      if (recognitionRef.current) {
+        return recognitionRef.current;
       }
       
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
@@ -64,6 +85,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       recognitionInstance.onresult = (event) => {
         const transcript = event.results[0][0].transcript.toLowerCase();
         console.log("Voice command recognized:", transcript);
+        
+        // Set last command time to prevent spamming
+        lastCommandTimeRef.current = Date.now();
         
         // Handle page navigation commands
         if (transcript.includes('signup') || transcript.includes('sign up')) {
@@ -84,32 +108,75 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         }
       };
       
+      recognitionInstance.onstart = () => {
+        setIsActivelyListening(true);
+        console.log("Started listening for voice commands");
+      };
+      
       recognitionInstance.onend = () => {
-        // Only restart if we're still on a page that should use voice
-        if (shouldPlayGreeting && document.visibilityState === 'visible') {
+        setIsActivelyListening(false);
+        console.log("Stopped listening for voice commands");
+        
+        // Only restart listening after a significant delay to prevent constant listening prompts
+        // and only if we're still on a page that should use voice
+        if (shouldPlayGreeting && document.visibilityState === 'visible' && !audioMuted) {
+          const timeSinceLastCommand = Date.now() - lastCommandTimeRef.current;
+          const delayBeforeRestart = timeSinceLastCommand < 10000 ? 8000 : 30000; // Much longer delay if no recent commands
+          
+          console.log(`Will restart listening in ${delayBeforeRestart/1000} seconds`);
+          
           setTimeout(() => {
-            recognitionInstance.start();
-          }, 1000);
+            if (shouldPlayGreeting && document.visibilityState === 'visible' && !audioMuted) {
+              try {
+                recognitionInstance.start();
+              } catch (error) {
+                console.error("Error restarting speech recognition:", error);
+              }
+            }
+          }, delayBeforeRestart);
         }
       };
       
       recognitionInstance.onerror = (event) => {
         console.error("Speech recognition error", event.error);
+        setIsActivelyListening(false);
+        
+        // Don't auto-restart on errors to prevent browser warnings
+        if (event.error === "no-speech") {
+          // If no speech detected, wait longer before restarting
+          setTimeout(() => {
+            if (shouldPlayGreeting && document.visibilityState === 'visible' && !audioMuted) {
+              try {
+                recognitionInstance.start();
+              } catch (error) {
+                console.error("Error restarting speech recognition after no-speech error:", error);
+              }
+            }
+          }, 20000); // Long delay to avoid browser complaints
+        }
       };
       
-      // Start recognition
-      try {
-        recognitionInstance.start();
-      } catch (error) {
-        console.error("Failed to start speech recognition:", error);
-      }
+      // Reference the instance
+      recognitionRef.current = recognitionInstance;
       
       return recognitionInstance;
     };
     
-    // Setup recognition if we're on a page that should have voice
-    if (shouldPlayGreeting && !audioMuted) {
+    // Setup recognition if we're on a page that should have voice, not muted, 
+    // and no active instance already
+    if (shouldPlayGreeting && !audioMuted && !isActivelyListening && !recognitionRef.current) {
       recognition = setupVoiceRecognition();
+      
+      // Start after a delay to ensure proper initialization
+      setTimeout(() => {
+        if (recognition && shouldPlayGreeting && document.visibilityState === 'visible' && !audioMuted) {
+          try {
+            recognition.start();
+          } catch (error) {
+            console.error("Failed to start speech recognition:", error);
+          }
+        }
+      }, 3000);
     }
     
     return () => {
@@ -125,8 +192,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [location.pathname, audioMuted, navigate, language, shouldPlayGreeting]);
+  }, [location.pathname, audioMuted, navigate, language, shouldPlayGreeting, isActivelyListening]);
   
+  // Play greeting once when page loads
   useEffect(() => {
     // Load mute preference
     const muteSetting = localStorage.getItem('voice_assistant_muted');
@@ -149,7 +217,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           speech.lang = language;
           speech.rate = 0.98; // Normal rate for clarity
           speech.pitch = 1.05; // Slightly higher for a more vibrant tone
-          speech.volume = 0.9;
+          speech.volume = 0.8;
           
           // Get available voices
           const voices = window.speechSynthesis.getVoices();
@@ -202,11 +270,11 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Speak the message
           window.speechSynthesis.speak(speech);
           
-          // Show toast notification with available commands
+          // Show toast notification with available commands - less intrusive
           toast({
             title: "Sakha AI Voice Assistant",
-            description: "Try commands like 'Sign up', 'Login', 'Go home', or 'Analyze readiness'",
-            duration: 5000,
+            description: "Available for hands-free navigation",
+            duration: 3000,
           });
         } catch (error) {
           console.error("Error playing greeting:", error);
@@ -233,6 +301,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
+      
+      // Also stop any active listening
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+          recognitionRef.current = null;
+        } catch (error) {
+          console.error("Error stopping recognition on mute:", error);
+        }
+      }
+      
+      setIsActivelyListening(false);
     };
     
     const handleUnmuteEvent = () => {
@@ -250,6 +330,18 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
         if (window.speechSynthesis) {
           window.speechSynthesis.cancel();
         }
+        
+        // Also stop any active listening
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.abort();
+            recognitionRef.current = null;
+          } catch (error) {
+            console.error("Error stopping recognition on visibility change:", error);
+          }
+        }
+        
+        setIsActivelyListening(false);
       }
     };
     

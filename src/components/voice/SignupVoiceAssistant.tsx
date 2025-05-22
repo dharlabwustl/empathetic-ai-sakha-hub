@@ -19,6 +19,7 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
   const { toast } = useToast();
   const location = useLocation();
   const wasListeningRef = useRef(false);
+  const activeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Define field mappings based on current step
   const getFieldMappings = () => {
@@ -155,34 +156,43 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     fieldMappings,
     onCommandDetected: handleCommandDetected,
     language: 'en-US',
-    autoStart: false // Changed to false to prevent automatic start
+    autoStart: false
   });
   
   // Effect to handle cleanup on route change
   useEffect(() => {
     return () => {
-      // Make sure to clean up speech recognition on unmount
+      // Clean up speech recognition on unmount
+      if (activeTimeoutRef.current) {
+        clearTimeout(activeTimeoutRef.current);
+      }
       cleanup();
     };
   }, [location.pathname, cleanup]);
   
-  // Effect to start/stop listening based on isOpen prop with debouncing to avoid conflicts
+  // Effect to start/stop listening based on isOpen prop with improved debouncing
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    // Clear any existing timeout to prevent multiple instances
+    if (activeTimeoutRef.current) {
+      clearTimeout(activeTimeoutRef.current);
+      activeTimeoutRef.current = null;
+    }
     
     if (isOpen && !isListening) {
-      // Small delay to ensure any previous instance is fully cleaned up
-      timeoutId = setTimeout(() => {
+      // Extended delay to ensure any previous instance is fully cleaned up
+      activeTimeoutRef.current = setTimeout(() => {
         startListening();
         wasListeningRef.current = true;
-      }, 300);
+      }, 600);
     } else if (!isOpen && wasListeningRef.current) {
       stopListening();
       wasListeningRef.current = false;
     }
     
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      if (activeTimeoutRef.current) {
+        clearTimeout(activeTimeoutRef.current);
+      }
     };
   }, [isOpen, isListening, startListening, stopListening]);
   
