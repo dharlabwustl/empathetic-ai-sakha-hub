@@ -11,7 +11,7 @@ const PrimaryActionButton: React.FC<PrimaryActionButtonProps> = ({ onAnalyzeClic
   return (
     <motion.button
       onClick={onAnalyzeClick}
-      className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-7 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center"
+      className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 sm:px-7 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center text-sm sm:text-base"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       initial={{ boxShadow: "0 4px 14px rgba(99, 102, 241, 0.4)" }}

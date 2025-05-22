@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WelcomeSlider from '@/components/welcome/WelcomeSlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
-import { useToast } from "@/hooks/use-toast";
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button"; 
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const PostLoginWelcomeBack = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const PostLoginWelcomeBack = () => {
   const [showTour, setShowTour] = useState(false);
   const [userName, setUserName] = useState("Student");
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -94,14 +97,24 @@ const PostLoginWelcomeBack = () => {
   };
   
   const handleTourSkip = () => {
+    // Show confirmation dialog for skipping
+    setShowSkipDialog(true);
+  };
+  
+  const confirmSkipTour = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
     // Use direct location change to ensure we go to the dashboard
+    setShowSkipDialog(false);
     window.location.href = '/dashboard/student';
     toast({
       title: "Welcome to your dashboard!",
       description: "You can always access the tour again from the help menu."
     });
+  };
+  
+  const cancelSkipTour = () => {
+    setShowSkipDialog(false);
   };
   
   const handleTourComplete = () => {
@@ -139,8 +152,29 @@ const PostLoginWelcomeBack = () => {
         </div>
       )}
       
+      {/* Skip tour confirmation dialog */}
+      <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Skip the welcome tour?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 dark:text-gray-300 py-4">
+            The welcome tour helps you understand key features of PREPZR. 
+            You can always access it later from the help menu.
+          </p>
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+            <Button variant="outline" onClick={cancelSkipTour}>
+              Continue Tour
+            </Button>
+            <Button onClick={confirmSkipTour}>
+              Skip Tour
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       {/* Default loading state */}
-      {!showSlider && !showTour && (
+      {!showSlider && !showTour && !showSkipDialog && (
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-pulse text-center">
             <p className="text-xl">Loading your personalized dashboard...</p>

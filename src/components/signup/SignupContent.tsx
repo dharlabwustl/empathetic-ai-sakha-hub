@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,12 +9,15 @@ import SignupProgressBar from "./SignupProgressBar";
 import StepRenderer from "./StepRenderer";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const SignupContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
   const handleRoleSelect = (role: UserRole) => {
     // Only allow student role
@@ -71,14 +75,51 @@ const SignupContent = () => {
     goToNextStep();
   };
 
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; institute?: string; agreeTerms: boolean }) => {
+  const handlePasswordRequirementsFocus = () => {
+    setShowPasswordRequirements(true);
+  };
+
+  const handleSignupSubmit = async (formValues: { 
+    name: string; 
+    email: string;
+    password: string;
+    confirmPassword: string;
+    mobile: string; 
+    otp: string; 
+    institute?: string; 
+    agreeTerms: boolean 
+  }) => {
     setIsLoading(true);
+
+    // Password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
+    if (!passwordRegex.test(formValues.password)) {
+      toast({
+        title: "Password doesn't meet requirements",
+        description: "Please follow the password guidelines",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+    
+    if (formValues.password !== formValues.confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure both passwords are the same",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Set name and other fields from form data
       const finalData = {
         ...onboardingData,
         name: formValues.name,
+        email: formValues.email,
         mobile: formValues.mobile,
         institute: formValues.institute || onboardingData.institute
       };
@@ -128,6 +169,7 @@ const SignupContent = () => {
     handleHabitsSubmit,
     handleInterestsSubmit,
     handleSignupSubmit,
+    handlePasswordRequirementsFocus,
   };
 
   const cardVariants = {
@@ -196,6 +238,30 @@ const SignupContent = () => {
 
           <SignupProgressBar currentStep={currentStep} />
 
+          {/* Password Requirements - shown conditionally */}
+          {showPasswordRequirements && currentStep === "account" && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-4"
+            >
+              <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <Info className="h-4 w-4 text-blue-500 mr-2" />
+                <AlertDescription className="text-xs">
+                  <div className="font-medium mb-1">Password must contain:</div>
+                  <ul className="space-y-1 pl-4 list-disc">
+                    <li>Minimum 8 characters</li>
+                    <li>At least one uppercase letter (A-Z)</li>
+                    <li>At least one lowercase letter (a-z)</li>
+                    <li>At least one number (0-9)</li>
+                    <li>At least one special character (@$!%*?&)</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -210,6 +276,7 @@ const SignupContent = () => {
                 onboardingData={onboardingData}
                 handlers={handlers}
                 isLoading={isLoading}
+                showPasswordRequirements={showPasswordRequirements}
               />
             </motion.div>
           </AnimatePresence>
