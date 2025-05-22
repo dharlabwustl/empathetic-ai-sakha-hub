@@ -1,47 +1,41 @@
 
 import React from 'react';
-import { 
-  BookOpen, 
-  BarChart3, 
-  Heart, 
-  GraduationCap
-} from 'lucide-react';
+import { Award, Clock, Smile, Brain, Rocket } from 'lucide-react';
 
-export interface FeaturePoint {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: string;
-  delay: number;
-}
-
-export const featurePoints: FeaturePoint[] = [
+export const featurePoints = [
   {
-    icon: <BookOpen className="text-white" size={24} />,
-    title: "Personalized Smart Study Plan",
-    description: "Micro concepts, flashcards, revision techniques",
-    color: "from-purple-600 to-violet-500",
-    delay: 0
-  },
-  {
-    icon: <BarChart3 className="text-white" size={24} />,
-    title: "Real-Time Performance Dashboard",
-    description: "Peer comparisons, progress metrics for your learning style",
-    color: "from-violet-500 to-fuchsia-500",
+    title: 'Confidence Builder',
+    description: 'Boosts your exam confidence with personalized practice',
+    icon: <Award className="w-8 h-8" />,
+    color: 'bg-gradient-to-r from-blue-500 to-indigo-600',
     delay: 0.1
   },
   {
-    icon: <Heart className="text-white" size={24} />,
-    title: "Mood & Wellness Tracker",
-    description: "Confidence & stress boosters, influence meter",
-    color: "from-fuchsia-500 to-purple-600",
+    title: 'Exam Success',
+    description: 'Proven strategies that lead to higher scores',
+    icon: <Rocket className="w-8 h-8" />,
+    color: 'bg-gradient-to-r from-green-500 to-emerald-600',
     delay: 0.2
   },
   {
-    icon: <GraduationCap className="text-white" size={24} />,
-    title: "One Platform, All Exams",
-    description: "Complete preparation system for any competitive exam",
-    color: "from-purple-500 to-violet-600",
+    title: 'Time Saver',
+    description: 'Study smarter, not harder with optimized learning paths',
+    icon: <Clock className="w-8 h-8" />,
+    color: 'bg-gradient-to-r from-purple-500 to-pink-600',
     delay: 0.3
+  },
+  {
+    title: 'Stress-Free',
+    description: 'Reduces anxiety with adaptive learning techniques',
+    icon: <Brain className="w-8 h-8" />,
+    color: 'bg-gradient-to-r from-amber-500 to-red-500',
+    delay: 0.4
+  },
+  {
+    title: 'Happy Learning',
+    description: 'Enjoy the journey with engaging study materials',
+    icon: <Smile className="w-8 h-8" />,
+    color: 'bg-gradient-to-r from-cyan-500 to-blue-500',
+    delay: 0.5
   }
 ];
