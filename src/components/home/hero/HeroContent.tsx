@@ -23,6 +23,134 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       transition={{ duration: 0.8, delay: 0.1 }}
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
+      {/* Immersive 3D Background Elements */}
+      <div className="absolute -z-10 inset-0 overflow-hidden pointer-events-none">
+        {/* Floating particles */}
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute rounded-full"
+            style={{
+              width: Math.random() * 8 + 2,
+              height: Math.random() * 8 + 2,
+              background: `rgba(${Math.random() * 100 + 100}, ${Math.random() * 100 + 100}, ${Math.random() * 200 + 55}, ${Math.random() * 0.5 + 0.1})`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              zIndex: Math.floor(Math.random() * 20) - 10,
+            }}
+            animate={{
+              x: [0, Math.random() * 50 - 25],
+              y: [0, Math.random() * 50 - 25],
+              opacity: [0.4, 0.8, 0.4],
+              scale: [1, Math.random() * 0.5 + 1.2, 1],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+
+        {/* Floating exam symbols */}
+        {[
+          { icon: "➕", color: "rgba(147, 51, 234, 0.3)" }, // Math symbol
+          { icon: "🧪", color: "rgba(79, 70, 229, 0.3)" },  // Science symbol
+          { icon: "📝", color: "rgba(59, 130, 246, 0.3)" }, // Notes symbol
+          { icon: "🔬", color: "rgba(16, 185, 129, 0.3)" }, // Research symbol
+          { icon: "📊", color: "rgba(245, 158, 11, 0.3)" }, // Analysis symbol
+          { icon: "📚", color: "rgba(236, 72, 153, 0.3)" }, // Books symbol
+          { icon: "🧠", color: "rgba(139, 92, 246, 0.3)" }, // Brain/knowledge symbol
+          { icon: "⚗️", color: "rgba(6, 182, 212, 0.3)" }   // Chemistry symbol
+        ].map((item, i) => (
+          <motion.div
+            key={`symbol-${i}`}
+            className="absolute text-2xl md:text-3xl font-bold"
+            style={{
+              left: `${Math.random() * 100}%`, 
+              top: `${Math.random() * 100}%`,
+              color: item.color,
+              textShadow: `0 0 10px ${item.color.replace('0.3', '0.5')}`,
+              zIndex: -5,
+            }}
+            animate={{
+              y: [0, Math.random() * 40 - 20],
+              x: [0, Math.random() * 40 - 20],
+              rotate: [0, 360],
+              scale: [0.9, 1.1, 0.9],
+              opacity: [0.4, 0.8, 0.4],
+            }}
+            transition={{
+              duration: Math.random() * 20 + 15,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+            }}
+          >
+            {item.icon}
+          </motion.div>
+        ))}
+
+        {/* Abstract background shapes */}
+        <motion.div
+          className="absolute -right-40 -bottom-40 w-80 h-80 rounded-full bg-gradient-to-r from-purple-300/20 to-blue-300/20 blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+        
+        <motion.div
+          className="absolute -left-40 -top-20 w-96 h-96 rounded-full bg-gradient-to-r from-blue-300/20 to-indigo-400/20 blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+
+        {/* Light beams */}
+        <motion.div
+          className="absolute top-1/2 left-1/4 w-1/2 h-20 bg-gradient-to-r from-transparent via-indigo-400/10 to-transparent rotate-45 blur-md"
+          animate={{
+            opacity: [0, 0.5, 0],
+            width: ["30%", "60%", "30%"],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-1/4 right-1/3 w-1/3 h-20 bg-gradient-to-r from-transparent via-blue-400/10 to-transparent -rotate-45 blur-md"
+          animate={{
+            opacity: [0, 0.4, 0],
+            width: ["20%", "50%", "20%"],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+            delay: 2,
+          }}
+        />
+
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(79,70,229,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,0.03)_1px,transparent_1px)] bg-[length:20px_20px] opacity-30" />
+      </div>
+      
       {/* Premium Experience Badge */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
