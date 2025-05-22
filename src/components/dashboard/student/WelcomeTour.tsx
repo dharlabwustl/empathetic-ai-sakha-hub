@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +34,15 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
   
+  useEffect(() => {
+    // Stop any voice announcements when this component unmounts
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   const steps = [
     {
       title: "Your Academic Advisor",

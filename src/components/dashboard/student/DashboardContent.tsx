@@ -7,6 +7,7 @@ import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
 import RevisionLoopSection from '@/components/dashboard/student/dashboard-sections/RevisionLoopSection';
+import PersonalizedQuickAccess from '@/components/dashboard/student/PersonalizedQuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -54,11 +55,6 @@ const DashboardContent = ({
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
   
-  // State to track whether voice has been tested
-  const [hasTestedVoice, setHasTestedVoice] = useState(() => {
-    return localStorage.getItem('voice-tested') === 'true';
-  });
-
   // Example weekly trends data for the exam readiness score
   const weeklyTrendsData = [
     { week: '1', score: 30 },
@@ -137,6 +133,9 @@ const DashboardContent = ({
           loginCount={userProfile.loginCount}
         />
       )}
+      
+      {/* Personalized Quick Access */}
+      <PersonalizedQuickAccess userName={userProfile.name} />
       
       {/* Exam Readiness Section - For the main dashboard */}
       {activeTab === 'overview' && (

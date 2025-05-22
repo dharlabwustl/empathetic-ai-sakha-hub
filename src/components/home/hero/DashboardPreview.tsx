@@ -58,7 +58,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       <div className="relative w-full max-w-lg perspective-1000 preserve-3d">
         {/* Animated screen glow */}
         <motion.div 
-          className="absolute inset-2 bg-blue-400/20 dark:bg-blue-500/20 rounded-xl blur-xl"
+          className="absolute inset-2 bg-orange-400/20 dark:bg-orange-500/20 rounded-xl blur-xl"
           animate={{ 
             opacity: [0.5, 0.8, 0.5],
             scale: [0.98, 1.01, 0.98]
@@ -94,7 +94,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
               </div>
               <div className="text-white text-xs font-medium">PREPZR Dashboard</div>
               <div className="flex items-center">
-                <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse mr-1"></div>
+                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse mr-1"></div>
                 <div className="text-xs text-gray-400">Live</div>
               </div>
             </div>
@@ -167,7 +167,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     onClick={() => setActiveFeature(index)}
                     className={`flex flex-col items-center p-2 rounded ${
                       activeFeature === index 
-                        ? 'bg-blue-500/20 text-blue-400'
+                        ? 'bg-orange-500/20 text-orange-400'
                         : 'text-gray-400 hover:text-gray-200'
                     } transition-colors`}
                     whileHover={{ scale: 1.05 }}
@@ -180,7 +180,7 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     
                     {activeFeature === index && (
                       <motion.div 
-                        className="h-0.5 w-full bg-blue-400 mt-1"
+                        className="h-0.5 w-full bg-orange-400 mt-1"
                         layoutId="activeIndicator"
                       />
                     )}

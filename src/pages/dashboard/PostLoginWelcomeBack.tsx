@@ -16,6 +16,7 @@ const PostLoginWelcomeBack = () => {
   const [showDashboardPrompt, setShowDashboardPrompt] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -49,17 +50,12 @@ const PostLoginWelcomeBack = () => {
       if (sawWelcomeSlider) {
         setShowSlider(false);
         
-        // Show tour if they haven't seen it, otherwise show dashboard prompt
+        // Show tour if they haven't seen it, then go directly to dashboard
         if (!hasSeenTour) {
           setShowTour(true);
           setShowDashboardPrompt(false);
         } 
-        // Show dashboard prompt if they haven't seen it but have seen tour
-        else if (!hasSeenDashboardWelcome) {
-          setShowDashboardPrompt(true);
-          setShowTour(false);
-        }
-        // If they've seen both, redirect
+        // If they've seen both tour and welcome, redirect
         else {
           redirectToDashboard();
         }
@@ -96,14 +92,6 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // If they've seen the slider and tour but not the dashboard welcome, show dashboard welcome
-    if (sawWelcomeSlider && hasSeenTour && !hasSeenDashboardWelcome) {
-      setShowSlider(false);
-      setShowTour(false);
-      setShowDashboardPrompt(true);
-      return;
-    }
-    
     // Auto-redirect after 45 seconds if no action taken
     const timer = setTimeout(() => {
       // Before redirecting, ensure login flag is set
@@ -115,7 +103,13 @@ const PostLoginWelcomeBack = () => {
       });
     }, 45000);
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Stop any voice announcements when component unmounts
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [navigate, toast]);
   
   // Handle slider completion
@@ -129,8 +123,30 @@ const PostLoginWelcomeBack = () => {
   // Handle tour completion
   const handleTourComplete = () => {
     localStorage.setItem('hasSeenTour', 'true');
-    setShowTour(false);
-    setShowDashboardPrompt(true); // Then show dashboard prompt
+    // Mark dashboard welcome as seen too to avoid showing both
+    localStorage.setItem('hasSeenDashboardWelcome', 'true');
+    localStorage.setItem('suppress_additional_prompts', 'true');
+    redirectToDashboard();
+  };
+  
+  // Handle skip tour
+  const handleSkipTour = () => {
+    setShowSkipDialog(true);
+  };
+  
+  // Confirm skipping tour
+  const confirmSkipTour = () => {
+    localStorage.setItem('hasSeenTour', 'true');
+    // Mark dashboard welcome as seen too to avoid showing both
+    localStorage.setItem('hasSeenDashboardWelcome', 'true');
+    localStorage.setItem('suppress_additional_prompts', 'true');
+    setShowSkipDialog(false);
+    redirectToDashboard();
+  };
+  
+  // Cancel skip tour
+  const cancelSkipTour = () => {
+    setShowSkipDialog(false);
   };
   
   // Handle dashboard prompt completion
@@ -148,6 +164,11 @@ const PostLoginWelcomeBack = () => {
   };
   
   const redirectToDashboard = () => {
+    // Stop any voice announcements when navigating
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
     // Redirect to app subdomain for dashboard
     const isLocalhost = window.location.hostname.includes('localhost');
     const dashboardUrl = isLocalhost 
@@ -167,7 +188,7 @@ const PostLoginWelcomeBack = () => {
   };
   
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="h-screen w-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Welcome slider for new users */}
       {showSlider && (
         <div className="h-full w-full">
@@ -184,7 +205,7 @@ const PostLoginWelcomeBack = () => {
           <WelcomeTour 
             open={showTour}
             onOpenChange={setShowTour}
-            onSkipTour={handleTourComplete}
+            onSkipTour={handleSkipTour}
             onCompleteTour={handleTourComplete}
             isFirstTimeUser={true}
             lastActivity={null}
@@ -194,13 +215,26 @@ const PostLoginWelcomeBack = () => {
         </div>
       )}
       
-      {/* Dashboard welcome prompt after tour */}
-      {showDashboardPrompt && !showTour && !showSlider && (
-        <WelcomeDashboardPrompt 
-          userName={userData.name || "Student"}
-          onComplete={handleDashboardPromptComplete}
-        />
-      )}
+      {/* Skip tour confirmation dialog */}
+      <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Skip the welcome tour?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 dark:text-gray-300 py-4">
+            The welcome tour helps you understand key features of PREPZR. 
+            You can always access it later from the help menu.
+          </p>
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+            <Button variant="outline" onClick={cancelSkipTour}>
+              Continue Tour
+            </Button>
+            <Button onClick={confirmSkipTour}>
+              Skip Tour
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* Study Plan Creation Dialog for Google signup users */}
       <Dialog open={showStudyPlanDialog} onOpenChange={setShowStudyPlanDialog}>
