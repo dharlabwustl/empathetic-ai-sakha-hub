@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap, Brain, Calculator, Clock, Book, ChevronRight, Target } from 'lucide-react';
+import { BookOpen, PieChart, Calendar, BookMarked, GraduationCap } from 'lucide-react';
 
 interface DashboardPreviewProps {
   activeFeature: number;
@@ -11,46 +11,39 @@ interface DashboardPreviewProps {
 const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setActiveFeature }) => {
   const features = [
     {
-      title: "Smart Dashboard",
-      description: "AI-powered overview with personalized insights for optimal learning",
-      icon: <Brain className="h-5 w-5" />,
-      image: "/lovable-uploads/16da1ff5-9fab-4b4b-bd21-5977748acd16.png",
-      highlight: "Your learning journey at a glance"
-    },
-    {
-      title: "Adaptive Study Plan",
-      description: "Personalized recommendations that adapt to your learning style and pace",
+      title: "Smart Study Plan",
+      description: "AI-generated study plans personalized to your learning style and pace",
       icon: <Calendar className="h-5 w-5" />,
-      image: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
-      highlight: "Study smarter, not harder"
+      image: "/lovable-uploads/16da1ff5-9fab-4b4b-bd21-5977748acd16.png",
+      highlight: "Your daily progress at a glance"
     },
     {
       title: "Concept Cards",
-      description: "Multi-learning techniques for deep conceptual understanding",
+      description: "Interactive visual learning for complex topics",
       icon: <BookMarked className="h-5 w-5" />,
+      image: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
+      highlight: "Master difficult concepts with ease"
+    },
+    {
+      title: "Performance Analytics",
+      description: "Track your progress with detailed insights",
+      icon: <PieChart className="h-5 w-5" />,
       image: "/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png",
-      highlight: "Master difficult concepts easily"
+      highlight: "Know exactly where you stand"
     },
     {
-      title: "Flashcard System",
-      description: "Spaced repetition for maximum retention and recall",
-      icon: <Clock className="h-5 w-5" />,
+      title: "Practice Exams",
+      description: "Realistic exam simulations with instant feedback",
+      icon: <GraduationCap className="h-5 w-5" />,
       image: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
-      highlight: "Never forget what you've learned"
+      highlight: "Build confidence through practice"
     },
     {
-      title: "Formula Practice",
-      description: "Interactive practice for physics, chemistry and math equations",
-      icon: <Calculator className="h-5 w-5" />,
+      title: "AI Tutor",
+      description: "24/7 support for all your academic queries",
+      icon: <BookOpen className="h-5 w-5" />,
       image: "/lovable-uploads/357a0e22-3fec-4a5c-808e-0540d5f7ba05.png",
-      highlight: "Master every equation with confidence"
-    },
-    {
-      title: "Exam Readiness",
-      description: "Track your progress by subject with real-time readiness score",
-      icon: <Target className="h-5 w-5" />,
-      image: "/lovable-uploads/26db6370-4d7a-4e6a-a038-bae30c4c1f66.png", 
-      highlight: "Always know where you stand"
+      highlight: "Never get stuck again"
     },
   ];
 
@@ -61,31 +54,6 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       transition={{ duration: 0.8, delay: 0.5 }}
       className="w-full lg:w-1/2 flex flex-col items-center relative"
     >
-      {/* NEET Live Now Button */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-        className="absolute -top-6 -left-2 md:-left-6 z-30"
-      >
-        <motion.div 
-          className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
-          animate={{ 
-            boxShadow: ['0px 0px 8px rgba(34, 197, 94, 0.6)', '0px 0px 16px rgba(34, 197, 94, 0.8)', '0px 0px 8px rgba(34, 197, 94, 0.6)']
-          }}
-          transition={{ 
-            duration: 2,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <span className="h-2 w-2 bg-white rounded-full animate-pulse"></span>
-          <span className="font-bold text-sm">NEET Live Now!</span>
-        </motion.div>
-      </motion.div>
-
       {/* Dashboard preview container with 3D effect */}
       <div className="relative w-full max-w-lg perspective-1000 preserve-3d">
         {/* Animated screen glow */}
@@ -186,99 +154,13 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     }}
                     style={{ left: '220px', top: '140px' }}
                   />
-
-                  {/* Exam readiness progress indicator */}
-                  {activeFeature === 5 && (
-                    <motion.div 
-                      className="absolute right-10 top-20 flex items-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      <div className="bg-gray-800/80 backdrop-blur-sm p-3 rounded-lg border border-indigo-500/30">
-                        <div className="text-xs text-white mb-1">Exam Readiness</div>
-                        <motion.div 
-                          className="h-2 w-28 bg-gray-700 rounded-full overflow-hidden"
-                          initial={{ opacity: 0.5 }}
-                          animate={{ opacity: 1 }}
-                        >
-                          <motion.div 
-                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
-                            initial={{ width: '40%' }}
-                            animate={{ width: '76%' }}
-                            transition={{ 
-                              duration: 1.5,
-                              ease: "easeOut",
-                              delay: 0.8
-                            }}
-                          />
-                        </motion.div>
-                        <div className="flex justify-between items-center mt-1 text-xs text-gray-300">
-                          <span>Day 1</span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2.3 }}
-                            className="text-indigo-300"
-                          >
-                            76%
-                          </motion.span>
-                          <span>Day 30</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Happy student avatar for exam readiness */}
-                  {activeFeature === 5 && (
-                    <motion.div
-                      className="absolute left-10 top-20"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 1, type: "spring" }}
-                    >
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-lg">
-                          <img 
-                            src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" 
-                            alt="Happy Student" 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        <motion.div 
-                          className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
-                          animate={{ y: [0, -4, 0] }}
-                          transition={{ 
-                            duration: 1.5, 
-                            repeat: Infinity,
-                            delay: 2 
-                          }}
-                        >
-                          +1
-                        </motion.div>
-                        <motion.div
-                          className="absolute -bottom-1 -right-1 text-lg"
-                          animate={{ 
-                            rotate: [0, 15, 0, -15, 0]
-                          }}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            delay: 2.5
-                          }}
-                        >
-                          🎉
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Feature selector/navigation */}
             <div className="bg-gray-800 dark:bg-gray-800 p-2 rounded-b-lg">
-              <div className="flex flex-wrap justify-between items-center">
+              <div className="flex justify-between items-center">
                 {features.map((feature, index) => (
                   <motion.button
                     key={index}
