@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 interface HomePageVoiceAssistantProps {
@@ -14,6 +14,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const [audioMuted, setAudioMuted] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -36,6 +37,92 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     
     return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
   };
+  
+  // Stop speech when route changes
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }, [location.pathname]);
+  
+  // Setup voice command recognition
+  useEffect(() => {
+    let recognition: any = null;
+    
+    const setupVoiceRecognition = () => {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        return null;
+      }
+      
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = language;
+      
+      recognitionInstance.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        console.log("Voice command recognized:", transcript);
+        
+        // Handle page navigation commands
+        if (transcript.includes('signup') || transcript.includes('sign up')) {
+          navigate('/signup');
+        } else if (transcript.includes('login') || transcript.includes('log in')) {
+          navigate('/login');
+        } else if (transcript.includes('home') || transcript.includes('go home')) {
+          navigate('/');
+        } else if (transcript.includes('demo')) {
+          navigate('/login');
+          setTimeout(() => {
+            const demoButton = document.querySelector('button[role="demo-login"]');
+            if (demoButton) demoButton.click();
+          }, 1000);
+        }
+      };
+      
+      recognitionInstance.onend = () => {
+        // Only restart if we're still on a page that should use voice
+        if (shouldPlayGreeting && document.visibilityState === 'visible') {
+          setTimeout(() => {
+            recognitionInstance.start();
+          }, 1000);
+        }
+      };
+      
+      recognitionInstance.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+      };
+      
+      // Start recognition
+      try {
+        recognitionInstance.start();
+      } catch (error) {
+        console.error("Failed to start speech recognition:", error);
+      }
+      
+      return recognitionInstance;
+    };
+    
+    // Setup recognition if we're on a page that should have voice
+    if (shouldPlayGreeting && !audioMuted) {
+      recognition = setupVoiceRecognition();
+    }
+    
+    return () => {
+      if (recognition) {
+        try {
+          recognition.abort();
+        } catch (error) {
+          console.error("Error stopping recognition:", error);
+        }
+      }
+      
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [location.pathname, audioMuted, navigate, language, shouldPlayGreeting]);
   
   useEffect(() => {
     // Load mute preference
@@ -106,14 +193,17 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             setGreetingPlayed(true);
           };
           
+          // Store speech object globally to be able to cancel it when needed
+          window.currentSpeech = speech;
+          
           // Speak the message
           window.speechSynthesis.speak(speech);
           
           // Show toast notification
           toast({
             title: "Sakha AI Voice Assistant",
-            description: "Voice assistance is available on this page",
-            duration: 3000,
+            description: "Voice commands are available. Try saying 'Sign up' or 'Login'",
+            duration: 5000,
           });
         } catch (error) {
           console.error("Error playing greeting:", error);
@@ -150,9 +240,22 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     document.addEventListener('voice-assistant-mute', handleMuteEvent);
     document.addEventListener('voice-assistant-unmute', handleUnmuteEvent);
     
+    // Also listen for page visibility changes
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Stop speech when tab is not visible
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     return () => {
       document.removeEventListener('voice-assistant-mute', handleMuteEvent);
       document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
   

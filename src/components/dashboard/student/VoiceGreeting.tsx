@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
@@ -19,6 +18,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   const [audioMuted, setAudioMuted] = useState(false);
   const [userEngagement, setUserEngagement] = useState<'new'|'returning'|'active'>('new');
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Detect user engagement level based on localStorage history
   useEffect(() => {
@@ -39,6 +39,22 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       setUserEngagement('returning');
     }
   }, []);
+  
+  // Listen for route changes to cancel speech
+  useEffect(() => {
+    const cancelSpeech = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setAudioPlaying(false);
+        setAudioPlayed(true);
+      }
+    };
+    
+    return () => {
+      // Cancel speech when component unmounts
+      cancelSpeech();
+    };
+  }, [location.pathname]);
   
   useEffect(() => {
     // Check if the greeting has been played already in this session
@@ -61,6 +77,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             
             // Add event listeners for speech events
             configureSpeechEvents(speech);
+            
+            // Store the speech object to be able to cancel it when needed
+            window.currentSpeech = speech;
             
             // Play the speech
             window.speechSynthesis.speak(speech);
@@ -86,13 +105,85 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       }
     }
     
+    // Add voice command capabilities
+    const setupVoiceRecognition = () => {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript.toLowerCase();
+          console.log("Voice command detected:", transcript);
+          
+          // Handle voice commands based on page context
+          if (currentPath.includes('/signup') || currentPath.includes('/login')) {
+            if (transcript.includes('select student')) {
+              // Select student option
+              const studentOption = document.querySelector('input[value="student"]');
+              if (studentOption && !studentOption.checked) {
+                (studentOption as HTMLInputElement).checked = true;
+                (studentOption as HTMLInputElement).dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            } else if (transcript.includes('next') || transcript.includes('continue')) {
+              // Find and click next/continue button
+              const nextButton = Array.from(document.querySelectorAll('button')).find(
+                btn => btn.textContent?.toLowerCase().includes('next') || 
+                       btn.textContent?.toLowerCase().includes('continue')
+              );
+              if (nextButton) nextButton.click();
+            } else if (transcript.includes('back') || transcript.includes('home')) {
+              // Go back to home
+              navigate('/');
+            }
+          }
+        };
+        
+        recognition.onend = () => {
+          // Restart recognition after it ends
+          setTimeout(() => {
+            if (document.visibilityState === 'visible' && !audioPlayed) {
+              recognition.start();
+            }
+          }, 1000);
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error', event.error);
+          // Restart on error
+          setTimeout(() => {
+            if (document.visibilityState === 'visible' && !audioPlayed) {
+              recognition.start();
+            }
+          }, 3000);
+        };
+        
+        // Start recognition
+        recognition.start();
+        
+        return recognition;
+      }
+      return null;
+    };
+    
+    // Setup voice recognition for commands
+    const recognition = setupVoiceRecognition();
+    
     // Cleanup on unmount
     return () => {
       if (audioPlaying && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      
+      // Stop recognition on unmount
+      if (recognition) {
+        recognition.abort();
+      }
     };
-  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, userEngagement]);
+  }, [isFirstTimeUser, userName, language, audioPlayed, audioMuted, location.pathname, userEngagement, navigate]);
   
   // Generate context-aware greeting based on current page, user engagement level
   const getContextAwareGreeting = (
@@ -140,6 +231,11 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       // Hindi greetings with UN sustainability message (simplified)
       const hindiTimeGreeting = hour < 12 ? 'सुप्रभात' : (hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या');
       return `${hindiTimeGreeting} ${name}! प्रेप-ज़र में आपका स्वागत है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्यों का समर्थन करते हैं और सभी छात्रों के लिए समावेशी और गुणवत्तापूर्ण शिक्षा प्रदान करते हैं। मैं आपका भावनात्मक रूप से बुद्धिमान AI ट्यूटर हूँ और आपकी परीक्षा तैयारी में मदद करूँगा।`;
+    }
+    
+    // Add voice command instruction to greetings
+    if (path.includes('/signup') || path.includes('/login')) {
+      return `${timeGreeting} ${name}! ${engagementGreeting}Welcome to PREP-zer! You can use voice commands like "Select Student", "Continue", or "Back to Home" to navigate. I'll guide you through the sign-up process. ${sustainabilityMessage}`;
     }
     
     return `${timeGreeting} ${name}! Welcome to PREP-zer!`;

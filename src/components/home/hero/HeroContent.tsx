@@ -41,17 +41,33 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <span className="font-bold text-sm">PREMIUM</span>
         </div>
       </motion.div>
-  
-      {/* Welcome message */}
+
+      {/* NEET Live Now badge */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        className="flex gap-2 mb-4"
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="mb-2"
+        transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <h2 className="text-sm md:text-base text-indigo-600 dark:text-indigo-400 font-medium">
-          Welcome to PREPZR - tomorrow's learning experience:
-        </h2>
+        <motion.div 
+          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2 shadow-md"
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <span className="inline-block h-2 w-2 rounded-full bg-white animate-pulse"></span>
+          NEET Exam Preparation Live Now!
+        </motion.div>
+        
+        <motion.div 
+          className="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center"
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+        >
+          <span className="mr-1">New</span>
+          AI Tutor
+        </motion.div>
       </motion.div>
       
       <motion.h1

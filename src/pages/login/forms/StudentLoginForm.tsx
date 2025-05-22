@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone, Mic } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -21,6 +21,7 @@ const StudentLoginForm: React.FC = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loginType, setLoginType] = useState<"email" | "phone">("email");
+  const [isListening, setIsListening] = useState(false);
 
   // Check for saved credentials when component mounts
   useEffect(() => {
@@ -121,6 +122,78 @@ const StudentLoginForm: React.FC = () => {
     navigate("/forgot-password");
   };
 
+  // Voice recognition for login form
+  const startVoiceRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: "Voice input not supported",
+        description: "Your browser doesn't support voice recognition",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsListening(true);
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => {
+      toast({
+        title: "Listening...",
+        description: "Say your email or 'demo login'",
+      });
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      
+      if (transcript.includes('demo') || transcript.includes('login as demo')) {
+        handleDemoLogin();
+      } else if (transcript.includes('@')) {
+        // Likely an email
+        setLoginType('email');
+        setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
+      } else if (/^\d+$/.test(transcript.replace(/\s+/g, ''))) {
+        // Likely a phone number
+        setLoginType('phone');
+        setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
+      } else if (transcript.includes('password')) {
+        // Extract password after the word "password"
+        const passwordMatch = transcript.match(/password\s+(.+)$/i);
+        if (passwordMatch && passwordMatch[1]) {
+          setCredentials(prev => ({ ...prev, password: passwordMatch[1].trim() }));
+        }
+      } else if (transcript.includes('submit') || transcript.includes('login')) {
+        handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+      } else {
+        toast({
+          title: "Voice input not recognized",
+          description: "Please try again with clear commands",
+        });
+      }
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast({
+        title: "Voice recognition error",
+        description: "Please try again or use keyboard input",
+        variant: "destructive"
+      });
+    };
+    
+    recognition.start();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {loginError && (
@@ -213,13 +286,28 @@ const StudentLoginForm: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <Checkbox 
-          id="remember" 
-          checked={rememberMe}
-          onCheckedChange={(checked) => setRememberMe(!!checked)}
-        />
-        <Label htmlFor="remember" className="text-sm">Remember me</Label>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="remember" 
+            checked={rememberMe}
+            onCheckedChange={(checked) => setRememberMe(!!checked)}
+          />
+          <Label htmlFor="remember" className="text-sm">Remember me</Label>
+        </div>
+        
+        {/* Voice input button */}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={startVoiceRecognition}
+          disabled={isListening || isLoading}
+        >
+          <Mic size={14} className={isListening ? "animate-pulse text-red-500" : ""} />
+          {isListening ? "Listening..." : "Voice Input"}
+        </Button>
       </div>
       
       <div className="space-y-2">
@@ -247,6 +335,7 @@ const StudentLoginForm: React.FC = () => {
           className="w-full mt-2" 
           onClick={handleDemoLogin}
           disabled={isLoading}
+          role="demo-login"
         >
           Use Demo Account
         </Button>

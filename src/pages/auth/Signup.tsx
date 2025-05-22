@@ -64,6 +64,9 @@ const Signup = () => {
       setIsSpeaking(false);
     };
     
+    // Store speech object globally to be able to cancel it when navigating away
+    window.currentSpeech = speech;
+    
     // Speak the message
     window.speechSynthesis.speak(speech);
   };
@@ -76,6 +79,15 @@ const Signup = () => {
     } else if (isMuted && !isSpeaking) {
       startWelcomeAnnouncement();
     }
+  };
+
+  // Add back to home button
+  const goToHomePage = () => {
+    // Cancel any ongoing speech before navigating
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    navigate('/');
   };
 
   useEffect(() => {
@@ -124,6 +136,10 @@ const Signup = () => {
           
           // First navigate directly to welcome flow after progress completes
           setTimeout(() => {
+            // Cancel speech before navigating
+            if (window.speechSynthesis) {
+              window.speechSynthesis.cancel();
+            }
             navigate('/welcome-flow', { replace: true });
           }, 500);
           
@@ -133,14 +149,42 @@ const Signup = () => {
       });
     }, 30);
     
+    // Setup speech cancellation on page navigation
+    const handleBeforeUnload = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+    
+    // Add event listener for page navigation
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
     // Cleanup
     return () => {
       clearInterval(progressInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
   }, [navigate]);
+
+  // Automatically select student option after a few seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Simulate selecting "student" option
+      const studentOption = document.querySelector('input[value="student"]');
+      if (studentOption && !studentOption.checked) {
+        (studentOption as HTMLInputElement).checked = true;
+        
+        // Trigger any event handlers
+        const event = new Event('change', { bubbles: true });
+        studentOption.dispatchEvent(event);
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-violet-100 flex flex-col items-center justify-center">
@@ -156,6 +200,19 @@ const Signup = () => {
         transition={{ duration: 0.6 }}
         className="text-center max-w-md mx-auto px-4"
       >
+        {/* Back to Home button */}
+        <motion.button
+          onClick={goToHomePage}
+          className="absolute top-4 left-4 text-sm flex items-center px-3 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to Home
+        </motion.button>
+        
         <motion.h1 
           className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600"
           initial={{ opacity: 0 }}
@@ -185,6 +242,11 @@ const Signup = () => {
           </div>
           <p className="text-xl font-medium">Setting up your personalized learning experience...</p>
           <p className="text-sm text-gray-500 mt-2">Creating your adaptive NEET study plan</p>
+          
+          {/* Voice command help text */}
+          <p className="text-sm text-indigo-600 mt-4 animate-pulse">
+            You can use voice commands! Say "Select Student" to continue
+          </p>
           
           {/* Mute button */}
           <button 

@@ -306,6 +306,31 @@ const HeroSection: React.FC = () => {
           </svg>
         </motion.div>
         
+        {/* NEW: NEET Exam Badge */}
+        <motion.div
+          className="hidden md:block absolute top-[20%] left-[30%] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ 
+            opacity: 1, 
+            scale: 1,
+            y: [0, -5, 0]
+          }}
+          transition={{ 
+            y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+            opacity: { duration: 0.5 },
+            scale: { duration: 0.5 }
+          }}
+          style={{ 
+            transformStyle: "preserve-3d",
+            transform: "rotateX(5deg) rotateY(-5deg)"
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-white animate-pulse"></div>
+            <span className="text-sm font-bold">NEET Exam Live!</span>
+          </div>
+        </motion.div>
+        
         {/* Pulsing Success Indicators */}
         {[
           { top: '25%', left: '25%', delay: 0 },
@@ -380,6 +405,31 @@ const HeroSection: React.FC = () => {
             }}
           />
         </div>
+        
+        {/* Dashboard-style particle effects */}
+        <motion.div className="absolute inset-0 pointer-events-none">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full bg-blue-400/20"
+              initial={{ 
+                x: Math.random() * 100 + "%", 
+                y: -10,
+                opacity: 0.1 + Math.random() * 0.3
+              }}
+              animate={{ 
+                y: "100vh",
+                opacity: [null, 0]
+              }}
+              transition={{ 
+                duration: 10 + Math.random() * 20,
+                repeat: Infinity,
+                delay: Math.random() * 10,
+                ease: "linear"
+              }}
+            />
+          ))}
+        </motion.div>
       </div>
 
       <div className="container mx-auto px-4 relative">
