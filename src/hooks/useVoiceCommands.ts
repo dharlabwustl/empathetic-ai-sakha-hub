@@ -28,105 +28,71 @@ export const useVoiceCommands = ({
   
   // Map of common voice command patterns to actual field identifiers
   const commandPatterns: Record<string, string[]> = {
-    name: ['name', 'full name', 'my name', 'username', 'first name', 'last name'],
-    email: ['email', 'email address', 'my email', 'mail', 'e-mail'],
-    password: ['password', 'pass', 'my password', 'secret', 'security code'],
-    confirmPassword: ['confirm password', 'confirm pass', 'password again', 'repeat password', 'verify password'],
-    mobile: ['mobile', 'phone', 'mobile number', 'phone number', 'cell phone', 'cell', 'telephone'],
-    age: ['age', 'my age', 'years', 'years old'],
-    institute: ['institute', 'school', 'college', 'institution', 'university', 'place of study'],
+    name: ['name', 'full name', 'my name', 'username'],
+    email: ['email', 'email address', 'my email', 'mail'],
+    password: ['password', 'pass', 'my password', 'secret'],
+    confirmPassword: ['confirm password', 'confirm pass', 'password again', 'repeat password'],
+    mobile: ['mobile', 'phone', 'mobile number', 'phone number', 'cell phone', 'cell'],
+    institute: ['institute', 'school', 'college', 'institution', 'university'],
     otp: ['otp', 'verification code', 'code', 'one time password', 'verification'],
-    submit: ['submit', 'create account', 'sign up', 'signup', 'register', 'continue', 'next', 'go ahead', 'proceed'],
-    back: ['back', 'go back', 'previous', 'return', 'revert'],
-    agree: ['agree', 'terms', 'accept terms', 'accept', 'conditions', 'privacy policy', 'check box'],
+    submit: ['submit', 'create account', 'sign up', 'signup', 'register', 'continue', 'next'],
+    back: ['back', 'go back', 'previous', 'return'],
+    agree: ['agree', 'terms', 'accept terms', 'accept'],
   };
 
   // Find field by voice command
   const findFieldByCommand = (command: string): string | null => {
     // Lowercase and remove extra spaces
     command = command.toLowerCase().trim();
-    console.log("Finding field for command:", command);
     
     // Direct field match (if they say the exact field name)
-    const directField = Object.keys(fieldMappings).find(fieldId => {
-      const fieldName = fieldId.toLowerCase();
-      return command === fieldName ||
-        command === `${fieldName} field` ||
-        command.includes(`select ${fieldName}`) ||
-        command.includes(`go to ${fieldName}`) ||
-        command.includes(`fill ${fieldName}`);
-    });
+    const directField = Object.keys(fieldMappings).find(fieldId => 
+      command === fieldId.toLowerCase() ||
+      command === `${fieldId.toLowerCase()} field` ||
+      command === `select ${fieldId.toLowerCase()}`
+    );
     
     if (directField) {
-      console.log("Direct field match found:", directField);
       return directField;
     }
     
     // Pattern match
     for (const [key, patterns] of Object.entries(commandPatterns)) {
-      if (patterns.some(pattern => {
-        return command === pattern ||
-          command === `${pattern} field` ||
-          command.includes(`select ${pattern}`) ||
-          command.includes(`go to ${pattern}`) ||
-          command.includes(`fill ${pattern}`) ||
-          command.includes(`${pattern} box`) ||
-          command.includes(`enter ${pattern}`);
-      })) {
+      if (patterns.some(pattern => 
+        command === pattern ||
+        command === `${pattern} field` ||
+        command.includes(`select ${pattern}`) ||
+        command.includes(`go to ${pattern}`) ||
+        command.includes(`fill ${pattern}`)
+      )) {
         // Find the matching field ID in the mappings
         const matchingField = Object.keys(fieldMappings).find(fieldId => 
           fieldId.toLowerCase().includes(key.toLowerCase())
         );
         
         if (matchingField) {
-          console.log("Pattern match found:", key, "->", matchingField);
           return matchingField;
         }
       }
     }
     
-    // Try to match based on similar field names
-    for (const fieldId of Object.keys(fieldMappings)) {
-      const fieldNameWords = fieldId.toLowerCase().split(/[-_\s]/);
-      for (const word of fieldNameWords) {
-        if (command.includes(word) && word.length > 2) {
-          console.log("Partial field name match found:", word, "->", fieldId);
-          return fieldId;
-        }
-      }
-    }
-    
-    console.log("No field match found for:", command);
     return null;
   };
 
   // Handle setting a specific value in a field
   const setFieldValue = (fieldId: string, value: string) => {
-    console.log(`Setting value for field ${fieldId}: "${value}"`);
     const field = document.getElementById(fieldId) as HTMLInputElement | HTMLSelectElement;
-    if (!field) {
-      console.error("Field not found:", fieldId);
-      return false;
-    }
+    if (!field) return false;
     
     const fieldType = fieldMappings[fieldId]?.type || 'text';
-    console.log(`Field type: ${fieldType}`);
     
     // Apply appropriate value based on field type
     switch (fieldType) {
       case 'text':
       case 'email':
       case 'tel':
-        if (field instanceof HTMLInputElement) {
-          field.value = value;
-          field.dispatchEvent(new Event('input', { bubbles: true }));
-          field.dispatchEvent(new Event('change', { bubbles: true }));
-          return true;
-        }
-        break;
       case 'password':
         if (field instanceof HTMLInputElement) {
-          // For security, don't display the password but set it
           field.value = value;
           field.dispatchEvent(new Event('input', { bubbles: true }));
           field.dispatchEvent(new Event('change', { bubbles: true }));
@@ -135,7 +101,7 @@ export const useVoiceCommands = ({
         break;
       case 'checkbox':
         if (field instanceof HTMLInputElement) {
-          const shouldCheck = ['yes', 'true', 'check', 'enable', 'agree', 'accept', 'okay', 'ok'].includes(value.toLowerCase());
+          const shouldCheck = ['yes', 'true', 'check', 'enable', 'agree'].includes(value.toLowerCase());
           field.checked = shouldCheck;
           field.dispatchEvent(new Event('change', { bubbles: true }));
           return true;
@@ -154,38 +120,19 @@ export const useVoiceCommands = ({
             field.dispatchEvent(new Event('change', { bubbles: true }));
             return true;
           }
-          
-          // If no direct match, try to find partial matches
-          const partialMatchingOption = options.find(option => {
-            const optionWords = option.text.toLowerCase().split(/\s+/);
-            return optionWords.some(word => value.toLowerCase().includes(word) && word.length > 2);
-          });
-          
-          if (partialMatchingOption) {
-            field.value = partialMatchingOption.value;
-            field.dispatchEvent(new Event('change', { bubbles: true }));
-            return true;
-          }
         }
         break;
       case 'radio':
         // Find radio buttons in the same group
         const radioGroup = document.querySelectorAll(`input[name="${field.name}"]`);
         const matchingRadio = Array.from(radioGroup).find((radio) => {
-          const radioElement = radio as HTMLInputElement;
-          const label = document.querySelector(`label[for="${radioElement.id}"]`);
+          const label = document.querySelector(`label[for="${radio.id}"]`);
           return label && label.textContent?.toLowerCase().includes(value.toLowerCase());
         }) as HTMLInputElement | undefined;
         
         if (matchingRadio) {
           matchingRadio.checked = true;
           matchingRadio.dispatchEvent(new Event('change', { bubbles: true }));
-          return true;
-        }
-        break;
-      case 'button':
-        if (field instanceof HTMLButtonElement || field instanceof HTMLInputElement) {
-          field.click();
           return true;
         }
         break;
@@ -205,11 +152,9 @@ export const useVoiceCommands = ({
     console.log('Voice command detected:', command);
     
     // Handle special commands
-    if (command.includes('submit') || command.includes('sign up') || command.includes('create account') || 
-        command.includes('continue') || command.includes('next') || command.includes('submit form')) {
+    if (command.includes('submit') || command.includes('sign up') || command.includes('create account')) {
       if (handleSubmit) {
         handleSubmit();
-        toast({ title: "Submitting form", description: "Your form has been submitted" });
         return;
       }
     }
@@ -248,39 +193,6 @@ export const useVoiceCommands = ({
         
         return;
       }
-    }
-    
-    // Check for field navigation commands
-    if (command.includes('next field')) {
-      const fieldIds = Object.keys(fieldMappings);
-      const currentIndex = activeField ? fieldIds.indexOf(activeField) : -1;
-      
-      if (currentIndex >= -1 && currentIndex < fieldIds.length - 1) {
-        const nextFieldId = fieldIds[currentIndex + 1];
-        setActiveField(nextFieldId);
-        focusField(nextFieldId);
-        toast({ 
-          title: `Field activated`,
-          description: `Say a value for "${nextFieldId}"` 
-        });
-      }
-      return;
-    }
-    
-    if (command.includes('previous field')) {
-      const fieldIds = Object.keys(fieldMappings);
-      const currentIndex = activeField ? fieldIds.indexOf(activeField) : fieldIds.length;
-      
-      if (currentIndex > 0) {
-        const prevFieldId = fieldIds[currentIndex - 1];
-        setActiveField(prevFieldId);
-        focusField(prevFieldId);
-        toast({ 
-          title: `Field activated`,
-          description: `Say a value for "${prevFieldId}"` 
-        });
-      }
-      return;
     }
     
     // Try to detect which field the user wants to fill
@@ -339,9 +251,9 @@ export const useVoiceCommands = ({
     recognitionRef.current = recognition;
     
     recognition.lang = language;
-    recognition.continuous = true;  // Changed to true for continuous listening
+    recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.maxAlternatives = 2;  // Increased to get better matching
+    recognition.maxAlternatives = 1;
     
     recognition.onstart = () => {
       setIsListening(true);
@@ -360,7 +272,6 @@ export const useVoiceCommands = ({
       
       if (result.isFinal) {
         const transcript = result[0].transcript.trim();
-        console.log("Final transcript:", transcript);
         processVoiceCommand(transcript);
       }
     };
@@ -372,12 +283,7 @@ export const useVoiceCommands = ({
       // Auto-restart recognition after a short delay to allow continuous interaction
       setTimeout(() => {
         if (document.visibilityState === 'visible' && recognitionRef.current) {
-          try {
-            recognitionRef.current.start();
-            console.log('Voice recognition auto-restarted');
-          } catch (error) {
-            console.error('Error auto-restarting voice recognition:', error);
-          }
+          recognitionRef.current.start();
         }
       }, 500);
     };
@@ -398,27 +304,13 @@ export const useVoiceCommands = ({
       if (event.error !== 'aborted' && event.error !== 'not-allowed') {
         setTimeout(() => {
           if (document.visibilityState === 'visible' && recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-              console.log('Voice recognition restarted after error');
-            } catch (error) {
-              console.error('Error restarting voice recognition:', error);
-            }
+            recognitionRef.current.start();
           }
         }, 2000);
       }
     };
     
-    try {
-      recognition.start();
-    } catch (error) {
-      console.error('Error starting voice recognition:', error);
-      toast({
-        title: "Voice recognition error",
-        description: "Could not start voice input. Please try again.",
-        variant: "destructive"
-      });
-    }
+    recognition.start();
   };
 
   // Stop listening for voice commands
@@ -443,28 +335,6 @@ export const useVoiceCommands = ({
       }
     };
   }, [autoStart]);
-  
-  // When visibility changes, restart or stop recognition
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        if (isListening && !recognitionRef.current) {
-          startListening();
-        }
-      } else {
-        if (recognitionRef.current) {
-          recognitionRef.current.abort();
-          recognitionRef.current = null;
-        }
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isListening]);
 
   return {
     isListening,
