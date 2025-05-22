@@ -356,18 +356,51 @@ export const useVoiceCommands = ({
     setActiveField(null);
   };
 
+  // Cleanup function to properly stop all voice services
+  const cleanup = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    setActiveField(null);
+    
+    // Also cancel any ongoing speech synthesis
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
   // Auto-start listening if enabled
   useEffect(() => {
     if (autoStart) {
       startListening();
     }
     
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
+    // Add navigation event listener to stop voice when page changes
+    const handleBeforeUnload = () => {
+      cleanup();
+    };
+    
+    // Handle page visibility changes
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        cleanup();
+      } else if (document.visibilityState === 'visible' && autoStart && !isListening) {
+        // Restart if auto-start is enabled and we're not currently listening
+        startListening();
       }
     };
-  }, [autoStart]);
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cleanup();
+    };
+  }, [autoStart, isListening]);
 
   return {
     isListening,
@@ -375,6 +408,7 @@ export const useVoiceCommands = ({
     stopListening,
     activeField,
     setActiveField,
-    transcript
+    transcript,
+    cleanup // Expose cleanup function for component unmount
   };
 };
