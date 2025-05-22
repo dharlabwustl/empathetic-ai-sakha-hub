@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -160,7 +159,6 @@ const StudentDashboard = () => {
 
   const handleWelcomePromptComplete = () => {
     setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
   };
 
   const handleCompleteOnboardingWrapper = () => {
@@ -248,18 +246,16 @@ const StudentDashboard = () => {
       </DashboardLayout>
       
       {/* Welcome Tour Modal - will show once for new users */}
-      {showTourModal && (
-        <WelcomeTour
-          open={showTourModal}
-          onOpenChange={setShowTourModal}
-          onSkipTour={handleSkipTourWrapper}
-          onCompleteTour={handleCompleteTourWrapper}
-          isFirstTimeUser={isFirstTimeUser}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          loginCount={userProfile.loginCount}
-        />
-      )}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={isFirstTimeUser}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+      />
 
       {/* NEW: Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (

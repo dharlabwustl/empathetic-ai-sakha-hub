@@ -54,11 +54,11 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
       transition={{ duration: 0.8, delay: 0.5 }}
       className="w-full lg:w-1/2 flex flex-col items-center relative"
     >
-      {/* Dashboard preview container with enhanced 3D effect */}
+      {/* Dashboard preview container with 3D effect */}
       <div className="relative w-full max-w-lg perspective-1000 preserve-3d">
         {/* Animated screen glow */}
         <motion.div 
-          className="absolute inset-2 bg-blue-400/30 dark:bg-blue-500/30 rounded-xl blur-xl"
+          className="absolute inset-2 bg-blue-400/20 dark:bg-blue-500/20 rounded-xl blur-xl"
           animate={{ 
             opacity: [0.5, 0.8, 0.5],
             scale: [0.98, 1.01, 0.98]
@@ -122,36 +122,6 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     <p className="text-white/80 text-sm">{features[activeFeature].highlight}</p>
                   </div>
                   
-                  {/* Happy Student Avatar */}
-                  <motion.div 
-                    className="absolute bottom-4 right-4 h-12 w-12 bg-white/90 rounded-full border-2 border-green-300 shadow-lg overflow-hidden"
-                    animate={{ 
-                      y: [0, -5, 0],
-                      scale: [1, 1.05, 1]
-                    }}
-                    transition={{ 
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                  >
-                    <img 
-                      src="/lovable-uploads/357a0e22-3fec-4a5c-808e-0540d5f7ba05.png"
-                      alt="Happy Student" 
-                      className="w-full h-full object-cover"
-                    />
-                    <motion.div 
-                      className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-green-300 to-green-500"
-                      animate={{
-                        opacity: [0.7, 1, 0.7]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity
-                      }}
-                    />
-                  </motion.div>
-                  
                   {/* Animated cursor */}
                   <motion.div 
                     className="absolute w-5 h-5 border-2 border-yellow-400 rounded-full flex items-center justify-center pointer-events-none"
@@ -184,84 +154,38 @@ const DashboardPreview: React.FC<DashboardPreviewProps> = ({ activeFeature, setA
                     }}
                     style={{ left: '220px', top: '140px' }}
                   />
-                  
-                  {/* Exam Readiness Score */}
-                  {activeFeature === 2 && (
-                    <motion.div 
-                      className="absolute top-4 right-4 w-16 h-16 bg-blue-600/80 rounded-full flex items-center justify-center"
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, 0]
-                      }}
-                      transition={{ 
-                        duration: 3,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }}
-                    >
-                      <div className="text-center">
-                        <motion.div 
-                          className="text-xl font-bold text-white"
-                          animate={{ opacity: [0.8, 1, 0.8] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          85%
-                        </motion.div>
-                        <div className="text-[10px] text-white/80">Readiness</div>
-                      </div>
-                    </motion.div>
-                  )}
-                  
-                  {/* NEET Live Now Button */}
-                  <motion.button
-                    className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs rounded-full px-3 py-1.5 flex items-center shadow-lg"
-                    animate={{ 
-                      y: [0, -3, 0],
-                      boxShadow: [
-                        '0 0 0 0 rgba(16, 185, 129, 0)',
-                        '0 0 0 10px rgba(16, 185, 129, 0.2)',
-                        '0 0 0 0 rgba(16, 185, 129, 0)'
-                      ]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                  >
-                    <span className="w-2 h-2 bg-white rounded-full mr-1.5 animate-pulse"></span>
-                    NEET Live Now
-                  </motion.button>
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* Bottom Navigation Panel - No tabs, just indicators */}
+            {/* Feature selector/navigation */}
             <div className="bg-gray-800 dark:bg-gray-800 p-2 rounded-b-lg">
-              <div className="flex justify-between items-center px-2">
-                <div className="flex space-x-1">
-                  {features.map((_, index) => (
-                    <motion.div
-                      key={index}
-                      className={`h-1.5 w-8 rounded-full ${
-                        activeFeature === index 
-                          ? 'bg-blue-500' 
-                          : 'bg-gray-600'
-                      }`}
-                      initial={{ opacity: 0.5 }}
-                      animate={{ 
-                        opacity: activeFeature === index ? 1 : 0.5,
-                        width: activeFeature === index ? 32 : 20
-                      }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => setActiveFeature(index)}
-                    />
-                  ))}
-                </div>
-                
-                <div className="text-xs text-gray-400">
-                  {activeFeature + 1}/{features.length}
-                </div>
+              <div className="flex justify-between items-center">
+                {features.map((feature, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => setActiveFeature(index)}
+                    className={`flex flex-col items-center p-2 rounded ${
+                      activeFeature === index 
+                        ? 'bg-blue-500/20 text-blue-400'
+                        : 'text-gray-400 hover:text-gray-200'
+                    } transition-colors`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <div className="p-1.5 rounded-full bg-gray-700/50">
+                      {feature.icon}
+                    </div>
+                    <span className="text-xs mt-1 hidden md:block">{feature.title.split(" ")[0]}</span>
+                    
+                    {activeFeature === index && (
+                      <motion.div 
+                        className="h-0.5 w-full bg-blue-400 mt-1"
+                        layoutId="activeIndicator"
+                      />
+                    )}
+                  </motion.button>
+                ))}
               </div>
             </div>
           </div>
