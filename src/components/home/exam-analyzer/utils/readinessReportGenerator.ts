@@ -6,26 +6,70 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
   let totalWeight = 0;
   let totalScore = 0;
   
+  // Subject-wise tracking
+  const subjectScores = {
+    biology: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.5 }, // 50% weightage
+    physics: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.25 }, // 25% weightage
+    chemistry: { total: 0, correct: 0, incorrect: 0, score: 0, weight: 0.25 } // 25% weightage
+  };
+  
+  // Points system: +4 for correct, -1 for incorrect
+  const CORRECT_POINTS = 4;
+  const INCORRECT_POINTS = -1;
+  
   answers.forEach(answer => {
     // Get the question categories and weight differently
     if (answer.questionId.includes('rt-')) {
+      // Extract subject from question ID (assuming format like rt-bio-1, rt-phy-1, rt-chem-1)
+      let subject = 'biology'; // default subject
+      
+      if (answer.questionId.includes('-bio-')) {
+        subject = 'biology';
+      } else if (answer.questionId.includes('-phy-')) {
+        subject = 'physics';
+      } else if (answer.questionId.includes('-chem-')) {
+        subject = 'chemistry';
+      }
+      
+      // Track question count for each subject
+      subjectScores[subject].total++;
+      
       // Extract option index from the answer - choices are indexed from 0
       // Format of answer is typically "1", "2", "3", "4" for options
       const optionIndex = parseInt(answer.answer) - 1;
       
-      // Each question has 4 options with values 0-3
-      totalWeight += 3; // max possible score per question
-      
-      // Add points based on selected option (higher index = better readiness)
-      // Ensure we handle NaN cases by providing a default of 0
-      totalScore += isNaN(optionIndex) ? 0 : optionIndex;
+      // Add points based on correctness
+      if (answer.isCorrect) {
+        subjectScores[subject].correct++;
+        subjectScores[subject].score += CORRECT_POINTS;
+      } else {
+        subjectScores[subject].incorrect++;
+        subjectScores[subject].score += INCORRECT_POINTS;
+      }
     }
   });
   
-  // Convert to percentage, ensuring we avoid division by zero
-  const score = totalWeight > 0 
-    ? Math.floor((totalScore / totalWeight) * 100) 
-    : 0;
+  // Calculate subject-wise percentages
+  Object.keys(subjectScores).forEach(subject => {
+    const subjectData = subjectScores[subject];
+    const maxPossibleScore = subjectData.total * CORRECT_POINTS;
+    
+    // Avoid division by zero
+    if (maxPossibleScore > 0) {
+      // Convert raw score to percentage (capped at 0-100)
+      const rawPercentage = (subjectData.score / maxPossibleScore) * 100;
+      subjectScores[subject].percentage = Math.max(0, Math.min(100, rawPercentage));
+    } else {
+      subjectScores[subject].percentage = 0;
+    }
+    
+    // Add weighted score to total
+    const weightedScore = subjectScores[subject].percentage * subjectScores[subject].weight;
+    totalScore += weightedScore;
+  });
+  
+  // Round the final score
+  const score = Math.round(totalScore);
   
   // Determine level based on score
   let level = '';
@@ -113,6 +157,7 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
     level,
     analysis,
     strengths,
-    improvements
+    improvements,
+    subjectScores // Include subject-wise scores in the results
   };
 };
