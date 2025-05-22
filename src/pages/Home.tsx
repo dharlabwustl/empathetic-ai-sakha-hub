@@ -49,7 +49,7 @@ const Home = () => {
             <div>
               <h3 className="text-lg font-semibold mb-1 text-green-600 dark:text-green-300">Supporting UN Sustainability Goals</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                PREPZR is committed to providing inclusive and equitable quality education, 
+                PREP-zer is committed to providing inclusive and equitable quality education, 
                 supporting UN Sustainability Goal 4 to ensure equal access to education for all.
               </p>
             </div>

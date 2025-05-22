@@ -4,13 +4,20 @@ import { motion } from 'framer-motion';
 import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
-import { Sparkles, BrainCircuit } from 'lucide-react';
+import ExamNamesBadge from './ExamNamesBadge';
+import { Sparkles, CheckCircle2, BrainCircuit, Lightbulb, Award, Star, Rocket } from 'lucide-react';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
 }
 
 const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
+  const painPoints = [
+    "Overwhelming syllabus",
+    "Ineffective study techniques",
+    "Lack of personalized guidance"
+  ];
+  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -26,7 +33,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="absolute -top-2 -right-2 md:top-0 md:-right-8 z-30 transform rotate-12"
       >
         <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1 rounded-lg shadow-lg flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-100" />
+          <Award className="h-5 w-5 text-amber-100" />
           <span className="font-bold text-sm">PREMIUM</span>
         </div>
       </motion.div>
@@ -45,17 +52,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             className="inline-block"
           >●</motion.span> NEET is live now!
         </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1"
+        >
+          <Sparkles className="w-3 h-3" /> Success Rate 94%
+        </motion.div>
       </div>
-      
-      {/* Welcome text */}
-      <motion.p
-        className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-      >
-        Welcome to PREPZR - tomorrow's learning experience:
-      </motion.p>
       
       <motion.h1
         className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3"
@@ -101,7 +107,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       >
         <div className="flex items-start gap-3">
           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-full shadow-lg mt-0.5">
-            <BrainCircuit className="h-5 w-5 text-white" />
+            <Lightbulb className="h-5 w-5 text-white" />
           </div>
           <div>
             <h3 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-700 dark:from-indigo-400 dark:to-purple-400">
@@ -112,6 +118,32 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             </p>
           </div>
         </div>
+      </motion.div>
+      
+      <motion.div 
+        className="mb-4 bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-3 shadow-sm"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1 flex items-center">
+          <BrainCircuit className="mr-2 h-4 w-4" />
+          Your Preparation Challenges
+        </h3>
+        <ul className="space-y-1">
+          {painPoints.map((point, idx) => (
+            <motion.li 
+              key={idx}
+              className="flex items-center text-xs text-gray-700 dark:text-gray-300"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + idx * 0.1 }}
+            >
+              <span className="h-1.5 w-1.5 bg-red-500 rounded-full mr-2" />
+              {point}
+            </motion.li>
+          ))}
+        </ul>
       </motion.div>
       
       {/* CTA Buttons moved up for better visibility */}
