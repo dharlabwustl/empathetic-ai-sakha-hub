@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useVoiceCommands } from '@/hooks/useVoiceCommands';
 import { useLocation } from 'react-router-dom';
 import { Mic, MicOff } from 'lucide-react';
@@ -18,7 +18,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
 }) => {
   const { toast } = useToast();
   const location = useLocation();
-  const [isSpeaking, setIsSpeaking] = useState(false);
   
   // Define field mappings based on current step
   const getFieldMappings = () => {
@@ -121,14 +120,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       }
     }
     
-    // Try to find field by command
-    for (const [fieldName, field] of Object.entries(fieldMappings)) {
-      if (command.toLowerCase().includes(fieldName.toLowerCase())) {
-        onVoiceInput(fieldName, command.replace(fieldName, '').trim());
-        return;
-      }
-    }
-    
     // Notify user if we couldn't understand the command
     toast({
       title: "Command not recognized",
@@ -136,20 +127,6 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
       variant: "default"
     });
   };
-  
-  // Check if speech synthesis is currently speaking
-  useEffect(() => {
-    const checkSpeaking = () => {
-      setIsSpeaking(window.speechSynthesis?.speaking || false);
-    };
-    
-    // Check every second if speech synthesis is speaking
-    const interval = setInterval(checkSpeaking, 1000);
-    
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
   
   const {
     isListening,
@@ -160,7 +137,7 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     fieldMappings,
     onCommandDetected: handleCommandDetected,
     language: 'en-US',
-    autoStart: isOpen && !isSpeaking // Only auto-start if not speaking
+    autoStart: isOpen
   });
   
   // Effect to handle cleanup on route change
@@ -168,23 +145,17 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
     return () => {
       // Make sure to clean up speech recognition on unmount
       cleanup();
-      
-      // Also stop any ongoing speech synthesis
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
     };
   }, [location.pathname, cleanup]);
   
-  // Effect to start/stop listening based on isOpen prop and speech status
+  // Effect to start/stop listening based on isOpen prop
   useEffect(() => {
-    // Don't listen while speaking to avoid interference
-    if (isOpen && !isListening && !isSpeaking) {
+    if (isOpen && !isListening) {
       startListening();
-    } else if ((!isOpen || isSpeaking) && isListening) {
+    } else if (!isOpen && isListening) {
       stopListening();
     }
-  }, [isOpen, isListening, isSpeaking, startListening, stopListening]);
+  }, [isOpen, isListening, startListening, stopListening]);
   
   if (!isOpen) return null;
   
