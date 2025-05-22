@@ -65,8 +65,8 @@ const Hero3DSection: React.FC = () => {
       // Create scene, camera, renderer
       const scene = new THREE.Scene();
       
-      // Add fog for depth - make it more visible
-      scene.fog = new THREE.FogExp2(0x4338ca, 0.0035);
+      // Add fog for depth - make it more visible and colorful
+      scene.fog = new THREE.FogExp2(0x4338ca, 0.002); // Reduced fog density for better visibility
       
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.z = 30;
@@ -89,7 +89,7 @@ const Hero3DSection: React.FC = () => {
       
       // Create particle system with more particles for better visibility
       const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 1500;
+      const particlesCount = 2500; // Increased particle count
       
       const posArray = new Float32Array(particlesCount * 3);
       const scaleArray = new Float32Array(particlesCount);
@@ -113,10 +113,10 @@ const Hero3DSection: React.FC = () => {
       
       // Create shader material for particles with higher opacity
       const particlesMaterial = new THREE.PointsMaterial({
-        size: 1.2,
+        size: 1.8, // Larger particles
         color: 0x8b5cf6,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.9, // Increased opacity
         blending: THREE.AdditiveBlending,
         sizeAttenuation: true
       });
@@ -126,7 +126,7 @@ const Hero3DSection: React.FC = () => {
       scene.add(particles);
       
       // Add neuron-like particles that connect with lines
-      const neuronCount = 300;
+      const neuronCount = 500; // Increased for more connections
       const neuronGeometry = new THREE.BufferGeometry();
       const neuronPositions = new Float32Array(neuronCount * 3);
       
@@ -139,10 +139,10 @@ const Hero3DSection: React.FC = () => {
       neuronGeometry.setAttribute('position', new THREE.BufferAttribute(neuronPositions, 3));
       
       const neuronMaterial = new THREE.PointsMaterial({
-        size: 1.5,
+        size: 2.0, // Larger neuron points
         color: 0x4c1d95,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95, // Increased opacity
         blending: THREE.AdditiveBlending
       });
       
@@ -150,7 +150,7 @@ const Hero3DSection: React.FC = () => {
       scene.add(neuronParticles);
       
       // Create neural connections with more visibility
-      const connections = 150;
+      const connections = 250; // Increased number of connections
       for (let i = 0; i < connections; i++) {
         // Create random connections between particles
         const idx1 = Math.floor(Math.random() * neuronCount);
@@ -180,7 +180,7 @@ const Hero3DSection: React.FC = () => {
           const lineMaterial = new THREE.LineBasicMaterial({ 
             color: 0x6d28d9,
             transparent: true,
-            opacity: 0.4 + Math.random() * 0.4
+            opacity: 0.6 + Math.random() * 0.4 // Increased line opacity
           });
           
           const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -191,22 +191,25 @@ const Hero3DSection: React.FC = () => {
       // Add education-related symbols
       addEducationSymbols(scene);
       
+      // Add exam-specific 3D objects
+      addExamObjects(scene);
+      
       // Add some ambient light to illuminate the scene - increase brightness
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Brighter ambient light
       scene.add(ambientLight);
       
       // Add directional light for depth - increase intensity
-      const directionalLight = new THREE.DirectionalLight(0x8b5cf6, 1.5);
+      const directionalLight = new THREE.DirectionalLight(0x8b5cf6, 1.8); // Increased intensity
       directionalLight.position.set(5, 5, 5);
       scene.add(directionalLight);
       
       // Add a soft point light for aesthetics - increase intensity
-      const pointLight = new THREE.PointLight(0x4c1d95, 3, 70);
+      const pointLight = new THREE.PointLight(0x4c1d95, 4, 70); // Increased intensity
       pointLight.position.set(0, 10, 10);
       scene.add(pointLight);
       
       // Add a second moving light
-      const movingLight = new THREE.PointLight(0x3730a3, 2, 120);
+      const movingLight = new THREE.PointLight(0x3730a3, 3, 120); // Increased intensity
       movingLight.position.set(30, 0, 30);
       scene.add(movingLight);
       
@@ -255,14 +258,39 @@ const Hero3DSection: React.FC = () => {
       ];
       
       const symbolMaterials = [
-        new THREE.MeshPhongMaterial({ color: 0x6d28d9, transparent: true, opacity: 0.7 }),
-        new THREE.MeshPhongMaterial({ color: 0x4c1d95, transparent: true, opacity: 0.7 }),
-        new THREE.MeshPhongMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.7 }),
-        new THREE.MeshPhongMaterial({ color: 0xc4b5fd, transparent: true, opacity: 0.7 }),
-        new THREE.MeshPhongMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.7 })
+        new THREE.MeshPhongMaterial({ 
+          color: 0x6d28d9, 
+          transparent: true, 
+          opacity: 0.8,
+          shininess: 100 // Added shininess for better visibility
+        }),
+        new THREE.MeshPhongMaterial({ 
+          color: 0x4c1d95, 
+          transparent: true, 
+          opacity: 0.8,
+          shininess: 100
+        }),
+        new THREE.MeshPhongMaterial({ 
+          color: 0x8b5cf6, 
+          transparent: true, 
+          opacity: 0.8,
+          shininess: 100
+        }),
+        new THREE.MeshPhongMaterial({ 
+          color: 0xc4b5fd, 
+          transparent: true, 
+          opacity: 0.8,
+          shininess: 100
+        }),
+        new THREE.MeshPhongMaterial({ 
+          color: 0x7c3aed, 
+          transparent: true, 
+          opacity: 0.8,
+          shininess: 100
+        })
       ];
       
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 15; i++) { // Increased number of symbols
         const geometryIndex = Math.floor(Math.random() * symbolGeometries.length);
         const materialIndex = Math.floor(Math.random() * symbolMaterials.length);
         
@@ -299,6 +327,110 @@ const Hero3DSection: React.FC = () => {
       }
     }
     
+    // Function to add exam-specific 3D objects
+    function addExamObjects(scene: THREE.Scene) {
+      // Create test paper and pen 3D models
+      
+      // Test paper
+      const paperGeometry = new THREE.BoxGeometry(10, 12, 0.2);
+      const paperMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xffffff,
+        shininess: 50,
+        specular: 0x555555
+      });
+      
+      const paperMesh = new THREE.Mesh(paperGeometry, paperMaterial);
+      paperMesh.position.set(-15, 5, -10);
+      paperMesh.rotation.set(-0.2, 0.3, 0.1);
+      scene.add(paperMesh);
+      
+      // Add lines to simulate text on paper
+      const linesMaterial = new THREE.LineBasicMaterial({ color: 0x333333 });
+      
+      for (let i = 0; i < 8; i++) {
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-4, 5 - i * 1.2, 0.15),
+          new THREE.Vector3(4, 5 - i * 1.2, 0.15)
+        ]);
+        
+        const line = new THREE.Line(lineGeometry, linesMaterial);
+        paperMesh.add(line);
+      }
+      
+      // Calculator
+      const calcGeometry = new THREE.BoxGeometry(5, 7, 1);
+      const calcMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x222222,
+        shininess: 70,
+        specular: 0x888888
+      });
+      
+      const calcMesh = new THREE.Mesh(calcGeometry, calcMaterial);
+      calcMesh.position.set(18, -5, 5);
+      calcMesh.rotation.set(0.2, -0.1, 0.1);
+      scene.add(calcMesh);
+      
+      // Add calculator buttons
+      const buttonMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x444444,
+        shininess: 100,
+        specular: 0xffffff
+      });
+      
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 3; j++) {
+          const buttonGeometry = new THREE.BoxGeometry(1, 1, 0.3);
+          const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
+          button.position.set(-1.5 + j * 1.5, 2 - i * 1.5, 0.6);
+          calcMesh.add(button);
+        }
+      }
+      
+      // Add diplomas/certificates floating
+      const diplomaGeometry = new THREE.CylinderGeometry(0.5, 0.5, 8, 16);
+      const diplomaMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xffe0b2,
+        shininess: 60,
+        specular: 0x666666
+      });
+      
+      for (let i = 0; i < 5; i++) {
+        const diploma = new THREE.Mesh(diplomaGeometry, diplomaMaterial);
+        diploma.position.set(
+          (Math.random() - 0.5) * 80,
+          (Math.random() - 0.5) * 80, 
+          (Math.random() - 0.5) * 80
+        );
+        
+        diploma.rotation.set(
+          Math.PI/2, 
+          Math.random() * Math.PI, 
+          Math.random() * Math.PI/4
+        );
+        
+        // Add ribbon to diploma
+        const ribbonGeometry = new THREE.TorusKnotGeometry(1, 0.2, 64, 8, 2, 3);
+        const ribbonMaterial = new THREE.MeshPhongMaterial({ color: 0xff5252 });
+        const ribbon = new THREE.Mesh(ribbonGeometry, ribbonMaterial);
+        ribbon.scale.set(0.3, 0.3, 0.3);
+        ribbon.position.y = 4;
+        diploma.add(ribbon);
+        
+        // Add animation data
+        diploma.userData = {
+          rotationSpeed: {
+            x: 0,
+            y: (Math.random() - 0.5) * 0.005,
+            z: 0
+          },
+          floatSpeed: 0.03 + Math.random() * 0.05,
+          floatOffset: Math.random() * Math.PI * 2
+        };
+        
+        scene.add(diploma);
+      }
+    }
+    
     // Animation loop
     const animate = () => {
       if (!sceneRef.current) return;
@@ -319,11 +451,11 @@ const Hero3DSection: React.FC = () => {
       gridHelper.position.z = (elapsedTime * 5) % 20 - 10;
       
       // Add slight camera movement for more immersion
-      camera.position.x = Math.sin(elapsedTime * 0.2) * 2;
-      camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 1;
+      camera.position.x = Math.sin(elapsedTime * 0.2) * 3; // Increased camera movement
+      camera.position.y = 5 + Math.sin(elapsedTime * 0.1) * 2; // Increased movement range
       camera.lookAt(0, 0, 0);
       
-      // Animate education symbols
+      // Animate education symbols and exam objects
       scene.children.forEach(child => {
         if (child instanceof THREE.Mesh && child.userData && child.userData.rotationSpeed) {
           // Rotate symbol
@@ -331,8 +463,8 @@ const Hero3DSection: React.FC = () => {
           child.rotation.y += child.userData.rotationSpeed.y;
           child.rotation.z += child.userData.rotationSpeed.z;
           
-          // Float up and down
-          child.position.y += Math.sin(elapsedTime * child.userData.floatSpeed + child.userData.floatOffset) * 0.05;
+          // Float up and down with higher amplitude
+          child.position.y += Math.sin(elapsedTime * child.userData.floatSpeed + child.userData.floatOffset) * 0.1;
         }
       });
       
@@ -363,7 +495,11 @@ const Hero3DSection: React.FC = () => {
       {/* THREE.js 3D Immersive Background */}
       <div 
         ref={threeContainerRef} 
-        className="absolute inset-0 z-0 bg-gradient-to-br from-indigo-50/70 via-violet-50/60 to-purple-50/70 dark:from-indigo-950/70 dark:via-violet-950/60 dark:to-purple-950/70"
+        className="absolute inset-0 z-0"
+        style={{
+          // Add gradient background that enhances the 3D effect
+          background: 'linear-gradient(to bottom right, rgba(79, 70, 229, 0.1) 0%, rgba(109, 40, 217, 0.1) 50%, rgba(147, 51, 234, 0.1) 100%)',
+        }}
       />
       
       {/* Content container */}
@@ -399,16 +535,41 @@ const Hero3DSection: React.FC = () => {
               </motion.div>
             </AnimatePresence>
             
-            {/* 3D Glow effect behind animation */}
+            {/* Enhanced 3D Glow effect behind animation */}
             <motion.div
-              className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl"
+              className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-3xl"
               animate={{ 
                 scale: [0.8, 1.2, 0.8],
-                opacity: [0.4, 0.8, 0.4],
+                opacity: [0.5, 0.9, 0.5],
                 rotate: [0, 360]
               }}
               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
             />
+            
+            {/* Floating particles effect */}
+            <div className="absolute inset-0 pointer-events-none">
+              {Array.from({ length: 20 }).map((_, index) => (
+                <motion.div
+                  key={index}
+                  className="absolute w-2 h-2 rounded-full bg-indigo-500/30"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    scale: Math.random() * 0.5 + 0.5,
+                  }}
+                  animate={{
+                    y: [0, -10, 0],
+                    opacity: [0.7, 1, 0.7],
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 2 + Math.random() * 3,
+                    repeat: Infinity,
+                    delay: Math.random() * 2,
+                  }}
+                />
+              ))}
+            </div>
             
             {/* Animation indicator dots */}
             <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-2 pb-4">
@@ -427,6 +588,32 @@ const Hero3DSection: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Floating elements over the 3D background */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Mathematical formulas floating in background */}
+        {Array.from({ length: 8 }).map((_, index) => (
+          <motion.div
+            key={`formula-${index}`}
+            className="absolute text-indigo-500/20 dark:text-indigo-400/20 font-mono text-lg md:text-xl lg:text-2xl font-bold"
+            style={{
+              left: `${Math.random() * 90}%`,
+              top: `${Math.random() * 90}%`,
+            }}
+            animate={{
+              opacity: [0.3, 0.7, 0.3],
+              y: [0, -10, 0],
+            }}
+            transition={{
+              duration: 5 + Math.random() * 5,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          >
+            {['E=mc²', 'F=ma', 'PV=nRT', 'x²+y²=r²', 'a²+b²=c²', 'V=πr²h', 'F=G(m₁m₂)/r²', 'E=hf'][index]}
+          </motion.div>
+        ))}
       </div>
     </section>
   );

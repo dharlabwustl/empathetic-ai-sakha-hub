@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceAssistantSettings {
@@ -9,6 +9,9 @@ interface VoiceAssistantSettings {
   rate: number;
   pitch: number;
   voice: SpeechSynthesisVoice | null;
+  continuous: boolean;
+  language: string;
+  autoRestart: boolean;
 }
 
 interface UseVoiceAssistantProps {
@@ -25,12 +28,21 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     rate: 1.0,
     pitch: 1.0,
     voice: null,
+    continuous: true,
+    language: 'en-US',
+    autoRestart: true,
     ...initialSettings
   });
 
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [transcript, setTranscript] = useState('');
+  const [confidence, setConfidence] = useState(0);
+  
+  const recognitionRef = useRef<any>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const restartTimerRef = useRef<number | null>(null);
   
   // Initialize speech synthesis and load available voices
   useEffect(() => {
@@ -76,11 +88,28 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
     
-    // Stop any ongoing speech when the component unmounts
+    // Initialize speech recognition if available
+    if (settings.enabled && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      initSpeechRecognition();
+    }
+    
+    // Stop any ongoing speech and recognition when the component unmounts
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         window.speechSynthesis.onvoiceschanged = null;
+      }
+      
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error("Error stopping recognition:", error);
+        }
+      }
+      
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current);
       }
     };
   }, []);
@@ -92,18 +121,108 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         window.speechSynthesis.cancel();
         setIsSpeaking(false);
       }
+      
+      // Restart speech recognition after route change
+      if (settings.enabled && settings.autoRestart) {
+        restartSpeechRecognition();
+      }
     };
 
     window.addEventListener('popstate', handleRouteChange);
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, []);
+  }, [settings.enabled, settings.autoRestart]);
+  
+  // Function to initialize speech recognition
+  const initSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      console.error("Speech recognition not supported in this browser");
+      return;
+    }
+    
+    try {
+      // Create speech recognition object
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      // Configure recognition
+      recognition.continuous = settings.continuous;
+      recognition.interimResults = true;
+      recognition.lang = settings.language;
+      
+      // Event handlers
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+        
+        // Restart if enabled and autoRestart is true
+        if (settings.enabled && settings.autoRestart && !settings.muted) {
+          restartTimerRef.current = window.setTimeout(() => {
+            startListening();
+          }, 1000);
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+        
+        // Restart on error if enabled and autoRestart is true
+        if (settings.enabled && settings.autoRestart && !settings.muted) {
+          restartTimerRef.current = window.setTimeout(() => {
+            startListening();
+          }, 3000);
+        }
+      };
+      
+      recognition.onresult = (event: any) => {
+        const last = event.results.length - 1;
+        const result = event.results[last];
+        
+        const currentTranscript = result[0].transcript.trim();
+        const currentConfidence = result[0].confidence;
+        
+        setTranscript(currentTranscript);
+        setConfidence(currentConfidence);
+        
+        // Call additional handler here if needed
+      };
+      
+      recognitionRef.current = recognition;
+    } catch (error) {
+      console.error("Error initializing speech recognition:", error);
+    }
+  };
+  
+  // Function to restart speech recognition
+  const restartSpeechRecognition = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        // Ignore errors when stopping
+      }
+      
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current);
+      }
+      
+      restartTimerRef.current = window.setTimeout(() => {
+        if (settings.enabled && !settings.muted) {
+          startListening();
+        }
+      }, 1000);
+    }
+  };
   
   // Function to speak text
-  const speakText = (text: string) => {
+  const speakText = (text: string, options?: Partial<VoiceAssistantSettings>) => {
     if (!settings.enabled || settings.muted || !('speechSynthesis' in window)) {
-      return;
+      return null;
     }
     
     // Cancel any ongoing speech
@@ -117,19 +236,25 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
-    // Apply voice settings
-    if (settings.voice) {
-      utterance.voice = settings.voice;
+    // Apply voice settings, with options override
+    const currentSettings = { ...settings, ...options };
+    
+    if (currentSettings.voice) {
+      utterance.voice = currentSettings.voice;
     }
     
-    utterance.volume = settings.volume;
-    utterance.rate = settings.rate;
-    utterance.pitch = settings.pitch;
+    utterance.volume = currentSettings.volume;
+    utterance.rate = currentSettings.rate;
+    utterance.pitch = currentSettings.pitch;
+    utterance.lang = currentSettings.language;
     
     // Set event handlers
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
+    
+    // Store reference to current utterance
+    utteranceRef.current = utterance;
     
     // Speak
     window.speechSynthesis.speak(utterance);
@@ -139,34 +264,47 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   
   // Function to start listening
   const startListening = () => {
-    if (!settings.enabled) {
+    if (!settings.enabled || settings.muted) {
       return;
     }
     
-    setIsListening(true);
+    if (!recognitionRef.current) {
+      initSpeechRecognition();
+    }
     
-    // In a real implementation, this would use the Web Speech API
-    // For now, we'll simulate listening with a toast
-    toast({
-      title: "Listening...",
-      description: "Say a command like 'Open my study plan'",
-    });
-    
-    // Simulate end of listening after 5 seconds
-    setTimeout(() => {
-      setIsListening(false);
-      
-      // Simulate recognition result
-      toast({
-        title: "Voice command received",
-        description: "Opening your study plan...",
-      });
-    }, 5000);
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error("Error starting speech recognition:", error);
+        
+        // Reinitialize and try again
+        initSpeechRecognition();
+        try {
+          if (recognitionRef.current) {
+            recognitionRef.current.start();
+          }
+        } catch (error) {
+          console.error("Failed to restart speech recognition:", error);
+        }
+      }
+    }
   };
   
   // Function to stop listening
   const stopListening = () => {
-    setIsListening(false);
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error("Error stopping speech recognition:", error);
+      }
+    }
+    
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
   };
   
   // Function to stop speaking
@@ -177,6 +315,33 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     }
   };
   
+  // Process a voice command with a map of commands and handlers
+  const processCommand = (commandMap: Record<string, () => void>, fuzzyMatching: boolean = true) => {
+    if (!transcript) return false;
+    
+    const lowerTranscript = transcript.toLowerCase();
+    
+    // Try direct match first
+    for (const [command, handler] of Object.entries(commandMap)) {
+      if (lowerTranscript === command.toLowerCase()) {
+        handler();
+        return true;
+      }
+    }
+    
+    // If fuzzy matching enabled, try partial match
+    if (fuzzyMatching) {
+      for (const [command, handler] of Object.entries(commandMap)) {
+        if (lowerTranscript.includes(command.toLowerCase())) {
+          handler();
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  };
+  
   // Update settings
   const updateSettings = (newSettings: Partial<VoiceAssistantSettings>) => {
     setSettings(prev => ({
@@ -184,10 +349,48 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
       ...newSettings
     }));
     
-    // If muting, stop any ongoing speech
-    if (newSettings.muted && isSpeaking && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    // If muting, stop any ongoing speech and recognition
+    if (newSettings.muted && (isSpeaking || isListening)) {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+      
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error("Error stopping recognition:", error);
+        }
+      }
+      
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = null;
+      }
+    }
+    
+    // If changing from muted to unmuted, restart recognition
+    if (settings.muted && newSettings.muted === false && settings.enabled) {
+      restartSpeechRecognition();
+    }
+    
+    // If changing language, reinitialize recognition
+    if (newSettings.language && newSettings.language !== settings.language) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          // Ignore errors when stopping
+        }
+        
+        recognitionRef.current = null;
+        initSpeechRecognition();
+        
+        if (settings.enabled && !settings.muted) {
+          startListening();
+        }
+      }
     }
   };
   
@@ -202,6 +405,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         ? "You won't hear voice responses anymore" 
         : "You will now hear voice responses",
     });
+    
+    // If unmuting and enabled, restart listening
+    if (!newMuted && settings.enabled) {
+      restartSpeechRecognition();
+    }
   };
   
   // Toggle enabled state
@@ -215,17 +423,27 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         ? "Voice assistant is now active" 
         : "Voice assistant has been turned off",
     });
+    
+    if (newEnabled && !settings.muted) {
+      restartSpeechRecognition();
+    } else if (!newEnabled) {
+      stopListening();
+      stopSpeaking();
+    }
   };
   
   return {
     settings,
     isListening,
     isSpeaking,
+    transcript,
+    confidence,
     availableVoices,
     speakText,
     startListening,
     stopListening,
     stopSpeaking,
+    processCommand,
     updateSettings,
     toggleMute,
     toggleEnabled

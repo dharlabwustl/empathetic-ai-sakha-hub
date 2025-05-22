@@ -35,7 +35,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
 
-      {/* NEET Live Now Glowing Badge */}
+      {/* Enhanced NEET Live Now Glowing Badge */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -43,18 +43,22 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="mb-4 inline-block"
       >
         <motion.div 
-          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-lg relative overflow-hidden"
+          className="bg-gradient-to-r from-green-600 via-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 shadow-lg relative overflow-hidden"
           animate={{ 
-            boxShadow: ["0 0 10px rgba(16, 185, 129, 0.5)", "0 0 20px rgba(16, 185, 129, 0.7)", "0 0 10px rgba(16, 185, 129, 0.5)"] 
+            boxShadow: ["0 0 10px rgba(16, 185, 129, 0.5)", "0 0 25px rgba(16, 185, 129, 0.8)", "0 0 10px rgba(16, 185, 129, 0.5)"] 
           }}
           transition={{ duration: 2, repeat: Infinity }}
+          style={{
+            filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))" // Extra glow effect
+          }}
         >
-          {/* Pulsating dot */}
+          {/* Enhanced pulsating dot */}
           <motion.span 
-            className="h-2 w-2 bg-white rounded-full"
+            className="h-2.5 w-2.5 bg-white rounded-full"
             animate={{ 
-              opacity: [1, 0.5, 1],
-              scale: [1, 1.2, 1]
+              opacity: [1, 0.4, 1],
+              scale: [1, 1.3, 1],
+              boxShadow: ["0 0 0px rgba(255,255,255,0.8)", "0 0 10px rgba(255,255,255,0.9)", "0 0 0px rgba(255,255,255,0.8)"]
             }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
@@ -64,7 +68,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             animate={{ 
               textShadow: [
                 "0 0 5px rgba(255,255,255,0.5)",
-                "0 0 10px rgba(255,255,255,0.7)",
+                "0 0 10px rgba(255,255,255,0.8)",
                 "0 0 5px rgba(255,255,255,0.5)"
               ]
             }}
@@ -74,13 +78,13 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             NEET is live now!
           </motion.span>
           
-          {/* Glowing overlay */}
+          {/* Enhanced glowing overlay */}
           <motion.div 
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-25"
             animate={{
               left: ["-100%", "100%"],
             }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           />
         </motion.div>
       </motion.div>
