@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
-import { Volume2, VolumeX, ArrowLeft, Mic } from 'lucide-react';
+import { Volume2, VolumeX, ArrowLeft, Mic, User, Mail, Lock, Phone, Radio } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,6 +12,13 @@ const Signup = () => {
   const [progress, setProgress] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [activeField, setActiveField] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    mobile: '',
+    role: 'student'
+  });
 
   // Handle voice announcement for new users
   const startWelcomeAnnouncement = () => {
@@ -60,6 +67,11 @@ const Signup = () => {
       setIsSpeaking(false);
       // Signal that the greeting has completed
       document.dispatchEvent(new CustomEvent('voice-greeting-completed'));
+      
+      // After welcome message, guide them through form filling
+      setTimeout(() => {
+        startFormFillingGuidance();
+      }, 1000);
     };
     
     speech.onerror = () => {
@@ -67,6 +79,59 @@ const Signup = () => {
     };
     
     // Store speech object globally to be able to cancel it when navigating away
+    window.currentSpeech = speech;
+    
+    // Speak the message
+    window.speechSynthesis.speak(speech);
+  };
+
+  // Guidance for form filling
+  const startFormFillingGuidance = () => {
+    if (isMuted || !('speechSynthesis' in window)) return;
+    
+    setIsSpeaking(true);
+    
+    const guidanceText = 
+      "Let's fill out your profile information. You can use your voice to input data. " +
+      "Just click on the microphone icon next to each field, and speak clearly. " +
+      "For example, click the name field microphone and say your name. " +
+      "I'm here to help you complete this form efficiently.";
+    
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = guidanceText;
+    speech.rate = 0.95;
+    speech.pitch = 1.05;
+    speech.volume = 0.9;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US'];
+    let selectedVoice = null;
+    
+    for (const name of preferredVoiceNames) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(name.toLowerCase()) || 
+        v.lang?.toLowerCase().includes(name.toLowerCase())
+      );
+      if (voice) {
+        selectedVoice = voice;
+        break;
+      }
+    }
+    
+    if (selectedVoice) {
+      speech.voice = selectedVoice;
+    }
+    
+    // Add event listeners
+    speech.onend = () => {
+      setIsSpeaking(false);
+    };
+    
+    speech.onerror = () => {
+      setIsSpeaking(false);
+    };
+    
+    // Store speech object globally
     window.currentSpeech = speech;
     
     // Speak the message
@@ -83,7 +148,7 @@ const Signup = () => {
     }
   };
 
-  // Add back to home button
+  // Enhanced back to home button
   const goToHomePage = () => {
     // Cancel any ongoing speech before navigating
     if (window.speechSynthesis) {
@@ -92,7 +157,7 @@ const Signup = () => {
     navigate('/');
   };
 
-  // Voice recognition for form filling
+  // Voice recognition for form filling with improved feedback
   const startVoiceInput = (fieldName: string) => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert("Your browser doesn't support voice recognition");
@@ -101,6 +166,15 @@ const Signup = () => {
     
     setIsListening(true);
     setActiveField(fieldName);
+    
+    // Provide audio feedback that we're listening
+    if (!isMuted) {
+      const feedbackText = `Listening for your ${fieldName}. Please speak clearly.`;
+      const feedback = new SpeechSynthesisUtterance(feedbackText);
+      feedback.rate = 1.1;
+      feedback.volume = 0.7;
+      window.speechSynthesis.speak(feedback);
+    }
     
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -116,24 +190,60 @@ const Signup = () => {
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       
-      // Handle different fields
-      if (fieldName === 'name') {
-        document.getElementById('name-field')?.setAttribute('value', transcript);
-      } else if (fieldName === 'email') {
-        document.getElementById('email-field')?.setAttribute('value', transcript.replace(/\s+/g, '').toLowerCase());
+      // Update form data with recognized speech
+      let processedValue = transcript;
+      
+      // Process input based on field type
+      if (fieldName === 'email') {
+        processedValue = transcript.replace(/\s+/g, '').toLowerCase();
+        if (!processedValue.includes('@')) {
+          processedValue += '@gmail.com';
+        }
       } else if (fieldName === 'password') {
-        document.getElementById('password-field')?.setAttribute('value', transcript.replace(/\s+/g, ''));
+        processedValue = transcript.replace(/\s+/g, '');
       } else if (fieldName === 'mobile') {
-        document.getElementById('mobile-field')?.setAttribute('value', transcript.replace(/\D/g, ''));
-      } else if (fieldName === 'student') {
-        const studentOption = document.querySelector('input[value="student"]');
-        if (studentOption) {
-          (studentOption as HTMLInputElement).checked = true;
+        processedValue = transcript.replace(/\D/g, '');
+      }
+      
+      // Update form data
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: processedValue
+      }));
+      
+      // Update displayed value in input fields
+      const inputElement = document.getElementById(`${fieldName}-field`) as HTMLInputElement;
+      if (inputElement) {
+        inputElement.value = processedValue;
+        // Trigger an input event to ensure any listeners are updated
+        const event = new Event('input', { bubbles: true });
+        inputElement.dispatchEvent(event);
+      }
+      
+      // For role selection
+      if (fieldName === 'role') {
+        const studentOption = document.querySelector('input[value="student"]') as HTMLInputElement;
+        if (studentOption && processedValue.toLowerCase().includes('student')) {
+          studentOption.checked = true;
+          setFormData(prev => ({ ...prev, role: 'student' }));
           
           // Trigger any event handlers
           const event = new Event('change', { bubbles: true });
           studentOption.dispatchEvent(event);
         }
+      }
+      
+      // Give voice feedback on successful capture
+      if (!isMuted && window.speechSynthesis) {
+        const successText = `${fieldName} captured as ${fieldName === 'password' ? 'secure password' : processedValue}`;
+        const successFeedback = new SpeechSynthesisUtterance(successText);
+        successFeedback.rate = 1.1;
+        successFeedback.volume = 0.7;
+        
+        // Wait a bit for the recognition to fully finish
+        setTimeout(() => {
+          window.speechSynthesis.speak(successFeedback);
+        }, 500);
       }
     };
     
@@ -145,6 +255,15 @@ const Signup = () => {
     recognition.onerror = () => {
       setIsListening(false);
       setActiveField('');
+      
+      // Give voice feedback on error
+      if (!isMuted && window.speechSynthesis) {
+        const errorText = `I couldn't understand that. Please try again.`;
+        const errorFeedback = new SpeechSynthesisUtterance(errorText);
+        errorFeedback.rate = 1.1;
+        errorFeedback.volume = 0.7;
+        window.speechSynthesis.speak(errorFeedback);
+      }
     };
     
     recognition.start();
@@ -182,7 +301,7 @@ const Signup = () => {
     localStorage.setItem('trial_start_date', Date.now().toString());
     localStorage.setItem('trial_days', '7');
     
-    // Start welcome announcement
+    // Start welcome announcement with a slight delay
     setTimeout(() => {
       startWelcomeAnnouncement();
     }, 500);
@@ -244,9 +363,10 @@ const Signup = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       // Simulate selecting "student" option
-      const studentOption = document.querySelector('input[value="student"]');
-      if (studentOption && !(studentOption as HTMLInputElement).checked) {
-        (studentOption as HTMLInputElement).checked = true;
+      const studentOption = document.querySelector('input[value="student"]') as HTMLInputElement;
+      if (studentOption && !studentOption.checked) {
+        studentOption.checked = true;
+        setFormData(prev => ({ ...prev, role: 'student' }));
         
         // Trigger any event handlers
         const event = new Event('change', { bubbles: true });
@@ -265,12 +385,15 @@ const Signup = () => {
         language="en"
       />
       
-      {/* Back to Home button */}
+      {/* Enhanced Back to Home button with animation */}
       <motion.button
         onClick={goToHomePage}
-        className="absolute top-4 left-4 text-sm flex items-center px-3 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+        className="absolute top-4 left-4 text-sm flex items-center px-3 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors border border-indigo-200 shadow-sm"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
         <ArrowLeft className="mr-1 h-4 w-4" />
         Back to Home
@@ -297,9 +420,11 @@ const Signup = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.8 }}
         >
-          <div className="h-20 w-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
+          <div className="h-20 w-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center shadow-lg relative">
             <motion.div
-              animate={{ scale: isSpeaking ? [1, 1.1, 1] : 1 }}
+              animate={{ 
+                scale: isSpeaking ? [1, 1.1, 1] : 1,
+              }}
               transition={{ repeat: isSpeaking ? Infinity : 0, duration: 1.5 }}
             >
               {isMuted ? (
@@ -308,85 +433,214 @@ const Signup = () => {
                 <Volume2 className="h-10 w-10 text-white" />
               )}
             </motion.div>
+            
+            {/* Animated sound waves when speaking */}
+            {isSpeaking && !isMuted && (
+              <>
+                <motion.div 
+                  className="absolute inset-0 rounded-full border-2 border-white/30"
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <motion.div 
+                  className="absolute inset-0 rounded-full border-2 border-white/20"
+                  animate={{ scale: [1, 1.8, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+                />
+              </>
+            )}
           </div>
           <p className="text-xl font-medium">Setting up your personalized learning experience...</p>
           <p className="text-sm text-gray-500 mt-2">Creating your adaptive NEET study plan</p>
           
-          {/* Voice command help text */}
-          <p className="text-sm text-indigo-600 mt-4 animate-pulse">
-            You can use voice commands! Say "Select Student" to continue
-          </p>
+          {/* Enhanced voice command help text */}
+          <motion.p 
+            className="text-sm text-indigo-600 mt-4"
+            animate={{ 
+              opacity: [0.7, 1, 0.7],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            You can use voice commands! Click on a microphone icon and speak.
+          </motion.p>
           
-          {/* Voice command buttons */}
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <button 
-              onClick={() => startVoiceInput('student')}
-              className={`text-xs px-2 py-1 rounded-full flex items-center ${
-                activeField === 'student' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
-            >
-              <Mic className="h-3 w-3 mr-1" />
-              Student Role
-            </button>
-            <button 
-              onClick={() => startVoiceInput('name')}
-              className={`text-xs px-2 py-1 rounded-full flex items-center ${
-                activeField === 'name' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
-            >
-              <Mic className="h-3 w-3 mr-1" />
-              Name
-            </button>
-            <button 
-              onClick={() => startVoiceInput('email')}
-              className={`text-xs px-2 py-1 rounded-full flex items-center ${
-                activeField === 'email' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
-            >
-              <Mic className="h-3 w-3 mr-1" />
-              Email
-            </button>
-            <button 
-              onClick={() => startVoiceInput('mobile')}
-              className={`text-xs px-2 py-1 rounded-full flex items-center ${
-                activeField === 'mobile' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
-            >
-              <Mic className="h-3 w-3 mr-1" />
-              Mobile
-            </button>
-          </div>
-          
-          {/* Hidden form fields for voice input */}
-          <div className="hidden">
-            <input id="name-field" type="text" />
-            <input id="email-field" type="email" />
-            <input id="password-field" type="password" />
-            <input id="mobile-field" type="tel" />
+          {/* Enhanced form with voice input fields */}
+          <div className="mt-6 bg-white/80 backdrop-blur-sm p-5 rounded-lg shadow-md border border-indigo-100 max-w-sm mx-auto">
+            <div className="space-y-4">
+              {/* Name field */}
+              <div className="relative">
+                <label htmlFor="name-field" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  <User size={14} className="mr-1" /> Your Name
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="name-field"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => startVoiceInput('name')}
+                    className={`px-3 py-2 border border-l-0 border-gray-300 rounded-r-md ${
+                      activeField === 'name' ? 'bg-red-500 text-white' : 'bg-gray-100'
+                    }`}
+                  >
+                    <Mic size={18} className={activeField === 'name' ? 'animate-pulse' : ''} />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Email field */}
+              <div className="relative">
+                <label htmlFor="email-field" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  <Mail size={14} className="mr-1" /> Email Address
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="email-field"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => startVoiceInput('email')}
+                    className={`px-3 py-2 border border-l-0 border-gray-300 rounded-r-md ${
+                      activeField === 'email' ? 'bg-red-500 text-white' : 'bg-gray-100'
+                    }`}
+                  >
+                    <Mic size={18} className={activeField === 'email' ? 'animate-pulse' : ''} />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Password field */}
+              <div className="relative">
+                <label htmlFor="password-field" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  <Lock size={14} className="mr-1" /> Password
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="password-field"
+                    type="password"
+                    placeholder="Create password"
+                    value={formData.password}
+                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => startVoiceInput('password')}
+                    className={`px-3 py-2 border border-l-0 border-gray-300 rounded-r-md ${
+                      activeField === 'password' ? 'bg-red-500 text-white' : 'bg-gray-100'
+                    }`}
+                  >
+                    <Mic size={18} className={activeField === 'password' ? 'animate-pulse' : ''} />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Mobile field */}
+              <div className="relative">
+                <label htmlFor="mobile-field" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  <Phone size={14} className="mr-1" /> Mobile Number
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="mobile-field"
+                    type="tel"
+                    placeholder="Enter mobile number"
+                    value={formData.mobile}
+                    onChange={(e) => setFormData(prev => ({ ...prev, mobile: e.target.value }))}
+                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => startVoiceInput('mobile')}
+                    className={`px-3 py-2 border border-l-0 border-gray-300 rounded-r-md ${
+                      activeField === 'mobile' ? 'bg-red-500 text-white' : 'bg-gray-100'
+                    }`}
+                  >
+                    <Mic size={18} className={activeField === 'mobile' ? 'animate-pulse' : ''} />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Role selection */}
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  <Radio size={14} className="mr-1" /> I am a
+                </label>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="role" 
+                      value="student" 
+                      checked={formData.role === 'student'}
+                      onChange={() => setFormData(prev => ({ ...prev, role: 'student' }))}
+                      className="mr-1" 
+                    />
+                    <span>Student</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="role" 
+                      value="educator"
+                      checked={formData.role === 'educator'}
+                      onChange={() => setFormData(prev => ({ ...prev, role: 'educator' }))}
+                      className="mr-1" 
+                    />
+                    <span>Educator</span>
+                  </label>
+                  
+                  <button
+                    type="button"
+                    onClick={() => startVoiceInput('role')}
+                    className={`ml-2 p-1.5 rounded-md ${
+                      activeField === 'role' ? 'bg-red-500 text-white' : 'bg-gray-100'
+                    }`}
+                  >
+                    <Mic size={16} className={activeField === 'role' ? 'animate-pulse' : ''} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Mute button */}
           <button 
             onClick={toggleMute}
-            className="mt-4 text-sm text-gray-500 hover:text-gray-800 flex items-center mx-auto"
+            className="mt-4 text-sm text-gray-500 hover:text-gray-800 flex items-center mx-auto px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
           >
             {isMuted ? "Unmute Voice" : "Mute Voice"}
           </button>
         </motion.div>
         
         <motion.div 
-          className="space-y-2 mt-8"
+          className="space-y-2 mt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <div className="h-2 w-full rounded bg-blue-200 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-blue-200 overflow-hidden">
             <div 
-              className="h-full bg-blue-500"
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="text-xs text-gray-500">{progress < 100 ? "Loading your personalized journey..." : "Ready to begin!"}</p>
+          <p className="text-xs text-gray-500">
+            {progress < 30 ? "Initializing your personalized journey..." : 
+             progress < 60 ? "Setting up your learning profile..." : 
+             progress < 90 ? "Preparing your study plan..." : 
+             "Ready to begin!"}
+          </p>
         </motion.div>
       </motion.div>
     </div>

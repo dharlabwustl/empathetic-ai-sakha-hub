@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone, Mic } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone, Mic, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 
 const StudentLoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ const StudentLoginForm: React.FC = () => {
     navigate("/forgot-password");
   };
 
-  // Voice recognition for login form - enhanced for better field input
+  // Enhanced voice recognition for login form
   const startVoiceRecognition = (field?: string) => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
@@ -162,16 +163,26 @@ const StudentLoginForm: React.FC = () => {
     
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript.toLowerCase();
+      console.log("Voice input:", transcript);
       
       // If specific field input is requested
       if (field === 'email') {
         if (transcript.includes('@')) {
           setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
           setLoginType('email');
-        } else {
+          
           toast({
-            title: "Invalid email format",
-            description: "Please include an @ in your email",
+            title: "Email captured",
+            description: `Email set to: ${transcript.replace(/\s+/g, '').trim()}`,
+          });
+        } else {
+          const processedEmail = transcript.replace(/\s+/g, '').trim() + '@gmail.com';
+          setCredentials(prev => ({ ...prev, emailOrPhone: processedEmail }));
+          setLoginType('email');
+          
+          toast({
+            title: "Email formatted",
+            description: `Added @gmail.com: ${processedEmail}`,
           });
         }
       } 
@@ -180,6 +191,11 @@ const StudentLoginForm: React.FC = () => {
         if (phoneNumber.length >= 10) {
           setCredentials(prev => ({ ...prev, emailOrPhone: phoneNumber }));
           setLoginType('phone');
+          
+          toast({
+            title: "Phone captured",
+            description: `Phone set to: ${phoneNumber}`,
+          });
         } else {
           toast({
             title: "Invalid phone number",
@@ -188,29 +204,67 @@ const StudentLoginForm: React.FC = () => {
         }
       }
       else if (field === 'password') {
-        setCredentials(prev => ({ ...prev, password: transcript.replace(/\s+/g, '') }));
+        const processedPassword = transcript.replace(/\s+/g, '');
+        setCredentials(prev => ({ ...prev, password: processedPassword }));
+        
+        toast({
+          title: "Password captured",
+          description: "Password has been set securely",
+        });
       }
       // General voice commands
       else if (transcript.includes('demo') || transcript.includes('login as demo')) {
+        toast({
+          title: "Demo login activated",
+          description: "Logging in with demo account",
+        });
         handleDemoLogin();
       } else if (transcript.includes('login') || transcript.includes('submit')) {
+        toast({
+          title: "Voice command recognized",
+          description: "Attempting to log in",
+        });
         handleSubmit({ preventDefault: () => {} } as React.FormEvent);
       } else if (transcript.includes('switch to email')) {
         setLoginType('email');
+        toast({
+          title: "Switched to email login",
+        });
       } else if (transcript.includes('switch to phone')) {
         setLoginType('phone');
+        toast({
+          title: "Switched to phone login",
+        });
       } else if (transcript.includes('show password')) {
         setShowPassword(true);
+        toast({
+          title: "Password visible",
+        });
       } else if (transcript.includes('hide password')) {
         setShowPassword(false);
+        toast({
+          title: "Password hidden",
+        });
       } else if (transcript.includes('@')) {
         // Likely an email
         setLoginType('email');
-        setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
+        const email = transcript.replace(/\s+/g, '').trim();
+        setCredentials(prev => ({ ...prev, emailOrPhone: email }));
+        
+        toast({
+          title: "Email detected",
+          description: `Email set to: ${email}`,
+        });
       } else if (/^\d+$/.test(transcript.replace(/\s+/g, ''))) {
         // Likely a phone number
         setLoginType('phone');
-        setCredentials(prev => ({ ...prev, emailOrPhone: transcript.replace(/\s+/g, '').trim() }));
+        const phone = transcript.replace(/\s+/g, '').trim();
+        setCredentials(prev => ({ ...prev, emailOrPhone: phone }));
+        
+        toast({
+          title: "Phone number detected",
+          description: `Phone set to: ${phone}`,
+        });
       } else {
         toast({
           title: "Voice command not recognized",
@@ -224,9 +278,10 @@ const StudentLoginForm: React.FC = () => {
       setListeningField(null);
     };
     
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       setIsListening(false);
       setListeningField(null);
+      console.error("Speech recognition error", event);
       toast({
         title: "Voice recognition error",
         description: "Please try again or use keyboard input",
@@ -244,17 +299,23 @@ const StudentLoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Back to Home button */}
+      {/* Enhanced Back to Home button with animation */}
       <div className="mb-4">
-        <Button
-          type="button"
-          variant="outline"
-          className="flex items-center text-sm"
-          onClick={goToHomePage}
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back to Home
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center text-sm border border-indigo-200 hover:bg-indigo-50"
+            onClick={goToHomePage}
+          >
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Back to Home
+          </Button>
+        </motion.div>
       </div>
       
       {loginError && (
@@ -386,49 +447,64 @@ const StudentLoginForm: React.FC = () => {
           <Label htmlFor="remember" className="text-sm">Remember me</Label>
         </div>
         
-        {/* Voice input button */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={() => startVoiceRecognition()}
-          disabled={isListening || isLoading}
+        {/* Enhanced Voice input button with animation */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <Mic size={14} className={isListening ? "animate-pulse text-red-500" : ""} />
-          {isListening ? "Listening..." : "Voice Input"}
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className={`flex items-center gap-1 ${isListening ? 'border-red-400' : 'border-indigo-200 hover:bg-indigo-50'}`}
+            onClick={() => startVoiceRecognition()}
+            disabled={isListening || isLoading}
+          >
+            <Mic size={14} className={isListening ? "animate-pulse text-red-500" : ""} />
+            {isListening ? "Listening..." : "Voice Input"}
+          </Button>
+        </motion.div>
       </div>
       
       <div className="space-y-2">
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
-          disabled={isLoading}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            <>
-              <ShieldCheck className="mr-2 h-4 w-4" />
-              Login
-            </>
-          )}
-        </Button>
+          <Button 
+            type="submit" 
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Login
+              </>
+            )}
+          </Button>
+        </motion.div>
         
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="w-full mt-2" 
-          onClick={handleDemoLogin}
-          disabled={isLoading}
-          role="demo-login"
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          Use Demo Account
-        </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="w-full mt-2 border-indigo-200 hover:bg-indigo-50" 
+            onClick={handleDemoLogin}
+            disabled={isLoading}
+            role="demo-login"
+          >
+            Use Demo Account
+          </Button>
+        </motion.div>
       </div>
       
       <div className="text-center text-sm">

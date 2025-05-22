@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ExamNamesBadge from './ExamNamesBadge';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
@@ -42,7 +43,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
 
-      {/* Welcome message and NEET Live Now badge */}
+      {/* Welcome message with animated text */}
       <motion.div
         className="flex flex-col gap-2 mb-4"
         initial={{ opacity: 0, y: -10 }}
@@ -50,12 +51,51 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         <motion.div
-          className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"
+          className="text-lg font-semibold relative overflow-hidden inline-block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          Welcome to PREPZR - Tomorrow's learning experience
+          {/* Animated welcome text */}
+          <motion.span 
+            className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent inline-block"
+            animate={{ 
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Welcome to PREPZR - Tomorrow's learning experience
+          </motion.span>
+          
+          {/* Animated underline */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500"
+            initial={{ scaleX: 0, transformOrigin: "left" }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 1.2, ease: "easeOut" }}
+          />
+          
+          {/* Animated particles */}
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full w-1 h-1 bg-blue-400"
+              style={{
+                top: Math.random() * 100 + '%',
+                left: Math.random() * 100 + '%',
+              }}
+              animate={{
+                y: [0, -10, 0],
+                opacity: [0, 1, 0]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+                repeatDelay: Math.random()
+              }}
+            />
+          ))}
         </motion.div>
         
         <div className="flex gap-2">
@@ -152,9 +192,12 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           ))}
         </ul>
       </motion.div>
+      
+      {/* Improved Exam Names Badge */}
+      <ExamNamesBadge />
 
       {/* CTA Buttons */}
-      <div className="space-y-4">
+      <div className="space-y-4 mt-6">
         {/* Primary CTA */}
         <motion.button
           onClick={handleFreeTrialClick}
