@@ -38,10 +38,11 @@ const StudentRoutes = () => {
           <ConceptsPage />
         </SidebarLayout>
       } />
+      <Route path="/concept/:conceptId" element={
+        <ConceptDetailPage />
+      } />
       <Route path="/concepts/:conceptId" element={
-        <SidebarLayout>
-          <ConceptDetailPage />
-        </SidebarLayout>
+        <ConceptDetailPage />
       } />
       <Route path="/concept-study/:conceptId" element={
         <SidebarLayout>

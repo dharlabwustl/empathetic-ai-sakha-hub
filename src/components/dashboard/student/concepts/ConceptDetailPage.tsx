@@ -1,16 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { 
-  BookOpen, FlaskConical, BookmarkPlus, BookMarked, Video, 
-  MessageSquare, Brain, Zap, ListChecks, ArrowLeft 
+  BookOpen, FlaskConical, BookmarkPlus, Video, 
+  MessageSquare, Brain, Zap, ListChecks, ArrowLeft, 
+  Bookmark, ChevronRight, Award, CheckCircle
 } from 'lucide-react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Badge } from '@/components/ui/badge';
 
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptContent from './concept-detail/ConceptContent';
@@ -18,7 +18,9 @@ import ConceptSidebar from './concept-detail/ConceptSidebar';
 import ConceptFlashcards from './concept-detail/ConceptFlashcards';
 import ConceptResources from './concept-detail/ConceptResources';
 import ConceptExercises from './concept-detail/ConceptExercises';
-import FormulaTabContent from './FormulaTabContent';
+import FormulaReference from './concept-detail/FormulaReference';
+import AskTutorSection from './concept-detail/AskTutorSection';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data for concept cards - in a real app this would come from an API
 const mockConcept = {
@@ -94,10 +96,28 @@ const mockConcept = {
     }
   ],
   formulas: [
-    { id: "formula1", name: "Force", expression: "F = ma", variables: ["F", "m", "a"] },
-    { id: "formula2", name: "Acceleration", expression: "a = F/m", variables: ["a", "F", "m"] },
-    { id: "formula3", name: "Mass", expression: "m = F/a", variables: ["m", "F", "a"] }
-  ]
+    { 
+      id: "formula1", 
+      name: "Newton's Second Law Formula", 
+      latex: "F = ma", 
+      description: "Force equals mass times acceleration. This is the fundamental equation of Newton's Second Law." 
+    },
+    { 
+      id: "formula2", 
+      name: "Finding Acceleration", 
+      latex: "a = \\frac{F}{m}", 
+      description: "Acceleration can be calculated by dividing the net force by the mass of the object." 
+    },
+    { 
+      id: "formula3", 
+      name: "Finding Mass", 
+      latex: "m = \\frac{F}{a}", 
+      description: "Mass can be calculated by dividing the net force by the acceleration of the object." 
+    }
+  ],
+  recallAccuracy: 75,
+  lastPracticed: "2025-05-15",
+  quizScore: 68
 };
 
 const ConceptDetailPage = () => {
@@ -109,6 +129,7 @@ const ConceptDetailPage = () => {
   const [userNotes, setUserNotes] = useState('');
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [masteryLevel, setMasteryLevel] = useState(65);
+  const { toast } = useToast();
   
   // In a real app, fetch concept data based on conceptId
   useEffect(() => {
@@ -126,16 +147,28 @@ const ConceptDetailPage = () => {
   const handleSaveNotes = () => {
     // Save notes to local storage (in a real app, this would be an API call)
     localStorage.setItem(`concept-notes-${conceptId}`, userNotes);
+    toast({
+      title: "Notes saved",
+      description: "Your notes have been saved successfully"
+    });
   };
   
   const handleBookmarkToggle = () => {
     setIsBookmarked(!isBookmarked);
-    // This would update the bookmarked status via an API call in a real app
+    toast({
+      title: isBookmarked ? "Bookmark removed" : "Bookmark added",
+      description: isBookmarked 
+        ? "This concept has been removed from your bookmarks" 
+        : "This concept has been added to your bookmarks for quick access"
+    });
   };
   
   const handleOpenFormulaLab = () => {
     // Open formula interactive lab/calculator
-    console.log("Opening formula interactive lab");
+    toast({
+      title: "Formula Lab",
+      description: "Opening Formula Lab for interactive practice"
+    });
   };
 
   const handleBackButtonClick = () => {
@@ -152,170 +185,247 @@ const ConceptDetailPage = () => {
   }, [isReadingAloud]);
   
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Back button */}
-      <div className="mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-          onClick={handleBackButtonClick}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Concepts
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Back button */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleBackButtonClick}
+            className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Concepts
+          </Button>
+        </div>
 
-      <div className="space-y-6">
-        {/* Concept Header */}
-        <ConceptHeader
-          title={concept.title}
-          subject={concept.subject}
-          topic={concept.topic}
-          difficulty={concept.difficulty}
-          isBookmarked={isBookmarked}
-          onBookmarkToggle={handleBookmarkToggle}
-        />
-        
-        {/* Main Content Area with Tabs */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content - 3/4 width on large screens */}
-          <div className="lg:col-span-3 space-y-4">
-            <Card className="overflow-hidden">
-              {/* Mastery Level Indicator */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-semibold text-sm text-gray-600 dark:text-gray-400">Mastery Level</h2>
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      {concept.mastery.level} • {masteryLevel}%
-                    </p>
-                  </div>
-                  <div className="w-32">
-                    <Progress 
-                      value={masteryLevel} 
-                      className="h-2"
-                      indicatorClassName={`${
-                        masteryLevel >= 80 ? 'bg-green-500' : 
-                        masteryLevel >= 60 ? 'bg-blue-500' : 
-                        masteryLevel >= 40 ? 'bg-yellow-500' : 
-                        'bg-red-500'
-                      }`}
-                    />
-                  </div>
+        <div className="space-y-6">
+          {/* Concept Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap gap-2 mb-1.5">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800/50">
+                    {concept.subject}
+                  </Badge>
+                  <Badge variant="outline" className="bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-800/50">
+                    {concept.topic}
+                  </Badge>
+                  <Badge variant="outline" className={`
+                    ${concept.difficulty === 'easy' 
+                      ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800/50' 
+                      : concept.difficulty === 'medium' 
+                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' 
+                      : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800/50'
+                    }
+                  `}>
+                    {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
+                  </Badge>
                 </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                  {concept.title}
+                </h1>
               </div>
               
-              {/* Tabs Navigation */}
-              <Tabs 
-                defaultValue="learn" 
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-                <TabsList className="w-full flex justify-start px-4 pt-3 pb-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                  <TabsTrigger 
-                    value="learn" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <BookOpen className="h-4 w-4 mr-2" /> Learn
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="practice" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <Brain className="h-4 w-4 mr-2" /> Practice
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="formulas" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <Zap className="h-4 w-4 mr-2" /> Formulas
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="flashcards" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <BookmarkPlus className="h-4 w-4 mr-2" /> Flashcards
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="resources" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <Video className="h-4 w-4 mr-2" /> Resources
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="mcq" 
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-2"
-                  >
-                    <ListChecks className="h-4 w-4 mr-2" /> MCQs
-                  </TabsTrigger>
-                </TabsList>
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  className="flex gap-1.5 items-center rounded-full w-10 h-10 p-0 justify-center"
+                  onClick={handleBookmarkToggle}
+                >
+                  {isBookmarked ? (
+                    <Bookmark className="h-5 w-5 text-amber-500 fill-amber-500" />
+                  ) : (
+                    <BookmarkPlus className="h-5 w-5" />
+                  )}
+                </Button>
                 
-                <TabsContent value="learn" className="pt-0 m-0">
-                  <ConceptContent 
-                    content={concept.content} 
-                    conceptId={concept.id}
-                    userNotes={userNotes}
-                    setUserNotes={setUserNotes}
-                    handleSaveNotes={handleSaveNotes}
-                    isReadingAloud={isReadingAloud}
-                    setIsReadingAloud={setIsReadingAloud}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="practice" className="pt-0 m-0">
-                  <ConceptExercises 
-                    conceptId={conceptId || ''}
-                    conceptTitle={concept.title}
-                    recallAccuracy={75}
-                    lastPracticed="2025-05-15"
-                    quizScore={68}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="formulas" className="pt-0 m-0">
-                  <FormulaTabContent 
-                    conceptId={conceptId || ''}
-                    conceptTitle={concept.title}
-                    handleOpenFormulaLab={handleOpenFormulaLab}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="flashcards" className="pt-0 m-0">
-                  <ConceptFlashcards flashcards={concept.flashcards} />
-                </TabsContent>
-                
-                <TabsContent value="resources" className="pt-0 m-0">
-                  <ConceptResources conceptId={concept.id} />
-                </TabsContent>
-                
-                <TabsContent value="mcq" className="pt-0 m-0">
-                  <div className="p-6">
-                    <h2 className="text-xl font-bold mb-4">Multiple Choice Questions</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Test your understanding of {concept.title} with these practice questions.
-                    </p>
-                    <Card className="p-6 bg-gray-50 dark:bg-gray-800/50">
-                      <p>MCQ questions will be available soon. Check back later for practice questions!</p>
-                      <Button className="mt-4">Request MCQs</Button>
-                    </Card>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </Card>
-          </div>
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                >
+                  Start Practice
+                </Button>
+              </div>
+            </div>
+            
+            {/* Progress indicator */}
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium text-sm text-gray-900 dark:text-gray-100">Mastery Level:</span>
+                  <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{concept.mastery.level} ({concept.mastery.percentage}%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {concept.examReady ? (
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 gap-1 flex items-center">
+                      <CheckCircle className="h-3 w-3" />
+                      Exam Ready
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      Needs Practice
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <Progress 
+                value={concept.mastery.percentage} 
+                className="h-2"
+                indicatorClassName={`${
+                  concept.mastery.percentage >= 80 ? 'bg-green-500 dark:bg-green-500' : 
+                  concept.mastery.percentage >= 60 ? 'bg-blue-500 dark:bg-blue-500' : 
+                  concept.mastery.percentage >= 40 ? 'bg-amber-500 dark:bg-amber-500' : 
+                  'bg-red-500 dark:bg-red-500'
+                }`}
+              />
+            </div>
+          </motion.div>
           
-          {/* Sidebar - 1/4 width on large screens */}
-          <div className="space-y-4">
-            <ConceptSidebar 
-              masteryLevel={masteryLevel}
-              relatedConcepts={concept.relatedConcepts}
-              examReady={concept.examReady}
-            />
+          {/* Main Content Area with Tabs */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Main Content - 3/4 width on large screens */}
+            <div className="lg:col-span-3 space-y-6">
+              <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
+                {/* Tabs Navigation */}
+                <Tabs 
+                  defaultValue="learn" 
+                  value={activeTab}
+                  onValueChange={setActiveTab as any}
+                  className="w-full"
+                >
+                  <div className="bg-white dark:bg-gray-800 px-1 pt-1 border-b border-gray-200 dark:border-gray-700">
+                    <TabsList className="w-full flex justify-start overflow-x-auto hide-scrollbar bg-transparent h-auto p-0">
+                      <TabsTrigger 
+                        value="learn" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <BookOpen className="h-4 w-4 mr-2" /> 
+                        Learn
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="practice" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <Brain className="h-4 w-4 mr-2" /> 
+                        Practice
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="formulas" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <Zap className="h-4 w-4 mr-2" /> 
+                        Formulas
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="flashcards" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <BookmarkPlus className="h-4 w-4 mr-2" /> 
+                        Flashcards
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="resources" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <Video className="h-4 w-4 mr-2" /> 
+                        Resources
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="tutor" 
+                        className="data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 rounded-none px-4 py-3 bg-transparent"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" /> 
+                        Ask Tutor
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                  
+                  <TabsContent value="learn" className="m-0 p-0">
+                    <ConceptContent 
+                      content={concept.content} 
+                      conceptId={concept.id}
+                      userNotes={userNotes}
+                      setUserNotes={setUserNotes}
+                      handleSaveNotes={handleSaveNotes}
+                      isReadingAloud={isReadingAloud}
+                      setIsReadingAloud={setIsReadingAloud}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="practice" className="m-0 p-0">
+                    <div className="p-6">
+                      <ConceptExercises 
+                        conceptId={conceptId || ''}
+                        conceptTitle={concept.title}
+                        recallAccuracy={concept.recallAccuracy || 75}
+                        lastPracticed={concept.lastPracticed || "2025-05-15"}
+                        quizScore={concept.quizScore || 68}
+                      />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="formulas" className="m-0 p-0">
+                    <div className="p-6">
+                      <FormulaReference 
+                        formulas={concept.formulas || []}
+                        conceptTitle={concept.title}
+                        handleOpenFormulaLab={handleOpenFormulaLab}
+                      />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="flashcards" className="m-0 p-0">
+                    <ConceptFlashcards flashcards={concept.flashcards || []} />
+                  </TabsContent>
+                  
+                  <TabsContent value="resources" className="m-0 p-0">
+                    <div className="p-6">
+                      <ConceptResources conceptId={concept.id} />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="tutor" className="m-0 p-0">
+                    <AskTutorSection 
+                      conceptId={concept.id}
+                      title={concept.title}
+                      subject={concept.subject}
+                      topic={concept.topic}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </Card>
+            </div>
+            
+            {/* Sidebar - 1/4 width on large screens */}
+            <div className="lg:col-span-1 space-y-6">
+              <ConceptSidebar 
+                masteryLevel={masteryLevel}
+                relatedConcepts={concept.relatedConcepts || []}
+                examReady={concept.examReady || false}
+              />
+            </div>
           </div>
         </div>
       </div>
+
+      {/* CSS for hiding scrollbars but keeping functionality */}
+      <style jsx global>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;  /* Chrome, Safari and Opera */
+        }
+      `}</style>
     </div>
   );
 };
