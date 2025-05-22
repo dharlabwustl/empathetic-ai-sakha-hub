@@ -79,35 +79,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           not just the exam
         </motion.span>
       </motion.h1>
-      
-      {/* NEET Live Badge with Glow Effect */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-4"
-      >
-        <motion.div
-          className="inline-block bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg"
-          animate={{ 
-            boxShadow: [
-              "0 0 10px 2px rgba(16, 185, 129, 0.3)",
-              "0 0 20px 5px rgba(16, 185, 129, 0.5)",
-              "0 0 10px 2px rgba(16, 185, 129, 0.3)"
-            ]
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <motion.span
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="flex items-center gap-2"
-          >
-            <span className="inline-block h-2 w-2 rounded-full bg-white animate-pulse"></span>
-            NEET is live now!
-          </motion.span>
-        </motion.div>
-      </motion.div>
 
       {/* Emotional Connection Highlight */}
       <motion.div
@@ -166,39 +137,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Join <span className="font-medium text-indigo-600 dark:text-indigo-400">2 million+</span> students already on their path to success
         </p>
-      </motion.div>
-
-      {/* Dashboard Preview Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
-        className="mt-8 rounded-xl bg-white/70 dark:bg-gray-800/50 p-3 border border-gray-200 dark:border-gray-700 shadow-lg"
-      >
-        <p className="text-center text-sm font-medium mb-2 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-          Preview the personalized dashboard
-        </p>
-        <motion.div
-          className="relative rounded-lg overflow-hidden shadow-inner bg-gray-100 dark:bg-gray-900/60 aspect-video"
-          whileHover={{ scale: 1.02 }}
-          transition={{ duration: 0.3 }}
-        >
-          <img 
-            src="/lovable-uploads/c160b4d6-0d19-4442-9def-5dabcfbe1bd7.png" 
-            alt="PREPZR Dashboard Preview" 
-            className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity rounded"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end justify-center p-3">
-            <motion.button
-              onClick={handleFreeTrialClick}
-              className="bg-white/90 dark:bg-gray-800/90 text-indigo-700 dark:text-indigo-400 text-xs font-medium px-3 py-1 rounded-full hover:bg-white dark:hover:bg-gray-800 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Get full access
-            </motion.button>
-          </div>
-        </motion.div>
       </motion.div>
     </motion.div>
   );
