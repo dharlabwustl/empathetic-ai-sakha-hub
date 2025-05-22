@@ -10,7 +10,8 @@ import StepRenderer from "./StepRenderer";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
+import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
 
 const SignupContent = () => {
   const { toast } = useToast();
@@ -18,6 +19,7 @@ const SignupContent = () => {
   const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(true);
 
   const handleRoleSelect = (role: UserRole) => {
     // Only allow student role
@@ -157,6 +159,20 @@ const SignupContent = () => {
     }
   };
 
+  const handleVoiceInput = (fieldName: string, text: string) => {
+    // Find the input element by field name and set its value
+    const inputElement = document.getElementById(fieldName) as HTMLInputElement;
+    if (inputElement) {
+      inputElement.value = text;
+      inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+      inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  };
+  
+  const toggleVoiceAssistant = () => {
+    setShowVoiceAssistant(!showVoiceAssistant);
+  };
+
   const handlers = {
     handleRoleSelect,
     handleGoalSelect,
@@ -199,6 +215,10 @@ const SignupContent = () => {
       navigate("/welcome");
     }, 2000);
   };
+  
+  const handleBackToHome = () => {
+    navigate("/");
+  };
 
   return (
     <motion.div
@@ -208,6 +228,18 @@ const SignupContent = () => {
       variants={cardVariants}
       className="w-full max-w-md mx-auto"
     >
+      {/* Back to Home Button */}
+      <motion.button
+        onClick={handleBackToHome}
+        className="mb-4 flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        <span>Back to Home</span>
+      </motion.button>
+      
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-2xl rounded-xl border-0 transform transition-all duration-500 hover:shadow-purple-200/30 dark:hover:shadow-purple-500/10">
         <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
         <div className="p-6 md:p-8">
@@ -234,6 +266,21 @@ const SignupContent = () => {
             >
               Create your personalized study partner
             </motion.p>
+            
+            {/* Voice Assistant Toggle */}
+            <motion.button
+              onClick={toggleVoiceAssistant}
+              className={`mt-2 text-xs px-3 py-1 rounded-full transition-colors ${
+                showVoiceAssistant 
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+              }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Voice Assistance: {showVoiceAssistant ? 'On' : 'Off'}
+            </motion.button>
           </motion.div>
 
           <SignupProgressBar currentStep={currentStep} />
@@ -319,6 +366,13 @@ const SignupContent = () => {
       >
         <p>By signing up, you agree to our <a href="/terms" className="text-blue-600 hover:underline transition-colors">Terms of Service</a> and <a href="/privacy" className="text-blue-600 hover:underline transition-colors">Privacy Policy</a></p>
       </motion.div>
+      
+      {/* Voice Assistant Component */}
+      <SignupVoiceAssistant 
+        onVoiceInput={handleVoiceInput}
+        currentStep={currentStep}
+        isOpen={showVoiceAssistant}
+      />
     </motion.div>
   );
 };

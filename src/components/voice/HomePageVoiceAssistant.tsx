@@ -26,16 +26,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get concise, context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREP-zer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state, giving you a powerful edge in competitive exams. How can I assist you today?";
+      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREP-zer! I'm Sakha AI. We provide hyper-personalized study plans based on your emotional state and learning style. Would you like assistance with signing up?";
+      return "Welcome to PREPZR signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of PREP-zer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs. What would you like to explore first?";
+      return "Welcome to your free trial of PREPZR's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
     } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style. Ready to begin?";
+      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.";
     }
     
-    return "Welcome to PREP-zer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
+    return "Welcome to PREPZR. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
   };
   
   // Stop speech when route changes
@@ -78,6 +78,9 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
             const demoButton = document.querySelector('button[role="demo-login"]');
             if (demoButton) demoButton.click();
           }, 1000);
+        } else if (transcript.includes('analyze') || transcript.includes('readiness')) {
+          // Trigger the exam readiness analyzer
+          window.dispatchEvent(new Event('open-exam-analyzer'));
         }
       };
       
@@ -141,8 +144,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Create speech synthesis utterance
           const speech = new SpeechSynthesisUtterance();
           
-          // Correct PREPZR pronunciation by using proper spelling in the text
-          speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+          // Correct PREPZR pronunciation
+          speech.text = message;
           speech.lang = language;
           speech.rate = 0.98; // Normal rate for clarity
           speech.pitch = 1.05; // Slightly higher for a more vibrant tone
@@ -199,10 +202,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
           // Speak the message
           window.speechSynthesis.speak(speech);
           
-          // Show toast notification
+          // Show toast notification with available commands
           toast({
             title: "Sakha AI Voice Assistant",
-            description: "Voice commands are available. Try saying 'Sign up' or 'Login'",
+            description: "Try commands like 'Sign up', 'Login', 'Go home', or 'Analyze readiness'",
             duration: 5000,
           });
         } catch (error) {
