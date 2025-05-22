@@ -1,8 +1,16 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { Brain, Award, Book } from 'lucide-react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { Brain, Award, Book, Star, Check, TrendingUp } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 interface HeroSliderProps {
   activeSlide: number;
@@ -50,7 +58,9 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       examType: "NEET",
       examSpecifics: ["Improved by 15%", "Personalized Plan", "Weekly Progress"],
       avatarImage: "/lovable-uploads/01d9bec1-6662-487f-8de6-86c1d36cddfd.png",
-      animationDelay: 0
+      animationDelay: 0,
+      achievement: "Scored in top 5%",
+      rank: "AIR 643"
     },
     {
       icon: <Book size={48} className="text-purple-500 drop-shadow-md" />,
@@ -60,7 +70,9 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       examType: "JEE",
       examSpecifics: ["Rank improved 300+", "Stress Reduction", "Smart Flashcards"],
       avatarImage: "/lovable-uploads/1bd9164d-90e1-4088-b058-0fa5966be194.png",
-      animationDelay: 0.2
+      animationDelay: 0.2,
+      achievement: "Secured IIT Bombay",
+      rank: "AIR 243"
     },
     {
       icon: <Award size={48} className="text-blue-500 drop-shadow-md" />,
@@ -70,7 +82,9 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
       examType: "UPSC",
       examSpecifics: ["Selected in CSE", "Topic Mastery", "Mood-based Study"],
       avatarImage: "/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png",
-      animationDelay: 0.4
+      animationDelay: 0.4,
+      achievement: "Selected IAS",
+      rank: "AIR 76"
     }
   ];
 
@@ -102,12 +116,15 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
           slideContentList={slideContentList} 
         />
 
+        {/* Celebration confetti for success stories */}
+        {activeSlide === 0 && <SuccessConfetti />}
+
         {/* Slide navigation dots and progress indicator */}
         <div className="absolute bottom-0 left-0 w-full p-4">
           {/* Progress bar */}
           <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-3">
             <div 
-              className="h-1 bg-indigo-600 rounded-full transition-all duration-100 ease-linear"
+              className="h-1 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full transition-all duration-100 ease-linear"
               style={{ width: `${animationProgress}%` }}
             />
           </div>
@@ -120,7 +137,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ activeSlide, setActiveSlide }) 
                 onClick={() => setActiveSlide(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === activeSlide 
-                    ? 'bg-indigo-600 scale-110' 
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-500 scale-110' 
                     : 'bg-gray-300 dark:bg-gray-600 hover:bg-indigo-400'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -138,6 +155,7 @@ interface StudentAvatarProps {
   slideContentList: Array<{
     avatarImage: string;
     examType: string;
+    rank?: string;
   }>;
 }
 
@@ -163,12 +181,15 @@ const StudentAvatar: React.FC<StudentAvatarProps> = ({ activeSlide, slideContent
           repeatType: "reverse"
         }}
       >
-        <Avatar className="w-28 h-28 border-4 border-white dark:border-gray-800 shadow-xl">
-          <AvatarImage src={currentSlide.avatarImage} alt="Student" />
-          <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-2xl font-bold">
-            {currentSlide.examType.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-75 group-hover:opacity-100 blur-sm transition duration-1000 group-hover:duration-200"></div>
+          <Avatar className="w-28 h-28 border-4 border-white dark:border-gray-800 shadow-xl relative">
+            <AvatarImage src={currentSlide.avatarImage} alt="Student" className="object-cover" />
+            <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-2xl font-bold">
+              {currentSlide.examType.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </div>
         <motion.div
           className="absolute -right-2 -top-1 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-semibold border-2 border-white dark:border-gray-800"
           animate={{
@@ -181,6 +202,30 @@ const StudentAvatar: React.FC<StudentAvatarProps> = ({ activeSlide, slideContent
         >
           {currentSlide.examType}
         </motion.div>
+        
+        {currentSlide.rank && (
+          <motion.div
+            className="absolute -right-4 -bottom-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold border-2 border-white dark:border-gray-800 flex items-center gap-1 shadow-lg"
+            initial={{ scale: 0, rotate: -15 }}
+            animate={{
+              scale: 1,
+              rotate: 0,
+              y: [0, -5, 0]
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse",
+              delay: 1
+            }}
+          >
+            <Star className="w-3 h-3 text-yellow-100 fill-yellow-100" />
+            <span>{currentSlide.rank}</span>
+          </motion.div>
+        )}
       </motion.div>
     </motion.div>
   );
@@ -196,6 +241,8 @@ interface SlideItemProps {
     examSpecifics: string[];
     avatarImage: string;
     animationDelay: number;
+    achievement: string;
+    rank?: string;
   };
   index: number;
   activeSlide: number;
@@ -230,14 +277,14 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
       }}
       className={`flex flex-col items-center justify-center ${index === activeSlide ? 'z-10' : 'z-0'}`}
     >
-      {/* Student Story Badge */}
+      {/* Achievement Badge */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: slide.animationDelay + 0.2, duration: 0.4 }}
-        className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-6 rounded-full shadow-lg z-20"
+        className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-400 text-white font-bold py-2 px-6 rounded-full shadow-lg z-20"
       >
-        Student Success Story
+        {slide.achievement}
       </motion.div>
       
       {/* Main content with 3D effect */}
@@ -260,7 +307,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
           style={{ transformStyle: 'preserve-3d' }}
           className="relative mb-8 cursor-pointer"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-100 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-3xl transform -rotate-3 scale-105 -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-3xl transform -rotate-3 scale-105 -z-10" />
           
           {/* 3D floating icon */}
           <motion.div
@@ -272,25 +319,30 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
             {slide.icon}
           </motion.div>
           
-          <img 
-            src={slide.image} 
-            alt={slide.title} 
-            className="w-72 h-72 md:w-80 md:h-80 object-contain mx-auto rounded-lg shadow-lg transform transition-transform"
-            style={{ transformStyle: 'preserve-3d', transform: 'translateZ(20px)' }}
-            onError={(e) => {
-              e.currentTarget.src = "/assets/images/default-slide.png";
-            }}
-          />
+          <div className="relative">
+            <img 
+              src={slide.image} 
+              alt={slide.title} 
+              className="w-72 h-72 md:w-80 md:h-80 object-contain mx-auto rounded-lg shadow-lg transform transition-transform"
+              style={{ transformStyle: 'preserve-3d', transform: 'translateZ(20px)' }}
+              onError={(e) => {
+                e.currentTarget.src = "/assets/images/default-slide.png";
+              }}
+            />
+            
+            {/* Animated celebration effects */}
+            <AnimatedCelebrationEffects active={index === activeSlide} />
+          </div>
         </motion.div>
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 + slide.animationDelay, duration: 0.5 }}
-          className="text-center max-w-md bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl p-5 shadow-lg"
+          className="text-center max-w-md bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl p-5 shadow-lg border border-indigo-100 dark:border-indigo-900/30"
           style={{ transformStyle: 'preserve-3d', transform: 'translateZ(30px)' }}
         >
-          <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
+          <h3 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{slide.title}</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-4 italic">{slide.description}</p>
           
           {/* Student achievement pills */}
@@ -301,15 +353,78 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 + slide.animationDelay + (idx * 0.1), duration: 0.3 }}
-                className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 text-xs px-3 py-1 rounded-full"
+                className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-200 text-xs px-3 py-1 rounded-full flex items-center gap-1"
               >
+                <Check className="w-3 h-3" />
                 {achievement}
               </motion.span>
             ))}
           </div>
+          
+          {/* Performance trend indicator */}
+          <motion.div 
+            className="mt-4 flex items-center justify-center gap-2 text-xs text-green-600 dark:text-green-400"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              repeatType: "reverse" 
+            }}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Consistent performance improvement</span>
+          </motion.div>
         </motion.div>
       </motion.div>
     </motion.div>
+  );
+};
+
+const AnimatedCelebrationEffects: React.FC<{ active: boolean }> = ({ active }) => {
+  if (!active) return null;
+  
+  return (
+    <>
+      {/* Trophy icon floating */}
+      <motion.div
+        className="absolute top-5 right-10 text-yellow-500"
+        animate={{ 
+          y: [0, -15, 0],
+          rotate: [-5, 5, -5],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{ 
+          duration: 3,
+          repeat: Infinity,
+          repeatType: "reverse"
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16.9 3H7.1c-.6 0-1.1.5-1.1 1.1v2.2c0 2.2.8 4.3 2.3 5.8l.5.5c.4.4.6 1 .6 1.7v3.2c0 .9.7 1.6 1.6 1.6h2c.9 0 1.6-.7 1.6-1.6v-3.2c0-.6.2-1.2.6-1.7l.5-.5c1.5-1.5 2.3-3.6 2.3-5.8V4.1c0-.6-.5-1.1-1.1-1.1zm-3.4 14.7c0 .1-.1.2-.2.2h-2c-.1 0-.2-.1-.2-.2v-1.5h2.5v1.5z"></path>
+          <path d="M20.4 3h-1.6v3.3c0 2.5-1 4.9-2.6 6.7h.2c3.3 0 6-2.7 6-6V5c0-1.1-.9-2-2-2zM5.2 3H3.6c-1.1 0-2 .9-2 2v2c0 3.3 2.7 6 6 6h.2c-1.7-1.8-2.6-4.2-2.6-6.7V3z"></path>
+        </svg>
+      </motion.div>
+      
+      {/* Graduation cap */}
+      <motion.div
+        className="absolute -bottom-5 left-10 text-indigo-500"
+        animate={{ 
+          y: [0, 10, 0],
+          rotate: [5, -5, 5],
+          scale: [1, 0.9, 1]
+        }}
+        transition={{ 
+          duration: 4,
+          repeat: Infinity,
+          repeatType: "reverse",
+          delay: 1
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"></path>
+        </svg>
+      </motion.div>
+    </>
   );
 };
 
@@ -317,10 +432,16 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, index, activeSlide, varian
 const Particles = () => {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {[...Array(15)].map((_, i) => (
+      {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-3 h-3 rounded-full bg-gradient-to-r from-indigo-400/20 to-purple-400/20"
+          className={`absolute w-3 h-3 rounded-full ${
+            i % 3 === 0 
+              ? "bg-gradient-to-r from-indigo-400/20 to-purple-400/20" 
+              : i % 3 === 1 
+                ? "bg-gradient-to-r from-blue-400/20 to-teal-400/20"
+                : "bg-gradient-to-r from-amber-400/20 to-orange-400/20"
+          }`}
           initial={{
             x: Math.random() * 100 + "%",
             y: Math.random() * 100 + "%",
@@ -349,6 +470,46 @@ const Particles = () => {
           }}
         />
       ))}
+    </div>
+  );
+};
+
+// Success confetti for celebration effect
+const SuccessConfetti: React.FC = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {[...Array(30)].map((_, i) => {
+        const size = Math.random() * 8 + 5;
+        const color = [
+          "bg-indigo-500", "bg-purple-500", "bg-pink-500", 
+          "bg-amber-500", "bg-green-500", "bg-blue-500"
+        ][Math.floor(Math.random() * 6)];
+        
+        return (
+          <motion.div
+            key={i}
+            className={`absolute w-2 h-2 ${color} rounded-sm`}
+            style={{ width: size, height: size }}
+            initial={{ 
+              top: "-5%",
+              left: 30 + Math.random() * 40 + "%", 
+              opacity: 1,
+              rotate: Math.random() * 360
+            }}
+            animate={{ 
+              top: "110%", 
+              left: `calc(${30 + Math.random() * 40}% + ${Math.random() * 100 - 50}px)`,
+              opacity: [1, 1, 0],
+              rotate: Math.random() * 720
+            }}
+            transition={{ 
+              duration: 4 + Math.random() * 4, 
+              repeat: Infinity,
+              delay: Math.random() * 10
+            }}
+          />
+        );
+      })}
     </div>
   );
 };
