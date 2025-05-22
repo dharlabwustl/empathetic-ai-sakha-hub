@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.removeItem('new_user_signup');
       localStorage.removeItem('google_signup');
       
-      // Use setTimeout to avoid navigation issues
+      // Use direct relative path instead of domain-prefixed path
       setTimeout(() => {
         navigate('/admin/dashboard', { replace: true });
       }, 100);
@@ -54,7 +54,7 @@ const Login = () => {
       // Redirect directly to welcome flow, skipping login
       console.log("New user or Google signup detected, redirecting to welcome flow");
       setTimeout(() => {
-        // Fix: Remove app. prefix from domain routing
+        // Fix: Remove app. prefix from domain routing - use relative path
         navigate('/welcome-flow', { replace: true });
       }, 100);
       return;
@@ -64,7 +64,7 @@ const Login = () => {
     if (isAuthenticated || isLoggedIn) {
       console.log("User already authenticated, redirecting to:", returnTo);
       setTimeout(() => {
-        // Fix: Remove app. prefix from domain routing
+        // Fix: Remove app. prefix from domain routing - use relative path
         navigate(returnTo, { replace: true });
       }, 100);
       return;
@@ -73,7 +73,7 @@ const Login = () => {
     // If not authenticated, redirect to welcome-back after a short delay
     console.log("User not authenticated, redirecting to welcome-back");
     setTimeout(() => {
-      // Fix: Remove app. prefix from domain routing
+      // Fix: Remove app. prefix from domain routing - use relative path
       navigate(`/welcome-back?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     }, 300);
     

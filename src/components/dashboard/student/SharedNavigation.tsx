@@ -56,7 +56,7 @@ const SharedNavigation = () => {
                     <Button
                       variant={isActive(tab.path) ? "default" : "ghost"}
                       size="sm"
-                      className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
+                      className={`flex items-center gap-1 whitespace-nowrap text-xs md:text-sm ${isActive(tab.path) ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'text-gray-800 hover:text-orange-600 dark:text-gray-200 dark:hover:text-orange-400'}`}
                       onClick={() => navigate(tab.path)}
                     >
                       <tab.icon className="h-4 w-4 mr-1" />

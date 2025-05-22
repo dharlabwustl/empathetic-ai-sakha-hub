@@ -82,7 +82,7 @@ const Index = () => {
           transition={{ duration: 0.7 }}
         >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-amber-600">
               Smart Data. Real Impact. Humanizing exam prep.
             </h2>
           </div>
@@ -127,7 +127,7 @@ const Index = () => {
       {/* Floating Voice Assistant button */}
       <div className="fixed bottom-6 right-6 z-50">
         <motion.button
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
+          className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.8 }}

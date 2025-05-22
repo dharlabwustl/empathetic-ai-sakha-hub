@@ -21,6 +21,7 @@ const Login = () => {
     // Check admin auth first
     if (localStorage.getItem('admin_logged_in') === 'true') {
       console.log("Admin already logged in, redirecting to admin dashboard");
+      // Fix: Remove app. prefix by using direct relative paths
       navigate('/admin/dashboard', { replace: true });
       return;
     }
@@ -29,6 +30,7 @@ const Login = () => {
     const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isUserLoggedIn) {
       console.log("Student already logged in, redirecting to student dashboard");
+      // Fix: Remove app. prefix by using direct relative paths
       navigate('/dashboard/student', { replace: true });
       return;
     }

@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: rgba(59, 130, 246, 0.2); /* blue */
+  background-color: rgba(255, 165, 0, 0.2); /* Changed to orange */
   z-index: 0;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -42,31 +42,31 @@
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
+  background-image: linear-gradient(to right, #f97316, #ffa500);
 }
 
 /* Colors for Sakha AI */
 :root {
-  --sakha-blue: #3b82f6;
-  --sakha-purple: #8b5cf6;
-  --sakha-light-blue: #93c5fd;
-  --sakha-lavender: #c4b5fd;
+  --sakha-blue: #ffa500; /* Changed to orange */
+  --sakha-purple: #f97316; /* Changed to darker orange */
+  --sakha-light-blue: #fdba74; /* Changed to light orange */
+  --sakha-lavender: #fed7aa; /* Changed to very light orange */
   
   /* Gradient Color Variables for Methodology Section */
-  --blue-500: #3b82f6;
-  --cyan-400: #22d3ee;
-  --purple-500: #8b5cf6;
-  --violet-400: #a78bfa;
-  --green-500: #22c55e;
-  --teal-400: #2dd4bf;
-  --orange-500: #f97316;
-  --amber-400: #fbbf24;
-  --pink-500: #ec4899;
-  --rose-400: #fb7185;
-  --indigo-500: #6366f1;
-  --blue-400: #60a5fa;
-  --red-500: #ef4444;
-  --orange-400: #fb923c;
+  --blue-500: #f97316; /* Orange */
+  --cyan-400: #fdba74; /* Light orange */
+  --purple-500: #f97316; /* Orange */
+  --violet-400: #fdba74; /* Light orange */
+  --green-500: #f97316; /* Orange */
+  --teal-400: #fdba74; /* Light orange */
+  --orange-500: #f97316; /* Orange */
+  --amber-400: #ffa500; /* Orange */
+  --pink-500: #f97316; /* Orange */
+  --rose-400: #fdba74; /* Light orange */
+  --indigo-500: #f97316; /* Orange */
+  --blue-400: #ffa500; /* Orange */
+  --red-500: #f97316; /* Orange */
+  --orange-400: #ffa500; /* Orange */
 }
 
 /* Engine Animation */

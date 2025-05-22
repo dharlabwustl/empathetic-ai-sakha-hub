@@ -10,16 +10,16 @@ body {
   -ms-text-size-adjust: 100%;
 }
 
-/* Mood-specific themes */
+/* Mood-specific themes - all colors shifted towards orange spectrum */
 .mood-happy {
-  --mood-primary: rgba(255, 220, 100, 0.1);
-  --mood-accent: rgba(255, 230, 130, 0.15);
+  --mood-primary: rgba(255, 225, 180, 0.1);
+  --mood-accent: rgba(255, 230, 180, 0.15);
   --mood-text: #222;
 }
 
 .mood-sad {
-  --mood-primary: rgba(100, 150, 200, 0.1);
-  --mood-accent: rgba(120, 170, 220, 0.15);
+  --mood-primary: rgba(255, 200, 150, 0.1);
+  --mood-accent: rgba(255, 210, 170, 0.15);
   --mood-text: #333;
 }
 
@@ -30,14 +30,14 @@ body {
 }
 
 .mood-relaxed {
-  --mood-primary: rgba(170, 220, 200, 0.1);
-  --mood-accent: rgba(190, 240, 220, 0.15);
+  --mood-primary: rgba(255, 220, 180, 0.1);
+  --mood-accent: rgba(255, 230, 190, 0.15);
   --mood-text: #222;
 }
 
 .mood-focused {
-  --mood-primary: rgba(180, 160, 240, 0.1);
-  --mood-accent: rgba(200, 180, 255, 0.15);
+  --mood-primary: rgba(255, 190, 140, 0.1);
+  --mood-accent: rgba(255, 200, 150, 0.15);
   --mood-text: #222;
 }
 
@@ -48,26 +48,26 @@ body {
 }
 
 .mood-overwhelmed {
-  --mood-primary: rgba(220, 150, 180, 0.1);
-  --mood-accent: rgba(240, 170, 200, 0.15);
+  --mood-primary: rgba(255, 170, 140, 0.1);
+  --mood-accent: rgba(255, 180, 150, 0.15);
   --mood-text: #333;
 }
 
 .mood-tired {
-  --mood-primary: rgba(180, 190, 200, 0.1);
-  --mood-accent: rgba(200, 210, 220, 0.15);
+  --mood-primary: rgba(255, 200, 170, 0.1);
+  --mood-accent: rgba(255, 210, 180, 0.15);
   --mood-text: #444;
 }
 
 .mood-curious {
-  --mood-primary: rgba(180, 220, 255, 0.1);
-  --mood-accent: rgba(200, 240, 255, 0.15);
+  --mood-primary: rgba(255, 210, 160, 0.1);
+  --mood-accent: rgba(255, 220, 170, 0.15);
   --mood-text: #222;
 }
 
 .mood-okay, .mood-neutral {
-  --mood-primary: rgba(200, 200, 200, 0.1);
-  --mood-accent: rgba(220, 220, 220, 0.15);
+  --mood-primary: rgba(255, 220, 190, 0.1);
+  --mood-accent: rgba(255, 230, 200, 0.15);
   --mood-text: #333;
 }
 
