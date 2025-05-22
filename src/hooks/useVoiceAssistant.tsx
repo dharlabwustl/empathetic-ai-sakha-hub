@@ -39,12 +39,10 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [transcript, setTranscript] = useState('');
   const [confidence, setConfidence] = useState(0);
-  const [activeField, setActiveField] = useState<string | null>(null);
   
   const recognitionRef = useRef<any>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const restartTimerRef = useRef<number | null>(null);
-  const commandHandlersRef = useRef<Record<string, () => void>>({});
   
   // Initialize speech synthesis and load available voices
   useEffect(() => {
@@ -191,227 +189,13 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         setTranscript(currentTranscript);
         setConfidence(currentConfidence);
         
-        // Process for active field if one is set
-        if (activeField) {
-          handleFieldInput(currentTranscript, activeField);
-        } else {
-          // Check for field selection commands
-          const lowerTranscript = currentTranscript.toLowerCase();
-          const fieldSelectionCommands = {
-            'select email': 'email',
-            'email field': 'email',
-            'select password': 'password',
-            'password field': 'password',
-            'select name': 'name',
-            'name field': 'name',
-            'select phone': 'phone',
-            'phone field': 'phone',
-            'select username': 'username',
-            'username field': 'username',
-          };
-
-          // Check if the transcript contains a field selection command
-          for (const [command, field] of Object.entries(fieldSelectionCommands)) {
-            if (lowerTranscript.includes(command)) {
-              // Focus the field
-              const fieldElement = document.getElementById(field) || 
-                                  document.querySelector(`input[name="${field}"]`) ||
-                                  document.querySelector(`input[type="${field}"]`);
-              
-              if (fieldElement) {
-                (fieldElement as HTMLElement).focus();
-                setActiveField(field);
-                speakText(`${field} field selected. What would you like to enter?`);
-                return;
-              }
-            }
-          }
-
-          // Handle navigation commands
-          if (lowerTranscript.includes('next') || lowerTranscript.includes('continue')) {
-            const nextButton = document.querySelector('button[type="submit"]') ||
-                              document.querySelector('button:contains("Next")') ||
-                              document.querySelector('button:contains("Continue")');
-            
-            if (nextButton) {
-              (nextButton as HTMLElement).click();
-              return;
-            }
-          }
-
-          // Handle back commands
-          if (lowerTranscript.includes('back') || lowerTranscript.includes('previous')) {
-            const backButton = document.querySelector('button:contains("Back")') ||
-                              document.querySelector('button:contains("Previous")');
-            
-            if (backButton) {
-              (backButton as HTMLElement).click();
-              return;
-            }
-          }
-
-          // Process registered command handlers
-          for (const [pattern, handler] of Object.entries(commandHandlersRef.current)) {
-            if (lowerTranscript.includes(pattern.toLowerCase())) {
-              handler();
-              return;
-            }
-          }
-
-          // Process form field auto-detection if no specific command matched
-          processFormFieldDetection(currentTranscript);
-        }
+        // Call additional handler here if needed
       };
       
       recognitionRef.current = recognition;
     } catch (error) {
       console.error("Error initializing speech recognition:", error);
     }
-  };
-
-  // Process form field detection and auto-fill
-  const processFormFieldDetection = (transcript: string) => {
-    // Get all visible input fields on the page
-    const visibleInputs = Array.from(document.querySelectorAll('input:not([type="hidden"])')) as HTMLInputElement[];
-    if (visibleInputs.length === 0) return;
-
-    const lowerTranscript = transcript.toLowerCase();
-
-    // Check if transcript contains information that could fill a form field
-    if (lowerTranscript.includes('@') && lowerTranscript.includes('.')) {
-      // Likely an email address
-      const emailInput = visibleInputs.find(input => 
-        input.type === 'email' || 
-        input.name?.includes('email') || 
-        input.id?.includes('email') || 
-        input.placeholder?.toLowerCase().includes('email')
-      );
-
-      if (emailInput) {
-        // Extract email from transcript (basic extraction)
-        const emailRegex = /\S+@\S+\.\S+/;
-        const match = transcript.match(emailRegex);
-        if (match) {
-          emailInput.focus();
-          emailInput.value = match[0].trim();
-          // Trigger input event to update React state
-          emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-          speakText(`Email set to ${match[0].trim()}`);
-          return;
-        }
-      }
-    } 
-    else if (/^\d{10,15}$/.test(transcript.replace(/\D/g, ''))) {
-      // Likely a phone number (10-15 digits)
-      const phoneInput = visibleInputs.find(input => 
-        input.type === 'tel' || 
-        input.name?.includes('phone') || 
-        input.id?.includes('phone') || 
-        input.placeholder?.toLowerCase().includes('phone')
-      );
-
-      if (phoneInput) {
-        const phoneNumber = transcript.replace(/\D/g, '');
-        phoneInput.focus();
-        phoneInput.value = phoneNumber;
-        phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
-        speakText(`Phone number set to ${phoneNumber}`);
-        return;
-      }
-    }
-    else {
-      // Check if we're looking at a name field or any other text field
-      const nameInput = visibleInputs.find(input => 
-        input.name?.includes('name') || 
-        input.id?.includes('name') || 
-        input.placeholder?.toLowerCase().includes('name')
-      );
-
-      if (nameInput && transcript.length > 2 && !/^(select|click|focus|tap|choose)/.test(lowerTranscript)) {
-        nameInput.focus();
-        nameInput.value = transcript.trim();
-        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-        speakText(`Name set to ${transcript.trim()}`);
-        return;
-      }
-
-      // If no specific field is detected, try to fill the currently focused input
-      const activeElement = document.activeElement as HTMLInputElement;
-      if (activeElement && activeElement.tagName === 'INPUT' && activeElement.type !== 'hidden') {
-        activeElement.value = transcript.trim();
-        activeElement.dispatchEvent(new Event('input', { bubbles: true }));
-        speakText(`Field set to ${transcript.trim()}`);
-      }
-    }
-  };
-
-  // Handle input for a specific field
-  const handleFieldInput = (transcript: string, fieldName: string) => {
-    const fieldElement = document.getElementById(fieldName) || 
-                        document.querySelector(`input[name="${fieldName}"]`) ||
-                        document.querySelector(`input[type="${fieldName}"]`);
-
-    if (!fieldElement) {
-      console.error(`Field ${fieldName} not found`);
-      setActiveField(null);
-      return;
-    }
-
-    const input = fieldElement as HTMLInputElement;
-    let processedValue = transcript;
-
-    // Special processing based on field type
-    if (fieldName === 'email' || input.type === 'email') {
-      // Try to extract email or format as email
-      if (transcript.includes('@')) {
-        processedValue = transcript.replace(/\s+/g, '').trim();
-      } else {
-        // Format as email if looks like a username
-        const username = transcript.toLowerCase().replace(/\s+/g, '').trim();
-        if (username && !username.startsWith('set') && !username.startsWith('select')) {
-          processedValue = `${username}@gmail.com`;
-        }
-      }
-    } 
-    else if (fieldName === 'phone' || input.type === 'tel') {
-      // Extract digits only
-      processedValue = transcript.replace(/\D/g, '');
-    }
-    else if (fieldName === 'password' || input.type === 'password') {
-      // Basic password formatting (remove spaces)
-      processedValue = transcript.replace(/\s+/g, '');
-    }
-
-    // Skip if the processed value doesn't make sense
-    if (processedValue.toLowerCase().includes('select') || 
-        processedValue.toLowerCase().includes('set') || 
-        processedValue.toLowerCase().includes('choose')) {
-      return;
-    }
-
-    // Set the value and trigger React change event
-    input.value = processedValue;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    
-    // Provide feedback
-    speakText(`${fieldName} set to ${fieldName === 'password' ? 'your entry' : processedValue}`);
-    
-    // Clear active field
-    setActiveField(null);
-    
-    // Try to find next field to focus after a slight delay
-    setTimeout(() => {
-      const form = input.form;
-      if (form) {
-        const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"])')); 
-        const currentIndex = inputs.indexOf(input);
-        if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
-          const nextInput = inputs[currentIndex + 1];
-          nextInput.focus();
-          speakText(`Now on ${nextInput.name || nextInput.id || 'next'} field`);
-        }
-      }
-    }, 500);
   };
   
   // Function to restart speech recognition
@@ -521,9 +305,6 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
       clearTimeout(restartTimerRef.current);
       restartTimerRef.current = null;
     }
-    
-    // Also clear active field
-    setActiveField(null);
   };
   
   // Function to stop speaking
@@ -558,24 +339,6 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
       }
     }
     
-    return false;
-  };
-  
-  // Register command handlers - allows components to add their own voice commands
-  const registerCommands = (commands: Record<string, () => void>) => {
-    commandHandlersRef.current = { ...commandHandlersRef.current, ...commands };
-  };
-  
-  // Focus a specific form field by name or id
-  const focusFormField = (fieldName: string) => {
-    const field = document.getElementById(fieldName) || 
-                  document.querySelector(`input[name="${fieldName}"]`) ||
-                  document.querySelector(`input[type="${fieldName}"]`);
-    if (field) {
-      (field as HTMLElement).focus();
-      setActiveField(fieldName);
-      return true;
-    }
     return false;
   };
   
@@ -676,14 +439,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     transcript,
     confidence,
     availableVoices,
-    activeField,
     speakText,
     startListening,
     stopListening,
     stopSpeaking,
     processCommand,
-    registerCommands,
-    focusFormField,
     updateSettings,
     toggleMute,
     toggleEnabled

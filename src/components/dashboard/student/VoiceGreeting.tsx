@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -50,9 +49,6 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         setAudioPlayed(true);
       }
     };
-    
-    // Cancel speech when route changes
-    cancelSpeech();
     
     return () => {
       // Cancel speech when component unmounts
@@ -112,7 +108,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     // Add voice command capabilities
     const setupVoiceRecognition = () => {
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         const recognition = new SpeechRecognition();
         
         recognition.continuous = false;
@@ -128,9 +124,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             if (transcript.includes('select student')) {
               // Select student option
               const studentOption = document.querySelector('input[value="student"]');
-              if (studentOption instanceof HTMLInputElement && !studentOption.checked) {
-                studentOption.checked = true;
-                studentOption.dispatchEvent(new Event('change', { bubbles: true }));
+              if (studentOption && !studentOption.checked) {
+                (studentOption as HTMLInputElement).checked = true;
+                (studentOption as HTMLInputElement).dispatchEvent(new Event('change', { bubbles: true }));
               }
             } else if (transcript.includes('next') || transcript.includes('continue')) {
               // Find and click next/continue button

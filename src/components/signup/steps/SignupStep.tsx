@@ -8,10 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
-import { Star, Eye, EyeOff, Info, Mic, MicOff } from "lucide-react";
+import { Star, Eye, EyeOff, Info, Tabs, TabsContent, TabsList, TabsTrigger } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { useVoiceCommands } from "@/hooks/useVoiceCommands";
 
 interface SignupStepProps {
   onSubmit: (formValues: { 
@@ -58,58 +57,6 @@ const SignupStep: React.FC<SignupStepProps> = ({
     number: false,
     special: false
   });
-  
-  // Field mappings for voice commands
-  const fieldMappings = {
-    name: { id: "name", type: "text" },
-    mobile: { id: "mobile", type: "tel" },
-    email: { id: "email", type: "email" },
-    password: { id: "password", type: "password" },
-    confirmPassword: { id: "confirmPassword", type: "password" },
-    otp: { id: "otp", type: "text" },
-    institute: { id: "institute", type: "text" },
-    agreeTerms: { id: "terms", type: "checkbox" }
-  };
-  
-  // Initialize voice commands
-  const { 
-    isListening, 
-    startListening, 
-    stopListening,
-    activeField
-  } = useVoiceCommands({
-    fieldMappings,
-    handleSubmit: () => handleSubmit({} as React.FormEvent),
-    onCommandDetected: (command, fieldId) => {
-      // Handle specific commands
-      if (command.includes("mobile") || command.includes("phone")) {
-        setSignupMethod("mobile");
-      } else if (command.includes("email") && command.includes("method")) {
-        setSignupMethod("email");
-      } else if (command.includes("get otp") || command.includes("send otp") || command.includes("request otp")) {
-        if (formValues.mobile) {
-          handleRequestOtp();
-        } else {
-          toast({
-            title: "Mobile number required",
-            description: "Please provide a mobile number first",
-            variant: "destructive"
-          });
-        }
-      } else if (command.includes("show password")) {
-        setShowPassword(true);
-      } else if (command.includes("hide password")) {
-        setShowPassword(false);
-      } else if (command.includes("show confirm password")) {
-        setShowConfirmPassword(true);
-      } else if (command.includes("hide confirm password")) {
-        setShowConfirmPassword(false);
-      } else if (command.includes("google") || command.includes("sign with google")) {
-        handleGoogleSignup();
-      }
-    }
-  });
-  
   const examFacts = {
     "NEET": [
       "India needs 2.5 million doctors by 2030 - huge opportunities ahead!",
@@ -141,10 +88,6 @@ const SignupStep: React.FC<SignupStepProps> = ({
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
-  };
-
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormValues({ ...formValues, agreeTerms: checked });
   };
 
   const handleRequestOtp = () => {
@@ -252,32 +195,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
   };
 
   return (
-    <div className="space-y-6 relative">
-      {/* Voice Command Indicator */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className={`absolute top-0 right-0 p-2 rounded-full ${isListening ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}
-        onClick={isListening ? stopListening : startListening}
-      >
-        {isListening ? (
-          <MicOff className="h-5 w-5 animate-pulse" />
-        ) : (
-          <Mic className="h-5 w-5" />
-        )}
-      </motion.div>
-
-      {/* Active Field Indicator */}
-      {isListening && activeField && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-10 right-0 bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"
-        >
-          Listening for: {activeField}
-        </motion.div>
-      )}
-      
+    <div className="space-y-6">
       {fact && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -296,16 +214,6 @@ const SignupStep: React.FC<SignupStepProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Voice assistant helper tip */}
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg text-sm text-indigo-700 dark:text-indigo-300 mb-4">
-          <div className="flex items-center gap-2">
-            <Mic className="h-4 w-4" />
-            <p>
-              <span className="font-semibold">Voice Assistant:</span> Click the microphone icon and say field names like "name" or "email" followed by your info.
-            </p>
-          </div>
-        </div>
-
         <div>
           <div className="mb-2">
             <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
@@ -316,7 +224,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
             value={formValues.name} 
             onChange={handleFormChange} 
             required 
-            className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 ${activeField === 'name' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
             placeholder="Your full name"
           />
         </div>
@@ -361,7 +269,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
                   onChange={handleFormChange} 
                   required={signupMethod === "mobile"}
                   type="tel"
-                  className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 ${activeField === 'mobile' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+                  className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                   placeholder="+91 9876543210"
                 />
                 
@@ -391,7 +299,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
                       value={formValues.otp} 
                       onChange={handleFormChange} 
                       required={signupMethod === "mobile"}
-                      className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 ${activeField === 'otp' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+                      className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                       placeholder="Enter OTP"
                     />
                   </motion.div>
@@ -416,7 +324,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
                 value={formValues.email} 
                 onChange={handleFormChange} 
                 required={signupMethod === "email"}
-                className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 ${activeField === 'email' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+                className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                 placeholder="Your email address"
               />
             </motion.div>
@@ -436,7 +344,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
               onChange={handleFormChange} 
               onFocus={handlePasswordRequirementsFocus}
               required 
-              className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10 ${activeField === 'password' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
               placeholder="Create a strong password"
             />
             <button
@@ -510,7 +418,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
               value={formValues.confirmPassword} 
               onChange={handleFormChange} 
               required 
-              className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10 ${activeField === 'confirmPassword' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
               placeholder="Confirm your password"
             />
             <button
@@ -539,7 +447,7 @@ const SignupStep: React.FC<SignupStepProps> = ({
             name="institute" 
             value={formValues.institute} 
             onChange={handleFormChange}
-            className={`border-purple-200 focus:border-purple-500 focus:ring-purple-500 ${activeField === 'institute' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
             placeholder="Your school or institute name"
           />
         </div>
@@ -548,7 +456,9 @@ const SignupStep: React.FC<SignupStepProps> = ({
           <Checkbox 
             id="terms" 
             checked={formValues.agreeTerms} 
-            onCheckedChange={handleCheckboxChange}
+            onCheckedChange={(checked) => {
+              setFormValues({ ...formValues, agreeTerms: checked === true });
+            }}
           />
           <label
             htmlFor="terms"
@@ -595,32 +505,6 @@ const SignupStep: React.FC<SignupStepProps> = ({
           </p>
         </div>
       </form>
-
-      {/* Voice Assistant Controls */}
-      <motion.div 
-        className="fixed bottom-5 right-5 z-50 flex items-center gap-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <motion.button
-          onClick={isListening ? stopListening : startListening}
-          className={`p-3 rounded-full shadow-lg flex items-center justify-center ${
-            isListening 
-              ? 'bg-red-600 text-white hover:bg-red-700' 
-              : 'bg-purple-600 text-white hover:bg-purple-700'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isListening ? (
-            <MicOff className="h-5 w-5 animate-pulse" />
-          ) : (
-            <Mic className="h-5 w-5" />
-          )}
-          <span className="ml-2">{isListening ? 'Stop Voice' : 'Start Voice'}</span>
-        </motion.button>
-      </motion.div>
     </div>
   );
 };
