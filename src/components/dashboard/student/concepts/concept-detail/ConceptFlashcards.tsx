@@ -174,7 +174,6 @@ const ConceptFlashcards: React.FC<ConceptFlashcardsProps> = ({ flashcards }) => 
         </div>
       </div>
       
-      {/* Styling for flashcard animations */}
       <style jsx>{`
         .perspective-1000 {
           perspective: 1000px;

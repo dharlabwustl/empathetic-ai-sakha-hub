@@ -5,6 +5,10 @@ import EnhancedConceptDetail from './EnhancedConceptDetail';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useToast } from '@/hooks/use-toast';
 import ConceptHeader from './concept-detail/ConceptHeader';
+import ConceptFlashcards from './concept-detail/ConceptFlashcards';
+import FormulaReference from './concept-detail/FormulaReference';
+import { ConceptMasterySection } from './ConceptMasterySection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useUserNotes from '@/hooks/useUserNotes';
 import { Helmet } from 'react-helmet';
 
@@ -17,6 +21,58 @@ const ConceptDetailPage: React.FC = () => {
   const [conceptData, setConceptData] = useState<any>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [masteryLevel, setMasteryLevel] = useState(35);
+  const [activeTab, setActiveTab] = useState('content');
+
+  // Mock flashcards data
+  const mockFlashcards = [
+    {
+      id: 'card1',
+      front: "What is Newton's First Law of Motion?",
+      back: "An object at rest will remain at rest, and an object in motion will remain in motion at constant velocity and in a straight line, unless acted upon by an unbalanced force."
+    },
+    {
+      id: 'card2',
+      front: "What is inertia?",
+      back: "Inertia is the resistance of an object to any change in its motion, including change to its speed and direction."
+    },
+    {
+      id: 'card3',
+      front: "State Newton's Second Law of Motion",
+      back: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. F = ma."
+    },
+    {
+      id: 'card4',
+      front: "State Newton's Third Law of Motion",
+      back: "For every action, there is an equal and opposite reaction."
+    },
+    {
+      id: 'card5',
+      front: "How does a rocket work according to Newton's Third Law?",
+      back: "A rocket expels gas backward (action), which propels the rocket forward (reaction)."
+    }
+  ];
+  
+  // Mock formulas data
+  const mockFormulas = [
+    {
+      id: 'formula1',
+      name: "Newton's Second Law",
+      latex: "F = m \\times a",
+      description: "The force (F) acting on an object is equal to the mass (m) of the object times its acceleration (a)."
+    },
+    {
+      id: 'formula2',
+      name: "Force of Gravity",
+      latex: "F_g = G \\frac{m_1 \\times m_2}{r^2}",
+      description: "The gravitational force between two masses is proportional to the product of their masses and inversely proportional to the square of the distance between them."
+    },
+    {
+      id: 'formula3',
+      name: "Momentum",
+      latex: "p = m \\times v",
+      description: "Momentum (p) is equal to mass (m) times velocity (v)."
+    }
+  ];
 
   // Mock concept data - in a real app, this would be fetched from an API
   useEffect(() => {
@@ -146,17 +202,49 @@ const ConceptDetailPage: React.FC = () => {
           onBookmarkToggle={handleBookmarkToggle}
         />
         
-        <EnhancedConceptDetail
-          conceptId={conceptData.id}
-          title={conceptData.title}
-          subject={conceptData.subject}
-          topic={conceptData.topic}
-          difficulty={conceptData.difficulty}
-          content={conceptData.content}
-          masteryLevel={masteryLevel}
-          onMasteryUpdate={handleMasteryUpdate}
-          handleOpenFormulaLab={handleOpenFormulaLab}
-        />
+        <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-4 mb-8">
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+            <TabsTrigger value="formulas">Formulas</TabsTrigger>
+            <TabsTrigger value="mastery">Mastery</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="content" className="space-y-6">
+            <EnhancedConceptDetail
+              conceptId={conceptData.id}
+              title={conceptData.title}
+              subject={conceptData.subject}
+              topic={conceptData.topic}
+              difficulty={conceptData.difficulty}
+              content={conceptData.content}
+              masteryLevel={masteryLevel}
+              onMasteryUpdate={handleMasteryUpdate}
+              handleOpenFormulaLab={handleOpenFormulaLab}
+            />
+          </TabsContent>
+          
+          <TabsContent value="flashcards">
+            <ConceptFlashcards flashcards={mockFlashcards} />
+          </TabsContent>
+          
+          <TabsContent value="formulas">
+            <FormulaReference 
+              formulas={mockFormulas} 
+              conceptTitle={conceptData.title}
+              handleOpenFormulaLab={handleOpenFormulaLab}
+            />
+          </TabsContent>
+          
+          <TabsContent value="mastery">
+            <ConceptMasterySection 
+              conceptId={conceptData.id} 
+              recallAccuracy={masteryLevel}
+              quizScore={70}
+              lastPracticed="2023-05-20"
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </SharedPageLayout>
   );

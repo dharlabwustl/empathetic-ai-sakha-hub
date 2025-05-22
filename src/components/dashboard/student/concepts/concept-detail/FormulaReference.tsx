@@ -47,7 +47,7 @@ const FormulaReference: React.FC<FormulaReferenceProps> = ({
   
   React.useEffect(() => {
     // Attempt to render LaTeX if MathJax is available
-    if (window.MathJax) {
+    if (typeof window !== 'undefined' && window.MathJax) {
       try {
         window.MathJax.typeset();
       } catch (error) {
