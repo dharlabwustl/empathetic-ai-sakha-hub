@@ -136,3 +136,73 @@
   box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
 }
 
+/* Exam-themed pattern background */
+.exam-pattern-bg {
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.9)
+  ),
+  url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f1f5f9' fill-opacity='0.7' fill-rule='evenodd'%3E%3Cpath d='M0 0h20v20H0V0zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm20 0a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM10 37a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm10-17h20v20H20V20zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Student journey progress path animation */
+@keyframes dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.journey-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 5s linear forwards;
+}
+
+/* Exam paper grid background */
+.exam-grid-bg {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    linear-gradient(#5c6bc0 1px, transparent 1px), 
+    linear-gradient(to right, #5c6bc0 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px, 20px 20px;
+}
+
+/* 3D rotation effect for cards */
+@keyframes rotate3d {
+  0%, 100% {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  25% {
+    transform: rotateY(5deg) rotateX(2deg);
+  }
+  50% {
+    transform: rotateY(0deg) rotateX(5deg);
+  }
+  75% {
+    transform: rotateY(-5deg) rotateX(2deg);
+  }
+}
+
+.rotate-3d {
+  animation: rotate3d 10s infinite ease-in-out;
+  transform-style: preserve-3d;
+}
+
+/* Student avatar emotion transitions */
+@keyframes emotion-transition {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.emotion-transition {
+  animation: emotion-transition 0.5s ease-out forwards;
+}

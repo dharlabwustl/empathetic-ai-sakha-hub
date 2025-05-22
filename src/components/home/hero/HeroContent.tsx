@@ -23,7 +23,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.1 }}
-      className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8"
+      className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8 relative z-10"
     >
       <div className="flex flex-wrap gap-2 mb-4">
         <StudentJourneyBadge />
@@ -54,7 +54,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       >
         <span className="relative inline-block">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-            We understand your mindset,
+            Transform your struggle
           </span>
           <motion.span
             className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
@@ -64,7 +64,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           />
         </span>
         <br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">not just the exam</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">into exam triumph</span>
       </motion.h1>
       
       <motion.div 
