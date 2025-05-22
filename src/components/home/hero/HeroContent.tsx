@@ -23,15 +23,15 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       transition={{ duration: 0.8, delay: 0.1 }}
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
-      {/* Premium Experience Badge with Dashboard Preview */}
+      {/* Premium Experience Badge */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="absolute -top-2 -right-2 md:top-0 md:-right-8 z-30 transform rotate-12"
       >
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-1 rounded-lg shadow-lg flex items-center gap-2">
-          <span className="font-bold text-sm">DASHBOARD PREVIEW</span>
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1 rounded-lg shadow-lg flex items-center gap-2">
+          <span className="font-bold text-sm">PREMIUM</span>
         </div>
       </motion.div>
 
@@ -80,7 +80,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* New description with emotional connection highlight */}
+      {/* Emotional Connection Highlight */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
       >
         <p className="text-base text-gray-700 dark:text-gray-300">
-          We are world's first <span className="font-semibold text-indigo-700 dark:text-indigo-400">emotionally aware, hyper personalized and adaptive exam prep platform</span>. Our AI-driven platform is specifically designed for Indian competitive exams like 
+          Our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 
           <span className="font-semibold text-purple-700 dark:text-purple-400"> NEET, JEE, UPSC, and CAT</span>.
         </p>
       </motion.div>
