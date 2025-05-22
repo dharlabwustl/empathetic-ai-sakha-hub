@@ -81,11 +81,11 @@ const AIInsightsSection: React.FC<AIInsightsSectionProps> = ({
   };
   
   return (
-    <div className="p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <BrainCircuit className="h-6 w-6 text-indigo-600" />
-          <h2 className="text-2xl font-bold">AI Learning Insights</h2>
+          <h2 className="text-xl font-bold">AI Learning Insights</h2>
         </div>
         
         <Button variant="outline" className="gap-1">

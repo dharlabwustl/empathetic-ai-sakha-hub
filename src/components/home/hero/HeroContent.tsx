@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
@@ -135,7 +136,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.1 }}
-      className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
+      className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8 relative z-20"
     >
       {/* 3D Background Canvas */}
       <canvas 
@@ -150,136 +151,65 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         }}
       />
 
-      {/* Premium Experience Badge */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-        className="absolute -top-2 -right-2 md:top-0 md:-right-8 z-30 transform rotate-12"
-      >
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1 rounded-lg shadow-lg flex items-center gap-2">
-          <span className="font-bold text-sm">PREMIUM</span>
-        </div>
-      </motion.div>
-
-      {/* Enhanced NEET Live Now Glowing Badge */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-4 inline-block"
-      >
+      <div className="flex flex-wrap gap-2 mb-4">
         <motion.div 
-          className="bg-gradient-to-r from-green-600 via-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 shadow-lg relative overflow-hidden"
-          animate={{ 
-            boxShadow: ["0 0 10px rgba(16, 185, 129, 0.5)", "0 0 25px rgba(16, 185, 129, 0.8)", "0 0 10px rgba(16, 185, 129, 0.5)"] 
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{
-            filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))" // Extra glow effect
-          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1"
         >
-          {/* Enhanced pulsating dot */}
-          <motion.span 
-            className="h-2.5 w-2.5 bg-white rounded-full"
-            animate={{ 
-              opacity: [1, 0.4, 1],
-              scale: [1, 1.3, 1],
-              boxShadow: ["0 0 0px rgba(255,255,255,0.8)", "0 0 10px rgba(255,255,255,0.9)", "0 0 0px rgba(255,255,255,0.8)"]
-            }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          
-          {/* Glowing text */}
-          <motion.span
-            animate={{ 
-              textShadow: [
-                "0 0 5px rgba(255,255,255,0.5)",
-                "0 0 10px rgba(255,255,255,0.8)",
-                "0 0 5px rgba(255,255,255,0.5)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="font-bold"
-          >
-            NEET is live now!
-          </motion.span>
-          
-          {/* Enhanced glowing overlay */}
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-25"
-            animate={{
-              left: ["-100%", "100%"],
-            }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          />
+          <span className="animate-pulse-subtle">●</span> Student Journey
         </motion.div>
-      </motion.div>
-
-      {/* Welcome Message - New Position */}
-      <motion.div
-        className="mb-4 text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        Welcome to PREPZR - We are world's first emotionally aware, hyper personalized an adaptive exam prep platform.
-      </motion.div>
-
-      <motion.h1
-        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
-        <span className="relative inline-block">
-          <motion.span 
-            className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
-            animate={{ 
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          >
-            We understand your mindset,
-          </motion.span>
-          <motion.span
-            className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
-            initial={{ scaleX: 0, originX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-          />
-        </span>
-        <br />
-        <motion.span 
-          className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
-          animate={{ 
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
-          }}
-          transition={{ duration: 15, delay: 3, repeat: Infinity, ease: "easeInOut" }}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1"
         >
-          not just the exam
-        </motion.span>
-      </motion.h1>
-
-      {/* Emotional Connection Highlight */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
+          <span className="animate-pulse-subtle">●</span> NEET is live now!
+        </motion.div>
+      </div>
+      
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
+        We understand your mindset, not just the exam
+      </h1>
+      
+      <motion.div 
+        className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-4"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3 }}
       >
-        <p className="text-base text-gray-700 dark:text-gray-300">
-          Our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> is specifically designed for Indian competitive exams like 
-          <span className="font-semibold text-purple-700 dark:text-purple-400"> NEET, JEE, UPSC, and CAT</span>.
-        </p>
+        <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">Your Preparation Challenges</h3>
+        <ul className="space-y-2">
+          {['Overwhelming syllabus', 'Ineffective study techniques', 'Lack of personalized guidance'].map((point, idx) => (
+            <motion.li 
+              key={idx}
+              className="flex items-center text-gray-700 dark:text-gray-300"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + idx * 0.1 }}
+            >
+              <span className="h-2 w-2 bg-red-500 rounded-full mr-2" />
+              {point}
+            </motion.li>
+          ))}
+        </ul>
       </motion.div>
       
-      {/* Improved Exam Names Badge */}
+      <motion.p 
+        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
+      </motion.p>
+      
+      {/* Exam Names Badge */}
       <ExamNamesBadge />
-
-      {/* CTA Buttons */}
+      
       <div className="space-y-4 mt-6">
-        {/* Primary CTA */}
         <motion.button
           onClick={handleFreeTrialClick}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
@@ -289,11 +219,10 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          <span className="mr-2">Your first 7 days of free exam preparation are on us</span>
+          <span className="mr-2">Start Your Free 7-Day Trial</span>
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </motion.button>
         
-        {/* Secondary CTA */}
         <motion.button
           onClick={handleExamReadinessClick}
           className="w-full border-2 border-purple-300 hover:border-purple-400 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-xl flex items-center justify-center"
@@ -308,17 +237,24 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.button>
       </div>
       
-      {/* Active Users */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0 }}
-        className="mt-4 text-center"
-      >
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Join <span className="font-medium text-indigo-600 dark:text-indigo-400">2 million+</span> students already on their path to success
-        </p>
-      </motion.div>
+      <div className="mt-4 space-y-2">
+        {[
+          'Proven success with 92% of students',
+          'Real-time progress tracking',
+          'Personalized to your learning style'
+        ].map((feature, idx) => (
+          <motion.div 
+            key={idx}
+            className="flex items-center text-gray-600 dark:text-gray-400"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 + idx * 0.1 }}
+          >
+            <CheckCircle2 className="w-4 h-4 text-green-500 mr-2 shrink-0" />
+            <span className="text-sm">{feature}</span>
+          </motion.div>
+        ))}
+      </div>
     </motion.div>
   );
 };
