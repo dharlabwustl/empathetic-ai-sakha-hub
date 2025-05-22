@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -41,14 +42,14 @@ const ExamNamesBadge = () => {
   
   return (
     <motion.div 
-      className="flex flex-col items-center sm:items-start gap-5"
+      className="flex flex-col items-center sm:items-start gap-4 mt-5"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
       {/* Futuristic header with 3D effect */}
       <motion.div 
-        className="text-sm text-muted-foreground p-3 rounded-lg relative overflow-hidden"
+        className="text-sm text-muted-foreground p-2 rounded-lg relative overflow-hidden"
         style={{ 
           perspective: "1000px",
           transformStyle: "preserve-3d"
@@ -67,7 +68,7 @@ const ExamNamesBadge = () => {
         />
         
         <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-medium relative">
-          Welcome to tomorrow's learning experience:
+          Welcome to <span className="font-bold">PREPZR</span> - tomorrow's learning experience:
         </span>
         
         {/* Animated tech particles */}
@@ -270,7 +271,7 @@ const ExamNamesBadge = () => {
       </div>
       
       {/* Platform benefits with 3D hover effect */}
-      <div className="flex flex-wrap gap-2 mt-3">
+      <div className="flex flex-wrap gap-2">
         {benefits.map((benefit, index) => (
           <motion.div
             key={index}

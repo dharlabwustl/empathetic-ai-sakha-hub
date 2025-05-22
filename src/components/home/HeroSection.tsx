@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative overflow-hidden min-h-[90vh] py-16 md:py-24 flex items-center">
+    <section className="relative overflow-hidden min-h-[85vh] py-10 md:py-16 flex items-center">
       {/* Enhanced 3D Background with premium exam-themed effects */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50" />
@@ -126,7 +126,7 @@ const HeroSection: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 relative">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Left Content: Title, description and buttons */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
@@ -134,17 +134,16 @@ const HeroSection: React.FC = () => {
           <HeroSlider activeSlide={activeSlide} setActiveSlide={setActiveSlide} />
         </div>
         
-        {/* Enhanced 3D scroll indicator */}
+        {/* Enhanced 3D prompt - subtly positioned at bottom */}
         <motion.div 
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-          animate={{ y: [0, 10, 0] }}
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity"
+          animate={{ y: [0, 5, 0] }}
           transition={{ 
             duration: 2, 
             repeat: Infinity, 
             repeatType: "reverse" 
           }}
         >
-          <span className="text-xs text-gray-500 dark:text-gray-400 mb-2">Scroll to explore</span>
           <div className="w-5 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center">
             <motion.div 
               className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full mt-2"

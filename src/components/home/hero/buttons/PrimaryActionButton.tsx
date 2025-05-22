@@ -11,12 +11,24 @@ const PrimaryActionButton: React.FC<PrimaryActionButtonProps> = ({ onAnalyzeClic
   return (
     <motion.button
       onClick={onAnalyzeClick}
-      className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center"
+      className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-7 rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
+      initial={{ boxShadow: "0 4px 14px rgba(99, 102, 241, 0.4)" }}
+      animate={{
+        boxShadow: ["0 4px 14px rgba(99, 102, 241, 0.4)", "0 6px 20px rgba(99, 102, 241, 0.6)", "0 4px 14px rgba(99, 102, 241, 0.4)"],
+      }}
+      transition={{ 
+        boxShadow: { duration: 2, repeat: Infinity },
+      }}
     >
       <span className="mr-2">Analyze Your Exam Readiness</span>
-      <ArrowRight className="h-5 w-5" />
+      <motion.div
+        animate={{ x: [0, 3, 0] }}
+        transition={{ repeat: Infinity, duration: 1.5 }}
+      >
+        <ArrowRight className="h-5 w-5" />
+      </motion.div>
     </motion.button>
   );
 };

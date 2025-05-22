@@ -23,9 +23,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.1 }}
-      className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8 relative z-10"
+      className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-3">
         <StudentJourneyBadge />
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
@@ -47,7 +47,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </div>
       
       <motion.h1
-        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4"
+        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -68,16 +68,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </motion.h1>
       
       <motion.div 
-        className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-4"
+        className="mb-4 bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-3 shadow-sm"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center">
+        <h3 className="text-base font-semibold text-red-600 dark:text-red-400 mb-1 flex items-center">
           <BrainCircuit className="mr-2 h-5 w-5" />
           Your Preparation Challenges
         </h3>
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {painPoints.map((point, idx) => (
             <motion.li 
               key={idx}
@@ -94,20 +94,20 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </motion.div>
       
       <motion.p 
-        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8"
+        className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-5"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
+        <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts with <span className="text-indigo-600 dark:text-indigo-400 font-bold">PREPZR</span>.
       </motion.p>
       
       {/* Success statistics */}
       <motion.div
-        className="flex flex-wrap gap-3 mb-6"
+        className="flex flex-wrap gap-3 mb-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.5 }}
       >
         <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30 rounded-full py-1 px-3">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -123,10 +123,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </div>
       </motion.div>
       
+      {/* CTA buttons - moved up for immediate visibility */}
+      <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
+      
       {/* Exam Names Badge */}
       <ExamNamesBadge />
-      
-      <HeroButtons onAnalyzeClick={handleExamReadinessClick} />
 
       {/* Feature checkpoints */}
       <FeatureCheckpoints />
