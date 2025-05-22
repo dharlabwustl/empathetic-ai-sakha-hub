@@ -11,11 +11,7 @@ import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone } from "lucide-rea
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface StudentLoginFormProps {
-  activeTab: string;
-}
-
-const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
+const StudentLoginForm: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { toast } = useToast();
@@ -84,17 +80,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         description: "Welcome back to PREPZR"
       });
       
-      // Redirect to app subdomain for dashboard
-      const isLocalhost = window.location.hostname.includes('localhost');
-      const dashboardUrl = isLocalhost 
-        ? "/dashboard/student" 
-        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
-      
-      if (isLocalhost) {
-        navigate(dashboardUrl, { replace: true });
-      } else {
-        window.location.href = dashboardUrl;
-      }
+      // Redirect to dashboard using the specified URL
+      window.location.href = "https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student";
     } catch (error) {
       console.error("Login error:", error);
       setLoginError("Invalid email/phone or password");
@@ -120,17 +107,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         description: "Welcome to the demo account"
       });
       
-      // Redirect to app subdomain for dashboard
-      const isLocalhost = window.location.hostname.includes('localhost');
-      const dashboardUrl = isLocalhost 
-        ? "/dashboard/student" 
-        : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/dashboard/student`;
-      
-      if (isLocalhost) {
-        navigate(dashboardUrl, { replace: true });
-      } else {
-        window.location.href = dashboardUrl;
-      }
+      // Redirect to dashboard using the specified URL
+      window.location.href = "https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student";
     } catch (error) {
       console.error("Demo login error:", error);
       setLoginError("Demo login failed. Please try again.");
