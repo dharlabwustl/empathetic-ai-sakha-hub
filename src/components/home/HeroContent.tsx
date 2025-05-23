@@ -5,6 +5,9 @@ import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
 import ExamNamesBadge from './ExamNamesBadge';
+import { Award, GraduationCap, Clock, Shield, Smile } from 'lucide-react';
+import { takeawayPoints } from './hero/feature-highlights/featureData';
+import { fadeInStagger, itemVariants } from './hero/feature-highlights/animationVariants';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
@@ -64,13 +67,37 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       </motion.div>
       
       <motion.p 
-        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8"
+        className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
+      
+      {/* Key Benefits Section */}
+      <motion.div
+        variants={fadeInStagger}
+        initial="hidden"
+        animate="show"
+        className="mb-6"
+      >
+        <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
+          Key Benefits
+        </h3>
+        <div className="flex flex-wrap gap-2 md:gap-3">
+          {takeawayPoints.map((point, idx) => (
+            <motion.div
+              key={idx}
+              variants={itemVariants}
+              className={`flex items-center px-3 py-2 rounded-full bg-gradient-to-r ${point.color} text-white shadow-sm transform transition-all hover:scale-105 hover:shadow-md`}
+            >
+              <span className="mr-2">{point.icon}</span>
+              <span className="font-medium text-sm">{point.title}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
       
       {/* Exam Names Badge */}
       <ExamNamesBadge />

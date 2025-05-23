@@ -32,16 +32,16 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   // Get concise, context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
+      return "Welcome to Prepzer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREPZR signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
+      return "Welcome to Prepzer signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of PREPZR's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
+      return "Welcome to your free trial of Prepzer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
     } else if (path.includes('/exam-readiness')) {
       return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.";
     }
     
-    return "Welcome to PREPZR. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
+    return "Welcome to Prepzer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
   };
   
   // Cleanup function to ensure proper resource management
@@ -207,7 +207,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // Create speech synthesis utterance
       const speech = new SpeechSynthesisUtterance();
       
-      // Correct PREPZR pronunciation
+      // Set correct text - using "Prepzer" as a single word
       speech.text = message;
       speech.lang = language;
       speech.rate = 0.98; // Normal rate for clarity

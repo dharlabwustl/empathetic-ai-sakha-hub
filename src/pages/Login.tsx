@@ -140,7 +140,7 @@ const Login = () => {
         language="en"
       />
       
-      {/* Only one Back to Home button */}
+      {/* Back to Home button - top left */}
       <motion.div
         className="absolute top-4 left-4 z-10"
         initial={{ opacity: 0, x: -20 }}

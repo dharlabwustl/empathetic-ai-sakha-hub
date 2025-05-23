@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +28,7 @@ const moodMap: Record<string, MoodType> = {
 // Helper function to get context-specific responses
 const getContextResponse = (pathname: string) => {
   if (pathname.includes('/welcome-flow')) {
-    return "Hello! I'm Sakha AI, the core AI engine of PREPZR. PREPZR is pronounced as 'prep' like in preparation and 'zer' like in laser. We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
+    return "Hello! I'm Sakha AI, the core AI engine of Prepzer. We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
   } else if (pathname.includes('/dashboard/student/today')) {
     return "I'm Sakha AI, your exam assistant. This is your daily study plan. It shows concepts, flashcards, and practice tests scheduled for today. I've organized them based on your learning priorities and past performance.";
   } else if (pathname.includes('/dashboard/student/overview')) {
@@ -44,7 +45,7 @@ const getContextResponse = (pathname: string) => {
     return "Sakha AI here. Let's create a personalized study plan based on your exam date, available study time, and topic preferences. Our AI will optimize your schedule for maximum learning efficiency.";
   }
   
-  return "I'm Sakha AI, PREPZR's core AI engine. Ask me questions about your studies, and I'll guide you through PREPZR's features to help you prepare for your exams.";
+  return "I'm Sakha AI, Prepzer's core AI engine. Ask me questions about your studies, and I'll guide you through Prepzer's features to help you prepare for your exams.";
 };
 
 interface FloatingVoiceAnnouncerProps {
@@ -70,7 +71,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
-      speakMessage("Hello! I'm Sakha AI, PREPZR's core AI engine. How can I help you with your exam preparation today?");
+      speakMessage("Hello! I'm Sakha AI, Prepzer's core AI engine. How can I help you with your exam preparation today?");
       return;
     }
     
@@ -110,11 +111,11 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     
     setIsSpeaking(true);
     
-    // Correct PREPZR pronunciation with clear syllable break - 'prep' like in preparation and 'zer' like in laser
+    // Use "Prepzer" as a single word
     const correctedText = text
-      .replace(/PREPZR/gi, 'Prep-zer')
-      .replace(/prepzr/gi, 'Prep-zer')
-      .replace(/Prepzr/g, 'Prep-zer');
+      .replace(/PREPZR/gi, 'Prepzer')
+      .replace(/prepzr/gi, 'Prepzer')
+      .replace(/Prepzr/g, 'Prepzer');
     
     // Create a new utterance
     const utterance = new SpeechSynthesisUtterance(correctedText);
