@@ -207,8 +207,8 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // Create speech synthesis utterance
       const speech = new SpeechSynthesisUtterance();
       
-      // Correct PREPZR pronunciation to "Prepzer"
-      speech.text = message.replace(/PREPZR/gi, 'Prepzer');
+      // Correct PREPZR pronunciation
+      speech.text = message;
       speech.lang = language;
       speech.rate = 0.98; // Normal rate for clarity
       speech.pitch = 1.05; // Slightly higher for a more vibrant tone
