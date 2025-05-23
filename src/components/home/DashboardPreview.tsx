@@ -1,558 +1,441 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { 
   BookOpen, 
-  Brain, 
   Target, 
+  Brain, 
   Clock, 
-  TrendingUp, 
-  Star, 
+  Trophy, 
+  TrendingUp,
   Calendar,
-  Award,
+  Star,
+  Play,
+  ChevronRight,
   Zap,
   Heart,
   CheckCircle,
-  BarChart3,
+  AlertCircle,
+  Users,
+  PenTool,
+  Calculator,
   FlaskConical,
-  Atom,
-  Dna
+  Microscope,
+  Activity,
+  Smile,
+  Coffee,
+  MessageCircle
 } from 'lucide-react';
 
 const DashboardPreview = () => {
-  const [currentView, setCurrentView] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const views = [
+  const pages = [
     {
-      id: 'overview',
-      title: 'Dashboard Overview',
+      title: "Overview Dashboard",
       content: (
         <div className="space-y-4">
-          {/* Header with student info */}
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                V
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Good Morning, Varsha Singh! 👋</h2>
+              <p className="text-gray-600">NEET 2026 • Ready to ace today's study plan?</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-green-100 text-green-800">
+                <Activity className="w-3 h-3 mr-1" />
+                85% Ready
+              </Badge>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Target className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Days to NEET</p>
+                  <p className="text-xl font-bold">342</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Varsha Sharma</h3>
-                <p className="text-sm text-gray-600">NEET 2026 Aspirant</p>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Study Streak</p>
+                  <p className="text-xl font-bold">23 days</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Trophy className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Mock Score</p>
+                  <p className="text-xl font-bold">685/720</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Subject Progress */}
+          <Card className="p-4">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              Subject Progress
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium">Physics</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={78} className="w-20" />
+                  <span className="text-sm text-gray-600">78%</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-green-600" />
+                  <span className="font-medium">Chemistry</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={85} className="w-20" />
+                  <span className="text-sm text-gray-600">85%</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Microscope className="w-4 h-4 text-purple-600" />
+                  <span className="font-medium">Biology</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={92} className="w-20" />
+                  <span className="text-sm text-gray-600">92%</span>
+                </div>
               </div>
             </div>
-            <Badge className="bg-green-100 text-green-800">Day 45 Streak 🔥</Badge>
-          </div>
-
-          {/* Exam Goal */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Target className="w-8 h-8 text-blue-600" />
-                <div>
-                  <h4 className="font-semibold text-blue-900">NEET 2026</h4>
-                  <p className="text-sm text-blue-700">542 days remaining</p>
-                </div>
-                <div className="ml-auto">
-                  <span className="text-2xl font-bold text-blue-900">78%</span>
-                  <p className="text-xs text-blue-700">Readiness</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Subject Performance */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="border-green-200">
-              <CardContent className="p-3 text-center">
-                <FlaskConical className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                <h5 className="font-medium text-sm">Chemistry</h5>
-                <Progress value={85} className="h-2 mt-2" />
-                <span className="text-xs text-green-600 font-medium">85%</span>
-              </CardContent>
-            </Card>
-            <Card className="border-blue-200">
-              <CardContent className="p-3 text-center">
-                <Atom className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                <h5 className="font-medium text-sm">Physics</h5>
-                <Progress value={72} className="h-2 mt-2" />
-                <span className="text-xs text-blue-600 font-medium">72%</span>
-              </CardContent>
-            </Card>
-            <Card className="border-purple-200">
-              <CardContent className="p-3 text-center">
-                <Dna className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                <h5 className="font-medium text-sm">Biology</h5>
-                <Progress value={90} className="h-2 mt-2" />
-                <span className="text-xs text-purple-600 font-medium">90%</span>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Today's Tasks */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Today's Plan
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span className="line-through text-gray-500">Organic Chemistry - Aldehydes</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4 text-blue-500" />
-                <span>Physics - Waves Motion (30 min)</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Brain className="w-4 h-4 text-purple-500" />
-                <span>Biology - Genetics Practice Test</span>
-              </div>
-            </CardContent>
           </Card>
         </div>
       )
     },
     {
-      id: 'study-plan',
-      title: 'AI Study Plan',
+      title: "Dynamic Study Plan",
       content: (
         <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h3 className="font-semibold text-gray-900">Personalized for Varsha</h3>
-            <p className="text-sm text-gray-600">NEET 2026 • Physics, Chemistry, Biology</p>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Today's Adaptive Plan
+            </h3>
+            <Badge className="bg-orange-100 text-orange-800">
+              <Smile className="w-3 h-3 mr-1" />
+              Motivated Mood
+            </Badge>
           </div>
 
-          <Card className="bg-gradient-to-r from-purple-50 to-blue-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Brain className="w-6 h-6 text-purple-600" />
-                <h4 className="font-semibold">AI Recommendations</h4>
-              </div>
-              <p className="text-sm text-gray-700 mb-2">Based on your mood and performance:</p>
-              <ul className="text-xs space-y-1">
-                <li>• Focus on Physics numericals today</li>
-                <li>• Review Chemistry reactions from yesterday</li>
-                <li>• Practice Biology diagrams (weak area)</li>
-              </ul>
-            </CardContent>
+          <Card className="p-4 border-l-4 border-l-blue-500">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold">Physics: Laws of Motion</h4>
+              <span className="text-sm text-gray-500">9:00 AM - 10:30 AM</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Perfect for your motivated mood - tackle challenging concepts!</p>
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <Play className="w-3 h-3 mr-1" />
+                Start Session
+              </Button>
+              <Badge variant="outline">High Priority</Badge>
+            </div>
           </Card>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium">Study Time</span>
-                </div>
-                <p className="text-2xl font-bold text-blue-600">4.5h</p>
-                <p className="text-xs text-gray-500">Today's target: 5h</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium">Concepts</span>
-                </div>
-                <p className="text-2xl font-bold text-green-600">8/10</p>
-                <p className="text-xs text-gray-500">Completed today</p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="p-4 border-l-4 border-l-green-500">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold">Chemistry: Organic Reactions</h4>
+              <span className="text-sm text-gray-500">11:00 AM - 12:00 PM</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Review and practice with interactive simulations</p>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline">
+                <Brain className="w-3 h-3 mr-1" />
+                Review Mode
+              </Button>
+              <Badge variant="outline">Practice</Badge>
+            </div>
+          </Card>
 
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2">Weekly Schedule</h5>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span>Physics</span>
-                  <span className="text-blue-600 font-medium">12h/week</span>
-                </div>
-                <Progress value={70} className="h-1" />
-                <div className="flex justify-between items-center text-xs">
-                  <span>Chemistry</span>
-                  <span className="text-green-600 font-medium">10h/week</span>
-                </div>
-                <Progress value={85} className="h-1" />
-                <div className="flex justify-between items-center text-xs">
-                  <span>Biology</span>
-                  <span className="text-purple-600 font-medium">8h/week</span>
-                </div>
-                <Progress value={95} className="h-1" />
-              </div>
-            </CardContent>
+          <Card className="p-4 border-l-4 border-l-purple-500">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold">Biology: Genetics</h4>
+              <span className="text-sm text-gray-500">2:00 PM - 3:30 PM</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Visual learning with diagrams and concept maps</p>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Quick Recall
+              </Button>
+              <Badge variant="outline">Revision</Badge>
+            </div>
           </Card>
         </div>
       )
     },
     {
-      id: 'concepts',
-      title: 'Concept Mastery',
+      title: "Exam Readiness",
       content: (
         <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h3 className="font-semibold text-gray-900">Concept Study</h3>
-            <p className="text-sm text-gray-600">Deep understanding for NEET 2026</p>
+          <div className="text-center mb-6">
+            <div className="w-24 h-24 mx-auto mb-4 relative">
+              <div className="w-full h-full rounded-full border-8 border-gray-200">
+                <div className="w-full h-full rounded-full border-8 border-green-500 border-t-transparent animate-spin"></div>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-bold">85%</span>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold">Exam Readiness Score</h3>
+            <p className="text-gray-600">You're almost there, Varsha!</p>
           </div>
 
-          <Card className="border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Atom className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm">Physics - Wave Motion</h4>
-                  <p className="text-xs text-gray-600">Currently studying</p>
-                </div>
-                <Badge className="ml-auto bg-blue-100 text-blue-800">85% mastery</Badge>
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="p-4 text-center">
+              <div className="w-12 h-12 mx-auto mb-2 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
-              <Progress value={85} className="h-2 mb-2" />
-              <div className="flex justify-between text-xs text-gray-600">
-                <span>5 concepts completed</span>
-                <span>2 remaining</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="border-green-200">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <FlaskConical className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium">Chemistry</span>
-                </div>
-                <p className="text-sm font-semibold">Organic Reactions</p>
-                <Progress value={92} className="h-1 mt-2" />
-                <p className="text-xs text-green-600 mt-1">92% complete</p>
-              </CardContent>
+              <h4 className="font-semibold">Strengths</h4>
+              <p className="text-sm text-gray-600">Biology, Organic Chemistry</p>
             </Card>
-            <Card className="border-purple-200">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Dna className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm font-medium">Biology</span>
-                </div>
-                <p className="text-sm font-semibold">Cell Division</p>
-                <Progress value={78} className="h-1 mt-2" />
-                <p className="text-xs text-purple-600 mt-1">78% complete</p>
-              </CardContent>
+            <Card className="p-4 text-center">
+              <div className="w-12 h-12 mx-auto mb-2 bg-orange-100 rounded-lg flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-orange-600" />
+              </div>
+              <h4 className="font-semibold">Focus Areas</h4>
+              <p className="text-sm text-gray-600">Physics Mechanics</p>
             </Card>
           </div>
 
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2 flex items-center gap-2">
-                <Star className="w-4 h-4 text-amber-500" />
-                Recent Achievements
-              </h5>
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  <span>Mastered Thermodynamics concepts</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  <span>Completed all Genetics flashcards</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  <span>Solved 25 Organic Chemistry problems</span>
-                </div>
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Recent Mock Test Performance</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Physics</span>
+                <span className="font-semibold">165/180</span>
               </div>
-            </CardContent>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Chemistry</span>
+                <span className="font-semibold">170/180</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Biology</span>
+                <span className="font-semibold">350/360</span>
+              </div>
+            </div>
           </Card>
         </div>
       )
     },
     {
-      id: 'practice',
-      title: 'Interactive Practice',
+      title: "Interactive Practice",
       content: (
         <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h3 className="font-semibold text-gray-900">Practice & Recall</h3>
-            <p className="text-sm text-gray-600">Interactive learning for NEET success</p>
-          </div>
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            Quick Recall Practice
+          </h3>
 
-          <Card className="bg-gradient-to-r from-green-50 to-blue-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Zap className="w-6 h-6 text-green-600" />
-                <h4 className="font-semibold">Quick Recall Test</h4>
-                <Badge className="bg-green-100 text-green-800">Active</Badge>
-              </div>
-              <p className="text-sm text-gray-700 mb-3">Physics - Kinematics</p>
-              <div className="grid grid-cols-2 gap-3 text-center">
-                <div>
-                  <p className="text-lg font-bold text-green-600">8/10</p>
-                  <p className="text-xs text-gray-600">Correct</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-blue-600">2:45</p>
-                  <p className="text-xs text-gray-600">Time</p>
-                </div>
-              </div>
-            </CardContent>
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold">Physics: Newton's Laws</h4>
+              <Badge className="bg-blue-100 text-blue-800">Active</Badge>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">Test your understanding with instant feedback</p>
+            
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <p className="font-medium mb-2">Quick Question:</p>
+              <p className="text-sm">What is the relationship between force, mass, and acceleration?</p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1">Answer</Button>
+              <Button size="sm" variant="outline">Skip</Button>
+            </div>
           </Card>
 
-          <div className="grid grid-cols-3 gap-2">
-            <Card className="border-blue-200">
-              <CardContent className="p-3 text-center">
-                <BookOpen className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                <p className="text-xs font-medium">Flashcards</p>
-                <p className="text-sm font-bold text-blue-600">45</p>
-                <p className="text-xs text-gray-500">Due today</p>
-              </CardContent>
-            </Card>
-            <Card className="border-purple-200">
-              <CardContent className="p-3 text-center">
-                <Brain className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-                <p className="text-xs font-medium">Quiz</p>
-                <p className="text-sm font-bold text-purple-600">92%</p>
-                <p className="text-xs text-gray-500">Last score</p>
-              </CardContent>
-            </Card>
-            <Card className="border-green-200">
-              <CardContent className="p-3 text-center">
-                <Target className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                <p className="text-xs font-medium">Practice</p>
-                <p className="text-sm font-bold text-green-600">12</p>
-                <p className="text-xs text-gray-500">Problems</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2">Subject Performance</h5>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs flex items-center gap-1">
-                    <Dna className="w-3 h-3 text-purple-600" />
-                    Biology
-                  </span>
-                  <span className="text-xs font-medium text-purple-600">95% accuracy</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs flex items-center gap-1">
-                    <FlaskConical className="w-3 h-3 text-green-600" />
-                    Chemistry
-                  </span>
-                  <span className="text-xs font-medium text-green-600">88% accuracy</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs flex items-center gap-1">
-                    <Atom className="w-3 h-3 text-blue-600" />
-                    Physics
-                  </span>
-                  <span className="text-xs font-medium text-blue-600">82% accuracy</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      id: 'analytics',
-      title: 'Performance Analytics',
-      content: (
-        <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h3 className="font-semibold text-gray-900">Varsha's Analytics</h3>
-            <p className="text-sm text-gray-600">NEET 2026 Progress Tracking</p>
-          </div>
-
-          <Card className="bg-gradient-to-r from-amber-50 to-orange-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <BarChart3 className="w-6 h-6 text-amber-600" />
-                <h4 className="font-semibold">Exam Readiness Score</h4>
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Today's Practice Stats</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">24</div>
+                <div className="text-sm text-gray-600">Questions Solved</div>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-amber-600">78%</p>
-                <p className="text-sm text-gray-600">Ready for NEET 2026</p>
-                <Progress value={78} className="h-2 mt-2" />
+                <div className="text-2xl font-bold text-blue-600">92%</div>
+                <div className="text-sm text-gray-600">Accuracy</div>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium">Weekly Growth</span>
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Study Group Activity
+            </h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-semibold">A</span>
                 </div>
-                <p className="text-xl font-bold text-green-600">+12%</p>
-                <p className="text-xs text-gray-500">Improvement rate</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium">Mock Scores</span>
-                </div>
-                <p className="text-xl font-bold text-purple-600">485</p>
-                <p className="text-xs text-gray-500">Latest NEET mock</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2">Subject-wise Analysis</h5>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs">Biology</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={90} className="h-1 w-16" />
-                    <span className="text-xs font-medium">90%</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs">Chemistry</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={85} className="h-1 w-16" />
-                    <span className="text-xs font-medium">85%</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs">Physics</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={72} className="h-1 w-16" />
-                    <span className="text-xs font-medium">72%</span>
-                  </div>
-                </div>
+                <span className="text-sm">Arjun shared notes on Thermodynamics</span>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2 flex items-center gap-2">
-                <Heart className="w-4 h-4 text-red-500" />
-                Mood Impact
-              </h5>
-              <div className="text-xs space-y-1">
-                <p>• Best performance when <span className="font-medium text-green-600">motivated</span></p>
-                <p>• Focus on breaks when <span className="font-medium text-amber-600">stressed</span></p>
-                <p>• Morning study sessions most effective</p>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-semibold">P</span>
+                </div>
+                <span className="text-sm">Priya asked a doubt in Organic Chemistry</span>
               </div>
-            </CardContent>
+            </div>
           </Card>
         </div>
       )
     },
     {
-      id: 'mood-plan',
-      title: 'Mood-Based Planning',
+      title: "Formula Practice",
       content: (
         <div className="space-y-4">
-          <div className="text-center mb-4">
-            <h3 className="font-semibold text-gray-900">Smart Mood Adaptation</h3>
-            <p className="text-sm text-gray-600">Personalized for Varsha's wellbeing</p>
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <PenTool className="w-5 h-5" />
+            Formula Lab
+          </h3>
+
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Physics Formulas</h4>
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <div className="text-center">
+                <div className="text-lg font-mono mb-2">F = ma</div>
+                <div className="text-sm text-gray-600">Force = Mass × Acceleration</div>
+              </div>
+            </div>
+            <Button size="sm" className="w-full">
+              <Calculator className="w-3 h-3 mr-2" />
+              Practice with Examples
+            </Button>
+          </Card>
+
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Chemistry Formulas</h4>
+            <div className="bg-green-50 p-4 rounded-lg mb-4">
+              <div className="text-center">
+                <div className="text-lg font-mono mb-2">PV = nRT</div>
+                <div className="text-sm text-gray-600">Ideal Gas Law</div>
+              </div>
+            </div>
+            <Button size="sm" className="w-full" variant="outline">
+              <FlaskConical className="w-3 h-3 mr-2" />
+              Interactive Simulator
+            </Button>
+          </Card>
+
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Quick Formula Quiz</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Completed Today</span>
+                <span className="font-semibold">8/10</span>
+              </div>
+              <Progress value={80} />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Keep going!</span>
+                <span>2 more to go</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )
+    },
+    {
+      title: "Mood-Based Plan",
+      content: (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Heart className="w-5 h-5" />
+              Mood-Based Learning
+            </h3>
+            <div className="flex items-center gap-2">
+              <Smile className="w-5 h-5 text-orange-500" />
+              <span className="text-sm font-medium">Motivated</span>
+            </div>
           </div>
 
-          <Card className="bg-gradient-to-r from-pink-50 to-purple-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Heart className="w-6 h-6 text-pink-600" />
-                <div>
-                  <h4 className="font-semibold">Current Mood: Motivated</h4>
-                  <p className="text-sm text-gray-600">Perfect for challenging topics!</p>
-                </div>
+          <Card className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50">
+            <h4 className="font-semibold mb-2">Perfect Time for Challenges!</h4>
+            <p className="text-sm text-gray-600 mb-4">Your motivated mood is ideal for tackling difficult concepts and new topics.</p>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Take on Physics problem-solving</span>
               </div>
-              <Badge className="bg-green-100 text-green-800">Optimal Study Mode</Badge>
-            </CardContent>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Learn new Organic Chemistry reactions</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Attempt mock test sections</span>
+              </div>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
-              <h5 className="font-medium text-sm mb-3">AI Recommendations</h5>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Tackle Physics numericals now</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-blue-500" />
-                  <span>Extended 90-min study sessions</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-purple-500" />
-                  <span>Practice challenging Biology diagrams</span>
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3">Mood History</h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Today</span>
+                <div className="flex items-center gap-1">
+                  <Smile className="w-4 h-4 text-orange-500" />
+                  <span className="text-sm">Motivated</span>
                 </div>
               </div>
-            </CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Yesterday</span>
+                <div className="flex items-center gap-1">
+                  <Brain className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm">Focused</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">2 days ago</span>
+                <div className="flex items-center gap-1">
+                  <Coffee className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm">Tired</span>
+                </div>
+              </div>
+            </div>
           </Card>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="border-green-200">
-              <CardContent className="p-3 text-center">
-                <div className="w-8 h-8 bg-green-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-green-600" />
-                </div>
-                <p className="text-sm font-medium">Energy Level</p>
-                <p className="text-lg font-bold text-green-600">High</p>
-              </CardContent>
-            </Card>
-            <Card className="border-blue-200">
-              <CardContent className="p-3 text-center">
-                <div className="w-8 h-8 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                  <Brain className="w-4 h-4 text-blue-600" />
-                </div>
-                <p className="text-sm font-medium">Focus Score</p>
-                <p className="text-lg font-bold text-blue-600">9/10</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2">Mood-Based Schedule</h5>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between items-center py-1 px-2 bg-green-50 rounded">
-                  <span>9:00 AM - Physics (High Energy)</span>
-                  <Badge className="bg-green-100 text-green-700 text-xs">Optimal</Badge>
-                </div>
-                <div className="flex justify-between items-center py-1 px-2 bg-blue-50 rounded">
-                  <span>11:00 AM - Chemistry Practice</span>
-                  <Badge className="bg-blue-100 text-blue-700 text-xs">Good</Badge>
-                </div>
-                <div className="flex justify-between items-center py-1 px-2 bg-purple-50 rounded">
-                  <span>2:00 PM - Biology Review</span>
-                  <Badge className="bg-purple-100 text-purple-700 text-xs">Moderate</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-3">
-              <h5 className="font-medium text-sm mb-2">Wellness Tracking</h5>
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div>
-                  <p className="font-medium">Sleep</p>
-                  <p className="text-green-600 font-bold">7.5h</p>
-                </div>
-                <div>
-                  <p className="font-medium">Stress</p>
-                  <p className="text-yellow-600 font-bold">Low</p>
-                </div>
-                <div>
-                  <p className="font-medium">Breaks</p>
-                  <p className="text-blue-600 font-bold">4</p>
-                </div>
-              </div>
-            </CardContent>
+          <Card className="p-4">
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              AI Mood Coach
+            </h4>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm italic">"Great energy today, Varsha! This is the perfect time to tackle those challenging Physics numericals you've been avoiding. Your brain is ready for complex problem-solving!"</p>
+            </div>
           </Card>
         </div>
       )
@@ -561,54 +444,47 @@ const DashboardPreview = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentView((prev) => (prev + 1) % views.length);
+      setCurrentPage((prev) => (prev + 1) % pages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [pages.length]);
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      {/* Phone-like header */}
-      <div className="bg-gray-900 px-4 py-2 flex justify-between items-center">
-        <div className="flex gap-1">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-        </div>
-        <div className="text-white text-xs font-medium">Sakha AI Dashboard</div>
-        <div className="w-6"></div>
-      </div>
-
-      {/* Content */}
-      <div className="h-96 overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentView}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.5 }}
-            className="p-4 h-full"
-          >
-            <div className="mb-3">
-              <h2 className="font-bold text-lg text-gray-900">{views[currentView].title}</h2>
-            </div>
-            {views[currentView].content}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Pagination dots */}
-      <div className="flex justify-center gap-2 py-3 bg-gray-50">
-        {views.map((_, index) => (
+    <div className="relative bg-white rounded-xl shadow-lg overflow-hidden max-w-md mx-auto h-[500px]">
+      {/* Navigation dots */}
+      <div className="absolute top-4 right-4 flex gap-1 z-10">
+        {pages.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentView(index)}
+            onClick={() => setCurrentPage(index)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentView ? 'bg-purple-600 w-6' : 'bg-gray-300'
+              index === currentPage ? 'bg-blue-600 w-6' : 'bg-gray-300'
             }`}
           />
         ))}
+      </div>
+
+      {/* Page indicator */}
+      <div className="absolute top-4 left-4 z-10">
+        <Badge variant="outline" className="bg-white/90 backdrop-blur-sm">
+          {pages[currentPage].title}
+        </Badge>
+      </div>
+
+      {/* Content */}
+      <div className="h-full overflow-auto p-6 pt-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="h-full"
+          >
+            {pages[currentPage].content}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

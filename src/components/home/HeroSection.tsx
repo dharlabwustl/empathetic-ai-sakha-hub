@@ -137,7 +137,7 @@ const HeroSection = () => {
               </motion.p>
             </div>
 
-            {/* Compact Five Key Benefits - Text Only */}
+            {/* Compact Five Key Benefits - Dynamic Text Only */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -161,8 +161,17 @@ const HeroSection = () => {
                   <motion.span
                     key={idx}
                     initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.7 + idx * 0.1 }}
+                    animate={{ 
+                      opacity: [0.7, 1, 0.7],
+                      scale: [0.95, 1, 0.95],
+                      x: [0, Math.sin(idx * 0.5) * 2, 0]
+                    }}
+                    transition={{ 
+                      delay: 0.7 + idx * 0.1,
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatDelay: 3
+                    }}
                     className="text-xs font-semibold text-blue-200 bg-blue-500/20 px-2 py-1 rounded-full border border-blue-400/30"
                   >
                     {benefit}
@@ -211,7 +220,7 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Updated CTA Buttons */}
+            {/* Fixed CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -231,8 +240,7 @@ const HeroSection = () => {
               <Button
                 onClick={handleExamReadinessClick}
                 size="lg"
-                variant="outline"
-                className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 hover:text-white py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300"
+                className="group bg-gray-800/80 hover:bg-gray-700/80 border-2 border-gray-600/50 hover:border-gray-500/50 text-gray-100 hover:text-white py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 AI Exam Readiness Analysis - Try Now
