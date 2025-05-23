@@ -16,7 +16,7 @@ import {
   Clock,
   MessageSquare,
   Pen,
-  Box3d,
+  Box,
   PlayCircle
 } from 'lucide-react';
 import BackButton from '../BackButton';
@@ -135,7 +135,7 @@ const ConceptDetailPage: React.FC = () => {
           </TabsTrigger>
           
           <TabsTrigger value="3d" className="flex items-center gap-2">
-            <Box3d className="h-4 w-4" />
+            <Box className="h-4 w-4" />
             <span className="hidden sm:inline">3D</span>
           </TabsTrigger>
           
