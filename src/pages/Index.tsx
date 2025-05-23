@@ -17,7 +17,7 @@ import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import FloatingVoiceAssistant from '@/components/voice/FloatingVoiceAssistant';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import HomePageVoiceAssistant from '@/components/voice/HomePageVoiceAssistant';
+import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 
@@ -121,8 +121,8 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced homepage voice assistant with improved Indian English guidance */}
-      <HomePageVoiceAssistant language="en-IN" />
+      {/* Enhanced intelligent voice assistant for homepage */}
+      <EnhancedHomePageVoiceAssistant language="en-US" />
       
       {/* Floating Voice Assistant button */}
       <div className="fixed bottom-6 right-6 z-50">
