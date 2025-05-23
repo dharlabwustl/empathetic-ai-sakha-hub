@@ -14,6 +14,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [greetingAttempts, setGreetingAttempts] = useState(0);
   const { toast } = useToast();
   const location = useLocation();
   
@@ -155,6 +156,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       document.dispatchEvent(new CustomEvent('voice-assistant-speaking', { 
         detail: { speaking: false }
       }));
+
+      // Dispatch greeting completed event
+      document.dispatchEvent(new Event('voice-greeting-completed'));
       
       // Start listening after greeting with smart delay
       setTimeout(() => {
@@ -172,6 +176,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       document.dispatchEvent(new CustomEvent('voice-assistant-speaking', { 
         detail: { speaking: false }
       }));
+
+      // Dispatch greeting completed event
+      document.dispatchEvent(new Event('voice-greeting-completed'));
       
       // Try to start recognition anyway with smart delay
       setTimeout(() => {
@@ -350,54 +357,42 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     if (!shouldActivate) return;
 
     // Instant greeting with minimal delay for page loading
-    const initializeVoice = () => {
+    const initializeVoiceGreeting = () => {
       if (window.speechSynthesis && !hasGreeted && !isMuted) {
         const voices = window.speechSynthesis.getVoices();
         
-        if (voices.length > 0) {
-          setHasGreeted(true);
-          const greeting = getContextualGreeting(location.pathname);
-          
-          // Very short delay to ensure page has loaded
-          timeoutRef.current = window.setTimeout(() => {
-            speakMessage(greeting);
-            
-            // Show helpful toast
-            toast({
-              title: "Sakha AI Voice Assistant Active",
-              description: "Say 'Help' to hear available commands",
-              duration: 4000,
-            });
-          }, 300); // Just 0.3 second delay for immediate greeting
+        // Retry if no voices are available yet
+        if (voices.length === 0 && greetingAttempts < 5) {
+          setTimeout(() => {
+            setGreetingAttempts(prev => prev + 1);
+            initializeVoiceGreeting();
+          }, 50); // Quick retry
+          return;
         }
+        
+        setHasGreeted(true);
+        const greeting = getContextualGreeting(location.pathname);
+        
+        // Very short delay to ensure page has fully loaded
+        timeoutRef.current = window.setTimeout(() => {
+          speakMessage(greeting);
+          
+          // Show helpful toast
+          toast({
+            title: "Sakha AI Voice Assistant Active",
+            description: "Say 'Help' to hear available commands",
+            duration: 4000,
+          });
+        }, 200); // Just 0.2 seconds for immediate greeting
       }
     };
 
-    // Load voices and initialize
-    if (window.speechSynthesis) {
-      // Force voices to load
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          initializeVoice();
-        } else {
-          // Retry if voices not loaded yet
-          setTimeout(loadVoices, 50);
-        }
-      };
-
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.onvoiceschanged = null;
-        initializeVoice();
-      };
-      
-      // Trigger voice loading
-      loadVoices();
-    }
+    // Load voices and initialize greeting immediately
+    initializeVoiceGreeting();
 
     // Cleanup on unmount
     return cleanup;
-  }, [location.pathname, shouldActivate, hasGreeted, isMuted]);
+  }, [location.pathname, shouldActivate, isMuted, greetingAttempts]);
 
   // Listen for mute/unmute events
   useEffect(() => {
@@ -411,6 +406,8 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       if (shouldActivate && !hasGreeted) {
         const greeting = getContextualGreeting(location.pathname);
         setTimeout(() => speakMessage(greeting), 500);
+      } else if (shouldActivate && hasGreeted) {
+        setTimeout(() => startVoiceRecognition(), 500);
       }
     };
 
@@ -433,6 +430,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         setTimeout(() => {
           if (!recognitionRef.current && hasGreeted) {
             startVoiceRecognition();
+          } else if (!hasGreeted) {
+            const greeting = getContextualGreeting(location.pathname);
+            speakMessage(greeting);
           }
         }, 1000);
       }

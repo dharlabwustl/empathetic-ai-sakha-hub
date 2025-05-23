@@ -27,6 +27,7 @@ const Index = () => {
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const [assistantSpeaking, setAssistantSpeaking] = useState(false);
   const [assistantListening, setAssistantListening] = useState(false);
+  const [greetingComplete, setGreetingComplete] = useState(false);
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -65,17 +66,23 @@ const Index = () => {
     const handleAssistantListeningEvent = (e: CustomEvent) => {
       setAssistantListening(e.detail.listening);
     };
+
+    const handleGreetingCompleteEvent = () => {
+      setGreetingComplete(true);
+    };
     
     window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
     document.addEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
     document.addEventListener('voice-assistant-speaking', handleAssistantSpeakingEvent as EventListener);
     document.addEventListener('voice-assistant-listening', handleAssistantListeningEvent as EventListener);
+    document.addEventListener('voice-greeting-completed', handleGreetingCompleteEvent as EventListener);
     
     return () => {
       window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
       document.removeEventListener('open-voice-assistant', handleVoiceAssistantEvent as EventListener);
       document.removeEventListener('voice-assistant-speaking', handleAssistantSpeakingEvent as EventListener);
       document.removeEventListener('voice-assistant-listening', handleAssistantListeningEvent as EventListener);
+      document.removeEventListener('voice-greeting-completed', handleGreetingCompleteEvent as EventListener);
     };
   }, []);
 
@@ -161,6 +168,18 @@ const Index = () => {
           </span>
         </motion.button>
       </div>
+      
+      {/* Welcome notification bubble that shows briefly after page loads */}
+      {!greetingComplete && !assistantSpeaking && (
+        <motion.div 
+          className="fixed bottom-20 right-6 z-50 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-3 rounded-lg shadow-lg max-w-xs"
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <p className="text-sm font-medium">Welcome to PREP-zer! Sakha AI is loading...</p>
+        </motion.div>
+      )}
       
       {/* Enhanced Floating Voice Assistant with settings panel */}
       {showVoiceAssistant && (
