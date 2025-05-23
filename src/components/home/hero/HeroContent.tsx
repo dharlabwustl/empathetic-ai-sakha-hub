@@ -106,14 +106,14 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Updated Welcome Message */}
+      {/* Updated Welcome Message - More Crisp and Impactful */}
       <motion.div
         className="mb-4 text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Transform from struggling student to exam champion with PREPZR - World's first emotionally aware, hyper-personalized adaptive exam prep platform designed specifically for Indian competitive exams like <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more.
+        From struggling to champion with PREPZR - World's first emotionally-intelligent, hyper-personalized exam prep platform for <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and beyond.
       </motion.div>
 
       <motion.h1
@@ -151,7 +151,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Enhanced 5 Key Benefits - More Compact */}
+      {/* Five Success Accelerators */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -166,7 +166,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           transition={{ duration: 3, repeat: Infinity }}
         >
           <Target className="w-4 h-4" />
-          Your Exam Success Accelerators
+          Five Success Accelerators
           <Zap className="w-4 h-4" />
         </motion.h3>
         
