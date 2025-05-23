@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Lightbulb, Brain, Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import ReadAloudSection from './concept-detail/ReadAloudSection';
 
 interface EnhancedLearnTabProps {
   conceptName: string;
@@ -12,11 +13,39 @@ interface EnhancedLearnTabProps {
 const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState('basic');
+  const [readAloudActive, setReadAloudActive] = useState(false);
+  const [currentReadingContent, setCurrentReadingContent] = useState('');
 
   const toggleAudio = () => {
     setIsAudioPlaying(!isAudioPlaying);
-    // Audio implementation would go here
   };
+
+  const startReadAloud = (content: string) => {
+    setCurrentReadingContent(content);
+    setReadAloudActive(true);
+    
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(content);
+      utterance.rate = 0.95;
+      utterance.volume = 0.8;
+      utterance.onend = () => setReadAloudActive(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const stopReadAloud = () => {
+    setReadAloudActive(false);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const basicContent = `What is ${conceptName}? Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting upon it and inversely proportional to its mass. This fundamental principle of physics helps us understand how forces affect motion in our everyday world.`;
+
+  const detailedContent = `Newton's Second Law is fundamental to understanding motion. It tells us that when a net force acts on an object, it will accelerate in the direction of that force. The greater the force, the greater the acceleration. However, the more massive an object is, the less it will accelerate for the same force. This relationship is expressed mathematically as F equals m times a, where F is force measured in Newtons, m is mass in kilograms, and a is acceleration in meters per second squared.`;
+
+  const advancedContent = `The advanced mathematical framework of Newton's Second Law extends beyond simple scalar equations to vector analysis. In vector form, the sum of all forces equals mass times acceleration vector. This allows us to analyze complex systems where forces act in multiple directions simultaneously. Component analysis becomes crucial when dealing with inclined planes, circular motion, and other complex scenarios where forces must be resolved into perpendicular components.`;
 
   return (
     <div className="space-y-6">
@@ -42,6 +71,14 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
         </Button>
       </div>
 
+      {readAloudActive && (
+        <ReadAloudSection 
+          text={currentReadingContent}
+          isActive={readAloudActive}
+          onStop={stopReadAloud}
+        />
+      )}
+
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic">
@@ -61,10 +98,21 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
         <TabsContent value="basic" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
-                Basic Understanding
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-blue-600" />
+                  Basic Understanding
+                </CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => startReadAloud(basicContent)}
+                  disabled={readAloudActive}
+                >
+                  <Volume2 className="h-4 w-4 mr-2" />
+                  Read Aloud
+                </Button>
+              </div>
               <CardDescription>
                 Fundamental concepts and definitions
               </CardDescription>
@@ -111,10 +159,21 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
         <TabsContent value="detailed" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-yellow-600" />
-                Detailed Explanation with Examples
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-yellow-600" />
+                  Detailed Explanation with Examples
+                </CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => startReadAloud(detailedContent)}
+                  disabled={readAloudActive}
+                >
+                  <Volume2 className="h-4 w-4 mr-2" />
+                  Read Aloud
+                </Button>
+              </div>
               <CardDescription>
                 In-depth understanding with real-world applications
               </CardDescription>
@@ -173,10 +232,21 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
         <TabsContent value="advanced" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                Advanced Analysis
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-600" />
+                  Advanced Analysis
+                </CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => startReadAloud(advancedContent)}
+                  disabled={readAloudActive}
+                >
+                  <Volume2 className="h-4 w-4 mr-2" />
+                  Read Aloud
+                </Button>
+              </div>
               <CardDescription>
                 Complex applications and mathematical analysis
               </CardDescription>
