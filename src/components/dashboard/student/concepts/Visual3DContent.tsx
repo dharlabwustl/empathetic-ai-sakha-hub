@@ -96,25 +96,25 @@ const Visual3DContent: React.FC<Visual3DContentProps> = ({ conceptName }) => {
       case 'simulation':
         return {
           title: 'Live Simulation',
-          content: `This is a live simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior. Adjust the controls to explore different scenarios and observe how the variables affect the outcome.`,
+          content: `This is a live simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior.`,
           component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} />
         };
       case 'analysis':
         return {
           title: 'Force Analysis',
-          content: `Detailed force analysis for ${conceptName}. This shows how different forces interact and affect the system in ${activeSubject}. The visualization breaks down complex force interactions into understandable components.`,
+          content: `Detailed force analysis for ${conceptName}. This shows how different forces interact and affect the system in ${activeSubject}.`,
           component: <ForceAnalysisTab conceptName={conceptName} subject={activeSubject} />
         };
       case 'examples':
         return {
           title: '3D Examples',
-          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click on different elements to explore various aspects of the concept in a three-dimensional environment.`,
+          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click on different elements to explore.`,
           component: <Examples3DTab conceptName={conceptName} subject={activeSubject} />
         };
       case 'lab':
         return {
           title: 'Virtual Lab',
-          content: `Welcome to the virtual laboratory for ${conceptName}. Conduct experiments and observe results in a safe, controlled environment. This lab provides hands-on experience with the concept.`,
+          content: `Welcome to the virtual laboratory for ${conceptName}. Conduct experiments and observe results in a safe, controlled environment.`,
           component: <VirtualLabTab conceptName={conceptName} subject={activeSubject} />
         };
       default:
@@ -198,21 +198,15 @@ const Visual3DContent: React.FC<Visual3DContentProps> = ({ conceptName }) => {
   );
 };
 
-// Enhanced Individual Tab Components with Functional Models
+// Individual Tab Components
 const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState([50]);
-  const [force, setForce] = useState([25]);
-  const [mass, setMass] = useState([10]);
-
-  const getSimulationExplanation = () => {
-    return `This live ${subject} simulation demonstrates ${conceptName}. When you start the simulation, you can observe how changing the force value from ${force[0]} Newtons and mass from ${mass[0]} kilograms affects the acceleration. The acceleration equals force divided by mass, following Newton's second law.`;
-  };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex flex-col">
-        <div className="text-center space-y-4 flex-1 flex flex-col justify-center">
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-4">
           <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center ${isRunning ? 'animate-spin' : ''}`}>
             <Atom className="h-16 w-16 text-white" />
           </div>
@@ -220,164 +214,65 @@ const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({
           <p className="text-gray-600 dark:text-gray-400">
             Interactive simulation of {conceptName} running in real-time
           </p>
-          <div className="text-sm bg-white dark:bg-gray-800 p-3 rounded">
-            <p><strong>Current Values:</strong></p>
-            <p>Force: {force[0]} N | Mass: {mass[0]} kg | Acceleration: {(force[0] / mass[0]).toFixed(2)} m/s²</p>
-          </div>
         </div>
-        
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Force (N): {force[0]}</label>
-              <Slider
-                value={force}
-                onValueChange={setForce}
-                min={1}
-                max={100}
-                step={1}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Mass (kg): {mass[0]}</label>
-              <Slider
-                value={mass}
-                onValueChange={setMass}
-                min={1}
-                max={50}
-                step={1}
-                className="w-full"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Simulation Speed: {speed[0]}%</label>
-            <Slider
-              value={speed}
-              onValueChange={setSpeed}
-              min={1}
-              max={100}
-              step={1}
-              className="w-full"
-            />
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <Button
-              onClick={() => {
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(getSimulationExplanation());
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Volume2 className="h-4 w-4" />
-              Explain Model
-            </Button>
-            
-            <Button
-              onClick={() => setIsRunning(!isRunning)}
-              variant={isRunning ? "destructive" : "default"}
-              className="flex items-center gap-2"
-            >
-              {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              {isRunning ? 'Stop' : 'Start'} Simulation
-            </Button>
-          </div>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <div className="space-y-2 flex-1 mr-4">
+          <label className="text-sm font-medium">Simulation Speed</label>
+          <Slider
+            value={speed}
+            onValueChange={setSpeed}
+            min={1}
+            max={100}
+            step={1}
+            className="w-full"
+          />
         </div>
+        <Button
+          onClick={() => setIsRunning(!isRunning)}
+          variant={isRunning ? "destructive" : "default"}
+          className="flex items-center gap-2"
+        >
+          {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          {isRunning ? 'Stop' : 'Start'} Simulation
+        </Button>
       </div>
     </div>
   );
 };
 
 const ForceAnalysisTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [selectedForce, setSelectedForce] = useState<number | null>(null);
-
-  const forceData = [
-    { name: 'Applied Force', value: 25, direction: '0°', color: 'blue' },
-    { name: 'Friction Force', value: 15, direction: '180°', color: 'red' },
-    { name: 'Normal Force', value: 50, direction: '90°', color: 'green' },
-    { name: 'Weight', value: 50, direction: '270°', color: 'orange' }
-  ];
-
-  const getForceExplanation = (force: typeof forceData[0]) => {
-    return `The ${force.name} has a magnitude of ${force.value} Newtons and acts in the ${force.direction} direction. This force ${force.name === 'Applied Force' ? 'propels the object forward' : force.name === 'Friction Force' ? 'opposes motion' : force.name === 'Normal Force' ? 'supports the object vertically' : 'pulls the object downward due to gravity'}.`;
-  };
-
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
         <h3 className="text-xl font-bold mb-4">Force Analysis - {subject}</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold">Force Components</h4>
-            {forceData.map((force, index) => (
-              <div 
-                key={index}
-                className={`p-3 rounded-lg cursor-pointer transition-all ${
-                  selectedForce === index 
-                    ? 'bg-white dark:bg-gray-800 shadow-lg border-2 border-blue-500' 
-                    : 'bg-white dark:bg-gray-800 hover:shadow-md'
-                }`}
-                onClick={() => {
-                  setSelectedForce(index);
-                  if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(getForceExplanation(force));
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                  }
-                }}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{force.name}</span>
-                  <span className="font-mono">{force.value} N</span>
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Direction: {force.direction}
-                </div>
-              </div>
-            ))}
-          </div>
-          
+        <div className="grid grid-cols-2 gap-4">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">Force Diagram</h4>
-            <div className="h-64 flex items-center justify-center border rounded">
-              <div className="relative w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded">
-                {/* Visual representation of forces */}
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-green-500"></div>
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-orange-500"></div>
-                <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 h-0.5 w-8 bg-blue-500"></div>
-                <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 h-0.5 w-8 bg-red-500"></div>
-                <div className="absolute inset-0 flex items-center justify-center text-xs">Object</div>
+            <h4 className="font-semibold mb-2">Applied Forces</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span>Force A:</span>
+                <span className="font-mono">25 N</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Force B:</span>
+                <span className="font-mono">15 N</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Net Force:</span>
+                <span className="font-mono font-bold">40 N</span>
               </div>
             </div>
-            <p className="text-xs text-center mt-2 text-gray-600 dark:text-gray-400">
-              Click on force components to hear detailed explanations
-            </p>
           </div>
-        </div>
-        
-        <div className="mt-4 text-center">
-          <Button
-            onClick={() => {
-              const explanation = `This force analysis diagram shows all forces acting on the object for ${conceptName}. The net force is calculated by adding all force vectors, considering both magnitude and direction. This determines the object's acceleration according to Newton's laws.`;
-              if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(explanation);
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-              }
-            }}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Volume2 className="h-4 w-4" />
-            Explain Complete Analysis
-          </Button>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-semibold mb-2">Analysis Results</h4>
+            <div className="space-y-2 text-sm">
+              <p>• Resultant force direction: 45°</p>
+              <p>• System equilibrium: No</p>
+              <p>• Acceleration: 8 m/s²</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -385,24 +280,10 @@ const ForceAnalysisTab: React.FC<{ conceptName: string; subject: string }> = ({ 
 };
 
 const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [selectedExample, setSelectedExample] = useState<number | null>(null);
-
   const examples = [
-    { 
-      title: 'Basic Example', 
-      description: `Simple ${conceptName} demonstration`,
-      explanation: `This basic example shows the fundamental principles of ${conceptName}. It demonstrates the core concept in its simplest form, making it easy to understand the underlying physics.`
-    },
-    { 
-      title: 'Complex Example', 
-      description: `Advanced ${conceptName} scenario`,
-      explanation: `This complex example involves multiple variables and forces acting simultaneously. It shows how ${conceptName} applies in more realistic, multi-component systems.`
-    },
-    { 
-      title: 'Real-world Application', 
-      description: `${conceptName} in practical use`,
-      explanation: `This real-world application demonstrates how ${conceptName} is used in everyday situations, from engineering to natural phenomena, showing its practical importance.`
-    }
+    { title: 'Basic Example', description: `Simple ${conceptName} demonstration` },
+    { title: 'Complex Example', description: `Advanced ${conceptName} scenario` },
+    { title: 'Real-world Application', description: `${conceptName} in practical use` }
   ];
 
   return (
@@ -411,61 +292,14 @@ const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ con
         <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {examples.map((example, index) => (
-            <div 
-              key={index} 
-              className={`bg-white dark:bg-gray-800 p-4 rounded-lg cursor-pointer transition-all ${
-                selectedExample === index ? 'shadow-lg border-2 border-purple-500' : 'hover:shadow-lg'
-              }`}
-              onClick={() => {
-                setSelectedExample(index);
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(example.explanation);
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-            >
+            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
               <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center">
                 <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h4 className="font-semibold">{example.title}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">{example.description}</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-2 w-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(example.explanation);
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                  }
-                }}
-              >
-                <Volume2 className="h-3 w-3 mr-1" />
-                Explain
-              </Button>
             </div>
           ))}
-        </div>
-        
-        <div className="mt-6 text-center">
-          <Button
-            onClick={() => {
-              const explanation = `These 3D examples demonstrate different aspects of ${conceptName} in ${subject}. Each example builds upon the previous one, from basic principles to complex real-world applications, helping you understand the concept from multiple perspectives.`;
-              if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(explanation);
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-              }
-            }}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Volume2 className="h-4 w-4" />
-            Overview of All Examples
-          </Button>
         </div>
       </div>
     </div>
@@ -475,48 +309,23 @@ const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ con
 const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
   const [experimentRunning, setExperimentRunning] = useState(false);
   const [labResults, setLabResults] = useState<string[]>([]);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
-
-  const labTools = [
-    { name: 'Force Meter', description: 'Measures applied forces', icon: '⚖️' },
-    { name: 'Accelerometer', description: 'Detects acceleration changes', icon: '📊' },
-    { name: 'Timer', description: 'Records time intervals', icon: '⏱️' },
-    { name: 'Scale', description: 'Measures mass', icon: '⚖️' }
-  ];
 
   const startExperiment = () => {
     setExperimentRunning(true);
-    const experimentSteps = [
-      `Setting up ${subject} experiment for ${conceptName}...`,
-      `Measuring initial conditions...`,
-      `Applying test parameters...`,
-      `Recording data points...`,
-      `Analyzing results...`
-    ];
+    const newResult = `Experiment ${labResults.length + 1}: ${conceptName} test completed at ${new Date().toLocaleTimeString()}`;
     
-    let stepIndex = 0;
-    const interval = setInterval(() => {
-      if (stepIndex < experimentSteps.length) {
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(experimentSteps[stepIndex]);
-          utterance.rate = 0.9;
-          window.speechSynthesis.speak(utterance);
-        }
-        stepIndex++;
-      } else {
-        clearInterval(interval);
-        
-        const newResult = `Experiment ${labResults.length + 1}: ${conceptName} test completed at ${new Date().toLocaleTimeString()}. Force applied: 25N, Mass: 5kg, Resulting acceleration: 5.0 m/s²`;
-        setLabResults(prev => [...prev, newResult]);
-        setExperimentRunning(false);
-        
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(`Experiment completed successfully. Results show the behavior of ${conceptName} in the virtual ${subject} laboratory. The data confirms theoretical predictions.`);
-          utterance.rate = 0.9;
-          window.speechSynthesis.speak(utterance);
-        }
+    // Simulate experiment running
+    setTimeout(() => {
+      setLabResults(prev => [...prev, newResult]);
+      setExperimentRunning(false);
+      
+      // Audio explanation for lab results
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(`Experiment completed. Results show the behavior of ${conceptName} in the virtual ${subject} laboratory.`);
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
       }
-    }, 2000);
+    }, 3000);
   };
 
   return (
@@ -532,24 +341,10 @@ const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ con
           <div className="space-y-4">
             <h4 className="font-semibold">Lab Equipment</h4>
             <div className="grid grid-cols-2 gap-2">
-              {labTools.map((tool, index) => (
-                <div 
-                  key={index} 
-                  className={`bg-white dark:bg-gray-800 p-3 rounded-lg text-center cursor-pointer transition-all ${
-                    selectedTool === tool.name ? 'shadow-lg border-2 border-orange-500' : 'hover:shadow-md'
-                  }`}
-                  onClick={() => {
-                    setSelectedTool(tool.name);
-                    if ('speechSynthesis' in window) {
-                      const utterance = new SpeechSynthesisUtterance(`${tool.name}: ${tool.description}. This tool is essential for measuring and analyzing ${conceptName} in laboratory conditions.`);
-                      utterance.rate = 0.9;
-                      window.speechSynthesis.speak(utterance);
-                    }
-                  }}
-                >
-                  <div className="text-2xl mb-1">{tool.icon}</div>
-                  <p className="text-xs font-medium">{tool.name}</p>
-                  <p className="text-xs text-gray-500">{tool.description}</p>
+              {['Measuring Tools', 'Sensors', 'Controls', 'Data Logger'].map((tool, index) => (
+                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
+                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-orange-600" />
+                  <p className="text-xs">{tool}</p>
                 </div>
               ))}
             </div>
@@ -572,22 +367,6 @@ const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ con
                 </>
               )}
             </Button>
-            
-            <Button
-              onClick={() => {
-                const explanation = `Welcome to the virtual ${subject} laboratory. Here you can safely conduct experiments related to ${conceptName}. Use the lab equipment to measure different variables and observe how they interact. This hands-on approach helps reinforce theoretical knowledge with practical experience.`;
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(explanation);
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-              variant="outline"
-              className="w-full flex items-center gap-2"
-            >
-              <Volume2 className="h-4 w-4" />
-              Lab Introduction
-            </Button>
           </div>
 
           {/* Results */}
@@ -599,41 +378,13 @@ const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ con
               ) : (
                 <div className="space-y-2">
                   {labResults.map((result, index) => (
-                    <div 
-                      key={index} 
-                      className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                      onClick={() => {
-                        if ('speechSynthesis' in window) {
-                          const utterance = new SpeechSynthesisUtterance(result);
-                          utterance.rate = 0.9;
-                          window.speechSynthesis.speak(utterance);
-                        }
-                      }}
-                    >
+                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
                       {result}
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            
-            {labResults.length > 0 && (
-              <Button
-                onClick={() => {
-                  const explanation = `Analysis of experimental results: The data shows consistent behavior according to the principles of ${conceptName}. The measurements confirm theoretical predictions and demonstrate the practical applications of this concept in ${subject}.`;
-                  if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(explanation);
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                  }
-                }}
-                variant="outline"
-                className="w-full flex items-center gap-2"
-              >
-                <Volume2 className="h-4 w-4" />
-                Analyze Results
-              </Button>
-            )}
           </div>
         </div>
       </div>

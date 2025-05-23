@@ -106,92 +106,25 @@ const ConceptDetailPage = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-6">
-                        {/* Graph Visualization */}
-                        <div className="bg-purple-50 dark:bg-purple-950/30 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Force vs Acceleration Graph</h3>
-                            <Button 
-                              onClick={() => {
-                                const explanation = `This graph shows the relationship between force and acceleration for ${concept.title}. The X-axis represents force in Newtons, and the Y-axis shows acceleration in meters per second squared. Notice how the relationship is linear, which demonstrates Newton's Second Law where force equals mass times acceleration.`;
-                                if ('speechSynthesis' in window) {
-                                  const utterance = new SpeechSynthesisUtterance(explanation);
-                                  utterance.rate = 0.9;
-                                  window.speechSynthesis.speak(utterance);
-                                }
-                              }}
-                              className="flex items-center gap-2"
-                            >
-                              <Video className="h-4 w-4" />
-                              Explain Graph
-                            </Button>
-                          </div>
-                          <div className="h-64 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border">
-                            <div className="text-center">
-                              <div className="w-48 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-200 to-purple-200 rounded flex items-center justify-center">
-                                <span className="text-xs text-gray-600">Interactive Force Graph</span>
-                              </div>
-                              <p className="text-sm text-gray-600">Click "Explain Graph" for audio explanation</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Diagram Visualization */}
-                        <div className="bg-green-50 dark:bg-green-950/30 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Force Vector Diagram</h3>
-                            <Button 
-                              onClick={() => {
-                                const explanation = `This force vector diagram illustrates how multiple forces act on an object. The arrows represent force vectors, with their length indicating magnitude and direction showing the force direction. When forces are balanced, the object remains at rest or moves at constant velocity.`;
-                                if ('speechSynthesis' in window) {
-                                  const utterance = new SpeechSynthesisUtterance(explanation);
-                                  utterance.rate = 0.9;
-                                  window.speechSynthesis.speak(utterance);
-                                }
-                              }}
-                              className="flex items-center gap-2"
-                            >
-                              <Video className="h-4 w-4" />
-                              Explain Diagram
-                            </Button>
-                          </div>
-                          <div className="h-64 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border">
-                            <div className="text-center">
-                              <div className="w-48 h-32 mx-auto mb-4 bg-gradient-to-r from-green-200 to-blue-200 rounded flex items-center justify-center">
-                                <span className="text-xs text-gray-600">Vector Diagram</span>
-                              </div>
-                              <p className="text-sm text-gray-600">Click "Explain Diagram" for audio explanation</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Animation Visualization */}
-                        <div className="bg-orange-50 dark:bg-orange-950/30 p-6 rounded-lg">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Motion Animation</h3>
-                            <Button 
-                              onClick={() => {
-                                const explanation = `This animation demonstrates how force affects motion. Watch as different forces are applied to the object, causing changes in acceleration. The speed and direction of motion change based on the net force applied, perfectly illustrating Newton's laws of motion.`;
-                                if ('speechSynthesis' in window) {
-                                  const utterance = new SpeechSynthesisUtterance(explanation);
-                                  utterance.rate = 0.9;
-                                  window.speechSynthesis.speak(utterance);
-                                }
-                              }}
-                              className="flex items-center gap-2"
-                            >
-                              <Video className="h-4 w-4" />
-                              Explain Animation
-                            </Button>
-                          </div>
-                          <div className="h-64 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border">
-                            <div className="text-center">
-                              <div className="w-48 h-32 mx-auto mb-4 bg-gradient-to-r from-orange-200 to-red-200 rounded flex items-center justify-center">
-                                <span className="text-xs text-gray-600">Motion Animation</span>
-                              </div>
-                              <p className="text-sm text-gray-600">Click "Explain Animation" for audio explanation</p>
-                            </div>
-                          </div>
+                      <div className="bg-purple-50 dark:bg-purple-950/30 p-6 rounded-lg">
+                        <p className="text-center text-gray-600 dark:text-gray-400">
+                          Interactive visualizations with audio explanations for {concept.title} will be loaded here.
+                        </p>
+                        <div className="mt-4 text-center">
+                          <Button 
+                            onClick={() => {
+                              const audioExplanation = `This interactive visualization shows ${concept.title}. Click on different elements to explore the concept in detail.`;
+                              if ('speechSynthesis' in window) {
+                                const utterance = new SpeechSynthesisUtterance(audioExplanation);
+                                utterance.rate = 0.9;
+                                window.speechSynthesis.speak(utterance);
+                              }
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Video className="h-4 w-4" />
+                            Play Audio Explanation
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -204,6 +137,26 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
+                    {/* Quick Recall Test Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-blue-600" />
+                          Quick Recall Test
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <QuickRecallSection 
+                          conceptId={concept.id}
+                          title={concept.title}
+                          content={concept.content}
+                          onQuizComplete={(score) => {
+                            console.log(`Quiz completed with score: ${score}`);
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+
                     {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
@@ -240,26 +193,6 @@ const ConceptDetailPage = () => {
                         </CardContent>
                       </Card>
                     </div>
-
-                    {/* Quick Recall Test Section - Positioned below other tools */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Brain className="h-5 w-5 text-blue-600" />
-                          Quick Recall Test
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickRecallSection 
-                          conceptId={concept.id}
-                          title={concept.title}
-                          content={concept.content}
-                          onQuizComplete={(score) => {
-                            console.log(`Quiz completed with score: ${score}`);
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
                   </div>
                 </TabsContent>
               </Tabs>
