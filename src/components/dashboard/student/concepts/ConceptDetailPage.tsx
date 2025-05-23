@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, PencilLine } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, NotebookPen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,8 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
+import useUserNotes from '@/hooks/useUserNotes';
+import ReadAloudSection from './concept-detail/ReadAloudSection';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -20,34 +23,44 @@ const ConceptDetailPage = () => {
   const { conceptCards } = useUserStudyPlan();
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
+  const { getNoteForConcept, saveNote } = useUserNotes();
+  const [userNotes, setUserNotes] = useState('');
 
   useEffect(() => {
     if (conceptId && conceptCards.length > 0) {
       const foundConcept = conceptCards.find(card => card.id === conceptId);
       if (foundConcept) {
         setConcept(foundConcept);
-        // Check if bookmarked (you can implement localStorage or backend logic here)
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
-        setIsBookmarked(bookmarks.includes(conceptId));
+        // Load notes for this concept
+        setUserNotes(getNoteForConcept(conceptId));
       }
     }
-  }, [conceptId, conceptCards]);
+  }, [conceptId, conceptCards, getNoteForConcept]);
 
-  const handleBookmarkToggle = () => {
-    if (!conceptId) return;
-    
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
-    let updatedBookmarks;
-    
-    if (isBookmarked) {
-      updatedBookmarks = bookmarks.filter((id: string) => id !== conceptId);
-    } else {
-      updatedBookmarks = [...bookmarks, conceptId];
+  const handleReadAloud = () => {
+    if (concept) {
+      setIsReadingAloud(true);
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(concept.content);
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
     }
-    
-    localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
-    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleStopReadAloud = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsReadingAloud(false);
+  };
+  
+  const handleSaveNotes = () => {
+    if (conceptId) {
+      saveNote(conceptId, userNotes);
+    }
   };
 
   if (!concept) {
@@ -91,14 +104,7 @@ const ConceptDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <ConceptHeader 
-              title={concept.title}
-              subject={concept.subject || 'Physics'}
-              topic={concept.topic || 'Mechanics'}
-              difficulty={concept.difficulty || 'medium'}
-              isBookmarked={isBookmarked}
-              onBookmarkToggle={handleBookmarkToggle}
-            />
+            <ConceptHeader concept={concept} />
             
             <div className="mt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -120,12 +126,28 @@ const ConceptDetailPage = () => {
                     Learning Tools
                   </TabsTrigger>
                   <TabsTrigger value="notes" className="flex items-center gap-2">
-                    <PencilLine className="h-4 w-4" />
-                    Notes
+                    <NotebookPen className="h-4 w-4" />
+                    My Notes
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="learn" className="mt-0">
+                  {isReadingAloud ? (
+                    <ReadAloudSection 
+                      text={concept.content} 
+                      isActive={isReadingAloud} 
+                      onStop={handleStopReadAloud} 
+                    />
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleReadAloud} 
+                      className="mb-4 flex items-center gap-2"
+                    >
+                      <Video className="h-4 w-4" />
+                      Read Aloud
+                    </Button>
+                  )}
                   <EnhancedLearnTab conceptName={concept.title} />
                 </TabsContent>
 
@@ -169,6 +191,27 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
+                    {/* Quick Recall Test Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-blue-600" />
+                          Quick Recall Test
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <QuickRecallSection 
+                          conceptId={concept.id}
+                          title={concept.title}
+                          content={concept.content}
+                          onQuizComplete={(score) => {
+                            console.log(`Quiz completed with score: ${score}`);
+                            // In a real app, this would update the user's mastery score
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+
                     {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
@@ -210,26 +253,6 @@ const ConceptDetailPage = () => {
                         </CardContent>
                       </Card>
                     </div>
-
-                    {/* Quick Recall Test Section */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Brain className="h-5 w-5 text-blue-600" />
-                          Quick Recall Test
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickRecallSection 
-                          conceptId={concept.id}
-                          title={concept.title}
-                          content={concept.content}
-                          onQuizComplete={(score) => {
-                            console.log(`Quiz completed with score: ${score}`);
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
                   </div>
                 </TabsContent>
 
@@ -242,17 +265,7 @@ const ConceptDetailPage = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <ConceptSidebar 
-              masteryLevel={concept.masteryLevel || 0}
-              relatedConcepts={[
-                { id: '1', title: 'Related Concept 1', masteryLevel: 75 },
-                { id: '2', title: 'Related Concept 2', masteryLevel: 60 }
-              ]}
-              examReady={concept.masteryLevel >= 80}
-              onRelatedConceptClick={(conceptId) => {
-                navigate(`/dashboard/student/concepts/${conceptId}`);
-              }}
-            />
+            <ConceptSidebar concept={concept} />
           </div>
         </div>
       </div>
