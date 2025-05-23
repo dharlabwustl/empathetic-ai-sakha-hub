@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { 
   FlaskConical, 
   ExternalLink, 
@@ -25,7 +24,6 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
   handleOpenFormulaLab 
 }) => {
   const [expandedFormula, setExpandedFormula] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   // Mock formulas for Newton's Laws
   const formulas = [
@@ -102,14 +100,6 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
       setExpandedFormula(null);
     } else {
       setExpandedFormula(formulaId);
-    }
-  };
-
-  const goToFormulaLab = () => {
-    if (handleOpenFormulaLab) {
-      handleOpenFormulaLab();
-    } else {
-      navigate(`/concepts/${conceptId}/formula-lab`);
     }
   };
 
@@ -219,7 +209,7 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
           variant="default" 
           size="sm" 
           className="bg-indigo-600 hover:bg-indigo-700"
-          onClick={goToFormulaLab}
+          onClick={handleOpenFormulaLab}
         >
           <Calculator className="h-4 w-4 mr-2" />
           Interactive Formula Lab

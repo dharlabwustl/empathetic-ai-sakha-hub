@@ -48,7 +48,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       priority: 'high',
       estimatedTime: '10 min',
       difficulty: 'Easy',
-      action: () => navigate('/flashcards'),
+      action: () => navigate('/dashboard/student/flashcards'),
       progress: 0,
       type: 'review'
     },
@@ -77,7 +77,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       priority: 'medium',
       estimatedTime: '12 min',
       difficulty: 'Medium',
-      action: () => navigate('/practice-exam'),
+      action: () => navigate('/dashboard/student/practice-exams'),
       progress: 0,
       type: 'assessment'
     },
@@ -89,7 +89,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       priority: 'low',
       estimatedTime: '25 min',
       difficulty: 'Advanced',
-      action: () => navigate(`/concepts/${conceptId}/formula-lab`),
+      action: () => navigate('/dashboard/student/concepts/formula-lab'),
       progress: 0,
       type: 'experiment'
     },
@@ -112,25 +112,25 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       title: 'Newton\'s First Law', 
       mastery: 90, 
       status: 'completed',
-      route: '/concepts/newtons-first-law'
+      route: '/dashboard/student/concepts/newtons-first-law'
     },
     { 
       title: 'Force and Friction', 
       mastery: 75, 
       status: 'in-progress',
-      route: '/concepts/force-friction'
+      route: '/dashboard/student/concepts/force-friction'
     },
     { 
       title: 'Newton\'s Third Law', 
       mastery: 60, 
       status: 'recommended',
-      route: '/concepts/newtons-third-law'
+      route: '/dashboard/student/concepts/newtons-third-law'
     },
     { 
       title: 'Momentum Conservation', 
       mastery: 30, 
       status: 'upcoming',
-      route: '/concepts/momentum'
+      route: '/dashboard/student/concepts/momentum'
     }
   ];
 
@@ -186,7 +186,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
           </p>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {suggestedActions.map((action, index) => (
               <motion.div
                 key={action.id}
@@ -194,15 +194,15 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="hover:shadow-md transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-indigo-500 h-full" 
-                      onClick={() => action.action()}>
+                <Card className="hover:shadow-md transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-indigo-500" 
+                      onClick={action.action}>
                   <CardContent className="p-4">
-                    <div className="flex items-start gap-4 h-full">
-                      <div className={`p-3 rounded-lg ${getTypeColor(action.type)} bg-current/10 shrink-0`}>
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-lg ${getTypeColor(action.type)} bg-current/10`}>
                         {action.icon}
                       </div>
                       
-                      <div className="flex-1 min-w-0 flex flex-col h-full">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-medium text-sm">{action.title}</h4>
                           <Badge 
@@ -211,9 +211,12 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
                           >
                             {action.priority}
                           </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {action.difficulty}
+                          </Badge>
                         </div>
                         
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                           {action.description}
                         </p>
                         
@@ -227,15 +230,15 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
                           </div>
                         )}
                         
-                        <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 text-xs text-gray-500">
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {action.estimatedTime}
                             </span>
-                            <Badge variant="outline" className="text-xs">
-                              {action.difficulty}
-                            </Badge>
+                            <span className={`capitalize ${getTypeColor(action.type)}`}>
+                              {action.type}
+                            </span>
                           </div>
                           <ArrowRight className="h-4 w-4 text-gray-400" />
                         </div>
@@ -249,117 +252,115 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Learning Path */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
-              Related Learning Path
-            </CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Continue your physics journey with connected concepts
-            </p>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              {relatedConcepts.map((concept, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="cursor-pointer"
-                  onClick={() => navigate(concept.route)}
-                >
-                  <div className="flex items-center gap-4 p-3 rounded-lg border hover:shadow-sm transition-all">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      concept.status === 'completed' 
-                        ? 'bg-green-500 text-white' 
-                        : concept.status === 'in-progress'
-                        ? 'bg-blue-500 text-white'
-                        : concept.status === 'recommended'
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    }`}>
-                      {concept.status === 'completed' ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : concept.status === 'in-progress' ? (
-                        <PlayCircle className="h-4 w-4" />
-                      ) : (
-                        <span className="text-xs font-medium">{index + 1}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-medium text-sm">{concept.title}</h4>
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs ${getStatusColor(concept.status)}`}
-                        >
-                          {concept.status.replace('-', ' ')}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <Progress value={concept.mastery} className="h-2" />
-                        </div>
-                        <span className="text-xs text-gray-500">{concept.mastery}%</span>
-                      </div>
-                    </div>
-                    
-                    <ArrowRight className="h-4 w-4 text-gray-400" />
+      {/* Learning Path */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+            Related Learning Path
+          </CardTitle>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Continue your physics journey with connected concepts
+          </p>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="space-y-3">
+            {relatedConcepts.map((concept, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="cursor-pointer"
+                onClick={() => navigate(concept.route)}
+              >
+                <div className="flex items-center gap-4 p-3 rounded-lg border hover:shadow-sm transition-all">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    concept.status === 'completed' 
+                      ? 'bg-green-500 text-white' 
+                      : concept.status === 'in-progress'
+                      ? 'bg-blue-500 text-white'
+                      : concept.status === 'recommended'
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}>
+                    {concept.status === 'completed' ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : concept.status === 'in-progress' ? (
+                      <PlayCircle className="h-4 w-4" />
+                    ) : (
+                      <span className="text-xs font-medium">{index + 1}</span>
+                    )}
                   </div>
-                </motion.div>
-              ))}
-            </div>
-            
-            <Button 
-              variant="outline" 
-              className="w-full mt-4"
-              onClick={() => navigate('/dashboard/student/analytics')}
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              View Complete Learning Path
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Quick Performance Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            {quickStats.map((stat, index) => (
-              <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
-                <div className="flex items-center gap-2">
-                  {stat.icon}
-                  <span className="text-sm font-medium">{stat.label}</span>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm">{concept.title}</h4>
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs ${getStatusColor(concept.status)}`}
+                      >
+                        {concept.status.replace('-', ' ')}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <Progress value={concept.mastery} className="h-2" />
+                      </div>
+                      <span className="text-xs text-gray-500">{concept.mastery}%</span>
+                    </div>
+                  </div>
+                  
+                  <ArrowRight className="h-4 w-4 text-gray-400" />
                 </div>
-                <Badge variant="outline" className="font-mono">
-                  {stat.value}
-                </Badge>
-              </div>
+              </motion.div>
             ))}
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full mt-3"
-              onClick={() => navigate('/dashboard/student/analytics')}
-            >
-              <BarChart3 className="h-3 w-3 mr-2" />
-              View Detailed Analytics
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            className="w-full mt-4"
+            onClick={() => navigate('/dashboard/student/analytics')}
+          >
+            <TrendingUp className="h-4 w-4 mr-2" />
+            View Complete Learning Path
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Quick Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Quick Performance Stats
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-3">
+          {quickStats.map((stat, index) => (
+            <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center gap-2">
+                {stat.icon}
+                <span className="text-sm font-medium">{stat.label}</span>
+              </div>
+              <Badge variant="outline" className="font-mono">
+                {stat.value}
+              </Badge>
+            </div>
+          ))}
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full mt-3"
+            onClick={() => navigate('/dashboard/student/analytics')}
+          >
+            <BarChart3 className="h-3 w-3 mr-2" />
+            View Detailed Analytics
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Study Tools Shortcuts */}
       <Card>
@@ -369,50 +370,48 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
             Quick Study Tools
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="justify-start"
-              onClick={() => navigate('/flashcards')}
-            >
-              <RotateCcw className="h-3 w-3 mr-2" />
-              Flashcards
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="justify-start"
-              onClick={() => navigate('/practice-exam')}
-            >
-              <Target className="h-3 w-3 mr-2" />
-              Practice Problems
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="justify-start"
-              onClick={() => navigate(`/concepts/${conceptId}/formula-lab`)}
-            >
-              <FlaskConical className="h-3 w-3 mr-2" />
-              Formula Lab
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="justify-start"
-              onClick={() => {
-                toast({
-                  title: "AI Tutor Starting",
-                  description: "Connecting you with AI tutor for personalized help..."
-                });
-              }}
-            >
-              <MessageCircle className="h-3 w-3 mr-2" />
-              Ask AI Tutor
-            </Button>
-          </div>
+        <CardContent className="p-4 space-y-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/flashcards')}
+          >
+            <RotateCcw className="h-3 w-3 mr-2" />
+            Create Flashcards
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/practice-exams')}
+          >
+            <Target className="h-3 w-3 mr-2" />
+            Practice Problems
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/study-groups')}
+          >
+            <Users className="h-3 w-3 mr-2" />
+            Find Study Partners
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => {
+              toast({
+                title: "AI Tutor Starting",
+                description: "Connecting you with AI tutor for personalized help..."
+              });
+            }}
+          >
+            <MessageCircle className="h-3 w-3 mr-2" />
+            Ask AI Tutor
+          </Button>
         </CardContent>
       </Card>
     </div>
