@@ -20,6 +20,8 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const recognitionRef = useRef<any>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timeoutRef = useRef<number | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
+  const lastCommandTimeRef = useRef<number>(0);
   
   // Check if current page should have voice assistant
   const shouldActivate = location.pathname === '/' || 
@@ -45,6 +47,10 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
   };
 
   // Get contextual greeting based on page
@@ -53,16 +59,16 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     
     if (pathname === '/') {
-      return `${timeGreeting}! Welcome to PREPZR, the world's first emotionally intelligent exam preparation platform. I'm Sakha AI, your adaptive learning companion. I can help you navigate our features or answer questions about your exam preparation journey. Try saying "Sign up", "Take demo", or "Analyze my readiness".`;
+      return `${timeGreeting}! Welcome to PREP-zer, the world's first emotionally intelligent exam preparation platform. I'm Sakha AI, your adaptive learning companion. I can help you navigate our features or answer questions about your exam preparation journey. Try saying "Sign up", "Take demo", or "Analyze my readiness".`;
     } else if (pathname.includes('/signup')) {
-      return `${timeGreeting}! Welcome to PREPZR signup. I'm Sakha AI, and I can assist you through the registration process. You can use voice commands like "Next", "Continue", or ask me questions anytime.`;
+      return `${timeGreeting}! Welcome to PREP-zer signup. I'm Sakha AI, and I can assist you through the registration process. You can use voice commands like "Next", "Continue", or ask me questions anytime.`;
     } else if (pathname.includes('/login')) {
-      return `${timeGreeting}! Welcome back to PREPZR. I'm here to help you access your personalized learning dashboard. Say "Demo login" for a quick preview or ask me anything about our features.`;
+      return `${timeGreeting}! Welcome back to PREP-zer. I'm here to help you access your personalized learning dashboard. Say "Demo login" for a quick preview or ask me anything about our features.`;
     } else if (pathname.includes('/exam-readiness')) {
       return `${timeGreeting}! Our AI-powered exam readiness analyzer will evaluate your preparation level and create a personalized study plan. I'll guide you through the assessment process.`;
     }
     
-    return `${timeGreeting}! Welcome to PREPZR. I'm Sakha AI, your intelligent exam preparation assistant.`;
+    return `${timeGreeting}! Welcome to PREP-zer. I'm Sakha AI, your intelligent exam preparation assistant.`;
   };
 
   // Speak with female voice preference and correct pronunciation
@@ -72,18 +78,18 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    // Create utterance with correct PREPZR pronunciation
+    // Create utterance with correct PREP-zer pronunciation
     const speech = new SpeechSynthesisUtterance();
-    speech.text = message.replace(/PREPZR/g, 'PREP-zar'); // Correct pronunciation
+    speech.text = message.replace(/PREPZR/g, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
     speech.lang = language;
     speech.rate = 1.0; // Natural speed
-    speech.pitch = 1.1; // Slightly higher for pleasant female voice
+    speech.pitch = 1.15; // Pleasant, confident female tone
     speech.volume = 0.9;
 
     // Get available voices and prefer female voices
     const voices = window.speechSynthesis.getVoices();
     
-    // Priority list for female voices
+    // Priority list for female voices with pleasant, confident tone
     const preferredFemaleVoices = [
       'Google US English Female',
       'Microsoft Zira Desktop',
@@ -91,15 +97,16 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       'Samantha',
       'Karen',
       'Victoria',
-      'Female'
+      'Alice',
+      'Emma',
+      'Moira'
     ];
 
     // Find best female voice
     let selectedVoice = null;
     for (const voiceName of preferredFemaleVoices) {
       const voice = voices.find(v => 
-        v.name?.toLowerCase().includes(voiceName.toLowerCase()) ||
-        (voiceName === 'Female' && v.name?.toLowerCase().includes('female'))
+        v.name?.toLowerCase().includes(voiceName.toLowerCase())
       );
       if (voice) {
         selectedVoice = voice;
@@ -128,28 +135,28 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     speech.onstart = () => console.log('Voice greeting started');
     speech.onend = () => {
       console.log('Voice greeting completed');
-      // Start listening after greeting
+      // Start listening after greeting with smart delay
       setTimeout(() => {
         if (!isMuted && shouldActivate) {
           startVoiceRecognition();
         }
-      }, 1000);
+      }, 1500);
     };
     speech.onerror = (e) => {
       console.error('Speech error:', e);
-      // Try to start recognition anyway
+      // Try to start recognition anyway with smart delay
       setTimeout(() => {
         if (!isMuted && shouldActivate) {
           startVoiceRecognition();
         }
-      }, 1000);
+      }, 2000);
     };
 
     speechRef.current = speech;
     window.speechSynthesis.speak(speech);
   };
 
-  // Voice recognition setup
+  // Voice recognition setup with intelligent command handling
   const startVoiceRecognition = () => {
     if (!shouldActivate || isMuted || recognitionRef.current) return;
 
@@ -174,11 +181,11 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         setIsListening(false);
         recognitionRef.current = null;
         
-        // Auto-restart after delay if still on valid page
+        // Smart breaks - auto-restart with appropriate delays
         if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
-          timeoutRef.current = window.setTimeout(() => {
+          retryTimeoutRef.current = window.setTimeout(() => {
             startVoiceRecognition();
-          }, 3000);
+          }, 4000); // 4 second break between recognition sessions
         }
       };
       
@@ -187,11 +194,14 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         setIsListening(false);
         recognitionRef.current = null;
         
-        // Restart on recoverable errors
+        // Smart retry based on error type
+        const retryDelay = event.error === 'network' ? 8000 : 
+                          event.error === 'audio' ? 6000 : 5000;
+        
         if (event.error !== 'aborted' && !isMuted && shouldActivate) {
-          timeoutRef.current = window.setTimeout(() => {
+          retryTimeoutRef.current = window.setTimeout(() => {
             startVoiceRecognition();
-          }, 5000);
+          }, retryDelay);
         }
       };
       
@@ -199,7 +209,14 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         const transcript = event.results[0][0].transcript.toLowerCase().trim();
         console.log('Voice command:', transcript);
         
-        // Handle commands based on current page
+        // Prevent rapid commands
+        const now = Date.now();
+        if (now - lastCommandTimeRef.current < 3000) {
+          return;
+        }
+        lastCommandTimeRef.current = now;
+        
+        // Handle intelligent voice commands
         handleVoiceCommand(transcript);
       };
       
@@ -208,10 +225,14 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       
     } catch (error) {
       console.error('Error starting recognition:', error);
+      // Retry with longer delay on error
+      retryTimeoutRef.current = window.setTimeout(() => {
+        startVoiceRecognition();
+      }, 6000);
     }
   };
 
-  // Handle voice commands with intelligent routing
+  // Handle intelligent voice commands with smart routing
   const handleVoiceCommand = (command: string) => {
     // Navigation commands
     if (command.includes('sign up') || command.includes('signup') || command.includes('register')) {
@@ -220,24 +241,29 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     } else if (command.includes('login') || command.includes('log in')) {
       window.location.href = '/login';
       speakMessage('Taking you to login page.');
-    } else if (command.includes('demo') || command.includes('try demo')) {
+    } else if (command.includes('demo') || command.includes('try demo') || command.includes('take demo')) {
       window.location.href = '/login';
       speakMessage('Opening demo access.');
     } else if (command.includes('home') || command.includes('go home')) {
       window.location.href = '/';
       speakMessage('Going to home page.');
-    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment')) {
+    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment') || command.includes('analyze my readiness')) {
       // Trigger exam readiness analyzer
       window.dispatchEvent(new Event('open-exam-analyzer'));
       speakMessage('Opening your exam readiness analysis.');
     } else if (command.includes('help') || command.includes('what can you do')) {
-      const helpMessage = `I can help you navigate PREPZR. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
+      const helpMessage = `I can help you navigate PREP-zer. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
       speakMessage(helpMessage);
-    } else if (command.includes('features') || command.includes('what is prepzr')) {
-      const featuresMessage = `PREPZR is an AI-powered exam preparation platform that adapts to your learning style and emotional state. We provide personalized study plans, concept cards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
+    } else if (command.includes('features') || command.includes('what is prepzr') || command.includes('what is prep-zer')) {
+      const featuresMessage = `PREP-zer is an AI-powered exam preparation platform that adapts to your learning style and emotional state. We provide personalized study plans, concept cards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
       speakMessage(featuresMessage);
+    } else if (command.includes('mute') || command.includes('stop') || command.includes('quiet')) {
+      setIsMuted(true);
+      localStorage.setItem('voice_assistant_muted', 'true');
+      cleanup();
+      speakMessage('Voice assistant muted. You can unmute in settings.');
     } else {
-      // Generic response for unrecognized commands
+      // Smart response for unrecognized commands
       const responses = [
         "I didn't catch that. Try saying 'Sign up', 'Demo', or 'Help' for assistance.",
         "Please repeat that. You can say commands like 'Login', 'Analyze readiness', or ask about our features.",
@@ -248,9 +274,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     }
   };
 
-  // Main effect for page changes and initialization
+  // Main effect for instant greeting and page changes
   useEffect(() => {
-    // Cleanup previous instances
+    // Better cleanup on page changes
     cleanup();
     setHasGreeted(false);
     setIsListening(false);
@@ -265,16 +291,16 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     // Only activate on valid pages
     if (!shouldActivate) return;
 
-    // Force voices to load, then start greeting immediately
+    // Instant greeting with 1.5 second delay for page loading
     const initializeVoice = () => {
-      if (window.speechSynthesis) {
+      if (window.speechSynthesis && !hasGreeted && !isMuted) {
         const voices = window.speechSynthesis.getVoices();
         
-        if (voices.length > 0 && !hasGreeted && !isMuted) {
+        if (voices.length > 0) {
           setHasGreeted(true);
           const greeting = getContextualGreeting(location.pathname);
           
-          // Start greeting after short delay to ensure page is loaded
+          // Instant greeting with 1.5 second delay
           timeoutRef.current = window.setTimeout(() => {
             speakMessage(greeting);
             
@@ -284,30 +310,38 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
               description: "Say 'Help' to hear available commands",
               duration: 4000,
             });
-          }, 1500);
+          }, 1500); // 1.5 second delay for page loading
         }
       }
     };
 
     // Load voices and initialize
     if (window.speechSynthesis) {
+      // Force voices to load
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          initializeVoice();
+        } else {
+          // Retry if voices not loaded yet
+          setTimeout(loadVoices, 100);
+        }
+      };
+
       window.speechSynthesis.onvoiceschanged = () => {
         window.speechSynthesis.onvoiceschanged = null;
         initializeVoice();
       };
       
       // Trigger voice loading
-      window.speechSynthesis.getVoices();
-      
-      // Fallback initialization
-      setTimeout(initializeVoice, 1000);
+      loadVoices();
     }
 
     // Cleanup on unmount
     return cleanup;
   }, [location.pathname, shouldActivate, hasGreeted, isMuted]);
 
-  // Listen for mute events
+  // Listen for mute/unmute events
   useEffect(() => {
     const handleMute = () => {
       setIsMuted(true);
@@ -331,24 +365,24 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     };
   }, [shouldActivate, hasGreeted, location.pathname]);
 
-  // Handle page visibility changes
+  // Handle page visibility changes for better cleanup
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         cleanup();
       } else if (document.visibilityState === 'visible' && shouldActivate && !isMuted) {
-        // Restart recognition when page becomes visible
+        // Smart restart when page becomes visible
         setTimeout(() => {
-          if (!recognitionRef.current) {
+          if (!recognitionRef.current && hasGreeted) {
             startVoiceRecognition();
           }
-        }, 1000);
+        }, 2000);
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [shouldActivate, isMuted]);
+  }, [shouldActivate, isMuted, hasGreeted]);
 
   return null; // This component renders no UI
 };
