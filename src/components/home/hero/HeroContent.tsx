@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,10 +11,27 @@ interface HeroContentProps {
 
 const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
   const navigate = useNavigate();
+  const [currentBenefitIndex, setCurrentBenefitIndex] = useState(0);
   
   const handleFreeTrialClick = () => {
     navigate('/signup');
   };
+
+  const benefits = [
+    { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
+    { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
+    { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
+    { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
+    { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
+  ];
+
+  // Auto-rotate benefits every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefitIndex((prev) => (prev + 1) % benefits.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [benefits.length]);
 
   return (
     <motion.div 
@@ -151,15 +168,15 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* How PREPZR Supports You - Compact Version */}
+      {/* Rotating Benefits Slider */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-3 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+        className="mb-3 p-4 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
       >
         <motion.h3 
-          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-2 flex items-center justify-center gap-2"
+          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-center gap-2"
           animate={{ 
             scale: [1, 1.02, 1],
           }}
@@ -170,52 +187,52 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <Zap className="w-4 h-4" />
         </motion.h3>
         
-        <div className="grid grid-cols-5 gap-2">
-          {[
-            { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
-            { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
-            { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
-            { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-            { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
-          ].map((benefit, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + idx * 0.1 }}
-              whileHover={{ 
-                scale: 1.05, 
-                y: -3
+        <div className="flex justify-center">
+          <motion.div
+            key={currentBenefitIndex}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className={`bg-gradient-to-br ${benefits[currentBenefitIndex].color} text-white rounded-xl py-4 px-8 flex flex-col items-center justify-center gap-2 shadow-lg border border-white/20 min-w-[200px]`}
+          >
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 10, 0, -10, 0]
               }}
-              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity
+              }}
+              className="bg-white/20 rounded-full p-2 backdrop-blur-sm"
             >
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, 0, -5, 0]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-                className="bg-white/20 rounded-full p-1.5 backdrop-blur-sm"
-              >
-                {benefit.icon}
-              </motion.div>
-              <span className="font-bold text-xs">{benefit.label}</span>
+              {benefits[currentBenefitIndex].icon}
             </motion.div>
+            <span className="font-bold text-lg">{benefits[currentBenefitIndex].label}</span>
+          </motion.div>
+        </div>
+        
+        {/* Progress indicators */}
+        <div className="flex justify-center gap-2 mt-3">
+          {benefits.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                idx === currentBenefitIndex ? 'bg-blue-600 w-6' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            />
           ))}
         </div>
       </motion.section>
       
       <ExamNamesBadge />
 
-      {/* Enhanced Futuristic CTA Buttons - Moved up with reduced spacing */}
-      <div className="space-y-3 mt-3 mb-3">
+      {/* Enhanced Futuristic CTA Buttons - Compact spacing */}
+      <div className="space-y-3 mt-4 mb-4">
         <motion.button
           onClick={handleFreeTrialClick}
-          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
+          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
