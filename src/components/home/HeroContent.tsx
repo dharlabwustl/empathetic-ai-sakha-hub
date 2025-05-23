@@ -75,50 +75,52 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
       
-      {/* Key Benefits Section - More Prominent and Clearly Above CTA */}
+      {/* 5 KEY POINTS SECTION - HIGHLY VISIBLE */}
       <motion.div
-        variants={fadeInStagger}
-        initial="hidden"
-        animate="visible"
-        className="mb-10 border-2 border-purple-100 dark:border-purple-900/30 rounded-xl p-4 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="mb-8 p-3 bg-white dark:bg-gray-800 rounded-xl border-2 border-purple-300 dark:border-purple-500/30 shadow-lg"
       >
-        <h3 className="text-center font-semibold text-lg text-indigo-700 dark:text-indigo-400 mb-4">
-          Your Success Journey With Us
-        </h3>
+        <h2 className="text-center text-xl font-bold mb-5 text-purple-700 dark:text-purple-400 underline decoration-wavy decoration-purple-400 underline-offset-4">
+          5 KEY BENEFITS
+        </h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {[
-            { icon: <Award size={22} />, label: "Confidence Builder", color: "bg-green-500" },
-            { icon: <GraduationCap size={22} />, label: "Exam Success", color: "bg-blue-500" },
-            { icon: <Clock size={22} />, label: "Time Saver", color: "bg-amber-500" },
-            { icon: <Shield size={22} />, label: "Stress-Free", color: "bg-purple-500" },
-            { icon: <Smile size={22} />, label: "Happy Learning", color: "bg-pink-500" }
-          ].map((benefit, idx) => (
-            <motion.div
-              key={idx}
-              variants={itemVariants}
-              custom={idx}
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.98 }}
-              className={`${benefit.color} text-white rounded-lg py-4 px-3 flex flex-col items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 text-center`}
-            >
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, 0, -10, 0] 
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-                className="bg-white/20 rounded-full p-2 mb-1"
-              >
-                {benefit.icon}
-              </motion.div>
-              <span className="font-medium text-sm">{benefit.label}</span>
-            </motion.div>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg flex flex-col items-center text-center border border-green-200 dark:border-green-800/50">
+            <div className="bg-green-500 p-3 rounded-full mb-2">
+              <Award size={24} className="text-white" />
+            </div>
+            <span className="font-bold text-green-700 dark:text-green-400">Confidence Builder</span>
+          </div>
+          
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg flex flex-col items-center text-center border border-blue-200 dark:border-blue-800/50">
+            <div className="bg-blue-500 p-3 rounded-full mb-2">
+              <GraduationCap size={24} className="text-white" />
+            </div>
+            <span className="font-bold text-blue-700 dark:text-blue-400">Exam Success</span>
+          </div>
+          
+          <div className="bg-amber-100 dark:bg-amber-900/30 p-4 rounded-lg flex flex-col items-center text-center border border-amber-200 dark:border-amber-800/50">
+            <div className="bg-amber-500 p-3 rounded-full mb-2">
+              <Clock size={24} className="text-white" />
+            </div>
+            <span className="font-bold text-amber-700 dark:text-amber-400">Time Saver</span>
+          </div>
+          
+          <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg flex flex-col items-center text-center border border-purple-200 dark:border-purple-800/50">
+            <div className="bg-purple-500 p-3 rounded-full mb-2">
+              <Shield size={24} className="text-white" />
+            </div>
+            <span className="font-bold text-purple-700 dark:text-purple-400">Stress-Free</span>
+          </div>
+          
+          <div className="bg-pink-100 dark:bg-pink-900/30 p-4 rounded-lg flex flex-col items-center text-center border border-pink-200 dark:border-pink-800/50">
+            <div className="bg-pink-500 p-3 rounded-full mb-2">
+              <Smile size={24} className="text-white" />
+            </div>
+            <span className="font-bold text-pink-700 dark:text-pink-400">Happy Learning</span>
+          </div>
         </div>
       </motion.div>
       
