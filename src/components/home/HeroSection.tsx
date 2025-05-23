@@ -20,11 +20,11 @@ const HeroSection = () => {
   ];
 
   const keyBenefits = [
-    { icon: <Award className="w-5 h-5" />, label: "Confidence Builder", color: "from-emerald-500 to-green-600" },
-    { icon: <GraduationCap className="w-5 h-5" />, label: "Exam Success", color: "from-blue-500 to-blue-700" },
-    { icon: <Clock className="w-5 h-5" />, label: "Time Saver", color: "from-amber-500 to-yellow-600" },
-    { icon: <Shield className="w-5 h-5" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-    { icon: <Smile className="w-5 h-5" />, label: "Happy Learning", color: "from-pink-500 to-rose-600" }
+    { icon: <Award className="w-4 h-4" />, label: "Confidence Builder", color: "from-emerald-500 to-green-600" },
+    { icon: <GraduationCap className="w-4 h-4" />, label: "Exam Success", color: "from-blue-500 to-blue-700" },
+    { icon: <Clock className="w-4 h-4" />, label: "Time Saver", color: "from-amber-500 to-yellow-600" },
+    { icon: <Shield className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
+    { icon: <Smile className="w-4 h-4" />, label: "Happy Learning", color: "from-pink-500 to-rose-600" }
   ];
 
   useEffect(() => {
@@ -80,7 +80,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center lg:text-left space-y-8"
+            className="text-center lg:text-left space-y-6"
           >
             {/* Live Badge */}
             <motion.div
@@ -105,7 +105,7 @@ const HeroSection = () => {
               </Badge>
             </motion.div>
 
-            {/* Main Headline - Updated */}
+            {/* Main Headline */}
             <div className="space-y-4">
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
@@ -140,26 +140,26 @@ const HeroSection = () => {
               </motion.p>
             </div>
 
-            {/* 5 Key Benefits Section */}
+            {/* Compact 5 Key Benefits Section */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
             >
               <motion.h3 
-                className="text-center font-bold text-lg text-white mb-4 flex items-center justify-center gap-2"
+                className="text-center font-semibold text-sm text-white mb-3 flex items-center justify-center gap-2"
                 animate={{ 
                   scale: [1, 1.02, 1],
                 }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <Target className="w-5 h-5" />
+                <Target className="w-4 h-4" />
                 Five Key Benefits For Your Success
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-4 h-4" />
               </motion.h3>
               
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 gap-2">
                 {keyBenefits.map((benefit, idx) => (
                   <motion.div
                     key={idx}
@@ -168,9 +168,9 @@ const HeroSection = () => {
                     transition={{ delay: 0.7 + idx * 0.1 }}
                     whileHover={{ 
                       scale: 1.05, 
-                      y: -3
+                      y: -2
                     }}
-                    className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-3 px-2 flex flex-col items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+                    className={`bg-gradient-to-br ${benefit.color} text-white rounded-lg py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
                   >
                     <motion.div 
                       animate={{ 
@@ -182,11 +182,11 @@ const HeroSection = () => {
                         repeat: Infinity,
                         repeatDelay: idx * 0.5
                       }}
-                      className="bg-white/20 rounded-full p-2 backdrop-blur-sm"
+                      className="bg-white/20 rounded-full p-1 backdrop-blur-sm"
                     >
                       {benefit.icon}
                     </motion.div>
-                    <span className="font-bold text-sm">{benefit.label}</span>
+                    <span className="font-bold text-xs">{benefit.label}</span>
                   </motion.div>
                 ))}
               </div>
@@ -232,7 +232,7 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Fixed visibility */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -253,7 +253,7 @@ const HeroSection = () => {
                 onClick={handleWatchDemo}
                 size="lg"
                 variant="outline"
-                className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300"
+                className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 hover:text-white py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300"
               >
                 <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Watch Live Demo
