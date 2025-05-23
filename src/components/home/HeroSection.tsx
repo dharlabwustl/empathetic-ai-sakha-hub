@@ -19,13 +19,7 @@ const HeroSection = () => {
     { icon: <Zap className="w-6 h-6" />, text: "Smart Progress Tracking", color: "from-amber-500 to-red-600" }
   ];
 
-  const keyBenefits = [
-    { icon: <Award className="w-4 h-4" />, label: "Confidence Builder", color: "from-emerald-500 to-green-600" },
-    { icon: <GraduationCap className="w-4 h-4" />, label: "Exam Success", color: "from-blue-500 to-blue-700" },
-    { icon: <Clock className="w-4 h-4" />, label: "Time Saver", color: "from-amber-500 to-yellow-600" },
-    { icon: <Shield className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-    { icon: <Smile className="w-4 h-4" />, label: "Happy Learning", color: "from-pink-500 to-rose-600" }
-  ];
+  const keyBenefits = ["Confidence Builder", "Exam Success", "Time Saver", "Stress-Free", "Happy Learning"];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,6 +30,11 @@ const HeroSection = () => {
 
   const handleStartJourney = () => {
     navigate('/signup');
+  };
+
+  const handleExamReadinessClick = () => {
+    // This will trigger the exam analyzer
+    window.dispatchEvent(new Event('open-exam-analyzer'));
   };
 
   const handleWatchDemo = () => {
@@ -114,10 +113,8 @@ const HeroSection = () => {
                 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                  We understand
+                  We understand your
                 </span>
-                <br />
-                <span className="text-white">your</span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
                   mindset, not just
@@ -140,15 +137,15 @@ const HeroSection = () => {
               </motion.p>
             </div>
 
-            {/* Compact 5 Key Benefits Section */}
-            <motion.section
+            {/* Compact Five Key Benefits - Text Only */}
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20"
             >
               <motion.h3 
-                className="text-center font-semibold text-sm text-white mb-3 flex items-center justify-center gap-2"
+                className="text-center font-semibold text-sm text-white mb-2 flex items-center justify-center gap-2"
                 animate={{ 
                   scale: [1, 1.02, 1],
                 }}
@@ -159,38 +156,20 @@ const HeroSection = () => {
                 <Sparkles className="w-4 h-4" />
               </motion.h3>
               
-              <div className="grid grid-cols-5 gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {keyBenefits.map((benefit, idx) => (
-                  <motion.div
+                  <motion.span
                     key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7 + idx * 0.1 }}
-                    whileHover={{ 
-                      scale: 1.05, 
-                      y: -2
-                    }}
-                    className={`bg-gradient-to-br ${benefit.color} text-white rounded-lg py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+                    className="text-xs font-semibold text-blue-200 bg-blue-500/20 px-2 py-1 rounded-full border border-blue-400/30"
                   >
-                    <motion.div 
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, 0, -5, 0]
-                      }}
-                      transition={{ 
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatDelay: idx * 0.5
-                      }}
-                      className="bg-white/20 rounded-full p-1 backdrop-blur-sm"
-                    >
-                      {benefit.icon}
-                    </motion.div>
-                    <span className="font-bold text-xs">{benefit.label}</span>
-                  </motion.div>
+                    {benefit}
+                  </motion.span>
                 ))}
               </div>
-            </motion.section>
+            </motion.div>
 
             {/* Dynamic Feature Showcase */}
             <motion.div
@@ -232,7 +211,7 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* CTA Buttons - Fixed visibility */}
+            {/* Updated CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -245,18 +224,18 @@ const HeroSection = () => {
                 className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg"
               >
                 <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                Start Your Success Journey
+                Start Your Success Journey - 7 Days Free
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
               
               <Button
-                onClick={handleWatchDemo}
+                onClick={handleExamReadinessClick}
                 size="lg"
                 variant="outline"
                 className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 hover:text-white py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300"
               >
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                Watch Live Demo
+                <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                AI Exam Readiness Analysis - Try Now
               </Button>
             </motion.div>
 
