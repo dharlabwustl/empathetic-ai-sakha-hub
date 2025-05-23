@@ -29,7 +29,7 @@ const FeatureGrid: React.FC = () => {
         ))}
       </motion.div>
 
-      {/* Takeaway points with animation */}
+      {/* Enhanced animated takeaway points */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -52,6 +52,55 @@ const FeatureGrid: React.FC = () => {
               {point.icon}
             </motion.div>
             <span className="font-medium text-white">{point.title}</span>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* New Animated Takeaway Badges (Confidence Builder, etc.) */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+        className="flex flex-wrap justify-center gap-4 mt-8 max-w-5xl mx-auto"
+      >
+        {[
+          { title: "Confidence Builder", color: "from-emerald-500 to-emerald-700", icon: "🔥" },
+          { title: "Exam Success", color: "from-blue-500 to-blue-700", icon: "🏆" },
+          { title: "Time Saver", color: "from-purple-500 to-purple-700", icon: "⏱️" },
+          { title: "Stress-Free", color: "from-amber-500 to-amber-700", icon: "🧘" },
+          { title: "Happy Learning", color: "from-pink-500 to-pink-700", icon: "😊" }
+        ].map((takeaway, index) => (
+          <motion.div
+            key={`takeaway-${index}`}
+            custom={index}
+            variants={fadeInUpStaggered(index * 0.15)}
+            whileHover={{ scale: 1.08, rotate: [-1, 1, -1], transition: { rotate: { repeat: Infinity, duration: 0.5 } } }}
+            className={`bg-gradient-to-br ${takeaway.color} px-5 py-3 rounded-full shadow-lg flex items-center gap-2 group transition-all duration-300`}
+          >
+            <motion.div
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 10, 0, -10, 0] 
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                repeatDelay: index * 0.5
+              }}
+              className="text-xl"
+            >
+              {takeaway.icon}
+            </motion.div>
+            <motion.span 
+              className="font-medium text-white"
+              animate={{ 
+                textShadow: ["0 0 0px rgba(255,255,255,0)", "0 0 10px rgba(255,255,255,0.8)", "0 0 0px rgba(255,255,255,0)"]
+              }}
+              transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+            >
+              {takeaway.title}
+            </motion.span>
           </motion.div>
         ))}
       </motion.div>

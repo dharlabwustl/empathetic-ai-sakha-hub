@@ -18,7 +18,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     navigate('/signup');
   };
 
-  // Initialize and animate the 3D background
+  // Enhanced 3D background animation
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -32,57 +32,86 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     );
     camera.position.z = 30;
 
-    // Renderer
+    // Renderer with improved settings
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       alpha: true,
-      antialias: true
+      antialias: true,
+      powerPreference: 'high-performance'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
-    // Create particles
+    // Create enhanced particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1500;
+    const particlesCount = 2500; // Increased count for more density
     const posArray = new Float32Array(particlesCount * 3);
     const colors = new Float32Array(particlesCount * 3);
+    const sizes = new Float32Array(particlesCount);
 
-    for (let i = 0; i < particlesCount * 3; i++) {
-      // Position
-      posArray[i] = (Math.random() - 0.5) * 70;
+    for (let i = 0; i < particlesCount * 3; i += 3) {
+      // Create a more dynamic distribution with clusters
+      const radius = Math.random() * 50;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
+      // Spherical distribution with some randomness
+      posArray[i] = radius * Math.sin(phi) * Math.cos(theta) + (Math.random() - 0.5) * 20;
+      posArray[i+1] = radius * Math.sin(phi) * Math.sin(theta) + (Math.random() - 0.5) * 20;
+      posArray[i+2] = radius * Math.cos(phi) + (Math.random() - 0.5) * 20;
 
-      // Colors - gradient from blue to purple
-      if (i % 3 === 0) {
-        colors[i] = Math.random() * 0.3 + 0.2; // R - low for blue/purple
-      } else if (i % 3 === 1) {
-        colors[i] = Math.random() * 0.3; // G - low for blue/purple
+      // More vibrant color gradient
+      const colorChoice = Math.random();
+      if (colorChoice < 0.4) {
+        // Blue to purple
+        colors[i] = Math.random() * 0.2; // R - low
+        colors[i+1] = Math.random() * 0.3; // G - low
+        colors[i+2] = 0.6 + Math.random() * 0.4; // B - high
+      } else if (colorChoice < 0.8) {
+        // Purple to pink
+        colors[i] = 0.4 + Math.random() * 0.3; // R - medium
+        colors[i+1] = 0.1 + Math.random() * 0.2; // G - low
+        colors[i+2] = 0.5 + Math.random() * 0.5; // B - high
       } else {
-        colors[i] = Math.random() * 0.5 + 0.5; // B - high for blue/purple
+        // Cyan highlights
+        colors[i] = 0.1 + Math.random() * 0.2; // R - low
+        colors[i+1] = 0.5 + Math.random() * 0.5; // G - high
+        colors[i+2] = 0.6 + Math.random() * 0.4; // B - high
       }
+      
+      // Varied sizes for depth perception
+      sizes[i/3] = Math.random() * 4 + 0.5;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-    // Material
+    // Material with custom shader for better glow
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.1,
+      size: 0.15,
       vertexColors: true,
       transparent: true,
       opacity: 0.8,
-      sizeAttenuation: true
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending
     });
 
     // Points
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    // Add some soft lighting
+    // Add dynamic lighting
     const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
+    
+    // Add a subtle point light that moves
+    const pointLight = new THREE.PointLight(0x8855ff, 2, 50);
+    pointLight.position.set(10, 5, 10);
+    scene.add(pointLight);
 
-    // Animate on mouse movement
+    // Animate on mouse movement with enhanced responsiveness
     let mouseX = 0;
     let mouseY = 0;
     const mouseMoveHandler = (event: MouseEvent) => {
@@ -91,7 +120,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     };
     document.addEventListener('mousemove', mouseMoveHandler);
 
-    // Handle window resize
+    // Handle window resize with improved responsiveness
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -99,17 +128,39 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     };
     window.addEventListener('resize', handleResize);
 
-    // Animation loop
+    // Animation loop with enhanced motion
+    const clock = new THREE.Clock();
+    let time = 0;
+    
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Rotate based on mouse position
-      particlesMesh.rotation.x += 0.0003;
-      particlesMesh.rotation.y += 0.0005;
-
-      // Subtle response to mouse movement
-      particlesMesh.rotation.y += mouseX * 0.0003;
-      particlesMesh.rotation.x += mouseY * 0.0003;
+      
+      time = clock.getElapsedTime() * 0.5;
+      
+      // Complex rotation patterns
+      particlesMesh.rotation.x += 0.0005;
+      particlesMesh.rotation.y += 0.0008;
+      
+      // Subtle wave effect
+      const positions = particlesGeometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+        const z = positions[i + 2];
+        
+        // Add subtle wave motion
+        const distance = Math.sqrt(x * x + y * y + z * z);
+        positions[i + 2] = z + Math.sin(distance * 0.1 + time) * 0.2;
+      }
+      particlesGeometry.attributes.position.needsUpdate = true;
+      
+      // Dynamic point light movement
+      pointLight.position.x = Math.sin(time * 0.5) * 20;
+      pointLight.position.z = Math.cos(time * 0.5) * 20;
+      
+      // Responsive to mouse movement
+      particlesMesh.rotation.y += mouseX * 0.0005;
+      particlesMesh.rotation.x += mouseY * 0.0005;
 
       renderer.render(scene, camera);
     };
@@ -146,7 +197,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           top: 0, 
           left: 0, 
           pointerEvents: 'none',
-          opacity: 0.6
+          opacity: 0.7  // Slightly increased opacity for more impact
         }}
       />
 

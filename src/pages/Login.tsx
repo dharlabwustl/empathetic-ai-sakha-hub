@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -141,7 +140,7 @@ const Login = () => {
         language="en"
       />
       
-      {/* Back to Home button */}
+      {/* Only one Back to Home button */}
       <motion.div
         className="absolute top-4 left-4 z-10"
         initial={{ opacity: 0, x: -20 }}
@@ -153,7 +152,10 @@ const Login = () => {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           onClick={() => navigate('/')}
         >
-          <ArrowLeft size={16} />
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
           Back to Home
         </Button>
       </motion.div>
