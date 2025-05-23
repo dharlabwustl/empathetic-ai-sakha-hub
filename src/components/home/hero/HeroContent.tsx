@@ -207,7 +207,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       <ExamNamesBadge />
 
       {/* Enhanced Futuristic CTA Buttons - Both Visible with Fixed Z-index */}
-      <div className="space-y-3 mt-4 mb-4 relative z-30">
+      <div className="space-y-3 mt-4 mb-4 relative z-50">
         <motion.button
           onClick={handleFreeTrialClick}
           className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
@@ -216,6 +216,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
+          style={{ position: 'relative', zIndex: 100 }}
         >
           <motion.div 
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
@@ -231,13 +232,13 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         
         <motion.button
           onClick={handleExamReadinessClick}
-          className="group w-full border-2 border-purple-400/50 hover:border-purple-500 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-2xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 z-40"
+          className="group w-full border-2 border-purple-400/50 hover:border-purple-500 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-2xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          style={{ position: 'relative', zIndex: 50 }}
+          style={{ position: 'relative', zIndex: 100 }}
         >
           <div className="flex items-center gap-3">
             <Brain className="w-5 h-5 group-hover:scale-110 transition-transform" />
