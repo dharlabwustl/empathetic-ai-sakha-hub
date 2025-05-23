@@ -82,7 +82,7 @@ const ReadAloudSection: React.FC<ReadAloudSectionProps> = ({ text, isActive, onS
   };
   
   return (
-    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50 mb-4">
+    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Volume2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
