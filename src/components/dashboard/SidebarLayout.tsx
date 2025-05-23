@@ -38,6 +38,26 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
     };
   }, [isMobile, showMobileSidebar]);
   
+  // Close sidebar when navigation happens
+  useEffect(() => {
+    if (isMobile && showMobileSidebar) {
+      const handleNavigation = () => {
+        setShowMobileSidebar(false);
+      };
+      
+      const links = document.querySelectorAll('#universal-sidebar a');
+      links.forEach(link => {
+        link.addEventListener('click', handleNavigation);
+      });
+      
+      return () => {
+        links.forEach(link => {
+          link.removeEventListener('click', handleNavigation);
+        });
+      };
+    }
+  }, [isMobile, showMobileSidebar]);
+  
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       {/* Universal Sidebar - Always shown on desktop, conditionally on mobile */}
@@ -46,8 +66,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
           id="universal-sidebar" 
           className={`${isMobile ? 'fixed z-50 h-full shadow-lg' : 'relative'}`}
           style={{
-            width: isMobile ? '230px' : 'auto', // Fixed width on mobile
-            maxWidth: '80vw' // Prevent from being too wide on small screens
+            width: isMobile ? '85%' : 'auto', // Wider on mobile for better touch targets
+            maxWidth: '280px', // Prevent from being too wide on small screens
           }}
         >
           <UniversalSidebar collapsed={false} />
@@ -78,7 +98,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
         </Button>
       )}
       
-      <div className="flex-1 pb-16 md:pb-0 pt-10 md:pt-0">
+      <div className="flex-1 pb-16 md:pb-0 pt-14 md:pt-0">
         {children}
       </div>
     </div>

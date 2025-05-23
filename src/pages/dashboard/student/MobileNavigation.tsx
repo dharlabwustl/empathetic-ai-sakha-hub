@@ -81,7 +81,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
       </div>
       
       {/* Add padding at the bottom to account for fixed navigation */}
-      <div className="h-16"></div>
+      <div className="h-16 md:h-0"></div>
     </TooltipProvider>
   );
 };

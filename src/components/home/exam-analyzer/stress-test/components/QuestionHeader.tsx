@@ -53,7 +53,7 @@ const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   };
   
   return (
-    <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between'} items-start sm:items-center`}>
+    <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between'} items-start sm:items-center mb-3`}>
       <div>
         <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           Question {currentQuestionIndex + 1} of {questionsLength}
@@ -66,7 +66,7 @@ const QuestionHeader: React.FC<QuestionHeaderProps> = ({
         </Badge>
       </div>
       
-      <div className={`flex ${isMobile ? 'w-full justify-between' : ''} items-center space-x-4`}>
+      <div className={`flex ${isMobile ? 'w-full justify-between mt-2' : ''} items-center space-x-4`}>
         <ComplexityIndicator level={currentComplexity} />
         <QuestionTimer timeLeft={timeLeft} questionType={questionType} />
       </div>

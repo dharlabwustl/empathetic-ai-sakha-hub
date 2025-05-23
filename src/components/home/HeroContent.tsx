@@ -5,7 +5,7 @@ import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
 import ExamNamesBadge from './ExamNamesBadge';
-import { Award, GraduationCap, Clock, Shield, Smile } from 'lucide-react';
+import { Award, GraduationCap, Clock, Shield, Smile, Brain } from 'lucide-react';
 import { takeawayPoints } from './hero/feature-highlights/featureData';
 import { fadeInStagger, itemVariants } from './hero/feature-highlights/animationVariants';
 
@@ -86,13 +86,14 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           Five Key Benefits For Your Success
         </h3>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-2">
           {[
             { icon: <Award size={24} />, label: "Confidence Builder", color: "bg-green-500" },
             { icon: <GraduationCap size={24} />, label: "Exam Success", color: "bg-blue-500" },
             { icon: <Clock size={24} />, label: "Time Saver", color: "bg-amber-500" },
             { icon: <Shield size={24} />, label: "Stress-Free", color: "bg-purple-500" },
-            { icon: <Smile size={24} />, label: "Happy Learning", color: "bg-pink-500" }
+            { icon: <Smile size={24} />, label: "Happy Learning", color: "bg-pink-500" },
+            { icon: <Brain size={24} />, label: "Smart AI", color: "bg-indigo-500" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
