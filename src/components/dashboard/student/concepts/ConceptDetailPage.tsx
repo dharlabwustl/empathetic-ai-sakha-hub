@@ -1,443 +1,469 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ConceptsPageLayout } from "@/components/dashboard/student/concept-cards/ConceptsPageLayout";
-import ConceptHeader from "./concept-detail/ConceptHeader";
-import ConceptMasterySection from "./ConceptMasterySection";
-import ConceptContent from "./concept-detail/ConceptContent";
-import ConceptSidebar from "./concept-detail/ConceptSidebar";
-import ConceptResources from "./concept-detail/ConceptResources";
-import AIInsightsSection from "./AIInsightsSection";
-import FormulaReference from "./concept-detail/FormulaReference";
-import { useParams } from "react-router-dom";
-import { Book, Video, Lightbulb, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare, FlaskConical, Box, Volume2, Zap, Brain, Eye } from "lucide-react";
-import QuickRecallSection from "./concept-detail/QuickRecallSection";
-import AnalyticsSection from "./AnalyticsSection";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Play, Volume2, VolumeX, Brain, Lightbulb, BarChart3, MessageSquare, FileText, Repeat, Calculator, Eye, Cube, Video, AlertTriangle, HelpCircle, Clock, Target } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-
-// Mock data - this would normally come from an API
-const conceptData = {
-  id: "concept-1",
-  title: "Newton's Second Law",
-  subject: "Physics",
-  topic: "Mechanics",
-  difficulty: "medium" as const,
-  description: "Understanding force, mass and acceleration",
-  bookmarked: true,
-  masteryLevel: 68,
-  recallAccuracy: 75,
-  timeSpent: 135, // in minutes
-  lastReviewed: "2 days ago",
-  nextReview: "Tomorrow",
-  examReady: true,
-  tags: ["Classical Mechanics", "Forces", "Acceleration", "NEET 2026"],
-  relatedConcepts: [
-    { id: "concept-2", title: "Newton's First Law", masteryLevel: 85 },
-    { id: "concept-3", title: "Newton's Third Law", masteryLevel: 62 },
-    { id: "concept-4", title: "Conservation of Momentum", masteryLevel: 45 }
-  ],
-  content: `
-    <h2>Newton's Second Law of Motion</h2>
-    <p>Newton's Second Law of Motion states that the force acting on an object is equal to the mass of the object multiplied by its acceleration.</p>
-    <p>The mathematical representation is: F = ma</p>
-    <p>Where:</p>
-    <ul>
-      <li>F is the net force acting on the object (measured in Newtons, N)</li>
-      <li>m is the mass of the object (measured in kilograms, kg)</li>
-      <li>a is the acceleration of the object (measured in meters per second squared, m/s²)</li>
-    </ul>
-    <p>This law explains how the velocity of an object changes when it is subjected to an external force. The law assumes that the mass of the object is constant.</p>
-  `,
-  formulas: [
-    {
-      id: "f1",
-      name: "Newton's Second Law",
-      latex: "F = ma",
-      description: "Force equals mass times acceleration"
-    },
-    {
-      id: "f2", 
-      name: "Weight Formula",
-      latex: "W = mg",
-      description: "Weight equals mass times gravitational acceleration"
-    }
-  ]
-};
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { ConceptCard } from '@/types/user/conceptCard';
+import ConceptHeader from './concept-detail/ConceptHeader';
+import FormulaTabContent from './FormulaTabContent';
 
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
-  const [activeTab, setActiveTab] = useState("learn");
-  const [bookmarked, setBookmarked] = useState(conceptData.bookmarked);
-  const [quizScore, setQuizScore] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [isReadingAloud, setIsReadingAloud] = useState(false);
-  
-  const handleBookmarkToggle = () => {
-    setBookmarked(prev => !prev);
-  };
-  
-  const handleQuizComplete = (score: number) => {
-    setQuizScore(score);
-  };
+  const [concept, setConcept] = useState<ConceptCard | null>(null);
+  const [activeTab, setActiveTab] = useState('learn');
 
-  const handleReadAloud = (content?: string) => {
+  // Mock concept data - in real app this would come from API
+  useEffect(() => {
+    const mockConcept: ConceptCard = {
+      id: conceptId || '1',
+      title: "Ohm's Law",
+      description: "Understanding the relationship between voltage, current, and resistance in electrical circuits",
+      subject: "Physics",
+      chapter: "Current Electricity",
+      topic: "Basic Laws",
+      difficulty: 'medium',
+      completed: false,
+      progress: 65,
+      content: `Ohm's Law states that the current through a conductor between two points is directly proportional to the voltage across the two points. This fundamental principle in electrical engineering helps us understand how electrical circuits behave.
+
+The mathematical expression is: V = I × R
+
+Where:
+- V is the voltage (measured in Volts)
+- I is the current (measured in Amperes) 
+- R is the resistance (measured in Ohms)
+
+This law is applicable to ohmic materials where resistance remains constant regardless of the current or voltage applied.`,
+      estimatedTime: 45,
+      recallAccuracy: 78,
+      quizScore: 85,
+      masteryLevel: 3,
+      mastery: {
+        level: "Intermediate",
+        percentage: 65
+      },
+      keyPoints: [
+        "Current is directly proportional to voltage",
+        "Current is inversely proportional to resistance", 
+        "Only applies to ohmic materials",
+        "Forms the basis for circuit analysis"
+      ],
+      formulas: ["V = I × R", "I = V / R", "R = V / I"],
+      bookmarked: false,
+      videos: [
+        {
+          id: "1",
+          title: "Ohm's Law Explained",
+          url: "#",
+          duration: "12:34",
+          thumbnail: "/api/placeholder/320/180"
+        }
+      ],
+      practiceQuestions: [
+        {
+          id: "q1",
+          question: "If a circuit has a voltage of 12V and resistance of 4Ω, what is the current?",
+          options: ["2A", "3A", "4A", "6A"],
+          correctAnswer: "3A",
+          explanation: "Using Ohm's Law: I = V/R = 12V/4Ω = 3A",
+          difficulty: "easy"
+        }
+      ]
+    };
+    setConcept(mockConcept);
+  }, [conceptId]);
+
+  const handleReadAloud = () => {
+    if (!concept) return;
+    
     if (isReadingAloud) {
       window.speechSynthesis.cancel();
       setIsReadingAloud(false);
-    } else {
-      const textToRead = content || getActiveTabContent();
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.rate = 0.8;
-      utterance.onend = () => setIsReadingAloud(false);
-      window.speechSynthesis.speak(utterance);
-      setIsReadingAloud(true);
+      return;
     }
+
+    const utterance = new SpeechSynthesisUtterance(concept.content);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    
+    utterance.onstart = () => setIsReadingAloud(true);
+    utterance.onend = () => setIsReadingAloud(false);
+    utterance.onerror = () => setIsReadingAloud(false);
+
+    window.speechSynthesis.speak(utterance);
   };
 
-  const getActiveTabContent = () => {
-    switch (activeTab) {
-      case "learn":
-        return `Newton's Second Law of Motion. ${conceptData.content.replace(/<[^>]*>/g, '')}`;
-      case "visual":
-        return "Visual learning mode for Newton's Second Law with interactive diagrams and representations.";
-      case "3d":
-        return "3D simulation mode for Newton's Second Law with interactive models.";
-      case "formula":
-        return "Formula laboratory for Newton's Second Law with interactive formula practice.";
-      case "video":
-        return "Video tutorials for Newton's Second Law concept.";
-      case "mistakes":
-        return "Common mistakes and misconceptions about Newton's Second Law.";
-      case "previous-year":
-        return "Previous year questions related to Newton's Second Law.";
-      default:
-        return conceptData.content.replace(/<[^>]*>/g, '');
-    }
+  const handleBookmarkToggle = () => {
+    if (!concept) return;
+    
+    setConcept({
+      ...concept,
+      bookmarked: !concept.bookmarked
+    });
+    
+    toast({
+      title: concept.bookmarked ? "Bookmark Removed" : "Bookmark Added",
+      description: concept.bookmarked 
+        ? "Concept removed from bookmarks" 
+        : "Concept added to bookmarks"
+    });
   };
-  
-  return (
-    <ConceptsPageLayout
-      title="Concept Study"
-      subtitle="Master one concept at a time"
-      showBackButton={true}
-    >
-      <div className="space-y-6">
-        {/* Enhanced Masthead with concept title, basic info and tags */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30">
-          <ConceptHeader
-            title={conceptData.title}
-            subject={conceptData.subject}
-            topic={conceptData.topic}
-            difficulty={conceptData.difficulty}
-            isBookmarked={bookmarked}
-            onBookmarkToggle={handleBookmarkToggle}
-          />
-          
-          {/* Tags Section */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {conceptData.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full border border-blue-200/50 dark:border-blue-700/30"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
 
-          {/* Read Aloud Button */}
-          <div className="mt-4">
-            <Button
-              onClick={() => handleReadAloud()}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Volume2 className={`w-4 h-4 ${isReadingAloud ? 'animate-pulse' : ''}`} />
-              {isReadingAloud ? 'Stop Reading' : 'Read Aloud'}
-            </Button>
-          </div>
+  if (!concept) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading concept...</p>
         </div>
-        
-        {/* Mastery and recall tracker */}
-        <ConceptMasterySection
-          conceptName={conceptData.title}
-          masteryPercentage={conceptData.masteryLevel}
-          recallPercentage={conceptData.recallAccuracy}
-          timeSpent={conceptData.timeSpent}
-          lastReviewed={conceptData.lastReviewed}
-          nextReview={conceptData.nextReview}
-        />
+      </div>
+    );
+  }
 
-        {/* AI Insights section - moved up for better visibility */}
-        <AIInsightsSection 
-          conceptId={conceptId || ""}
-          conceptTitle={conceptData.title}
-        />
-        
-        {/* Main content area with tabs and sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="learn" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-              {/* Primary tabs for different learning modalities */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
-                    <Brain className="w-4 h-4" />
-                    Learning Modalities
-                  </h3>
-                  <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 gap-1 h-auto p-1">
-                    <TabsTrigger value="learn" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <Book className="h-3 w-3" />
-                      <span>Learn</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="visual" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <Eye className="h-3 w-3" />
-                      <span>Visual</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="3d" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <Box className="h-3 w-3" />
-                      <span>3D Sim</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="formula" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <FlaskConical className="h-3 w-3" />
-                      <span>Formula</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="video" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <Video className="h-3 w-3" />
-                      <span>Video</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="mistakes" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <AlertTriangle className="h-3 w-3" />
-                      <span>Mistakes</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="previous-year" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <Lightbulb className="h-3 w-3" />
-                      <span>PYQs</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+  const formulaVariables = [
+    { symbol: 'V', name: 'Voltage', unit: 'Volts (V)' },
+    { symbol: 'I', name: 'Current', unit: 'Amperes (A)' },
+    { symbol: 'R', name: 'Resistance', unit: 'Ohms (Ω)' }
+  ];
 
-                {/* Secondary tabs for learning management */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    Learning Management
-                  </h3>
-                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 gap-1 h-auto p-1">
-                    <TabsTrigger value="recall" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <RefreshCw className="h-3 w-3" />
-                      <span>Recall</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="analytics" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <BarChart3 className="h-3 w-3" />
-                      <span>Analytics</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="revision" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <RefreshCw className="h-3 w-3" />
-                      <span>Revision</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="notes" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <FileText className="h-3 w-3" />
-                      <span>Notes</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="discuss" className="flex flex-col items-center gap-1 p-2 text-xs">
-                      <MessageSquare className="h-3 w-3" />
-                      <span>Discuss</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Read Aloud for Active Tab */}
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => handleReadAloud()}
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-2 text-xs"
-                  >
-                    <Volume2 className={`w-3 h-3 ${isReadingAloud ? 'animate-pulse text-blue-500' : ''}`} />
-                    Read Current Tab
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Tab content areas */}
-              <TabsContent value="learn" className="mt-6">
-                <ConceptContent content={conceptData.content} />
-              </TabsContent>
-              
-              <TabsContent value="visual" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-lg border border-purple-200/50 dark:border-purple-700/30">
-                  <Eye className="w-12 h-12 mx-auto mb-4 text-purple-600" />
-                  <h3 className="text-lg font-semibold mb-2">Visual Learning Mode</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Interactive visual representations and diagrams for {conceptData.title}</p>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      Visual representations help you understand force vectors, acceleration directions, and the relationship between mass and force in Newton's Second Law.
-                    </p>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="3d" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200/50 dark:border-green-700/30">
-                  <Box className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                  <h3 className="text-lg font-semibold mb-2">3D Simulation</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Interactive 3D models and simulations for {conceptData.title}</p>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      Manipulate 3D objects to see how different forces and masses affect acceleration in real-time simulations.
-                    </p>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="video" className="mt-6">
-                <ConceptResources conceptId={conceptId || ""} />
-              </TabsContent>
-              
-              <TabsContent value="formula" className="mt-6">
-                <FormulaReference 
-                  formulas={conceptData.formulas}
-                  conceptTitle={conceptData.title}
-                  handleOpenFormulaLab={() => {
-                    console.log("Opening Formula Lab");
-                  }}
-                />
-              </TabsContent>
-              
-              <TabsContent value="mistakes" className="mt-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="w-5 h-5 text-red-500" />
-                    <h3 className="text-lg font-semibold">Common Mistakes</h3>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200/50 dark:border-red-700/30">
-                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">Confusing Mass and Weight</h4>
-                      <p className="text-sm text-red-700 dark:text-red-300">
-                        Many students confuse mass (measured in kg) with weight (measured in N). Remember: Weight = mg, where g is gravitational acceleration.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200/50 dark:border-red-700/30">
-                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">Ignoring Direction</h4>
-                      <p className="text-sm text-red-700 dark:text-red-300">
-                        Force and acceleration are vector quantities. Always consider their direction when applying F = ma.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="previous-year" className="mt-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Lightbulb className="w-5 h-5 text-yellow-500" />
-                    <h3 className="text-lg font-semibold">Previous Year Questions</h3>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200/50 dark:border-yellow-700/30">
-                      <h4 className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">JEE Main 2023</h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
-                        A force of 10 N is applied to a mass of 2 kg. Calculate the acceleration produced.
-                      </p>
-                      <Button variant="outline" size="sm">View Solution</Button>
-                    </div>
-                    
-                    <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200/50 dark:border-yellow-700/30">
-                      <h4 className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">NEET 2022</h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
-                        If the mass of an object is doubled while keeping the force constant, what happens to acceleration?
-                      </p>
-                      <Button variant="outline" size="sm">View Solution</Button>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="recall" className="mt-6">
-                <QuickRecallSection 
-                  conceptId={conceptId || ""}
-                  title={conceptData.title}
-                  content={conceptData.content}
-                  onQuizComplete={handleQuizComplete}
-                />
-              </TabsContent>
-              
-              <TabsContent value="analytics" className="mt-6">
-                <AnalyticsSection conceptName={conceptData.title} />
-              </TabsContent>
-              
-              <TabsContent value="revision" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/20 dark:to-blue-950/20 rounded-lg border border-indigo-200/50 dark:border-indigo-700/30">
-                  <RefreshCw className="w-12 h-12 mx-auto mb-4 text-indigo-600" />
-                  <h3 className="text-lg font-semibold mb-2">Revision Schedule</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Spaced repetition and revision scheduling for {conceptData.title}</p>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">Next revision: Tomorrow</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">Difficulty level will be adjusted based on your performance</p>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="notes" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 rounded-lg border border-teal-200/50 dark:border-teal-700/30">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-teal-600" />
-                  <h3 className="text-lg font-semibold mb-2">Personal Notes</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">Your personal annotations and notes for {conceptData.title}</p>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-left">
-                    <textarea 
-                      className="w-full p-2 border rounded-md resize-none" 
-                      rows={4} 
-                      placeholder="Add your personal notes here..."
-                    />
-                    <Button className="mt-2" size="sm">Save Notes</Button>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="discuss" className="mt-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MessageSquare className="w-5 h-5 text-violet-500" />
-                    <h3 className="text-lg font-semibold">Community Discussion & AI Insights</h3>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    <div className="bg-violet-50 dark:bg-violet-950/20 p-4 rounded-lg border border-violet-200/50 dark:border-violet-700/30">
-                      <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">AI Insight</h4>
-                      <p className="text-sm text-violet-700 dark:text-violet-300">
-                        Based on your learning pattern, you might benefit from practicing more numerical problems involving Newton's Second Law.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-                      <h4 className="font-medium mb-2">Recent Discussion</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        "Can someone explain why F=ma doesn't work for objects moving at the speed of light?" - Student A
-                      </p>
-                      <Button variant="outline" size="sm">Join Discussion</Button>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-          
-          {/* Enhanced Sidebar with linked concepts, flashcards, and exam info */}
-          <div className="space-y-6">
-            <ConceptSidebar 
-              masteryLevel={conceptData.masteryLevel}
-              relatedConcepts={conceptData.relatedConcepts}
-              examReady={conceptData.examReady}
-            />
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/dashboard/student/concepts')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Concepts
+              </Button>
+              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReadAloud}
+                className="flex items-center gap-2"
+              >
+                {isReadingAloud ? (
+                  <>
+                    <VolumeX className="h-4 w-4" />
+                    Stop Reading
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-4 w-4" />
+                    Read Aloud
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </ConceptsPageLayout>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Concept Header */}
+        <ConceptHeader
+          title={concept.title}
+          subject={concept.subject}
+          topic={concept.topic || ''}
+          difficulty={concept.difficulty}
+          isBookmarked={concept.bookmarked}
+          onBookmarkToggle={handleBookmarkToggle}
+        />
+
+        {/* Mastery & Recall Tracker */}
+        <Card className="mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-indigo-600" />
+              Mastery & Recall Tracker
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="relative w-20 h-20 mx-auto mb-2">
+                  <Progress value={concept.mastery?.percentage || 0} className="absolute inset-0" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold">{concept.mastery?.percentage || 0}%</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium">Mastery Level</p>
+                <p className="text-xs text-gray-600">{concept.mastery?.level || 'Beginner'}</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 mb-1">{concept.recallAccuracy || 0}%</div>
+                <p className="text-sm font-medium">Recall Accuracy</p>
+                <p className="text-xs text-gray-600">Last 7 days</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 mb-1">{concept.quizScore || 0}%</div>
+                <p className="text-sm font-medium">Quiz Score</p>
+                <p className="text-xs text-gray-600">Latest attempt</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Insights */}
+        <Card className="mb-6 border-amber-200 dark:border-amber-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-amber-600" />
+              AI Insights & Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+                <Lightbulb className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">Focus Area</p>
+                  <p className="text-sm text-gray-600">Practice more resistance calculations to improve accuracy</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">Optimal Study Time</p>
+                  <p className="text-sm text-gray-600">15-20 minutes for best retention based on your patterns</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+            <TabsTrigger value="learn" className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Learn</span>
+            </TabsTrigger>
+            <TabsTrigger value="visual" className="flex items-center gap-1">
+              <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline">Visual</span>
+            </TabsTrigger>
+            <TabsTrigger value="3d" className="flex items-center gap-1">
+              <Cube className="h-4 w-4" />
+              <span className="hidden sm:inline">3D</span>
+            </TabsTrigger>
+            <TabsTrigger value="formula" className="flex items-center gap-1">
+              <Calculator className="h-4 w-4" />
+              <span className="hidden sm:inline">Formula</span>
+            </TabsTrigger>
+            <TabsTrigger value="video" className="flex items-center gap-1">
+              <Video className="h-4 w-4" />
+              <span className="hidden sm:inline">Video</span>
+            </TabsTrigger>
+            <TabsTrigger value="mistakes" className="flex items-center gap-1">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="hidden sm:inline">Mistakes</span>
+            </TabsTrigger>
+            <TabsTrigger value="recall" className="flex items-center gap-1">
+              <Repeat className="h-4 w-4" />
+              <span className="hidden sm:inline">Recall</span>
+            </TabsTrigger>
+            <TabsTrigger value="discuss" className="flex items-center gap-1">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Discuss</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="learn" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Learn: {concept.title}</CardTitle>
+                <CardDescription>Comprehensive text-based explanation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  {concept.content.split('\n\n').map((paragraph, index) => (
+                    <p key={index} className="mb-4">{paragraph}</p>
+                  ))}
+                </div>
+                
+                {concept.keyPoints && (
+                  <div className="mt-6">
+                    <h4 className="font-semibold mb-3">Key Points:</h4>
+                    <ul className="space-y-2">
+                      {concept.keyPoints.map((point, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <div className="w-2 h-2 bg-indigo-600 rounded-full mt-2"></div>
+                          <span className="text-sm">{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="visual" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Visual Representation</CardTitle>
+                <CardDescription>Diagrams and visual aids</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-slate-100 dark:bg-slate-800 rounded-lg aspect-video flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <Eye className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-500">Interactive circuit diagram would be displayed here</p>
+                    <p className="text-sm text-slate-400 mt-2">Visual representation of Ohm's Law</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="3d" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>3D Simulation</CardTitle>
+                <CardDescription>Interactive 3D models and simulations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-slate-100 dark:bg-slate-800 rounded-lg aspect-video flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <Cube className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-500">3D interactive simulation would be displayed here</p>
+                    <p className="text-sm text-slate-400 mt-2">Manipulate virtual circuits to see Ohm's Law in action</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="formula" className="space-y-6">
+            <FormulaTabContent 
+              formula="V = I × R"
+              variables={formulaVariables}
+            />
+          </TabsContent>
+
+          <TabsContent value="video" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Tutorials</CardTitle>
+                <CardDescription>Curated video content for visual learning</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {concept.videos?.map((video) => (
+                    <div key={video.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                      <div className="w-20 h-12 bg-slate-200 dark:bg-slate-700 rounded flex items-center justify-center">
+                        <Play className="h-6 w-6 text-slate-500" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{video.title}</h4>
+                        <p className="text-sm text-gray-600">Duration: {video.duration}</p>
+                      </div>
+                      <Button size="sm">
+                        <Play className="h-4 w-4 mr-1" />
+                        Watch
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="mistakes" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Common Mistakes</CardTitle>
+                <CardDescription>Avoid these common pitfalls</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border-l-4 border-red-500 pl-4">
+                    <h4 className="font-medium text-red-700 dark:text-red-400">Unit Confusion</h4>
+                    <p className="text-sm text-gray-600">Remember to use consistent units (V for volts, A for amperes, Ω for ohms)</p>
+                  </div>
+                  <div className="border-l-4 border-orange-500 pl-4">
+                    <h4 className="font-medium text-orange-700 dark:text-orange-400">Formula Rearrangement</h4>
+                    <p className="text-sm text-gray-600">When solving for current or resistance, make sure to rearrange the formula correctly</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="recall" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Recall Test</CardTitle>
+                <CardDescription>Test your memory with these quick questions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                    <p className="font-medium mb-2">What does the 'I' represent in Ohm's Law?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm">Voltage</Button>
+                      <Button variant="outline" size="sm">Current</Button>
+                      <Button variant="outline" size="sm">Resistance</Button>
+                      <Button variant="outline" size="sm">Power</Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="discuss" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Discussion & AI Insights</CardTitle>
+                <CardDescription>Ask questions and get AI-powered explanations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">Ask anything about this concept:</p>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="e.g., How does temperature affect resistance?"
+                        className="flex-1 px-3 py-2 border rounded-md text-sm"
+                      />
+                      <Button size="sm">Ask AI</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Related Concepts:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">Power Formula</Badge>
+                      <Badge variant="outline">Series Circuits</Badge>
+                      <Badge variant="outline">Parallel Circuits</Badge>
+                      <Badge variant="outline">Kirchhoff's Laws</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 

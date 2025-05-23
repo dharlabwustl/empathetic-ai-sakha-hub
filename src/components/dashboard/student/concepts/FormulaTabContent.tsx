@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,7 +17,6 @@ interface FormulaTabContentProps {
 }
 
 export const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ formula, variables }) => {
-  // Create initial state with empty values for all variables
   const initialValues = variables.reduce((acc, variable) => {
     acc[variable.symbol] = '';
     return acc;
@@ -28,27 +26,21 @@ export const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ formula, v
   const [result, setResult] = useState<string | null>(null);
   const [solveFor, setSolveFor] = useState<string>(variables[0].symbol);
   
-  // Handle input changes
   const handleInputChange = (symbol: string, value: string) => {
     setValues({
       ...values,
       [symbol]: value
     });
-    setResult(null); // Clear result when inputs change
+    setResult(null);
   };
   
-  // Reset all inputs
   const handleReset = () => {
     setValues(initialValues);
     setResult(null);
   };
   
-  // Solve the formula based on inputs
   const handleSolve = () => {
     try {
-      // Simple calculator for Ohm's Law as an example
-      // In a real app this would be more sophisticated and handle the formula dynamically
-      
       const V = solveFor === 'V' ? null : parseFloat(values['V']);
       const I = solveFor === 'I' ? null : parseFloat(values['I']);
       const R = solveFor === 'R' ? null : parseFloat(values['R']);
@@ -57,15 +49,12 @@ export const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ formula, v
       let unit = '';
       
       if (solveFor === 'V') {
-        // V = I * R
         calculatedValue = I !== null && R !== null ? I * R : null;
         unit = 'Volts (V)';
       } else if (solveFor === 'I') {
-        // I = V / R
         calculatedValue = V !== null && R !== null ? V / R : null;
         unit = 'Amperes (A)';
       } else if (solveFor === 'R') {
-        // R = V / I
         calculatedValue = V !== null && I !== null ? V / I : null;
         unit = 'Ohms (Ω)';
       }
