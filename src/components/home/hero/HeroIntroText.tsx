@@ -10,7 +10,7 @@ const HeroIntroText: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5 }}
     >
-      <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
+      <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">Transform your exam journey with AI precision.</span> Our intelligent platform masters <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and every major Indian competitive exam. Experience personalized learning that adapts to your unique mindset and accelerates your path to success.
     </motion.p>
   );
 };
