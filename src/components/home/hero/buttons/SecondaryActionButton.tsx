@@ -1,54 +1,54 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Brain, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface SecondaryActionButtonProps {
-  onClick: () => void;
-  text?: string;
-}
+const SecondaryActionButton: React.FC = () => {
+  const redirectToSignup = () => {
+    // Redirect to app.domain.com/signup if needed
+    window.location.href = window.location.hostname.includes('localhost') 
+      ? '/signup' 
+      : `${window.location.protocol}//app.${window.location.hostname.replace('www.', '')}/signup`;
+  };
 
-const SecondaryActionButton: React.FC<SecondaryActionButtonProps> = ({ 
-  onClick, 
-  text = "AI Exam Readiness Analysis" 
-}) => {
   return (
     <motion.div
-      whileHover={{ 
-        scale: 1.02,
-        y: -2
-      }}
-      whileTap={{ scale: 0.98 }}
-      className="relative w-full sm:w-auto"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="relative"
     >
-      <motion.div
-        className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400/30 via-violet-500/30 to-indigo-400/30 blur-md -z-10"
+      <motion.div 
+        className="absolute inset-0 bg-white/50 dark:bg-gray-800/40 blur-md rounded-full -z-10"
         animate={{ 
-          opacity: [0.5, 0.8, 0.5],
-          scale: [0.98, 1.01, 0.98],
+          boxShadow: [
+            "0 0 0 rgba(79, 70, 229, 0.1)", 
+            "0 0 15px rgba(79, 70, 229, 0.4)", 
+            "0 0 0 rgba(79, 70, 229, 0.1)"
+          ]
         }}
         transition={{ duration: 3, repeat: Infinity }}
       />
-      
-      <Button
-        onClick={onClick}
-        variant="outline"
-        size="lg"
-        className="border-2 w-full border-purple-300 hover:border-purple-400 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-xl group py-5 px-6 h-auto"
+      <Link
+        to="/signup"
+        onClick={(e) => {
+          e.preventDefault();
+          redirectToSignup();
+        }}
+        className="relative bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl border border-indigo-200 dark:border-indigo-800 flex items-center justify-center group"
       >
-        <Brain className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
-        <span>{text}</span>
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 5, 0, -5, 0],
-          }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-        >
-          <Sparkles className="h-5 w-5 ml-2 text-amber-500" />
-        </motion.div>
-      </Button>
+        <BookOpen className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+        <span className="relative">
+          <span>7-Day Free Trial</span>
+          <motion.span 
+            className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-400 dark:bg-indigo-500"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            style={{ originX: 0 }}
+          />
+        </span>
+      </Link>
     </motion.div>
   );
 };
