@@ -1,54 +1,11 @@
 
-/* Flashcard animations and 3D transforms */
 .perspective-1000 {
   perspective: 1000px;
 }
 
-.transform-style-preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-/* Flashcard hover effects */
-.flashcard-hover {
-  transition: all 0.3s ease;
-}
-
-.flashcard-hover:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Flip animations */
-.flip-enter {
-  transform: rotateY(0deg);
-}
-
-.flip-enter-active {
-  transform: rotateY(180deg);
-  transition: transform 300ms;
-}
-
-.flip-exit {
-  transform: rotateY(180deg);
-}
-
-.flip-exit-active {
-  transform: rotateY(0deg);
-  transition: transform 300ms;
-}
-
-/* Enhanced 3D effect for flashcards */
 .flashcard-3d {
-  transition: transform 0.6s;
   transform-style: preserve-3d;
+  transition: transform 0.6s;
 }
 
 .flashcard-3d.flipped {
@@ -56,36 +13,13 @@
 }
 
 .flashcard-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden; /* For Safari */
-}
-
-.flashcard-front {
-  z-index: 2;
 }
 
 .flashcard-back {
   transform: rotateY(180deg);
 }
 
-/* Glow effect */
-.flashcard-glow:hover {
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-}
-
-/* Progress indicator animation */
-@keyframes progress {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
-}
-
-.progress-animate {
-  animation: progress 30s linear;
+.flashcard-front {
+  transform: rotateY(0deg);
 }
