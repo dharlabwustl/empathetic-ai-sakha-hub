@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Cube, RotateCcw, Play, Pause, Volume2, VolumeX, Maximize, Settings } from 'lucide-react';
+import { RotateCcw, Play, Pause, Volume2, VolumeX, Maximize, Settings, Box } from 'lucide-react';
 
 interface Enhanced3DTabProps {
   conceptName: string;
@@ -71,7 +70,7 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName }) => {
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Cube className="h-5 w-5 text-indigo-600" />
+                <Box className="h-5 w-5 text-indigo-600" />
                 Interactive 3D Simulation
               </CardTitle>
               <CardDescription>
@@ -190,7 +189,7 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName }) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
-                <Cube className="h-5 w-5 text-purple-600" />
+                <Box className="h-5 w-5 text-purple-600" />
                 <div>
                   <div className="font-medium text-sm">Interactive Manipulation</div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">Rotate, zoom, and explore in 3D space</div>

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Brain, RefreshCw, CheckCircle, XCircle } from "lucide-react";
+import { Brain, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
 
 interface QuickRecallSectionProps {
   conceptId: string;
@@ -169,7 +169,7 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
               >
                 <div className="flex items-start gap-2">
                   {userAnswers[index] === q.correctAnswer ? (
-                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                   ) : (
                     <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                   )}
