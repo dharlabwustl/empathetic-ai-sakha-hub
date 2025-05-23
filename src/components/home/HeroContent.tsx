@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket, Smile } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExamNamesBadge from './hero/ExamNamesBadge';
 
@@ -15,6 +15,28 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
   const handleFreeTrialClick = () => {
     navigate('/signup');
   };
+
+  // Enhanced benefit items for the slider with Happy Learning added
+  const benefitItems = [
+    { icon: <Award className="w-5 h-5" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
+    { icon: <GraduationCap className="w-5 h-5" />, label: "Success", color: "from-blue-500 to-blue-700" },
+    { icon: <Zap className="w-5 h-5" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
+    { icon: <Brain className="w-5 h-5" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
+    { icon: <Sparkles className="w-5 h-5" />, label: "Analytics", color: "from-pink-500 to-rose-600" },
+    { icon: <Smile className="w-5 h-5" />, label: "Happy Learning", color: "from-indigo-500 to-indigo-700" }
+  ];
+
+  const [currentBenefitIndex, setCurrentBenefitIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefitIndex((prev) => (prev + 1) % benefitItems.length);
+    }, 2000); // Change every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [benefitItems.length]);
+
+  const currentBenefit = benefitItems[currentBenefitIndex];
 
   return (
     <motion.div 
@@ -125,7 +147,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Enhanced Key Benefits Slider */}
+      {/* Enhanced Key Benefits Slider with rotating items */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -147,42 +169,46 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <Zap className="w-5 h-5 text-purple-600" />
         </motion.h3>
         
-        <div className="grid grid-cols-5 gap-3 relative z-10">
-          {[
-            { icon: <Award className="w-5 h-5" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
-            { icon: <GraduationCap className="w-5 h-5" />, label: "Success", color: "from-blue-500 to-blue-700" },
-            { icon: <Zap className="w-5 h-5" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
-            { icon: <Brain className="w-5 h-5" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-            { icon: <Sparkles className="w-5 h-5" />, label: "Analytics", color: "from-pink-500 to-rose-600" }
-          ].map((benefit, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + idx * 0.1 }}
-              whileHover={{ 
-                scale: 1.08, 
-                y: -5,
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)"
+        {/* Rotating benefit display */}
+        <div className="flex justify-center relative z-10">
+          <motion.div
+            key={currentBenefitIndex}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className={`bg-gradient-to-br ${currentBenefit.color} text-white rounded-2xl py-6 px-8 flex flex-col items-center justify-center gap-3 shadow-2xl border border-white/30 backdrop-blur-sm min-w-[200px] min-h-[120px]`}
+          >
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 10, 0, -10, 0]
               }}
-              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-3 px-2 flex flex-col items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition-all duration-300 text-center cursor-pointer border border-white/30 backdrop-blur-sm`}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity
+              }}
+              className="bg-white/30 rounded-full p-3 backdrop-blur-sm"
             >
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, 0, -5, 0]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-                className="bg-white/30 rounded-full p-2 backdrop-blur-sm"
-              >
-                {benefit.icon}
-              </motion.div>
-              <span className="font-bold text-sm drop-shadow-md">{benefit.label}</span>
+              {currentBenefit.icon}
             </motion.div>
+            <span className="font-bold text-xl drop-shadow-md text-center">{currentBenefit.label}</span>
+          </motion.div>
+        </div>
+
+        {/* Progress indicators */}
+        <div className="flex justify-center gap-2 mt-4 relative z-10">
+          {benefitItems.map((_, index) => (
+            <motion.div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentBenefitIndex 
+                  ? 'bg-purple-600 w-6' 
+                  : 'bg-purple-300'
+              }`}
+              animate={index === currentBenefitIndex ? { scale: [1, 1.2, 1] } : {}}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            />
           ))}
         </div>
       </motion.section>
@@ -246,7 +272,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <CheckCircle2 className="w-5 h-5 text-green-500 drop-shadow-md" />
           Join <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 drop-shadow-lg">2M+ students</span> achieving exam success with AI
         </p>
-      </motion.div>
+      </div>
     </motion.div>
   );
 };
