@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, RefreshCw, CheckCircle2, XCircle, Mic, Send, StopCircle } from "lucide-react";
+import { Brain, RefreshCw, CheckCircle2, XCircle, Mic, Send, StopCircle, Volume2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface QuickRecallSectionProps {
@@ -138,6 +138,13 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
     if (onQuizComplete) {
       onQuizComplete(score);
     }
+
+    // Audio feedback
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(`Your score is ${score} percent. ${feedbackMessage}`);
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   const handleReset = () => {
@@ -146,28 +153,64 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
     setFeedback(null);
   };
 
+  const playInstructions = () => {
+    const instructions = `Welcome to the Quick Recall Test for ${title}. You can either write your understanding in the text box or record your voice explanation. Try to explain the concept as thoroughly as you can.`;
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(instructions);
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Brain className="h-5 w-5 text-blue-600" />
-        <h2 className="text-xl font-bold">Quick Recall Test</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-bold">Test Your Understanding</h3>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={playInstructions}
+          className="flex items-center gap-2"
+        >
+          <Volume2 className="h-4 w-4" />
+          Instructions
+        </Button>
       </div>
       
       {!isSubmitted ? (
         <>
+          <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>Challenge:</strong> Explain everything you know about "{title}" in your own words. 
+              The system will analyze your response and provide feedback on your understanding.
+            </p>
+          </div>
+
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'write' | 'speak')} className="w-full">
             <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="write">Write Response</TabsTrigger>
-              <TabsTrigger value="speak">Speak Response</TabsTrigger>
+              <TabsTrigger value="write" className="flex items-center gap-2">
+                <Send className="h-4 w-4" />
+                Write Response
+              </TabsTrigger>
+              <TabsTrigger value="speak" className="flex items-center gap-2">
+                <Mic className="h-4 w-4" />
+                Speak Response
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="write" className="space-y-4">
               <Textarea 
-                placeholder={`Write your understanding of ${title}...`}
+                placeholder={`Write everything you know about ${title}...`}
                 className="min-h-[200px] text-base"
                 value={userResponse}
                 onChange={(e) => setUserResponse(e.target.value)}
               />
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <p>💡 <strong>Tip:</strong> Include formulas, definitions, applications, and examples if you know them.</p>
+              </div>
             </TabsContent>
             
             <TabsContent value="speak" className="space-y-4">
@@ -230,7 +273,7 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
                       <div className="text-center space-y-4">
                         <Mic className="h-12 w-12 text-muted-foreground mx-auto" />
                         <div>
-                          <h3 className="text-lg font-medium">Record Your Understanding</h3>
+                          <h4 className="text-lg font-medium">Record Your Understanding</h4>
                           <p className="text-sm text-muted-foreground mb-4">
                             Speak clearly about what you know about {title}
                           </p>
@@ -251,17 +294,17 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
             <Button 
               disabled={!userResponse.trim()} 
               onClick={handleSubmit} 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
             >
               <Send className="h-4 w-4" />
-              Submit Response
+              Submit & Get Feedback
             </Button>
           </div>
         </>
       ) : (
         <div className="space-y-6">
           <div className="flex flex-col items-center justify-center gap-2">
-            <div className={`text-2xl font-bold ${
+            <div className={`text-3xl font-bold ${
               feedback?.score && feedback.score >= 70 
                 ? 'text-green-600 dark:text-green-400'
                 : feedback?.score && feedback.score >= 50
@@ -272,20 +315,20 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
             </div>
             <Progress 
               value={feedback?.score || 0} 
-              className="h-2 w-full max-w-md"
+              className="h-3 w-full max-w-md"
             />
-            <p className="text-sm font-medium mt-1">{feedback?.feedback}</p>
+            <p className="text-sm font-medium mt-1 text-center">{feedback?.feedback}</p>
           </div>
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Your Response:</h4>
-            <div className="p-4 bg-muted/30 rounded-lg">
+            <div className="p-4 bg-muted/30 rounded-lg max-h-32 overflow-y-auto">
               <p className="text-sm">{userResponse}</p>
             </div>
           </div>
           
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">Key Concepts Coverage:</h4>
+            <h4 className="text-sm font-medium">Key Concepts Analysis:</h4>
             <div className="space-y-2">
               {feedback?.keyPoints.map((point, index) => (
                 <div 
@@ -315,7 +358,7 @@ const QuickRecallSection: React.FC<QuickRecallSectionProps> = ({
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            <Button>
+            <Button className="bg-green-600 hover:bg-green-700">
               Continue Learning
             </Button>
           </div>
