@@ -75,32 +75,34 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
       
-      {/* Key Benefits Section - More Prominent and Clearly Above CTA */}
-      <motion.div
-        variants={fadeInStagger}
-        initial="hidden"
-        animate="visible"
-        className="mb-10 border-2 border-purple-100 dark:border-purple-900/30 rounded-xl p-4 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30"
+      {/* KEY BENEFITS SECTION - PROMINENTLY DISPLAYED ABOVE CTA */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mb-10 p-5 rounded-xl border-2 border-blue-100 dark:border-blue-900/30 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm"
       >
-        <h3 className="text-center font-semibold text-lg text-indigo-700 dark:text-indigo-400 mb-4">
-          Your Success Journey With Us
+        <h3 className="text-center font-semibold text-lg text-blue-700 dark:text-blue-400 mb-4">
+          Five Key Benefits For Your Success
         </h3>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-2">
           {[
-            { icon: <Award size={22} />, label: "Confidence Builder", color: "bg-green-500" },
-            { icon: <GraduationCap size={22} />, label: "Exam Success", color: "bg-blue-500" },
-            { icon: <Clock size={22} />, label: "Time Saver", color: "bg-amber-500" },
-            { icon: <Shield size={22} />, label: "Stress-Free", color: "bg-purple-500" },
-            { icon: <Smile size={22} />, label: "Happy Learning", color: "bg-pink-500" }
+            { icon: <Award size={24} />, label: "Confidence Builder", color: "bg-green-500" },
+            { icon: <GraduationCap size={24} />, label: "Exam Success", color: "bg-blue-500" },
+            { icon: <Clock size={24} />, label: "Time Saver", color: "bg-amber-500" },
+            { icon: <Shield size={24} />, label: "Stress-Free", color: "bg-purple-500" },
+            { icon: <Smile size={24} />, label: "Happy Learning", color: "bg-pink-500" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
               variants={itemVariants}
               custom={idx}
+              initial="hidden"
+              animate="visible"
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.98 }}
-              className={`${benefit.color} text-white rounded-lg py-4 px-3 flex flex-col items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 text-center`}
+              className={`${benefit.color} text-white rounded-lg py-3 px-3 flex flex-col items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300 text-center`}
             >
               <motion.div 
                 animate={{ 
@@ -116,11 +118,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               >
                 {benefit.icon}
               </motion.div>
-              <span className="font-medium text-sm">{benefit.label}</span>
+              <span className="font-bold text-sm md:text-base">{benefit.label}</span>
             </motion.div>
           ))}
         </div>
-      </motion.div>
+      </motion.section>
       
       {/* Exam Names Badge */}
       <ExamNamesBadge />
