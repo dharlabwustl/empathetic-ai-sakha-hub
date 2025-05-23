@@ -6,6 +6,7 @@ import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
 import ExamNamesBadge from './ExamNamesBadge';
 import { Award, GraduationCap, Clock, Shield, Smile } from 'lucide-react';
+import { takeawayPoints } from './hero/feature-highlights/featureData';
 import { fadeInStagger, itemVariants } from './hero/feature-highlights/animationVariants';
 
 interface HeroContentProps {
@@ -79,7 +80,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-6 p-5 rounded-xl border-2 border-blue-100 dark:border-blue-900/30 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm"
+        className="mb-10 p-5 rounded-xl border-2 border-blue-100 dark:border-blue-900/30 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm"
       >
         <h3 className="text-center font-semibold text-lg text-blue-700 dark:text-blue-400 mb-4">
           Five Key Benefits For Your Success
@@ -91,7 +92,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             { icon: <GraduationCap size={24} />, label: "Exam Success", color: "bg-blue-500" },
             { icon: <Clock size={24} />, label: "Time Saver", color: "bg-amber-500" },
             { icon: <Shield size={24} />, label: "Stress-Free", color: "bg-purple-500" },
-            { icon: <Smile size={24} />, label: "Learning", color: "bg-pink-500" }
+            { icon: <Smile size={24} />, label: "Happy Learning", color: "bg-pink-500" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
