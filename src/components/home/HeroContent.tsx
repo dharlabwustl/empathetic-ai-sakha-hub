@@ -75,22 +75,24 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
       
-      {/* Key Benefits Section */}
+      {/* Key Benefits Section - Enhanced with animations */}
       <motion.div
         variants={fadeInStagger}
         initial="hidden"
         animate="show"
-        className="mb-6"
+        className="mb-8"
       >
         <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
           Key Benefits
         </h3>
-        <div className="flex flex-wrap gap-2 md:gap-3">
+        <div className="flex flex-wrap gap-3">
           {takeawayPoints.map((point, idx) => (
             <motion.div
               key={idx}
               variants={itemVariants}
-              className={`flex items-center px-3 py-2 rounded-full bg-gradient-to-r ${point.color} text-white shadow-sm transform transition-all hover:scale-105 hover:shadow-md`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className={`flex items-center px-3 py-2 rounded-full bg-gradient-to-r ${point.color} text-white shadow-sm transition-all`}
             >
               <span className="mr-2">{point.icon}</span>
               <span className="font-medium text-sm">{point.title}</span>
