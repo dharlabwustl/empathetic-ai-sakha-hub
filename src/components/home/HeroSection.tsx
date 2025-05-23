@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -251,22 +250,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
       </div>
       
       {/* Content Container */}
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 min-h-[85vh]">
           {/* Hero Content */}
           <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
           
-          {/* Dashboard Preview - Restored to original size */}
+          {/* Dashboard Preview - Increased size to match hero section length */}
           <motion.div 
-            className="w-full lg:w-1/2 relative perspective-1000"
+            className="w-full lg:w-1/2 relative perspective-1000 flex items-center justify-center"
             initial={{ opacity: 0, rotateY: 20 }}
             animate={{ opacity: 1, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            <div className="relative">
+            <div className="relative w-full max-w-2xl">
               {/* Enhanced 3D Dashboard Frame */}
               <motion.div 
-                className="bg-white/10 backdrop-blur-xl rounded-3xl p-2 shadow-2xl border border-white/20 preserve-3d"
+                className="bg-white/10 backdrop-blur-xl rounded-3xl p-3 shadow-2xl border border-white/20 preserve-3d"
                 animate={{
                   rotateX: [0, 2, 0, -2, 0],
                   rotateY: [0, 1, 0, -1, 0],
@@ -282,7 +281,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                 }}
               >
-                <div className="bg-slate-50 rounded-2xl overflow-hidden shadow-inner h-[500px] lg:h-[600px]">
+                <div className="bg-slate-50 rounded-2xl overflow-hidden shadow-inner h-[650px] lg:h-[750px]">
                   <div className="bg-gradient-to-br from-indigo-600 to-purple-700 h-16 flex items-center px-6">
                     <div className="flex gap-2">
                       <div className="w-3 h-3 bg-red-400 rounded-full"></div>
@@ -293,7 +292,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                   </div>
                   
                   {/* Dashboard Content */}
-                  <div className="p-6 space-y-4 h-full overflow-hidden">
+                  <div className="p-6 space-y-6 h-full overflow-hidden">
                     {/* Header Stats */}
                     <div className="grid grid-cols-3 gap-4">
                       {[
@@ -303,7 +302,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                       ].map((stat, idx) => (
                         <motion.div 
                           key={idx}
-                          className="bg-white rounded-xl p-3 shadow-md"
+                          className="bg-white rounded-xl p-4 shadow-md"
                           animate={{ 
                             scale: [1, 1.02, 1],
                             boxShadow: [
@@ -314,16 +313,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                           }}
                           transition={{ duration: 3, repeat: Infinity, delay: idx * 0.5 }}
                         >
-                          <div className={`w-2 h-2 ${stat.color} rounded-full mb-2`}></div>
-                          <div className="text-xs text-gray-600 font-medium">{stat.label}</div>
-                          <div className="text-sm font-bold text-gray-900">{stat.value}</div>
+                          <div className={`w-3 h-3 ${stat.color} rounded-full mb-3`}></div>
+                          <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+                          <div className="text-lg font-bold text-gray-900">{stat.value}</div>
                         </motion.div>
                       ))}
                     </div>
                     
                     {/* Study Plan Section */}
                     <motion.div 
-                      className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4"
+                      className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5"
                       animate={{ 
                         background: [
                           "linear-gradient(45deg, #eff6ff, #e0e7ff)",
@@ -333,10 +332,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                       }}
                       transition={{ duration: 4, repeat: Infinity }}
                     >
-                      <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                      <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-lg">
                         📚 Today's Study Plan
                       </h3>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {[
                           { subject: "Physics", progress: "75%", time: "2h 30m" },
                           { subject: "Chemistry", progress: "60%", time: "1h 45m" },
@@ -344,22 +343,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                         ].map((item, idx) => (
                           <motion.div 
                             key={idx} 
-                            className="flex items-center justify-between bg-white rounded-lg p-2"
+                            className="flex items-center justify-between bg-white rounded-lg p-3"
                             initial={{ x: -20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: idx * 0.2 }}
                           >
-                            <span className="text-sm font-medium text-gray-700">{item.subject}</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                            <span className="text-base font-medium text-gray-700">{item.subject}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
                                 <motion.div 
-                                  className="bg-blue-500 h-1.5 rounded-full"
+                                  className="bg-blue-500 h-2 rounded-full"
                                   initial={{ width: "0%" }}
                                   animate={{ width: item.progress }}
                                   transition={{ delay: 1 + idx * 0.3, duration: 1 }}
                                 />
                               </div>
-                              <span className="text-xs text-gray-500">{item.time}</span>
+                              <span className="text-sm text-gray-500">{item.time}</span>
                             </div>
                           </motion.div>
                         ))}
@@ -368,27 +367,52 @@ const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) =
                     
                     {/* AI Suggestions */}
                     <motion.div 
-                      className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4"
+                      className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5"
                       animate={{ 
                         scale: [1, 1.01, 1],
                       }}
                       transition={{ duration: 5, repeat: Infinity }}
                     >
-                      <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                      <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 text-lg">
                         🤖 AI Recommendations
                       </h3>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                      <div className="text-base text-gray-600 space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
                           <span>Take a 15-min break for better focus</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                        <div className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                           <span>Review Organic Chemistry concepts</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        <div className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                           <span>Practice more numerical problems</span>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Exam Readiness Section */}
+                    <motion.div 
+                      className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5"
+                      animate={{ 
+                        scale: [1, 1.01, 1],
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                    >
+                      <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 text-lg">
+                        🎯 Exam Readiness Score
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="text-3xl font-bold text-green-600">85%</div>
+                          <div className="text-sm text-gray-600">
+                            <div>Ready for NEET</div>
+                            <div className="text-green-600 font-medium">+5% this week</div>
+                          </div>
+                        </div>
+                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                          <span className="text-2xl">🚀</span>
                         </div>
                       </div>
                     </motion.div>
