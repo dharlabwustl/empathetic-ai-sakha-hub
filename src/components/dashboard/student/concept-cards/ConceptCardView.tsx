@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Brain, BookOpen, Clock, Book } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,6 +27,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   const [selectedView, setSelectedView] = useState<'today' | 'week' | 'month'>('today');
   const [activeSubject, setActiveSubject] = useState<string>(subject || 'all');
   const [showAllCards, setShowAllCards] = useState(false);
+  const navigate = useNavigate();
   
   // Get unique subjects
   const subjects = React.useMemo(() => {
@@ -66,6 +67,11 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
     
     return filtered;
   }, [conceptCards, selectedView, subject, activeSubject, chapter, limit, showAllCards]);
+  
+  const handleCardClick = (cardId: string) => {
+    console.log("ConceptCardView - Navigating to concept detail:", cardId);
+    navigate(`/dashboard/student/concepts/${cardId}`);
+  };
   
   if (loading) {
     return (
@@ -139,7 +145,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredCards.map((card) => (
-            <Link key={card.id} to={`/dashboard/student/concepts/${card.id}`}>
+            <div key={card.id} onClick={() => handleCardClick(card.id)} className="cursor-pointer">
               <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
                 <CardContent className="p-4 h-full flex flex-col">
                   <div className="flex items-start justify-between mb-2">
@@ -173,7 +179,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            </Link>
+            </div>
           ))}
         </div>
       )}

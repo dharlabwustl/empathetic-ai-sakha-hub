@@ -55,7 +55,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page using updated correct route
+    console.log("ConceptCard - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
     
     if (onView) {
@@ -65,6 +65,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log("ConceptCard StudyNow - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
     
     if (onView) {
