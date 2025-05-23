@@ -73,7 +73,7 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -131,29 +131,29 @@ const HeroSection = () => {
                 transition={{ delay: 0.5, duration: 0.8 }}
                 className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               >
-                From struggling student to exam champion with the world's first 
+                From struggling to exam champion with the world's first 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> & 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> hyper-personalized</span> exam prep platform for 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold"> JEE, NEET, UPSC, CAT & beyond</span>.
               </motion.p>
             </div>
 
-            {/* How PREPZR Supports You - Compact Version */}
+            {/* How PREPZR Supports You - Enhanced Visibility */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+              className="bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/30 shadow-lg"
             >
               <motion.h3 
-                className="text-center font-semibold text-lg text-white mb-3 flex items-center justify-center gap-2"
+                className="text-center font-bold text-lg text-white mb-3 flex items-center justify-center gap-2"
                 animate={{ 
                   scale: [1, 1.02, 1],
                 }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 <Target className="w-5 h-5" />
-                <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent font-bold">
+                <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent font-bold">
                   How PREPZR Supports You
                 </span>
                 <Sparkles className="w-5 h-5" />
@@ -165,17 +165,17 @@ const HeroSection = () => {
                     key={idx}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ 
-                      opacity: [0.7, 1, 0.7],
-                      scale: [0.95, 1, 0.95],
-                      x: [0, Math.sin(idx * 0.5) * 2, 0]
+                      opacity: [0.8, 1, 0.8],
+                      scale: [0.95, 1.05, 0.95],
+                      x: [0, Math.sin(idx * 0.5) * 3, 0]
                     }}
                     transition={{ 
                       delay: 0.7 + idx * 0.1,
-                      duration: 2,
+                      duration: 2.5,
                       repeat: Infinity,
                       repeatDelay: 3
                     }}
-                    className="text-sm font-semibold text-blue-200 bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-3 py-2 rounded-full border border-blue-400/30 backdrop-blur-sm shadow-lg"
+                    className="text-sm font-bold text-white bg-gradient-to-r from-blue-500/30 to-purple-500/30 px-4 py-2 rounded-full border border-blue-300/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all"
                   >
                     {benefit}
                   </motion.span>
@@ -223,17 +223,17 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Fixed CTA Buttons - Better Spacing */}
+            {/* Enhanced CTA Buttons - Better Visibility and Spacing */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4"
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6"
             >
               <Button
                 onClick={handleStartJourney}
                 size="lg"
-                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg"
+                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg min-h-[60px]"
               >
                 <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
                 Start Your Success Journey - 7 Days Free
@@ -243,7 +243,7 @@ const HeroSection = () => {
               <Button
                 onClick={handleExamReadinessClick}
                 size="lg"
-                className="group bg-gray-800/80 hover:bg-gray-700/80 border-2 border-gray-600/50 hover:border-gray-500/50 text-gray-100 hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group bg-gray-800/90 hover:bg-gray-700/90 border-2 border-gray-500/60 hover:border-gray-400/60 text-gray-100 hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl min-h-[60px]"
               >
                 <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 AI Exam Readiness Analysis - Try Now
@@ -272,20 +272,20 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Right Side - Premium Dashboard Preview */}
+          {/* Right Side - Compact Premium Dashboard Preview */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative"
+            className="relative flex justify-center"
           >
-            <div className="relative">
+            <div className="relative max-w-md w-full">
               {/* Enhanced Premium Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-3xl animate-pulse" />
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
               
-              {/* Premium Dashboard Container */}
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl">
+              {/* Premium Dashboard Container - Compact Size */}
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl transform scale-75 lg:scale-85">
                 {/* Premium Header Bar */}
                 <div className="bg-gradient-to-r from-slate-800/90 to-slate-700/90 rounded-2xl p-2 mb-2 flex items-center gap-2">
                   <div className="flex gap-1">
@@ -299,29 +299,29 @@ const HeroSection = () => {
                 <DashboardPreview />
               </div>
 
-              {/* Premium Floating Elements */}
+              {/* Premium Floating Elements - Adjusted Positions */}
               <motion.div
-                className="absolute -top-4 -left-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3 rounded-xl shadow-2xl border border-emerald-400/30"
-                animate={{ y: [0, -10, 0] }}
+                className="absolute -top-2 -left-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-2 rounded-xl shadow-2xl border border-emerald-400/30"
+                animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <GraduationCap className="w-6 h-6" />
+                <GraduationCap className="w-5 h-5" />
               </motion.div>
 
               <motion.div
-                className="absolute -bottom-4 -right-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-xl shadow-2xl border border-amber-400/30"
-                animate={{ y: [0, 10, 0] }}
+                className="absolute -bottom-2 -right-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-2 rounded-xl shadow-2xl border border-amber-400/30"
+                animate={{ y: [0, 8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
               >
-                <Award className="w-6 h-6" />
+                <Award className="w-5 h-5" />
               </motion.div>
 
               <motion.div
-                className="absolute top-1/2 -right-8 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-3 rounded-xl shadow-2xl border border-purple-400/30"
-                animate={{ x: [0, 10, 0] }}
+                className="absolute top-1/2 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-2 rounded-xl shadow-2xl border border-purple-400/30"
+                animate={{ x: [0, 8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
               >
-                <Sparkles className="w-6 h-6" />
+                <Sparkles className="w-5 h-5" />
               </motion.div>
             </div>
           </motion.div>
