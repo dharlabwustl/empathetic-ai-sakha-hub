@@ -18,7 +18,8 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<'welcome' | 'features' | 'cta' | 'idle'>('welcome');
+  const [currentPhase, setCurrentPhase] = useState<'welcome' | 'features' | 'cta' | 'explore' | 'benefits' | 'idle'>('welcome');
+  const [phaseCount, setPhaseCount] = useState(0);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,33 +30,51 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const timeoutRef = useRef<number | null>(null);
   const phaseTimeoutRef = useRef<number | null>(null);
 
-  // Enhanced welcome script with PREPZR features
+  // Enhanced welcome scripts with correct pronunciation and intelligent phases
   const getWelcomeScript = () => {
     const scripts = {
-      welcome: `Welcome to PREP-ZR! I'm your AI learning companion. PREP-ZR is the world's first emotionally aware exam preparation platform that understands not just what you study, but how you feel while studying.`,
+      welcome: `Welcome to PREP ZR! I'm your AI learning companion. PREP ZR is the world's first emotionally aware exam preparation platform that understands not just what you study, but how you feel while studying.`,
       
-      features: `Let me tell you about our key features: We offer personalized study plans that adapt to your mood and learning style. Our AI analyzes your performance in real-time and provides instant feedback. You get access to thousands of practice questions, video tutorials, and interactive simulations. Plus, our stress-free learning approach helps you build confidence while preparing for exams like NEET, JEE, UPSC, and CAT.`,
+      features: `Our AI technology adapts to your unique learning style and emotional state. We offer personalized study plans, real-time performance analysis, and instant feedback. You get access to thousands of practice questions, interactive simulations, and video tutorials designed specifically for competitive exams.`,
       
-      cta: `Ready to transform your exam preparation? You can start your 7-day free trial right now, or let me analyze your exam readiness to create a personalized study plan. Just say "start free trial", "analyze readiness", or "sign up" and I'll help you get started. You can also ask me about any specific features you'd like to know more about.`,
+      benefits: `With PREP ZR, you'll experience stress-free learning, build unshakeable confidence, save valuable time with efficient study methods, and enjoy a happier learning journey. Our platform is designed to make exam preparation feel less overwhelming and more achievable.`,
       
-      idle: `I'm here whenever you need help. You can ask me about PREP-ZR features, start your free trial, or analyze your exam readiness. Just speak to me anytime!`
+      explore: `You can explore different features like our AI exam readiness analyzer, which creates a personalized study plan based on your current knowledge level. We also have interactive concept cards, 3D simulations, and a supportive community of fellow students.`,
+      
+      cta: `Ready to transform your exam preparation? You can start your 7-day free trial right now to experience everything PREP ZR has to offer. Just say "start free trial", "sign up", or "analyze my readiness" and I'll help you get started immediately.`,
+      
+      idle: `I'm here to help you explore PREP ZR. You can ask me about specific features, start your free trial, analyze your exam readiness, or learn more about how our AI can help you succeed. What would you like to know?`
     };
     
     return scripts[currentPhase];
   };
 
-  // Voice commands handler
+  // Intelligent phase progression
+  const getNextPhase = () => {
+    const phaseOrder = ['welcome', 'features', 'benefits', 'explore', 'cta', 'idle'];
+    const currentIndex = phaseOrder.indexOf(currentPhase);
+    
+    if (currentIndex < phaseOrder.length - 1) {
+      return phaseOrder[currentIndex + 1] as typeof currentPhase;
+    }
+    
+    // After completing all phases, cycle through key messages
+    const cyclicPhases = ['features', 'cta', 'benefits'];
+    return cyclicPhases[phaseCount % cyclicPhases.length] as typeof currentPhase;
+  };
+
+  // Voice commands handler with improved responses
   const handleVoiceCommand = (transcript: string) => {
     const command = transcript.toLowerCase();
     
-    if (command.includes('start free trial') || command.includes('free trial') || command.includes('sign up')) {
-      speak("Perfect! Let me take you to the sign-up page where you can start your 7-day free trial.");
+    if (command.includes('start free trial') || command.includes('free trial') || command.includes('sign up') || command.includes('signup')) {
+      speak("Excellent choice! Let me take you to the sign-up page where you can start your 7-day free trial and experience the full power of PREP ZR.");
       setTimeout(() => navigate('/signup'), 2000);
       return true;
     }
     
-    if (command.includes('analyze') || command.includes('exam readiness') || command.includes('readiness')) {
-      speak("Excellent choice! I'll open the exam readiness analyzer to create your personalized study plan.");
+    if (command.includes('analyze') || command.includes('exam readiness') || command.includes('readiness') || command.includes('assessment')) {
+      speak("Great decision! I'll open our AI-powered exam readiness analyzer. This will evaluate your current knowledge and create a personalized study plan just for you.");
       setTimeout(() => {
         const event = new CustomEvent('open-exam-analyzer');
         window.dispatchEvent(event);
@@ -63,34 +82,45 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       return true;
     }
     
-    if (command.includes('features') || command.includes('what can') || command.includes('tell me more')) {
+    if (command.includes('features') || command.includes('what can') || command.includes('tell me more') || command.includes('how does')) {
       setCurrentPhase('features');
-      speak(getWelcomeScript());
+      speak("Let me tell you about PREP ZR's amazing features. " + getWelcomeScript());
+      return true;
+    }
+    
+    if (command.includes('benefits') || command.includes('why prep') || command.includes('advantages')) {
+      setCurrentPhase('benefits');
+      speak("Here are the key benefits of using PREP ZR. " + getWelcomeScript());
       return true;
     }
     
     if (command.includes('login') || command.includes('log in')) {
-      speak("Taking you to the login page. You can use your existing account or try our demo login.");
+      speak("Taking you to the login page. You can use your existing account or try our demo login to explore PREP ZR.");
       setTimeout(() => navigate('/login'), 2000);
       return true;
     }
     
-    if (command.includes('stop') || command.includes('quiet') || command.includes('mute')) {
+    if (command.includes('stop') || command.includes('quiet') || command.includes('mute') || command.includes('silence')) {
       setIsMuted(true);
       stopSpeaking();
-      speak("I'll be quiet now. Click the volume button if you want me to speak again.");
+      speak("I'll be quiet now. Click the volume button whenever you want me to speak again.");
       return true;
     }
     
-    if (command.includes('repeat') || command.includes('say again')) {
+    if (command.includes('repeat') || command.includes('say again') || command.includes('once more')) {
       speak(getWelcomeScript());
+      return true;
+    }
+    
+    if (command.includes('help') || command.includes('commands') || command.includes('what can you do')) {
+      speak("I can help you start a free trial, analyze your exam readiness, explain PREP ZR features, or take you to the login page. Just speak naturally and I'll understand!");
       return true;
     }
     
     return false;
   };
 
-  // Enhanced speech synthesis
+  // Enhanced speech synthesis with correct pronunciation
   const speak = (text: string) => {
     if (isMuted || location.pathname !== '/') return;
     
@@ -99,18 +129,22 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       window.speechSynthesis.cancel();
     }
     
-    // Create new utterance with PREPZR pronunciation fix
-    const utterance = new SpeechSynthesisUtterance(
-      text.replace(/PREPZR/gi, 'PREP-ZR').replace(/Prepzr/g, 'PREP-ZR')
-    );
+    // Create new utterance with correct PREPZR pronunciation
+    const correctedText = text
+      .replace(/PREPZR/gi, 'PREP ZR')
+      .replace(/Prepzr/gi, 'PREP ZR')
+      .replace(/prep-zr/gi, 'PREP ZR')
+      .replace(/prepzr/gi, 'PREP ZR');
     
-    // Configure voice settings
+    const utterance = new SpeechSynthesisUtterance(correctedText);
+    
+    // Configure voice settings for clarity and engagement
     const voices = window.speechSynthesis.getVoices();
     const preferredVoice = voices.find(voice => 
-      voice.name.includes('Female') || 
-      voice.name.includes('Samantha') ||
-      voice.name.includes('Zira') ||
-      voice.lang.includes('en-US')
+      voice.name.includes('Google') ||
+      voice.name.includes('Microsoft') ||
+      voice.name.includes('Natural') ||
+      (voice.lang.includes('en-US') && voice.name.includes('Female'))
     );
     
     if (preferredVoice) {
@@ -122,29 +156,31 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     utterance.volume = 0.8;
     utterance.lang = language;
     
-    // Event handlers
+    // Event handlers for intelligent phase progression
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => {
       setIsSpeaking(false);
-      if (currentPhase === 'welcome') {
-        // Move to features phase after welcome
+      
+      // Intelligent phase progression with proper timing
+      if (location.pathname === '/' && !isMuted) {
+        const nextPhase = getNextPhase();
+        const delay = currentPhase === 'welcome' ? 4000 : 
+                     currentPhase === 'features' ? 6000 : 
+                     currentPhase === 'benefits' ? 5000 : 
+                     currentPhase === 'explore' ? 7000 : 
+                     currentPhase === 'cta' ? 15000 : 30000; // Longer delay for idle phase
+        
         phaseTimeoutRef.current = window.setTimeout(() => {
-          if (location.pathname === '/' && !isMuted) {
-            setCurrentPhase('features');
-            setTimeout(() => speak(getWelcomeScript()), 1000);
+          if (location.pathname === '/' && !isMuted && isActive) {
+            setCurrentPhase(nextPhase);
+            setPhaseCount(prev => prev + 1);
+            
+            // Don't immediately speak the next phase if we're in idle
+            if (nextPhase !== 'idle') {
+              setTimeout(() => speak(getWelcomeScript()), 1000);
+            }
           }
-        }, 3000);
-      } else if (currentPhase === 'features') {
-        // Move to CTA phase after features
-        phaseTimeoutRef.current = window.setTimeout(() => {
-          if (location.pathname === '/' && !isMuted) {
-            setCurrentPhase('cta');
-            setTimeout(() => speak(getWelcomeScript()), 2000);
-          }
-        }, 4000);
-      } else if (currentPhase === 'cta') {
-        // Go to idle after CTA
-        setCurrentPhase('idle');
+        }, delay);
       }
     };
     utterance.onerror = () => setIsSpeaking(false);
@@ -161,7 +197,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     setIsSpeaking(false);
   };
 
-  // Initialize speech recognition
+  // Initialize speech recognition with better error handling
   const initializeRecognition = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       return;
@@ -180,8 +216,12 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       // Restart recognition if still on home page and not muted
       if (location.pathname === '/' && !isMuted && isActive) {
         setTimeout(() => {
-          if (recognitionRef.current) {
-            recognitionRef.current.start();
+          if (recognitionRef.current && location.pathname === '/') {
+            try {
+              recognitionRef.current.start();
+            } catch (error) {
+              // Ignore errors if recognition is already starting
+            }
           }
         }, 1000);
       }
@@ -192,14 +232,27 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       console.log('Voice command:', transcript);
       
       const handled = handleVoiceCommand(transcript);
-      if (!handled && currentPhase === 'idle') {
-        speak("I didn't quite understand that. You can ask me about PREP-ZR features, start a free trial, or analyze your exam readiness.");
+      if (!handled) {
+        if (currentPhase === 'idle') {
+          speak("I didn't quite understand that. You can ask me about PREP ZR features, start a free trial, analyze your exam readiness, or just say 'help' to see what I can do.");
+        } else {
+          speak("I'm listening! You can ask me about features, start a trial, or analyze your readiness anytime.");
+        }
       }
     };
     
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
       setIsListening(false);
+      
+      // Don't restart immediately after certain errors
+      if (event.error !== 'aborted' && event.error !== 'no-speech') {
+        setTimeout(() => {
+          if (location.pathname === '/' && !isMuted && isActive) {
+            initializeRecognition();
+          }
+        }, 3000);
+      }
     };
     
     recognitionRef.current = recognition;
@@ -212,11 +265,17 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     
     setIsActive(true);
     setHasSpoken(true);
+    setCurrentPhase('welcome');
+    setPhaseCount(0);
     
     // Initialize recognition
     const recognition = initializeRecognition();
     if (recognition) {
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('Error starting recognition:', error);
+      }
     }
     
     // Start with welcome message after a short delay
@@ -232,9 +291,15 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     setIsActive(false);
     setIsSpeaking(false);
     setIsListening(false);
+    setCurrentPhase('welcome');
+    setPhaseCount(0);
     
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        // Ignore errors when stopping
+      }
     }
     
     stopSpeaking();
@@ -247,7 +312,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     }
   };
 
-  // Handle page changes
+  // Handle page changes - stop immediately when leaving home page
   useEffect(() => {
     if (location.pathname !== '/') {
       stopAssistant();
@@ -261,11 +326,13 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     };
   }, []);
 
-  // Auto-start after page load
+  // Auto-start after page load with delay
   useEffect(() => {
     if (location.pathname === '/' && !hasSpoken && !isMuted) {
       const autoStartTimer = setTimeout(() => {
-        startAssistant();
+        if (location.pathname === '/') { // Double check we're still on homepage
+          startAssistant();
+        }
       }, 3000);
       
       return () => clearTimeout(autoStartTimer);
@@ -358,9 +425,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute -top-12 right-0 bg-black text-white text-xs px-2 py-1 rounded"
+              className="absolute -top-12 right-0 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap"
             >
-              Speaking about PREPZR...
+              Speaking about PREP ZR...
             </motion.div>
           )}
           
@@ -369,7 +436,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute -top-12 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded"
+              className="absolute -top-12 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap"
             >
               Listening for commands...
             </motion.div>
