@@ -1,563 +1,444 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, Smile, BookOpen, Heart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import DashboardPreview from './DashboardPreview';
+import React, { useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sphere, Box, Torus } from '@react-three/drei';
+import * as THREE from 'three';
+import HeroContent from './hero/HeroContent';
+import PainPoints from './hero/PainPoints';
 
-const HeroSection = () => {
-  const navigate = useNavigate();
-  const [currentFeature, setCurrentFeature] = useState(0);
-  const [showDashboard, setShowDashboard] = useState(false);
-
-  const features = [
-    { icon: <Brain className="w-6 h-6" />, text: "AI-Powered Learning", color: "from-blue-500 to-purple-600" },
-    { icon: <Target className="w-6 h-6" />, text: "Personalized Study Plans", color: "from-purple-500 to-pink-600" },
-    { icon: <Award className="w-6 h-6" />, text: "Exam Success Guarantee", color: "from-green-500 to-blue-600" },
-    { icon: <Zap className="w-6 h-6" />, text: "Smart Progress Tracking", color: "from-amber-500 to-red-600" }
-  ];
-
-  const supportBenefits = ["Confidence Builder", "Success Booster", "Time Saver", "Stress-Free", "Smart Analytics"];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % features.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleStartJourney = () => {
-    navigate('/signup');
-  };
-
-  const handleExamReadinessClick = () => {
-    // This will trigger the exam analyzer
-    window.dispatchEvent(new Event('open-exam-analyzer'));
-  };
-
-  const handleWatchDemo = () => {
-    setShowDashboard(true);
-  };
+// Animated 3D Student Avatar Component
+const StudentAvatar = () => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.3;
+      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
+    }
+  });
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      {/* Enhanced 3D Dynamic Background */}
-      <div className="absolute inset-0">
-        {/* Multi-layered gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-purple-600/40 to-pink-600/30" />
-        <div className="absolute inset-0 bg-gradient-to-tl from-cyan-500/20 via-indigo-500/30 to-violet-500/25" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.4),rgba(255,255,255,0))]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.3),rgba(255,255,255,0))]" />
-        
-        {/* Dynamic floating geometric shapes */}
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={`shape-${i}`}
-            className={`absolute rounded-full opacity-20 ${
-              i % 4 === 0 ? 'bg-gradient-to-r from-blue-400 to-cyan-400' :
-              i % 4 === 1 ? 'bg-gradient-to-r from-purple-400 to-pink-400' :
-              i % 4 === 2 ? 'bg-gradient-to-r from-green-400 to-teal-400' :
-              'bg-gradient-to-r from-amber-400 to-orange-400'
-            }`}
-            style={{
-              width: Math.random() * 100 + 50,
-              height: Math.random() * 100 + 50,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 200 - 100, 0],
-              y: [0, Math.random() * 200 - 100, 0],
-              scale: [1, Math.random() * 0.5 + 0.8, 1],
-              rotate: [0, 360, 0],
-            }}
-            transition={{
-              duration: Math.random() * 15 + 10,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
+    <group ref={meshRef} position={[2, 0, -2]}>
+      {/* Student Head */}
+      <Sphere args={[0.8]} position={[0, 2, 0]}>
+        <meshPhongMaterial color="#FFB366" />
+      </Sphere>
+      
+      {/* Happy Eyes */}
+      <Sphere args={[0.1]} position={[-0.2, 2.2, 0.7]}>
+        <meshPhongMaterial color="#000" />
+      </Sphere>
+      <Sphere args={[0.1]} position={[0.2, 2.2, 0.7]}>
+        <meshPhongMaterial color="#000" />
+      </Sphere>
+      
+      {/* Smile */}
+      <Torus args={[0.3, 0.05]} position={[0, 1.8, 0.7]} rotation={[0, 0, Math.PI]}>
+        <meshPhongMaterial color="#FF6B6B" />
+      </Torus>
+      
+      {/* Body */}
+      <Box args={[1.2, 2, 0.6]} position={[0, 0, 0]}>
+        <meshPhongMaterial color="#4ECDC4" />
+      </Box>
+      
+      {/* Success Icons floating around */}
+      {[...Array(6)].map((_, i) => (
+        <FloatingIcon key={i} index={i} />
+      ))}
+    </group>
+  );
+};
 
-        {/* Animated Happy Student Avatar */}
-        <motion.div
-          className="absolute top-20 right-20 w-32 h-32 hidden lg:block"
-          animate={{
-            y: [0, -20, 0],
-            rotate: [0, 5, -5, 0],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut"
+// Floating Success Icons
+const FloatingIcon = ({ index }: { index: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const angle = (index / 6) * Math.PI * 2;
+  const radius = 2.5;
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const time = state.clock.elapsedTime + index * 0.5;
+      meshRef.current.position.x = Math.cos(angle + time * 0.5) * radius;
+      meshRef.current.position.y = Math.sin(time * 0.8) * 0.5 + 1;
+      meshRef.current.position.z = Math.sin(angle + time * 0.5) * radius * 0.5;
+      meshRef.current.rotation.y = time;
+    }
+  });
+
+  const colors = ['#FFD93D', '#6BCF7F', '#4D96FF', '#FF6B6B', '#9B59B6', '#F39C12'];
+  
+  return (
+    <Sphere ref={meshRef} args={[0.15]}>
+      <meshPhongMaterial color={colors[index]} emissive={colors[index]} emissiveIntensity={0.3} />
+    </Sphere>
+  );
+};
+
+// Animated Geometric Shapes
+const AnimatedShapes = () => {
+  const shapes = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (shapes.current) {
+      shapes.current.rotation.y = state.clock.elapsedTime * 0.1;
+    }
+  });
+
+  return (
+    <group ref={shapes}>
+      {/* Floating Cubes */}
+      {[...Array(8)].map((_, i) => (
+        <FloatingCube key={i} index={i} />
+      ))}
+      
+      {/* Floating Spheres */}
+      {[...Array(6)].map((_, i) => (
+        <FloatingSphere key={i} index={i} />
+      ))}
+    </group>
+  );
+};
+
+const FloatingCube = ({ index }: { index: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const time = state.clock.elapsedTime + index;
+      meshRef.current.position.x = Math.sin(time * 0.3) * (5 + index);
+      meshRef.current.position.y = Math.cos(time * 0.4) * 3;
+      meshRef.current.position.z = Math.sin(time * 0.2) * (3 + index * 0.5);
+      meshRef.current.rotation.x = time * 0.5;
+      meshRef.current.rotation.y = time * 0.3;
+    }
+  });
+
+  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3'];
+  
+  return (
+    <Box ref={meshRef} args={[0.3, 0.3, 0.3]}>
+      <meshPhongMaterial 
+        color={colors[index % colors.length]} 
+        transparent 
+        opacity={0.7}
+        emissive={colors[index % colors.length]}
+        emissiveIntensity={0.2}
+      />
+    </Box>
+  );
+};
+
+const FloatingSphere = ({ index }: { index: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const time = state.clock.elapsedTime + index * 0.7;
+      meshRef.current.position.x = Math.cos(time * 0.4) * (4 + index * 0.8);
+      meshRef.current.position.y = Math.sin(time * 0.6) * 2.5;
+      meshRef.current.position.z = Math.cos(time * 0.3) * (2 + index);
+    }
+  });
+
+  const colors = ['#A8E6CF', '#FFB347', '#87CEEB', '#DDA0DD', '#F0E68C', '#FFA07A'];
+  
+  return (
+    <Sphere ref={meshRef} args={[0.2]}>
+      <meshPhongMaterial 
+        color={colors[index % colors.length]} 
+        transparent 
+        opacity={0.8}
+        emissive={colors[index % colors.length]}
+        emissiveIntensity={0.3}
+      />
+    </Sphere>
+  );
+};
+
+// Particle System
+const ParticleSystem = () => {
+  const particlesRef = useRef<THREE.Points>(null);
+  
+  useEffect(() => {
+    if (particlesRef.current) {
+      const geometry = new THREE.BufferGeometry();
+      const particles = 200;
+      const positions = new Float32Array(particles * 3);
+      
+      for (let i = 0; i < particles * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 20;
+        positions[i + 1] = (Math.random() - 0.5) * 20;
+        positions[i + 2] = (Math.random() - 0.5) * 20;
+      }
+      
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      particlesRef.current.geometry = geometry;
+    }
+  }, []);
+  
+  useFrame((state) => {
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+      particlesRef.current.rotation.x = state.clock.elapsedTime * 0.02;
+    }
+  });
+
+  return (
+    <points ref={particlesRef}>
+      <pointsMaterial 
+        color="#FFD93D" 
+        size={0.05} 
+        transparent 
+        opacity={0.6}
+        sizeAttenuation
+      />
+    </points>
+  );
+};
+
+// Enhanced Lighting
+const SceneLighting = () => {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight 
+        position={[10, 10, 5]} 
+        intensity={1.2} 
+        color="#FFE135"
+        castShadow
+      />
+      <pointLight 
+        position={[-10, -10, -5]} 
+        intensity={0.8} 
+        color="#4ECDC4"
+      />
+      <spotLight
+        position={[5, 15, 5]}
+        angle={0.3}
+        penumbra={1}
+        intensity={1}
+        color="#FF6B6B"
+      />
+    </>
+  );
+};
+
+interface HeroSectionProps {
+  handleExamReadinessClick: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ handleExamReadinessClick }) => {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      {/* Enhanced 3D Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <Canvas
+          camera={{ position: [0, 0, 10], fov: 50 }}
+          style={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)',
           }}
         >
-          {/* Student Avatar with Happy Expression */}
-          <div className="relative w-full h-full">
-            {/* Avatar Background Glow */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 rounded-full blur-xl opacity-60"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.6, 0.8, 0.6],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-              }}
-            />
-            
-            {/* Main Avatar */}
-            <div className="relative w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 rounded-full border-4 border-white/30 shadow-2xl flex items-center justify-center">
-              {/* Face */}
-              <div className="relative">
-                {/* Eyes */}
-                <motion.div 
-                  className="flex gap-3 mb-2"
-                  animate={{
-                    scaleY: [1, 0.1, 1],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                  }}
-                >
-                  <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
-                  <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
-                </motion.div>
-                
-                {/* Happy Smile */}
-                <motion.div
-                  className="w-6 h-3 border-b-2 border-gray-800 rounded-b-full"
-                  animate={{
-                    scaleX: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                  }}
-                />
-                
-                {/* Cheeks */}
-                <motion.div
-                  className="absolute -left-4 -top-1 w-4 h-4 bg-pink-300 rounded-full opacity-70"
-                  animate={{
-                    scale: [0.8, 1.2, 0.8],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                  }}
-                />
-                <motion.div
-                  className="absolute -right-4 -top-1 w-4 h-4 bg-pink-300 rounded-full opacity-70"
-                  animate={{
-                    scale: [0.8, 1.2, 0.8],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: 0.5,
-                  }}
-                />
-              </div>
-              
-              {/* Graduation Cap */}
-              <motion.div
-                className="absolute -top-8 left-1/2 transform -translate-x-1/2"
-                animate={{
-                  rotate: [-5, 5, -5],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                }}
-              >
-                <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-lg relative">
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <motion.div
-                    className="absolute top-1 right-0 w-4 h-1 bg-yellow-400"
-                    animate={{
-                      x: [0, 5, 0],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-            
-            {/* Floating Success Icons around Avatar */}
-            {[
-              { icon: <Star className="w-4 h-4" />, position: "top-0 left-0", delay: 0 },
-              { icon: <BookOpen className="w-4 h-4" />, position: "top-2 right-0", delay: 1 },
-              { icon: <Heart className="w-4 h-4" />, position: "bottom-0 left-2", delay: 2 },
-              { icon: <Award className="w-4 h-4" />, position: "bottom-2 right-0", delay: 0.5 },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                className={`absolute ${item.position} text-yellow-400`}
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, 360, 0],
-                  scale: [0.8, 1.2, 0.8],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: item.delay,
-                }}
-              >
-                {item.icon}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Enhanced Floating Particles with more vibrant colors */}
-        {[...Array(25)].map((_, i) => (
-          <motion.div
-            key={`particle-${i}`}
-            className={`absolute rounded-full ${
-              i % 5 === 0 ? 'bg-yellow-400' :
-              i % 5 === 1 ? 'bg-pink-400' :
-              i % 5 === 2 ? 'bg-cyan-400' :
-              i % 5 === 3 ? 'bg-green-400' :
-              'bg-purple-400'
-            }`}
-            style={{
-              width: Math.random() * 8 + 4,
-              height: Math.random() * 8 + 4,
-            }}
-            initial={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-              opacity: Math.random() * 0.8 + 0.2,
-            }}
-            animate={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-              opacity: [0.2, 0.8, 0.2],
-            }}
-            transition={{
-              duration: Math.random() * 20 + 15,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        ))}
-
-        {/* Enhanced Grid Pattern with vibrant colors */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:60px_60px]" />
-        
-        {/* Additional 3D depth layers */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
-          animate={{
-            x: ["-100%", "100%"],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+          <SceneLighting />
+          <StudentAvatar />
+          <AnimatedShapes />
+          <ParticleSystem />
+          
+          {/* Enhanced fog for depth */}
+          <fog attach="fog" args={['#667eea', 15, 25]} />
+        </Canvas>
       </div>
-
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center lg:text-left space-y-6"
+      
+      {/* Content Container */}
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          {/* Hero Content */}
+          <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
+          
+          {/* Dashboard Preview - Restored to original size */}
+          <motion.div 
+            className="w-full lg:w-1/2 relative perspective-1000"
+            initial={{ opacity: 0, rotateY: 20 }}
+            animate={{ opacity: 1, rotateY: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
           >
-            {/* Live Badge */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2"
-            >
-              <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 text-sm font-bold rounded-full border-0 shadow-lg shadow-emerald-500/25">
-                <motion.div
-                  className="w-2 h-2 bg-white rounded-full mr-2"
-                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <Rocket className="w-4 h-4 mr-1" />
-                NEET 2026 PREP LIVE NOW!
-              </Badge>
-              
-              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-3 py-1 text-xs font-bold rounded-full border-0">
-                <Star className="w-3 h-3 mr-1 fill-current" />
-                AI POWERED
-              </Badge>
-            </motion.div>
-
-            {/* Main Headline */}
-            <div className="space-y-4">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
-              >
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                  We understand your
-                </span>
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
-                  mindset, not just
-                </span>
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-400 to-purple-400">
-                  the exam
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
-              >
-                From struggling to exam champion with the world's first 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> & 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> hyper-personalized</span> exam prep platform for 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold"> JEE, NEET, UPSC, CAT & beyond</span>.
-              </motion.p>
-            </div>
-
-            {/* How PREPZR Supports You - Enhanced Visibility */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/30 shadow-lg"
-            >
-              <motion.h3 
-                className="text-center font-bold text-lg text-white mb-3 flex items-center justify-center gap-2"
-                animate={{ 
-                  scale: [1, 1.02, 1],
+            <div className="relative">
+              {/* Enhanced 3D Dashboard Frame */}
+              <motion.div 
+                className="bg-white/10 backdrop-blur-xl rounded-3xl p-2 shadow-2xl border border-white/20 preserve-3d"
+                animate={{
+                  rotateX: [0, 2, 0, -2, 0],
+                  rotateY: [0, 1, 0, -1, 0],
                 }}
-                transition={{ duration: 3, repeat: Infinity }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                }}
               >
-                <Target className="w-5 h-5" />
-                <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent font-bold">
-                  How PREPZR Supports You
-                </span>
-                <Sparkles className="w-5 h-5" />
-              </motion.h3>
+                <div className="bg-slate-50 rounded-2xl overflow-hidden shadow-inner h-[500px] lg:h-[600px]">
+                  <div className="bg-gradient-to-br from-indigo-600 to-purple-700 h-16 flex items-center px-6">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                      <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                      <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    </div>
+                    <div className="ml-4 text-white font-semibold">PREP-ZR Dashboard</div>
+                  </div>
+                  
+                  {/* Dashboard Content */}
+                  <div className="p-6 space-y-4 h-full overflow-hidden">
+                    {/* Header Stats */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { label: "Study Score", value: "94%", color: "bg-green-500" },
+                        { label: "Mood", value: "😊 Happy", color: "bg-blue-500" },
+                        { label: "Streak", value: "12 days", color: "bg-purple-500" }
+                      ].map((stat, idx) => (
+                        <motion.div 
+                          key={idx}
+                          className="bg-white rounded-xl p-3 shadow-md"
+                          animate={{ 
+                            scale: [1, 1.02, 1],
+                            boxShadow: [
+                              "0 4px 6px rgba(0, 0, 0, 0.1)",
+                              "0 8px 15px rgba(0, 0, 0, 0.2)",
+                              "0 4px 6px rgba(0, 0, 0, 0.1)"
+                            ]
+                          }}
+                          transition={{ duration: 3, repeat: Infinity, delay: idx * 0.5 }}
+                        >
+                          <div className={`w-2 h-2 ${stat.color} rounded-full mb-2`}></div>
+                          <div className="text-xs text-gray-600 font-medium">{stat.label}</div>
+                          <div className="text-sm font-bold text-gray-900">{stat.value}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                    
+                    {/* Study Plan Section */}
+                    <motion.div 
+                      className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4"
+                      animate={{ 
+                        background: [
+                          "linear-gradient(45deg, #eff6ff, #e0e7ff)",
+                          "linear-gradient(45deg, #e0e7ff, #eff6ff)",
+                          "linear-gradient(45deg, #eff6ff, #e0e7ff)"
+                        ]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                    >
+                      <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        📚 Today's Study Plan
+                      </h3>
+                      <div className="space-y-2">
+                        {[
+                          { subject: "Physics", progress: "75%", time: "2h 30m" },
+                          { subject: "Chemistry", progress: "60%", time: "1h 45m" },
+                          { subject: "Biology", progress: "90%", time: "45m" }
+                        ].map((item, idx) => (
+                          <motion.div 
+                            key={idx} 
+                            className="flex items-center justify-between bg-white rounded-lg p-2"
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: idx * 0.2 }}
+                          >
+                            <span className="text-sm font-medium text-gray-700">{item.subject}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                <motion.div 
+                                  className="bg-blue-500 h-1.5 rounded-full"
+                                  initial={{ width: "0%" }}
+                                  animate={{ width: item.progress }}
+                                  transition={{ delay: 1 + idx * 0.3, duration: 1 }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-500">{item.time}</span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                    
+                    {/* AI Suggestions */}
+                    <motion.div 
+                      className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4"
+                      animate={{ 
+                        scale: [1, 1.01, 1],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                    >
+                      <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                        🤖 AI Recommendations
+                      </h3>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                          <span>Take a 15-min break for better focus</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                          <span>Review Organic Chemistry concepts</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                          <span>Practice more numerical problems</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
               
-              <div className="flex flex-wrap justify-center gap-3">
-                {supportBenefits.map((benefit, idx) => (
-                  <motion.span
-                    key={idx}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ 
-                      opacity: [0.8, 1, 0.8],
-                      scale: [0.95, 1.05, 0.95],
-                      x: [0, Math.sin(idx * 0.5) * 3, 0]
-                    }}
-                    transition={{ 
-                      delay: 0.7 + idx * 0.1,
-                      duration: 2.5,
-                      repeat: Infinity,
-                      repeatDelay: 3
-                    }}
-                    className="text-sm font-bold text-white bg-gradient-to-r from-blue-500/30 to-purple-500/30 px-4 py-2 rounded-full border border-blue-300/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all"
-                  >
-                    {benefit}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Dynamic Feature Showcase */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
-            >
-              <AnimatePresence mode="wait">
+              {/* Floating Elements around Dashboard */}
+              {[...Array(8)].map((_, i) => (
                 <motion.div
-                  key={currentFeature}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex items-center gap-4"
-                >
-                  <div className={`p-3 rounded-xl bg-gradient-to-r ${features[currentFeature].color} text-white shadow-lg`}>
-                    {features[currentFeature].icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{features[currentFeature].text}</h3>
-                    <p className="text-gray-300 text-sm">Join 2M+ students achieving success</p>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-              
-              {/* Feature Indicators */}
-              <div className="flex gap-2 mt-4 justify-center lg:justify-start">
-                {features.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentFeature(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      index === currentFeature ? 'bg-purple-400 w-8' : 'bg-white/30'
-                    }`}
-                  />
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Enhanced CTA Buttons - Better Visibility and Spacing */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6"
-            >
-              <Button
-                onClick={handleStartJourney}
-                size="lg"
-                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg min-h-[60px]"
-              >
-                <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                Start Your Success Journey - 7 Days Free
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              
-              <Button
-                onClick={handleExamReadinessClick}
-                size="lg"
-                className="group bg-gray-800/90 hover:bg-gray-700/90 border-2 border-gray-500/60 hover:border-gray-400/60 text-gray-100 hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl min-h-[60px]"
-              >
-                <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                AI Exam Readiness Analysis - Try Now
-              </Button>
-            </motion.div>
-
-            {/* Stats Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1, duration: 0.8 }}
-              className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20"
-            >
-              {[
-                { number: "2M+", label: "Students" },
-                { number: "95%", label: "Success Rate" },
-                { number: "4.9/5", label: "Rating" }
-              ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-300 text-sm font-medium">{stat.label}</div>
-                </div>
+                  key={i}
+                  className="absolute w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-70"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                  }}
+                  animate={{
+                    y: [0, -20, 0],
+                    x: [0, Math.random() * 10 - 5, 0],
+                    opacity: [0.4, 0.8, 0.4],
+                  }}
+                  transition={{
+                    duration: 3 + Math.random() * 2,
+                    repeat: Infinity,
+                    delay: Math.random() * 2,
+                  }}
+                />
               ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Right Side - Compact Premium Dashboard Preview */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative flex justify-center"
-          >
-            <div className="relative max-w-md w-full">
-              {/* Enhanced Premium Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-3xl animate-pulse" />
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
-              
-              {/* Premium Dashboard Container - Compact Size */}
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl transform scale-75 lg:scale-85">
-                {/* Premium Header Bar */}
-                <div className="bg-gradient-to-r from-slate-800/90 to-slate-700/90 rounded-2xl p-2 mb-2 flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="text-xs text-gray-300 font-medium">PREPZR Dashboard - Premium Experience</div>
-                </div>
-                
-                <DashboardPreview />
-              </div>
-
-              {/* Premium Floating Elements - Adjusted Positions */}
-              <motion.div
-                className="absolute -top-2 -left-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-2 rounded-xl shadow-2xl border border-emerald-400/30"
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                <GraduationCap className="w-5 h-5" />
-              </motion.div>
-
-              <motion.div
-                className="absolute -bottom-2 -right-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-2 rounded-xl shadow-2xl border border-amber-400/30"
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-              >
-                <Award className="w-5 h-5" />
-              </motion.div>
-
-              <motion.div
-                className="absolute top-1/2 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-2 rounded-xl shadow-2xl border border-purple-400/30"
-                animate={{ x: [0, 8, 0] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
-              >
-                <Sparkles className="w-5 h-5" />
-              </motion.div>
             </div>
           </motion.div>
         </div>
+        
+        {/* Pain Points Section */}
+        <PainPoints 
+          painPoints={[
+            "Feeling overwhelmed by vast syllabus",
+            "Struggling with time management", 
+            "Lacking personalized guidance",
+            "Dealing with exam anxiety",
+            "No clear progress tracking"
+          ]}
+          solutions={[
+            "AI-curated personalized study plans",
+            "Smart time allocation suggestions",
+            "24/7 AI tutor for instant doubt resolution", 
+            "Mood-based study recommendations",
+            "Real-time progress analytics"
+          ]}
+        />
       </div>
-
-      {/* Dashboard Modal */}
-      <AnimatePresence>
-        {showDashboard && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowDashboard(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="relative bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowDashboard(false)}
-                className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Live Dashboard Preview</h3>
-                <DashboardPreview />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };

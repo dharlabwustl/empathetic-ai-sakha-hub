@@ -69,7 +69,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-3 inline-block"
+        className="mb-2 inline-block"
       >
         <motion.div 
           className="bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-2xl relative overflow-hidden border border-emerald-400/30"
@@ -106,25 +106,33 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Updated Welcome Message - More Crisp and Impactful */}
+      {/* Updated Welcome Message - Enhanced contrast and readability */}
       <motion.div
-        className="mb-3 text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        className="mb-2 text-lg md:text-xl font-bold text-white bg-gradient-to-r from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-md rounded-xl p-4 border border-white/20 shadow-2xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
+        style={{
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 50%, rgba(15, 23, 42, 0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+        }}
       >
-        From struggling to exam champion with the world's first emotionally intelligent & hyper-personalized exam prep platform for <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> & beyond.
+        From struggling to exam champion with the world's first emotionally intelligent & hyper-personalized exam prep platform for <span className="font-bold text-blue-300">JEE, NEET, UPSC, CAT</span> & beyond.
       </motion.div>
 
       <motion.h1
-        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3"
+        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2 text-white drop-shadow-2xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
+        style={{
+          textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.3)',
+        }}
       >
         <span className="relative inline-block">
           <motion.span 
-            className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
+            className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent"
             animate={{ 
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
             }}
@@ -135,7 +143,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </span>
         <br />
         <motion.span 
-          className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative"
+          className="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-transparent relative"
           animate={{ 
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
           }}
@@ -143,7 +151,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         >
           mindset, not just the exam
           <motion.div
-            className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"
+            className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full shadow-lg"
             initial={{ scaleX: 0, originX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
@@ -151,23 +159,27 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* How PREPZR Supports You - Compact Version */}
+      {/* How PREPZR Supports You - Enhanced visibility */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-3 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+        className="mb-2 p-3 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-white/30"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+        }}
       >
         <motion.h3 
-          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-2 flex items-center justify-center gap-2"
+          className="text-center font-bold text-base text-slate-800 mb-2 flex items-center justify-center gap-2"
           animate={{ 
             scale: [1, 1.02, 1],
           }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          <Target className="w-4 h-4" />
+          <Target className="w-4 h-4 text-blue-600" />
           How PREPZR Supports You
-          <Zap className="w-4 h-4" />
+          <Zap className="w-4 h-4 text-amber-500" />
         </motion.h3>
         
         <div className="grid grid-cols-5 gap-2">
@@ -211,11 +223,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       
       <ExamNamesBadge />
 
-      {/* Enhanced Futuristic CTA Buttons - Moved up with reduced spacing */}
-      <div className="space-y-3 mt-3 mb-3">
+      {/* Enhanced Futuristic CTA Buttons - Compact spacing for visibility */}
+      <div className="space-y-2 mt-2 mb-2">
         <motion.button
           onClick={handleFreeTrialClick}
-          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
+          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -236,7 +248,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         
         <motion.button
           onClick={handleExamReadinessClick}
-          className="group w-full border-2 border-purple-400/50 hover:border-purple-500 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-2xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+          className="group w-full border-2 border-white/70 hover:border-white bg-white/20 hover:bg-white/30 backdrop-blur-md text-white hover:text-white py-3 px-6 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -251,17 +263,19 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.button>
       </div>
       
-      {/* Premium Success Community Stats */}
+      {/* Premium Success Community Stats - Enhanced contrast */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
         className="mt-2 text-center"
       >
-        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-green-600" />
-          Join <span className="font-bold text-indigo-600 dark:text-indigo-400">2M+ students</span> achieving exam success with AI
-        </p>
+        <div className="bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg border border-white/30">
+          <p className="text-sm text-slate-700 flex items-center justify-center gap-2 font-medium">
+            <CheckCircle2 className="w-4 h-4 text-green-600" />
+            Join <span className="font-bold text-indigo-700">2M+ students</span> achieving exam success with AI
+          </p>
+        </div>
       </motion.div>
     </motion.div>
   );
