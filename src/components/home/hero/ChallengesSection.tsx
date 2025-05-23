@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-// This component is being kept but will no longer be used in the hero section
 const ChallengesSection: React.FC = () => {
   const painPoints = [
     "Overwhelming syllabus",
