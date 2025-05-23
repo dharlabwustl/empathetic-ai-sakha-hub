@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, PencilLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import Visual3DContent from './Visual3DContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
+import NotesTab from './concept-detail/NotesTab';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -74,7 +76,7 @@ const ConceptDetailPage = () => {
             
             <div className="mt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="learn" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
                     Learn
@@ -90,6 +92,10 @@ const ConceptDetailPage = () => {
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
                     Learning Tools
+                  </TabsTrigger>
+                  <TabsTrigger value="notes" className="flex items-center gap-2">
+                    <PencilLine className="h-4 w-4" />
+                    Notes
                   </TabsTrigger>
                 </TabsList>
 
@@ -163,23 +169,6 @@ const ConceptDetailPage = () => {
                         <CardHeader>
                           <CardTitle className="text-sm flex items-center gap-2">
                             <FileText className="h-4 w-4" />
-                            Notes & Annotations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Create personal notes and annotations for this concept.
-                          </p>
-                          <Button variant="outline" size="sm" className="mt-2">
-                            Open Notes
-                          </Button>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <Calculator className="h-4 w-4" />
                             Practice Problems
                           </CardTitle>
                         </CardHeader>
@@ -192,8 +181,39 @@ const ConceptDetailPage = () => {
                           </Button>
                         </CardContent>
                       </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Calculator className="h-4 w-4" />
+                            Formula Helper
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Quick reference for formulas and equations.
+                          </p>
+                          <Button variant="outline" size="sm" className="mt-2">
+                            View Formulas
+                          </Button>
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="notes" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <PencilLine className="h-5 w-5 text-indigo-600" />
+                        Personal Notes
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <NotesTab conceptId={concept.id} />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </div>

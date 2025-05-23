@@ -3,24 +3,13 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import { motion } from 'framer-motion';
+import { ConceptCard } from '@/types/user/conceptCard';
 
 interface ConceptHeaderProps {
-  title: string;
-  subject: string;
-  topic: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  isBookmarked: boolean;
-  onBookmarkToggle: () => void;
+  concept: ConceptCard;
 }
 
-const ConceptHeader: React.FC<ConceptHeaderProps> = ({
-  title,
-  subject,
-  topic,
-  difficulty,
-  isBookmarked,
-  onBookmarkToggle
-}) => {
+const ConceptHeader: React.FC<ConceptHeaderProps> = ({ concept }) => {
   const difficultyColors = {
     easy: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
     medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
@@ -38,28 +27,29 @@ const ConceptHeader: React.FC<ConceptHeaderProps> = ({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800/50">
-              {subject}
+              {concept.subject}
             </Badge>
             <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50">
-              {topic}
+              {concept.topic}
             </Badge>
-            <Badge variant="outline" className={difficultyColors[difficulty]}>
-              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+            <Badge variant="outline" className={difficultyColors[concept.difficulty]}>
+              {concept.difficulty.charAt(0).toUpperCase() + concept.difficulty.slice(1)}
             </Badge>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
-            {title}
+            {concept.title}
           </h1>
         </div>
         <button 
           className="h-8 w-8 flex items-center justify-center rounded-full"
-          onClick={onBookmarkToggle}
-          aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+          onClick={() => {
+            // Toggle bookmark functionality
+            console.log('Bookmark toggled for concept:', concept.id);
+          }}
+          aria-label="Add bookmark"
         >
           <Star 
-            className={`h-6 w-6 ${isBookmarked 
-              ? 'text-amber-500 fill-amber-500' 
-              : 'text-gray-400 dark:text-gray-500'}`} 
+            className="h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-amber-500 hover:fill-amber-500" 
           />
         </button>
       </div>
