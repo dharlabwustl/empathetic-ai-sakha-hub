@@ -75,27 +75,47 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
       
-      {/* Key Benefits Section - Enhanced with animations */}
-      <motion.div
-        variants={fadeInStagger}
-        initial="hidden"
-        animate="show"
+      {/* Animated Key Benefits Section - Completely redesigned */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
         className="mb-8"
       >
-        <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-          Key Benefits
+        <h3 className="text-lg font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          Key Benefits of Our Platform
         </h3>
-        <div className="flex flex-wrap gap-3">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {takeawayPoints.map((point, idx) => (
             <motion.div
               key={idx}
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex items-center px-3 py-2 rounded-full bg-gradient-to-r ${point.color} text-white shadow-sm transition-all`}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.4, 
+                delay: 0.7 + idx * 0.1,
+                type: "spring",
+                stiffness: 200
+              }}
+              className={`flex items-center px-4 py-3 rounded-lg bg-gradient-to-br ${point.color} text-white shadow-md hover:shadow-lg transition-all duration-300`}
             >
-              <span className="mr-2">{point.icon}</span>
-              <span className="font-medium text-sm">{point.title}</span>
+              <motion.div 
+                className="mr-3 p-2 bg-white/20 rounded-full"
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: idx * 0.5
+                }}
+              >
+                {point.icon}
+              </motion.div>
+              <span className="font-semibold">{point.title}</span>
             </motion.div>
           ))}
         </div>

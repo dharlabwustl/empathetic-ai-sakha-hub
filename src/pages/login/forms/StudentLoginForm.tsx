@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -300,23 +299,6 @@ const StudentLoginForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Enhanced Back to Home button with animation */}
-      <div className="mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Button
-            type="button"
-            variant="outline"
-            className="flex items-center text-sm border border-indigo-200 hover:bg-indigo-50"
-            onClick={goToHomePage}
-          >
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Home
-          </Button>
-        </motion.div>
-      </div>
       
       {loginError && (
         <Alert variant="destructive">
