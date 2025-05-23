@@ -69,7 +69,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-4 inline-block"
+        className="mb-3 inline-block"
       >
         <motion.div 
           className="bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-2xl relative overflow-hidden border border-emerald-400/30"
@@ -108,16 +108,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
 
       {/* Updated Welcome Message */}
       <motion.div
-        className="mb-6 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        className="mb-4 text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Welcome to your <span className="font-bold">future success story</span> with PREPZR - World's first emotionally aware, hyper personalized adaptive exam prep platform
+        Transform from struggling student to exam champion with PREPZR - World's first emotionally aware, hyper-personalized adaptive exam prep platform designed specifically for Indian competitive exams like <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more.
       </motion.div>
 
       <motion.h1
-        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6"
+        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
@@ -151,12 +151,12 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Enhanced 5 Key Benefits - More Compact with "Save Time" instead of "Efficiency" */}
+      {/* Enhanced 5 Key Benefits - More Compact */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-6 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+        className="mb-4 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
       >
         <motion.h3 
           className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-center gap-2"
@@ -166,7 +166,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           transition={{ duration: 3, repeat: Infinity }}
         >
           <Target className="w-4 h-4" />
-          Five Success Accelerators
+          Your Exam Success Accelerators
           <Zap className="w-4 h-4" />
         </motion.h3>
         
@@ -208,24 +208,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           ))}
         </div>
       </motion.section>
-
-      {/* Success Mindset Highlight */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-xl p-3 border border-indigo-200/50 dark:border-indigo-800/30 shadow-lg backdrop-blur-sm"
-      >
-        <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-green-600" />
-          Transform your exam journey with our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven emotional intelligence</span> platform.
-        </p>
-      </motion.div>
       
       <ExamNamesBadge />
 
       {/* Enhanced Futuristic CTA Buttons - Both Visible */}
-      <div className="space-y-3 mt-6 mb-6">
+      <div className="space-y-3 mt-4 mb-4">
         <motion.button
           onClick={handleFreeTrialClick}
           className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
@@ -269,7 +256,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
-        className="mt-4 text-center"
+        className="mt-3 text-center"
       >
         <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
