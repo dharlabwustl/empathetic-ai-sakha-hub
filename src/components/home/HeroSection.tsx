@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, Smile } from 'lucide-react';
+import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, BookOpen, Lightbulb, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,17 +16,17 @@ const HeroSection = () => {
     { 
       icon: <Brain className="w-6 h-6" />, 
       text: "Confidence Builder", 
-      description: "Build exam-day confidence with adaptive learning",
+      description: "Build unshakeable exam-day confidence with adaptive learning",
       color: "from-blue-500 to-purple-600" 
     },
     { 
-      icon: <Target className="w-6 h-6" />, 
-      text: "Exam Success Guarantee", 
+      icon: <Trophy className="w-6 h-6" />, 
+      text: "Exam Success", 
       description: "Achieve top scores with our proven methodology",
       color: "from-purple-500 to-pink-600" 
     },
     { 
-      icon: <Award className="w-6 h-6" />, 
+      icon: <Clock className="w-6 h-6" />, 
       text: "Time-saving Learning", 
       description: "Learn 2x faster with our AI optimization",
       color: "from-green-500 to-blue-600" 
@@ -38,7 +38,7 @@ const HeroSection = () => {
       color: "from-amber-500 to-red-600" 
     },
     { 
-      icon: <Smile className="w-6 h-6" />, 
+      icon: <Lightbulb className="w-6 h-6" />, 
       text: "Smart Analytics", 
       description: "Track your progress with detailed insights",
       color: "from-cyan-500 to-teal-600" 
@@ -67,15 +67,47 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated Background */}
+      {/* Enhanced 3D Background with Exam Preparation Theme */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+        {/* Multi-layered gradient background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.4),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(236,72,153,0.3),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(34,197,94,0.2),rgba(255,255,255,0))]" />
         
-        {/* Floating Particles */}
-        {[...Array(20)].map((_, i) => (
+        {/* Floating Academic Elements */}
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-white rounded-full opacity-30"
+            className="absolute"
+            initial={{
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              opacity: 0.3,
+            }}
+            animate={{
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              rotate: [0, 360],
+              opacity: [0.3, 0.7, 0.3],
+            }}
+            transition={{
+              duration: Math.random() * 20 + 15,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            {i % 4 === 0 && <BookOpen className="w-6 h-6 text-blue-400" />}
+            {i % 4 === 1 && <GraduationCap className="w-6 h-6 text-purple-400" />}
+            {i % 4 === 2 && <Trophy className="w-6 h-6 text-amber-400" />}
+            {i % 4 === 3 && <Target className="w-6 h-6 text-green-400" />}
+          </motion.div>
+        ))}
+
+        {/* Exam Success Particles */}
+        {[...Array(25)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
             initial={{
               x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
               y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
@@ -83,27 +115,43 @@ const HeroSection = () => {
             animate={{
               x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
               y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              scale: [1, 1.5, 1],
+              opacity: [0.4, 0.8, 0.4],
             }}
             transition={{
-              duration: Math.random() * 10 + 20,
+              duration: Math.random() * 15 + 20,
               repeat: Infinity,
-              ease: "linear"
+              ease: "easeInOut"
             }}
           />
         ))}
 
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        {/* Intelligence Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        
+        {/* Pulsing Study Energy Waves */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
+          animate={{
+            x: ['-100%', '100%'],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center min-h-screen">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center lg:text-left space-y-6"
+            className="text-center lg:text-left space-y-6 py-8"
           >
             {/* Live Badge */}
             <motion.div
@@ -162,7 +210,7 @@ const HeroSection = () => {
               </motion.p>
             </div>
 
-            {/* Dynamic Feature Showcase - Redesigned as a slider */}
+            {/* How PREPZR Supports You - Slider */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -210,7 +258,7 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Fixed CTA Buttons - Better Spacing - Now more visible */}
+            {/* CTA Buttons - Both Visible */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -233,7 +281,7 @@ const HeroSection = () => {
                 className="group bg-gray-800/80 hover:bg-gray-700/80 border-2 border-gray-600/50 hover:border-gray-500/50 text-gray-100 hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                AI Exam Readiness Analysis - Try Now
+                AI Exam Readiness Analysis
               </Button>
             </motion.div>
 
@@ -259,20 +307,20 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Right Side - Premium Dashboard Preview - Increased Size */}
+          {/* Right Side - Enhanced Dashboard Preview */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative h-full flex items-center"
+            className="relative h-screen flex items-center"
           >
             <div className="relative w-full">
               {/* Enhanced Premium Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-3xl animate-pulse" />
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
               
-              {/* Premium Dashboard Container - Taller */}
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl max-h-[calc(100vh-200px)] overflow-hidden">
+              {/* Premium Dashboard Container */}
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl h-[calc(100vh-120px)] overflow-hidden">
                 {/* Premium Header Bar */}
                 <div className="bg-gradient-to-r from-slate-800/90 to-slate-700/90 rounded-2xl p-2 mb-2 flex items-center gap-2">
                   <div className="flex gap-1">
@@ -283,15 +331,15 @@ const HeroSection = () => {
                   <div className="text-xs text-gray-300 font-medium">PREPZR Dashboard - Premium Experience</div>
                 </div>
                 
-                <div className="h-[calc(100vh-300px)] overflow-hidden">
+                <div className="h-[calc(100vh-200px)] overflow-hidden">
                   <DashboardPreview />
                 </div>
               </div>
 
-              {/* Premium Floating Elements */}
+              {/* Enhanced Floating Elements */}
               <motion.div
                 className="absolute -top-4 -left-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3 rounded-xl shadow-2xl border border-emerald-400/30"
-                animate={{ y: [0, -10, 0] }}
+                animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 <GraduationCap className="w-6 h-6" />
@@ -299,7 +347,7 @@ const HeroSection = () => {
 
               <motion.div
                 className="absolute -bottom-4 -right-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-xl shadow-2xl border border-amber-400/30"
-                animate={{ y: [0, 10, 0] }}
+                animate={{ y: [0, 10, 0], rotate: [0, -5, 0] }}
                 transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
               >
                 <Award className="w-6 h-6" />
@@ -307,7 +355,7 @@ const HeroSection = () => {
 
               <motion.div
                 className="absolute top-1/2 -right-8 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-3 rounded-xl shadow-2xl border border-purple-400/30"
-                animate={{ x: [0, 10, 0] }}
+                animate={{ x: [0, 10, 0], scale: [1, 1.1, 1] }}
                 transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
               >
                 <Sparkles className="w-6 h-6" />

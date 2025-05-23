@@ -106,7 +106,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Updated Welcome Message - More Crisp and Impactful */}
+      {/* Updated Welcome Message */}
       <motion.div
         className="mb-4 text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
@@ -176,7 +176,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
             { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
             { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-            { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
+            { icon: <Sparkles className="w-4 h-4" />, label: "Analytics", color: "from-pink-500 to-rose-600" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
