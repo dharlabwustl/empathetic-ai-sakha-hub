@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,9 +11,7 @@ import {
   Video, 
   FileText, 
   BarChart4, 
-  MessageCircle, 
   AlertCircle,
-  FilePlus2,
   Brain,
   Layers,
   Microscope,
@@ -25,7 +24,10 @@ import {
   LineChart,
   BarChart3,
   MessageSquare,
-  PencilLine
+  PencilLine,
+  LinkIcon,
+  FileQuestion,
+  Star
 } from 'lucide-react';
 
 import ConceptMasterySection from './ConceptMasterySection';
@@ -39,11 +41,16 @@ import RevisionSection from './RevisionSection';
 import NotesSection from './NotesSection';
 import DiscussSection from './DiscussSection';
 import AIInsights from './AIInsights';
+import PreviousYearQuestionsTab from './PreviousYearQuestionsTab';
+import LinkedConceptsSection from './LinkedConceptsSection';
+import RelatedFlashcards from './RelatedFlashcards';
+import ConceptExamSection from './ConceptExamSection';
 
 const ConceptDetailPage: React.FC = () => {
   // Tabs state
   const [primaryActiveTab, setPrimaryActiveTab] = useState("learn");
-  const [secondaryActiveTab, setSecondaryActiveTab] = useState("mastery");
+  const [secondaryActiveTab, setSecondaryActiveTab] = useState("recall");
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
   // Mastery data
   const [masteryPercentage, setMasteryPercentage] = useState(68);
@@ -55,6 +62,7 @@ const ConceptDetailPage: React.FC = () => {
   
   // Sample concept data
   const conceptData = {
+    id: "concept-123",
     title: "Ohm's Law",
     subject: "Physics",
     chapter: "Electricity",
@@ -72,36 +80,71 @@ const ConceptDetailPage: React.FC = () => {
         question: "If the voltage across a resistor is 12V and the resistance is 4Ω, what is the current?",
         solution: "Using Ohm's law: I = V/R = 12V/4Ω = 3A"
       }
-    ]
+    ],
+    relatedConcepts: ["Kirchhoff's Laws", "Electrical Resistance", "Circuit Analysis"]
+  };
+  
+  const handleToggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const difficultyColors = {
+    "Easy": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    "Medium": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    "Hard": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+  };
+
+  const importanceColors = {
+    "High": "bg-purple-100 text-purple-700 border-purple-200",
+    "Medium": "bg-blue-100 text-blue-700 border-blue-200",
+    "Low": "bg-gray-100 text-gray-700 border-gray-200"
   };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      {/* Header with title and basic info */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{conceptData.title}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground mt-1">
-            <span>{conceptData.subject}</span>
-            <span>•</span>
-            <span>{conceptData.chapter}</span>
-            <span>•</span>
-            <span>Difficulty: {conceptData.difficulty}</span>
-            <span>•</span>
-            <span>Importance: {conceptData.importance}</span>
+      {/* Masthead with concept title and basic info */}
+      <motion.div 
+        className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-sm"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800/50">
+                {conceptData.subject}
+              </Badge>
+              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50">
+                {conceptData.chapter}
+              </Badge>
+              <Badge variant="outline" className={difficultyColors[conceptData.difficulty]}>
+                {conceptData.difficulty}
+              </Badge>
+              <Badge variant="outline" className={importanceColors[conceptData.importance]}>
+                Importance: {conceptData.importance}
+              </Badge>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
+              {conceptData.title}
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-300 text-sm md:text-base">
+              {conceptData.description}
+            </p>
           </div>
+          <button 
+            className="h-8 w-8 flex items-center justify-center rounded-full"
+            onClick={handleToggleBookmark}
+            aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+          >
+            <Star 
+              className={`h-6 w-6 ${isBookmarked 
+                ? 'text-amber-500 fill-amber-500' 
+                : 'text-gray-400 dark:text-gray-500'}`} 
+            />
+          </button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Study Guide
-          </Button>
-          <Button variant="outline" size="sm">
-            <FileText className="h-4 w-4 mr-2" />
-            Practice Questions
-          </Button>
-        </div>
-      </div>
+      </motion.div>
 
       {/* Mastery & Recall Tracker */}
       <Card>
@@ -110,6 +153,9 @@ const ConceptDetailPage: React.FC = () => {
             <Brain className="h-5 w-5 text-indigo-500" />
             Mastery & Recall Tracker
           </CardTitle>
+          <CardDescription>
+            Track your progress mastering {conceptData.title}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -133,7 +179,7 @@ const ConceptDetailPage: React.FC = () => {
                 <h3 className="font-medium text-sm">Recall Strength</h3>
                 <span className="text-lg font-bold text-emerald-600">{recallPercentage}%</span>
               </div>
-              <Progress value={recallPercentage} className="h-3 bg-emerald-100" indicatorClassName="bg-emerald-600" />
+              <Progress value={recallPercentage} className="h-3 bg-emerald-100" />
               <div className="grid grid-cols-3 text-xs text-muted-foreground">
                 <span>Weak</span>
                 <span className="text-center">Medium</span>
@@ -197,7 +243,7 @@ const ConceptDetailPage: React.FC = () => {
         onValueChange={setPrimaryActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-7 w-full">
           <TabsTrigger value="learn" className="flex items-center gap-1">
             <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">Learn</span>
@@ -221,6 +267,10 @@ const ConceptDetailPage: React.FC = () => {
           <TabsTrigger value="mistakes" className="flex items-center gap-1">
             <AlertCircle className="h-4 w-4" />
             <span className="hidden sm:inline">Common Mistakes</span>
+          </TabsTrigger>
+          <TabsTrigger value="previous" className="flex items-center gap-1">
+            <FileQuestion className="h-4 w-4" />
+            <span className="hidden sm:inline">Previous Years</span>
           </TabsTrigger>
         </TabsList>
 
@@ -269,7 +319,7 @@ const ConceptDetailPage: React.FC = () => {
                 <div className="text-center p-6">
                   <Microscope className="h-12 w-12 mx-auto text-indigo-500 mb-4" />
                   <h3 className="text-xl font-medium">3D Interactive Simulation</h3>
-                  <p className="text-muted-foreground mt-2">Explore Ohm's Law in a 3D interactive environment. Adjust voltage and resistance to see how current changes in real-time.</p>
+                  <p className="text-muted-foreground mt-2">Explore {conceptData.title} in a 3D interactive environment. Adjust variables to see how they affect each other in real-time.</p>
                   <Button className="mt-4">
                     Launch 3D Simulation
                   </Button>
@@ -293,11 +343,16 @@ const ConceptDetailPage: React.FC = () => {
         <TabsContent value="mistakes" className="mt-6">
           <CommonMistakesContent conceptName={conceptData.title} />
         </TabsContent>
+        
+        {/* Previous Year Questions */}
+        <TabsContent value="previous" className="mt-6">
+          <PreviousYearQuestionsTab conceptName={conceptData.title} />
+        </TabsContent>
       </Tabs>
 
       {/* Secondary tabs for supplementary features */}
       <Tabs 
-        defaultValue="mastery" 
+        defaultValue="recall" 
         value={secondaryActiveTab} 
         onValueChange={setSecondaryActiveTab}
         className="w-full"
@@ -345,6 +400,18 @@ const ConceptDetailPage: React.FC = () => {
           <DiscussSection conceptName={conceptData.title} />
         </TabsContent>
       </Tabs>
+      
+      {/* Related content sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Linked Concepts */}
+        <LinkedConceptsSection conceptName={conceptData.title} relatedConcepts={conceptData.relatedConcepts} />
+        
+        {/* Related Flashcards */}
+        <RelatedFlashcards conceptName={conceptData.title} />
+      </div>
+      
+      {/* Concept in Exams */}
+      <ConceptExamSection conceptName={conceptData.title} />
     </div>
   );
 };
