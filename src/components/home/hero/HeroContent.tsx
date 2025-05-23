@@ -19,7 +19,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     navigate('/signup');
   };
 
-  // Enhanced 3D background with exam success theme
+  // Enhanced 3D background with clean, modern design
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -31,7 +31,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       0.1, 
       1000
     );
-    camera.position.z = 25;
+    camera.position.z = 30;
 
     // Renderer with enhanced settings
     const renderer = new THREE.WebGLRenderer({
@@ -45,62 +45,62 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    // Create floating success elements
+    // Create floating geometric elements representing knowledge and success
     const geometries = [];
     
-    // Success pathway - floating graduation caps
-    for (let i = 0; i < 8; i++) {
-      const geometry = new THREE.ConeGeometry(0.8, 1.2, 6);
+    // Success pathways - clean geometric lines
+    for (let i = 0; i < 12; i++) {
+      const geometry = new THREE.SphereGeometry(0.5, 16, 16);
       const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(0.6 + (i * 0.03), 0.8, 0.7),
+        color: new THREE.Color().setHSL(0.55 + (i * 0.02), 0.7, 0.6),
         transparent: true,
-        opacity: 0.4,
-        shininess: 120
+        opacity: 0.6,
+        shininess: 100
       });
-      const cone = new THREE.Mesh(geometry, material);
+      const sphere = new THREE.Mesh(geometry, material);
       
-      const angle = (i / 8) * Math.PI * 2;
-      cone.position.x = Math.cos(angle) * 18;
-      cone.position.y = Math.sin(angle) * 8;
-      cone.position.z = (i - 4) * 2;
+      const angle = (i / 12) * Math.PI * 2;
+      sphere.position.x = Math.cos(angle) * 25;
+      sphere.position.y = Math.sin(angle) * 12;
+      sphere.position.z = (i - 6) * 3;
       
-      geometries.push(cone);
-      scene.add(cone);
+      geometries.push(sphere);
+      scene.add(sphere);
     }
 
-    // Knowledge crystals - diamond shapes
-    for (let i = 0; i < 12; i++) {
-      const geometry = new THREE.OctahedronGeometry(1);
+    // Knowledge nodes - diamond crystals
+    for (let i = 0; i < 8; i++) {
+      const geometry = new THREE.OctahedronGeometry(1.2);
       const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(0.15 + (i * 0.02), 0.9, 0.8),
+        color: new THREE.Color().setHSL(0.2 + (i * 0.08), 0.8, 0.7),
         transparent: true,
-        opacity: 0.3,
-        shininess: 200
+        opacity: 0.4,
+        shininess: 150
       });
       const crystal = new THREE.Mesh(geometry, material);
       
-      crystal.position.x = (Math.random() - 0.5) * 35;
-      crystal.position.y = (Math.random() - 0.5) * 20;
-      crystal.position.z = (Math.random() - 0.5) * 15;
+      crystal.position.x = (Math.random() - 0.5) * 40;
+      crystal.position.y = (Math.random() - 0.5) * 25;
+      crystal.position.z = (Math.random() - 0.5) * 20;
       
       geometries.push(crystal);
       scene.add(crystal);
     }
 
-    // Achievement rings - success symbols
+    // Success rings - achievement symbols
     for (let i = 0; i < 6; i++) {
-      const geometry = new THREE.RingGeometry(2, 3, 16);
+      const geometry = new THREE.TorusGeometry(2.5, 0.3, 8, 20);
       const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(0.3 + (i * 0.05), 0.9, 0.7),
+        color: new THREE.Color().setHSL(0.15 + (i * 0.1), 0.9, 0.8),
         transparent: true,
-        opacity: 0.2,
+        opacity: 0.3,
         side: THREE.DoubleSide
       });
       const ring = new THREE.Mesh(geometry, material);
       
-      ring.position.x = (Math.random() - 0.5) * 25;
-      ring.position.y = (Math.random() - 0.5) * 15;
-      ring.position.z = (Math.random() - 0.5) * 10;
+      ring.position.x = (Math.random() - 0.5) * 35;
+      ring.position.y = (Math.random() - 0.5) * 20;
+      ring.position.z = (Math.random() - 0.5) * 15;
       ring.rotation.x = Math.random() * Math.PI;
       ring.rotation.y = Math.random() * Math.PI;
       
@@ -108,48 +108,24 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       scene.add(ring);
     }
 
-    // Floating text elements (books/knowledge)
-    for (let i = 0; i < 5; i++) {
-      const geometry = new THREE.BoxGeometry(2, 0.3, 1.5);
-      const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(0.8, 0.7, 0.6),
-        transparent: true,
-        opacity: 0.4
-      });
-      const book = new THREE.Mesh(geometry, material);
-      
-      book.position.x = (Math.random() - 0.5) * 30;
-      book.position.y = (Math.random() - 0.5) * 18;
-      book.position.z = (Math.random() - 0.5) * 12;
-      book.rotation.x = Math.random() * 0.5;
-      book.rotation.z = Math.random() * 0.3;
-      
-      geometries.push(book);
-      scene.add(book);
-    }
-
-    // Enhanced lighting setup
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+    // Clean lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 1);
     scene.add(ambientLight);
     
     // Main directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(15, 10, 8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(20, 15, 10);
     directionalLight.castShadow = true;
     scene.add(directionalLight);
     
-    // Success-themed accent lights
-    const successLight = new THREE.PointLight(0x00ff88, 0.8, 25);
-    successLight.position.set(-12, 8, 10);
-    scene.add(successLight);
+    // Accent lights for depth
+    const accentLight1 = new THREE.PointLight(0x4169E1, 1, 40);
+    accentLight1.position.set(-15, 10, 15);
+    scene.add(accentLight1);
     
-    const knowledgeLight = new THREE.PointLight(0x4169E1, 1, 30);
-    knowledgeLight.position.set(10, -5, 8);
-    scene.add(knowledgeLight);
-    
-    const achievementLight = new THREE.PointLight(0xFFD700, 0.6, 20);
-    achievementLight.position.set(0, 15, 5);
-    scene.add(achievementLight);
+    const accentLight2 = new THREE.PointLight(0x9370DB, 0.8, 35);
+    accentLight2.position.set(15, -8, 12);
+    scene.add(accentLight2);
 
     // Mouse interaction
     let mouseX = 0;
@@ -168,48 +144,36 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     };
     window.addEventListener('resize', handleResize);
 
-    // Enhanced animation loop
+    // Smooth animation loop
     const clock = new THREE.Clock();
     
     const animate = () => {
       requestAnimationFrame(animate);
       
-      const time = clock.getElapsedTime() * 0.4;
+      const time = clock.getElapsedTime() * 0.3;
       
-      // Graduation caps rotation
-      geometries.slice(0, 8).forEach((cone, i) => {
-        cone.rotation.x += 0.01;
-        cone.rotation.z += 0.008;
-        cone.position.y += Math.sin(time + i * 0.8) * 0.02;
+      // Gentle sphere movement
+      geometries.slice(0, 12).forEach((sphere, i) => {
+        sphere.rotation.y += 0.005;
+        sphere.position.y += Math.sin(time + i * 0.5) * 0.015;
       });
       
-      // Knowledge crystals floating
-      geometries.slice(8, 20).forEach((crystal, i) => {
-        crystal.rotation.x += 0.015;
+      // Crystal rotation
+      geometries.slice(12, 20).forEach((crystal, i) => {
+        crystal.rotation.x += 0.008;
         crystal.rotation.y += 0.012;
-        crystal.position.y += Math.sin(time * 0.7 + i * 0.4) * 0.025;
+        crystal.position.y += Math.sin(time * 0.8 + i * 0.3) * 0.02;
       });
       
-      // Achievement rings rotation
-      geometries.slice(20, 26).forEach((ring, i) => {
-        ring.rotation.z += 0.008 + (i * 0.002);
-        ring.position.x += Math.cos(time * 0.3 + i) * 0.01;
+      // Ring rotation
+      geometries.slice(20).forEach((ring, i) => {
+        ring.rotation.z += 0.006 + (i * 0.001);
+        ring.position.x += Math.cos(time * 0.4 + i) * 0.008;
       });
-      
-      // Books gentle movement
-      geometries.slice(26).forEach((book, i) => {
-        book.rotation.y += 0.005;
-        book.position.z += Math.sin(time * 0.5 + i * 0.6) * 0.015;
-      });
-      
-      // Dynamic lighting
-      successLight.position.x = Math.sin(time * 0.4) * 20;
-      knowledgeLight.position.z = Math.cos(time * 0.3) * 15;
-      achievementLight.intensity = 0.6 + Math.sin(time * 0.8) * 0.2;
       
       // Smooth camera response to mouse
-      camera.position.x += (mouseX * 2 - camera.position.x) * 0.015;
-      camera.position.y += (mouseY * 2 - camera.position.y) * 0.015;
+      camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+      camera.position.y += (mouseY * 3 - camera.position.y) * 0.02;
       camera.lookAt(scene.position);
 
       renderer.render(scene, camera);
@@ -249,7 +213,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           top: 0, 
           left: 0, 
           pointerEvents: 'none',
-          opacity: 0.7
+          opacity: 0.5
         }}
       />
 
@@ -307,14 +271,14 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Future Success Message */}
+      {/* Enhanced Welcome Message */}
       <motion.div
         className="mb-4 text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Welcome to your future success story with PREPZR - The world's first emotionally aware, hyper-personalized exam prep platform.
+        Welcome to your future success story with PREPZR - The world's first emotionally aware exam prep platform.
       </motion.div>
 
       <motion.h1
@@ -352,56 +316,39 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* COMPACT 5 KEY BENEFITS SECTION */}
+      {/* Compact Five Key Benefits */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-6 p-4 rounded-xl border-2 border-blue-200 dark:border-blue-800/50 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 shadow-lg"
+        className="mb-6 p-3 rounded-xl border border-blue-200 dark:border-blue-800/50 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40"
       >
         <motion.h3 
-          className="text-center font-bold text-lg text-blue-800 dark:text-blue-300 mb-3"
-          animate={{ 
-            scale: [1, 1.02, 1],
-          }}
+          className="text-center font-semibold text-base text-blue-800 dark:text-blue-300 mb-3"
+          animate={{ scale: [1, 1.01, 1] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          🎯 Five Key Benefits For Your Success 🎯
+          🎯 Five Key Benefits 🎯
         </motion.h3>
         
         <div className="grid grid-cols-5 gap-2">
           {[
-            { icon: "🏆", label: "Confidence Builder", color: "bg-gradient-to-br from-green-500 to-emerald-600" },
-            { icon: "🎓", label: "Exam Success", color: "bg-gradient-to-br from-blue-500 to-blue-700" },
-            { icon: "⚡", label: "Time Saver", color: "bg-gradient-to-br from-amber-500 to-yellow-600" },
-            { icon: "🧘", label: "Stress-Free", color: "bg-gradient-to-br from-purple-500 to-purple-700" },
-            { icon: "😊", label: "Happy Learning", color: "bg-gradient-to-br from-pink-500 to-rose-600" }
+            { icon: "🏆", label: "Confidence", color: "bg-green-500" },
+            { icon: "🎓", label: "Success", color: "bg-blue-500" },
+            { icon: "⚡", label: "Time Saver", color: "bg-amber-500" },
+            { icon: "🧘", label: "Stress-Free", color: "bg-purple-500" },
+            { icon: "😊", label: "Happy", color: "bg-pink-500" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + idx * 0.1 }}
-              whileHover={{ 
-                scale: 1.05, 
-                y: -3
-              }}
-              className={`${benefit.color} text-white rounded-lg py-2 px-2 flex flex-col items-center justify-center gap-1 shadow-md hover:shadow-lg transition-all duration-300 text-center cursor-pointer`}
+              whileHover={{ scale: 1.05, y: -2 }}
+              className={`${benefit.color} text-white rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all duration-300`}
             >
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-                className="text-xl bg-white/20 rounded-full p-1"
-              >
-                {benefit.icon}
-              </motion.div>
-              <span className="font-bold text-xs">{benefit.label}</span>
+              <span className="text-lg mb-1">{benefit.icon}</span>
+              <span className="font-semibold text-xs">{benefit.label}</span>
             </motion.div>
           ))}
         </div>
@@ -412,11 +359,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30 shadow-inner"
+        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800/30"
       >
         <p className="text-base text-gray-700 dark:text-gray-300 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-green-600" />
-          Transform your exam journey with our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span> for comprehensive exam success.
+          Transform your exam journey with our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven platform</span>.
         </p>
       </motion.div>
       
@@ -427,7 +374,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <motion.button
           onClick={handleFreeTrialClick}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center group relative overflow-hidden"
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -446,7 +393,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <motion.button
           onClick={handleExamReadinessClick}
           className="w-full border-2 border-purple-300 hover:border-purple-400 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-xl flex items-center justify-center group"
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

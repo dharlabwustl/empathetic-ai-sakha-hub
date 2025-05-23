@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, Mic, Pause, Play, Settings } from 'lucide-react';
+import { Volume2, VolumeX, Mic, Pause, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,7 +18,8 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<'welcome' | 'features' | 'cta' | 'idle'>('welcome');
+  const [currentPhase, setCurrentPhase] = useState<'welcome' | 'features' | 'benefits' | 'cta' | 'idle'>('welcome');
+  const [lastPhaseTime, setLastPhaseTime] = useState<number>(0);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,33 +30,35 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const timeoutRef = useRef<number | null>(null);
   const phaseTimeoutRef = useRef<number | null>(null);
 
-  // Enhanced welcome script with PREPZR features
-  const getWelcomeScript = () => {
+  // Intelligent content script with proper PREPZR pronunciation
+  const getIntelligentScript = () => {
     const scripts = {
-      welcome: `Welcome to PREP-ZR! I'm your AI learning companion. PREP-ZR is the world's first emotionally aware exam preparation platform that understands not just what you study, but how you feel while studying.`,
+      welcome: `Welcome to PREP ZR! I'm Sakha AI, your intelligent learning companion. PREP ZR is the world's first emotionally aware exam preparation platform that understands not just what you study, but how you feel while studying.`,
       
-      features: `Let me tell you about our key features: We offer personalized study plans that adapt to your mood and learning style. Our AI analyzes your performance in real-time and provides instant feedback. You get access to thousands of practice questions, video tutorials, and interactive simulations. Plus, our stress-free learning approach helps you build confidence while preparing for exams like NEET, JEE, UPSC, and CAT.`,
+      features: `Let me highlight our unique features: We offer personalized study plans that adapt to your mood and learning style. Our AI provides real-time performance analysis with instant feedback. You get access to thousands of practice questions, interactive simulations, and stress-free learning approaches.`,
       
-      cta: `Ready to transform your exam preparation? You can start your 7-day free trial right now, or let me analyze your exam readiness to create a personalized study plan. Just say "start free trial", "analyze readiness", or "sign up" and I'll help you get started. You can also ask me about any specific features you'd like to know more about.`,
+      benefits: `Here's how PREP ZR transforms your preparation: Build unshakeable confidence with our emotional support system. Save precious time with AI-driven personalized paths. Achieve exam success through our proven methodology. Experience stress-free learning that adapts to your emotional state.`,
       
-      idle: `I'm here whenever you need help. You can ask me about PREP-ZR features, start your free trial, or analyze your exam readiness. Just speak to me anytime!`
+      cta: `Ready to begin your success journey? You can start your 7-day free trial right now, or let me analyze your exam readiness to create your personalized study plan. Just say "start free trial", "analyze readiness", or "sign up" and I'll guide you through the process.`,
+      
+      idle: `I'm here to help you discover PREP ZR's powerful features. You can ask me about our AI-driven personalization, start your free trial, or analyze your exam readiness. What would you like to explore?`
     };
     
     return scripts[currentPhase];
   };
 
-  // Voice commands handler
+  // Enhanced voice commands handler
   const handleVoiceCommand = (transcript: string) => {
     const command = transcript.toLowerCase();
     
     if (command.includes('start free trial') || command.includes('free trial') || command.includes('sign up')) {
-      speak("Perfect! Let me take you to the sign-up page where you can start your 7-day free trial.");
+      speak("Excellent choice! Taking you to our sign-up page where you can start your 7-day free trial and experience PREP ZR's intelligent learning system.");
       setTimeout(() => navigate('/signup'), 2000);
       return true;
     }
     
     if (command.includes('analyze') || command.includes('exam readiness') || command.includes('readiness')) {
-      speak("Excellent choice! I'll open the exam readiness analyzer to create your personalized study plan.");
+      speak("Great decision! I'll open our advanced exam readiness analyzer to assess your current preparation level and create your personalized study roadmap.");
       setTimeout(() => {
         const event = new CustomEvent('open-exam-analyzer');
         window.dispatchEvent(event);
@@ -65,12 +68,18 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     
     if (command.includes('features') || command.includes('what can') || command.includes('tell me more')) {
       setCurrentPhase('features');
-      speak(getWelcomeScript());
+      speak(getIntelligentScript());
+      return true;
+    }
+    
+    if (command.includes('benefits') || command.includes('how does') || command.includes('help me')) {
+      setCurrentPhase('benefits');
+      speak(getIntelligentScript());
       return true;
     }
     
     if (command.includes('login') || command.includes('log in')) {
-      speak("Taking you to the login page. You can use your existing account or try our demo login.");
+      speak("Taking you to the login page. You can access your existing account or try our demo to experience PREP ZR instantly.");
       setTimeout(() => navigate('/login'), 2000);
       return true;
     }
@@ -78,19 +87,19 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     if (command.includes('stop') || command.includes('quiet') || command.includes('mute')) {
       setIsMuted(true);
       stopSpeaking();
-      speak("I'll be quiet now. Click the volume button if you want me to speak again.");
+      speak("I'll be quiet now. Click the volume button anytime to reactivate me.");
       return true;
     }
     
     if (command.includes('repeat') || command.includes('say again')) {
-      speak(getWelcomeScript());
+      speak(getIntelligentScript());
       return true;
     }
     
     return false;
   };
 
-  // Enhanced speech synthesis
+  // Enhanced speech synthesis with proper pronunciation
   const speak = (text: string) => {
     if (isMuted || location.pathname !== '/') return;
     
@@ -99,17 +108,17 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       window.speechSynthesis.cancel();
     }
     
-    // Create new utterance with PREPZR pronunciation fix
+    // Create new utterance with proper PREPZR pronunciation
     const utterance = new SpeechSynthesisUtterance(
-      text.replace(/PREPZR/gi, 'PREP-ZR').replace(/Prepzr/g, 'PREP-ZR')
+      text.replace(/PREPZR/gi, 'PREP ZR').replace(/Prepzr/g, 'PREP ZR')
     );
     
-    // Configure voice settings
+    // Configure voice settings for clarity
     const voices = window.speechSynthesis.getVoices();
     const preferredVoice = voices.find(voice => 
-      voice.name.includes('Female') || 
+      voice.name.includes('Google') || 
+      voice.name.includes('Microsoft') ||
       voice.name.includes('Samantha') ||
-      voice.name.includes('Zira') ||
       voice.lang.includes('en-US')
     );
     
@@ -117,33 +126,40 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       utterance.voice = preferredVoice;
     }
     
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
+    utterance.rate = 0.85; // Slightly slower for clarity
+    utterance.pitch = 1.0;  // Natural pitch
     utterance.volume = 0.8;
     utterance.lang = language;
     
-    // Event handlers
+    // Event handlers for intelligent phase progression
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => {
       setIsSpeaking(false);
+      setLastPhaseTime(Date.now());
+      
+      // Intelligent phase progression with delays
       if (currentPhase === 'welcome') {
-        // Move to features phase after welcome
         phaseTimeoutRef.current = window.setTimeout(() => {
-          if (location.pathname === '/' && !isMuted) {
+          if (location.pathname === '/' && !isMuted && Date.now() - lastPhaseTime > 8000) {
             setCurrentPhase('features');
-            setTimeout(() => speak(getWelcomeScript()), 1000);
+            setTimeout(() => speak(getIntelligentScript()), 1500);
           }
-        }, 3000);
+        }, 5000);
       } else if (currentPhase === 'features') {
-        // Move to CTA phase after features
         phaseTimeoutRef.current = window.setTimeout(() => {
-          if (location.pathname === '/' && !isMuted) {
-            setCurrentPhase('cta');
-            setTimeout(() => speak(getWelcomeScript()), 2000);
+          if (location.pathname === '/' && !isMuted && Date.now() - lastPhaseTime > 10000) {
+            setCurrentPhase('benefits');
+            setTimeout(() => speak(getIntelligentScript()), 2000);
           }
-        }, 4000);
+        }, 6000);
+      } else if (currentPhase === 'benefits') {
+        phaseTimeoutRef.current = window.setTimeout(() => {
+          if (location.pathname === '/' && !isMuted && Date.now() - lastPhaseTime > 12000) {
+            setCurrentPhase('cta');
+            setTimeout(() => speak(getIntelligentScript()), 2500);
+          }
+        }, 8000);
       } else if (currentPhase === 'cta') {
-        // Go to idle after CTA
         setCurrentPhase('idle');
       }
     };
@@ -183,7 +199,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
           if (recognitionRef.current) {
             recognitionRef.current.start();
           }
-        }, 1000);
+        }, 1500);
       }
     };
     
@@ -193,7 +209,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       
       const handled = handleVoiceCommand(transcript);
       if (!handled && currentPhase === 'idle') {
-        speak("I didn't quite understand that. You can ask me about PREP-ZR features, start a free trial, or analyze your exam readiness.");
+        speak("I didn't quite catch that. You can ask me about PREP ZR features, start a free trial, or analyze your exam readiness. How can I assist you?");
       }
     };
     
@@ -219,12 +235,12 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       recognition.start();
     }
     
-    // Start with welcome message after a short delay
+    // Start with welcome message
     timeoutRef.current = window.setTimeout(() => {
       if (!isMuted && location.pathname === '/') {
-        speak(getWelcomeScript());
+        speak(getIntelligentScript());
       }
-    }, 2000);
+    }, 1500);
   };
 
   // Stop the voice assistant
@@ -360,7 +376,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
               animate={{ opacity: 1 }}
               className="absolute -top-12 right-0 bg-black text-white text-xs px-2 py-1 rounded"
             >
-              Speaking about PREPZR...
+              Speaking about PREP-ZR...
             </motion.div>
           )}
           
