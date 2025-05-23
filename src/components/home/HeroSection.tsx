@@ -19,7 +19,13 @@ const HeroSection = () => {
     { icon: <Zap className="w-6 h-6" />, text: "Smart Progress Tracking", color: "from-amber-500 to-red-600" }
   ];
 
-  const keyBenefits = ["Confidence Builder", "Exam Success", "Time Saver", "Stress-Free", "Happy Learning"];
+  const keyBenefits = [
+    { title: "Confidence Builder", color: "from-emerald-500 to-emerald-700", icon: "🔥" },
+    { title: "Exam Success", color: "from-blue-500 to-blue-700", icon: "🏆" },
+    { title: "Time Saver", color: "from-purple-500 to-purple-700", icon: "⏱️" },
+    { title: "Stress-Free", color: "from-amber-500 to-amber-700", icon: "🧘" },
+    { title: "Happy Learning", color: "from-pink-500 to-pink-700", icon: "😊" }
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,7 +48,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8">
       {/* Animated Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
@@ -73,13 +79,13 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center lg:text-left space-y-6"
+            className="text-center lg:text-left space-y-4"
           >
             {/* Live Badge */}
             <motion.div
@@ -105,23 +111,19 @@ const HeroSection = () => {
             </motion.div>
 
             {/* Main Headline */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
-                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
+                className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
               >
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                  We understand your
+                  From struggling to
                 </span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
-                  mindset, not just
-                </span>
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-400 to-purple-400">
-                  the exam
+                  exam champion
                 </span>
               </motion.h1>
 
@@ -129,53 +131,92 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+                className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               >
-                From struggling student to exam champion with the world's first 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> learning platform for 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> JEE, NEET, UPSC & CAT</span>
+                With the world's first 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> & 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> hyper personalized</span> exam prep platform for 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-400 font-semibold"> JEE, NEET, UPSC & CAT</span>
               </motion.p>
             </div>
 
-            {/* Compact Five Key Benefits - Dynamic Text Only */}
+            {/* Your Success Accelerator - Dynamic Benefits */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
             >
               <motion.h3 
-                className="text-center font-semibold text-sm text-white mb-2 flex items-center justify-center gap-2"
+                className="text-center font-semibold text-lg text-white mb-3 flex items-center justify-center gap-2"
                 animate={{ 
                   scale: [1, 1.02, 1],
+                  textShadow: [
+                    "0 0 0px rgba(255,255,255,0)",
+                    "0 0 10px rgba(255,255,255,0.8)",
+                    "0 0 0px rgba(255,255,255,0)"
+                  ]
                 }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <Target className="w-4 h-4" />
-                Five Key Benefits For Your Success
-                <Sparkles className="w-4 h-4" />
+                <Target className="w-5 h-5" />
+                Your Success Accelerator
+                <Sparkles className="w-5 h-5" />
               </motion.h3>
               
               <div className="flex flex-wrap justify-center gap-2">
                 {keyBenefits.map((benefit, idx) => (
-                  <motion.span
+                  <motion.div
                     key={idx}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ 
-                      opacity: [0.7, 1, 0.7],
-                      scale: [0.95, 1, 0.95],
-                      x: [0, Math.sin(idx * 0.5) * 2, 0]
+                      opacity: [0.8, 1, 0.8],
+                      scale: [0.95, 1.05, 0.95],
+                      y: [0, -5, 0],
+                      rotateZ: [0, 2, 0, -2, 0]
                     }}
                     transition={{ 
-                      delay: 0.7 + idx * 0.1,
-                      duration: 2,
+                      delay: 0.7 + idx * 0.2,
+                      duration: 3,
                       repeat: Infinity,
-                      repeatDelay: 3
+                      repeatDelay: 2
                     }}
-                    className="text-xs font-semibold text-blue-200 bg-blue-500/20 px-2 py-1 rounded-full border border-blue-400/30"
+                    whileHover={{ 
+                      scale: 1.1, 
+                      y: -8,
+                      rotateZ: 5,
+                      transition: { duration: 0.2 }
+                    }}
+                    className={`bg-gradient-to-br ${benefit.color} px-3 py-2 rounded-full shadow-lg flex items-center gap-2 group transition-all duration-300 cursor-pointer`}
                   >
-                    {benefit}
-                  </motion.span>
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        rotate: [0, 15, 0, -15, 0] 
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: idx * 0.5
+                      }}
+                      className="text-lg"
+                    >
+                      {benefit.icon}
+                    </motion.div>
+                    <motion.span 
+                      className="font-bold text-white text-sm"
+                      animate={{ 
+                        textShadow: [
+                          "0 0 0px rgba(255,255,255,0)", 
+                          "0 0 8px rgba(255,255,255,0.8)", 
+                          "0 0 0px rgba(255,255,255,0)"
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, delay: idx * 0.3 }}
+                    >
+                      {benefit.title}
+                    </motion.span>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -185,7 +226,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -200,14 +241,14 @@ const HeroSection = () => {
                     {features[currentFeature].icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">{features[currentFeature].text}</h3>
+                    <h3 className="text-lg font-bold text-white">{features[currentFeature].text}</h3>
                     <p className="text-gray-300 text-sm">Join 2M+ students achieving success</p>
                   </div>
                 </motion.div>
               </AnimatePresence>
               
               {/* Feature Indicators */}
-              <div className="flex gap-2 mt-4 justify-center lg:justify-start">
+              <div className="flex gap-2 mt-3 justify-center lg:justify-start">
                 {features.map((_, index) => (
                   <button
                     key={index}
@@ -220,17 +261,17 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Fixed CTA Buttons */}
+            {/* CTA Buttons - More Prominent */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-3 pt-2"
             >
               <Button
                 onClick={handleStartJourney}
                 size="lg"
-                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg"
+                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-base min-h-[56px]"
               >
                 <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
                 Start Your Success Journey - 7 Days Free
@@ -240,7 +281,7 @@ const HeroSection = () => {
               <Button
                 onClick={handleExamReadinessClick}
                 size="lg"
-                className="group bg-gray-800/80 hover:bg-gray-700/80 border-2 border-gray-600/50 hover:border-gray-500/50 text-gray-100 hover:text-white py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group bg-white/10 hover:bg-white/20 border-2 border-white/30 hover:border-white/50 text-white hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl min-h-[56px]"
               >
                 <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 AI Exam Readiness Analysis - Try Now
@@ -252,7 +293,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.1, duration: 0.8 }}
-              className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20"
+              className="grid grid-cols-3 gap-6 pt-6 border-t border-white/20"
             >
               {[
                 { number: "2M+", label: "Students" },
@@ -260,10 +301,10 @@ const HeroSection = () => {
                 { number: "4.9/5", label: "Rating" }
               ].map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  <div className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                     {stat.number}
                   </div>
-                  <div className="text-gray-300 text-sm font-medium">{stat.label}</div>
+                  <div className="text-gray-300 text-xs font-medium">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
