@@ -230,7 +230,13 @@ const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({
           />
         </div>
         <Button
-          onClick={() => setIsRunning(!isRunning)}
+          onClick={() => {
+            setIsRunning(!isRunning);
+            const explanation = isRunning ? 
+              `Simulation paused. You can adjust the speed and restart when ready.` :
+              `Simulation started. Watch how the ${conceptName} principles affect the model in real-time.`;
+            playAudioExplanation(explanation);
+          }}
           variant={isRunning ? "destructive" : "default"}
           className="flex items-center gap-2"
         >
@@ -243,10 +249,36 @@ const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({
 };
 
 const ForceAnalysisTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
+  const playForceExplanation = () => {
+    const explanation = `In this force analysis for ${conceptName}, we can see how the applied forces interact. 
+    Force A exerts 25 Newtons while Force B exerts 15 Newtons. 
+    The resultant force is 40 Newtons at an angle of 45 degrees. 
+    As a result, the system is not in equilibrium and experiences an acceleration of 8 meters per second squared.`;
+    
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(explanation);
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">Force Analysis - {subject}</h3>
+        <div className="flex justify-between mb-4">
+          <h3 className="text-xl font-bold">Force Analysis - {subject}</h3>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={playForceExplanation}
+            className="flex items-center gap-2"
+          >
+            <Volume2 className="h-4 w-4" />
+            Explain
+          </Button>
+        </div>
+        
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
             <h4 className="font-semibold mb-2">Applied Forces</h4>
@@ -286,18 +318,49 @@ const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ con
     { title: 'Real-world Application', description: `${conceptName} in practical use` }
   ];
 
+  const playExampleExplanation = (exampleIndex: number) => {
+    const explanations = [
+      `This basic example shows the fundamental principles of ${conceptName} in a simple scenario. It demonstrates the key concepts without complex interactions.`,
+      `This complex example introduces multiple variables and interactions to demonstrate advanced ${conceptName} principles. Notice how the system behavior changes with different inputs.`,
+      `This real-world application shows how ${conceptName} is used in practical situations. These principles apply to many systems we encounter in everyday life and industry.`
+    ];
+    
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(explanations[exampleIndex]);
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
         <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {examples.map((example, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+            <div 
+              key={index} 
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => playExampleExplanation(index)}
+            >
               <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center">
                 <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h4 className="font-semibold">{example.title}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">{example.description}</p>
+              <Button 
+                variant="outline"
+                size="sm"
+                className="mt-2 w-full flex items-center gap-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playExampleExplanation(index);
+                }}
+              >
+                <Volume2 className="h-3 w-3" />
+                Audio Explanation
+              </Button>
             </div>
           ))}
         </div>
@@ -328,12 +391,34 @@ const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ con
     }, 3000);
   };
 
+  const playLabIntroduction = () => {
+    const labIntro = `Welcome to the virtual ${subject} laboratory. Here you can run experiments related to ${conceptName} in a safe, controlled environment. Use the available tools to set up your experiment, then click Start Experiment to see the results.`;
+    
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(labIntro);
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold">Virtual {subject} Lab</h3>
-          <Badge variant="outline">{conceptName}</Badge>
+          <div className="flex gap-2">
+            <Badge variant="outline">{conceptName}</Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={playLabIntroduction}
+              className="flex items-center gap-2"
+            >
+              <Volume2 className="h-4 w-4" />
+              Lab Introduction
+            </Button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -390,6 +475,17 @@ const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ con
       </div>
     </div>
   );
+};
+
+// Helper function for audio explanations
+const playAudioExplanation = (content: string) => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // Cancel any ongoing speech
+    const utterance = new SpeechSynthesisUtterance(content);
+    utterance.rate = 0.9;
+    utterance.volume = 0.8;
+    window.speechSynthesis.speak(utterance);
+  }
 };
 
 export default Visual3DContent;

@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, NotebookPen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,9 @@ import Visual3DContent from './Visual3DContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
+import NotesSection from './NotesSection';
+import useUserNotes from '@/hooks/useUserNotes';
+import ReadAloudSection from './concept-detail/ReadAloudSection';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -19,15 +23,45 @@ const ConceptDetailPage = () => {
   const { conceptCards } = useUserStudyPlan();
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
+  const { getNoteForConcept, saveNote } = useUserNotes();
+  const [userNotes, setUserNotes] = useState('');
 
   useEffect(() => {
     if (conceptId && conceptCards.length > 0) {
       const foundConcept = conceptCards.find(card => card.id === conceptId);
       if (foundConcept) {
         setConcept(foundConcept);
+        // Load notes for this concept
+        setUserNotes(getNoteForConcept(conceptId));
       }
     }
-  }, [conceptId, conceptCards]);
+  }, [conceptId, conceptCards, getNoteForConcept]);
+
+  const handleReadAloud = () => {
+    if (concept) {
+      setIsReadingAloud(true);
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(concept.content);
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  };
+
+  const handleStopReadAloud = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsReadingAloud(false);
+  };
+  
+  const handleSaveNotes = () => {
+    if (conceptId) {
+      saveNote(conceptId, userNotes);
+    }
+  };
 
   if (!concept) {
     return (
@@ -74,7 +108,7 @@ const ConceptDetailPage = () => {
             
             <div className="mt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="learn" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
                     Learn
@@ -91,9 +125,29 @@ const ConceptDetailPage = () => {
                     <Lightbulb className="h-4 w-4" />
                     Learning Tools
                   </TabsTrigger>
+                  <TabsTrigger value="notes" className="flex items-center gap-2">
+                    <NotebookPen className="h-4 w-4" />
+                    My Notes
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="learn" className="mt-0">
+                  {isReadingAloud ? (
+                    <ReadAloudSection 
+                      text={concept.content} 
+                      isActive={isReadingAloud} 
+                      onStop={handleStopReadAloud} 
+                    />
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleReadAloud} 
+                      className="mb-4 flex items-center gap-2"
+                    >
+                      <Video className="h-4 w-4" />
+                      Read Aloud
+                    </Button>
+                  )}
                   <EnhancedLearnTab conceptName={concept.title} />
                 </TabsContent>
 
@@ -152,6 +206,7 @@ const ConceptDetailPage = () => {
                           content={concept.content}
                           onQuizComplete={(score) => {
                             console.log(`Quiz completed with score: ${score}`);
+                            // In a real app, this would update the user's mastery score
                           }}
                         />
                       </CardContent>
@@ -170,7 +225,12 @@ const ConceptDetailPage = () => {
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Create personal notes and annotations for this concept.
                           </p>
-                          <Button variant="outline" size="sm" className="mt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => setActiveTab('notes')}
+                          >
                             Open Notes
                           </Button>
                         </CardContent>
@@ -194,6 +254,10 @@ const ConceptDetailPage = () => {
                       </Card>
                     </div>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="notes" className="mt-0">
+                  <NotesSection conceptName={concept.title} />
                 </TabsContent>
               </Tabs>
             </div>
