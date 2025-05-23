@@ -8,6 +8,7 @@ import ConceptContent from "./concept-detail/ConceptContent";
 import ConceptSidebar from "./concept-detail/ConceptSidebar";
 import ConceptResources from "./concept-detail/ConceptResources";
 import AIInsightsSection from "./AIInsightsSection";
+import FormulaReference from "./concept-detail/FormulaReference";
 import { useParams } from "react-router-dom";
 import { Book, Video, Lightbulb, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare, FlaskConical, Box, Volume2, Zap, Brain, Eye } from "lucide-react";
 import QuickRecallSection from "./concept-detail/QuickRecallSection";
@@ -46,7 +47,21 @@ const conceptData = {
       <li>a is the acceleration of the object (measured in meters per second squared, m/s²)</li>
     </ul>
     <p>This law explains how the velocity of an object changes when it is subjected to an external force. The law assumes that the mass of the object is constant.</p>
-  `
+  `,
+  formulas: [
+    {
+      id: "f1",
+      name: "Newton's Second Law",
+      latex: "F = ma",
+      description: "Force equals mass times acceleration"
+    },
+    {
+      id: "f2", 
+      name: "Weight Formula",
+      latex: "W = mg",
+      description: "Weight equals mass times gravitational acceleration"
+    }
+  ]
 };
 
 const ConceptDetailPage: React.FC = () => {
@@ -64,17 +79,38 @@ const ConceptDetailPage: React.FC = () => {
     setQuizScore(score);
   };
 
-  const handleReadAloud = () => {
+  const handleReadAloud = (content?: string) => {
     if (isReadingAloud) {
       window.speechSynthesis.cancel();
       setIsReadingAloud(false);
     } else {
-      const text = "Newton's Second Law of Motion. " + conceptData.content.replace(/<[^>]*>/g, '');
-      const utterance = new SpeechSynthesisUtterance(text);
+      const textToRead = content || getActiveTabContent();
+      const utterance = new SpeechSynthesisUtterance(textToRead);
       utterance.rate = 0.8;
       utterance.onend = () => setIsReadingAloud(false);
       window.speechSynthesis.speak(utterance);
       setIsReadingAloud(true);
+    }
+  };
+
+  const getActiveTabContent = () => {
+    switch (activeTab) {
+      case "learn":
+        return `Newton's Second Law of Motion. ${conceptData.content.replace(/<[^>]*>/g, '')}`;
+      case "visual":
+        return "Visual learning mode for Newton's Second Law with interactive diagrams and representations.";
+      case "3d":
+        return "3D simulation mode for Newton's Second Law with interactive models.";
+      case "formula":
+        return "Formula laboratory for Newton's Second Law with interactive formula practice.";
+      case "video":
+        return "Video tutorials for Newton's Second Law concept.";
+      case "mistakes":
+        return "Common mistakes and misconceptions about Newton's Second Law.";
+      case "previous-year":
+        return "Previous year questions related to Newton's Second Law.";
+      default:
+        return conceptData.content.replace(/<[^>]*>/g, '');
     }
   };
   
@@ -111,7 +147,7 @@ const ConceptDetailPage: React.FC = () => {
           {/* Read Aloud Button */}
           <div className="mt-4">
             <Button
-              onClick={handleReadAloud}
+              onClick={() => handleReadAloud()}
               variant="outline"
               size="sm"
               className="flex items-center gap-2"
@@ -210,6 +246,19 @@ const ConceptDetailPage: React.FC = () => {
                     </TabsTrigger>
                   </TabsList>
                 </div>
+
+                {/* Read Aloud for Active Tab */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleReadAloud()}
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <Volume2 className={`w-3 h-3 ${isReadingAloud ? 'animate-pulse text-blue-500' : ''}`} />
+                    Read Current Tab
+                  </Button>
+                </div>
               </div>
               
               {/* Tab content areas */}
@@ -221,7 +270,12 @@ const ConceptDetailPage: React.FC = () => {
                 <div className="p-6 text-center bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-lg border border-purple-200/50 dark:border-purple-700/30">
                   <Eye className="w-12 h-12 mx-auto mb-4 text-purple-600" />
                   <h3 className="text-lg font-semibold mb-2">Visual Learning Mode</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Interactive visual representations and diagrams for {conceptData.title}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Interactive visual representations and diagrams for {conceptData.title}</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Visual representations help you understand force vectors, acceleration directions, and the relationship between mass and force in Newton's Second Law.
+                    </p>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -229,7 +283,12 @@ const ConceptDetailPage: React.FC = () => {
                 <div className="p-6 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200/50 dark:border-green-700/30">
                   <Box className="w-12 h-12 mx-auto mb-4 text-green-600" />
                   <h3 className="text-lg font-semibold mb-2">3D Simulation</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Interactive 3D models and simulations for {conceptData.title}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Interactive 3D models and simulations for {conceptData.title}</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Manipulate 3D objects to see how different forces and masses affect acceleration in real-time simulations.
+                    </p>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -238,26 +297,64 @@ const ConceptDetailPage: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="formula" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-lg border border-orange-200/50 dark:border-orange-700/30">
-                  <FlaskConical className="w-12 h-12 mx-auto mb-4 text-orange-600" />
-                  <h3 className="text-lg font-semibold mb-2">Formula Laboratory</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Interactive formula practice and manipulation for {conceptData.title}</p>
-                </div>
+                <FormulaReference 
+                  formulas={conceptData.formulas}
+                  conceptTitle={conceptData.title}
+                  handleOpenFormulaLab={() => {
+                    console.log("Opening Formula Lab");
+                  }}
+                />
               </TabsContent>
               
               <TabsContent value="mistakes" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 rounded-lg border border-red-200/50 dark:border-red-700/30">
-                  <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-red-600" />
-                  <h3 className="text-lg font-semibold mb-2">Common Mistakes</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Learn from common errors and misconceptions in {conceptData.title}</p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                    <h3 className="text-lg font-semibold">Common Mistakes</h3>
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200/50 dark:border-red-700/30">
+                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">Confusing Mass and Weight</h4>
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        Many students confuse mass (measured in kg) with weight (measured in N). Remember: Weight = mg, where g is gravitational acceleration.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200/50 dark:border-red-700/30">
+                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">Ignoring Direction</h4>
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        Force and acceleration are vector quantities. Always consider their direction when applying F = ma.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
               
               <TabsContent value="previous-year" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 rounded-lg border border-yellow-200/50 dark:border-yellow-700/30">
-                  <Lightbulb className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                  <h3 className="text-lg font-semibold mb-2">Previous Year Questions</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Practice with actual exam questions related to {conceptData.title}</p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="w-5 h-5 text-yellow-500" />
+                    <h3 className="text-lg font-semibold">Previous Year Questions</h3>
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200/50 dark:border-yellow-700/30">
+                      <h4 className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">JEE Main 2023</h4>
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
+                        A force of 10 N is applied to a mass of 2 kg. Calculate the acceleration produced.
+                      </p>
+                      <Button variant="outline" size="sm">View Solution</Button>
+                    </div>
+                    
+                    <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200/50 dark:border-yellow-700/30">
+                      <h4 className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">NEET 2022</h4>
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
+                        If the mass of an object is doubled while keeping the force constant, what happens to acceleration?
+                      </p>
+                      <Button variant="outline" size="sm">View Solution</Button>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -278,7 +375,11 @@ const ConceptDetailPage: React.FC = () => {
                 <div className="p-6 text-center bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/20 dark:to-blue-950/20 rounded-lg border border-indigo-200/50 dark:border-indigo-700/30">
                   <RefreshCw className="w-12 h-12 mx-auto mb-4 text-indigo-600" />
                   <h3 className="text-lg font-semibold mb-2">Revision Schedule</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Spaced repetition and revision scheduling for {conceptData.title}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Spaced repetition and revision scheduling for {conceptData.title}</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">Next revision: Tomorrow</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Difficulty level will be adjusted based on your performance</p>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -286,15 +387,41 @@ const ConceptDetailPage: React.FC = () => {
                 <div className="p-6 text-center bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 rounded-lg border border-teal-200/50 dark:border-teal-700/30">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-teal-600" />
                   <h3 className="text-lg font-semibold mb-2">Personal Notes</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Your personal annotations and notes for {conceptData.title}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Your personal annotations and notes for {conceptData.title}</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-left">
+                    <textarea 
+                      className="w-full p-2 border rounded-md resize-none" 
+                      rows={4} 
+                      placeholder="Add your personal notes here..."
+                    />
+                    <Button className="mt-2" size="sm">Save Notes</Button>
+                  </div>
                 </div>
               </TabsContent>
               
               <TabsContent value="discuss" className="mt-6">
-                <div className="p-6 text-center bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 rounded-lg border border-violet-200/50 dark:border-violet-700/30">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4 text-violet-600" />
-                  <h3 className="text-lg font-semibold mb-2">Community Discussion</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Join the discussion and get AI insights about {conceptData.title}</p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MessageSquare className="w-5 h-5 text-violet-500" />
+                    <h3 className="text-lg font-semibold">Community Discussion & AI Insights</h3>
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <div className="bg-violet-50 dark:bg-violet-950/20 p-4 rounded-lg border border-violet-200/50 dark:border-violet-700/30">
+                      <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">AI Insight</h4>
+                      <p className="text-sm text-violet-700 dark:text-violet-300">
+                        Based on your learning pattern, you might benefit from practicing more numerical problems involving Newton's Second Law.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                      <h4 className="font-medium mb-2">Recent Discussion</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        "Can someone explain why F=ma doesn't work for objects moving at the speed of light?" - Student A
+                      </p>
+                      <Button variant="outline" size="sm">Join Discussion</Button>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
