@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone, Mic, ArrowLeft } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Mail, Lock, Phone, Mic } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
@@ -298,8 +298,6 @@ const StudentLoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Enhanced Back to Home button with animation */}
-      
       {loginError && (
         <Alert variant="destructive">
           <AlertDescription>{loginError}</AlertDescription>
