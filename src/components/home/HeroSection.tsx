@@ -1,509 +1,301 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import HeroContent from './hero/HeroContent';
-import DashboardPreview from './hero/DashboardPreview';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import DashboardPreview from './DashboardPreview';
 
-const HeroSection: React.FC = () => {
+const HeroSection = () => {
   const navigate = useNavigate();
-  const [activeFeature, setActiveFeature] = useState(0);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [currentFeature, setCurrentFeature] = useState(0);
+  const [showDashboard, setShowDashboard] = useState(false);
 
-  // Automatically cycle through dashboard features
+  const features = [
+    { icon: <Brain className="w-6 h-6" />, text: "AI-Powered Learning", color: "from-blue-500 to-purple-600" },
+    { icon: <Target className="w-6 h-6" />, text: "Personalized Study Plans", color: "from-purple-500 to-pink-600" },
+    { icon: <Award className="w-6 h-6" />, text: "Exam Success Guarantee", color: "from-green-500 to-blue-600" },
+    { icon: <Zap className="w-6 h-6" />, text: "Smart Progress Tracking", color: "from-amber-500 to-red-600" }
+  ];
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveFeature(prev => (prev + 1) % 6); 
-    }, 5000);
-    
+      setCurrentFeature((prev) => (prev + 1) % features.length);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // Handler for exam readiness analyzer
-  const handleExamReadinessClick = () => {
-    // Dispatch event to open the exam readiness analyzer
-    window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
+  const handleStartJourney = () => {
+    navigate('/signup');
+  };
+
+  const handleWatchDemo = () => {
+    setShowDashboard(true);
   };
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative overflow-hidden min-h-screen py-12 md:py-16 lg:py-0 flex items-center"
-    >
-      {/* Enhanced Immersive 3D Background with interactive elements - matching post-login dashboard */}
-      <div className="absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/50">
-        {/* 3D Grid Pattern */}
-        <div className="absolute inset-0 perspective-1000">
-          <div 
-            className="absolute inset-0 opacity-[0.05] dark:opacity-[0.07]" 
-            style={{
-              backgroundImage: "linear-gradient(#5c6bc0 1px, transparent 1px), linear-gradient(to right, #5c6bc0 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-              transform: "rotateX(60deg) scale(3) translateY(-10%)"
-            }}
-          />
-        </div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
         
-        {/* Large Knowledge Spheres (Background Gradient Bubbles) */}
-        <motion.div 
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-400/10 to-indigo-400/5 dark:from-blue-700/10 dark:to-indigo-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            x: [0, 30, 0], 
-            y: [0, -20, 0] 
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            repeatType: "reverse" 
-          }}
-        />
-        
-        <motion.div 
-          className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-400/10 to-pink-400/5 dark:from-purple-700/10 dark:to-pink-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.03, 1], 
-            x: [0, -20, 0], 
-            y: [0, 20, 0] 
-          }}
-          transition={{ 
-            duration: 25, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 2
-          }}
-        />
-        
-        <motion.div 
-          className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-green-400/10 to-emerald-400/5 dark:from-green-700/10 dark:to-emerald-700/5 mix-blend-multiply filter blur-3xl"
-          animate={{ 
-            scale: [1, 1.05, 1], 
-            x: [0, -30, 0], 
-            y: [0, 30, 0] 
-          }}
-          transition={{ 
-            duration: 18, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 1
-          }}
-        />
-
-        {/* Floating 3D Books */}
-        <motion.div 
-          className="hidden md:block absolute top-[15%] left-[15%] w-16 h-20"
-          style={{ 
-            transformStyle: "preserve-3d", 
-            perspective: "1000px" 
-          }}
-          animate={{ 
-            y: [0, -15, 0],
-            rotateZ: [0, 5, 0], 
-            rotateY: [0, 10, 0]
-          }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            ease: "easeInOut" 
-          }}
-        >
-          <div 
-            className="absolute inset-0 rounded-md"
-            style={{
-              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(79, 70, 229, 0.2))",
-              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-              backdropFilter: "blur(2px)",
-              transform: "translateZ(5px)"
-            }}
-          >
-            <div className="absolute inset-y-0 left-0 w-2 bg-indigo-700/50 rounded-l-md"></div>
-          </div>
-        </motion.div>
-
-        {/* Floating Chemistry Formula */}
-        <motion.div
-          className="hidden md:block absolute bottom-[30%] left-[20%] w-40 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-white/30 dark:border-gray-700/30"
-          animate={{ 
-            y: [0, -8, 0],
-            rotateZ: [0, 2, 0],
-          }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 3
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-5deg) rotateY(-5deg)"
-          }}
-        >
-          <div className="text-xs text-purple-800 dark:text-purple-300 font-mono text-center">
-            H<sub>2</sub>SO<sub>4</sub> + 2NaOH → Na<sub>2</sub>SO<sub>4</sub> + 2H<sub>2</sub>O
-          </div>
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-2"></div>
-          <div className="text-xs text-center text-gray-600 dark:text-gray-400">Acid-Base Neutralization</div>
-        </motion.div>
-
-        {/* Floating Exam Card */}
-        <motion.div
-          className="hidden md:block absolute bottom-[40%] right-[10%] w-40 h-24 bg-white/40 dark:bg-gray-800/40 rounded-lg shadow-lg p-3 backdrop-blur-sm border border-white/30 dark:border-gray-700/30"
-          animate={{ 
-            y: [0, -15, 0],
-            rotateZ: [0, 2, 0],
-          }}
-          transition={{ 
-            duration: 9, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 1
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-5deg) rotateY(-10deg)"
-          }}
-        >
-          <div className="text-xs font-medium text-gray-800 dark:text-gray-200 mb-2">
-            Exam Readiness Score
-          </div>
-          <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
-              initial={{ width: '30%' }}
-              animate={{ width: '85%' }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
-            />
-          </div>
-          <div className="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-400">
-            <span>Day 1</span>
-            <span>Day 30</span>
-          </div>
-          <div className="text-xs text-green-600 dark:text-green-400 font-medium text-center mt-2">
-            85% Ready for NEET!
-          </div>
-        </motion.div>
-
-        {/* Floating Student Avatar with Happiness Indicator */}
-        <motion.div
-          className="hidden md:block absolute top-[40%] right-[18%] flex flex-col items-center"
-          animate={{ 
-            y: [0, -10, 0],
-            scale: [1, 1.05, 1]
-          }}
-          transition={{ 
-            duration: 5, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 3
-          }}
-        >
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500/50 shadow-lg">
-            <img 
-              src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" 
-              alt="Happy Student" 
-              className="w-full h-full object-cover" 
-            />
-          </div>
-          <motion.div 
-            className="mt-1 flex"
-            animate={{
-              scale: [1, 1.2, 1]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: 2
-            }}
-          >
-            <span role="img" aria-label="happy">😄</span>
-            <span role="img" aria-label="celebration">🎉</span>
-          </motion.div>
-        </motion.div>
-        
-        {/* Floating Brain Icon (representing AI) */}
-        <motion.div
-          className="hidden md:block absolute top-[15%] right-[25%] text-indigo-600/70 dark:text-indigo-400/70"
-          animate={{ 
-            y: [0, -8, 0],
-            rotate: [0, 10, 0],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ 
-            duration: 6, 
-            repeat: Infinity, 
-            repeatType: "reverse"
-          }}
-          style={{ filter: "drop-shadow(0 0 8px rgba(79, 70, 229, 0.3))" }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 1 7.92 12.446a9 9 0 1 1 -16.626 0a7.5 7.5 0 0 1 7.92 -12.445c.13 0 .262 0 .393 0z"></path>
-            <path d="M10 8l1 -2l1 2"></path>
-            <path d="M18 11l2 1l-2 1"></path>
-            <path d="M11 18l-2 2l-2 -2"></path>
-            <path d="M7 4l-2 2l2 2"></path>
-          </svg>
-        </motion.div>
-        
-        {/* NEET Exam Badge */}
-        <motion.div
-          className="hidden md:block absolute top-[20%] left-[30%] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            y: [0, -5, 0]
-          }}
-          transition={{ 
-            y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
-            opacity: { duration: 0.5 },
-            scale: { duration: 0.5 }
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(5deg) rotateY(-5deg)"
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-white animate-pulse"></div>
-            <span className="text-sm font-bold">NEET Exam Live!</span>
-          </div>
-        </motion.div>
-        
-        {/* Pulsing Success Indicators */}
-        {[
-          { top: '25%', left: '25%', delay: 0 },
-          { top: '60%', left: '15%', delay: 2 },
-          { top: '30%', right: '20%', delay: 4 },
-          { top: '70%', right: '25%', delay: 1 },
-        ].map((pos, i) => (
+        {/* Floating Particles */}
+        {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="hidden md:block absolute w-8 h-8"
-            style={{ ...pos }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ 
-              scale: [0, 1, 1.5, 1],
-              opacity: [0, 0.7, 0, 0]
+            className="absolute w-2 h-2 bg-white rounded-full opacity-30"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
             }}
-            transition={{ 
-              duration: 3,
+            animate={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            transition={{
+              duration: Math.random() * 10 + 20,
               repeat: Infinity,
-              delay: pos.delay,
-              repeatDelay: 5
+              ease: "linear"
             }}
-          >
-            <div className="w-full h-full rounded-full bg-green-500/30" />
-          </motion.div>
+          />
         ))}
-        
-        {/* Animated light rays */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-[120%] pointer-events-none">
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.2, 0.1]
-            }}
-            transition={{ 
-              duration: 5, 
-              repeat: Infinity, 
-              repeatType: "reverse" 
-            }}
-            style={{
-              clipPath: "polygon(48% 0%, 52% 0%, 60% 100%, 40% 100%)"
-            }}
-          />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1]
-            }}
-            transition={{ 
-              duration: 7, 
-              repeat: Infinity, 
-              repeatType: "reverse",
-              delay: 2
-            }}
-            style={{
-              clipPath: "polygon(45% 0%, 49% 0%, 35% 100%, 25% 100%)"
-            }}
-          />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-transparent"
-            animate={{ 
-              opacity: [0.1, 0.25, 0.1]
-            }}
-            transition={{ 
-              duration: 6, 
-              repeat: Infinity, 
-              repeatType: "reverse",
-              delay: 1
-            }}
-            style={{
-              clipPath: "polygon(51% 0%, 55% 0%, 75% 100%, 65% 100%)"
-            }}
-          />
-        </div>
-        
-        {/* Dashboard-style particle effects */}
-        <motion.div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 20 }).map((_, i) => (
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center lg:text-left space-y-8"
+          >
+            {/* Live Badge */}
             <motion.div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-blue-400/20"
-              initial={{ 
-                x: Math.random() * 100 + "%", 
-                y: -10,
-                opacity: 0.1 + Math.random() * 0.3
-              }}
-              animate={{ 
-                y: "100vh",
-                opacity: [null, 0]
-              }}
-              transition={{ 
-                duration: 10 + Math.random() * 20,
-                repeat: Infinity,
-                delay: Math.random() * 10,
-                ease: "linear"
-              }}
-            />
-          ))}
-        </motion.div>
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center gap-2"
+            >
+              <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 text-sm font-bold rounded-full border-0 shadow-lg shadow-emerald-500/25">
+                <motion.div
+                  className="w-2 h-2 bg-white rounded-full mr-2"
+                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <Rocket className="w-4 h-4 mr-1" />
+                NEET 2026 PREP LIVE NOW!
+              </Badge>
+              
+              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-3 py-1 text-xs font-bold rounded-full border-0">
+                <Star className="w-3 h-3 mr-1 fill-current" />
+                AI POWERED
+              </Badge>
+            </motion.div>
 
-        {/* NEW: Additional elements to match the dashboard post-login view */}
-        
-        {/* Learning path indicators */}
-        <motion.div
-          className="hidden md:block absolute top-[30%] left-[50%] w-40 h-20 bg-white/30 dark:bg-gray-800/30 rounded-lg p-2 backdrop-blur-sm border border-blue-300/30 dark:border-blue-700/30"
-          animate={{ 
-            y: [0, -10, 0],
-            x: [0, 10, 0],
-            rotateZ: [0, 1, 0],
-          }}
-          transition={{ 
-            duration: 10, 
-            repeat: Infinity, 
-            repeatType: "reverse",
-            delay: 2
-          }}
-          style={{ 
-            transformStyle: "preserve-3d",
-            transform: "rotateX(-8deg) rotateY(5deg)"
-          }}
-        >
-          <div className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">Learning Path</div>
-          <div className="flex items-center gap-1 mt-2">
-            <motion.div 
-              className="h-3 w-3 rounded-full bg-green-500"
-              animate={{
-                scale: [1, 1.2, 1]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1
-              }}
-            />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <div className="h-3 w-3 rounded-full bg-indigo-500" />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <motion.div 
-              className="h-3 w-3 rounded-full bg-purple-500/50"
-              animate={{
-                opacity: [0.5, 1, 0.5]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity
-              }}
-            />
-            <div className="h-0.5 w-4 bg-gray-400/50" />
-            <div className="h-3 w-3 rounded-full bg-gray-400/50" />
-          </div>
-          <div className="text-xs text-center text-gray-600 dark:text-gray-400 mt-2">
-            Physics Units: 2/4 complete
-          </div>
-        </motion.div>
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
+              >
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                  Transform
+                </span>
+                <br />
+                <span className="text-white">Your</span>
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+                  Exam Journey
+                </span>
+              </motion.h1>
 
-        {/* Concept connection lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.1 }}>
-          <motion.path 
-            d="M200,150 C300,100 400,250 500,200" 
-            stroke="url(#gradient1)" 
-            strokeWidth="1" 
-            fill="none"
-            strokeDasharray="5,5"
-            animate={{
-              strokeDashoffset: [0, 100]
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.path 
-            d="M700,200 C600,300 500,250 400,350" 
-            stroke="url(#gradient2)" 
-            strokeWidth="1" 
-            fill="none"
-            strokeDasharray="5,5"
-            animate={{
-              strokeDashoffset: [0, -100]
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <defs>
-            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#9333ea" stopOpacity="0.3" />
-            </linearGradient>
-            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
-            </linearGradient>
-          </defs>
-        </svg>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+              >
+                From struggling student to exam champion with the world's first 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> learning platform for 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> JEE, NEET, UPSC & CAT</span>
+              </motion.p>
+            </div>
 
-        {/* AI Assistant floating icon */}
-        <motion.div 
-          className="hidden md:block absolute bottom-[15%] right-[15%] p-3 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full backdrop-blur-sm"
-          animate={{ 
-            y: [0, -10, 0],
-            boxShadow: [
-              "0 0 10px 2px rgba(139, 92, 246, 0.3)",
-              "0 0 20px 5px rgba(139, 92, 246, 0.5)",
-              "0 0 10px 2px rgba(139, 92, 246, 0.3)"
-            ]
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            repeatType: "reverse"
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 16v-4"></path>
-            <path d="M8 12h8"></path>
-          </svg>
-        </motion.div>
-      </div>
+            {/* Dynamic Feature Showcase */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentFeature}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center gap-4"
+                >
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${features[currentFeature].color} text-white shadow-lg`}>
+                    {features[currentFeature].icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{features[currentFeature].text}</h3>
+                    <p className="text-gray-300 text-sm">Join 2M+ students achieving success</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+              
+              {/* Feature Indicators */}
+              <div className="flex gap-2 mt-4 justify-center lg:justify-start">
+                {features.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentFeature(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentFeature ? 'bg-purple-400 w-8' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
 
-      <div className="container mx-auto px-4 relative">
-        <div className="flex flex-col lg:flex-row items-center gap-8 justify-between min-h-[85vh]">
-          {/* Left Content: Title, description and buttons */}
-          <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
-          
-          {/* Right Content: Enhanced 3D Dashboard Preview */}
-          <DashboardPreview activeFeature={activeFeature} setActiveFeature={setActiveFeature} />
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            >
+              <Button
+                onClick={handleStartJourney}
+                size="lg"
+                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg"
+              >
+                <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                Start Your Success Journey
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              
+              <Button
+                onClick={handleWatchDemo}
+                size="lg"
+                variant="outline"
+                className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 py-4 px-8 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all duration-300"
+              >
+                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                Watch Live Demo
+              </Button>
+            </motion.div>
+
+            {/* Stats Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
+              className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20"
+            >
+              {[
+                { number: "2M+", label: "Students" },
+                { number: "95%", label: "Success Rate" },
+                { number: "4.9/5", label: "Rating" }
+              ].map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-300 text-sm font-medium">{stat.label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right Side - Dashboard Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="relative"
+          >
+            <div className="relative">
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl" />
+              
+              {/* Dashboard Container */}
+              <div className="relative bg-white/5 backdrop-blur-xl rounded-3xl p-2 border border-white/20 shadow-2xl">
+                <DashboardPreview />
+              </div>
+
+              {/* Floating Elements */}
+              <motion.div
+                className="absolute -top-4 -left-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white p-3 rounded-xl shadow-lg"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <GraduationCap className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                className="absolute -bottom-4 -right-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-xl shadow-lg"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+              >
+                <Award className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                className="absolute top-1/2 -right-8 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-3 rounded-xl shadow-lg"
+                animate={{ x: [0, 10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
+              >
+                <Sparkles className="w-6 h-6" />
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Dashboard Modal */}
+      <AnimatePresence>
+        {showDashboard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowDashboard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowDashboard(false)}
+                className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <div className="p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Live Dashboard Preview</h3>
+                <DashboardPreview />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
