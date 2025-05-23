@@ -106,7 +106,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Main Tagline - Updated as requested */}
+      {/* Updated Welcome Message - More Crisp and Impactful */}
+      <motion.div
+        className="mb-4 text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        Transform from struggling student to exam champion with PREPZR - World's first emotionally intelligent, hyper-personalized exam prep platform for <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and beyond.
+      </motion.div>
+
       <motion.h1
         className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
         initial={{ opacity: 0, y: 20 }}
@@ -142,17 +151,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Updated Secondary Tagline */}
-      <motion.div
-        className="mb-4 text-lg md:text-xl font-medium text-gray-700 dark:text-gray-300"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-      >
-        From struggling to exam champion, with the world's first emotionally intelligent &amp; hyper personalized exam prep platform for JEE, NEET, UPSC, CAT &amp; beyond.
-      </motion.div>
-
-      {/* Your Success Accelerator - Redesigned to be more compact and vibrant */}
+      {/* Your Exam Success Accelerators */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -163,12 +162,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-center gap-2"
           animate={{ 
             scale: [1, 1.02, 1],
-            textShadow: ["0 0 0 rgba(37, 99, 235, 0)", "0 0 5px rgba(37, 99, 235, 0.5)", "0 0 0 rgba(37, 99, 235, 0)"],
           }}
           transition={{ duration: 3, repeat: Infinity }}
         >
           <Target className="w-4 h-4" />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 font-bold">Your Success Accelerator</span>
+          Your Exam Success Accelerators
           <Zap className="w-4 h-4" />
         </motion.h3>
         
@@ -187,11 +185,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
               transition={{ delay: 0.7 + idx * 0.1 }}
               whileHover={{ 
                 scale: 1.05, 
-                y: -3,
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+                y: -3
               }}
-              whileTap={{ scale: 0.95 }}
-              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg transition-all duration-300 text-center cursor-pointer border border-white/20`}
+              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
             >
               <motion.div 
                 animate={{ 
@@ -247,24 +243,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
         >
-          <div className="relative flex items-center gap-3 z-10">
+          <div className="flex items-center gap-3">
             <Brain className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="font-semibold text-base">AI Exam Readiness Analysis</span>
             <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
           </div>
-          
-          {/* Add subtle animated glow effect */}
-          <motion.div 
-            className="absolute inset-0 bg-purple-300/20 dark:bg-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            animate={{
-              boxShadow: [
-                "inset 0 0 20px rgba(167, 139, 250, 0)",
-                "inset 0 0 30px rgba(167, 139, 250, 0.3)",
-                "inset 0 0 20px rgba(167, 139, 250, 0)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
         </motion.button>
       </div>
       
