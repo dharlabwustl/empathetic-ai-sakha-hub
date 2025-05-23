@@ -4,13 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { FlaskConical, RotateCw, Calculator, Sliders, ChevronDown, ChevronUp } from 'lucide-react';
+import { FlaskConical, RotateCw, Calculator, Sliders, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface FormulaTabContentProps {
   conceptName?: string;
 }
 
 const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptName = "Newton's Second Law" }) => {
+  const navigate = useNavigate();
+  
   // Default formula data based on the concept
   const formula = "F = m × a";
   const variables = [
@@ -74,6 +77,11 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptName = "Ne
   
   const toggleAdvancedSettings = () => {
     setShowAdvancedSettings(!showAdvancedSettings);
+  };
+
+  const handleFormulaLab = () => {
+    // Navigate to formula lab for advanced practice
+    navigate(`/dashboard/student/concepts/${encodeURIComponent(conceptName)}/formula-lab`);
   };
   
   return (
@@ -209,6 +217,20 @@ const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptName = "Ne
                 </div>
               )}
             </div>
+          </div>
+          
+          {/* Advanced Formula Lab Button */}
+          <div className="mt-6 text-center">
+            <Button 
+              onClick={handleFormulaLab}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open Advanced Formula Lab
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Practice more complex problems and explore advanced formula relationships
+            </p>
           </div>
         </CardContent>
       </Card>

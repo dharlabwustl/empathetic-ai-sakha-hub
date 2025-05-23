@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, BookOpen, Play, Brain, Eye, Zap, TrendingUp, Target, Clock, Award, BarChart2, LineChart, BookMarked, FileText } from "lucide-react";
+import { ArrowLeft, BookOpen, Play, Brain, Eye, Zap, TrendingUp, Target, Clock, Award, BarChart2, LineChart, BookMarked, FileText, AlertTriangle, Bot, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import VideoTabContent from '@/components/dashboard/student/concepts/VideoTabContent';
 import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
@@ -14,6 +14,8 @@ import ConceptSidebar from '@/components/dashboard/student/concepts/concept-deta
 import EnhancedLearnTab from '@/components/dashboard/student/concepts/EnhancedLearnTab';
 import EnhancedVisualTab from '@/components/dashboard/student/concepts/EnhancedVisualTab';
 import Enhanced3DTab from '@/components/dashboard/student/concepts/Enhanced3DTab';
+import CommonMistakesTab from '@/components/dashboard/student/concepts/CommonMistakesTab';
+import AskAITab from '@/components/dashboard/student/concepts/AskAITab';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -40,8 +42,40 @@ const ConceptDetailPage = () => {
     { id: '4', title: "Momentum", masteryLevel: 45 }
   ];
 
-  // Redefine suggested actions to be more focused and specific
-  const suggestedActions = [
+  // KPI Data
+  const kpiData = [
+    {
+      title: "Study Time",
+      value: "4.5 hrs",
+      change: "+12%",
+      icon: Clock,
+      color: "text-blue-600"
+    },
+    {
+      title: "Accuracy",
+      value: "78%",
+      change: "+5%",
+      icon: Target,
+      color: "text-green-600"
+    },
+    {
+      title: "Streak",
+      value: "5 days",
+      change: "New!",
+      icon: Award,
+      color: "text-purple-600"
+    },
+    {
+      title: "Mastery",
+      value: `${masteryLevel}%`,
+      change: "+8%",
+      icon: TrendingUp,
+      color: "text-orange-600"
+    }
+  ];
+
+  // Suggested actions for learning tools
+  const learningToolActions = [
     {
       title: "Watch Core Video",
       description: "11-minute explanation of key principles",
@@ -52,23 +86,23 @@ const ConceptDetailPage = () => {
     {
       title: "Practice Problems",
       description: "Solve 5 related problems",
-      action: () => navigate(`/dashboard/student/concepts/${conceptId}/practice`),
+      action: () => navigate(`/dashboard/student/flashcards?concept=${encodeURIComponent(concept.title)}`),
       icon: Brain,
       color: "bg-green-500"
     },
     {
       title: "Take Quick Quiz",
       description: "Test your understanding",
-      action: () => navigate(`/dashboard/student/concepts/${conceptId}/quiz`),
+      action: () => navigate(`/dashboard/student/practice-exam?concept=${encodeURIComponent(concept.title)}`),
       icon: Zap,
       color: "bg-purple-500"
     },
     {
-      title: "Explore Formula Lab",
-      description: "Interactive formula exploration",
-      action: () => navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`),
-      icon: Eye,
-      color: "bg-orange-500"
+      title: "Ask AI Tutor",
+      description: "Get instant help and explanations",
+      action: () => setActiveTab('ask-ai'),
+      icon: Bot,
+      color: "bg-indigo-500"
     }
   ];
 
@@ -83,6 +117,10 @@ const ConceptDetailPage = () => {
     { label: "Accuracy", value: "78%", change: "+5%" },
     { label: "Streak", value: "5 days", change: "New!" }
   ];
+
+  const handleRelatedConceptClick = (relatedConceptId: string) => {
+    navigate(`/dashboard/student/concepts/${relatedConceptId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
@@ -151,13 +189,38 @@ const ConceptDetailPage = () => {
           </motion.div>
         </div>
 
+        {/* KPI Section - Moved above learning tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpiData.map((kpi, index) => (
+              <Card key={index} className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{kpi.title}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{kpi.value}</p>
+                      <p className="text-xs text-green-600">{kpi.change}</p>
+                    </div>
+                    <kpi.icon className={`h-8 w-8 ${kpi.color}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="xl:col-span-3">
             <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
               <CardContent className="p-0">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+                  <TabsList className="grid w-full grid-cols-7 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
                     <TabsTrigger value="learn" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
                       <BookMarked className="h-4 w-4 mr-2" />
                       Learn
@@ -177,6 +240,14 @@ const ConceptDetailPage = () => {
                     <TabsTrigger value="formula" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
                       <FileText className="h-4 w-4 mr-2" />
                       Formula
+                    </TabsTrigger>
+                    <TabsTrigger value="mistakes" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Mistakes
+                    </TabsTrigger>
+                    <TabsTrigger value="ask-ai" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
+                      <Bot className="h-4 w-4 mr-2" />
+                      Ask AI
                     </TabsTrigger>
                   </TabsList>
                   
@@ -200,12 +271,20 @@ const ConceptDetailPage = () => {
                     <TabsContent value="formula" className="mt-0">
                       <FormulaTabContent conceptName={concept.title} />
                     </TabsContent>
+
+                    <TabsContent value="mistakes" className="mt-0">
+                      <CommonMistakesTab conceptName={concept.title} />
+                    </TabsContent>
+
+                    <TabsContent value="ask-ai" className="mt-0">
+                      <AskAITab conceptName={concept.title} />
+                    </TabsContent>
                   </div>
                 </Tabs>
               </CardContent>
             </Card>
 
-            {/* Suggested Actions Section */}
+            {/* Learning Tools Actions Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -216,12 +295,12 @@ const ConceptDetailPage = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center text-xl">
                     <Target className="h-5 w-5 mr-2 text-indigo-600" />
-                    Recommended Learning Activities
+                    Learning Tools & Actions
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {suggestedActions.map((action, index) => (
+                    {learningToolActions.map((action, index) => (
                       <motion.div
                         key={index}
                         whileHover={{ scale: 1.02 }}
@@ -307,14 +386,14 @@ const ConceptDetailPage = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
                     <Zap className="h-5 w-5 mr-2 text-orange-600" />
-                    Learning Tools
+                    Quick Tools
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`)}
+                    onClick={() => navigate(`/dashboard/student/concepts/${encodeURIComponent(concept.title)}/formula-lab`)}
                   >
                     <Brain className="h-4 w-4 mr-2" />
                     Formula Lab
@@ -322,18 +401,26 @@ const ConceptDetailPage = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => navigate(`/dashboard/student/flashcards`)}
+                    onClick={() => navigate(`/dashboard/student/flashcards?concept=${encodeURIComponent(concept.title)}`)}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Flashcards
+                    Practice Flashcards
                   </Button>
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => navigate(`/dashboard/student/practice-exam`)}
+                    onClick={() => navigate(`/dashboard/student/practice-exam?concept=${encodeURIComponent(concept.title)}`)}
                   >
                     <Target className="h-4 w-4 mr-2" />
-                    Practice Test
+                    Practice Quiz
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('ask-ai')}
+                  >
+                    <Bot className="h-4 w-4 mr-2" />
+                    Ask AI Tutor
                   </Button>
                 </CardContent>
               </Card>
@@ -346,6 +433,7 @@ const ConceptDetailPage = () => {
               masteryLevel={masteryLevel}
               relatedConcepts={relatedConcepts}
               examReady={masteryLevel >= 80}
+              onRelatedConceptClick={handleRelatedConceptClick}
             />
           </div>
         </div>
