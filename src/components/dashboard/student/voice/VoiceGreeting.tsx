@@ -110,35 +110,35 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     else timeGreeting = 'Good evening';
     
     // UN sustainability goals message (shorter, more impactful)
-    const sustainabilityMessage = "PREP-zer supports UN Sustainability Goal 4 for inclusive quality education. ";
+    const sustainabilityMessage = "Prepzer supports UN Sustainability Goal 4 for inclusive quality education. ";
     
     if (lang === 'en') {
       if (context === 'signup') {
-        return `Congratulations ${name}! You've made an excellent choice joining PREP-zer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your personalized learning assistant. I'll adapt to your learning style and emotional state to create a customized study experience. Let me guide you through setting up your profile so we can tailor your learning journey to your specific needs and goals.`;
+        return `Congratulations ${name}! You've made an excellent choice joining Prepzer for your exam preparation. ${sustainabilityMessage} I'm Sakha AI, your personalized learning assistant. I'll adapt to your learning style and emotional state to create a customized study experience. Let me guide you through setting up your profile so we can tailor your learning journey to your specific needs and goals.`;
       } else if (context === 'welcome') {
-        return `Welcome to PREP-zer, ${name}! ${sustainabilityMessage} I'm Sakha AI, your adaptive learning companion. We've designed a personalized dashboard to maximize your study efficiency. I'll guide you through our key features that will help you track your progress, maintain focus, and build confidence for your exams. Feel free to ask me questions anytime - I'm here to ensure your success!`;
+        return `Welcome to Prepzer, ${name}! ${sustainabilityMessage} I'm Sakha AI, your adaptive learning companion. We've designed a personalized dashboard to maximize your study efficiency. I'll guide you through our key features that will help you track your progress, maintain focus, and build confidence for your exams. Feel free to ask me questions anytime - I'm here to ensure your success!`;
       } else if (context === 'concept') {
         return `${timeGreeting}, ${name}. I've loaded this concept for your review. Would you like me to explain any part in detail, create a summary, or help with practice questions? Feel free to use the Read Aloud feature if you prefer listening. ${sustainabilityMessage}`;
       } else if (context === 'dashboard') {
         return `${timeGreeting}, ${name}. Welcome to your personalized dashboard. I've analyzed your recent activity and updated your study recommendations. Today's focus areas are highlighted based on your learning patterns and exam timeline. ${sustainabilityMessage} Would you like me to explain any specific feature?`;
       } else {
         // Default home page greeting
-        return `${timeGreeting}, ${name}! Welcome to PREP-zer, the world's first emotionally intelligent exam preparation platform. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant. I tailor your study experience based on your learning style, emotional state, and specific exam goals. How can I help you excel today?`;
+        return `${timeGreeting}, ${name}! Welcome to Prepzer, the world's first emotionally intelligent exam preparation platform. ${sustainabilityMessage} I'm Sakha AI, your adaptive learning assistant. I tailor your study experience based on your learning style, emotional state, and specific exam goals. How can I help you excel today?`;
       }
     } else if (lang === 'hi') {
       // Hindi greetings with similar contextual awareness
       const hindiTimeGreeting = hour < 12 ? 'सुप्रभात' : (hour < 17 ? 'शुभ दोपहर' : 'शुभ संध्या');
       
       if (context === 'signup') {
-        return `बधाई हो ${name}! आपने अपनी परीक्षा की तैयारी के लिए PREP-ज़र चुनकर बहुत अच्छा निर्णय लिया है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्य 4 का समर्थन करते हैं। मैं साखा AI हूँ, आपका व्यक्तिगत शिक्षण सहायक। मैं आपकी सीखने की शैली और भावनात्मक स्थिति के अनुसार अनुकूलित अध्ययन अनुभव बनाऊंगा।`;
+        return `बधाई हो ${name}! आपने अपनी परीक्षा की तैयारी के लिए Prepzer चुनकर बहुत अच्छा निर्णय लिया है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्य 4 का समर्थन करते हैं। मैं साखा AI हूँ, आपका व्यक्तिगत शिक्षण सहायक। मैं आपकी सीखने की शैली और भावनात्मक स्थिति के अनुसार अनुकूलित अध्ययन अनुभव बनाऊंगा।`;
       }
       
       // Add other Hindi context messages based on page...
-      return `${hindiTimeGreeting} ${name}! PREP-ज़र में आपका स्वागत है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्य 4 का समर्थन करते हैं। मैं साखा AI हूँ, आपका अनुकूली सीखने वाला साथी। मैं आपकी सहायता के लिए यहां हूँ।`;
+      return `${hindiTimeGreeting} ${name}! Prepzer में आपका स्वागत है। हम संयुक्त राष्ट्र के सतत विकास लक्ष्य 4 का समर्थन करते हैं। मैं साखा AI हूँ, आपका अनुकूली सीखने वाला साथी। मैं आपकी सहायता के लिए यहां हूँ।`;
     }
     
     // Fallback greeting
-    return `${timeGreeting} ${name}! Welcome to PREP-zer. I'm your AI learning companion.`;
+    return `${timeGreeting} ${name}! Welcome to Prepzer. I'm your AI learning companion.`;
   };
   
   // Play greeting with optimized voice selection
@@ -150,8 +150,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       // Create speech synthesis utterance
       const speech = new SpeechSynthesisUtterance();
       
-      // Use correct pronunciation for PREPZR by syllable break
-      speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+      // Use correct pronunciation for PREPZR as "Prepzer"
+      speech.text = message;
       speech.lang = lang === 'en' ? 'en-US' : 'hi-IN';
       speech.rate = 0.96; // Slightly slower for clarity
       speech.pitch = 1.05; // Slightly higher for a more confident tone
