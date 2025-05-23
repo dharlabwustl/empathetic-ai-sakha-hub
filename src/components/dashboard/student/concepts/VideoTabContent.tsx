@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, Clock, ListChecks } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Video, Clock, Star, BarChart2, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface VideoTabContentProps {
@@ -9,33 +9,42 @@ interface VideoTabContentProps {
 }
 
 const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
-  // Sample videos data
+  // Sample video data
   const videos = [
     {
+      id: "v1",
       title: `${conceptName} Explained Simply`,
-      thumbnail: "/placeholders/video-thumbnail-1.jpg",
-      duration: "5:24",
-      source: "PREPZR Learning",
-      topics: ["Basic principles", "Formula explanation", "Simple examples"],
-      watched: true
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Just a placeholder URL
+      duration: "8:45",
+      instructor: "Dr. Emily Physics",
+      rating: 4.8,
+      views: 24563,
+      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
     },
     {
-      title: `Advanced Applications of ${conceptName}`,
-      thumbnail: "/placeholders/video-thumbnail-2.jpg",
-      duration: "8:12",
-      source: "PREPZR Learning",
-      topics: ["Complex circuits", "Real-world applications", "Common exam questions"],
-      watched: false
-    },
-    {
+      id: "v2",
       title: `${conceptName} Practice Problems`,
-      thumbnail: "/placeholders/video-thumbnail-3.jpg",
-      duration: "12:36",
-      source: "PREPZR Learning",
-      topics: ["Step-by-step solutions", "Exam-style questions", "Tips and tricks"],
-      watched: false
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Just a placeholder URL
+      duration: "12:20",
+      instructor: "Prof. James Maxwell",
+      rating: 4.6,
+      views: 18345,
+      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+    },
+    {
+      id: "v3",
+      title: `${conceptName} Advanced Applications`,
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Just a placeholder URL
+      duration: "15:32",
+      instructor: "Dr. Marie Circuit",
+      rating: 4.9,
+      views: 9872,
+      thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
     }
   ];
+  
+  // Selected video (first one by default)
+  const selectedVideo = videos[0];
 
   return (
     <div className="space-y-6">
@@ -43,72 +52,101 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="h-5 w-5 text-indigo-600" />
-            Video Explanations
+            Video Lessons: {conceptName}
           </CardTitle>
-          <CardDescription>
-            Visual and audio explanations of {conceptName}
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Featured Video */}
-          <div className="aspect-video bg-slate-100 dark:bg-slate-900 rounded-lg mb-6">
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center p-6">
-                <Video className="h-12 w-12 mx-auto text-indigo-500 mb-4" />
-                <h3 className="text-xl font-medium">Video Player</h3>
-                <p className="text-muted-foreground mt-2">Selected video will play here</p>
-                <Button className="mt-4">
-                  Play Featured Video
-                </Button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="aspect-video bg-black rounded-md overflow-hidden">
+                <iframe
+                  className="w-full h-full"
+                  src={selectedVideo.url}
+                  title={selectedVideo.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
-            </div>
-          </div>
-          
-          {/* Video List */}
-          <div className="space-y-4">
-            {videos.map((video, index) => (
-              <div 
-                key={index}
-                className={`p-4 rounded-lg border ${video.watched ? 'bg-slate-50 dark:bg-slate-900/50' : 'bg-white dark:bg-slate-900'}`}
-              >
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="w-full sm:w-40 h-24 bg-slate-200 dark:bg-slate-800 rounded shrink-0 flex items-center justify-center">
-                    <Video className="h-8 w-8 text-slate-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium line-clamp-1">{video.title}</h3>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{video.duration}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">{video.source}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {video.topics.map((topic, i) => (
-                        <span 
-                          key={i}
-                          className="inline-flex text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded"
-                        >
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex justify-between items-center">
-                      <Button variant="outline" size="sm">
-                        Watch Now
-                      </Button>
-                      {video.watched && (
-                        <span className="text-xs text-green-600 dark:text-green-500 flex items-center">
-                          <ListChecks className="h-3 w-3 mr-1" />
-                          Watched
-                        </span>
-                      )}
-                    </div>
-                  </div>
+              
+              <div className="mt-4">
+                <h3 className="text-xl font-medium">{selectedVideo.title}</h3>
+                <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {selectedVideo.duration}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    {selectedVideo.rating}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <BarChart2 className="h-4 w-4" />
+                    {selectedVideo.views.toLocaleString()} views
+                  </span>
+                </div>
+                <p className="mt-4">
+                  In this video, {selectedVideo.instructor} explains the core principles of {conceptName},
+                  including key formulas, applications, and common problem-solving techniques.
+                </p>
+              </div>
+              
+              <div className="mt-6 space-y-2">
+                <h4 className="font-medium">Key Timestamps</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" className="justify-start">
+                    <span className="mr-2 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 rounded text-xs">0:30</span>
+                    Basic definition
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start">
+                    <span className="mr-2 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 rounded text-xs">2:15</span>
+                    Formula explanation
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start">
+                    <span className="mr-2 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 rounded text-xs">4:50</span>
+                    Example problem 1
+                  </Button>
+                  <Button variant="outline" size="sm" className="justify-start">
+                    <span className="mr-2 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 rounded text-xs">6:30</span>
+                    Advanced applications
+                  </Button>
                 </div>
               </div>
-            ))}
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-medium">Related Videos</h3>
+              
+              {videos.slice(1).map((video) => (
+                <Card key={video.id} className="overflow-hidden">
+                  <div className="aspect-video relative">
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-xs">
+                      {video.duration}
+                    </div>
+                  </div>
+                  <CardContent className="p-3">
+                    <h4 className="font-medium line-clamp-2 text-sm">{video.title}</h4>
+                    <div className="flex items-center justify-between mt-1 text-xs text-gray-500">
+                      <span>{video.instructor}</span>
+                      <span className="flex items-center gap-1">
+                        <Star className="h-3 w-3 text-yellow-500" fill="currentColor" />
+                        {video.rating}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              <Button variant="outline" className="w-full flex items-center justify-center gap-1">
+                View All Videos
+                <ArrowUpRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

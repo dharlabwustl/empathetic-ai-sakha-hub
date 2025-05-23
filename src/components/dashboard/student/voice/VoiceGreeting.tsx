@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
