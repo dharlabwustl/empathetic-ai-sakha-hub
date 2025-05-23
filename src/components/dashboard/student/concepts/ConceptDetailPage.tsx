@@ -1,1116 +1,850 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { ConceptsPageLayout } from '@/components/dashboard/student/concept-cards/ConceptsPageLayout';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Image, Video, FileText, FlaskConical, MessageSquare, Award, 
-  BarChart, RefreshCw, BookMarked, Volume2, Box3d, History, FileQuestion, Brain } from 'lucide-react';
-import ConceptHeader from './concept-detail/ConceptHeader';
-import ConceptContent from './concept-detail/ConceptContent';
-import NoteSection from './concept-detail/NoteSection';
-import ReadAloudSection from './concept-detail/ReadAloudSection';
-import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
-import AIInsightsSection from './AIInsightsSection';
-import CommonMistakesContent from './CommonMistakesContent';
-import ConceptAnalyticsSection from './ConceptAnalyticsSection';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  BookOpen, 
+  Image, 
+  Video, 
+  AlertCircle, 
+  Lightbulb, 
+  Calculator, 
+  BarChart, 
+  Clock, 
+  MessageSquare, 
+  Link as LinkIcon,
+  BookText,
+  Box,
+  Play
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from "@/hooks/use-toast";
+import ConceptHeader from './concept-detail/ConceptHeader';
+import ConceptSidebar from './concept-detail/ConceptSidebar';
+import ReadAloudSection from './concept-detail/ReadAloudSection';
+import NoteSection from './concept-detail/NoteSection';
+import RecallSection from '@/components/dashboard/student/concepts/RecallSection';
+import AIInsightsSection from '@/components/dashboard/student/concepts/AIInsightsSection';
 import useUserNotes from '@/hooks/useUserNotes';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock concept data - in a real app you'd fetch this from an API
-const getMockConceptData = (conceptId: string) => {
-  return {
-    id: conceptId,
-    title: 'Newton\'s Laws of Motion',
-    description: 'Fundamental principles describing the relationship between force and motion.',
-    subject: 'Physics',
-    topic: 'Classical Mechanics',
-    difficulty: 'medium' as const,
-    completed: false,
-    progress: 65,
-    relatedConcepts: ['Conservation of Momentum', 'Work and Energy'],
-    content: `
-      <h2>Introduction</h2>
-      <p>Newton's laws of motion are three fundamental physical laws that establish the relationship between the motion of an object and the forces acting on it. These laws are the foundation of classical mechanics.</p>
+const ConceptDetailPage = () => {
+  const { conceptId } = useParams<{ conceptId: string }>();
+  const [activeTab, setActiveTab] = useState("learn");
+  const [activeManagementTab, setActiveManagementTab] = useState("recall");
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [readAloudActive, setReadAloudActive] = useState(false);
+  const [activeReadAloudText, setActiveReadAloudText] = useState("");
+  const [userNotes, setUserNotes] = useState("");
+  const notesHook = useUserNotes();
+  const { toast } = useToast();
+
+  // This is mock data - in a real app, this would come from an API call
+  const concept = {
+    id: conceptId || '1',
+    title: "Ohm's Law",
+    subject: "Physics",
+    topic: "Electricity",
+    difficulty: "medium" as "easy" | "medium" | "hard",
+    masteryLevel: 65,
+    description: `Ohm's Law is a fundamental principle in electrical engineering that describes the relationship between voltage (V), current (I), and resistance (R) in an electrical circuit. The law states that the current through a conductor between two points is directly proportional to the voltage across the two points, and inversely proportional to the resistance between them. This relationship is expressed mathematically as V = IR, where V is the voltage across the conductor in volts, I is the current flowing through the conductor in amperes, and R is the resistance of the conductor in ohms.`,
+    learnContent: `
+      <h2>Understanding Ohm's Law</h2>
+      <p>Ohm's Law is one of the most fundamental relationships in electrical engineering. It establishes that the current flowing through a conductor is directly proportional to the voltage applied across it, given that the physical conditions (like temperature) remain constant.</p>
       
-      <h2>Newton's First Law (Law of Inertia)</h2>
-      <p>An object at rest will remain at rest, and an object in motion will remain in motion at constant velocity, unless acted upon by an external force.</p>
-      <blockquote>
-        <strong>In simpler terms:</strong> Objects resist changes in their state of motion.
-      </blockquote>
-      
-      <h2>Newton's Second Law</h2>
-      <p>The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
-      <p>Mathematically: F = ma</p>
+      <h3>The Mathematical Formula</h3>
+      <p>The mathematical representation of Ohm's Law is:</p>
+      <p><strong>V = I × R</strong></p>
+      <p>Where:</p>
       <ul>
-        <li>F represents the net force (in newtons)</li>
-        <li>m represents the mass of the object (in kilograms)</li>
-        <li>a represents the acceleration (in meters per second squared)</li>
+        <li>V represents voltage measured in volts (V)</li>
+        <li>I represents current measured in amperes (A)</li>
+        <li>R represents resistance measured in ohms (Ω)</li>
       </ul>
       
-      <h2>Newton's Third Law</h2>
-      <p>For every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body simultaneously exerts a force equal in magnitude and opposite in direction on the first body.</p>
-      
-      <h2>Applications</h2>
-      <p>These laws explain a wide range of phenomena from everyday experiences to complex systems:</p>
+      <h3>Derived Forms</h3>
+      <p>From the basic formula, we can derive two other forms:</p>
       <ul>
-        <li>Rocket propulsion</li>
-        <li>Automotive safety (seat belts, air bags)</li>
-        <li>Sports physics (baseball, football)</li>
-        <li>Planetary motion</li>
+        <li>I = V ÷ R (Current equals voltage divided by resistance)</li>
+        <li>R = V ÷ I (Resistance equals voltage divided by current)</li>
       </ul>
+      
+      <h3>Practical Applications</h3>
+      <p>Ohm's Law is used extensively in analyzing electrical circuits. It helps in determining:</p>
+      <ul>
+        <li>How much current will flow in a circuit with a known voltage and resistance</li>
+        <li>What voltage is needed to achieve a specific current through a known resistance</li>
+        <li>What resistance is needed to limit current to a specific value at a known voltage</li>
+      </ul>
+      
+      <h3>Limitations</h3>
+      <p>It's important to note that Ohm's Law doesn't apply to all electrical components. Some components, like diodes and transistors, have non-linear characteristics where the current doesn't increase proportionally with voltage.</p>
     `,
     visualContent: `
-      <div class="flex flex-col items-center space-y-4">
-        <img src="https://example.com/newtons-laws-diagram.jpg" alt="Newton's Laws Diagram" class="rounded-lg max-w-full" />
-        <p class="text-center text-sm text-muted-foreground">Visual representation of Newton's three laws of motion</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
-          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <h3 class="text-center font-medium">First Law</h3>
-            <div class="flex justify-center my-3">
-              <div class="w-20 h-20 bg-blue-100 dark:bg-blue-800/30 rounded-full flex items-center justify-center">
-                <span class="text-3xl">→</span>
-              </div>
-            </div>
-            <p class="text-sm text-center">An object in motion stays in motion</p>
-          </div>
-          
-          <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <h3 class="text-center font-medium">Second Law</h3>
-            <div class="flex justify-center my-3">
-              <div class="w-20 h-20 bg-green-100 dark:bg-green-800/30 rounded-full flex items-center justify-center">
-                <span class="text-2xl">F=ma</span>
-              </div>
-            </div>
-            <p class="text-sm text-center">Force equals mass times acceleration</p>
-          </div>
-          
-          <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-            <h3 class="text-center font-medium">Third Law</h3>
-            <div class="flex justify-center my-3">
-              <div class="w-20 h-20 bg-purple-100 dark:bg-purple-800/30 rounded-full flex items-center justify-center">
-                <span class="text-3xl">↔️</span>
-              </div>
-            </div>
-            <p class="text-sm text-center">Every action has an equal and opposite reaction</p>
-          </div>
-        </div>
+      <div>
+        <p>Visual representations of Ohm's Law include circuit diagrams, graphs showing the linear relationship between voltage and current, and the Ohm's Law triangle diagram that helps remember the three formulas.</p>
       </div>
     `,
-    simulationContent: `<p>3D simulation content would be embedded here. In a real implementation, this could be an interactive Three.js or other WebGL-based simulation showing Newton's laws in action.</p>`,
-    keyPoints: [
-      'Objects resist changes in their state of motion (Law of Inertia)',
-      'F = ma describes the relationship between force, mass, and acceleration',
-      'Every action has an equal and opposite reaction',
-      'Newton\'s laws only apply in inertial reference frames'
-    ],
+    videoContent: `
+      <p>Video tutorials demonstrating Ohm's Law with practical examples and circuit simulations would be shown here.</p>
+    `,
     formulas: [
-      'F = ma (Force equals mass times acceleration)',
-      'F₁ = -F₂ (Action-reaction forces are equal in magnitude, opposite in direction)'
+      { id: 'f1', name: "Ohm's Law", formula: "V = I × R", variables: [
+        { symbol: "V", name: "Voltage", unit: "Volts (V)" },
+        { symbol: "I", name: "Current", unit: "Amperes (A)" },
+        { symbol: "R", name: "Resistance", unit: "Ohms (Ω)" },
+      ]},
+      { id: 'f2', name: "Power Law", formula: "P = V × I", variables: [
+        { symbol: "P", name: "Power", unit: "Watts (W)" },
+        { symbol: "V", name: "Voltage", unit: "Volts (V)" },
+        { symbol: "I", name: "Current", unit: "Amperes (A)" },
+      ]},
     ],
-    notes: [],
-    masteryLevel: 65,
-    recallStrength: 70,
-    revisionSchedule: '2025-06-05',
-    totalStudyTime: 240, // minutes
-    mastery: {
-      level: 'Intermediate',
-      percentage: 65
-    },
-    videos: [
-      {
-        id: 'v1',
-        title: 'Understanding Newton\'s Laws',
-        url: 'https://example.com/video1',
-        duration: '8:24',
-        thumbnail: '/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png'
-      },
-      {
-        id: 'v2',
-        title: 'Applications of Newton\'s Second Law',
-        url: 'https://example.com/video2',
-        duration: '12:45',
-        thumbnail: '/lovable-uploads/bffd91d7-243d-42d9-bbd9-52133e18f4b6.png'
-      }
+    commonMistakes: [
+      "Forgetting to convert units (e.g., using kilohms instead of ohms)",
+      "Applying Ohm's Law to non-linear components",
+      "Mixing up the formulas and incorrectly solving for variables",
+      "Not accounting for temperature effects on resistance"
     ],
-    resources: [
-      {
-        id: 'r1',
-        title: 'Interactive Force Simulator',
-        type: 'simulator',
-        url: 'https://example.com/simulator'
-      },
-      {
-        id: 'r2',
-        title: 'Problem Set: Newton\'s Laws',
-        type: 'pdf',
-        url: 'https://example.com/problems.pdf'
-      }
-    ],
-    practiceQuestions: [
+    questions: [
       {
         id: 'q1',
-        question: 'A 5kg object is subjected to a force of 10N. What is its acceleration?',
-        options: ['1 m/s²', '2 m/s²', '5 m/s²', '10 m/s²'],
-        correctAnswer: '2 m/s²',
-        explanation: 'Using F = ma: 10N = 5kg × a, so a = 2 m/s²',
-        difficulty: 'easy'
+        text: "If a circuit has a resistance of 5Ω and a current of 2A, what is the voltage?",
+        answer: "V = I × R = 2A × 5Ω = 10V"
       },
       {
         id: 'q2',
-        question: 'When a car accelerates forward, the passengers feel pushed back into their seats. This is an example of:',
-        options: ['Newton\'s First Law', 'Newton\'s Second Law', 'Newton\'s Third Law', 'Law of Conservation of Energy'],
-        correctAnswer: 'Newton\'s First Law',
-        explanation: 'This demonstrates inertia - the tendency of objects to resist changes in motion.',
-        difficulty: 'medium'
+        text: "What happens to current if voltage is doubled while resistance remains constant?",
+        answer: "The current will also double, as they are directly proportional according to Ohm's Law."
       }
     ],
-    previousYearQuestions: [
+    prevYearQuestions: [
       {
-        id: 'pyq1',
+        id: 'py1',
         year: 2023,
-        exam: 'Physics Olympiad',
-        question: 'A ball is thrown vertically upward with an initial velocity of 20 m/s. Neglecting air resistance, what is the maximum height reached by the ball? (g = 10 m/s²)',
-        options: ['10 m', '20 m', '30 m', '40 m'],
-        correctAnswer: '20 m',
-        solution: 'Using the equation v² = u² + 2as, where final velocity v = 0 at maximum height, u = 20 m/s, and a = -g = -10 m/s². Thus, 0 = 400 - 20s, which gives s = 20 m.'
-      },
-      {
-        id: 'pyq2',
-        year: 2022,
-        exam: 'National Science Exam',
-        question: 'Two masses m₁ = 2kg and m₂ = 3kg are connected by a light inextensible string passing over a smooth pulley. Find the acceleration of the system.',
-        options: ['1 m/s²', '2 m/s²', '3 m/s²', '4 m/s²'],
-        correctAnswer: '2 m/s²',
-        solution: 'Using Newton\'s Second Law and considering the tensions: 3g - T = 3a and T - 2g = 2a. Solving these equations gives a = 2 m/s².'
+        exam: "NEET",
+        question: "A wire of resistance 10Ω is drawn out so that its length becomes twice its original length. The resistance of the wire becomes:",
+        options: ["5Ω", "10Ω", "20Ω", "40Ω"],
+        answer: "40Ω",
+        explanation: "When a wire is drawn to twice its length, its cross-sectional area becomes one-fourth. Since R = ρL/A, the resistance becomes four times the original."
       }
     ],
-    recallQuestions: [
-      {
-        id: 'rq1',
-        question: 'What is Newton\'s First Law?',
-        answer: 'An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.'
-      },
-      {
-        id: 'rq2',
-        question: 'What is the formula for Newton\'s Second Law?',
-        answer: 'F = ma (Force equals mass times acceleration)'
-      },
-      {
-        id: 'rq3',
-        question: 'State Newton\'s Third Law.',
-        answer: 'For every action, there is an equal and opposite reaction.'
-      }
+    relatedConcepts: [
+      { id: 'rc1', title: "Kirchhoff's Laws", masteryLevel: 45 },
+      { id: 'rc2', title: "Electrical Power", masteryLevel: 70 },
+      { id: 'rc3', title: "Series and Parallel Circuits", masteryLevel: 55 }
     ],
-    bookmarked: true,
-    estimatedTime: 45
+    examReady: false
   };
-};
-
-const ConceptDetailPage: React.FC = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
-  const [activeTab, setActiveTab] = useState('learn');
-  const [primaryTab, setPrimaryTab] = useState('learn');
-  const [secondaryTab, setSecondaryTab] = useState('recall');
-  const [concept, setConcept] = useState<any | null>(null);
-  const [userNotes, setUserNotes] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [readAloudActive, setReadAloudActive] = useState(false);
-  const [activeRecallQuestion, setActiveRecallQuestion] = useState(0);
-  const [showRecallAnswer, setShowRecallAnswer] = useState(false);
-  const { saveNote, getNoteForConcept } = useUserNotes();
-  const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, fetch concept data based on conceptId
+    // In a real app, fetch the concept data based on conceptId
+    console.log(`Fetching concept data for ID: ${conceptId}`);
+    
+    // Load user notes for this concept
     if (conceptId) {
-      // Simulate API call
-      setTimeout(() => {
-        const data = getMockConceptData(conceptId);
-        setConcept(data);
-        const savedNotes = getNoteForConcept(conceptId);
-        setUserNotes(savedNotes || data.notes?.join('\n') || '');
-        setLoading(false);
-      }, 500);
+      const savedNotes = notesHook.getNoteForConcept(conceptId);
+      setUserNotes(savedNotes);
     }
-  }, [conceptId, getNoteForConcept]);
-
-  const handleSaveNotes = () => {
-    if (concept && conceptId) {
-      saveNote(conceptId, userNotes);
-      toast({
-        title: "Notes saved successfully",
-        description: "Your notes have been saved for this concept.",
-      });
-    }
-  };
+  }, [conceptId, notesHook]);
 
   const handleBookmarkToggle = () => {
-    if (concept) {
-      setConcept({
-        ...concept,
-        bookmarked: !concept.bookmarked
-      });
-      
-      toast({
-        title: concept.bookmarked ? "Removed from bookmarks" : "Added to bookmarks",
-        description: concept.bookmarked 
-          ? "Concept removed from your bookmarks" 
-          : "Concept added to your bookmarks for quick access",
-      });
-    }
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+      description: isBookmarked ? "This concept has been removed from your bookmarks" : "This concept has been added to your bookmarks",
+      duration: 3000
+    });
   };
 
-  const handleReadAloud = () => {
-    if (concept) {
-      if (readAloudActive) {
-        setReadAloudActive(false);
-        speechSynthesis.cancel();
+  const handleReadAloud = (text: string) => {
+    setActiveReadAloudText(text);
+    setReadAloudActive(true);
+
+    // Using the SpeechSynthesis API
+    const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]*>?/gm, ''));
+    utterance.rate = 0.95;
+    speechSynthesis.speak(utterance);
+  };
+
+  const handleStopReadAloud = () => {
+    speechSynthesis.cancel();
+    setReadAloudActive(false);
+  };
+
+  const handleSaveNotes = () => {
+    if (conceptId) {
+      const success = notesHook.saveNote(conceptId, userNotes);
+      if (success) {
+        toast({
+          title: "Notes saved",
+          description: "Your notes have been saved successfully",
+          duration: 3000
+        });
       } else {
-        setReadAloudActive(true);
-        let textToRead = "";
-        
-        // Select text based on active tab
-        if (primaryTab === 'learn') {
-          // Strip HTML tags for better reading
-          textToRead = concept.content.replace(/<[^>]*>?/gm, ' ');
-        } else if (primaryTab === 'formulas') {
-          textToRead = `Formulas for ${concept.title}: ${concept.formulas.join('. ')}`;
-        } else if (primaryTab === 'common-mistakes') {
-          textToRead = `Common mistakes for ${concept.title}: Be careful of these misconceptions.`;
-        }
-        
-        const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.rate = 0.95;
-        speechSynthesis.speak(utterance);
+        toast({
+          title: "Error saving notes",
+          description: "There was an error saving your notes. Please try again.",
+          variant: "destructive",
+          duration: 3000
+        });
       }
     }
   };
 
-  const handleRecallNext = () => {
-    if (concept?.recallQuestions) {
-      setShowRecallAnswer(false);
-      setActiveRecallQuestion((prev) => 
-        prev === concept.recallQuestions.length - 1 ? 0 : prev + 1
-      );
+  const getReadAloudTextForTab = () => {
+    switch (activeTab) {
+      case "learn":
+        return concept.description + " " + concept.learnContent.replace(/<[^>]*>?/gm, '');
+      case "visual":
+        return "Visual representation of Ohm's Law showing the relationship between voltage, current and resistance.";
+      case "3d":
+        return "3D interactive model demonstrating Ohm's Law principles in a circuit.";
+      case "formula":
+        return "Ohm's Law is expressed as V equals I times R, where V is voltage in volts, I is current in amperes, and R is resistance in ohms.";
+      case "video":
+        return "Video tutorials explaining Ohm's Law and its applications.";
+      case "mistakes":
+        return "Common mistakes when applying Ohm's Law: " + concept.commonMistakes.join(", ");
+      default:
+        return concept.description;
     }
   };
 
-  const handleTabChange = (value: string) => {
-    // Cancel any active read-aloud when changing tabs
-    if (readAloudActive) {
-      speechSynthesis.cancel();
-      setReadAloudActive(false);
-    }
-    
-    // Determine if it's a primary or secondary tab
-    const isPrimaryTab = [
-      'learn', 'visual', 'simulation', 'formulas', 'video', 'common-mistakes', 'previous-year'
-    ].includes(value);
-    
-    const isSecondaryTab = [
-      'recall', 'analytics', 'revision', 'notes', 'discuss', 'linked'
-    ].includes(value);
-    
-    if (isPrimaryTab) {
-      setPrimaryTab(value);
-      setActiveTab(value);
-    } else if (isSecondaryTab) {
-      setSecondaryTab(value);
-      setActiveTab(value);
-    }
-  };
-
-  if (loading) {
-    return (
-      <ConceptsPageLayout showBackButton title="Loading Concept..." subtitle="Please wait">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </ConceptsPageLayout>
-    );
-  }
-
-  if (!concept) {
-    return (
-      <ConceptsPageLayout showBackButton title="Concept Not Found" subtitle="The requested concept could not be found">
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <p className="text-muted-foreground">We couldn't find the concept you're looking for.</p>
-          <Button variant="outline">Return to Concepts</Button>
-        </div>
-      </ConceptsPageLayout>
-    );
-  }
+  // Mastery metrics
+  const masteryMetrics = [
+    { title: "Mastery Level", value: `${concept.masteryLevel}%`, icon: <BookOpen className="h-5 w-5 text-blue-600" /> },
+    { title: "Recall Strength", value: "Medium", icon: <Lightbulb className="h-5 w-5 text-amber-600" /> },
+    { title: "Study Time", value: "3.5 hours", icon: <Clock className="h-5 w-5 text-indigo-600" /> },
+    { title: "Next Review", value: "Tomorrow", icon: <BarChart className="h-5 w-5 text-green-600" /> }
+  ];
 
   return (
-    <ConceptsPageLayout 
-      showBackButton 
-      title="Concept Details" 
-      subtitle="Expand your understanding"
-    >
-      <div className="space-y-6">
-        {/* Concept Header Section */}
-        <ConceptHeader 
-          title={concept.title}
-          subject={concept.subject}
-          topic={concept.topic}
-          difficulty={concept.difficulty}
-          isBookmarked={concept.bookmarked}
-          onBookmarkToggle={handleBookmarkToggle}
-        />
-        
-        {/* Mastery & Recall Tracker */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
-            <CardContent className="p-0">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground mb-1">Mastery Level</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">{concept.mastery.percentage}%</span>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                    {concept.mastery.level}
-                  </Badge>
-                </div>
-                <Progress value={concept.mastery.percentage} className="h-2 mt-2" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
-            <CardContent className="p-0">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground mb-1">Recall Strength</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">{concept.recallStrength}%</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                    Strong
-                  </Badge>
-                </div>
-                <Progress value={concept.recallStrength} className="h-2 mt-2" 
-                  style={{ background: '#e5e7eb' }} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
-            <CardContent className="p-0">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground mb-1">Total Study Time</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-2xl font-bold">
-                    {Math.floor(concept.totalStudyTime / 60)}h {concept.totalStudyTime % 60}m
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  Last studied: 2 days ago
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
-            <CardContent className="p-0">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground mb-1">Next Review</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-2xl font-bold">
-                    {new Date(concept.revisionSchedule).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  Based on your recall strength
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Read Aloud Feature */}
-        {readAloudActive && (
-          <ReadAloudSection 
-            text={
-              primaryTab === 'learn' ? concept.content.replace(/<[^>]*>?/gm, ' ') :
-              primaryTab === 'formulas' ? `Formulas for ${concept.title}: ${concept.formulas.join('. ')}` :
-              `Content for ${concept.title}`
-            } 
-            isActive={readAloudActive} 
-            onStop={() => setReadAloudActive(false)}
-          />
-        )}
-        
-        {/* Main Content Tabs */}
-        <div className="mb-6 flex flex-wrap gap-2 items-center">
-          <Button
-            variant={readAloudActive ? "secondary" : "outline"}
-            size="sm"
-            onClick={handleReadAloud}
-            className={`flex items-center gap-2 ${readAloudActive ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" : ""}`}
+    <div className="container max-w-7xl mx-auto px-4 py-8">
+      {/* Concept Header */}
+      <ConceptHeader
+        title={concept.title}
+        subject={concept.subject}
+        topic={concept.topic}
+        difficulty={concept.difficulty}
+        isBookmarked={isBookmarked}
+        onBookmarkToggle={handleBookmarkToggle}
+      />
+      
+      {/* Mastery Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        {masteryMetrics.map((metric, index) => (
+          <motion.div
+            key={index}
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Volume2 className="h-4 w-4" />
-            {readAloudActive ? "Stop Reading" : "Read Aloud"}
-          </Button>
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
+                {metric.icon}
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{metric.title}</p>
+                <p className="font-semibold text-lg">{metric.value}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-          <div className="flex-grow"></div>
-          
-          <Button variant="ghost" size="sm" className="flex items-center gap-1">
-            <BookMarked className="h-4 w-4" /> Save Progress
-          </Button>
-        </div>
-        
-        {/* Tab Navigation: Primary Learning Tabs */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-4 bg-background">
-            <TabsTrigger value="learn" className="flex gap-1 items-center">
-              <BookOpen className="h-4 w-4" /> Learn
-            </TabsTrigger>
-            <TabsTrigger value="visual" className="flex gap-1 items-center">
-              <Image className="h-4 w-4" /> Visual
-            </TabsTrigger>
-            <TabsTrigger value="simulation" className="flex gap-1 items-center">
-              <Box3d className="h-4 w-4" /> 3D Sim
-            </TabsTrigger>
-            <TabsTrigger value="formulas" className="flex gap-1 items-center">
-              <FlaskConical className="h-4 w-4" /> Formulas
-            </TabsTrigger>
-            <TabsTrigger value="video" className="flex gap-1 items-center">
-              <Video className="h-4 w-4" /> Videos
-            </TabsTrigger>
-            <TabsTrigger value="common-mistakes" className="flex gap-1 items-center">
-              <FileText className="h-4 w-4" /> Mistakes
-            </TabsTrigger>
-            <TabsTrigger value="previous-year" className="flex gap-1 items-center">
-              <History className="h-4 w-4" /> Past Exams
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Tab Navigation: Secondary Management Tabs */}
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6 bg-background">
-            <TabsTrigger value="recall" className="flex gap-1 items-center">
-              <Brain className="h-4 w-4" /> Recall
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex gap-1 items-center">
-              <BarChart className="h-4 w-4" /> Analytics
-            </TabsTrigger>
-            <TabsTrigger value="revision" className="flex gap-1 items-center">
-              <RefreshCw className="h-4 w-4" /> Revision
-            </TabsTrigger>
-            <TabsTrigger value="notes" className="flex gap-1 items-center">
-              <Award className="h-4 w-4" /> Notes
-            </TabsTrigger>
-            <TabsTrigger value="discuss" className="flex gap-1 items-center">
-              <MessageSquare className="h-4 w-4" /> Discuss
-            </TabsTrigger>
-            <TabsTrigger value="linked" className="flex gap-1 items-center">
-              <FileQuestion className="h-4 w-4" /> Linked
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* PRIMARY TABS CONTENT */}
-          <TabsContent value="learn" className="focus:outline-none">
-            <ConceptContent content={concept.content} />
-          </TabsContent>
-          
-          <TabsContent value="visual" className="focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">Visual Representations</h3>
-              <div dangerouslySetInnerHTML={{ __html: concept.visualContent }} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="simulation" className="focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">3D Simulation</h3>
-              
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 aspect-video flex items-center justify-center">
-                <div className="text-center p-8">
-                  <Box3d className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-                  <h4 className="font-medium text-lg mb-2">Interactive 3D Simulation</h4>
-                  <p className="text-slate-600 dark:text-slate-400 mb-4">
-                    Experience Newton's Laws in an interactive 3D environment
-                  </p>
-                  <Button>Launch Simulation</Button>
-                </div>
-              </div>
-              
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">First Law Demo</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Observe objects in motion and how they behave without external forces
-                  </p>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Second Law Lab</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Experiment with different masses and forces to see how acceleration changes
-                  </p>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Third Law Explorer</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Interact with objects to observe equal and opposite reactions
-                  </p>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="formulas" className="focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">Key Formulas</h3>
-              
-              <div className="space-y-6">
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Newton's Second Law</h4>
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm font-mono text-xl text-center w-full md:w-1/2">
-                      F = ma
-                    </div>
-                    <div className="text-sm text-blue-700 dark:text-blue-400">
-                      <p className="mb-2"><strong>Where:</strong></p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>F = net force (newtons, N)</li>
-                        <li>m = mass (kilograms, kg)</li>
-                        <li>a = acceleration (meters per second squared, m/s²)</li>
-                      </ul>
-                    </div>
+      {/* Main content with sidebar layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        {/* Main content area - 2/3 width */}
+        <div className="md:col-span-2 space-y-6">
+          {/* Primary tabs for learning modalities */}
+          <Card>
+            <CardContent className="p-6">
+              <Tabs defaultValue="learn" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="mb-6 w-full flex flex-wrap gap-2 bg-transparent justify-start">
+                  <TabsTrigger value="learn" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Learn
+                  </TabsTrigger>
+                  <TabsTrigger value="visual" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                    <Image className="h-4 w-4 mr-2" />
+                    Visual
+                  </TabsTrigger>
+                  <TabsTrigger value="3d" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+                    <Box className="h-4 w-4 mr-2" />
+                    3D Simulation
+                  </TabsTrigger>
+                  <TabsTrigger value="formula" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+                    <Calculator className="h-4 w-4 mr-2" />
+                    Formula Lab
+                  </TabsTrigger>
+                  <TabsTrigger value="video" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+                    <Video className="h-4 w-4 mr-2" />
+                    Video
+                  </TabsTrigger>
+                  <TabsTrigger value="mistakes" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Common Mistakes
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Read aloud section */}
+                {readAloudActive && (
+                  <div className="mb-6">
+                    <ReadAloudSection 
+                      text={activeReadAloudText} 
+                      isActive={readAloudActive} 
+                      onStop={handleStopReadAloud} 
+                    />
                   </div>
-                </div>
-                
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30 rounded-lg p-4">
-                  <h4 className="font-medium text-green-800 dark:text-green-300 mb-2">Newton's Third Law</h4>
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm font-mono text-xl text-center w-full md:w-1/2">
-                      F₁ = -F₂
+                )}
+
+                {/* Tab content */}
+                <div className="mt-4">
+                  <TabsContent value="learn">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: concept.learnContent }} />
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
                     </div>
-                    <div className="text-sm text-green-700 dark:text-green-400">
-                      <p className="mb-2"><strong>Where:</strong></p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>F₁ = force exerted by object 1 on object 2</li>
-                        <li>F₂ = force exerted by object 2 on object 1</li>
-                        <li>The negative sign indicates opposite directions</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 rounded-lg p-4">
-                  <h4 className="font-medium text-purple-800 dark:text-purple-300 mb-2">Practice: Calculate Force</h4>
-                  <div className="space-y-4">
-                    <p className="text-sm text-purple-700 dark:text-purple-400">
-                      Try applying Newton's Second Law to solve this problem:
-                    </p>
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-4">
-                      <p className="mb-4">A 1500 kg car accelerates from 0 to 27 m/s in 9 seconds. Calculate the net force acting on the car.</p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span>Acceleration: </span>
-                          <span className="font-mono">(27 - 0) / 9 = 3 m/s²</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Force: </span>
-                          <span className="font-mono">F = 1500 kg × 3 m/s² = 4500 N</span>
+                  </TabsContent>
+                  
+                  <TabsContent value="visual">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <h3>Visual Representation</h3>
+                      <div dangerouslySetInnerHTML={{ __html: concept.visualContent }} />
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mt-4 flex flex-col items-center">
+                        <p className="text-center text-gray-500 dark:text-gray-400 mb-4">Interactive Ohm's Law diagram</p>
+                        <div className="w-full max-w-md h-64 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                          <p className="text-gray-400 dark:text-gray-500">Visualization would appear here</p>
                         </div>
                       </div>
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="3d">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <h3>3D Interactive Model</h3>
+                      <p>Interact with this 3D model to understand how voltage, current, and resistance relate to each other in a circuit.</p>
+                      
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mt-4 flex flex-col items-center">
+                        <div className="w-full h-80 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                          <p className="text-gray-400 dark:text-gray-500">3D model would render here</p>
+                        </div>
+                        
+                        <div className="mt-4 grid grid-cols-3 gap-4 w-full max-w-md">
+                          <div className="bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Voltage</p>
+                            <p className="font-semibold">12V</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Current</p>
+                            <p className="font-semibold">2A</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Resistance</p>
+                            <p className="font-semibold">6Ω</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="formula">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <h3>Formula Reference</h3>
+                      
+                      <div className="space-y-6">
+                        {concept.formulas.map((formula) => (
+                          <div key={formula.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 className="font-medium text-lg">{formula.name}</h4>
+                            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-md mt-2 font-mono text-xl text-center">
+                              {formula.formula}
+                            </div>
+                            
+                            <h5 className="mt-4 font-medium text-gray-700 dark:text-gray-300">Variables:</h5>
+                            <ul className="mt-2">
+                              {formula.variables.map((variable, idx) => (
+                                <li key={idx} className="flex items-center gap-2">
+                                  <span className="font-mono">{variable.symbol}</span> - {variable.name} ({variable.unit})
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-lg p-4">
+                        <h4 className="font-medium text-blue-600 dark:text-blue-400">Formula Practice</h4>
+                        <p className="text-sm mt-2">Try some practice calculations:</p>
+                        
+                        <div className="mt-3 space-y-3">
+                          {concept.questions.map((question, idx) => (
+                            <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                              <p className="font-medium">{question.text}</p>
+                              <details className="mt-2">
+                                <summary className="text-blue-600 dark:text-blue-400 cursor-pointer">Show Answer</summary>
+                                <p className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md">{question.answer}</p>
+                              </details>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="video">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <h3>Video Tutorials</h3>
+                      <p>Watch these video tutorials to understand Ohm's Law better:</p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        {[1, 2, 3, 4].map((video) => (
+                          <div key={video} className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                            <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                              <Play className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                            </div>
+                            <h4 className="font-medium mt-3">Ohm's Law Tutorial Part {video}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">12:45 minutes</p>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="mistakes">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <h3>Common Mistakes & Misconceptions</h3>
+                      <p>Be aware of these common errors when working with Ohm's Law:</p>
+                      
+                      <ul className="space-y-4 mt-4">
+                        {concept.commonMistakes.map((mistake, idx) => (
+                          <li key={idx} className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                              <div>
+                                <p className="font-medium text-red-700 dark:text-red-400">{mistake}</p>
+                                <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                                  Solution: {idx === 0 
+                                    ? "Always check units and convert as needed before applying formulas." 
+                                    : idx === 1 
+                                    ? "Remember that Ohm's Law only applies to materials with a constant resistance."
+                                    : idx === 2
+                                    ? "Use triangular diagrams to remember the correct formula variations."
+                                    : "Account for how temperature affects resistance in precision calculations."
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <h3 className="mt-8">Previous Year Questions</h3>
+                      <div className="space-y-4">
+                        {concept.prevYearQuestions.map((question) => (
+                          <div key={question.id} className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-lg p-4">
+                            <div className="flex justify-between items-start">
+                              <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-800/50 text-indigo-700 dark:text-indigo-300 rounded text-xs font-medium">
+                                {question.exam} {question.year}
+                              </span>
+                            </div>
+                            <p className="mt-3 font-medium">{question.question}</p>
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {question.options.map((option, idx) => (
+                                <div 
+                                  key={idx} 
+                                  className={`p-2 rounded border ${
+                                    option === question.answer 
+                                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30 text-green-700 dark:text-green-300' 
+                                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                  }`}
+                                >
+                                  {option}
+                                  {option === question.answer && ' (Correct)'}
+                                </div>
+                              ))}
+                            </div>
+                            <div className="mt-3 bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+                              <p className="font-medium text-gray-700 dark:text-gray-300">Explanation:</p>
+                              <p className="text-sm mt-1">{question.explanation}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          onClick={() => handleReadAloud(getReadAloudTextForTab())}
+                        >
+                          <Play className="h-4 w-4" />
+                          Read Aloud
+                        </button>
+                      </div>
+                    </div>
+                  </TabsContent>
                 </div>
-              </div>
-            </div>
-          </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
           
-          <TabsContent value="video" className="space-y-4 focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">Video Explanations</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {concept.videos.map((video: any) => (
-                  <motion.div
-                    key={video.id}
-                    whileHover={{ y: -5 }}
-                    className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden"
-                  >
-                    <div className="relative aspect-video bg-slate-200 dark:bg-slate-800">
-                      <img 
-                        src={video.thumbnail} 
-                        alt={video.title} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Button variant="outline" size="icon" className="rounded-full bg-white/90 dark:bg-black/60 h-12 w-12">
-                          <Video className="h-6 w-6" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-medium text-base">{video.title}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Duration: {video.duration}</p>
-                      <div className="mt-3 flex gap-2">
-                        <Button variant="outline" size="sm">Watch</Button>
-                        <Button variant="ghost" size="sm">Save</Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+          {/* Secondary tabs for learning management */}
+          <div>
+            <Tabs defaultValue="recall" value={activeManagementTab} onValueChange={setActiveManagementTab} className="w-full">
+              <TabsList className="bg-transparent flex flex-wrap gap-2 justify-start mb-4">
+                <TabsTrigger value="recall" className="border">
+                  <BookText className="h-4 w-4 mr-2" />
+                  Recall
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="border">
+                  <BarChart className="h-4 w-4 mr-2" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="revision" className="border">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Revision
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="border">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Notes
+                </TabsTrigger>
+                <TabsTrigger value="discuss" className="border">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Discuss
+                </TabsTrigger>
+                <TabsTrigger value="linked" className="border">
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  Linked
+                </TabsTrigger>
+              </TabsList>
               
-              <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/30">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Video className="h-4 w-4 text-blue-600" /> Recommended Learning Path
-                </h4>
-                <ol className="list-decimal ml-5 space-y-2 text-sm">
-                  <li>Start with "Understanding Newton's Laws" (8:24)</li>
-                  <li>Practice with interactive examples in the 3D simulation</li>
-                  <li>Continue with "Applications of Newton's Second Law" (12:45)</li>
-                  <li>Complete the recall exercises to test your understanding</li>
-                </ol>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="common-mistakes" className="space-y-4 focus:outline-none">
-            <CommonMistakesContent conceptName={concept.title} />
-          </TabsContent>
-          
-          <TabsContent value="previous-year" className="space-y-4 focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">Previous Year Questions</h3>
+              <TabsContent value="recall">
+                <RecallSection conceptName={concept.title} />
+              </TabsContent>
               
-              <div className="space-y-6">
-                {concept.previousYearQuestions?.map((question: any) => (
-                  <div key={question.id} 
-                    className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <Badge className="mb-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-                          {question.exam} {question.year}
-                        </Badge>
+              <TabsContent value="analytics">
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-medium mb-4">Performance Analytics</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Quiz Performance</h4>
+                        <p className="text-2xl font-bold mt-1">75%</p>
+                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mt-2">
+                          <div className="h-full bg-green-500 rounded-full" style={{ width: '75%' }}></div>
+                        </div>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Time Spent</h4>
+                        <p className="text-2xl font-bold mt-1">3.5 hrs</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Last session: Yesterday</p>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Practice Exercises</h4>
+                        <p className="text-2xl font-bold mt-1">12 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">completed</span></p>
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <h4 className="font-medium mb-2">Question:</h4>
-                      <p>{question.question}</p>
+                    <h4 className="font-medium text-lg mt-6 mb-3">Performance Over Time</h4>
+                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 h-64 flex items-center justify-center">
+                      <p className="text-gray-400 dark:text-gray-500">Chart showing concept mastery progress would appear here</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="revision">
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-medium mb-4">Revision Schedule</h3>
+                    
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-lg p-4 mb-6">
+                      <h4 className="flex items-center gap-2 font-medium text-amber-800 dark:text-amber-400">
+                        <Clock className="h-5 w-5" />
+                        Next scheduled revision
+                      </h4>
+                      <p className="text-amber-700 dark:text-amber-300 mt-2">Tomorrow at 10:00 AM</p>
                     </div>
                     
-                    <div className="space-y-2 mb-4">
-                      <h5 className="font-medium">Options:</h5>
-                      {question.options.map((option: string, i: number) => (
-                        <div key={i} className="flex items-center space-x-2">
-                          <input 
-                            type="radio" 
-                            id={`pyq-${question.id}-option-${i}`} 
-                            name={`pyq-${question.id}`} 
-                            className="h-4 w-4 text-blue-600"
-                          />
-                          <label htmlFor={`pyq-${question.id}-option-${i}`}>{option}</label>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Revision History</h4>
+                    <div className="space-y-3">
+                      {[
+                        { date: '2023-05-18', score: 85, time: '15 minutes' },
+                        { date: '2023-05-12', score: 70, time: '20 minutes' },
+                        { date: '2023-05-05', score: 65, time: '25 minutes' }
+                      ].map((revision, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <div>
+                            <p className="font-medium">{new Date(revision.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Duration: {revision.time}</p>
+                          </div>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-sm">
+                            Score: {revision.score}%
+                          </div>
                         </div>
                       ))}
                     </div>
                     
-                    <div className="flex gap-2 mb-4">
-                      <Button size="sm" variant="outline">Check Answer</Button>
-                      <Button size="sm" variant="ghost">Show Solution</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6">
-                <Button variant="outline" className="w-full">
-                  Load More Previous Year Questions
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-          
-          {/* SECONDARY TABS CONTENT */}
-          <TabsContent value="recall" className="focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-4">Recall Exercise</h3>
-              
-              {concept.recallQuestions && concept.recallQuestions.length > 0 && (
-                <div className="space-y-6">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2">
-                      <Brain className="h-5 w-5" /> Active Recall Question
-                    </h4>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mt-6 mb-3">Optimized Revision Plan</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Based on your learning pattern and memory curve, we've optimized a revision schedule to maximize retention.
+                    </p>
                     
-                    <div className="mb-6">
-                      <p className="text-lg font-medium mb-4">
-                        {concept.recallQuestions[activeRecallQuestion].question}
-                      </p>
-                      
-                      {!showRecallAnswer ? (
-                        <div className="space-y-4">
-                          <p className="text-sm text-blue-600 dark:text-blue-400">
-                            Try to answer this question from memory before revealing the answer.
-                          </p>
-                          <Button onClick={() => setShowRecallAnswer(true)}>
-                            Show Answer
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <p className="text-gray-800 dark:text-gray-200">
-                            {concept.recallQuestions[activeRecallQuestion].answer}
-                          </p>
-                          
-                          <div className="mt-4 flex items-center gap-2">
-                            <p className="text-sm">How well did you recall this?</p>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" className="bg-red-100 hover:bg-red-200 border-red-200">
-                                Didn't Know
-                              </Button>
-                              <Button variant="outline" size="sm" className="bg-yellow-100 hover:bg-yellow-200 border-yellow-200">
-                                Partially
-                              </Button>
-                              <Button variant="outline" size="sm" className="bg-green-100 hover:bg-green-200 border-green-200">
-                                Knew It
-                              </Button>
+                    <div className="space-y-2">
+                      {[
+                        { date: 'Tomorrow', type: 'Quick Recall', duration: '10 min' },
+                        { date: 'Next Week', type: 'Practice Problems', duration: '20 min' },
+                        { date: 'Next Month', type: 'Full Review', duration: '30 min' }
+                      ].map((plan, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-indigo-100 dark:bg-indigo-900/30 h-10 w-10 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                              {idx + 1}
+                            </div>
+                            <div>
+                              <p className="font-medium">{plan.date}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">{plan.type}</p>
                             </div>
                           </div>
+                          <div className="text-gray-600 dark:text-gray-400">{plan.duration}</div>
                         </div>
-                      )}
+                      ))}
                     </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-blue-600 dark:text-blue-400">
-                        Question {activeRecallQuestion + 1} of {concept.recallQuestions.length}
-                      </div>
-                      <Button onClick={handleRecallNext}>
-                        Next Question
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30 rounded-lg p-4">
-                    <h4 className="font-medium text-green-800 dark:text-green-300 mb-2">Why Active Recall Works</h4>
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      Active recall strengthens neural pathways associated with the information, making it easier 
-                      to retrieve later. Testing yourself is one of the most effective study techniques, proven to 
-                      be more effective than rereading or highlighting.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="analytics" className="focus:outline-none">
-            <ConceptAnalyticsSection 
-              conceptId={conceptId || ''} 
-              masteryPercent={concept.mastery.percentage}
-              recallAccuracy={concept.recallStrength}
-            />
-          </TabsContent>
-          
-          <TabsContent value="revision" className="focus:outline-none">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-medium mb-6 flex items-center gap-2">
-                <RefreshCw className="h-5 w-5 text-indigo-600" /> Revision Schedule
-              </h3>
+                  </CardContent>
+                </Card>
+              </TabsContent>
               
-              <div className="space-y-6">
-                <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-                  <h4 className="font-medium mb-4">Spaced Repetition Timeline</h4>
-                  
-                  <div className="relative">
-                    <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-slate-200 dark:bg-slate-700"></div>
-                    
-                    <div className="space-y-8">
-                      <div className="relative pl-8">
-                        <div className="absolute left-0 w-4 h-4 bg-green-500 rounded-full -translate-x-[7px]"></div>
-                        <div className="font-medium">First Review</div>
-                        <div className="text-sm text-muted-foreground">
-                          Completed on May 18, 2025
-                        </div>
-                      </div>
-                      
-                      <div className="relative pl-8">
-                        <div className="absolute left-0 w-4 h-4 bg-green-500 rounded-full -translate-x-[7px]"></div>
-                        <div className="font-medium">Second Review</div>
-                        <div className="text-sm text-muted-foreground">
-                          Completed on May 21, 2025
-                        </div>
-                      </div>
-                      
-                      <div className="relative pl-8">
-                        <div className="absolute left-0 w-4 h-4 bg-blue-500 rounded-full -translate-x-[7px]"></div>
-                        <div className="font-medium">Third Review</div>
-                        <div className="text-sm text-muted-foreground">
-                          Scheduled for June 5, 2025 (in 13 days)
-                        </div>
-                        <Button size="sm" className="mt-2" variant="outline">
-                          Review Now
-                        </Button>
-                      </div>
-                      
-                      <div className="relative pl-8">
-                        <div className="absolute left-0 w-4 h-4 bg-slate-300 dark:bg-slate-600 rounded-full -translate-x-[7px]"></div>
-                        <div className="font-medium text-muted-foreground">Fourth Review</div>
-                        <div className="text-sm text-muted-foreground">
-                          Scheduled for June 26, 2025 (in 34 days)
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 rounded-lg p-4">
-                    <h4 className="font-medium text-purple-800 dark:text-purple-300 mb-2">
-                      Optimal Review Timing
-                    </h4>
-                    <p className="text-sm text-purple-700 dark:text-purple-400 mb-4">
-                      Your next review is calculated using the forgetting curve and your recall strength. 
-                      Reviewing at these optimal intervals leads to long-term retention.
-                    </p>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Adjust Review Schedule
-                    </Button>
-                  </div>
-                  
-                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-lg p-4">
-                    <h4 className="font-medium text-amber-800 dark:text-amber-300 mb-2">
-                      Review Methods
-                    </h4>
-                    <ul className="text-sm text-amber-700 dark:text-amber-400 space-y-2 list-disc list-inside">
-                      <li>Active recall questions</li>
-                      <li>Flashcards (7 cards available)</li>
-                      <li>Practice problems (5 problems)</li>
-                      <li>Teach-back method (explanation exercise)</li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <Button className="w-full">
-                  Add to Today's Study Plan
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="notes" className="focus:outline-none">
-            <NoteSection 
-              userNotes={userNotes}
-              setUserNotes={setUserNotes}
-              handleSaveNotes={handleSaveNotes}
-            />
-          </TabsContent>
-          
-          <TabsContent value="discuss" className="space-y-6 focus:outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2">
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <h3 className="text-lg font-medium mb-4">Discussion Forum</h3>
-                  
-                  <div className="mb-6 bg-slate-50 dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                    <h4 className="font-medium mb-2">Start a Discussion</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Ask questions about this concept or share your insights with the community.
-                    </p>
-                    <textarea 
-                      className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-3 mb-3 h-32 bg-white dark:bg-gray-900"
-                      placeholder="Type your question or discussion topic here..."
-                    ></textarea>
-                    <div className="flex justify-end">
-                      <Button>Post Discussion</Button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                            <span className="font-medium text-blue-700 dark:text-blue-300">M</span>
-                          </div>
-                          <div>
-                            <div className="font-medium">Michael R.</div>
-                            <div className="text-xs text-muted-foreground">Posted 2 days ago</div>
-                          </div>
-                        </div>
-                        <Badge variant="outline">Question</Badge>
-                      </div>
-                      <div className="mb-3">
-                        <p>Can someone explain how Newton's laws apply in a rotating reference frame?</p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <span>2 replies • </span>
-                        <button className="text-blue-600 dark:text-blue-400 hover:underline">View Discussion</button>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                            <span className="font-medium text-purple-700 dark:text-purple-300">S</span>
-                          </div>
-                          <div>
-                            <div className="font-medium">Sarah T.</div>
-                            <div className="text-xs text-muted-foreground">Posted 5 days ago</div>
-                          </div>
-                        </div>
-                        <Badge variant="outline">Insight</Badge>
-                      </div>
-                      <div className="mb-3">
-                        <p>I found a great visualization that helped me understand the third law better...</p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <span>5 replies • </span>
-                        <button className="text-blue-600 dark:text-blue-400 hover:underline">View Discussion</button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 flex justify-center">
-                    <Button variant="outline">View All Discussions</Button>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <h3 className="text-lg font-medium mb-4">AI Tutor</h3>
-                  
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg h-[300px] flex flex-col">
-                    <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                      <Brain className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">Physics Tutor</span>
-                    </div>
-                    
-                    <div className="flex-grow overflow-y-auto p-3 space-y-3 bg-slate-50 dark:bg-slate-900">
-                      <div className="flex gap-3">
-                        <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center shrink-0">
-                          <Brain className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-sm max-w-[80%]">
-                          Hello! I'm your AI tutor for Newton's Laws of Motion. What would you like help with?
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          placeholder="Ask a question about this concept..." 
-                          className="flex-grow border border-gray-300 dark:border-gray-700 rounded-md p-2 text-sm"
-                        />
-                        <Button size="sm">Send</Button>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-2">
-                        Quick questions: "Explain inertia" • "F=ma examples" • "Real-world applications"
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <AIInsightsSection conceptId={conceptId || ''} conceptTitle={concept.title} />
-          </TabsContent>
-          
-          <TabsContent value="linked" className="focus:outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-              <div className="md:col-span-3">
-                <LinkedConceptsSection 
-                  conceptId={conceptId || ''} 
-                  subject={concept.subject}
-                  topic={concept.topic} 
+              <TabsContent value="notes">
+                <NoteSection 
+                  userNotes={userNotes} 
+                  setUserNotes={setUserNotes} 
+                  handleSaveNotes={handleSaveNotes} 
                 />
-              </div>
+              </TabsContent>
               
-              <div className="md:col-span-2 space-y-6">
-                {/* Related Flashcards */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-orange-600" /> Related Flashcards
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 rounded-lg p-4">
-                      <div className="mb-3">
-                        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                          FRONT SIDE
-                        </span>
-                        <p className="font-medium mt-1">State Newton's First Law of Motion</p>
-                      </div>
-                      
-                      <Button size="sm" variant="secondary" className="w-full bg-white dark:bg-gray-900">
-                        Show Answer
-                      </Button>
-                    </div>
+              <TabsContent value="discuss">
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-medium mb-4">Discussion & Questions</h3>
                     
-                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 rounded-lg p-4">
-                      <div className="mb-3">
-                        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                          FRONT SIDE
-                        </span>
-                        <p className="font-medium mt-1">What is the formula for Newton's Second Law?</p>
-                      </div>
-                      
-                      <Button size="sm" variant="secondary" className="w-full bg-white dark:bg-gray-900">
-                        Show Answer
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Button variant="outline" className="w-full mt-4">
-                    View All 8 Flashcards
-                  </Button>
-                </div>
-                
-                {/* Related Exams */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                    <FileQuestion className="h-5 w-5 text-purple-600" /> Related Practice Exams
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <h4 className="font-medium">Classical Mechanics Quiz</h4>
-                      <div className="flex items-center justify-between mt-2 mb-3">
-                        <span className="text-sm text-muted-foreground">10 questions • 15 min</span>
-                        <Badge>Medium</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Contains 3 questions on Newton's Laws</span>
-                        <Button size="sm">Start</Button>
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-lg p-4 mb-6">
+                      <h4 className="font-medium text-indigo-700 dark:text-indigo-400">Ask AI Tutor</h4>
+                      <p className="text-sm text-indigo-600 dark:text-indigo-300 mt-1 mb-3">
+                        Get immediate help with any questions about {concept.title}
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Type your question here..."
+                          className="flex-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                        />
+                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm">
+                          Ask
+                        </button>
                       </div>
                     </div>
                     
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <h4 className="font-medium">Forces and Motion Assessment</h4>
-                      <div className="flex items-center justify-between mt-2 mb-3">
-                        <span className="text-sm text-muted-foreground">15 questions • 25 min</span>
-                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                          Hard
-                        </Badge>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Community Q&A</h4>
+                    <div className="space-y-4">
+                      {[
+                        { 
+                          question: "How does Ohm's Law apply to AC circuits?", 
+                          answer: "In AC circuits, Ohm's Law still applies but you need to use impedance (Z) instead of just resistance (R). The formula becomes V = IZ where Z includes resistance, capacitance, and inductance effects.",
+                          user: "Priya S.",
+                          time: "2 days ago",
+                          votes: 12
+                        },
+                        { 
+                          question: "Can Ohm's Law be used for semiconductors like diodes?", 
+                          answer: "No, Ohm's Law doesn't apply directly to semiconductors like diodes because they have non-linear I-V characteristics. Diodes allow current to flow easily in one direction but not the other.",
+                          user: "Alex M.",
+                          time: "1 week ago",
+                          votes: 9
+                        }
+                      ].map((qa, idx) => (
+                        <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                          <div className="flex justify-between">
+                            <h5 className="font-medium">{qa.question}</h5>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{qa.time}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Asked by {qa.user}</p>
+                          
+                          <div className="mt-3 bg-gray-50 dark:bg-gray-900/50 p-3 rounded-md">
+                            <p className="text-sm">{qa.answer}</p>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                              <button className="hover:text-blue-600 dark:hover:text-blue-400">
+                                👍 Helpful ({qa.votes})
+                              </button>
+                            </div>
+                            <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                              Reply
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <button className="w-full mt-4 text-center py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      Load more questions
+                    </button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="linked">
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-medium mb-4">Linked Resources</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-blue-600" />
+                          Related Concepts
+                        </h4>
+                        <div className="space-y-2">
+                          {concept.relatedConcepts.map((related, idx) => (
+                            <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                              <p className="font-medium">{related.title}</p>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Mastery: {related.masteryLevel}%
+                                </span>
+                                <button className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                                  View
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Contains 5 questions on Newton's Laws</span>
-                        <Button size="sm">Start</Button>
+                      
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                          <BookText className="h-4 w-4 text-emerald-600" />
+                          Flashcard Sets
+                        </h4>
+                        <div className="space-y-2">
+                          {[
+                            { title: "Ohm's Law Basics", count: 10, progress: 60 },
+                            { title: "Circuit Analysis", count: 15, progress: 30 },
+                          ].map((set, idx) => (
+                            <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                              <p className="font-medium">{set.title}</p>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {set.count} cards
+                                </span>
+                                <button className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">
+                                  Practice
+                                </button>
+                              </div>
+                              <div className="mt-2 h-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${set.progress}%` }}></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                          <BarChart className="h-4 w-4 text-purple-600" />
+                          Practice Exams
+                        </h4>
+                        <div className="space-y-2">
+                          {[
+                            { title: "Electricity Basics Quiz", questions: 20, time: "15 min" },
+                            { title: "Circuit Theory Test", questions: 30, time: "25 min" },
+                          ].map((exam, idx) => (
+                            <div key={idx} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                              <p className="font-medium">{exam.title}</p>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {exam.questions} questions • {exam.time}
+                                </span>
+                                <button className="text-xs text-purple-600 dark:text-purple-400 hover:underline">
+                                  Start
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          {/* AI Insights section */}
+          <AIInsightsSection conceptId={conceptId || ''} conceptTitle={concept.title} />
+        </div>
+        
+        {/* Sidebar - 1/3 width */}
+        <div className="space-y-6">
+          <ConceptSidebar 
+            masteryLevel={concept.masteryLevel}
+            relatedConcepts={concept.relatedConcepts}
+            examReady={concept.examReady}
+          />
+        </div>
       </div>
-    </ConceptsPageLayout>
+    </div>
   );
 };
 
