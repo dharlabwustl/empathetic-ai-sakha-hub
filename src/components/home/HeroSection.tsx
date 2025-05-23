@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, Smile } from 'lucide-react';
+import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, Smile, BookOpen, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,34 +42,231 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated Background */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      {/* Enhanced 3D Dynamic Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+        {/* Multi-layered gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-purple-600/40 to-pink-600/30" />
+        <div className="absolute inset-0 bg-gradient-to-tl from-cyan-500/20 via-indigo-500/30 to-violet-500/25" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.4),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.3),rgba(255,255,255,0))]" />
         
-        {/* Floating Particles */}
-        {[...Array(20)].map((_, i) => (
+        {/* Dynamic floating geometric shapes */}
+        {[...Array(15)].map((_, i) => (
           <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-white rounded-full opacity-30"
+            key={`shape-${i}`}
+            className={`absolute rounded-full opacity-20 ${
+              i % 4 === 0 ? 'bg-gradient-to-r from-blue-400 to-cyan-400' :
+              i % 4 === 1 ? 'bg-gradient-to-r from-purple-400 to-pink-400' :
+              i % 4 === 2 ? 'bg-gradient-to-r from-green-400 to-teal-400' :
+              'bg-gradient-to-r from-amber-400 to-orange-400'
+            }`}
+            style={{
+              width: Math.random() * 100 + 50,
+              height: Math.random() * 100 + 50,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              x: [0, Math.random() * 200 - 100, 0],
+              y: [0, Math.random() * 200 - 100, 0],
+              scale: [1, Math.random() * 0.5 + 0.8, 1],
+              rotate: [0, 360, 0],
+            }}
+            transition={{
+              duration: Math.random() * 15 + 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+
+        {/* Animated Happy Student Avatar */}
+        <motion.div
+          className="absolute top-20 right-20 w-32 h-32 hidden lg:block"
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          {/* Student Avatar with Happy Expression */}
+          <div className="relative w-full h-full">
+            {/* Avatar Background Glow */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 rounded-full blur-xl opacity-60"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.6, 0.8, 0.6],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+              }}
+            />
+            
+            {/* Main Avatar */}
+            <div className="relative w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 rounded-full border-4 border-white/30 shadow-2xl flex items-center justify-center">
+              {/* Face */}
+              <div className="relative">
+                {/* Eyes */}
+                <motion.div 
+                  className="flex gap-3 mb-2"
+                  animate={{
+                    scaleY: [1, 0.1, 1],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatDelay: 4,
+                  }}
+                >
+                  <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
+                  <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
+                </motion.div>
+                
+                {/* Happy Smile */}
+                <motion.div
+                  className="w-6 h-3 border-b-2 border-gray-800 rounded-b-full"
+                  animate={{
+                    scaleX: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                  }}
+                />
+                
+                {/* Cheeks */}
+                <motion.div
+                  className="absolute -left-4 -top-1 w-4 h-4 bg-pink-300 rounded-full opacity-70"
+                  animate={{
+                    scale: [0.8, 1.2, 0.8],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                  }}
+                />
+                <motion.div
+                  className="absolute -right-4 -top-1 w-4 h-4 bg-pink-300 rounded-full opacity-70"
+                  animate={{
+                    scale: [0.8, 1.2, 0.8],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 0.5,
+                  }}
+                />
+              </div>
+              
+              {/* Graduation Cap */}
+              <motion.div
+                className="absolute -top-8 left-1/2 transform -translate-x-1/2"
+                animate={{
+                  rotate: [-5, 5, -5],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-lg relative">
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
+                  <motion.div
+                    className="absolute top-1 right-0 w-4 h-1 bg-yellow-400"
+                    animate={{
+                      x: [0, 5, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+            
+            {/* Floating Success Icons around Avatar */}
+            {[
+              { icon: <Star className="w-4 h-4" />, position: "top-0 left-0", delay: 0 },
+              { icon: <BookOpen className="w-4 h-4" />, position: "top-2 right-0", delay: 1 },
+              { icon: <Heart className="w-4 h-4" />, position: "bottom-0 left-2", delay: 2 },
+              { icon: <Award className="w-4 h-4" />, position: "bottom-2 right-0", delay: 0.5 },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                className={`absolute ${item.position} text-yellow-400`}
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 360, 0],
+                  scale: [0.8, 1.2, 0.8],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: item.delay,
+                }}
+              >
+                {item.icon}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Enhanced Floating Particles with more vibrant colors */}
+        {[...Array(25)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className={`absolute rounded-full ${
+              i % 5 === 0 ? 'bg-yellow-400' :
+              i % 5 === 1 ? 'bg-pink-400' :
+              i % 5 === 2 ? 'bg-cyan-400' :
+              i % 5 === 3 ? 'bg-green-400' :
+              'bg-purple-400'
+            }`}
+            style={{
+              width: Math.random() * 8 + 4,
+              height: Math.random() * 8 + 4,
+            }}
             initial={{
               x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
               y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              opacity: Math.random() * 0.8 + 0.2,
             }}
             animate={{
               x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
               y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              opacity: [0.2, 0.8, 0.2],
             }}
             transition={{
-              duration: Math.random() * 10 + 20,
+              duration: Math.random() * 20 + 15,
               repeat: Infinity,
               ease: "linear"
             }}
           />
         ))}
 
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        {/* Enhanced Grid Pattern with vibrant colors */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        
+        {/* Additional 3D depth layers */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+          animate={{
+            x: ["-100%", "100%"],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
