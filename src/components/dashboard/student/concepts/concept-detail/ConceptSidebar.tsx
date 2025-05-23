@@ -1,127 +1,150 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { BookOpen, Clock, CheckCircle, Users, Star } from 'lucide-react';
-import { ConceptCard } from '@/types/user/conceptCard';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle, Clock, Target, TrendingUp, Users, BookOpen, ArrowRight } from "lucide-react";
 
-export interface ConceptSidebarProps {
-  concept: ConceptCard;
+interface RelatedConcept {
+  id: string;
+  title: string;
+  masteryLevel: number;
 }
 
-const ConceptSidebar: React.FC<ConceptSidebarProps> = ({ concept }) => {
-  // Calculate estimated time to complete in minutes
-  const estimatedTime = concept.estimatedTime || 20;
-  
-  // Calculate mastery percentage
-  const masteryPercentage = concept.masteryPercentage || 0;
-  
-  // Format number of students
-  const studentsCount = concept.studentsCount || 1250;
-  const formattedStudentsCount = studentsCount >= 1000 
-    ? `${(studentsCount / 1000).toFixed(1)}k` 
-    : studentsCount;
+interface ConceptSidebarProps {
+  masteryLevel: number;
+  relatedConcepts: RelatedConcept[];
+  examReady: boolean;
+  onRelatedConceptClick?: (conceptId: string) => void;
+}
+
+const ConceptSidebar: React.FC<ConceptSidebarProps> = ({ 
+  masteryLevel, 
+  relatedConcepts, 
+  examReady,
+  onRelatedConceptClick 
+}) => {
+  const handleRelatedConceptClick = (conceptId: string) => {
+    if (onRelatedConceptClick) {
+      onRelatedConceptClick(conceptId);
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Mastery Card */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Concept Mastery</CardTitle>
+    <div className="space-y-6">
+      {/* Mastery Progress */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+            Mastery Progress
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Your Progress</span>
-            <span className="text-sm font-medium">{masteryPercentage}%</span>
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              {masteryLevel}%
+            </div>
+            <Progress value={masteryLevel} className="h-3 mb-3" />
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {examReady ? "Exam Ready!" : `${100 - masteryLevel}% to go`}
+            </div>
           </div>
-          <Progress value={masteryPercentage} className="h-2" />
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Status
-              </span>
-              <span className="font-medium">
-                {masteryPercentage >= 80 ? 'Mastered' : 
-                 masteryPercentage >= 50 ? 'In Progress' : 'Just Started'}
+          
+          {examReady && (
+            <div className="flex items-center justify-center p-3 bg-green-50 dark:bg-green-950/30 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+              <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                Ready for exam questions!
               </span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center">
-                <Clock className="h-4 w-4 text-blue-500 mr-2" />
-                Est. Time
-              </span>
-              <span className="font-medium">{estimatedTime} min</span>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Related Concepts */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+            Related Concepts
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {relatedConcepts.map((concept) => (
+            <div
+              key={concept.id}
+              className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors"
+              onClick={() => handleRelatedConceptClick(concept.id)}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-sm">{concept.title}</h4>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">Mastery</span>
+                <span className="font-medium">{concept.masteryLevel}%</span>
+              </div>
+              <Progress value={concept.masteryLevel} className="h-1.5 mt-1" />
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center">
-                <Users className="h-4 w-4 text-purple-500 mr-2" />
-                Students
-              </span>
-              <span className="font-medium">{formattedStudentsCount}</span>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Study Stats */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <Target className="h-5 w-5 mr-2 text-purple-600" />
+            Study Stats
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span className="text-sm">Time Spent</span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center">
-                <Star className="h-4 w-4 text-amber-500 mr-2" />
-                Difficulty
-              </span>
-              <span className="font-medium">{concept.difficulty || 'Intermediate'}</span>
+            <span className="font-medium">4.5 hrs</span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-gray-500" />
+              <span className="text-sm">Problems Solved</span>
             </div>
+            <span className="font-medium">23</span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-gray-500" />
+              <span className="text-sm">Accuracy Rate</span>
+            </div>
+            <span className="font-medium">78%</span>
           </div>
         </CardContent>
       </Card>
-      
-      {/* Related Concepts Card */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Related Concepts</CardTitle>
+
+      {/* Study Groups */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <Users className="h-5 w-5 mr-2 text-orange-600" />
+            Study Groups
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-1">
-            {concept.relatedConcepts ? (
-              concept.relatedConcepts.map((related, index) => (
-                <li key={index} className="text-sm py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <span className="flex items-center">
-                    <BookOpen className="h-3 w-3 text-gray-500 mr-2" />
-                    {related}
-                  </span>
-                </li>
-              ))
-            ) : (
-              ['Force and Acceleration', 'Mass and Inertia', 'Action-Reaction Pairs'].map((related, index) => (
-                <li key={index} className="text-sm py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <span className="flex items-center">
-                    <BookOpen className="h-3 w-3 text-gray-500 mr-2" />
-                    {related}
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </CardContent>
-      </Card>
-      
-      {/* Prerequisites Card */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Prerequisites</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-1">
-            {concept.prerequisites ? (
-              concept.prerequisites.map((prereq, index) => (
-                <li key={index} className="text-sm py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  {prereq}
-                </li>
-              ))
-            ) : (
-              ['Basic Physics', 'Vector Quantities', 'Understanding of Mass'].map((prereq, index) => (
-                <li key={index} className="text-sm py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  {prereq}
-                </li>
-              ))
-            )}
-          </ul>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              Join a study group to learn with peers
+            </p>
+            <Button variant="outline" className="w-full">
+              <Users className="h-4 w-4 mr-2" />
+              Find Study Groups
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
