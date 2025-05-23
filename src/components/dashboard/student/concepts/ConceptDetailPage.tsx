@@ -16,7 +16,7 @@ import {
   Clock,
   MessageSquare,
   Pen,
-  Cube,
+  Box3d,
   PlayCircle
 } from 'lucide-react';
 import BackButton from '../BackButton';
@@ -24,6 +24,7 @@ import ConceptHeader from './concept-detail/ConceptHeader';
 import FormulaTabContent from './concept-detail/FormulaTabContent';
 import AIInsights from './AIInsights';
 import ConceptExplanationContent from '../concept-cards/ConceptExplanationContent';
+import CommonMistakesContent from './CommonMistakesContent';
 
 // Mock data for concept
 const mockConcept = {
@@ -134,7 +135,7 @@ const ConceptDetailPage: React.FC = () => {
           </TabsTrigger>
           
           <TabsTrigger value="3d" className="flex items-center gap-2">
-            <Cube className="h-4 w-4" />
+            <Box3d className="h-4 w-4" />
             <span className="hidden sm:inline">3D</span>
           </TabsTrigger>
           
@@ -200,20 +201,7 @@ const ConceptDetailPage: React.FC = () => {
         
         {/* Common Mistakes Tab Content */}
         <TabsContent value="mistakes">
-          <Card className="p-6">
-            <h3 className="text-lg font-medium mb-4">Common Mistakes & Misconceptions</h3>
-            <div className="space-y-4">
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <h4 className="font-medium text-red-700 dark:text-red-400">Confusing Mass and Weight</h4>
-                <p className="text-sm mt-1">Many students confuse mass (a measure of matter) with weight (the force of gravity on an object). Mass is constant while weight changes with gravity.</p>
-              </div>
-              
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <h4 className="font-medium text-red-700 dark:text-red-400">Misunderstanding Newton's First Law</h4>
-                <p className="text-sm mt-1">A common misconception is that an object needs a force to keep moving. In reality, objects in motion stay in motion unless acted upon by an external force.</p>
-              </div>
-            </div>
-          </Card>
+          <CommonMistakesContent conceptName={mockConcept.title} />
         </TabsContent>
       </Tabs>
       
