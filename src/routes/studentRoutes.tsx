@@ -18,6 +18,7 @@ import NotFoundPage from '@/pages/NotFound';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
+import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 
 const StudentRoutes = () => {
   return (
@@ -38,7 +39,11 @@ const StudentRoutes = () => {
           <ConceptsPage />
         </SidebarLayout>
       } />
-      {/* Updated: Make sure both route patterns point to the concept detail page */}
+      <Route path="/concepts/card/:conceptId" element={
+        <SidebarLayout>
+          <ConceptDetailPage />
+        </SidebarLayout>
+      } />
       <Route path="/concept/:conceptId" element={
         <SidebarLayout>
           <ConceptDetailPage />
@@ -57,6 +62,11 @@ const StudentRoutes = () => {
       <Route path="/flashcards" element={
         <SidebarLayout>
           <FlashcardsPage />
+        </SidebarLayout>
+      } />
+      <Route path="/flashcards/:id/interactive" element={
+        <SidebarLayout>
+          <InteractiveFlashcard />
         </SidebarLayout>
       } />
       <Route path="/practice-exam" element={

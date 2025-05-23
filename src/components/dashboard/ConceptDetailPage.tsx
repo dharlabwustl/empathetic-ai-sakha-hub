@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
+import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 
 const ConceptDetailPageWrapper = () => {
   return <ConceptDetailPage />;
