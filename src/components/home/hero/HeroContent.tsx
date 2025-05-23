@@ -1,16 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExamNamesBadge from './ExamNamesBadge';
-import HeroHeader from './HeroHeader';
-import HeroHeadline from './HeroHeadline';
-import HeroBackground from './HeroBackground';
-import PremiumBadge from './PremiumBadge';
-import KeyBenefitsSection from './KeyBenefitsSection';
-import HeroIntroText from './HeroIntroText';
-import CommunityStat from './CommunityStat';
-import HeroButtons from './HeroButtons';
 
 interface HeroContentProps {
   handleExamReadinessClick: () => void;
@@ -31,27 +24,207 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
       {/* Futuristic Background Elements */}
-      <HeroBackground />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute top-20 -right-5 w-24 h-24 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-lg"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.4, 0.7, 0.4],
+          }}
+          transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+        />
+        <motion.div
+          className="absolute bottom-10 left-5 w-20 h-20 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 rounded-full blur-lg"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{ duration: 5, repeat: Infinity, delay: 2 }}
+        />
+      </div>
 
       {/* Premium Success Badge */}
-      <PremiumBadge />
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+        className="absolute -top-2 -right-2 md:top-0 md:-right-8 z-30 transform rotate-12"
+      >
+        <div className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 border border-yellow-400/30">
+          <Star className="w-4 h-4 fill-current" />
+          <span className="font-bold text-sm">AI POWERED</span>
+        </div>
+      </motion.div>
 
-      {/* Enhanced NEET Live Badge & Welcome Message */}
-      <HeroHeader />
+      {/* Enhanced NEET Live Badge */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mb-4 inline-block"
+      >
+        <motion.div 
+          className="bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-2xl relative overflow-hidden border border-emerald-400/30"
+          animate={{ 
+            boxShadow: [
+              "0 0 20px rgba(16, 185, 129, 0.5)", 
+              "0 0 30px rgba(16, 185, 129, 0.8)", 
+              "0 0 20px rgba(16, 185, 129, 0.5)"
+            ] 
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <motion.div 
+            className="h-2 w-2 bg-white rounded-full"
+            animate={{ 
+              opacity: [1, 0.4, 1],
+              scale: [1, 1.3, 1],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+          
+          <motion.span className="font-bold flex items-center gap-1">
+            <Rocket className="w-4 h-4" />
+            NEET 2026 PREP LIVE!
+          </motion.span>
+          
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+            animate={{
+              left: ["-100%", "100%"],
+            }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+      </motion.div>
 
-      {/* Main Headline */}
-      <HeroHeadline />
+      {/* Updated Welcome Message */}
+      <motion.div
+        className="mb-6 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        Welcome to your <span className="font-bold">future success story</span> with PREPZR - World's first emotionally aware, hyper personalized adaptive exam prep platform
+      </motion.div>
 
-      {/* Introduction Text */}
-      <HeroIntroText />
+      <motion.h1
+        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <span className="relative inline-block">
+          <motion.span 
+            className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
+            animate={{ 
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            We understand your
+          </motion.span>
+        </span>
+        <br />
+        <motion.span 
+          className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative"
+          animate={{ 
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+          }}
+          transition={{ duration: 8, delay: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          mindset, not just the exam
+          <motion.div
+            className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+          />
+        </motion.span>
+      </motion.h1>
 
-      {/* Enhanced 5 Key Benefits */}
-      <KeyBenefitsSection />
+      {/* Enhanced 5 Key Benefits - More Compact with "Save Time" instead of "Efficiency" */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mb-6 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+      >
+        <motion.h3 
+          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-center gap-2"
+          animate={{ 
+            scale: [1, 1.02, 1],
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <Target className="w-4 h-4" />
+          Five Success Accelerators
+          <Zap className="w-4 h-4" />
+        </motion.h3>
+        
+        <div className="grid grid-cols-5 gap-2">
+          {[
+            { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
+            { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
+            { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
+            { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
+            { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
+          ].map((benefit, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 + idx * 0.1 }}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -3
+              }}
+              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+            >
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, 0, -5, 0]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: idx * 0.5
+                }}
+                className="bg-white/20 rounded-full p-1.5 backdrop-blur-sm"
+              >
+                {benefit.icon}
+              </motion.div>
+              <span className="font-bold text-xs">{benefit.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Success Mindset Highlight */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-xl p-3 border border-indigo-200/50 dark:border-indigo-800/30 shadow-lg backdrop-blur-sm"
+      >
+        <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-green-600" />
+          Transform your exam journey with our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven emotional intelligence</span> platform.
+        </p>
+      </motion.div>
       
-      {/* Exam Names Badge */}
       <ExamNamesBadge />
 
-      {/* Enhanced Futuristic CTA Buttons */}
+      {/* Enhanced Futuristic CTA Buttons - Both Visible */}
       <div className="space-y-3 mt-6 mb-6">
         <motion.button
           onClick={handleFreeTrialClick}
@@ -68,9 +241,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="relative flex items-center gap-3">
-            <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+            <Rocket className="w-5 h-5 group-hover:rotate-12 transition-transform" />
             <span className="text-base">Launch Your Success Journey - 7 Days Free</span>
-            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </div>
         </motion.button>
         
@@ -84,15 +257,25 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           transition={{ delay: 0.9 }}
         >
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 8.5c-.96.96-2.82 1.76-5 1.76-3.5 0-6-2-6.5-3.75l3.5-1.5"></path><path d="M15 12c2.5-1 4-2.5 4.5-4.5l1.5-4.5c-1-.5-3-1-5-1-3 0-7 1.5-9.5 4L3.5 9"></path><path d="M14 16.5c-.96.96-2.82 1.76-5 1.76-3.5 0-6-2-6.5-3.75L6 13"></path><path d="M13.5 19.5c2.5-1 4-2.5 4.5-4.5L20 9"></path><path d="M20 3.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"></path><path d="M21.5 12a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"></path><path d="M3.5 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"></path></svg>
+            <Brain className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="font-semibold text-base">AI Exam Readiness Analysis</span>
-            <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 14l-4.5-3 4.5-3"></path><path d="M9.5 14l-4.5-3 4.5-3"></path><path d="M11 19a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z"></path></svg>
+            <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
           </div>
         </motion.button>
       </div>
       
-      {/* Community Stats */}
-      <CommunityStat />
+      {/* Premium Success Community Stats */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0 }}
+        className="mt-4 text-center"
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-600" />
+          Join <span className="font-bold text-indigo-600 dark:text-indigo-400">2M+ students</span> achieving exam success with AI
+        </p>
+      </motion.div>
     </motion.div>
   );
 };
