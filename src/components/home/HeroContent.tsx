@@ -272,7 +272,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           <CheckCircle2 className="w-5 h-5 text-green-500 drop-shadow-md" />
           Join <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 drop-shadow-lg">2M+ students</span> achieving exam success with AI
         </p>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
