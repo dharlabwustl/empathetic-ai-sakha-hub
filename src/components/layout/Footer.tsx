@@ -6,7 +6,7 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 py-10">
+    <footer className="bg-gray-100 dark:bg-gray-900 py-10 mt-10">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-1">

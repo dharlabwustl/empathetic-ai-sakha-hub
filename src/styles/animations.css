@@ -45,6 +45,55 @@
   background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
 }
 
+/* Premium shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Floating animation for elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Badge glow effect */
+@keyframes badgeGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+  }
+}
+
+.badge-glow {
+  animation: badgeGlow 2s ease-in-out infinite;
+}
+
 /* Colors for Sakha AI */
 :root {
   --sakha-blue: #3b82f6;
@@ -85,4 +134,44 @@
 
 .rotate-fast {
   animation: rotate 10s linear infinite reverse;
+}
+
+/* Premium reveal animation */
+@keyframes reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-reveal {
+  animation: reveal 0.8s ease-out forwards;
+}
+
+/* Card rise effect on hover */
+.card-rise {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-rise:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Button highlight effect */
+@keyframes buttonHighlight {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(139, 92, 246, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+  }
+}
+
+.button-highlight {
+  animation: buttonHighlight 2s ease-in-out infinite;
 }
