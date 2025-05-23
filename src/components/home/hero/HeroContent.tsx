@@ -8,7 +8,6 @@ import HeroHeadline from './HeroHeadline';
 import HeroBackground from './HeroBackground';
 import PremiumBadge from './PremiumBadge';
 import KeyBenefitsSection from './KeyBenefitsSection';
-import ChallengesSection from './ChallengesSection';
 import HeroIntroText from './HeroIntroText';
 import CommunityStat from './CommunityStat';
 import HeroButtons from './HeroButtons';
@@ -43,9 +42,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
 
       {/* Main Headline */}
       <HeroHeadline />
-
-      {/* Challenges Section */}
-      <ChallengesSection />
 
       {/* Introduction Text */}
       <HeroIntroText />
