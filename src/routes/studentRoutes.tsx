@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -14,7 +15,7 @@ import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnal
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
 import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
-import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
+import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 

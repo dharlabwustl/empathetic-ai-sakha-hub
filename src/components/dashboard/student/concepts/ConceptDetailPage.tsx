@@ -9,8 +9,7 @@ import ConceptSidebar from "./concept-detail/ConceptSidebar";
 import ConceptResources from "./concept-detail/ConceptResources";
 import AIInsightsSection from "./AIInsightsSection";
 import { useParams } from "react-router-dom";
-import { Book, VideoIcon, Lightbulb, Flask, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare, Cube } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Book, VideoIcon, Lightbulb, Flask, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare } from "lucide-react";
 
 // Mock data - this would normally come from an API
 const conceptData = {
@@ -50,7 +49,6 @@ const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const [activeTab, setActiveTab] = useState("learn");
   const [bookmarked, setBookmarked] = useState(conceptData.bookmarked);
-  const isMobile = useIsMobile();
   
   const handleBookmarkToggle = () => {
     setBookmarked(prev => !prev);
@@ -97,17 +95,13 @@ const ConceptDetailPage: React.FC = () => {
                   <FileText className="h-4 w-4" />
                   <span>Visual</span>
                 </TabsTrigger>
-                <TabsTrigger value="3d" className="flex items-center gap-2">
-                  <Cube className="h-4 w-4" />
-                  <span>3D Simulation</span>
+                <TabsTrigger value="video" className="flex items-center gap-2">
+                  <VideoIcon className="h-4 w-4" />
+                  <span>Video</span>
                 </TabsTrigger>
                 <TabsTrigger value="formula" className="flex items-center gap-2">
                   <Flask className="h-4 w-4" />
                   <span>Formula Lab</span>
-                </TabsTrigger>
-                <TabsTrigger value="video" className="flex items-center gap-2">
-                  <VideoIcon className="h-4 w-4" />
-                  <span>Video</span>
                 </TabsTrigger>
                 <TabsTrigger value="mistakes" className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
@@ -151,12 +145,6 @@ const ConceptDetailPage: React.FC = () => {
               <TabsContent value="visual">
                 <div className="p-6 text-center">
                   <p>Visual representations of {conceptData.title} will appear here</p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="3d">
-                <div className="p-6 text-center">
-                  <p>3D simulation of {conceptData.title} will appear here</p>
                 </div>
               </TabsContent>
               
