@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { MoodType } from '@/types/user/base';
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
@@ -17,7 +18,7 @@ interface TopNavigationControlsProps {
   formattedTime: string;
   onOpenTour?: () => void;
   userName?: string;
-  mood?: string;
+  mood?: MoodType;
   isFirstTimeUser?: boolean;
   onViewStudyPlan?: () => void;
 }

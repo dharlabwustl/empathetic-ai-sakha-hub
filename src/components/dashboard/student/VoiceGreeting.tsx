@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Volume, Volume2, VolumeX } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -124,9 +125,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
             if (transcript.includes('select student')) {
               // Select student option
               const studentOption = document.querySelector('input[value="student"]');
-              if (studentOption && !studentOption.checked) {
-                (studentOption as HTMLInputElement).checked = true;
-                (studentOption as HTMLInputElement).dispatchEvent(new Event('change', { bubbles: true }));
+              if (studentOption && studentOption instanceof HTMLInputElement && !studentOption.checked) {
+                studentOption.checked = true;
+                studentOption.dispatchEvent(new Event('change', { bubbles: true }));
               }
             } else if (transcript.includes('next') || transcript.includes('continue')) {
               // Find and click next/continue button

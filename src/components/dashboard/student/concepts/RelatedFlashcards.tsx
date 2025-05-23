@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, CheckCircle, BookOpen, ArrowRightIcon } from 'lucide-react';
+import { RotateCcw, CheckCircle, BookOpen, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface RelatedFlashcardsProps {
@@ -87,7 +87,7 @@ const RelatedFlashcards: React.FC<RelatedFlashcardsProps> = ({ conceptId }) => {
           <Link to={`/dashboard/student/flashcards?concept=${conceptId}`}>
             <Button variant="outline" className="flex items-center gap-1">
               View All Flashcards
-              <ArrowRightIcon className="h-4 w-4 ml-1" />
+              <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </div>

@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LinkIcon, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, ArrowRight } from 'lucide-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 
 interface LinkedConceptsSectionProps {
@@ -66,14 +66,14 @@ const LinkedConceptsSection: React.FC<LinkedConceptsSectionProps> = ({ conceptId
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <LinkIcon className="h-5 w-5 text-indigo-600" />
+          <Link className="h-5 w-5 text-indigo-600" />
           Linked Concepts
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {linkedConcepts.map((concept) => (
-            <Link 
+            <RouterLink 
               key={concept.id}
               to={`/dashboard/student/concepts/${concept.id}`}
               className="block"
@@ -106,7 +106,7 @@ const LinkedConceptsSection: React.FC<LinkedConceptsSectionProps> = ({ conceptId
                   />
                 </div>
               </div>
-            </Link>
+            </RouterLink>
           ))}
         </div>
       </CardContent>
