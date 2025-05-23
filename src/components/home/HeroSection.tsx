@@ -13,13 +13,37 @@ const HeroSection = () => {
   const [showDashboard, setShowDashboard] = useState(false);
 
   const features = [
-    { icon: <Brain className="w-6 h-6" />, text: "AI-Powered Learning", color: "from-blue-500 to-purple-600" },
-    { icon: <Target className="w-6 h-6" />, text: "Personalized Study Plans", color: "from-purple-500 to-pink-600" },
-    { icon: <Award className="w-6 h-6" />, text: "Exam Success Guarantee", color: "from-green-500 to-blue-600" },
-    { icon: <Zap className="w-6 h-6" />, text: "Smart Progress Tracking", color: "from-amber-500 to-red-600" }
+    { 
+      icon: <Brain className="w-6 h-6" />, 
+      text: "Confidence Builder", 
+      description: "Build exam-day confidence with adaptive learning",
+      color: "from-blue-500 to-purple-600" 
+    },
+    { 
+      icon: <Target className="w-6 h-6" />, 
+      text: "Exam Success Guarantee", 
+      description: "Achieve top scores with our proven methodology",
+      color: "from-purple-500 to-pink-600" 
+    },
+    { 
+      icon: <Award className="w-6 h-6" />, 
+      text: "Time-saving Learning", 
+      description: "Learn 2x faster with our AI optimization",
+      color: "from-green-500 to-blue-600" 
+    },
+    { 
+      icon: <Shield className="w-6 h-6" />, 
+      text: "Stress-Free Preparation", 
+      description: "Reduce exam anxiety with mindset training",
+      color: "from-amber-500 to-red-600" 
+    },
+    { 
+      icon: <Smile className="w-6 h-6" />, 
+      text: "Smart Analytics", 
+      description: "Track your progress with detailed insights",
+      color: "from-cyan-500 to-teal-600" 
+    }
   ];
-
-  const supportBenefits = ["Confidence Builder", "Success Booster", "Time Saver", "Stress-Free", "Smart Analytics"];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -73,7 +97,7 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -131,65 +155,28 @@ const HeroSection = () => {
                 transition={{ delay: 0.5, duration: 0.8 }}
                 className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               >
-                From struggling student to exam champion with the world's first 
+                From struggling to exam champion with the world's first 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> & 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> hyper-personalized</span> exam prep platform for 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold"> JEE, NEET, UPSC, CAT & beyond</span>.
               </motion.p>
             </div>
 
-            {/* How PREPZR Supports You - Compact Version */}
+            {/* Dynamic Feature Showcase - Redesigned as a slider */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+              transition={{ delay: 0.8, duration: 0.8 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 h-32"
             >
-              <motion.h3 
-                className="text-center font-semibold text-lg text-white mb-3 flex items-center justify-center gap-2"
-                animate={{ 
-                  scale: [1, 1.02, 1],
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
+              <h3 className="text-center font-semibold text-lg text-white mb-3 flex items-center justify-center gap-2">
                 <Target className="w-5 h-5" />
                 <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent font-bold">
                   How PREPZR Supports You
                 </span>
                 <Sparkles className="w-5 h-5" />
-              </motion.h3>
-              
-              <div className="flex flex-wrap justify-center gap-3">
-                {supportBenefits.map((benefit, idx) => (
-                  <motion.span
-                    key={idx}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ 
-                      opacity: [0.7, 1, 0.7],
-                      scale: [0.95, 1, 0.95],
-                      x: [0, Math.sin(idx * 0.5) * 2, 0]
-                    }}
-                    transition={{ 
-                      delay: 0.7 + idx * 0.1,
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3
-                    }}
-                    className="text-sm font-semibold text-blue-200 bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-3 py-2 rounded-full border border-blue-400/30 backdrop-blur-sm shadow-lg"
-                  >
-                    {benefit}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
+              </h3>
 
-            {/* Dynamic Feature Showcase */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
-            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentFeature}
@@ -204,13 +191,13 @@ const HeroSection = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">{features[currentFeature].text}</h3>
-                    <p className="text-gray-300 text-sm">Join 2M+ students achieving success</p>
+                    <p className="text-gray-300 text-sm">{features[currentFeature].description}</p>
                   </div>
                 </motion.div>
               </AnimatePresence>
               
               {/* Feature Indicators */}
-              <div className="flex gap-2 mt-4 justify-center lg:justify-start">
+              <div className="flex gap-2 mt-4 justify-center">
                 {features.map((_, index) => (
                   <button
                     key={index}
@@ -223,7 +210,7 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Fixed CTA Buttons - Better Spacing */}
+            {/* Fixed CTA Buttons - Better Spacing - Now more visible */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -272,20 +259,20 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Right Side - Premium Dashboard Preview */}
+          {/* Right Side - Premium Dashboard Preview - Increased Size */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative"
+            className="relative h-full flex items-center"
           >
-            <div className="relative">
+            <div className="relative w-full">
               {/* Enhanced Premium Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-3xl animate-pulse" />
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
               
-              {/* Premium Dashboard Container */}
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl">
+              {/* Premium Dashboard Container - Taller */}
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl max-h-[calc(100vh-200px)] overflow-hidden">
                 {/* Premium Header Bar */}
                 <div className="bg-gradient-to-r from-slate-800/90 to-slate-700/90 rounded-2xl p-2 mb-2 flex items-center gap-2">
                   <div className="flex gap-1">
@@ -296,7 +283,9 @@ const HeroSection = () => {
                   <div className="text-xs text-gray-300 font-medium">PREPZR Dashboard - Premium Experience</div>
                 </div>
                 
-                <DashboardPreview />
+                <div className="h-[calc(100vh-300px)] overflow-hidden">
+                  <DashboardPreview />
+                </div>
               </div>
 
               {/* Premium Floating Elements */}

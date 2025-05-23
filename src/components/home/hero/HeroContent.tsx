@@ -113,7 +113,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Transform from struggling student to exam champion with PREPZR - World's first emotionally intelligent, hyper-personalized exam prep platform for <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and beyond.
+        Transform from struggling to exam champion with PREPZR - World's first emotionally intelligent, hyper-personalized exam prep platform for <span className="font-bold text-indigo-700 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and beyond.
       </motion.div>
 
       <motion.h1
