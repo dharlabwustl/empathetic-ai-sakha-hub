@@ -56,7 +56,7 @@ const FeatureGrid: React.FC = () => {
         ))}
       </motion.div>
 
-      {/* Animated Takeaway Badges - Adding the 5 requested benefits */}
+      {/* Animated Takeaway Badges */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"

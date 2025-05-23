@@ -43,7 +43,7 @@ import AIInsights from './AIInsights';
 const ConceptDetailPage: React.FC = () => {
   // Tabs state
   const [primaryActiveTab, setPrimaryActiveTab] = useState("learn");
-  const [secondaryActiveTab, setSecondaryActiveTab] = useState("recall");
+  const [secondaryActiveTab, setSecondaryActiveTab] = useState("mastery");
   
   // Mastery data
   const [masteryPercentage, setMasteryPercentage] = useState(68);
@@ -297,7 +297,7 @@ const ConceptDetailPage: React.FC = () => {
 
       {/* Secondary tabs for supplementary features */}
       <Tabs 
-        defaultValue="recall" 
+        defaultValue="mastery" 
         value={secondaryActiveTab} 
         onValueChange={setSecondaryActiveTab}
         className="w-full"
