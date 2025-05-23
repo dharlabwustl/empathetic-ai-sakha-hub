@@ -140,7 +140,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         if (!isMuted && shouldActivate) {
           startVoiceRecognition();
         }
-      }, 1500);
+      }, 1000);
     };
     speech.onerror = (e) => {
       console.error('Speech error:', e);
@@ -149,7 +149,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         if (!isMuted && shouldActivate) {
           startVoiceRecognition();
         }
-      }, 2000);
+      }, 1500);
     };
 
     speechRef.current = speech;
@@ -185,7 +185,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
           retryTimeoutRef.current = window.setTimeout(() => {
             startVoiceRecognition();
-          }, 4000); // 4 second break between recognition sessions
+          }, 3000); // 3 second break between recognition sessions
         }
       };
       
@@ -274,6 +274,21 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     }
   };
 
+  // Initialize voices separately to ensure they're loaded
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      // Force voice loading
+      window.speechSynthesis.getVoices();
+      
+      // Setup event listener for when voices are loaded
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+          console.log("Voices loaded:", window.speechSynthesis.getVoices().length);
+        };
+      }
+    }
+  }, []);
+
   // Main effect for instant greeting and page changes
   useEffect(() => {
     // Better cleanup on page changes
@@ -291,7 +306,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     // Only activate on valid pages
     if (!shouldActivate) return;
 
-    // Instant greeting with 1.5 second delay for page loading
+    // Instant greeting with minimal delay for page loading
     const initializeVoice = () => {
       if (window.speechSynthesis && !hasGreeted && !isMuted) {
         const voices = window.speechSynthesis.getVoices();
@@ -300,7 +315,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
           setHasGreeted(true);
           const greeting = getContextualGreeting(location.pathname);
           
-          // Instant greeting with 1.5 second delay
+          // Very short delay to ensure page has loaded
           timeoutRef.current = window.setTimeout(() => {
             speakMessage(greeting);
             
@@ -310,7 +325,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
               description: "Say 'Help' to hear available commands",
               duration: 4000,
             });
-          }, 1500); // 1.5 second delay for page loading
+          }, 500); // Just 0.5 second delay for immediate greeting
         }
       }
     };
@@ -324,7 +339,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
           initializeVoice();
         } else {
           // Retry if voices not loaded yet
-          setTimeout(loadVoices, 100);
+          setTimeout(loadVoices, 50);
         }
       };
 
@@ -376,7 +391,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
           if (!recognitionRef.current && hasGreeted) {
             startVoiceRecognition();
           }
-        }, 2000);
+        }, 1000);
       }
     };
 
