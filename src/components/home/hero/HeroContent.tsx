@@ -1,7 +1,7 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, ArrowRight, Sparkles, GraduationCap, Award, TrendingUp, Zap, Brain, Target, Star, Rocket, Clock, Shield, Smile } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ExamNamesBadge from './ExamNamesBadge';
 
@@ -11,6 +11,24 @@ interface HeroContentProps {
 
 const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) => {
   const navigate = useNavigate();
+  const [currentBenefitIndex, setCurrentBenefitIndex] = useState(0);
+  
+  const benefits = [
+    { icon: <Award className="w-6 h-6" />, label: "Confidence Builder", color: "bg-green-500" },
+    { icon: <GraduationCap className="w-6 h-6" />, label: "Exam Success", color: "bg-blue-500" },
+    { icon: <Clock className="w-6 h-6" />, label: "Time Saver", color: "bg-amber-500" },
+    { icon: <Shield className="w-6 h-6" />, label: "Stress-Free", color: "bg-purple-500" },
+    { icon: <Smile className="w-6 h-6" />, label: "Happy Learning", color: "bg-pink-500" }
+  ];
+  
+  // Auto-rotate through benefits every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefitIndex((prevIndex) => (prevIndex + 1) % benefits.length);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, []);
   
   const handleFreeTrialClick = () => {
     navigate('/signup');
@@ -151,60 +169,53 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* How PREPZR Supports You - Compact Version */}
+      {/* Benefits Slider - Animated Benefit Cards */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-3 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+        className="mb-6 p-4 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
       >
-        <motion.h3 
-          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-2 flex items-center justify-center gap-2"
-          animate={{ 
-            scale: [1, 1.02, 1],
-          }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
+        <h3 className="text-center font-bold text-blue-800 dark:text-blue-300 mb-4 flex items-center justify-center gap-2">
           <Target className="w-4 h-4" />
-          How PREPZR Supports You
+          Key Benefits
           <Zap className="w-4 h-4" />
-        </motion.h3>
+        </h3>
         
-        <div className="grid grid-cols-5 gap-2">
-          {[
-            { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
-            { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
-            { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
-            { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-            { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
-          ].map((benefit, idx) => (
+        <div className="relative h-20 flex items-center justify-center">
+          <AnimatePresence mode="wait">
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + idx * 0.1 }}
-              whileHover={{ 
-                scale: 1.05, 
-                y: -3
-              }}
-              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+              key={currentBenefitIndex}
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.8 }}
+              transition={{ duration: 0.5 }}
+              className={`${benefits[currentBenefitIndex].color} absolute inset-0 mx-auto w-4/5 h-full text-white rounded-xl shadow-lg flex items-center justify-center gap-3 px-4`}
             >
-              <motion.div 
+              <motion.div
                 animate={{ 
                   scale: [1, 1.1, 1],
                   rotate: [0, 5, 0, -5, 0]
                 }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-                className="bg-white/20 rounded-full p-1.5 backdrop-blur-sm"
+                transition={{ duration: 2, repeat: Infinity }}
+                className="bg-white/20 rounded-full p-2"
               >
-                {benefit.icon}
+                {benefits[currentBenefitIndex].icon}
               </motion.div>
-              <span className="font-bold text-xs">{benefit.label}</span>
+              <span className="font-bold text-lg">{benefits[currentBenefitIndex].label}</span>
             </motion.div>
+          </AnimatePresence>
+        </div>
+        
+        <div className="flex justify-center mt-4 gap-2">
+          {benefits.map((_, index) => (
+            <motion.button
+              key={index}
+              onClick={() => setCurrentBenefitIndex(index)}
+              className={`h-2 w-2 rounded-full ${currentBenefitIndex === index ? 'bg-blue-600' : 'bg-gray-300'}`}
+              animate={{ scale: currentBenefitIndex === index ? [1, 1.3, 1] : 1 }}
+              transition={{ duration: 0.5 }}
+            />
           ))}
         </div>
       </motion.section>
