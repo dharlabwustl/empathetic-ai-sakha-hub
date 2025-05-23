@@ -9,12 +9,9 @@ import ConceptSidebar from "./concept-detail/ConceptSidebar";
 import ConceptResources from "./concept-detail/ConceptResources";
 import AIInsightsSection from "./AIInsightsSection";
 import { useParams } from "react-router-dom";
-import { Book, Video, Lightbulb, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare } from "lucide-react";
+import { Book, Video, Lightbulb, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare, FlaskConical, Box } from "lucide-react";
 import QuickRecallSection from "./concept-detail/QuickRecallSection";
 import AnalyticsSection from "./AnalyticsSection";
-
-// Import the correct icons using the flask-conical and cube icons
-import { FlaskConical, Cube } from "lucide-react";
 
 // Mock data - this would normally come from an API
 const conceptData = {
@@ -107,7 +104,7 @@ const ConceptDetailPage: React.FC = () => {
                   <span>Visual</span>
                 </TabsTrigger>
                 <TabsTrigger value="3d" className="flex items-center gap-2">
-                  <Cube className="h-4 w-4" />
+                  <Box className="h-4 w-4" />
                   <span>3D Simulation</span>
                 </TabsTrigger>
                 <TabsTrigger value="formula" className="flex items-center gap-2">
