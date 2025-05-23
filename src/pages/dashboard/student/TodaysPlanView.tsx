@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
@@ -127,11 +128,14 @@ const TodaysPlanView = () => {
 
   // Handle task action (start or review)
   const handleTaskAction = (task: any) => {
+    console.log("TodaysPlanView - Task action clicked:", task.id, task.type);
+    
     if (task.status === 'completed') {
       // Navigate to review page based on task type
       switch (task.type) {
         case 'concept':
-          navigate(`/dashboard/student/concepts/card/${task.id}`);
+          console.log("TodaysPlanView - Navigating to concept detail (review):", task.id);
+          navigate(`/dashboard/student/concepts/${task.id}`);
           break;
         case 'flashcard':
           navigate(`/dashboard/student/flashcards/${task.id}/interactive`);
@@ -144,7 +148,8 @@ const TodaysPlanView = () => {
       // Navigate to start page based on task type
       switch (task.type) {
         case 'concept':
-          navigate(`/dashboard/student/concepts/card/${task.id}`);
+          console.log("TodaysPlanView - Navigating to concept detail (start):", task.id);
+          navigate(`/dashboard/student/concepts/${task.id}`);
           break;
         case 'flashcard':
           navigate(`/dashboard/student/flashcards/${task.id}/interactive`);
@@ -153,6 +158,20 @@ const TodaysPlanView = () => {
           navigate(`/dashboard/student/practice-exam/${task.id}/start`);
           break;
       }
+    }
+  };
+
+  // Handle task card click (entire card clickable)
+  const handleTaskCardClick = (task: any) => {
+    console.log("TodaysPlanView - Task card clicked:", task.id, task.type);
+    
+    // For concept cards, navigate to concept detail page
+    if (task.type === 'concept') {
+      console.log("TodaysPlanView - Navigating to concept detail page:", task.id);
+      navigate(`/dashboard/student/concepts/${task.id}`);
+    } else {
+      // For other types, use the same logic as handleTaskAction
+      handleTaskAction(task);
     }
   };
 
@@ -283,10 +302,11 @@ const TodaysPlanView = () => {
             {filteredTasks.map(task => (
               <Card 
                 key={task.id} 
-                className={`overflow-hidden transition-all border-l-4 ${
+                className={`overflow-hidden transition-all border-l-4 cursor-pointer ${
                   task.priority === 'high' ? "border-l-red-500" : 
                   task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500"
                 } hover:shadow-md`}
+                onClick={() => handleTaskCardClick(task)}
               >
                 <div className="p-5">
                   <div className="flex justify-between items-start">
@@ -327,7 +347,10 @@ const TodaysPlanView = () => {
                   <Button 
                     className="w-full mt-3"
                     variant={task.status === 'completed' ? "outline" : "default"}
-                    onClick={() => handleTaskAction(task)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskAction(task);
+                    }}
                   >
                     {task.status === 'completed' ? 'Review' : 'Start Now'}
                   </Button>
