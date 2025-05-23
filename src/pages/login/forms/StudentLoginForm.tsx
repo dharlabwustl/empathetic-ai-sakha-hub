@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -83,8 +82,8 @@ const StudentLoginForm: React.FC = () => {
         description: "Welcome back to PREPZR"
       });
       
-      // Use window.location.origin to get the current domain instead of hardcoded URL
-      window.location.href = `${window.location.origin}/dashboard/student`;
+      // Use dynamic URL based on current domain
+      navigate("/dashboard/student");
     } catch (error) {
       console.error("Login error:", error);
       setLoginError("Invalid email/phone or password");
@@ -110,8 +109,8 @@ const StudentLoginForm: React.FC = () => {
         description: "Welcome to the demo account"
       });
       
-      // Use window.location.origin to get the current domain instead of hardcoded URL
-      window.location.href = `${window.location.origin}/dashboard/student`;
+      // Use dynamic URL based on current domain
+      navigate("/dashboard/student");
     } catch (error) {
       console.error("Demo login error:", error);
       setLoginError("Demo login failed. Please try again.");
