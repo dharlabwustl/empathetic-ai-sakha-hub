@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -12,6 +13,7 @@ import Visual3DContent from './Visual3DContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
+import NotesSection from './NotesSection';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -19,6 +21,15 @@ const ConceptDetailPage = () => {
   const { conceptCards } = useUserStudyPlan();
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  // Load bookmark status from localStorage
+  useEffect(() => {
+    if (conceptId) {
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
+      setIsBookmarked(bookmarks.includes(conceptId));
+    }
+  }, [conceptId]);
 
   useEffect(() => {
     if (conceptId && conceptCards.length > 0) {
@@ -28,6 +39,22 @@ const ConceptDetailPage = () => {
       }
     }
   }, [conceptId, conceptCards]);
+
+  const handleBookmarkToggle = () => {
+    if (!conceptId) return;
+    
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
+    let updatedBookmarks;
+    
+    if (isBookmarked) {
+      updatedBookmarks = bookmarks.filter((id: string) => id !== conceptId);
+    } else {
+      updatedBookmarks = [...bookmarks, conceptId];
+    }
+    
+    localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
+    setIsBookmarked(!isBookmarked);
+  };
 
   if (!concept) {
     return (
@@ -70,11 +97,18 @@ const ConceptDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <ConceptHeader concept={concept} />
+            <ConceptHeader 
+              title={concept.title}
+              subject={concept.subject}
+              topic={concept.topic || 'General'}
+              difficulty={concept.difficulty}
+              isBookmarked={isBookmarked}
+              onBookmarkToggle={handleBookmarkToggle}
+            />
             
             <div className="mt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="learn" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
                     Learn
@@ -90,6 +124,10 @@ const ConceptDetailPage = () => {
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
                     Learning Tools
+                  </TabsTrigger>
+                  <TabsTrigger value="notes" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Notes
                   </TabsTrigger>
                 </TabsList>
 
@@ -170,7 +208,12 @@ const ConceptDetailPage = () => {
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Create personal notes and annotations for this concept.
                           </p>
-                          <Button variant="outline" size="sm" className="mt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => setActiveTab('notes')}
+                          >
                             Open Notes
                           </Button>
                         </CardContent>
@@ -195,13 +238,28 @@ const ConceptDetailPage = () => {
                     </div>
                   </div>
                 </TabsContent>
+
+                <TabsContent value="notes" className="mt-0">
+                  <NotesSection conceptName={concept.title} />
+                </TabsContent>
               </Tabs>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <ConceptSidebar concept={concept} />
+            <ConceptSidebar 
+              masteryLevel={concept.masteryLevel || 65}
+              relatedConcepts={[
+                { id: '1', title: 'Velocity and Acceleration', masteryLevel: 78 },
+                { id: '2', title: 'Newton\'s First Law', masteryLevel: 85 },
+                { id: '3', title: 'Free Body Diagrams', masteryLevel: 92 }
+              ]}
+              examReady={concept.examReady || false}
+              onRelatedConceptClick={(conceptId) => {
+                navigate(`/dashboard/student/concepts/${conceptId}`);
+              }}
+            />
           </div>
         </div>
       </div>

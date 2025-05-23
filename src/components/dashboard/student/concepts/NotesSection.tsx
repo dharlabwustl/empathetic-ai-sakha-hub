@@ -1,39 +1,54 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PencilLine, Save, Trash2, Plus, Clock, Tag } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useUserNotes } from '@/hooks/useUserNotes';
+import { toast } from '@/hooks/use-toast';
+
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  tags: string[];
+}
 
 interface NoteSectionProps {
   conceptName: string;
 }
 
 const NotesSection: React.FC<NoteSectionProps> = ({ conceptName }) => {
-  const [notes, setNotes] = useState([
-    {
-      id: '1',
-      title: 'Key Formula and Units',
-      content: "Ohm's Law: V = IR\nV is voltage in volts (V)\nI is current in amperes (A)\nR is resistance in ohms (Ω)",
-      date: '2023-05-20',
-      tags: ['formula', 'important']
-    },
-    {
-      id: '2',
-      title: 'Common Exam Questions',
-      content: "Questions often involve calculating one variable when given the other two. Example: If V = 9V and R = 3Ω, find I. Solution: I = V/R = 9V/3Ω = 3A.",
-      date: '2023-05-21',
-      tags: ['exam', 'practice']
-    }
-  ]);
-  
+  const { saveNote, getNoteForConcept, deleteNote } = useUserNotes();
+  const [notes, setNotes] = useState<Note[]>([]);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [editTags, setEditTags] = useState('');
+
+  // Load notes from localStorage on component mount
+  useEffect(() => {
+    const savedNotes = localStorage.getItem(`notes_${conceptName}`);
+    if (savedNotes) {
+      setNotes(JSON.parse(savedNotes));
+    } else {
+      // Set some example notes
+      const exampleNotes = [
+        {
+          id: '1',
+          title: 'Key Formula and Units',
+          content: `${conceptName} formula and important units to remember.`,
+          date: new Date().toISOString().split('T')[0],
+          tags: ['formula', 'important']
+        }
+      ];
+      setNotes(exampleNotes);
+      localStorage.setItem(`notes_${conceptName}`, JSON.stringify(exampleNotes));
+    }
+  }, [conceptName]);
   
   const handleEditNote = (noteId: string) => {
     const noteToEdit = notes.find(note => note.id === noteId);
@@ -47,32 +62,34 @@ const NotesSection: React.FC<NoteSectionProps> = ({ conceptName }) => {
   };
   
   const handleSaveNote = () => {
+    const updatedNotes = [...notes];
+    
     if (activeNoteId) {
       // Edit existing note
-      setNotes(prevNotes => 
-        prevNotes.map(note => 
-          note.id === activeNoteId 
-            ? { 
-                ...note, 
-                title: editTitle,
-                content: editContent,
-                tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag),
-                date: new Date().toISOString().split('T')[0]
-              } 
-            : note
-        )
-      );
+      const noteIndex = notes.findIndex(note => note.id === activeNoteId);
+      if (noteIndex !== -1) {
+        updatedNotes[noteIndex] = {
+          ...updatedNotes[noteIndex],
+          title: editTitle || 'Untitled Note',
+          content: editContent,
+          tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+          date: new Date().toISOString().split('T')[0]
+        };
+      }
     } else {
       // Add new note
-      const newNote = {
+      const newNote: Note = {
         id: Date.now().toString(),
         title: editTitle || 'Untitled Note',
         content: editContent,
         date: new Date().toISOString().split('T')[0],
         tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag)
       };
-      setNotes(prevNotes => [...prevNotes, newNote]);
+      updatedNotes.push(newNote);
     }
+    
+    setNotes(updatedNotes);
+    localStorage.setItem(`notes_${conceptName}`, JSON.stringify(updatedNotes));
     
     // Reset form
     setActiveNoteId(null);
@@ -80,15 +97,27 @@ const NotesSection: React.FC<NoteSectionProps> = ({ conceptName }) => {
     setEditTitle('');
     setEditContent('');
     setEditTags('');
+    
+    toast({
+      title: "Note saved",
+      description: "Your note has been saved successfully.",
+    });
   };
   
   const handleDeleteNote = (noteId: string) => {
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    setNotes(updatedNotes);
+    localStorage.setItem(`notes_${conceptName}`, JSON.stringify(updatedNotes));
     
     if (activeNoteId === noteId) {
       setActiveNoteId(null);
       setEditMode(false);
     }
+    
+    toast({
+      title: "Note deleted",
+      description: "Your note has been deleted.",
+    });
   };
   
   const handleCreateNew = () => {
