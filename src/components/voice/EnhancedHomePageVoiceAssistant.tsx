@@ -25,6 +25,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
   const activityTimeoutRef = useRef<number | null>(null);
+  const greetingPlayedRef = useRef<boolean>(false);
   
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -35,27 +36,41 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   
   // Phased greeting messages with correct PREPZR pronunciation
   const getPhaseMessage = (phase: string, path: string) => {
+    // Replace all instances of PREPZR to ensure proper pronunciation
+    const correctPronunciation = (text: string) => {
+      return text.replace(/PREPZR/gi, 'prep-zer').replace(/Prepzr/g, 'prep-zer');
+    };
+    
+    let message = "";
+    
     switch (phase) {
       case 'initial':
-        return "Hello! Welcome to PREPZR. I'm Sakha AI, your personal learning assistant.";
+        message = "Hello! Welcome to PREPZR. I'm Sakha AI, your personal learning assistant.";
+        break;
       
       case 'intro':
         if (path === '/') {
-          return "PREPZR is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. We understand your mindset, not just the exam content.";
+          message = "PREPZR is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. We understand your mindset, not just the exam content.";
         } else if (path.includes('/signup')) {
-          return "You're on the signup page. I can help you navigate through the registration process using voice commands.";
+          message = "You're on the signup page. I can help you navigate through the registration process using voice commands.";
+        } else {
+          message = "PREPZR adapts to your unique learning style and emotional state to maximize your exam success.";
         }
-        return "PREPZR adapts to your unique learning style and emotional state to maximize your exam success.";
+        break;
       
       case 'features':
         if (path === '/') {
-          return "Our AI-powered platform offers personalized study plans, adaptive learning paths, and emotional intelligence support for Indian competitive exams like JEE, NEET, UPSC, and CAT. You can use voice commands like 'Sign up', 'Analyze readiness', or 'Go home' to navigate.";
+          message = "Our AI-powered platform offers personalized study plans, adaptive learning paths, and emotional intelligence support for Indian competitive exams like JEE, NEET, UPSC, and CAT. You can use voice commands like 'Sign up', 'Analyze readiness', or 'Go home' to navigate.";
+        } else {
+          message = "Try voice commands like 'Sign up for free trial', 'Login', or 'Analyze my readiness' to get started.";
         }
-        return "Try voice commands like 'Sign up for free trial', 'Login', or 'Analyze my readiness' to get started.";
+        break;
       
       default:
-        return "";
+        message = "";
     }
+    
+    return correctPronunciation(message);
   };
   
   // Enhanced voice synthesis with female preference and correct pronunciation
@@ -70,7 +85,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     
     // Create speech synthesis utterance with correct PREPZR pronunciation
     const speech = new SpeechSynthesisUtterance();
-    speech.text = text;
+    
+    // Ensure correct pronunciation by adding hyphens or syllable breaks
+    speech.text = text.replace(/PREPZR/gi, 'prep-zer').replace(/Prepzr/g, 'prep-zer');
     speech.lang = language;
     speech.rate = 0.95; // Slightly slower for clarity
     speech.pitch = 1.1; // Higher pitch for pleasant female voice
@@ -158,6 +175,29 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     
     console.log("Voice command recognized:", transcript);
     
+    // Get context-aware response based on current page
+    const getContextAwareResponse = (command: string): string => {
+      const path = location.pathname;
+      
+      if (path === '/') {
+        if (command.includes('what is') || command.includes('tell me about')) {
+          return "PREPZR is an advanced AI-powered exam preparation platform that adapts to your unique learning style and emotional state. It helps you prepare for competitive exams like JEE, NEET, UPSC, and CAT with personalized study plans.";
+        } else if (command.includes('feature') || command.includes('offer')) {
+          return "PREPZR offers AI-powered personalized study plans, emotional intelligence support, adaptive learning paths, comprehensive analytics, and performance tracking. Would you like to learn more about any specific feature?";
+        }
+      } else if (path.includes('/signup')) {
+        if (command.includes('help') || command.includes('how')) {
+          return "To sign up, fill in your details in the form and click the Sign Up button. You can also use the demo option to explore PREPZR without creating an account.";
+        }
+      } else if (path.includes('/exam-readiness')) {
+        if (command.includes('how') || command.includes('work')) {
+          return "The Exam Readiness Analyzer evaluates your current preparation level and provides personalized recommendations to improve your readiness score. Just answer a few questions to get started.";
+        }
+      }
+      
+      return "";
+    };
+    
     // Navigation commands
     if (lowerTranscript.includes('signup') || lowerTranscript.includes('sign up') || lowerTranscript.includes('register')) {
       speakMessage("Taking you to the signup page now.");
@@ -173,17 +213,28 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       navigate('/login');
       setTimeout(() => {
         const demoButton = document.querySelector('button[role="demo-login"]');
-        if (demoButton) demoButton.click();
+        if (demoButton) (demoButton as HTMLButtonElement).click();
       }, 1000);
     } else if (lowerTranscript.includes('analyze') || lowerTranscript.includes('readiness') || lowerTranscript.includes('assessment')) {
       speakMessage("Opening the exam readiness analyzer.");
       window.dispatchEvent(new Event('open-exam-analyzer'));
     } else if (lowerTranscript.includes('tell me more') || lowerTranscript.includes('learn more') || lowerTranscript.includes('features')) {
-      speakMessage("PREPZR offers AI-powered study plans, emotional intelligence support, adaptive learning, and comprehensive analytics for your exam preparation journey.");
+      const contextResponse = getContextAwareResponse(lowerTranscript);
+      if (contextResponse) {
+        speakMessage(contextResponse);
+      } else {
+        speakMessage("PREPZR offers AI-powered study plans, emotional intelligence support, adaptive learning, and comprehensive analytics for your exam preparation journey.");
+      }
     } else if (lowerTranscript.includes('help') || lowerTranscript.includes('what can you do')) {
       speakMessage("I can help you navigate PREPZR using voice commands. Try saying 'Sign up', 'Login', 'Analyze readiness', or ask me to tell you more about our features.");
     } else {
-      speakMessage("I didn't understand that command. Try saying 'Sign up', 'Login', 'Analyze readiness', or 'Tell me more about features'.");
+      // Try to get context-aware response
+      const contextResponse = getContextAwareResponse(lowerTranscript);
+      if (contextResponse) {
+        speakMessage(contextResponse);
+      } else {
+        speakMessage("I didn't understand that command. Try saying 'Sign up', 'Login', 'Analyze readiness', or 'Tell me more about features'.");
+      }
     }
   };
   
@@ -224,8 +275,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
           const restartDelay = timeSinceActivity > 30000 ? 10000 : 3000; // Longer delay if inactive
           
           timeoutRef.current = window.setTimeout(() => {
-            if (recognitionRef.current) {
-              recognitionRef.current = null;
+            if (!recognitionRef.current) {
               setupVoiceRecognition();
             }
           }, restartDelay);
@@ -256,11 +306,14 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   
   // Phased greeting system with intelligent timing
   const startPhasedGreeting = () => {
-    if (audioMuted || !shouldPlayGreeting || greetingPhase !== 'initial') {
+    if (audioMuted || !shouldPlayGreeting || greetingPhase !== 'initial' || greetingPlayedRef.current) {
       return;
     }
     
-    // Phase 1: Initial greeting
+    // Mark greeting as played to prevent duplicate greetings
+    greetingPlayedRef.current = true;
+    
+    // Phase 1: Initial greeting - Start immediately
     speakMessage(getPhaseMessage('initial', location.pathname), () => {
       setGreetingPhase('intro');
       
@@ -291,10 +344,10 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
                   });
                 });
               }
-            }, 3000);
+            }, 1500); // Reduced pause between phases for better user experience
           });
         }
-      }, 2500);
+      }, 1200); // Reduced pause between phases for better user experience
     });
   };
   
@@ -370,10 +423,42 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     };
   }, [isListening, lastActivityTime, audioMuted, shouldPlayGreeting]);
   
+  // Check if we should autoplay based on browser session
+  useEffect(() => {
+    // Check if this is the first visit of the session
+    const isFirstVisit = sessionStorage.getItem('voiceGreetingPlayed') !== 'true';
+    
+    // If first visit and should play greeting, then load voices and prepare
+    if (isFirstVisit && shouldPlayGreeting && !audioMuted) {
+      // Force load voices first
+      if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+        
+        // Handle browsers that load voices asynchronously
+        window.speechSynthesis.onvoiceschanged = () => {
+          // Immediate start greeting after voices load
+          setTimeout(() => {
+            startPhasedGreeting();
+          }, 800);
+        };
+        
+        // Set visited flag
+        sessionStorage.setItem('voiceGreetingPlayed', 'true');
+      }
+    }
+    
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
+  
   // Main effect for page changes and initialization
   useEffect(() => {
     cleanupVoiceResources();
     setGreetingPhase('initial');
+    greetingPlayedRef.current = false;
     
     // Load mute preference
     const muteSetting = localStorage.getItem('voice_assistant_muted');
@@ -382,11 +467,11 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       return;
     }
     
-    // Start with delay to prevent overlapping
+    // Start with small delay to prevent overlapping 
     if (shouldPlayGreeting && !audioMuted) {
       const initTimer = setTimeout(() => {
         startPhasedGreeting();
-      }, 1500);
+      }, 800);
       
       return () => clearTimeout(initTimer);
     }
@@ -421,6 +506,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       setAudioMuted(false);
       localStorage.setItem('voice_assistant_muted', 'false');
       setGreetingPhase('initial');
+      greetingPlayedRef.current = false;
       setTimeout(() => {
         startPhasedGreeting();
       }, 500);
