@@ -108,7 +108,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
 
       {/* Updated Welcome Message */}
       <motion.div
-        className="mb-4 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        className="mb-6 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -151,7 +151,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Enhanced 5 Key Benefits - More Compact */}
+      {/* Enhanced 5 Key Benefits - More Compact with "Save Time" instead of "Efficiency" */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -174,7 +174,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           {[
             { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
             { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
-            { icon: <Zap className="w-4 h-4" />, label: "Efficiency", color: "from-amber-500 to-yellow-600" },
+            { icon: <Zap className="w-4 h-4" />, label: "Save Time", color: "from-amber-500 to-yellow-600" },
             { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
             { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
           ].map((benefit, idx) => (
@@ -224,8 +224,8 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       
       <ExamNamesBadge />
 
-      {/* Enhanced Futuristic CTA Buttons - More Prominent */}
-      <div className="space-y-3 mt-6">
+      {/* Enhanced Futuristic CTA Buttons - Both Visible */}
+      <div className="space-y-3 mt-6 mb-6">
         <motion.button
           onClick={handleFreeTrialClick}
           className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
