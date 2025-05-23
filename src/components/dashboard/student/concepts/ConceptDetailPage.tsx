@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, PencilLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,19 +22,14 @@ const ConceptDetailPage = () => {
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Load bookmark status from localStorage
-  useEffect(() => {
-    if (conceptId) {
-      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
-      setIsBookmarked(bookmarks.includes(conceptId));
-    }
-  }, [conceptId]);
-
   useEffect(() => {
     if (conceptId && conceptCards.length > 0) {
       const foundConcept = conceptCards.find(card => card.id === conceptId);
       if (foundConcept) {
         setConcept(foundConcept);
+        // Check if bookmarked (you can implement localStorage or backend logic here)
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
+        setIsBookmarked(bookmarks.includes(conceptId));
       }
     }
   }, [conceptId, conceptCards]);
@@ -99,9 +93,9 @@ const ConceptDetailPage = () => {
           <div className="lg:col-span-3">
             <ConceptHeader 
               title={concept.title}
-              subject={concept.subject}
-              topic={concept.topic || 'General'}
-              difficulty={concept.difficulty}
+              subject={concept.subject || 'Physics'}
+              topic={concept.topic || 'Mechanics'}
+              difficulty={concept.difficulty || 'medium'}
               isBookmarked={isBookmarked}
               onBookmarkToggle={handleBookmarkToggle}
             />
@@ -126,7 +120,7 @@ const ConceptDetailPage = () => {
                     Learning Tools
                   </TabsTrigger>
                   <TabsTrigger value="notes" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
+                    <PencilLine className="h-4 w-4" />
                     Notes
                   </TabsTrigger>
                 </TabsList>
@@ -175,26 +169,6 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
-                    {/* Quick Recall Test Section */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Brain className="h-5 w-5 text-blue-600" />
-                          Quick Recall Test
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickRecallSection 
-                          conceptId={concept.id}
-                          title={concept.title}
-                          content={concept.content}
-                          onQuizComplete={(score) => {
-                            console.log(`Quiz completed with score: ${score}`);
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
-
                     {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
@@ -236,6 +210,26 @@ const ConceptDetailPage = () => {
                         </CardContent>
                       </Card>
                     </div>
+
+                    {/* Quick Recall Test Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-blue-600" />
+                          Quick Recall Test
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <QuickRecallSection 
+                          conceptId={concept.id}
+                          title={concept.title}
+                          content={concept.content}
+                          onQuizComplete={(score) => {
+                            console.log(`Quiz completed with score: ${score}`);
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
                   </div>
                 </TabsContent>
 
@@ -249,13 +243,12 @@ const ConceptDetailPage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <ConceptSidebar 
-              masteryLevel={concept.masteryLevel || 65}
+              masteryLevel={concept.masteryLevel || 0}
               relatedConcepts={[
-                { id: '1', title: 'Velocity and Acceleration', masteryLevel: 78 },
-                { id: '2', title: 'Newton\'s First Law', masteryLevel: 85 },
-                { id: '3', title: 'Free Body Diagrams', masteryLevel: 92 }
+                { id: '1', title: 'Related Concept 1', masteryLevel: 75 },
+                { id: '2', title: 'Related Concept 2', masteryLevel: 60 }
               ]}
-              examReady={concept.examReady || false}
+              examReady={concept.masteryLevel >= 80}
               onRelatedConceptClick={(conceptId) => {
                 navigate(`/dashboard/student/concepts/${conceptId}`);
               }}
