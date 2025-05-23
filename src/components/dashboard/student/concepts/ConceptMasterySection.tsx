@@ -1,182 +1,108 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Brain, Calendar, CheckCircle2, Clock, RefreshCw, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Brain, Clock, FastForward, Target } from 'lucide-react';
 
 interface ConceptMasterySectionProps {
-  conceptId: string;
-  recallAccuracy?: number;
-  quizScore?: number;
-  lastPracticed?: string;
+  conceptName: string;
+  masteryPercentage?: number;
+  recallPercentage?: number;
+  timeSpent?: number; // minutes
+  lastReviewed?: string;
+  nextReview?: string;
 }
 
-export const ConceptMasterySection: React.FC<ConceptMasterySectionProps> = ({ 
-  conceptId,
-  recallAccuracy,
-  quizScore,
-  lastPracticed
+export const ConceptMasterySection: React.FC<ConceptMasterySectionProps> = ({
+  conceptName,
+  masteryPercentage = 68,
+  recallPercentage = 75,
+  timeSpent = 135,
+  lastReviewed = "2 days ago",
+  nextReview = "Tomorrow"
 }) => {
-  const { toast } = useToast();
-  
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never';
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      });
-    } catch (e) {
-      return 'Invalid date';
-    }
-  };
-  
-  const startRecallPractice = () => {
-    toast({
-      title: "Recall Practice",
-      description: "Starting spaced repetition practice session",
-    });
-    // Implement recall practice functionality
-  };
-  
-  const startQuiz = () => {
-    toast({
-      title: "Quiz Starting",
-      description: "Testing your knowledge of this concept",
-    });
-    // Implement quiz functionality
-  };
-  
-  const getMasteryLevel = () => {
-    const score = recallAccuracy || quizScore || 0;
-    
-    if (score >= 90) return { level: 'Expert', color: 'text-green-600' };
-    if (score >= 75) return { level: 'Advanced', color: 'text-blue-600' };
-    if (score >= 50) return { level: 'Intermediate', color: 'text-amber-600' };
-    if (score >= 25) return { level: 'Basic', color: 'text-orange-600' };
-    return { level: 'Beginner', color: 'text-red-600' };
-  };
-  
-  const masteryLevel = getMasteryLevel();
-  
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 flex items-center">
-        <Brain className="mr-2 h-6 w-6 text-purple-600" />
-        Concept Mastery
-      </h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Recall Accuracy</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Your recall strength</span>
-                <span className={`font-medium ${masteryLevel.color}`}>{masteryLevel.level}</span>
-              </div>
-              
-              <Progress value={recallAccuracy || 0} className="h-2" />
-              
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>0%</span>
-                <span>50%</span>
-                <span>100%</span>
-              </div>
-              
-              <div className="pt-2">
-                <p className="text-sm mb-4">
-                  Last practiced: <span className="font-medium">{formatDate(lastPracticed)}</span>
-                </p>
-                
-                <Button onClick={startRecallPractice} className="w-full">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Practice Recall
-                </Button>
-              </div>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-indigo-500" />
+          Mastery & Recall Tracker
+        </CardTitle>
+        <CardDescription>
+          Track your progress mastering {conceptName}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Mastery Progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium text-sm">Mastery Level</h3>
+              <span className="text-lg font-bold text-indigo-600">{masteryPercentage}%</span>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Quiz Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Quiz score</span>
-                <span className="font-medium">{quizScore ? `${quizScore}%` : 'Not attempted'}</span>
-              </div>
-              
-              <div className="flex items-center justify-center">
-                {quizScore ? (
-                  <div className="w-32 h-32 rounded-full bg-blue-50 dark:bg-blue-900/20 border-4 border-blue-200 dark:border-blue-800 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{quizScore}%</div>
-                      <div className="text-xs text-blue-600 dark:text-blue-500">Score</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center p-6 bg-gray-50 dark:bg-gray-800/50 rounded-full h-32 w-32 flex items-center justify-center">
-                    <p className="text-gray-500 text-sm">No quiz data</p>
-                  </div>
-                )}
-              </div>
-              
-              <div className="pt-2">
-                <Button onClick={startQuiz} className="w-full" variant={quizScore ? "outline" : "default"}>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  {quizScore ? 'Retake Quiz' : 'Take Quiz'}
-                </Button>
-              </div>
+            <Progress value={masteryPercentage} className="h-3" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Beginner</span>
+              <span>Proficient</span>
+              <span>Expert</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Spaced Repetition Schedule</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800 text-center">
-                  <Calendar className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                  <h4 className="font-semibold">Next Review</h4>
-                  <p className="text-sm">{lastPracticed ? "Tomorrow" : "Today"}</p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 text-center">
-                  <Clock className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                  <h4 className="font-semibold">Review Time</h4>
-                  <p className="text-sm">5 minutes</p>
-                </div>
-                
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800 text-center">
-                  <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                  <h4 className="font-semibold">Learning Curve</h4>
-                  <p className="text-sm">{recallAccuracy ? "Improving" : "Not started"}</p>
-                </div>
-              </div>
-              
-              <p className="text-sm text-muted-foreground mt-4">
-                Based on your current recall accuracy, we recommend reviewing this concept regularly 
-                to strengthen your long-term memory and mastery of the material.
-              </p>
+          </div>
+
+          {/* Recall Strength */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium text-sm">Recall Strength</h3>
+              <span className="text-lg font-bold text-emerald-600">{recallPercentage}%</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+            <Progress value={recallPercentage} className="h-3 bg-emerald-100" />
+            <div className="grid grid-cols-3 text-xs text-muted-foreground">
+              <span>Weak</span>
+              <span className="text-center">Medium</span>
+              <span className="text-right">Strong</span>
+            </div>
+          </div>
+
+          {/* Time & Review Stats */}
+          <div className="space-y-2 flex flex-col justify-between">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-blue-500" />
+                <h3 className="font-medium text-sm">Time Spent</h3>
+              </div>
+              <span className="text-md font-semibold">{Math.floor(timeSpent / 60)}h {timeSpent % 60}m</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <FastForward className="h-4 w-4 text-purple-500" />
+                <h3 className="font-medium text-sm">Last Reviewed</h3>
+              </div>
+              <span className="text-md font-semibold">{lastReviewed}</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <Target className="h-4 w-4 text-red-500" />
+                <h3 className="font-medium text-sm">Next Review</h3>
+              </div>
+              <span className="text-md font-semibold">{nextReview}</span>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="space-y-2">
+            <Button className="w-full">
+              Boost Mastery Now
+            </Button>
+            <Button variant="outline" className="w-full">
+              Recall Assessment
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
+
+export default ConceptMasterySection;

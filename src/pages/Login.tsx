@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 import AdminLoginRedirect from '@/pages/login/forms/AdminLoginRedirect';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const location = useLocation();

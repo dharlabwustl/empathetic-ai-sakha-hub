@@ -150,7 +150,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       // Create speech synthesis utterance
       const speech = new SpeechSynthesisUtterance();
       
-      // Correct PREPZR pronunciation by using proper syllable break
+      // Use correct pronunciation for PREPZR by syllable break
       speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
       speech.lang = lang === 'en' ? 'en-US' : 'hi-IN';
       speech.rate = 0.96; // Slightly slower for clarity
