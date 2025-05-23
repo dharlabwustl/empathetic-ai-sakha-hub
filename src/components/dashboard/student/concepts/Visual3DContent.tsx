@@ -1,717 +1,275 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Box, Play, Pause, RotateCcw, ZoomIn, ZoomOut, 
-  Move3D, Settings, Download, Share2, Eye,
-  Atom, FlaskConical, Target, Activity, Volume2, Mic
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Video, Loader2, Cube, Brain } from 'lucide-react';
 
 interface Visual3DContentProps {
   conceptName: string;
 }
 
 const Visual3DContent: React.FC<Visual3DContentProps> = ({ conceptName }) => {
-  const [activeTab, setActiveTab] = useState('simulation');
-  const [selectedModel, setSelectedModel] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [rotationSpeed, setRotationSpeed] = useState([50]);
-  const [forceValue, setForceValue] = useState([20]);
-  const [massValue, setMassValue] = useState([5]);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const subjects = ['Physics', 'Chemistry', 'Biology'];
-  const [activeSubject, setActiveSubject] = useState('Physics');
-
-  const models = {
-    Physics: [
-      {
-        id: 'force-vectors',
-        title: 'Force Vector Visualization',
-        description: 'Interactive 3D representation of force vectors and their effects',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'mass-acceleration',
-        title: 'Mass-Acceleration Relationship',
-        description: 'Visual demonstration of how mass affects acceleration',
-        type: 'Simulation',
-        difficulty: 'Intermediate'
-      }
-    ],
-    Chemistry: [
-      {
-        id: 'molecular-structure',
-        title: 'Molecular Structure',
-        description: '3D visualization of molecular bonds and structures',
-        type: 'Interactive',
-        difficulty: 'Intermediate'
-      },
-      {
-        id: 'reaction-dynamics',
-        title: 'Chemical Reaction Dynamics',
-        description: 'Real-time chemical reaction simulation',
-        type: 'Simulation',
-        difficulty: 'Advanced'
-      }
-    ],
-    Biology: [
-      {
-        id: 'cell-structure',
-        title: 'Cell Structure',
-        description: '3D exploration of cellular components',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'dna-replication',
-        title: 'DNA Replication',
-        description: 'Step-by-step DNA replication process',
-        type: 'Animation',
-        difficulty: 'Advanced'
-      }
-    ]
-  };
-
-  const playAudioExplanation = (content: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.rate = 0.9;
-      utterance.volume = 0.8;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  const getTabContent = (tabName: string) => {
-    const currentModels = models[activeSubject as keyof typeof models] || models.Physics;
-    
-    switch (tabName) {
-      case 'simulation':
-        return {
-          title: 'Live Simulation',
-          content: `This is a live simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior. Watch how different forces interact and affect motion in this dynamic environment.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} />
-        };
-      case 'analysis':
-        return {
-          title: 'Force Analysis',
-          content: `Detailed force analysis for ${conceptName}. This shows how different forces interact and affect the system in ${activeSubject}. You can analyze force vectors, calculate resultant forces, and understand equilibrium conditions.`,
-          component: <ForceAnalysisTab conceptName={conceptName} subject={activeSubject} />
-        };
-      case 'examples':
-        return {
-          title: '3D Examples',
-          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click on different elements to explore. Each example shows real-world applications and helps visualize abstract concepts.`,
-          component: <Examples3DTab conceptName={conceptName} subject={activeSubject} />
-        };
-      case 'lab':
-        return {
-          title: 'Virtual Lab',
-          content: `Welcome to the virtual laboratory for ${conceptName}. Conduct experiments and observe results in a safe, controlled environment. This lab allows you to manipulate variables and see immediate results.`,
-          component: <VirtualLabTab conceptName={conceptName} subject={activeSubject} />
-        };
-      default:
-        return {
-          title: 'Live Simulation',
-          content: `This is a live simulation of ${conceptName}.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} />
-        };
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Subject Selector */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Atom className="h-5 w-5 text-indigo-600" />
-            Subject Selection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {subjects.map((subject) => (
-              <Button
-                key={subject}
-                variant={activeSubject === subject ? "default" : "outline"}
-                onClick={() => setActiveSubject(subject)}
-                className="flex items-center gap-2"
-              >
-                {subject === 'Physics' && <Atom className="h-4 w-4" />}
-                {subject === 'Chemistry' && <FlaskConical className="h-4 w-4" />}
-                {subject === 'Biology' && <Target className="h-4 w-4" />}
-                {subject}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 3D Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="simulation">Live Simulation</TabsTrigger>
-          <TabsTrigger value="analysis">Force Analysis</TabsTrigger>
-          <TabsTrigger value="examples">3D Examples</TabsTrigger>
-          <TabsTrigger value="lab">Virtual Lab</TabsTrigger>
-        </TabsList>
-
-        {(['simulation', 'analysis', 'examples', 'lab'] as const).map((tabName) => {
-          const tabContent = getTabContent(tabName);
-          return (
-            <TabsContent key={tabName} value={tabName} className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Move3D className="h-5 w-5 text-indigo-600" />
-                      {tabContent.title}
-                    </CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => playAudioExplanation(tabContent.content)}
-                      className="flex items-center gap-2"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                      Audio Explanation
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {tabContent.component}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          );
-        })}
-      </Tabs>
-    </div>
-  );
-};
-
-// Enhanced Individual Tab Components
-const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [speed, setSpeed] = useState([50]);
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRunning) {
-      interval = setInterval(() => {
-        setTime(prev => prev + 0.1);
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning]);
-
-  const playSimulationAudio = () => {
-    const audioContent = `This live simulation demonstrates ${conceptName} in ${subject}. You can control the simulation speed and observe how the system behaves over time. The animated elements show real-time physics calculations.`;
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(audioContent);
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex flex-col items-center justify-center">
-        <div className="text-center space-y-4 mb-6">
-          <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center relative ${isRunning ? 'animate-pulse' : ''}`}>
-            <Atom className={`h-16 w-16 text-white ${isRunning ? 'animate-spin' : ''}`} />
-            {isRunning && (
-              <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping"></div>
-            )}
-          </div>
-          <h3 className="text-xl font-bold">Live {subject} Simulation</h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Interactive simulation of {conceptName} running in real-time
-          </p>
-          <div className="text-lg font-mono">Time: {time.toFixed(1)}s</div>
-        </div>
-        
-        {/* Simulation visualization */}
-        {isRunning && (
-          <div className="w-full max-w-md">
-            <svg className="w-full h-32" viewBox="0 0 300 100">
-              <circle 
-                cx={50 + (time * speed[0] % 200)} 
-                cy="50" 
-                r="8" 
-                fill="#ef4444"
-                className="animate-bounce"
-              />
-              <text x="150" y="80" textAnchor="middle" className="text-sm fill-current">
-                Position: {((time * speed[0]) % 200).toFixed(1)}px
-              </text>
-            </svg>
-          </div>
-        )}
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="space-y-2 flex-1 mr-4">
-          <label className="text-sm font-medium">Simulation Speed</label>
-          <Slider
-            value={speed}
-            onValueChange={setSpeed}
-            min={1}
-            max={100}
-            step={1}
-            className="w-full"
-          />
-          <span className="text-xs text-gray-500">Speed: {speed[0]}%</span>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={playSimulationAudio}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Volume2 className="h-4 w-4" />
-            Explain
-          </Button>
-          <Button
-            onClick={() => setIsRunning(!isRunning)}
-            variant={isRunning ? "destructive" : "default"}
-            className="flex items-center gap-2"
-          >
-            {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {isRunning ? 'Stop' : 'Start'} Simulation
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ForceAnalysisTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [forceA, setForceA] = useState([25]);
-  const [forceB, setForceB] = useState([15]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeModel, setActiveModel] = useState<string | null>(null);
   
-  const netForce = forceA[0] + forceB[0];
-  const resultantAngle = Math.atan2(forceB[0], forceA[0]) * (180 / Math.PI);
-
-  const playAnalysisAudio = () => {
-    const audioContent = `This force analysis shows how ${conceptName} applies to ${subject}. The current forces are ${forceA[0]} Newtons and ${forceB[0]} Newtons, resulting in a net force of ${netForce} Newtons at an angle of ${resultantAngle.toFixed(1)} degrees.`;
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(audioContent);
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold">Force Analysis - {subject}</h3>
-          <Button 
-            onClick={playAnalysisAudio}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Volume2 className="h-4 w-4" />
-            Explain Analysis
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-semibold mb-4">Force Controls</h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Force A: {forceA[0]} N</label>
-                  <Slider
-                    value={forceA}
-                    onValueChange={setForceA}
-                    min={0}
-                    max={50}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Force B: {forceB[0]} N</label>
-                  <Slider
-                    value={forceB}
-                    onValueChange={setForceB}
-                    min={0}
-                    max={50}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Analysis Results</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Force A:</span>
-                  <span className="font-mono">{forceA[0]} N</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Force B:</span>
-                  <span className="font-mono">{forceB[0]} N</span>
-                </div>
-                <div className="flex justify-between border-t pt-2">
-                  <span>Net Force:</span>
-                  <span className="font-mono font-bold">{netForce} N</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Resultant Angle:</span>
-                  <span className="font-mono">{resultantAngle.toFixed(1)}°</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>System Equilibrium:</span>
-                  <span className={netForce === 0 ? "text-green-600" : "text-red-600"}>
-                    {netForce === 0 ? "Yes" : "No"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Force Vector Visualization */}
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-4">Vector Diagram</h4>
-            <svg className="w-full h-64" viewBox="0 0 300 200">
-              <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-                        refX="0" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
-                </marker>
-              </defs>
-              
-              {/* Origin */}
-              <circle cx="150" cy="100" r="5" fill="#ef4444"/>
-              
-              {/* Force A */}
-              <line 
-                x1="150" y1="100" 
-                x2={150 + forceA[0] * 2} y2="100" 
-                stroke="#3b82f6" strokeWidth="3" 
-                markerEnd="url(#arrowhead)"
-              />
-              <text x={150 + forceA[0]} y="90" textAnchor="middle" className="fill-blue-600 text-sm">
-                F₁
-              </text>
-              
-              {/* Force B */}
-              <line 
-                x1="150" y1="100" 
-                x2="150" y2={100 - forceB[0] * 2} 
-                stroke="#10b981" strokeWidth="3" 
-                markerEnd="url(#arrowhead)"
-              />
-              <text x="160" y={100 - forceB[0]} className="fill-green-600 text-sm">
-                F₂
-              </text>
-              
-              {/* Resultant */}
-              <line 
-                x1="150" y1="100" 
-                x2={150 + forceA[0] * 2} y2={100 - forceB[0] * 2} 
-                stroke="#f59e0b" strokeWidth="3" 
-                markerEnd="url(#arrowhead)"
-                strokeDasharray="5,5"
-              />
-              <text x={150 + forceA[0]} y={100 - forceB[0] - 10} className="fill-amber-600 text-sm">
-                Resultant
-              </text>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [selectedExample, setSelectedExample] = useState(0);
-  
-  const examples = [
-    { 
-      title: 'Basic Example', 
-      description: `Simple ${conceptName} demonstration`,
-      details: `This basic example shows the fundamental principles of ${conceptName} in ${subject}. It demonstrates the core concepts without complex variables.`
-    },
-    { 
-      title: 'Complex Example', 
-      description: `Advanced ${conceptName} scenario`,
-      details: `This advanced example explores complex scenarios involving ${conceptName} in ${subject}. Multiple forces and variables interact simultaneously.`
-    },
-    { 
-      title: 'Real-world Application', 
-      description: `${conceptName} in practical use`,
-      details: `This real-world application shows how ${conceptName} applies to everyday situations in ${subject}. See practical examples and applications.`
-    }
-  ];
-
-  const playExampleAudio = (example: typeof examples[0]) => {
-    const audioContent = `${example.title}: ${example.details}`;
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(audioContent);
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {examples.map((example, index) => (
-            <div 
-              key={index} 
-              className={`bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-all cursor-pointer border-2 ${
-                selectedExample === index ? 'border-blue-500' : 'border-transparent'
-              }`}
-              onClick={() => setSelectedExample(index)}
-            >
-              <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
-                <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                {selectedExample === index && (
-                  <div className="absolute inset-0 bg-blue-500 opacity-20 animate-pulse"></div>
-                )}
-              </div>
-              <h4 className="font-semibold">{example.title}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{example.description}</p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  playExampleAudio(example);
-                }}
-                className="flex items-center gap-1 text-xs"
-              >
-                <Volume2 className="h-3 w-3" />
-                Explain
-              </Button>
-            </div>
-          ))}
-        </div>
-        
-        {/* Selected example details */}
-        <div className="mt-6 bg-white dark:bg-gray-800 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">{examples[selectedExample].title} - Details</h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            {examples[selectedExample].details}
-          </p>
-          
-          {/* Interactive 3D visualization placeholder */}
-          <div className="bg-gray-100 dark:bg-gray-700 h-48 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <Atom className="h-12 w-12 mx-auto mb-2 text-blue-600 animate-spin" />
-              <p className="text-sm">3D Visualization Active</p>
-              <p className="text-xs text-gray-500">Rendering {examples[selectedExample].title}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
-  const [experimentRunning, setExperimentRunning] = useState(false);
-  const [labResults, setLabResults] = useState<string[]>([]);
-  const [selectedTool, setSelectedTool] = useState('');
-  const [experimentProgress, setExperimentProgress] = useState(0);
-
-  const labTools = {
-    Physics: ['Force Meter', 'Accelerometer', 'Mass Scale', 'Timer'],
-    Chemistry: ['pH Meter', 'Thermometer', 'Burette', 'Spectroscope'],
-    Biology: ['Microscope', 'pH Strips', 'Thermometer', 'Measuring Cylinder']
-  };
-
-  const currentTools = labTools[subject as keyof typeof labTools] || labTools.Physics;
-
-  const startExperiment = () => {
-    if (!selectedTool) {
-      alert('Please select a tool first!');
-      return;
-    }
+  const handleLoadModel = (modelName: string) => {
+    setIsLoading(true);
+    setActiveModel(modelName);
     
-    setExperimentRunning(true);
-    setExperimentProgress(0);
-    
-    const progressInterval = setInterval(() => {
-      setExperimentProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 300);
-    
-    const newResult = `Experiment ${labResults.length + 1}: ${conceptName} test using ${selectedTool} completed at ${new Date().toLocaleTimeString()}`;
-    
-    // Simulate experiment running
+    // Simulate loading time
     setTimeout(() => {
-      setLabResults(prev => [...prev, newResult]);
-      setExperimentRunning(false);
-      setExperimentProgress(0);
-      
-      // Audio explanation for lab results
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(`Experiment completed successfully. Results show the behavior of ${conceptName} in the virtual ${subject} laboratory using ${selectedTool}. The data has been recorded for analysis.`);
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
-      }
-    }, 3000);
+      setIsLoading(false);
+    }, 1500);
   };
-
-  const playLabIntroAudio = () => {
-    const audioContent = `Welcome to the virtual ${subject} laboratory for ${conceptName}. You can select different tools, conduct experiments, and observe real-time results. This safe environment allows you to explore concepts without any physical limitations.`;
+  
+  const handleExplainAudio = (explanation: string) => {
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(audioContent);
-      utterance.rate = 0.9;
+      const utterance = new SpeechSynthesisUtterance(explanation);
+      utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold">Virtual {subject} Lab</h3>
-          <div className="flex gap-2">
-            <Badge variant="outline">{conceptName}</Badge>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={playLabIntroAudio}
-              className="flex items-center gap-1"
-            >
-              <Volume2 className="h-3 w-3" />
-              Lab Intro
-            </Button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Lab Equipment */}
-          <div className="space-y-4">
-            <h4 className="font-semibold">Lab Equipment</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {currentTools.map((tool, index) => (
-                <div 
-                  key={index} 
-                  className={`bg-white dark:bg-gray-800 p-3 rounded-lg text-center cursor-pointer transition-all hover:shadow-md border-2 ${
-                    selectedTool === tool ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'border-transparent'
-                  }`}
-                  onClick={() => setSelectedTool(tool)}
-                >
-                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-orange-600" />
-                  <p className="text-xs">{tool}</p>
-                  {selectedTool === tool && (
-                    <div className="text-xs text-orange-600 mt-1">Selected</div>
-                  )}
-                </div>
-              ))}
-            </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-indigo-600" />
+          3D Interactive Learning Lab
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-1 space-y-4">
+            <h3 className="font-medium text-lg">Available Models</h3>
             
-            {selectedTool && (
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                <h5 className="font-medium text-sm mb-2">Selected Tool: {selectedTool}</h5>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  This tool will be used to measure and analyze {conceptName} properties.
+            <div className="space-y-2">
+              <Button 
+                variant={activeModel === "forces" ? "default" : "outline"} 
+                className="w-full justify-start"
+                onClick={() => handleLoadModel("forces")}
+              >
+                <Cube className="h-4 w-4 mr-2" />
+                Force Vectors
+              </Button>
+              
+              <Button 
+                variant={activeModel === "massAcceleration" ? "default" : "outline"} 
+                className="w-full justify-start"
+                onClick={() => handleLoadModel("massAcceleration")}
+              >
+                <Cube className="h-4 w-4 mr-2" />
+                Mass-Acceleration
+              </Button>
+              
+              <Button 
+                variant={activeModel === "pulleySystems" ? "default" : "outline"} 
+                className="w-full justify-start"
+                onClick={() => handleLoadModel("pulleySystems")}
+              >
+                <Cube className="h-4 w-4 mr-2" />
+                Pulley Systems
+              </Button>
+              
+              <p className="text-sm text-gray-500 mt-4">
+                These 3D models help visualize key concepts in {conceptName}
+              </p>
+            </div>
+          </div>
+          
+          <div className="md:col-span-2">
+            {!activeModel ? (
+              <div className="flex flex-col items-center justify-center border border-dashed rounded-lg p-8 h-80">
+                <Cube className="h-16 w-16 text-gray-300 mb-4" />
+                <h3 className="text-xl font-medium text-gray-500">Select a 3D Model</h3>
+                <p className="text-gray-400 text-center mt-2">
+                  Choose a model from the left to view an interactive 3D visualization
                 </p>
               </div>
-            )}
-            
-            {experimentRunning && (
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                <h5 className="font-medium text-sm mb-2">Experiment Progress</h5>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-orange-600 h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${experimentProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs text-center mt-1">{experimentProgress}%</p>
+            ) : isLoading ? (
+              <div className="flex flex-col items-center justify-center border rounded-lg p-8 h-80 bg-gray-50 dark:bg-gray-800">
+                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                <h3 className="text-lg font-medium">Loading 3D Model...</h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Preparing interactive visualization
+                </p>
               </div>
-            )}
-            
-            <Button
-              onClick={startExperiment}
-              disabled={experimentRunning || !selectedTool}
-              className="w-full flex items-center gap-2"
-              variant={experimentRunning ? "secondary" : "default"}
-            >
-              {experimentRunning ? (
-                <>
-                  <Activity className="h-4 w-4 animate-spin" />
-                  Running Experiment...
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4" />
-                  Start Experiment
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Results */}
-          <div className="space-y-4">
-            <h4 className="font-semibold">Experiment Results</h4>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[200px]">
-              {labResults.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  <FlaskConical className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No experiments run yet</p>
-                  <p className="text-xs">Select a tool and start your first experiment</p>
+            ) : (
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 flex justify-between items-center">
+                  <h3 className="font-medium">
+                    {activeModel === "forces" && "Force Vectors Visualization"}
+                    {activeModel === "massAcceleration" && "Mass-Acceleration Relationship"}
+                    {activeModel === "pulleySystems" && "Pulley Systems and Mechanical Advantage"}
+                  </h3>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="bg-white dark:bg-gray-800"
+                    onClick={() => {
+                      const explanation = activeModel === "forces"
+                        ? `This 3D model demonstrates how forces act as vectors in ${conceptName}. You can see how multiple forces combine to produce a net force on an object. The direction and length of each arrow represents the direction and magnitude of the force.`
+                        : activeModel === "massAcceleration"
+                        ? `This 3D model shows the inverse relationship between mass and acceleration in ${conceptName}. With constant force, as mass increases, acceleration decreases proportionally. The model demonstrates that F = ma, or Newton's Second Law of Motion.`
+                        : `This 3D model illustrates how pulley systems can change the direction and magnitude of forces. The mechanical advantage gained through pulley systems is a direct application of ${conceptName}.`;
+                      
+                      handleExplainAudio(explanation);
+                    }}
+                  >
+                    <Video className="h-4 w-4 mr-1" />
+                    Audio Explanation
+                  </Button>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <h5 className="font-medium text-sm mb-3">Recorded Data:</h5>
-                  {labResults.map((result, index) => (
-                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded border-l-4 border-orange-500">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        {result}
-                      </div>
+                
+                <div className="bg-white dark:bg-gray-800 h-64 p-4">
+                  {activeModel === "forces" && (
+                    <div className="h-full flex items-center justify-center">
+                      <svg width="100%" height="100%" viewBox="0 0 400 200">
+                        {/* 3D-like force vector visualization */}
+                        <defs>
+                          <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" 
+                                  refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                          </marker>
+                          <marker id="arrowhead-green" markerWidth="10" markerHeight="7" 
+                                  refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+                          </marker>
+                          <marker id="arrowhead-red" markerWidth="10" markerHeight="7" 
+                                  refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                          </marker>
+                        </defs>
+                        
+                        {/* 3D-like box representing object */}
+                        <g transform="skewX(-15)">
+                          <rect x="150" y="80" width="100" height="60" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1" />
+                          <rect x="150" y="80" width="100" height="15" fill="#9ca3af" stroke="#6b7280" strokeWidth="1" />
+                          <rect x="250" y="80" width="20" height="60" fill="#9ca3af" stroke="#6b7280" strokeWidth="1" />
+                        </g>
+                        
+                        {/* Force vectors */}
+                        <line x1="200" y1="110" x2="300" y2="110" stroke="#3b82f6" strokeWidth="4" markerEnd="url(#arrowhead-blue)"/>
+                        <line x1="200" y1="110" x2="150" y2="50" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowhead-green)"/>
+                        <line x1="200" y1="110" x2="130" y2="170" stroke="#ef4444" strokeWidth="4" markerEnd="url(#arrowhead-red)"/>
+                        
+                        {/* Labels */}
+                        <text x="260" y="105" fill="#3b82f6" fontWeight="bold">F₁</text>
+                        <text x="160" y="60" fill="#10b981" fontWeight="bold">F₂</text>
+                        <text x="150" y="160" fill="#ef4444" fontWeight="bold">F₃</text>
+                      </svg>
                     </div>
-                  ))}
+                  )}
+                  
+                  {activeModel === "massAcceleration" && (
+                    <div className="h-full flex items-center justify-center">
+                      <svg width="100%" height="100%" viewBox="0 0 400 200">
+                        {/* 3D-like visualization of mass-acceleration relationship */}
+                        <defs>
+                          <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" 
+                                refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+                          </marker>
+                        </defs>
+                        
+                        {/* Coordinate system */}
+                        <line x1="50" y1="160" x2="350" y2="160" stroke="#6b7280" strokeWidth="2" />
+                        <line x1="50" y1="160" x2="50" y2="40" stroke="#6b7280" strokeWidth="2" />
+                        
+                        {/* Axis labels */}
+                        <text x="200" y="180" fill="#6b7280" fontSize="12" textAnchor="middle">Mass</text>
+                        <text x="30" y="100" fill="#6b7280" fontSize="12" transform="rotate(-90 30,100)" textAnchor="middle">Acceleration</text>
+                        
+                        {/* Curve showing inverse relationship */}
+                        <path d="M 70 50 Q 120 80 200 120 T 330 150" stroke="#f59e0b" strokeWidth="3" fill="none" />
+                        
+                        {/* Objects with different masses */}
+                        <g transform="translate(80, 130) scale(0.7)">
+                          <rect x="0" y="0" width="30" height="30" fill="#d1d5db" stroke="#9ca3af" />
+                          <text x="15" y="20" fontSize="14" textAnchor="middle">1kg</text>
+                        </g>
+                        
+                        <g transform="translate(180, 140) scale(0.9)">
+                          <rect x="0" y="0" width="40" height="40" fill="#d1d5db" stroke="#9ca3af" />
+                          <text x="20" y="25" fontSize="14" textAnchor="middle">5kg</text>
+                        </g>
+                        
+                        <g transform="translate(280, 150) scale(1.1)">
+                          <rect x="0" y="0" width="50" height="50" fill="#d1d5db" stroke="#9ca3af" />
+                          <text x="25" y="30" fontSize="14" textAnchor="middle">10kg</text>
+                        </g>
+                        
+                        {/* Acceleration arrows */}
+                        <line x1="95" y1="100" x2="140" y2="100" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowhead-orange)" />
+                        <line x1="200" y1="100" x2="225" y2="100" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowhead-orange)" />
+                        <line x1="305" y1="100" x2="315" y2="100" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowhead-orange)" />
+                      </svg>
+                    </div>
+                  )}
+                  
+                  {activeModel === "pulleySystems" && (
+                    <div className="h-full flex items-center justify-center">
+                      <svg width="100%" height="100%" viewBox="0 0 400 200">
+                        {/* Pulley system visualization */}
+                        
+                        {/* Fixed pulley */}
+                        <circle cx="200" cy="50" r="15" fill="#d1d5db" stroke="#6b7280" strokeWidth="2" />
+                        <circle cx="200" cy="50" r="3" fill="#6b7280" />
+                        
+                        {/* Movable pulley */}
+                        <circle cx="200" cy="130" r="15" fill="#d1d5db" stroke="#6b7280" strokeWidth="2" />
+                        <circle cx="200" cy="130" r="3" fill="#6b7280" />
+                        
+                        {/* Rope */}
+                        <path d="M 150 30 L 185 50 A 15 15 0 0 0 215 50 L 215 115 A 15 15 0 0 1 185 115 L 185 50" 
+                              fill="none" stroke="#92400e" strokeWidth="2" />
+                        
+                        {/* Weight */}
+                        <rect x="185" y="145" width="30" height="30" fill="#ef4444" stroke="#b91c1c" strokeWidth="2" />
+                        <text x="200" y="165" fill="white" fontSize="12" textAnchor="middle" fontWeight="bold">10kg</text>
+                        
+                        {/* Force arrow */}
+                        <line x1="150" y1="30" x2="130" y2="10" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowhead-blue)" />
+                        <text x="120" y="20" fill="#3b82f6" fontSize="12" fontWeight="bold">F</text>
+                        
+                        {/* Weight arrow */}
+                        <line x1="200" y1="175" x2="200" y2="195" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowhead-red)" />
+                        <text x="210" y="190" fill="#ef4444" fontSize="12" fontWeight="bold">mg</text>
+                        
+                        {/* Ceiling */}
+                        <line x1="100" y1="30" x2="300" y2="30" stroke="#6b7280" strokeWidth="5" />
+                        
+                        {/* Labels */}
+                        <text x="250" y="50" fill="#6b7280" fontSize="12">Fixed Pulley</text>
+                        <text x="250" y="130" fill="#6b7280" fontSize="12">Movable Pulley</text>
+                        <text x="250" y="80" fill="#3b82f6" fontSize="12" fontWeight="bold">
+                          Mechanical Advantage: 2x
+                        </text>
+                      </svg>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            
-            {labResults.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                <h5 className="font-medium text-sm mb-2">Analysis Summary</h5>
-                <div className="text-xs space-y-1">
-                  <p>• Total experiments: {labResults.length}</p>
-                  <p>• Success rate: 100%</p>
-                  <p>• Average completion time: 3.0s</p>
-                  <p>• Data quality: Excellent</p>
+                
+                <div className="p-3 bg-gray-50 dark:bg-gray-700">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {activeModel === "forces" && (
+                      "This model shows how multiple forces interact on a single object according to Newton's Second Law. The net force determines the acceleration direction and magnitude."
+                    )}
+                    {activeModel === "massAcceleration" && (
+                      "This visualization demonstrates that with the same applied force, objects with greater mass experience less acceleration, illustrating the F = ma relationship."
+                    )}
+                    {activeModel === "pulleySystems" && (
+                      "This pulley system demonstrates how mechanical advantage works. With this configuration, the force needed to lift the weight is reduced by half."
+                    )}
+                  </p>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
