@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -6,17 +7,15 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Video, Clock, ListChecks, Play, Pause, Volume2, 
   VolumeX, Settings, Download, Share2, Bookmark,
-  ThumbsUp, Eye, Star, ChevronRight, Users, ExternalLink
+  ThumbsUp, Eye, Star, ChevronRight, Users
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
 interface VideoTabContentProps {
   conceptName: string;
 }
 
 const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
-  const navigate = useNavigate();
   const [currentVideo, setCurrentVideo] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -118,27 +117,9 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
     setIsMuted(!isMuted);
   };
 
-  const handleOpenFullVideoPage = () => {
-    navigate(`/dashboard/student/concepts/${conceptName.toLowerCase().replace(/\s+/g, '-')}/videos`);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Enhanced Header with Analytics */}
-      <div className="flex items-center justify-between p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg">
-        <div>
-          <h2 className="text-xl font-bold">Interactive Video Learning</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Comprehensive video library with detailed analytics
-          </p>
-        </div>
-        <Button onClick={handleOpenFullVideoPage} className="bg-gradient-to-r from-purple-600 to-blue-600">
-          <ExternalLink className="h-4 w-4 mr-2" />
-          Full Video Experience
-        </Button>
-      </div>
-
-      {/* Main Video Player with Enhanced Controls */}
+      {/* Main Video Player */}
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           <div className="relative">
@@ -157,8 +138,8 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                 </div>
               </div>
               
-              {/* Enhanced Video Controls */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
+              {/* Video Controls Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="flex items-center gap-4">
                   <Button
                     variant="ghost"
@@ -170,102 +151,88 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                   </Button>
                   
                   <div className="flex-1">
-                    <Progress value={watchProgress} className="h-1 bg-white/20" />
+                    <Progress value={watchProgress} className="h-1" />
                     <div className="flex justify-between text-xs text-white/80 mt-1">
                       <span>{videos[currentVideo].watchTime}</span>
                       <span>{videos[currentVideo].duration}</span>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggleMute}
-                      className="text-white hover:bg-white/20"
-                    >
-                      {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-white hover:bg-white/20"
-                    >
-                      <Settings className="h-5 w-5" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleOpenFullVideoPage}
-                      className="text-white hover:bg-white/20"
-                    >
-                      <ExternalLink className="h-5 w-5" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleMute}
+                    className="text-white hover:bg-white/20"
+                  >
+                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                  >
+                    <Settings className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
             </div>
+          </div>
+          
+          {/* Video Info */}
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-2">{videos[currentVideo].title}</h2>
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    {videos[currentVideo].views} views
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp className="h-4 w-4" />
+                    {videos[currentVideo].likes} likes
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {videos[currentVideo].duration}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  <Bookmark className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </div>
             
-            {/* Enhanced Video Info */}
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold mb-2">{videos[currentVideo].title}</h2>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      {videos[currentVideo].views} views
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ThumbsUp className="h-4 w-4" />
-                      {videos[currentVideo].likes} likes
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {videos[currentVideo].duration}
-                    </span>
-                    <Badge className={getDifficultyColor(videos[currentVideo].difficulty)} variant="outline">
-                      {videos[currentVideo].difficulty}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    <Bookmark className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              </div>
-              
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                {videos[currentVideo].description}
-              </p>
-              
-              <div className="flex flex-wrap gap-2">
-                {videos[currentVideo].topics.map((topic, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {topic}
-                  </Badge>
-                ))}
-              </div>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              {videos[currentVideo].description}
+            </p>
+            
+            <div className="flex flex-wrap gap-2">
+              {videos[currentVideo].topics.map((topic, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {topic}
+                </Badge>
+              ))}
             </div>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Enhanced Video Playlist */}
+        {/* Video Playlist */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -292,8 +259,8 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                   onClick={() => handleVideoSelect(index)}
                 >
                   <div className="flex gap-4">
-                    <div className="w-32 h-18 bg-gradient-to-br from-blue-400 to-purple-500 rounded shrink-0 flex items-center justify-center relative">
-                      <Video className="h-6 w-6 text-white" />
+                    <div className="w-32 h-18 bg-gray-200 dark:bg-gray-800 rounded shrink-0 flex items-center justify-center relative">
+                      <Video className="h-6 w-6 text-gray-400" />
                       <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
                         {video.duration}
                       </div>
@@ -350,27 +317,18 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                   </div>
                 </motion.div>
               ))}
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={handleOpenFullVideoPage}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View All Videos
-              </Button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Enhanced Sidebar */}
+        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Related Topics with Progress */}
+          {/* Related Topics */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
-                Related Topics Progress
+                Related Topics
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -383,40 +341,27 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                   <Progress value={topic.progress} className="h-2" />
                 </div>
               ))}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full mt-3"
-                onClick={() => navigate('/dashboard/student/concepts')}
-              >
-                Explore Related Concepts
-              </Button>
             </CardContent>
           </Card>
 
-          {/* Up Next Playlist */}
+          {/* Recommended Playlist */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
                 <Video className="h-4 w-4 text-indigo-500" />
-                Up Next in Playlist
+                Up Next
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {playlistVideos.map((video, index) => (
                 <div key={index} className="flex items-center gap-3 p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded flex items-center justify-center">
-                    <Play className="h-3 w-3 text-white" />
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
+                    <Play className="h-3 w-3" />
                   </div>
                   <span className="text-sm flex-1">{video}</span>
                 </div>
               ))}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full mt-3"
-                onClick={handleOpenFullVideoPage}
-              >
+              <Button variant="outline" size="sm" className="w-full mt-3">
                 View Full Playlist
               </Button>
             </CardContent>
@@ -440,12 +385,7 @@ const VideoTabContent: React.FC<VideoTabContentProps> = ({ conceptName }) => {
                     <div key={i} className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full border-2 border-white dark:border-gray-800" />
                   ))}
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate('/dashboard/student/study-groups')}
-                >
+                <Button size="sm" variant="outline" className="w-full">
                   <Users className="h-3 w-3 mr-2" />
                   Join Study Room
                 </Button>

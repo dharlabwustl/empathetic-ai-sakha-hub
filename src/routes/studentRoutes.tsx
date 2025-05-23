@@ -19,8 +19,7 @@ import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
-import FormulaLabPage from '@/pages/dashboard/student/concepts/FormulaLabPage';
-import VideoContentPage from '@/pages/dashboard/student/VideoContentPage';
+import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
 
 const StudentRoutes = () => {
   return (
@@ -58,12 +57,7 @@ const StudentRoutes = () => {
       } />
       <Route path="/concepts/:conceptId/formula-lab" element={
         <SidebarLayout>
-          <FormulaLabPage />
-        </SidebarLayout>
-      } />
-      <Route path="/concepts/:conceptId/videos" element={
-        <SidebarLayout>
-          <VideoContentPage />
+          <FormulaLabPageWrapper />
         </SidebarLayout>
       } />
       <Route path="/concept-study/:conceptId" element={
