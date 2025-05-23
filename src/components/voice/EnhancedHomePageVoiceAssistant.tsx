@@ -13,6 +13,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
   const [hasGreeted, setHasGreeted] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   
@@ -51,6 +52,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
     }
+    setIsSpeaking(false);
   };
 
   // Get contextual greeting based on page
@@ -77,6 +79,9 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
 
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
+
+    // Set speaking state to true
+    setIsSpeaking(true);
 
     // Create utterance with correct PREP-zer pronunciation
     const speech = new SpeechSynthesisUtterance();
@@ -132,9 +137,25 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     }
 
     // Event handlers
-    speech.onstart = () => console.log('Voice greeting started');
+    speech.onstart = () => {
+      console.log('Voice greeting started');
+      setIsSpeaking(true);
+      
+      // Show a visual indicator that the assistant is speaking
+      document.dispatchEvent(new CustomEvent('voice-assistant-speaking', { 
+        detail: { speaking: true }
+      }));
+    };
+    
     speech.onend = () => {
       console.log('Voice greeting completed');
+      setIsSpeaking(false);
+      
+      // Update visual indicator
+      document.dispatchEvent(new CustomEvent('voice-assistant-speaking', { 
+        detail: { speaking: false }
+      }));
+      
       // Start listening after greeting with smart delay
       setTimeout(() => {
         if (!isMuted && shouldActivate) {
@@ -142,8 +163,16 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         }
       }, 1000);
     };
+    
     speech.onerror = (e) => {
       console.error('Speech error:', e);
+      setIsSpeaking(false);
+      
+      // Update visual indicator
+      document.dispatchEvent(new CustomEvent('voice-assistant-speaking', { 
+        detail: { speaking: false }
+      }));
+      
       // Try to start recognition anyway with smart delay
       setTimeout(() => {
         if (!isMuted && shouldActivate) {
@@ -175,11 +204,20 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       
       recognition.onstart = () => {
         setIsListening(true);
+        // Notify UI that we're listening
+        document.dispatchEvent(new CustomEvent('voice-assistant-listening', { 
+          detail: { listening: true }
+        }));
       };
       
       recognition.onend = () => {
         setIsListening(false);
         recognitionRef.current = null;
+        
+        // Notify UI that we're no longer listening
+        document.dispatchEvent(new CustomEvent('voice-assistant-listening', { 
+          detail: { listening: false }
+        }));
         
         // Smart breaks - auto-restart with appropriate delays
         if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
@@ -193,6 +231,11 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         recognitionRef.current = null;
+        
+        // Notify UI that we're no longer listening
+        document.dispatchEvent(new CustomEvent('voice-assistant-listening', { 
+          detail: { listening: false }
+        }));
         
         // Smart retry based on error type
         const retryDelay = event.error === 'network' ? 8000 : 
@@ -325,7 +368,7 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
               description: "Say 'Help' to hear available commands",
               duration: 4000,
             });
-          }, 500); // Just 0.5 second delay for immediate greeting
+          }, 300); // Just 0.3 second delay for immediate greeting
         }
       }
     };
@@ -399,7 +442,34 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [shouldActivate, isMuted, hasGreeted]);
 
-  return null; // This component renders no UI
+  return (
+    <>
+      {/* Visual indicator showing when the assistant is speaking or listening */}
+      {(isSpeaking || isListening) && (
+        <div className="fixed bottom-24 right-6 z-50 animate-pulse">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full p-3 shadow-lg flex items-center space-x-2">
+            {isSpeaking && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" x2="12" y1="19" y2="22"></line>
+              </svg>
+            )}
+            {isListening && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" x2="12" y1="19" y2="22"></line>
+              </svg>
+            )}
+            <span className="text-sm font-medium">
+              {isSpeaking ? "Sakha AI is speaking..." : "Listening..."}
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default EnhancedHomePageVoiceAssistant;
