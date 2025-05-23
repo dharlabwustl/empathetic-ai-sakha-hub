@@ -17,6 +17,7 @@ const StudentAppRoutes = () => {
       <Route path="/today" element={<RedesignedTodaysPlan />} />
       <Route path="/concepts" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
+      <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />

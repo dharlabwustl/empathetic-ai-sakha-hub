@@ -9,7 +9,12 @@ import ConceptSidebar from "./concept-detail/ConceptSidebar";
 import ConceptResources from "./concept-detail/ConceptResources";
 import AIInsightsSection from "./AIInsightsSection";
 import { useParams } from "react-router-dom";
-import { Book, VideoIcon, Lightbulb, Flask, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare } from "lucide-react";
+import { Book, Video, Lightbulb, AlertTriangle, BarChart3, RefreshCw, FileText, MessageSquare } from "lucide-react";
+import QuickRecallSection from "./concept-detail/QuickRecallSection";
+import AnalyticsSection from "./AnalyticsSection";
+
+// Import the correct icons using the flask-conical and cube icons
+import { FlaskConical, Cube } from "lucide-react";
 
 // Mock data - this would normally come from an API
 const conceptData = {
@@ -49,9 +54,15 @@ const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const [activeTab, setActiveTab] = useState("learn");
   const [bookmarked, setBookmarked] = useState(conceptData.bookmarked);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
   
   const handleBookmarkToggle = () => {
     setBookmarked(prev => !prev);
+  };
+  
+  const handleQuizComplete = (score: number) => {
+    setQuizScore(score);
+    // In a real app, you would save this to the user's profile
   };
   
   return (
@@ -95,13 +106,17 @@ const ConceptDetailPage: React.FC = () => {
                   <FileText className="h-4 w-4" />
                   <span>Visual</span>
                 </TabsTrigger>
-                <TabsTrigger value="video" className="flex items-center gap-2">
-                  <VideoIcon className="h-4 w-4" />
-                  <span>Video</span>
+                <TabsTrigger value="3d" className="flex items-center gap-2">
+                  <Cube className="h-4 w-4" />
+                  <span>3D Simulation</span>
                 </TabsTrigger>
                 <TabsTrigger value="formula" className="flex items-center gap-2">
-                  <Flask className="h-4 w-4" />
+                  <FlaskConical className="h-4 w-4" />
                   <span>Formula Lab</span>
+                </TabsTrigger>
+                <TabsTrigger value="video" className="flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  <span>Video</span>
                 </TabsTrigger>
                 <TabsTrigger value="mistakes" className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
@@ -148,6 +163,12 @@ const ConceptDetailPage: React.FC = () => {
                 </div>
               </TabsContent>
               
+              <TabsContent value="3d">
+                <div className="p-6 text-center">
+                  <p>3D Simulation of {conceptData.title} will appear here</p>
+                </div>
+              </TabsContent>
+              
               <TabsContent value="video">
                 <ConceptResources conceptId={conceptId || ""} />
               </TabsContent>
@@ -171,15 +192,16 @@ const ConceptDetailPage: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="recall">
-                <div className="p-6 text-center">
-                  <p>Recall exercises for {conceptData.title} will appear here</p>
-                </div>
+                <QuickRecallSection 
+                  conceptId={conceptId || ""}
+                  title={conceptData.title}
+                  content={conceptData.content}
+                  onQuizComplete={handleQuizComplete}
+                />
               </TabsContent>
               
               <TabsContent value="analytics">
-                <div className="p-6 text-center">
-                  <p>Analytics for {conceptData.title} will appear here</p>
-                </div>
+                <AnalyticsSection conceptName={conceptData.title} />
               </TabsContent>
               
               <TabsContent value="revision">

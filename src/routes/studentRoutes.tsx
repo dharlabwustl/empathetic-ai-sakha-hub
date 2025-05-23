@@ -38,6 +38,7 @@ const StudentRoutes = () => {
           <ConceptsPage />
         </SidebarLayout>
       } />
+      {/* Updated: Make sure both route patterns point to the concept detail page */}
       <Route path="/concept/:conceptId" element={
         <SidebarLayout>
           <ConceptDetailPage />
