@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,23 +15,32 @@ import {
   BookOpen, 
   Brain, 
   Calculator, 
-  Play, 
-  Pause,
   Volume2,
   VolumeX,
   Eye,
-  PenTool,
-  Trophy,
-  Target,
-  Clock,
   CheckCircle,
   Lightbulb,
-  Sparkles,
   Box,
   BarChart3,
-  TrendingUp
+  Sparkles,
+  Target,
+  Clock,
+  PenTool
 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 import AIInsights from './AIInsights';
+import ConceptHeader from './concept-detail/ConceptHeader';
+import ConceptContent from './concept-detail/ConceptContent';
+import ConceptSidebar from './concept-detail/ConceptSidebar';
+import NoteSection from './concept-detail/NoteSection';
+import ConceptFlashcards from './concept-detail/ConceptFlashcards';
+import FormulaReference from './concept-detail/FormulaReference';
+import QuickRecallSection from './concept-detail/QuickRecallSection';
+import ConceptExercises from './concept-detail/ConceptExercises';
+import ConceptResources from './concept-detail/ConceptResources';
+import LinkedConceptsSection from './concept-detail/LinkedConceptsSection';
+import AskTutorSection from './concept-detail/AskTutorSection';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface ConceptData {
   id: string;
@@ -53,12 +62,14 @@ interface ConceptData {
 const ConceptDetailPage: React.FC = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [userNotes, setUserNotes] = useState('');
   const [isReading, setIsReading] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
   const [calculatorInput, setCalculatorInput] = useState('');
   const [calculatorResult, setCalculatorResult] = useState('');
+  const [quizScore, setQuizScore] = useState(0);
 
   // Mock concept data
   const conceptData: ConceptData = {
@@ -67,7 +78,7 @@ const ConceptDetailPage: React.FC = () => {
     subject: 'Physics',
     topic: 'Mechanics',
     difficulty: 'medium',
-    description: 'The three fundamental laws that form the foundation of classical mechanics.',
+    description: 'The three fundamental principles that describe the relationship between forces acting on a body and its motion.',
     content: `
       <h3>Introduction</h3>
       <p>Newton's Laws of Motion are three fundamental principles that describe the relationship between forces acting on a body and its motion. These laws form the foundation of classical mechanics.</p>
@@ -105,7 +116,10 @@ const ConceptDetailPage: React.FC = () => {
 
   const handleSaveNotes = () => {
     console.log('Saving notes:', userNotes);
-    // Here you would save to backend
+    toast({
+      title: "Notes saved",
+      description: "Your notes have been saved successfully."
+    });
   };
 
   const handleReadAloud = () => {
@@ -133,14 +147,73 @@ const ConceptDetailPage: React.FC = () => {
     }
   };
 
-  const difficultyColors = {
-    easy: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    hard: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+  const handleQuizComplete = (score: number) => {
+    setQuizScore(score);
+    toast({
+      title: "Quiz completed!",
+      description: `You scored ${score}% on the quiz.`
+    });
   };
 
+  // Mock flashcards for the concept
+  const flashcards = [
+    {
+      id: 'f1',
+      front: "What is Newton's First Law?",
+      back: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force."
+    },
+    {
+      id: 'f2',
+      front: "What is the formula for Newton's Second Law?",
+      back: "F = ma (Force equals mass times acceleration)"
+    },
+    {
+      id: 'f3',
+      front: "What is Newton's Third Law?",
+      back: "For every action, there is an equal and opposite reaction."
+    }
+  ];
+
+  // Mock formulas for the concept
+  const formulas = [
+    {
+      id: 'form1',
+      name: "Newton's Second Law",
+      latex: "F = ma",
+      description: "Force equals mass times acceleration. This formula relates the force acting on an object to its mass and acceleration."
+    },
+    {
+      id: 'form2',
+      name: "Weight Formula",
+      latex: "W = mg",
+      description: "Weight equals mass times gravitational acceleration. This formula calculates the weight of an object based on its mass and the gravitational pull."
+    }
+  ];
+
+  // Mock related concepts
+  const relatedConceptsList = [
+    {
+      id: 'rc1',
+      title: 'Momentum',
+      masteryLevel: 35
+    },
+    {
+      id: 'rc2',
+      title: 'Force and Motion',
+      masteryLevel: 60
+    },
+    {
+      id: 'rc3',
+      title: 'Conservation of Energy',
+      masteryLevel: 25
+    }
+  ];
+
+  // Determine exam readiness based on mastery level
+  const examReady = conceptData.mastery >= 60;
+
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <div className="container mx-auto p-4 max-w-7xl">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button 
@@ -155,7 +228,7 @@ const ConceptDetailPage: React.FC = () => {
       </div>
 
       {/* Masthead */}
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-6 border border-indigo-100 dark:border-indigo-800"
@@ -173,7 +246,13 @@ const ConceptDetailPage: React.FC = () => {
                 <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300">
                   {conceptData.topic}
                 </Badge>
-                <Badge variant="outline" className={difficultyColors[conceptData.difficulty]}>
+                <Badge variant="outline" className={
+                  conceptData.difficulty === 'easy' 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : conceptData.difficulty === 'medium'
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                }>
                   {conceptData.difficulty.charAt(0).toUpperCase() + conceptData.difficulty.slice(1)}
                 </Badge>
               </div>
@@ -360,6 +439,16 @@ const ConceptDetailPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ConceptFlashcards flashcards={flashcards} />
+            <QuickRecallSection 
+              conceptId={conceptData.id}
+              title={conceptData.title}
+              content={conceptData.content}
+              onQuizComplete={handleQuizComplete}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6">
@@ -371,18 +460,11 @@ const ConceptDetailPage: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <Textarea
-                  value={userNotes}
-                  onChange={(e) => setUserNotes(e.target.value)}
-                  placeholder="Write your notes here..."
-                  className="min-h-[300px]"
-                />
-                <Button onClick={handleSaveNotes} className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4" />
-                  Save Notes
-                </Button>
-              </div>
+              <NoteSection 
+                userNotes={userNotes}
+                setUserNotes={setUserNotes}
+                handleSaveNotes={handleSaveNotes}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -416,6 +498,44 @@ const ConceptDetailPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          
+          <FormulaReference 
+            formulas={formulas} 
+            conceptTitle={conceptData.title} 
+          />
+          
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="w-full">Open Formula Lab</Button>
+            </SheetTrigger>
+            <SheetContent className="w-[400px] sm:w-[540px]">
+              <div className="p-4">
+                <h2 className="text-xl font-bold mb-4">Formula Lab</h2>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Experiment with different values for Newton's Second Law.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Mass (kg)</label>
+                      <Input type="number" placeholder="Enter mass" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Force (N)</label>
+                      <Input type="number" placeholder="Enter force" />
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full">Calculate Acceleration</Button>
+                  
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Result will appear here</p>
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
@@ -441,8 +561,43 @@ const ConceptDetailPage: React.FC = () => {
                   <div className="text-sm text-gray-600 dark:text-gray-400">Time Spent</div>
                 </div>
               </div>
+              
+              <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ConceptExercises 
+                  conceptId={conceptData.id}
+                  conceptTitle={conceptData.title}
+                  recallAccuracy={75}
+                  lastPracticed="2023-06-15"
+                  quizScore={quizScore || 0}
+                />
+                
+                <div className="space-y-6">
+                  <ConceptSidebar 
+                    masteryLevel={conceptData.mastery}
+                    relatedConcepts={relatedConceptsList}
+                    examReady={examReady}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <LinkedConceptsSection 
+              conceptId={conceptData.id}
+              subject={conceptData.subject}
+              topic={conceptData.topic}
+            />
+            
+            <AskTutorSection 
+              conceptId={conceptData.id}
+              title={conceptData.title}
+              subject={conceptData.subject}
+              topic={conceptData.topic}
+            />
+          </div>
+          
+          <ConceptResources conceptId={conceptData.id} />
         </TabsContent>
       </Tabs>
     </div>
