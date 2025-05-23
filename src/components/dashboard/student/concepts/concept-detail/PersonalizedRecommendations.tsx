@@ -9,7 +9,7 @@ import {
   Star, TrendingUp, Clock, Brain, Zap, Award,
   RotateCcw, HelpCircle, FlaskConical, Video,
   PenTool, MessageCircle, Lightbulb, CheckCircle,
-  BarChart3, PlayCircle
+  BarChart3, PlayCircle, BookOpenCheck, LineChart, School
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +61,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       estimatedTime: '20 min',
       difficulty: 'Advanced',
       action: () => {
+        navigate('/dashboard/student/concepts/video-content');
         toast({
           title: "Loading video content",
           description: "Preparing advanced examples for you..."
@@ -186,12 +187,12 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
           </p>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {suggestedActions.map((action, index) => (
               <motion.div
                 key={action.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className="hover:shadow-md transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-indigo-500" 
@@ -252,58 +253,61 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
         </CardContent>
       </Card>
 
-      {/* Learning Path */}
+      {/* Integrated Learning Path - Horizontally after Suggested Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Related Learning Path
+            <LineChart className="h-5 w-5 text-blue-600" />
+            Connected Learning Path
           </CardTitle>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Continue your physics journey with connected concepts
+            Progress through related physics concepts to build a comprehensive understanding
           </p>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="space-y-3">
+          <div className="flex flex-nowrap overflow-x-auto pb-4 gap-3">
             {relatedConcepts.map((concept, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="cursor-pointer"
+                className="cursor-pointer flex-shrink-0 w-[250px]"
                 onClick={() => navigate(concept.route)}
               >
-                <div className="flex items-center gap-4 p-3 rounded-lg border hover:shadow-sm transition-all">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    concept.status === 'completed' 
-                      ? 'bg-green-500 text-white' 
-                      : concept.status === 'in-progress'
-                      ? 'bg-blue-500 text-white'
-                      : concept.status === 'recommended'
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-gray-300 dark:bg-gray-600'
-                  }`}>
-                    {concept.status === 'completed' ? (
-                      <CheckCircle className="h-4 w-4" />
-                    ) : concept.status === 'in-progress' ? (
-                      <PlayCircle className="h-4 w-4" />
-                    ) : (
-                      <span className="text-xs font-medium">{index + 1}</span>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                <div className="flex flex-col gap-2 p-4 h-full rounded-lg border hover:shadow-sm transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      concept.status === 'completed' 
+                        ? 'bg-green-500 text-white' 
+                        : concept.status === 'in-progress'
+                        ? 'bg-blue-500 text-white'
+                        : concept.status === 'recommended'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}>
+                      {concept.status === 'completed' ? (
+                        <CheckCircle className="h-4 w-4" />
+                      ) : concept.status === 'in-progress' ? (
+                        <PlayCircle className="h-4 w-4" />
+                      ) : (
+                        <span className="text-xs font-medium">{index + 1}</span>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1">
                       <h4 className="font-medium text-sm">{concept.title}</h4>
+                      
                       <Badge 
                         variant="outline" 
-                        className={`text-xs ${getStatusColor(concept.status)}`}
+                        className={`text-xs mt-1 ${getStatusColor(concept.status)}`}
                       >
                         {concept.status.replace('-', ' ')}
                       </Badge>
                     </div>
-                    
+                  </div>
+                  
+                  <div className="mt-2">
                     <div className="flex items-center gap-3">
                       <div className="flex-1">
                         <Progress value={concept.mastery} className="h-2" />
@@ -312,106 +316,128 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
                     </div>
                   </div>
                   
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <div className="mt-auto pt-2 flex items-center justify-between">
+                    <span className="text-xs text-gray-500">
+                      {concept.status === 'completed' ? 'Mastered' : concept.status === 'in-progress' ? 'In Progress' : 'Not Started'}
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                  </div>
                 </div>
               </motion.div>
             ))}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex-shrink-0 w-[180px] flex items-center justify-center"
+            >
+              <Button 
+                variant="outline" 
+                className="h-full w-full border-dashed flex flex-col gap-2 py-4"
+                onClick={() => navigate('/dashboard/student/analytics')}
+              >
+                <TrendingUp className="h-5 w-5 text-blue-500" />
+                <span className="text-sm">View Complete Path</span>
+              </Button>
+            </motion.div>
           </div>
-          
-          <Button 
-            variant="outline" 
-            className="w-full mt-4"
-            onClick={() => navigate('/dashboard/student/analytics')}
-          >
-            <TrendingUp className="h-4 w-4 mr-2" />
-            View Complete Learning Path
-          </Button>
         </CardContent>
       </Card>
 
-      {/* Quick Stats */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Quick Performance Stats
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 space-y-3">
-          {quickStats.map((stat, index) => (
-            <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center gap-2">
-                {stat.icon}
-                <span className="text-sm font-medium">{stat.label}</span>
-              </div>
-              <Badge variant="outline" className="font-mono">
-                {stat.value}
-              </Badge>
-            </div>
-          ))}
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full mt-3"
-            onClick={() => navigate('/dashboard/student/analytics')}
+      {/* Quick Stats - Horizontal Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {quickStats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
           >
-            <BarChart3 className="h-3 w-3 mr-2" />
-            View Detailed Analytics
-          </Button>
-        </CardContent>
-      </Card>
+            <Card className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+                    {stat.icon}
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                    <p className="text-lg font-semibold">{stat.value}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
 
-      {/* Study Tools Shortcuts */}
+      {/* Study Tools Shortcuts - Horizontal Layout */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="h-4 w-4 text-yellow-500" />
             Quick Study Tools
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 space-y-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => navigate('/dashboard/student/flashcards')}
-          >
-            <RotateCcw className="h-3 w-3 mr-2" />
-            Create Flashcards
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => navigate('/dashboard/student/practice-exams')}
-          >
-            <Target className="h-3 w-3 mr-2" />
-            Practice Problems
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => navigate('/dashboard/student/study-groups')}
-          >
-            <Users className="h-3 w-3 mr-2" />
-            Find Study Partners
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => {
-              toast({
-                title: "AI Tutor Starting",
-                description: "Connecting you with AI tutor for personalized help..."
-              });
-            }}
-          >
-            <MessageCircle className="h-3 w-3 mr-2" />
-            Ask AI Tutor
-          </Button>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="justify-start"
+              onClick={() => navigate('/dashboard/student/flashcards')}
+            >
+              <RotateCcw className="h-3 w-3 mr-2" />
+              Create Flashcards
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="justify-start"
+              onClick={() => navigate('/dashboard/student/practice-exams')}
+            >
+              <Target className="h-3 w-3 mr-2" />
+              Practice Problems
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="justify-start"
+              onClick={() => navigate('/dashboard/student/study-groups')}
+            >
+              <Users className="h-3 w-3 mr-2" />
+              Find Study Partners
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="justify-start"
+              onClick={() => {
+                toast({
+                  title: "AI Tutor Starting",
+                  description: "Connecting you with AI tutor for personalized help..."
+                });
+              }}
+            >
+              <MessageCircle className="h-3 w-3 mr-2" />
+              Ask AI Tutor
+            </Button>
+          </div>
+          
+          <div className="mt-3 pt-3 border-t flex items-center justify-between">
+            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+              <School className="h-3 w-3" />
+              <span>All tools sync with your learning progress</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs"
+              onClick={() => navigate('/dashboard/student/analytics')}
+            >
+              <BarChart3 className="h-3 w-3 mr-1" />
+              View Analytics
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

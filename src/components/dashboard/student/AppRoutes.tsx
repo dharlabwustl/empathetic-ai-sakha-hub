@@ -9,6 +9,8 @@ import ConceptsLandingPage from '@/components/dashboard/student/concepts/Concept
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+import VideoContent from '@/components/dashboard/student/concepts/VideoContent';
+import FormulaLab from '@/components/dashboard/student/concepts/FormulaLab';
 
 const StudentAppRoutes = () => {
   return (
@@ -18,8 +20,10 @@ const StudentAppRoutes = () => {
       <Route path="/concepts" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
+      <Route path="/concepts/video-content" element={<VideoContent />} />
+      <Route path="/concepts/formula-lab" element={<FormulaLab />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
-      <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
+      <Route path="/practice-exams" element={<PracticeExamLandingPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
     </Routes>
   );
