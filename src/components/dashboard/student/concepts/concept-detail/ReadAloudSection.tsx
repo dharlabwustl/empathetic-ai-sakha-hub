@@ -16,23 +16,20 @@ const ReadAloudSection: React.FC<ReadAloudSectionProps> = ({ text, isActive, onS
   const [elapsedTime, setElapsedTime] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   
-  // Format time in mm:ss format
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Calculate estimated reading time based on average reading speed
   useEffect(() => {
     if (text) {
       const words = text.split(/\s+/).length;
-      const timeInSeconds = Math.floor(words / 2.5); // Assuming 150 words per minute reading speed (2.5 words per second)
+      const timeInSeconds = Math.floor(words / 2.5);
       setTotalTime(timeInSeconds);
     }
   }, [text]);
   
-  // Progress tracking
   useEffect(() => {
     let intervalId: number | null = null;
     
@@ -64,12 +61,10 @@ const ReadAloudSection: React.FC<ReadAloudSectionProps> = ({ text, isActive, onS
     setIsPaused(!isPaused);
     
     if (isPaused) {
-      // Resume speech
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.95;
       speechSynthesis.speak(utterance);
     } else {
-      // Pause speech
       speechSynthesis.pause();
     }
   };
