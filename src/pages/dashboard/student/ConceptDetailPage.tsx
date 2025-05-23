@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, BookOpen, Play, Brain, Eye, Zap, TrendingUp, Target, Clock, Award } from "lucide-react";
+import { ArrowLeft, BookOpen, Play, Brain, Eye, Zap, TrendingUp, Target, Clock, Award, BarChart2, LineChart, BookMarked, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import VideoTabContent from '@/components/dashboard/student/concepts/VideoTabContent';
 import FormulaTabContent from '@/components/dashboard/student/concepts/FormulaTabContent';
@@ -40,6 +40,7 @@ const ConceptDetailPage = () => {
     { id: '4', title: "Momentum", masteryLevel: 45 }
   ];
 
+  // Redefine suggested actions to be more focused and specific
   const suggestedActions = [
     {
       title: "Watch Core Video",
@@ -63,9 +64,9 @@ const ConceptDetailPage = () => {
       color: "bg-purple-500"
     },
     {
-      title: "Review Formula",
+      title: "Explore Formula Lab",
       description: "Interactive formula exploration",
-      action: () => setActiveTab('formula'),
+      action: () => navigate(`/dashboard/student/concepts/${conceptId}/formula-lab`),
       icon: Eye,
       color: "bg-orange-500"
     }
@@ -158,23 +159,23 @@ const ConceptDetailPage = () => {
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-5 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
                     <TabsTrigger value="learn" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
-                      <BookOpen className="h-4 w-4 mr-2" />
+                      <BookMarked className="h-4 w-4 mr-2" />
                       Learn
                     </TabsTrigger>
                     <TabsTrigger value="visual" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
-                      <Eye className="h-4 w-4 mr-2" />
+                      <LineChart className="h-4 w-4 mr-2" />
                       Visual
                     </TabsTrigger>
                     <TabsTrigger value="3d" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
                       <Brain className="h-4 w-4 mr-2" />
-                      3D
+                      3D Model
                     </TabsTrigger>
                     <TabsTrigger value="video" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
                       <Play className="h-4 w-4 mr-2" />
                       Video
                     </TabsTrigger>
                     <TabsTrigger value="formula" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
-                      <Zap className="h-4 w-4 mr-2" />
+                      <FileText className="h-4 w-4 mr-2" />
                       Formula
                     </TabsTrigger>
                   </TabsList>
@@ -215,7 +216,7 @@ const ConceptDetailPage = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center text-xl">
                     <Target className="h-5 w-5 mr-2 text-indigo-600" />
-                    Suggested Actions
+                    Recommended Learning Activities
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -282,8 +283,8 @@ const ConceptDetailPage = () => {
               <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
-                    <Award className="h-5 w-5 mr-2 text-purple-600" />
-                    Performance Stats
+                    <BarChart2 className="h-5 w-5 mr-2 text-purple-600" />
+                    Performance Analytics
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -306,7 +307,7 @@ const ConceptDetailPage = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
                     <Zap className="h-5 w-5 mr-2 text-orange-600" />
-                    Quick Tools
+                    Learning Tools
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
