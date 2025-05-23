@@ -19,7 +19,7 @@ import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
-import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
+import FormulaLabPageWrapper from '@/pages/dashboard/student/FormulaLabPage';
 
 const StudentRoutes = () => {
   return (
@@ -56,6 +56,11 @@ const StudentRoutes = () => {
         </SidebarLayout>
       } />
       <Route path="/concepts/:conceptId/formula-lab" element={
+        <SidebarLayout>
+          <FormulaLabPageWrapper />
+        </SidebarLayout>
+      } />
+      <Route path="/formula-lab/:conceptId" element={
         <SidebarLayout>
           <FormulaLabPageWrapper />
         </SidebarLayout>
