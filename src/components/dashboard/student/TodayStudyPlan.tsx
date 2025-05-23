@@ -13,7 +13,7 @@ interface Task {
   time: string;
   type: 'exam' | 'task' | 'revision' | 'concept';
   completed?: boolean;
-  route?: string;
+  route?: string; // Added route property for navigation
 }
 
 interface TodayStudyPlanProps {
@@ -38,9 +38,9 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   
   // Handle task click navigation
   const handleTaskClick = (task: Task) => {
-    // For concept type, always navigate to the universal concept detail page
+    // For concept type, always navigate to concept detail page with the correct path
     if (task.type === 'concept') {
-      console.log("TodayStudyPlan - Navigating to universal concept detail page:", task.id);
+      console.log("TodayStudyPlan - Navigating to concept detail page:", task.id);
       navigate(`/dashboard/student/concepts/${task.id}`);
       return;
     }

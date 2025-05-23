@@ -43,7 +43,6 @@ const ConceptsSection = () => {
   
   const handleCardClick = (cardId: string) => {
     console.log("ConceptsSection - Navigating to concept detail page for concept:", cardId);
-    // Navigate to the universal concept detail page
     navigate(`/dashboard/student/concepts/${cardId}`);
   };
   
