@@ -69,7 +69,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-6 inline-block"
+        className="mb-4 inline-block"
       >
         <motion.div 
           className="bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-2xl relative overflow-hidden border border-emerald-400/30"
@@ -93,7 +93,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           
           <motion.span className="font-bold flex items-center gap-1">
             <Rocket className="w-4 h-4" />
-            NEET 2025 PREP LIVE!
+            NEET 2026 PREP LIVE!
           </motion.span>
           
           <motion.div 
@@ -106,18 +106,18 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.div>
       </motion.div>
 
-      {/* Future Success Message */}
+      {/* Updated Welcome Message */}
       <motion.div
-        className="mb-6 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+        className="mb-4 text-xl md:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Welcome to your <span className="font-bold">future success story</span> with PREPZR
+        Welcome to your <span className="font-bold">future success story</span> with PREPZR - World's first emotionally aware, hyper personalized adaptive exam prep platform
       </motion.div>
 
       <motion.h1
-        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8"
+        className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
@@ -151,32 +151,32 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         </motion.span>
       </motion.h1>
 
-      {/* Enhanced 5 Key Benefits - Compact & Premium */}
+      {/* Enhanced 5 Key Benefits - More Compact */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="mb-8 p-4 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
+        className="mb-6 p-3 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 bg-gradient-to-br from-blue-50/80 via-indigo-50/80 to-purple-50/80 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 shadow-xl backdrop-blur-sm"
       >
         <motion.h3 
-          className="text-center font-bold text-lg text-blue-800 dark:text-blue-300 mb-4 flex items-center justify-center gap-2"
+          className="text-center font-bold text-base text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-center gap-2"
           animate={{ 
             scale: [1, 1.02, 1],
           }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          <Target className="w-5 h-5" />
+          <Target className="w-4 h-4" />
           Five Success Accelerators
-          <Zap className="w-5 h-5" />
+          <Zap className="w-4 h-4" />
         </motion.h3>
         
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-5 gap-2">
           {[
-            { icon: <Award className="w-5 h-5" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
-            { icon: <GraduationCap className="w-5 h-5" />, label: "Success", color: "from-blue-500 to-blue-700" },
-            { icon: <Zap className="w-5 h-5" />, label: "Efficiency", color: "from-amber-500 to-yellow-600" },
-            { icon: <Brain className="w-5 h-5" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
-            { icon: <Sparkles className="w-5 h-5" />, label: "Joy", color: "from-pink-500 to-rose-600" }
+            { icon: <Award className="w-4 h-4" />, label: "Confidence", color: "from-emerald-500 to-green-600" },
+            { icon: <GraduationCap className="w-4 h-4" />, label: "Success", color: "from-blue-500 to-blue-700" },
+            { icon: <Zap className="w-4 h-4" />, label: "Efficiency", color: "from-amber-500 to-yellow-600" },
+            { icon: <Brain className="w-4 h-4" />, label: "Stress-Free", color: "from-purple-500 to-purple-700" },
+            { icon: <Sparkles className="w-4 h-4" />, label: "Joy", color: "from-pink-500 to-rose-600" }
           ].map((benefit, idx) => (
             <motion.div
               key={idx}
@@ -187,7 +187,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
                 scale: 1.05, 
                 y: -3
               }}
-              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-3 px-2 flex flex-col items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
+              className={`bg-gradient-to-br ${benefit.color} text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center gap-1 shadow-lg hover:shadow-xl transition-all duration-300 text-center cursor-pointer border border-white/20`}
             >
               <motion.div 
                 animate={{ 
@@ -199,7 +199,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
                   repeat: Infinity,
                   repeatDelay: idx * 0.5
                 }}
-                className="bg-white/20 rounded-full p-2 backdrop-blur-sm"
+                className="bg-white/20 rounded-full p-1.5 backdrop-blur-sm"
               >
                 {benefit.icon}
               </motion.div>
@@ -214,21 +214,21 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="mb-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-xl p-4 border border-indigo-200/50 dark:border-indigo-800/30 shadow-lg backdrop-blur-sm"
+        className="mb-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-950/30 rounded-xl p-3 border border-indigo-200/50 dark:border-indigo-800/30 shadow-lg backdrop-blur-sm"
       >
-        <p className="text-base text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-green-600" />
+        <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-green-600" />
           Transform your exam journey with our <span className="font-semibold text-indigo-700 dark:text-indigo-400">AI-driven emotional intelligence</span> platform.
         </p>
       </motion.div>
       
       <ExamNamesBadge />
 
-      {/* Enhanced Futuristic CTA Buttons */}
-      <div className="space-y-4 mt-8">
+      {/* Enhanced Futuristic CTA Buttons - More Prominent */}
+      <div className="space-y-3 mt-6">
         <motion.button
           onClick={handleFreeTrialClick}
-          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-5 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
+          className="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center relative overflow-hidden border border-purple-400/30"
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -241,15 +241,15 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="relative flex items-center gap-3">
-            <Rocket className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-            <span className="text-lg">Launch Your Success Journey - 7 Days Free</span>
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            <Rocket className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            <span className="text-base">Launch Your Success Journey - 7 Days Free</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </div>
         </motion.button>
         
         <motion.button
           onClick={handleExamReadinessClick}
-          className="group w-full border-2 border-purple-400/50 hover:border-purple-500 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-4 px-8 rounded-2xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+          className="group w-full border-2 border-purple-400/50 hover:border-purple-500 dark:border-purple-700 dark:hover:border-purple-600 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 py-3 px-6 rounded-2xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.98 }}
           initial={{ opacity: 0 }}
@@ -257,9 +257,9 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           transition={{ delay: 0.9 }}
         >
           <div className="flex items-center gap-3">
-            <Brain className="w-6 h-6 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold text-lg">AI Exam Readiness Analysis</span>
-            <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+            <Brain className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span className="font-semibold text-base">AI Exam Readiness Analysis</span>
+            <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
           </div>
         </motion.button>
       </div>
@@ -269,7 +269,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
-        className="mt-6 text-center"
+        className="mt-4 text-center"
       >
         <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
