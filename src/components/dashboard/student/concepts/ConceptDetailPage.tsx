@@ -32,7 +32,6 @@ const ConceptDetailPage = () => {
       const foundConcept = conceptCards.find(card => card.id === conceptId);
       if (foundConcept) {
         setConcept(foundConcept);
-        // Load notes for this concept
         setUserNotes(getNoteForConcept(conceptId));
       }
     }
@@ -102,7 +101,6 @@ const ConceptDetailPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-3">
             <ConceptHeader concept={concept} />
             
@@ -191,28 +189,15 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
-                    {/* Quick Recall Test Section */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Brain className="h-5 w-5 text-blue-600" />
-                          Quick Recall Test
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickRecallSection 
-                          conceptId={concept.id}
-                          title={concept.title}
-                          content={concept.content}
-                          onQuizComplete={(score) => {
-                            console.log(`Quiz completed with score: ${score}`);
-                            // In a real app, this would update the user's mastery score
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
+                    <QuickRecallSection 
+                      conceptId={concept.id}
+                      title={concept.title}
+                      content={concept.content}
+                      onQuizComplete={(score) => {
+                        console.log(`Quiz completed with score: ${score}`);
+                      }}
+                    />
 
-                    {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
                         <CardHeader>
@@ -263,7 +248,6 @@ const ConceptDetailPage = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="lg:col-span-1">
             <ConceptSidebar concept={concept} />
           </div>

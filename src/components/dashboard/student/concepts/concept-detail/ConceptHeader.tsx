@@ -12,7 +12,6 @@ interface ConceptHeaderProps {
 const ConceptHeader: React.FC<ConceptHeaderProps> = ({ concept }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   
-  // Check if this concept is bookmarked on load
   useEffect(() => {
     const bookmarkedConcepts = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '{}');
     setIsBookmarked(!!bookmarkedConcepts[concept.id]);
@@ -22,7 +21,6 @@ const ConceptHeader: React.FC<ConceptHeaderProps> = ({ concept }) => {
     const newBookmarkState = !isBookmarked;
     setIsBookmarked(newBookmarkState);
     
-    // Save bookmark state to localStorage
     const bookmarkedConcepts = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '{}');
     
     if (newBookmarkState) {
