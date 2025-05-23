@@ -75,50 +75,45 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
         <span className="font-semibold">From struggling student to exam champion</span> - our AI-driven platform is specially designed for Indian competitive exams like <span className="font-semibold text-indigo-600 dark:text-indigo-400">JEE, NEET, UPSC, CAT</span> and more. Your personalized pathway to success starts here.
       </motion.p>
       
-      {/* Animated Key Benefits Section - Completely redesigned */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="mb-8"
+      {/* Key Benefits Section - Added here */}
+      <motion.div
+        variants={fadeInStagger}
+        initial="hidden"
+        animate="visible"
+        className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3"
       >
-        <h3 className="text-lg font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-          Key Benefits of Our Platform
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {takeawayPoints.map((point, idx) => (
-            <motion.div
-              key={idx}
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.4, 
-                delay: 0.7 + idx * 0.1,
-                type: "spring",
-                stiffness: 200
+        {[
+          { icon: <Award size={18} />, label: "Confidence Builder", color: "bg-green-500" },
+          { icon: <GraduationCap size={18} />, label: "Exam Success", color: "bg-blue-500" },
+          { icon: <Clock size={18} />, label: "Time Saver", color: "bg-amber-500" },
+          { icon: <Shield size={18} />, label: "Stress-Free", color: "bg-purple-500" },
+          { icon: <Smile size={18} />, label: "Happy Learning", color: "bg-pink-500" }
+        ].map((benefit, idx) => (
+          <motion.div
+            key={idx}
+            variants={itemVariants}
+            custom={idx}
+            whileHover={{ scale: 1.05, y: -5 }}
+            whileTap={{ scale: 0.98 }}
+            className={`${benefit.color} text-white rounded-lg py-2 px-3 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300`}
+          >
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 10, 0, -10, 0] 
               }}
-              className={`flex items-center px-4 py-3 rounded-lg bg-gradient-to-br ${point.color} text-white shadow-md hover:shadow-lg transition-all duration-300`}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                repeatDelay: idx * 0.5
+              }}
+              className="text-white"
             >
-              <motion.div 
-                className="mr-3 p-2 bg-white/20 rounded-full"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: idx * 0.5
-                }}
-              >
-                {point.icon}
-              </motion.div>
-              <span className="font-semibold">{point.title}</span>
+              {benefit.icon}
             </motion.div>
-          ))}
-        </div>
+            <span className="font-medium text-sm">{benefit.label}</span>
+          </motion.div>
+        ))}
       </motion.div>
       
       {/* Exam Names Badge */}
