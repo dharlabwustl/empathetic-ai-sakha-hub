@@ -52,14 +52,14 @@ const ConceptHeader: React.FC<ConceptHeaderProps> = ({
           </h1>
         </div>
         <button 
-          className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-full"
           onClick={onBookmarkToggle}
           aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
         >
           <Star 
-            className={`h-6 w-6 transition-colors ${isBookmarked 
+            className={`h-6 w-6 ${isBookmarked 
               ? 'text-amber-500 fill-amber-500' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-amber-400'}`} 
+              : 'text-gray-400 dark:text-gray-500'}`} 
           />
         </button>
       </div>

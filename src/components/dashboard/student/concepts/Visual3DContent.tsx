@@ -1,321 +1,393 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Volume2, Play, RotateCcw, Zap, Atom, Beaker, Eye, Brain } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Box, Play, Pause, RotateCcw, ZoomIn, ZoomOut, 
+  Move3D, Settings, Download, Share2, Eye,
+  Atom, FlaskConical, Target, Activity, Volume2, Mic
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Visual3DContentProps {
   conceptName: string;
 }
 
 const Visual3DContent: React.FC<Visual3DContentProps> = ({ conceptName }) => {
-  const [activeModel, setActiveModel] = useState('molecular');
-  const [isRotating, setIsRotating] = useState(false);
-  const [currentView, setCurrentView] = useState('default');
+  const [activeTab, setActiveTab] = useState('simulation');
+  const [selectedModel, setSelectedModel] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [rotationSpeed, setRotationSpeed] = useState([50]);
+  const [forceValue, setForceValue] = useState([20]);
+  const [massValue, setMassValue] = useState([5]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const playAudioExplanation = (type: string) => {
-    let explanation = '';
-    
-    switch (type) {
-      case 'molecular':
-        explanation = `This 3D molecular model shows the structure of ${conceptName}. You can see how atoms are bonded together, the spatial arrangement, and how electrons are distributed. Notice the bond angles and molecular geometry which determine the properties of this compound.`;
-        break;
-      case 'atomic':
-        explanation = `The atomic model visualization displays the electron cloud and nuclear structure related to ${conceptName}. Observe how electrons occupy different orbitals and energy levels. This helps understand the chemical behavior and bonding patterns.`;
-        break;
-      case 'simulation':
-        explanation = `This interactive simulation demonstrates the dynamic behavior of ${conceptName}. Watch how particles move, interact, and change over time. You can adjust parameters to see how different conditions affect the system.`;
-        break;
-      case 'crossSection':
-        explanation = `The cross-sectional view reveals the internal structure of ${conceptName}. This perspective shows layers, boundaries, and internal components that are normally hidden from view.`;
-        break;
-      default:
-        explanation = `Welcome to the 3D laboratory for ${conceptName}. Here you can explore interactive models, simulations, and visualizations to understand this concept better.`;
-    }
+  const subjects = ['Physics', 'Chemistry', 'Biology'];
+  const [activeSubject, setActiveSubject] = useState('Physics');
 
+  const models = {
+    Physics: [
+      {
+        id: 'force-vectors',
+        title: 'Force Vector Visualization',
+        description: 'Interactive 3D representation of force vectors and their effects',
+        type: 'Interactive',
+        difficulty: 'Beginner'
+      },
+      {
+        id: 'mass-acceleration',
+        title: 'Mass-Acceleration Relationship',
+        description: 'Visual demonstration of how mass affects acceleration',
+        type: 'Simulation',
+        difficulty: 'Intermediate'
+      }
+    ],
+    Chemistry: [
+      {
+        id: 'molecular-structure',
+        title: 'Molecular Structure',
+        description: '3D visualization of molecular bonds and structures',
+        type: 'Interactive',
+        difficulty: 'Intermediate'
+      },
+      {
+        id: 'reaction-dynamics',
+        title: 'Chemical Reaction Dynamics',
+        description: 'Real-time chemical reaction simulation',
+        type: 'Simulation',
+        difficulty: 'Advanced'
+      }
+    ],
+    Biology: [
+      {
+        id: 'cell-structure',
+        title: 'Cell Structure',
+        description: '3D exploration of cellular components',
+        type: 'Interactive',
+        difficulty: 'Beginner'
+      },
+      {
+        id: 'dna-replication',
+        title: 'DNA Replication',
+        description: 'Step-by-step DNA replication process',
+        type: 'Animation',
+        difficulty: 'Advanced'
+      }
+    ]
+  };
+
+  const playAudioExplanation = (content: string) => {
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(explanation);
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(content);
       utterance.rate = 0.9;
-      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const toggleRotation = () => {
-    setIsRotating(!isRotating);
-    const action = isRotating ? 'stopped' : 'started';
-    toast({
-      title: `Rotation ${action}`,
-      description: `3D model rotation has been ${action}.`,
-    });
-  };
-
-  const changeView = (view: string) => {
-    setCurrentView(view);
-    playAudioExplanation('viewChange');
-    toast({
-      title: "View changed",
-      description: `Switched to ${view} view of the 3D model.`,
-    });
+  const getTabContent = (tabName: string) => {
+    const currentModels = models[activeSubject as keyof typeof models] || models.Physics;
+    
+    switch (tabName) {
+      case 'simulation':
+        return {
+          title: 'Live Simulation',
+          content: `This is a live simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior.`,
+          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} />
+        };
+      case 'analysis':
+        return {
+          title: 'Force Analysis',
+          content: `Detailed force analysis for ${conceptName}. This shows how different forces interact and affect the system in ${activeSubject}.`,
+          component: <ForceAnalysisTab conceptName={conceptName} subject={activeSubject} />
+        };
+      case 'examples':
+        return {
+          title: '3D Examples',
+          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click on different elements to explore.`,
+          component: <Examples3DTab conceptName={conceptName} subject={activeSubject} />
+        };
+      case 'lab':
+        return {
+          title: 'Virtual Lab',
+          content: `Welcome to the virtual laboratory for ${conceptName}. Conduct experiments and observe results in a safe, controlled environment.`,
+          component: <VirtualLabTab conceptName={conceptName} subject={activeSubject} />
+        };
+      default:
+        return {
+          title: 'Live Simulation',
+          content: `This is a live simulation of ${conceptName}.`,
+          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} />
+        };
+    }
   };
 
   return (
     <div className="space-y-6">
+      {/* Subject Selector */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-600" />
-            3D Virtual Laboratory - {conceptName}
+            <Atom className="h-5 w-5 text-indigo-600" />
+            Subject Selection
           </CardTitle>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">Interactive</Badge>
-            <Badge variant="outline" className="bg-green-50 text-green-700">Audio Enabled</Badge>
-            <Badge variant="outline" className="bg-purple-50 text-purple-700">Real-time</Badge>
-          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-            <Button
-              variant={activeModel === 'molecular' ? 'default' : 'outline'}
-              onClick={() => {
-                setActiveModel('molecular');
-                playAudioExplanation('molecular');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Atom className="h-4 w-4" />
-              Molecular Model
-            </Button>
-            <Button
-              variant={activeModel === 'atomic' ? 'default' : 'outline'}
-              onClick={() => {
-                setActiveModel('atomic');
-                playAudioExplanation('atomic');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Zap className="h-4 w-4" />
-              Atomic Structure
-            </Button>
-            <Button
-              variant={activeModel === 'simulation' ? 'default' : 'outline'}
-              onClick={() => {
-                setActiveModel('simulation');
-                playAudioExplanation('simulation');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Play className="h-4 w-4" />
-              Live Simulation
-            </Button>
-            <Button
-              variant={activeModel === 'crossSection' ? 'default' : 'outline'}
-              onClick={() => {
-                setActiveModel('crossSection');
-                playAudioExplanation('crossSection');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              Cross Section
-            </Button>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg p-8 min-h-[500px] relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid-white/10 bg-grid-pattern"></div>
-            
-            <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-center space-y-6">
-                {activeModel === 'molecular' && (
-                  <div className="space-y-4">
-                    <div className={`w-80 h-80 mx-auto bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center ${isRotating ? 'animate-spin' : ''} transition-all duration-1000`}>
-                      <div className="w-60 h-60 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Atom className="h-24 w-24 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Molecular Structure of {conceptName}</h3>
-                    <p className="text-blue-200 max-w-md mx-auto">
-                      Interactive 3D model showing atomic bonds, electron distribution, and molecular geometry.
-                    </p>
-                  </div>
-                )}
-
-                {activeModel === 'atomic' && (
-                  <div className="space-y-4">
-                    <div className={`w-80 h-80 mx-auto bg-gradient-to-br from-yellow-400 to-orange-600 rounded-full flex items-center justify-center ${isRotating ? 'animate-pulse' : ''} transition-all duration-1000`}>
-                      <div className="w-60 h-60 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Zap className="h-24 w-24 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Atomic Structure View</h3>
-                    <p className="text-yellow-200 max-w-md mx-auto">
-                      Explore electron orbitals, energy levels, and nuclear composition.
-                    </p>
-                  </div>
-                )}
-
-                {activeModel === 'simulation' && (
-                  <div className="space-y-4">
-                    <div className={`w-80 h-80 mx-auto bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center ${isRotating ? 'animate-bounce' : ''} transition-all duration-1000`}>
-                      <div className="w-60 h-60 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Play className="h-24 w-24 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Live Simulation</h3>
-                    <p className="text-green-200 max-w-md mx-auto">
-                      Real-time simulation showing dynamic behavior and interactions.
-                    </p>
-                  </div>
-                )}
-
-                {activeModel === 'crossSection' && (
-                  <div className="space-y-4">
-                    <div className={`w-80 h-80 mx-auto bg-gradient-to-br from-purple-400 to-pink-600 rounded-full flex items-center justify-center ${isRotating ? 'animate-spin' : ''} transition-all duration-1000`}>
-                      <div className="w-60 h-60 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Eye className="h-24 w-24 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Cross-Sectional View</h3>
-                    <p className="text-purple-200 max-w-md mx-auto">
-                      Internal structure and layered composition analysis.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="absolute bottom-4 left-4 flex gap-2">
+          <div className="flex gap-2">
+            {subjects.map((subject) => (
               <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => changeView('front')}
-                className={currentView === 'front' ? 'bg-white text-black' : ''}
-              >
-                Front
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => changeView('side')}
-                className={currentView === 'side' ? 'bg-white text-black' : ''}
-              >
-                Side
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => changeView('top')}
-                className={currentView === 'top' ? 'bg-white text-black' : ''}
-              >
-                Top
-              </Button>
-            </div>
-
-            <div className="absolute bottom-4 right-4 flex gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={toggleRotation}
+                key={subject}
+                variant={activeSubject === subject ? "default" : "outline"}
+                onClick={() => setActiveSubject(subject)}
                 className="flex items-center gap-2"
               >
-                <RotateCcw className="h-4 w-4" />
-                {isRotating ? 'Stop' : 'Rotate'}
+                {subject === 'Physics' && <Atom className="h-4 w-4" />}
+                {subject === 'Chemistry' && <FlaskConical className="h-4 w-4" />}
+                {subject === 'Biology' && <Target className="h-4 w-4" />}
+                {subject}
               </Button>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button
-              onClick={() => playAudioExplanation(activeModel)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <Volume2 className="h-4 w-4" />
-              Audio Explanation
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const detailedInfo = `This ${activeModel} view of ${conceptName} provides detailed insights into its structure and behavior. The 3D visualization allows you to understand complex spatial relationships and dynamic processes that are difficult to grasp from 2D representations.`;
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(detailedInfo);
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-            >
-              Detailed Analysis
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const instructions = `Use the view buttons to change perspectives, click rotate to animate the model, and select different model types to explore various aspects of ${conceptName}. Each view provides unique insights into the structure and behavior.`;
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(instructions);
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-            >
-              <Beaker className="h-4 w-4 mr-2" />
-              Instructions
-            </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Beaker className="h-5 w-5 text-green-600" />
-            Virtual Lab Experiments
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-950/30">
-              <h4 className="font-semibold mb-2">Interactive Experiment 1</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Explore the properties and behavior of {conceptName} under different conditions.
-              </p>
-              <Button 
-                size="sm" 
-                onClick={() => {
-                  const explanation = `Starting interactive experiment 1 for ${conceptName}. This experiment allows you to manipulate variables and observe how they affect the system in real-time.`;
-                  if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(explanation);
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                  }
-                }}
-              >
-                Start Experiment
-              </Button>
+      {/* 3D Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="simulation">Live Simulation</TabsTrigger>
+          <TabsTrigger value="analysis">Force Analysis</TabsTrigger>
+          <TabsTrigger value="examples">3D Examples</TabsTrigger>
+          <TabsTrigger value="lab">Virtual Lab</TabsTrigger>
+        </TabsList>
+
+        {(['simulation', 'analysis', 'examples', 'lab'] as const).map((tabName) => {
+          const tabContent = getTabContent(tabName);
+          return (
+            <TabsContent key={tabName} value={tabName} className="mt-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Move3D className="h-5 w-5 text-indigo-600" />
+                      {tabContent.title}
+                    </CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => playAudioExplanation(tabContent.content)}
+                      className="flex items-center gap-2"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                      Audio Explanation
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {tabContent.component}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          );
+        })}
+      </Tabs>
+    </div>
+  );
+};
+
+// Individual Tab Components
+const LiveSimulationTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
+  const [isRunning, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState([50]);
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center ${isRunning ? 'animate-spin' : ''}`}>
+            <Atom className="h-16 w-16 text-white" />
+          </div>
+          <h3 className="text-xl font-bold">Live {subject} Simulation</h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Interactive simulation of {conceptName} running in real-time
+          </p>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <div className="space-y-2 flex-1 mr-4">
+          <label className="text-sm font-medium">Simulation Speed</label>
+          <Slider
+            value={speed}
+            onValueChange={setSpeed}
+            min={1}
+            max={100}
+            step={1}
+            className="w-full"
+          />
+        </div>
+        <Button
+          onClick={() => setIsRunning(!isRunning)}
+          variant={isRunning ? "destructive" : "default"}
+          className="flex items-center gap-2"
+        >
+          {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          {isRunning ? 'Stop' : 'Start'} Simulation
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const ForceAnalysisTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
+        <h3 className="text-xl font-bold mb-4">Force Analysis - {subject}</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-semibold mb-2">Applied Forces</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span>Force A:</span>
+                <span className="font-mono">25 N</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Force B:</span>
+                <span className="font-mono">15 N</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Net Force:</span>
+                <span className="font-mono font-bold">40 N</span>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-semibold mb-2">Analysis Results</h4>
+            <div className="space-y-2 text-sm">
+              <p>• Resultant force direction: 45°</p>
+              <p>• System equilibrium: No</p>
+              <p>• Acceleration: 8 m/s²</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Examples3DTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
+  const examples = [
+    { title: 'Basic Example', description: `Simple ${conceptName} demonstration` },
+    { title: 'Complex Example', description: `Advanced ${conceptName} scenario` },
+    { title: 'Real-world Application', description: `${conceptName} in practical use` }
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
+        <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {examples.map((example, index) => (
+            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center">
+                <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h4 className="font-semibold">{example.title}</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{example.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VirtualLabTab: React.FC<{ conceptName: string; subject: string }> = ({ conceptName, subject }) => {
+  const [experimentRunning, setExperimentRunning] = useState(false);
+  const [labResults, setLabResults] = useState<string[]>([]);
+
+  const startExperiment = () => {
+    setExperimentRunning(true);
+    const newResult = `Experiment ${labResults.length + 1}: ${conceptName} test completed at ${new Date().toLocaleTimeString()}`;
+    
+    // Simulate experiment running
+    setTimeout(() => {
+      setLabResults(prev => [...prev, newResult]);
+      setExperimentRunning(false);
+      
+      // Audio explanation for lab results
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(`Experiment completed. Results show the behavior of ${conceptName} in the virtual ${subject} laboratory.`);
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }, 3000);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold">Virtual {subject} Lab</h3>
+          <Badge variant="outline">{conceptName}</Badge>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Lab Equipment */}
+          <div className="space-y-4">
+            <h4 className="font-semibold">Lab Equipment</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {['Measuring Tools', 'Sensors', 'Controls', 'Data Logger'].map((tool, index) => (
+                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
+                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-orange-600" />
+                  <p className="text-xs">{tool}</p>
+                </div>
+              ))}
             </div>
             
-            <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/30">
-              <h4 className="font-semibold mb-2">Interactive Experiment 2</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Advanced simulation showing complex interactions and processes.
-              </p>
-              <Button 
-                size="sm" 
-                onClick={() => {
-                  const explanation = `Launching advanced simulation for ${conceptName}. This experiment demonstrates complex interactions and allows you to analyze cause-and-effect relationships.`;
-                  if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(explanation);
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                  }
-                }}
-              >
-                Launch Simulation
-              </Button>
+            <Button
+              onClick={startExperiment}
+              disabled={experimentRunning}
+              className="w-full flex items-center gap-2"
+              variant={experimentRunning ? "secondary" : "default"}
+            >
+              {experimentRunning ? (
+                <>
+                  <Activity className="h-4 w-4 animate-spin" />
+                  Running Experiment...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Start Experiment
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Results */}
+          <div className="space-y-4">
+            <h4 className="font-semibold">Experiment Results</h4>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[200px]">
+              {labResults.length === 0 ? (
+                <p className="text-gray-500 text-center">No experiments run yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {labResults.map((result, index) => (
+                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                      {result}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
