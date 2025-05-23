@@ -122,11 +122,11 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           // Handle voice commands based on page context
           if (currentPath.includes('/signup') || currentPath.includes('/login')) {
             if (transcript.includes('select student')) {
-              // Select student option
-              const studentOption = document.querySelector('input[value="student"]');
+              // Select student option - fix type casting
+              const studentOption = document.querySelector('input[value="student"]') as HTMLInputElement;
               if (studentOption && !studentOption.checked) {
-                (studentOption as HTMLInputElement).checked = true;
-                (studentOption as HTMLInputElement).dispatchEvent(new Event('change', { bubbles: true }));
+                studentOption.checked = true;
+                studentOption.dispatchEvent(new Event('change', { bubbles: true }));
               }
             } else if (transcript.includes('next') || transcript.includes('continue')) {
               // Find and click next/continue button

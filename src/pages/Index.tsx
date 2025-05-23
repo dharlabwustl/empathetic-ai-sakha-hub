@@ -121,7 +121,7 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced intelligent voice assistant for homepage */}
+      {/* Enhanced intelligent voice assistant for homepage with immediate greeting */}
       <EnhancedHomePageVoiceAssistant language="en-US" />
       
       {/* Floating Voice Assistant button */}
@@ -150,7 +150,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-IN"  // Default to Indian English
+          language="en-US"  // Use US English for female voice preference
         />
       )}
     </div>
