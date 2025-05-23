@@ -3,24 +3,17 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
-  Target, 
-  BookOpen, 
-  FileText, 
-  Users, 
-  ArrowRight,
-  Star,
-  TrendingUp,
-  Clock,
-  Brain,
-  Zap,
-  Award,
-  Video,
-  BarChart3,
-  MessageSquare
+  Target, BookOpen, FileText, Users, ArrowRight,
+  Star, TrendingUp, Clock, Brain, Zap, Award,
+  RotateCcw, HelpCircle, FlaskConical, Video,
+  PenTool, MessageCircle, Lightbulb, CheckCircle,
+  BarChart3, PlayCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface PersonalizedRecommendationsProps {
   conceptId: string;
@@ -32,279 +25,395 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
   masteryLevel
 }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const suggestedActions = [
     {
-      type: 'practice',
-      title: 'Force & Motion Practice',
-      description: 'Targeted practice problems for weak areas',
+      id: 'practice-problems',
+      title: 'Practice Related Problems',
+      description: 'Solve 5 problems combining force and motion concepts',
       icon: <Target className="h-4 w-4" />,
       priority: 'high',
-      action: () => navigate('/dashboard/student/practice-exam'),
       estimatedTime: '15 min',
-      category: 'Practice'
+      difficulty: 'Medium',
+      action: () => navigate('/dashboard/student/practice-exams'),
+      progress: 40,
+      type: 'practice'
     },
     {
-      type: 'flashcard',
-      title: 'Newton\'s Laws Flashcards',
-      description: 'Quick review cards for key concepts',
-      icon: <FileText className="h-4 w-4" />,
+      id: 'recall-flashcards',
+      title: 'Quick Recall Session',
+      description: 'Review key formulas and definitions with flashcards',
+      icon: <RotateCcw className="h-4 w-4" />,
       priority: 'high',
-      action: () => navigate('/dashboard/student/flashcards'),
       estimatedTime: '10 min',
-      category: 'Review'
+      difficulty: 'Easy',
+      action: () => navigate('/dashboard/student/flashcards'),
+      progress: 0,
+      type: 'review'
     },
     {
-      type: 'video',
-      title: 'Advanced Applications Video',
-      description: 'Watch advanced concept explanations',
+      id: 'video-review',
+      title: 'Watch Advanced Examples',
+      description: 'Video explanations of complex applications',
       icon: <Video className="h-4 w-4" />,
       priority: 'medium',
-      action: () => navigate('/dashboard/student/concepts'),
-      estimatedTime: '12 min',
-      category: 'Learn'
-    },
-    {
-      type: 'concept',
-      title: 'Energy Conservation',
-      description: 'Related concept to strengthen understanding',
-      icon: <BookOpen className="h-4 w-4" />,
-      priority: 'medium',
-      action: () => navigate('/dashboard/student/concepts'),
       estimatedTime: '20 min',
-      category: 'Explore'
+      difficulty: 'Advanced',
+      action: () => {
+        toast({
+          title: "Loading video content",
+          description: "Preparing advanced examples for you..."
+        });
+      },
+      progress: 25,
+      type: 'learn'
     },
     {
-      type: 'discussion',
-      title: 'Physics Study Group',
-      description: 'Join discussion on Newton\'s Laws',
+      id: 'mock-test',
+      title: 'Take Concept Quiz',
+      description: 'Test your understanding with targeted questions',
+      icon: <FileText className="h-4 w-4" />,
+      priority: 'medium',
+      estimatedTime: '12 min',
+      difficulty: 'Medium',
+      action: () => navigate('/dashboard/student/practice-exams'),
+      progress: 0,
+      type: 'assessment'
+    },
+    {
+      id: 'lab-experiment',
+      title: 'Virtual Lab Experiment',
+      description: 'Hands-on simulation with force measurements',
+      icon: <FlaskConical className="h-4 w-4" />,
+      priority: 'low',
+      estimatedTime: '25 min',
+      difficulty: 'Advanced',
+      action: () => navigate('/dashboard/student/concepts/formula-lab'),
+      progress: 0,
+      type: 'experiment'
+    },
+    {
+      id: 'peer-discussion',
+      title: 'Join Study Discussion',
+      description: 'Discuss concepts with peers in study groups',
       icon: <Users className="h-4 w-4" />,
       priority: 'low',
-      action: () => navigate('/dashboard/student/study-groups'),
       estimatedTime: '30 min',
-      category: 'Collaborate'
-    },
-    {
-      type: 'analysis',
-      title: 'Performance Analytics',
-      description: 'Review your learning progress',
-      icon: <BarChart3 className="h-4 w-4" />,
-      priority: 'low',
-      action: () => navigate('/dashboard/student/analytics'),
-      estimatedTime: '8 min',
-      category: 'Track'
+      difficulty: 'All Levels',
+      action: () => navigate('/dashboard/student/study-groups'),
+      progress: 0,
+      type: 'social'
     }
+  ];
+
+  const relatedConcepts = [
+    { 
+      title: 'Newton\'s First Law', 
+      mastery: 90, 
+      status: 'completed',
+      route: '/dashboard/student/concepts/newtons-first-law'
+    },
+    { 
+      title: 'Force and Friction', 
+      mastery: 75, 
+      status: 'in-progress',
+      route: '/dashboard/student/concepts/force-friction'
+    },
+    { 
+      title: 'Newton\'s Third Law', 
+      mastery: 60, 
+      status: 'recommended',
+      route: '/dashboard/student/concepts/newtons-third-law'
+    },
+    { 
+      title: 'Momentum Conservation', 
+      mastery: 30, 
+      status: 'upcoming',
+      route: '/dashboard/student/concepts/momentum'
+    }
+  ];
+
+  const quickStats = [
+    { label: 'Study Streak', value: '7 days', icon: <Award className="h-4 w-4 text-yellow-500" /> },
+    { label: 'Problems Solved', value: '23/30', icon: <Target className="h-4 w-4 text-blue-500" /> },
+    { label: 'Concepts Mastered', value: '12/20', icon: <Brain className="h-4 w-4 text-green-500" /> },
+    { label: 'Practice Score', value: '87%', icon: <BarChart3 className="h-4 w-4 text-purple-500" /> }
   ];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'high': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/30 dark:text-red-300';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-300';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/30 dark:text-green-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-950/30 dark:text-gray-300';
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Practice': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'Review': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'Learn': return 'bg-green-50 text-green-700 border-green-200';
-      case 'Explore': return 'bg-orange-50 text-orange-700 border-orange-200';
-      case 'Collaborate': return 'bg-pink-50 text-pink-700 border-pink-200';
-      case 'Track': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'practice': return 'text-blue-600 dark:text-blue-400';
+      case 'review': return 'text-green-600 dark:text-green-400';
+      case 'learn': return 'text-purple-600 dark:text-purple-400';
+      case 'assessment': return 'text-red-600 dark:text-red-400';
+      case 'experiment': return 'text-orange-600 dark:text-orange-400';
+      case 'social': return 'text-pink-600 dark:text-pink-400';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
-  const learningPath = [
-    { title: 'Basic Forces', completed: true, score: 92 },
-    { title: 'Newton\'s Laws', current: true, score: 76 },
-    { title: 'Energy Conservation', upcoming: true, score: 0 },
-    { title: 'Momentum', upcoming: true, score: 0 },
-    { title: 'Circular Motion', upcoming: true, score: 0 }
-  ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'text-green-600 dark:text-green-400';
+      case 'in-progress': return 'text-blue-600 dark:text-blue-400';
+      case 'recommended': return 'text-yellow-600 dark:text-yellow-400';
+      case 'upcoming': return 'text-gray-600 dark:text-gray-400';
+      default: return 'text-gray-600 dark:text-gray-400';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Smart Suggested Actions - Redesigned Layout */}
-      <div className="space-y-4">
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center mb-3">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full">
-              <Brain className="h-6 w-6 text-white" />
-            </div>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Suggested Actions
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Smart recommendations based on your learning progress and performance gaps
+      {/* Suggested Actions - Main Card */}
+      <Card className="border-2 border-amber-100 dark:border-amber-800">
+        <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5" />
+            Suggested Study Actions
+          </CardTitle>
+          <p className="text-amber-100 text-sm">
+            Personalized recommendations based on your learning behavior
           </p>
-        </div>
-
-        {/* Priority Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedActions.map((action, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full" onClick={action.action}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg">
-                      {action.icon}
-                    </div>
-                    <div className="flex gap-1">
-                      <Badge 
-                        className={`text-xs ${getPriorityColor(action.priority)}`}
-                        variant="outline"
-                      >
-                        {action.priority}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {action.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    {action.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${getCategoryColor(action.category)}`}
-                      >
-                        {action.category}
-                      </Badge>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Clock className="h-3 w-3" />
-                        {action.estimatedTime}
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {suggestedActions.map((action, index) => (
+              <motion.div
+                key={action.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="hover:shadow-md transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-indigo-500" 
+                      onClick={action.action}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-lg ${getTypeColor(action.type)} bg-current/10`}>
+                        {action.icon}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-medium text-sm">{action.title}</h4>
+                          <Badge 
+                            className={`text-xs ${getPriorityColor(action.priority)}`}
+                            variant="outline"
+                          >
+                            {action.priority}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {action.difficulty}
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          {action.description}
+                        </p>
+                        
+                        {action.progress > 0 && (
+                          <div className="mb-3">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span>Progress</span>
+                              <span>{action.progress}%</span>
+                            </div>
+                            <Progress value={action.progress} className="h-2" />
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {action.estimatedTime}
+                            </span>
+                            <span className={`capitalize ${getTypeColor(action.type)}`}>
+                              {action.type}
+                            </span>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-gray-400" />
+                        </div>
                       </div>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-purple-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Quick Action Bar */}
-        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-purple-200 dark:border-purple-800">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h4 className="font-semibold text-purple-900 dark:text-purple-100">
-                  Ready to boost your learning?
-                </h4>
-                <p className="text-sm text-purple-700 dark:text-purple-300">
-                  Start with high-priority actions for maximum impact
-                </p>
-              </div>
-              <Button 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                onClick={() => navigate('/dashboard/student/practice-exam')}
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Start Practice Session
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Learning Path - Horizontal Layout */}
+      {/* Learning Path */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-600" />
-            Your Learning Journey
+            Related Learning Path
           </CardTitle>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Continue your physics journey with connected concepts
+          </p>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="relative">
-            {/* Progress Line */}
-            <div className="absolute top-6 left-6 right-6 h-0.5 bg-gray-200 dark:bg-gray-700"></div>
-            <div className="absolute top-6 left-6 h-0.5 bg-blue-500" style={{ width: '40%' }}></div>
-            
-            {/* Learning Steps */}
-            <div className="flex justify-between relative">
-              {learningPath.map((step, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                    step.completed 
+          <div className="space-y-3">
+            {relatedConcepts.map((concept, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="cursor-pointer"
+                onClick={() => navigate(concept.route)}
+              >
+                <div className="flex items-center gap-4 p-3 rounded-lg border hover:shadow-sm transition-all">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    concept.status === 'completed' 
                       ? 'bg-green-500 text-white' 
-                      : step.current 
+                      : concept.status === 'in-progress'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                      : concept.status === 'recommended'
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-gray-300 dark:bg-gray-600'
                   }`}>
-                    {step.completed ? (
-                      <Award className="h-5 w-5" />
-                    ) : step.current ? (
-                      <Brain className="h-5 w-5" />
+                    {concept.status === 'completed' ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : concept.status === 'in-progress' ? (
+                      <PlayCircle className="h-4 w-4" />
                     ) : (
-                      <span className="text-sm font-medium">{index + 1}</span>
+                      <span className="text-xs font-medium">{index + 1}</span>
                     )}
                   </div>
                   
-                  <div className="text-center max-w-20">
-                    <div className="font-medium text-sm">{step.title}</div>
-                    {step.completed && (
-                      <div className="text-xs text-green-600 dark:text-green-400">
-                        {step.score}% mastered
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm">{concept.title}</h4>
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs ${getStatusColor(concept.status)}`}
+                      >
+                        {concept.status.replace('-', ' ')}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <Progress value={concept.mastery} className="h-2" />
                       </div>
-                    )}
-                    {step.current && (
-                      <div className="text-xs text-blue-600 dark:text-blue-400">
-                        {step.score}% progress
-                      </div>
-                    )}
+                      <span className="text-xs text-gray-500">{concept.mastery}%</span>
+                    </div>
                   </div>
+                  
+                  <ArrowRight className="h-4 w-4 text-gray-400" />
                 </div>
-              ))}
-            </div>
+              </motion.div>
+            ))}
           </div>
           
           <Button 
             variant="outline" 
-            className="w-full mt-6"
+            className="w-full mt-4"
             onClick={() => navigate('/dashboard/student/analytics')}
           >
+            <TrendingUp className="h-4 w-4 mr-2" />
             View Complete Learning Path
           </Button>
         </CardContent>
       </Card>
 
-      {/* Quick Stats - Compact Layout */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-blue-600">7</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Study Streak</div>
-          <div className="text-xs text-green-600 mt-1">+2 from last week</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-green-600">12/20</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Concepts</div>
-          <div className="text-xs text-blue-600 mt-1">60% complete</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-purple-600">85%</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Practice Score</div>
-          <div className="text-xs text-green-600 mt-1">Above average</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-orange-600">4.2h</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Week Time</div>
-          <div className="text-xs text-blue-600 mt-1">Target: 5h</div>
-        </Card>
-      </div>
+      {/* Quick Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Quick Performance Stats
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-3">
+          {quickStats.map((stat, index) => (
+            <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center gap-2">
+                {stat.icon}
+                <span className="text-sm font-medium">{stat.label}</span>
+              </div>
+              <Badge variant="outline" className="font-mono">
+                {stat.value}
+              </Badge>
+            </div>
+          ))}
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full mt-3"
+            onClick={() => navigate('/dashboard/student/analytics')}
+          >
+            <BarChart3 className="h-3 w-3 mr-2" />
+            View Detailed Analytics
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Study Tools Shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Zap className="h-4 w-4 text-yellow-500" />
+            Quick Study Tools
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/flashcards')}
+          >
+            <RotateCcw className="h-3 w-3 mr-2" />
+            Create Flashcards
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/practice-exams')}
+          >
+            <Target className="h-3 w-3 mr-2" />
+            Practice Problems
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/study-groups')}
+          >
+            <Users className="h-3 w-3 mr-2" />
+            Find Study Partners
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+            onClick={() => {
+              toast({
+                title: "AI Tutor Starting",
+                description: "Connecting you with AI tutor for personalized help..."
+              });
+            }}
+          >
+            <MessageCircle className="h-3 w-3 mr-2" />
+            Ask AI Tutor
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };
