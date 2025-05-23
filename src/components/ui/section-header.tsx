@@ -1,22 +1,26 @@
 
-import React from "react";
+import React from 'react';
 
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
-  actions?: React.ReactNode;
+  action?: React.ReactNode;
 }
 
-export function SectionHeader({ title, subtitle, actions }: SectionHeaderProps) {
+export const SectionHeader: React.FC<SectionHeaderProps> = ({
+  title,
+  subtitle,
+  action
+}) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+    <div className="flex justify-between items-start mb-2">
       <div>
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{title}</h2>
         {subtitle && (
-          <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{subtitle}</p>
         )}
       </div>
-      {actions && <div className="mt-3 sm:mt-0 flex items-center">{actions}</div>}
+      {action && <div>{action}</div>}
     </div>
   );
-}
+};

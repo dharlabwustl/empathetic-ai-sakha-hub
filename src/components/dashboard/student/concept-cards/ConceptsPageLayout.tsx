@@ -14,13 +14,15 @@ interface ConceptsPageLayoutProps {
   showBackButton?: boolean;
   title?: string;
   subtitle?: string;
+  backButtonUrl?: string;
 }
 
 export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
   children,
   showBackButton = false,
   title,
-  subtitle
+  subtitle,
+  backButtonUrl = "/dashboard/student/concepts"
 }) => {
   const isMobile = useMediaQuery('(max-width: 767px)');
   
@@ -41,7 +43,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
             transition={{ duration: 0.3 }}
             className={isMobile ? "mb-2" : ""}
           >
-            <Link to="/dashboard/student/concepts">
+            <Link to={backButtonUrl}>
               <Button 
                 variant="ghost" 
                 size={isMobile ? "sm" : "default"}
