@@ -18,7 +18,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     navigate('/signup');
   };
 
-  // Initialize and animate the 3D background
+  // Enhanced 3D background with more particles, better colors, and dynamic movement
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -32,46 +32,65 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     );
     camera.position.z = 30;
 
-    // Renderer
+    // Renderer with enhanced settings
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       alpha: true,
-      antialias: true
+      antialias: true,
+      precision: "highp"
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
-    // Create particles
+    // Create particles with enhanced count and colors
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1500;
+    const particlesCount = 2500; // Increased particle count
     const posArray = new Float32Array(particlesCount * 3);
     const colors = new Float32Array(particlesCount * 3);
+    const sizes = new Float32Array(particlesCount);
 
-    for (let i = 0; i < particlesCount * 3; i++) {
-      // Position
+    for (let i = 0; i < particlesCount * 3; i += 3) {
+      // Position with more depth variation
       posArray[i] = (Math.random() - 0.5) * 70;
+      posArray[i+1] = (Math.random() - 0.5) * 70;
+      posArray[i+2] = (Math.random() - 0.5) * 70;
 
-      // Colors - gradient from blue to purple
-      if (i % 3 === 0) {
-        colors[i] = Math.random() * 0.3 + 0.2; // R - low for blue/purple
-      } else if (i % 3 === 1) {
-        colors[i] = Math.random() * 0.3; // G - low for blue/purple
+      // Enhanced color palette - purple to blue gradient with more vibrant colors
+      const colorChoice = Math.random();
+      if (colorChoice < 0.3) {
+        // Blue shades
+        colors[i] = 0.2 + Math.random() * 0.1; // R
+        colors[i+1] = 0.3 + Math.random() * 0.2; // G
+        colors[i+2] = 0.7 + Math.random() * 0.3; // B
+      } else if (colorChoice < 0.6) {
+        // Purple shades
+        colors[i] = 0.4 + Math.random() * 0.2; // R
+        colors[i+1] = 0.1 + Math.random() * 0.1; // G
+        colors[i+2] = 0.6 + Math.random() * 0.4; // B
       } else {
-        colors[i] = Math.random() * 0.5 + 0.5; // B - high for blue/purple
+        // Indigo shades
+        colors[i] = 0.3 + Math.random() * 0.1; // R
+        colors[i+1] = 0.2 + Math.random() * 0.1; // G
+        colors[i+2] = 0.8 + Math.random() * 0.2; // B
       }
+      
+      // Varied particle sizes
+      sizes[i/3] = Math.random() * 3 + 0.5;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-    // Material
+    // Enhanced material with custom shaders for better particles
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.1,
+      size: 0.15,
       vertexColors: true,
       transparent: true,
       opacity: 0.8,
-      sizeAttenuation: true
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending,
     });
 
     // Points
@@ -81,10 +100,18 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     // Add some soft lighting
     const ambientLight = new THREE.AmbientLight(0x404040, 2);
     scene.add(ambientLight);
+    
+    // Add directional light for better depth
+    const directionalLight = new THREE.DirectionalLight(0x9090ff, 1);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
 
-    // Animate on mouse movement
+    // Animate on mouse movement with enhanced response
     let mouseX = 0;
     let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    
     const mouseMoveHandler = (event: MouseEvent) => {
       mouseX = (event.clientX / window.innerWidth) * 2 - 1;
       mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -99,18 +126,38 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
     };
     window.addEventListener('resize', handleResize);
 
-    // Animation loop
+    // Animation loop with smoother movements
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Rotate based on mouse position
-      particlesMesh.rotation.x += 0.0003;
+      // Smooth mouse tracking
+      targetX = mouseX * 0.2;
+      targetY = mouseY * 0.2;
+      
+      // Base rotation
+      particlesMesh.rotation.x += 0.0005;
       particlesMesh.rotation.y += 0.0005;
-
-      // Subtle response to mouse movement
-      particlesMesh.rotation.y += mouseX * 0.0003;
-      particlesMesh.rotation.x += mouseY * 0.0003;
-
+      particlesMesh.rotation.z += 0.0003;
+      
+      // Enhanced response to mouse movement with easing
+      particlesMesh.rotation.x += (targetY - particlesMesh.rotation.x) * 0.03;
+      particlesMesh.rotation.y += (targetX - particlesMesh.rotation.y) * 0.03;
+      
+      // Dynamic particle movement
+      const positions = particlesMesh.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < positions.length; i += 3) {
+        // Add subtle wave effect
+        const x = positions[i];
+        const y = positions[i+1];
+        const z = positions[i+2];
+        
+        const time = Date.now() * 0.0001;
+        positions[i] = x + Math.sin(time + x * 0.1) * 0.05;
+        positions[i+1] = y + Math.cos(time + y * 0.1) * 0.05;
+        positions[i+2] = z + Math.sin(time + z * 0.1) * 0.05;
+      }
+      particlesMesh.geometry.attributes.position.needsUpdate = true;
+      
       renderer.render(scene, camera);
     };
     animate();
@@ -137,7 +184,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       transition={{ duration: 0.8, delay: 0.1 }}
       className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pr-8 relative z-20"
     >
-      {/* 3D Background Canvas */}
+      {/* Enhanced 3D Background Canvas */}
       <canvas 
         ref={canvasRef} 
         className="absolute top-0 left-0 w-full h-full -z-10"
@@ -146,7 +193,7 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
           top: 0, 
           left: 0, 
           pointerEvents: 'none',
-          opacity: 0.6
+          opacity: 0.7 // Increased opacity for better visibility
         }}
       />
 
