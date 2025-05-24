@@ -29,15 +29,27 @@ const ContentManagementTab = () => {
   } = useContentManagement();
   
   const handleUploadClick = () => {
-    setShowUploader(true);
+    openDialog('content-upload', 'Upload Content', {
+      title: '',
+      subject: '',
+      topic: '',
+      exam: '',
+      difficulty: 'Medium',
+      formatType: 'PDF',
+      tags: '',
+      sections: 1,
+      description: ''
+    });
   };
   
   const handleCreateContent = () => {
     openDialog('create', 'Create New Content', {
-      name: '',
+      title: '',
       type: 'Study Material',
       subject: '',
-      description: ''
+      description: '',
+      exam: '',
+      difficulty: 'Medium'
     });
   };
   
@@ -51,11 +63,13 @@ const ContentManagementTab = () => {
   };
   
   const handleEditPrompt = (promptType: string) => {
-    openDialog('edit', `${promptType} Prompt`, {
-      name: promptType,
-      prompt: `This is the current prompt for ${promptType}...`,
+    openDialog('ai-settings', `${promptType} Prompt`, {
+      modelName: 'GPT-4',
       temperature: 0.7,
-      maxTokens: 1000
+      maxTokens: 1000,
+      systemPrompt: `This is the current prompt for ${promptType}...`,
+      enableLogging: true,
+      enableCache: false
     });
   };
   
@@ -84,8 +98,8 @@ const ContentManagementTab = () => {
   };
 
   const handlePromptTuning = () => {
-    openDialog('settings', 'GPT Prompt Tuning', {
-      model: 'GPT-4',
+    openDialog('ai-settings', 'GPT Prompt Tuning', {
+      modelName: 'GPT-4',
       temperature: 0.7,
       maxTokens: 1000,
       systemPrompt: 'You are an educational content generator...'
@@ -130,17 +144,6 @@ const ContentManagementTab = () => {
             });
           }}
         />
-        
-        {showUploader && (
-          <ContentUploader
-            handleFileSelect={handleFileSelect}
-            handleUpload={handleUpload}
-            selectedFile={selectedFile}
-            onFileRemove={handleFileRemove}
-            uploading={uploading}
-            uploadProgress={uploadProgress}
-          />
-        )}
         
         <Card>
           <CardContent className="pt-6">
