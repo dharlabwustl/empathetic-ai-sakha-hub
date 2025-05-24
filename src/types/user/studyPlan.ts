@@ -34,7 +34,7 @@ export interface StudyPlan {
   totalHours: number;
   completedHours: number;
   progress: number;
-  status: 'active' | 'completed' | 'paused';
+  status: 'active' | 'completed' | 'paused' | 'pending';
   createdAt: string;
   updatedAt: string;
   isCustom: boolean;

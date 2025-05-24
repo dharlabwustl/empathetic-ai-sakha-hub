@@ -8,10 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { 
-  LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell, TrendingUp, Target, Check, Clock, Calendar
-} from 'lucide-react';
 
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
@@ -22,13 +18,57 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import StudentKPIDashboard from './StudentKPIDashboard';
 import { MoodType } from '@/types/user/base';
-import { Progress } from '@/components/ui/progress';
 import UpcomingTasks from './UpcomingTasks';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
   kpis: KpiData[];
 }
+
+// Mock data for the dashboard sections
+const mockProgressTracker = {
+  completedTasks: 8,
+  totalTasks: 12,
+  streak: 5,
+  weeklyGoal: 80,
+  weeklyProgress: 75
+};
+
+const mockSubjects = [
+  { id: '1', name: 'Physics', progress: 75, color: '#3B82F6', timeSpent: 12 },
+  { id: '2', name: 'Chemistry', progress: 60, color: '#10B981', timeSpent: 8 },
+  { id: '3', name: 'Mathematics', progress: 85, color: '#F59E0B', timeSpent: 15 }
+];
+
+const mockPerformance = {
+  suggestions: [
+    {
+      id: '1',
+      title: 'Review Organic Chemistry',
+      description: 'You have some pending concepts in organic chemistry',
+      priority: 'high' as const,
+      type: 'revision' as const,
+      estimatedTime: 30
+    },
+    {
+      id: '2',
+      title: 'Practice Physics Problems',
+      description: 'Complete mechanics problem set',
+      priority: 'medium' as const,
+      type: 'practice' as const,
+      estimatedTime: 45
+    }
+  ]
+};
+
+const mockStudyStats = {
+  subjects: mockSubjects,
+  conceptCards: {
+    mastered: 48,
+    total: 120,
+    recentlyAdded: 5
+  }
+};
 
 const dummyTasks = [
   {
@@ -157,22 +197,25 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
           </motion.div>
           
           <motion.div variants={itemVariants}>
-            <ProgressTrackerSection />
+            <ProgressTrackerSection progressTracker={mockProgressTracker} />
           </motion.div>
           
           <motion.div variants={itemVariants}>
-            <SubjectBreakdownSection />
+            <SubjectBreakdownSection subjects={mockSubjects} />
           </motion.div>
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
-            <SmartSuggestionsCenter />
+            <SmartSuggestionsCenter performance={mockPerformance} />
           </motion.div>
           
           <motion.div variants={itemVariants}>
-            <StudyStatsSection />
+            <StudyStatsSection 
+              subjects={mockStudyStats.subjects} 
+              conceptCards={mockStudyStats.conceptCards} 
+            />
           </motion.div>
           
           <motion.div variants={itemVariants}>
