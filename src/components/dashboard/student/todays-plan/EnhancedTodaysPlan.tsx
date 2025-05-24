@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +10,7 @@ import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 import { 
   Calendar, Clock, BookOpen, Brain, FileText, Target, 
   Play, Pause, CheckCircle, Star, TrendingUp, Zap,
-  Volume2, Settings, Award, Users, MessageSquare, Lightbulb
+  Volume2, Settings, Award, Users
 } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -34,9 +35,6 @@ const EnhancedTodaysPlan: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [currentTab, setCurrentTab] = useState('all');
-  const [weeklyProgress, setWeeklyProgress] = useState(73);
-  const [streakCount, setStreakCount] = useState(7);
-  const [readinessScore, setReadinessScore] = useState(85);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -77,72 +75,56 @@ const EnhancedTodaysPlan: React.FC = () => {
     setTasks(mockTasks);
   }, []);
 
-  // Enhanced mood-based theme colors with more vibrant gradients
+  // Mood-based theme colors
   const getMoodTheme = (mood: MoodType) => {
     const themes = {
       [MoodType.MOTIVATED]: {
         gradient: 'from-emerald-400 via-teal-500 to-blue-600',
         accent: 'emerald-500',
         bg: 'emerald-50',
-        text: 'emerald-800',
-        shadow: 'shadow-emerald-500/25',
-        glow: 'shadow-2xl shadow-emerald-500/20'
+        text: 'emerald-800'
       },
       [MoodType.FOCUSED]: {
         gradient: 'from-blue-500 via-indigo-600 to-purple-700',
         accent: 'blue-500',
         bg: 'blue-50',
-        text: 'blue-800',
-        shadow: 'shadow-blue-500/25',
-        glow: 'shadow-2xl shadow-blue-500/20'
+        text: 'blue-800'
       },
       [MoodType.EXCITED]: {
         gradient: 'from-orange-400 via-pink-500 to-red-600',
         accent: 'orange-500',
         bg: 'orange-50',
-        text: 'orange-800',
-        shadow: 'shadow-orange-500/25',
-        glow: 'shadow-2xl shadow-orange-500/20'
+        text: 'orange-800'
       },
       [MoodType.CALM]: {
         gradient: 'from-teal-400 via-cyan-500 to-blue-500',
         accent: 'teal-500',
         bg: 'teal-50',
-        text: 'teal-800',
-        shadow: 'shadow-teal-500/25',
-        glow: 'shadow-2xl shadow-teal-500/20'
+        text: 'teal-800'
       },
       [MoodType.CONFIDENT]: {
         gradient: 'from-violet-500 via-purple-600 to-indigo-700',
         accent: 'violet-500',
         bg: 'violet-50',
-        text: 'violet-800',
-        shadow: 'shadow-violet-500/25',
-        glow: 'shadow-2xl shadow-violet-500/20'
+        text: 'violet-800'
       },
       [MoodType.TIRED]: {
         gradient: 'from-slate-400 via-gray-500 to-zinc-600',
         accent: 'slate-500',
         bg: 'slate-50',
-        text: 'slate-800',
-        shadow: 'shadow-slate-500/25',
-        glow: 'shadow-2xl shadow-slate-500/20'
+        text: 'slate-800'
       },
       [MoodType.ANXIOUS]: {
         gradient: 'from-amber-400 via-yellow-500 to-orange-500',
         accent: 'amber-500',
         bg: 'amber-50',
-        text: 'amber-800',
-        shadow: 'shadow-amber-500/25',
-        glow: 'shadow-2xl shadow-amber-500/20'
+        text: 'amber-800'
       },
       [MoodType.STRESSED]: {
         gradient: 'from-red-400 via-rose-500 to-pink-600',
         accent: 'red-500',
         bg: 'red-50',
-        text: 'red-800',
-        shadow: 'shadow-red-500/25',
-        glow: 'shadow-2xl shadow-red-500/20'
+        text: 'red-800'
       }
     };
     return themes[mood] || themes[MoodType.MOTIVATED];
@@ -193,51 +175,18 @@ const EnhancedTodaysPlan: React.FC = () => {
       backButtonUrl="/dashboard/student"
     >
       <div className="space-y-6">
-        {/* Enhanced Dynamic Gradient Header */}
+        {/* Beautiful Gradient Header */}
         <motion.div 
-          className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${theme.gradient} p-8 text-white ${theme.glow}`}
+          className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${theme.gradient} p-8 text-white shadow-2xl`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.6 }}
         >
-          {/* Animated background elements */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
-          <motion.div 
-            className="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              rotate: [0, 180, 360]
-            }}
-            transition={{ 
-              duration: 8,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.div 
-            className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/5 rounded-full"
-            animate={{ 
-              scale: [1.2, 1, 1.2],
-              rotate: [360, 180, 0]
-            }}
-            transition={{ 
-              duration: 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-
+          <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-white/80 bg-clip-text">
-                  Today's Learning Adventure
-                </h1>
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Today's Learning Adventure</h1>
                 <p className="text-white/90 text-lg">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
@@ -246,35 +195,20 @@ const EnhancedTodaysPlan: React.FC = () => {
                     day: 'numeric' 
                   })}
                 </p>
-              </motion.div>
-              <motion.div 
-                className="text-right"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
-                <motion.div 
-                  className="text-3xl font-bold"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  {completionPercentage}%
-                </motion.div>
-                <div className="text-sm text-white/80">Complete</div>
-              </motion.div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{completionPercentage}%</div>
+                  <div className="text-sm text-white/80">Complete</div>
+                </div>
+              </div>
             </div>
 
-            {/* Enhanced Progress Metrics */}
-            <motion.div 
-              className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
+            {/* Progress Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.25)" }}
-                transition={{ duration: 0.2 }}
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
               >
                 <Target className="h-6 w-6 mx-auto mb-2" />
                 <div className="text-2xl font-bold">{completedTasks}/{totalTasks}</div>
@@ -282,9 +216,8 @@ const EnhancedTodaysPlan: React.FC = () => {
               </motion.div>
               
               <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.25)" }}
-                transition={{ duration: 0.2 }}
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
               >
                 <Clock className="h-6 w-6 mx-auto mb-2" />
                 <div className="text-2xl font-bold">{totalTimeRemaining}m</div>
@@ -292,60 +225,39 @@ const EnhancedTodaysPlan: React.FC = () => {
               </motion.div>
               
               <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.25)" }}
-                transition={{ duration: 0.2 }}
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
               >
                 <Zap className="h-6 w-6 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{streakCount}</div>
+                <div className="text-2xl font-bold">7</div>
                 <div className="text-sm text-white/80">Day Streak</div>
               </motion.div>
               
               <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.25)" }}
-                transition={{ duration: 0.2 }}
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
               >
                 <TrendingUp className="h-6 w-6 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{readinessScore}%</div>
+                <div className="text-2xl font-bold">85%</div>
                 <div className="text-sm text-white/80">Readiness</div>
               </motion.div>
+            </div>
 
-              <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.25)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <Award className="h-6 w-6 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{weeklyProgress}%</div>
-                <div className="text-sm text-white/80">Weekly</div>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-            >
-              <Progress value={completionPercentage} className="h-4 bg-white/20 rounded-full" />
-            </motion.div>
+            <Progress value={completionPercentage} className="h-3 bg-white/20" />
           </div>
         </motion.div>
 
-        {/* Enhanced Mood Selection */}
+        {/* Mood Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Card className={`border-2 ${theme.shadow} bg-gradient-to-r from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50`}>
+          <Card className={`border-2 border-${theme.accent}/20 bg-${theme.bg}/30`}>
             <CardHeader>
               <CardTitle className={`text-${theme.text} flex items-center gap-2`}>
                 <Star className="h-5 w-5" />
                 How are you feeling today?
-                <Badge variant="outline" className="ml-auto">
-                  Mood affects your study plan
-                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -354,49 +266,36 @@ const EnhancedTodaysPlan: React.FC = () => {
                 onMoodSelect={setCurrentMood}
                 showLabels={true}
               />
-              <motion.div 
-                className={`mt-4 p-3 bg-${theme.bg} rounded-lg border border-${theme.accent}/20`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <p className={`text-sm text-${theme.text}`}>
-                  Based on your {currentMood} mood, we've optimized your study plan for better engagement and retention.
-                </p>
-              </motion.div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Enhanced Task Filters */}
+        {/* Task Filters */}
         <motion.div 
           className="flex gap-2 overflow-x-auto pb-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
           {['all', 'pending', 'completed', 'concept', 'flashcard', 'quiz'].map((tab) => (
-            <motion.div key={tab} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant={currentTab === tab ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentTab(tab)}
-                className={`capitalize transition-all duration-200 ${
-                  currentTab === tab ? `bg-${theme.accent} ${theme.shadow} text-white` : `hover:bg-${theme.bg}`
-                }`}
-              >
-                {tab}
-              </Button>
-            </motion.div>
+            <Button
+              key={tab}
+              variant={currentTab === tab ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentTab(tab)}
+              className={`capitalize ${currentTab === tab ? `bg-${theme.accent} text-white` : ''}`}
+            >
+              {tab}
+            </Button>
           ))}
         </motion.div>
 
-        {/* Enhanced Tasks Grid */}
+        {/* Tasks Grid */}
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.4 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
         >
           <AnimatePresence>
             {filteredTasks.map((task, index) => (
@@ -406,24 +305,20 @@ const EnhancedTodaysPlan: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8, scale: 1.03 }}
-                className="cursor-pointer group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="cursor-pointer"
                 onClick={() => handleTaskClick(task)}
               >
-                <Card className={`overflow-hidden border-l-4 ${
-                  task.priority === 'high' ? 'border-l-red-500' : 
-                  task.priority === 'medium' ? 'border-l-amber-500' : 'border-l-blue-500'
-                } hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white via-gray-50/30 to-white group-hover:from-gray-50 group-hover:to-white`}>
+                <Card className={`overflow-hidden border-l-4 border-l-${
+                  task.priority === 'high' ? 'red-500' : 
+                  task.priority === 'medium' ? 'amber-500' : 'blue-500'
+                } hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50`}>
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">
-                        <motion.div 
-                          className={`p-2 rounded-lg bg-${theme.accent}/10 group-hover:bg-${theme.accent}/20 transition-colors`}
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.5 }}
-                        >
+                        <div className={`p-2 rounded-lg bg-${theme.accent}/10`}>
                           {getTaskIcon(task.type)}
-                        </motion.div>
+                        </div>
                         <div>
                           <Badge variant="outline" className="text-xs">
                             {task.subject}
@@ -431,19 +326,13 @@ const EnhancedTodaysPlan: React.FC = () => {
                         </div>
                       </div>
                       {task.status === 'completed' && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        >
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        </motion.div>
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                       )}
                     </div>
                   </CardHeader>
                   
                   <CardContent>
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">
                       {task.title}
                     </h3>
                     
@@ -463,42 +352,28 @@ const EnhancedTodaysPlan: React.FC = () => {
                     </div>
 
                     {task.smartTip && (
-                      <motion.div 
-                        className={`p-3 bg-${theme.bg}/50 rounded-lg text-sm text-${theme.text} mb-3 border border-${theme.accent}/10`}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <Lightbulb className="h-4 w-4 mt-0.5 text-yellow-500" />
-                          <span>{task.smartTip}</span>
-                        </div>
-                      </motion.div>
+                      <div className={`p-3 bg-${theme.bg}/50 rounded-lg text-sm text-${theme.text} mb-3`}>
+                        💡 {task.smartTip}
+                      </div>
                     )}
 
                     <Button 
-                      className={`w-full bg-gradient-to-r from-${theme.accent} to-${theme.accent}/80 hover:from-${theme.accent}/90 hover:to-${theme.accent}/70 transition-all duration-200 ${theme.shadow}`}
+                      className={`w-full bg-gradient-to-r from-${theme.accent} to-${theme.accent}/80 hover:from-${theme.accent}/90 hover:to-${theme.accent}/70`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTaskClick(task);
                       }}
                     >
                       {task.status === 'completed' ? (
-                        <motion.div 
-                          className="flex items-center"
-                          whileHover={{ scale: 1.05 }}
-                        >
+                        <>
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Review
-                        </motion.div>
+                        </>
                       ) : (
-                        <motion.div 
-                          className="flex items-center"
-                          whileHover={{ scale: 1.05 }}
-                        >
+                        <>
                           <Play className="h-4 w-4 mr-2" />
                           Start Learning
-                        </motion.div>
+                        </>
                       )}
                     </Button>
                   </CardContent>
@@ -508,24 +383,21 @@ const EnhancedTodaysPlan: React.FC = () => {
           </AnimatePresence>
         </motion.div>
 
-        {/* Enhanced Audio Controls */}
+        {/* Audio Controls */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.6 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <Card className={`${theme.shadow} bg-gradient-to-r from-white to-gray-50/50`}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Volume2 className="h-5 w-5" />
-                AI-Powered Audio Learning
-                <Badge variant="outline" className="ml-auto">
-                  Voice Assistant Ready
-                </Badge>
+                Audio Learning Controls
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
                 <Button
                   variant={isAudioPlaying ? "destructive" : "default"}
                   onClick={() => setIsAudioPlaying(!isAudioPlaying)}
@@ -534,20 +406,10 @@ const EnhancedTodaysPlan: React.FC = () => {
                   {isAudioPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   {isAudioPlaying ? 'Pause' : 'Play'} Study Guide
                 </Button>
-                
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Ask AI Tutor
-                </Button>
-                
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
                   Audio Settings
                 </Button>
-
-                <div className="ml-auto text-sm text-gray-600">
-                  Enhanced with voice recognition and real-time feedback
-                </div>
               </div>
             </CardContent>
           </Card>
