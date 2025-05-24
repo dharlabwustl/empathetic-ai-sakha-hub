@@ -122,7 +122,7 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="analysis" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    Analysis
+                    3D Analysis
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />

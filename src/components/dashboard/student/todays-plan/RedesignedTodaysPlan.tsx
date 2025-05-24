@@ -1,14 +1,14 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import PlanHeader from './PlanHeader';
 import NewTodaysPlanView from './NewTodaysPlanView';
+import MoodBasedPlanHeader from './MoodBasedPlanHeader';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types/user/base';
+import { UserRole, MoodType } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,6 +18,7 @@ const RedesignedTodaysPlan: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>();
   
   // Get today's plan data
   const {
@@ -31,6 +32,20 @@ const RedesignedTodaysPlan: React.FC = () => {
     addBookmark,
     addNote
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
+
+  // Load mood from localStorage on component mount
+  useEffect(() => {
+    const savedMood = localStorage.getItem('userMood');
+    if (savedMood && Object.values(MoodType).includes(savedMood as MoodType)) {
+      setCurrentMood(savedMood as MoodType);
+    }
+  }, []);
+
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    localStorage.setItem('userMood', mood);
+    console.log('Mood updated in Today\'s Plan:', mood);
+  };
   
   if (loading) {
     return <LoadingState message="Loading your study plan..." />;
@@ -70,10 +85,10 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-4 sm:space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        <PlanHeader 
+        <MoodBasedPlanHeader 
           planData={planData} 
-          activeView={activeView}
-          setActiveView={setActiveView}
+          currentMood={currentMood}
+          onMoodChange={handleMoodChange}
           isMobile={isMobile}
         />
         

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { play, pause, MessageSquare, BarChart3, Network, Beaker, GitCompare } from 'lucide-react';
+import { Play, Pause, MessageSquare, BarChart3, Network, Beaker, GitCompare } from 'lucide-react';
 import AITutorDialog from './AITutorDialog';
 
 interface EnhancedDiagramsTabProps {
@@ -22,12 +22,10 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, 
     if (activeVisualization === visualizationType && isPlaying) {
       setIsPlaying(false);
       setActiveVisualization(null);
-      // Stop audio explanation
       console.log(`Stopping audio for ${visualizationType}`);
     } else {
       setIsPlaying(true);
       setActiveVisualization(visualizationType);
-      // Start audio explanation
       console.log(`Starting audio explanation for ${visualizationType} of ${conceptName}`);
     }
   };
@@ -146,12 +144,12 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, 
           >
             {activeVisualization === `${type}-${item.id}` && isPlaying ? (
               <>
-                <pause className="h-4 w-4" />
+                <Pause className="h-4 w-4" />
                 Pause
               </>
             ) : (
               <>
-                <play className="h-4 w-4" />
+                <Play className="h-4 w-4" />
                 Play
               </>
             )}
@@ -267,12 +265,12 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, 
                 >
                   {activeVisualization === 'comparison' && isPlaying ? (
                     <>
-                      <pause className="h-4 w-4" />
+                      <Pause className="h-4 w-4" />
                       Pause Comparison
                     </>
                   ) : (
                     <>
-                      <play className="h-4 w-4" />
+                      <Play className="h-4 w-4" />
                       Start Comparison
                     </>
                   )}
@@ -335,12 +333,12 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, 
                 >
                   {activeVisualization === 'lab' && isPlaying ? (
                     <>
-                      <pause className="h-4 w-4" />
+                      <Pause className="h-4 w-4" />
                       Pause Experiment
                     </>
                   ) : (
                     <>
-                      <play className="h-4 w-4" />
+                      <Play className="h-4 w-4" />
                       Start Experiment
                     </>
                   )}

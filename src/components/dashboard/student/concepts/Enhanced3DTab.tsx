@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { play, pause, MessageSquare, Box, Atom, Calculator, Globe, Microscope } from 'lucide-react';
+import { Play, Pause, MessageSquare, BarChart3, Network, Beaker, GitCompare, Box, Zap, Globe } from 'lucide-react';
 import AITutorDialog from './AITutorDialog';
 
 interface Enhanced3DTabProps {
@@ -22,11 +22,11 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
     if (activeVisualization === visualizationType && isPlaying) {
       setIsPlaying(false);
       setActiveVisualization(null);
-      console.log(`Stopping 3D simulation and audio for ${visualizationType}`);
+      console.log(`Stopping 3D visualization and audio for ${visualizationType}`);
     } else {
       setIsPlaying(true);
       setActiveVisualization(visualizationType);
-      console.log(`Starting 3D simulation and audio explanation for ${visualizationType} of ${conceptName}`);
+      console.log(`Starting 3D visualization and audio explanation for ${visualizationType} of ${conceptName}`);
     }
   };
 
@@ -40,49 +40,62 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
       case 'physics':
         return {
           models: [
-            { id: 'particle', title: 'Particle Motion', description: '3D particle trajectories and forces', icon: <Box className="h-5 w-5" /> },
-            { id: 'wave', title: 'Wave Propagation', description: '3D wave interference patterns', icon: <Globe className="h-5 w-5" /> },
-            { id: 'field', title: 'Field Visualization', description: '3D electric and magnetic fields', icon: <Atom className="h-5 w-5" /> }
+            { id: 'atomic', title: '3D Atomic Structure', description: 'Interactive atomic models with electron orbitals' },
+            { id: 'wave', title: 'Wave Motion 3D', description: '3D wave propagation and interference patterns' },
+            { id: 'field', title: 'Field Visualizations', description: 'Electric and magnetic field 3D representations' }
           ],
           simulations: [
-            { id: 'collision', title: 'Collision Dynamics', description: 'Real-time collision simulations' },
-            { id: 'oscillation', title: 'Oscillatory Motion', description: 'Pendulum and spring systems' },
-            { id: 'thermal', title: 'Thermal Motion', description: 'Molecular kinetic theory' }
+            { id: 'pendulum', title: 'Pendulum Motion', description: 'Real-time 3D pendulum physics simulation' },
+            { id: 'projectile', title: 'Projectile Trajectory', description: '3D projectile motion with air resistance' }
+          ],
+          environments: [
+            { id: 'lab', title: 'Virtual Physics Lab', description: 'Interactive 3D laboratory environment' },
+            { id: 'space', title: 'Space Environment', description: 'Zero gravity physics demonstrations' }
           ]
         };
       case 'chemistry':
         return {
           models: [
-            { id: 'molecule', title: 'Molecular Structure', description: '3D molecular geometry and bonds', icon: <Atom className="h-5 w-5" /> },
-            { id: 'crystal', title: 'Crystal Lattice', description: '3D crystal structure visualization', icon: <Box className="h-5 w-5" /> },
-            { id: 'enzyme', title: 'Enzyme Mechanisms', description: '3D protein folding and reactions', icon: <Microscope className="h-5 w-5" /> }
+            { id: 'molecular', title: '3D Molecular Models', description: 'Interactive molecular structures and bonds' },
+            { id: 'crystal', title: 'Crystal Lattices', description: '3D crystal structure visualizations' },
+            { id: 'orbital', title: 'Electron Orbitals', description: '3D electron probability distributions' }
           ],
           simulations: [
-            { id: 'reaction', title: 'Reaction Pathways', description: 'Animated reaction mechanisms' },
-            { id: 'bonding', title: 'Chemical Bonding', description: 'Orbital overlap simulations' },
-            { id: 'phase', title: 'Phase Transitions', description: 'State change visualizations' }
+            { id: 'reaction', title: 'Reaction Mechanisms', description: '3D reaction pathway animations' },
+            { id: 'bonding', title: 'Chemical Bonding', description: 'Interactive bond formation processes' }
+          ],
+          environments: [
+            { id: 'lab', title: 'Chemistry Lab 3D', description: 'Virtual chemistry laboratory' },
+            { id: 'molecular', title: 'Molecular World', description: 'Microscopic molecular environment' }
           ]
         };
       case 'mathematics':
         return {
           models: [
-            { id: 'surface', title: 'Mathematical Surfaces', description: '3D function plotting and analysis', icon: <Calculator className="h-5 w-5" /> },
-            { id: 'geometry', title: 'Geometric Solids', description: '3D geometric constructions', icon: <Box className="h-5 w-5" /> },
-            { id: 'vector', title: 'Vector Fields', description: '3D vector field visualization', icon: <Globe className="h-5 w-5" /> }
+            { id: 'geometric', title: '3D Geometric Shapes', description: 'Interactive 3D geometry and transformations' },
+            { id: 'function', title: '3D Function Graphs', description: 'Three-dimensional function visualizations' },
+            { id: 'calculus', title: 'Calculus in 3D', description: 'Surface integrals and vector fields' }
           ],
           simulations: [
-            { id: 'calculus', title: 'Calculus Visualization', description: 'Derivatives and integrals in 3D' },
-            { id: 'transform', title: 'Transformations', description: 'Linear transformation animations' },
-            { id: 'optimization', title: 'Optimization Problems', description: 'Gradient descent visualization' }
+            { id: 'optimization', title: 'Optimization Problems', description: '3D optimization landscape exploration' },
+            { id: 'statistics', title: 'Statistical Distributions', description: '3D probability distribution models' }
+          ],
+          environments: [
+            { id: 'space', title: 'Mathematical Space', description: 'Abstract mathematical environment' },
+            { id: 'coordinate', title: 'Coordinate Systems', description: '3D coordinate system playground' }
           ]
         };
       default:
         return {
           models: [
-            { id: 'concept', title: '3D Concept Model', description: 'Interactive 3D representation', icon: <Box className="h-5 w-5" /> }
+            { id: 'concept', title: '3D Concept Model', description: 'Three-dimensional concept visualization' },
+            { id: 'structure', title: 'Structural Model', description: 'Interactive 3D structural representation' }
           ],
           simulations: [
-            { id: 'interactive', title: 'Interactive Simulation', description: 'Dynamic concept exploration' }
+            { id: 'process', title: 'Process Simulation', description: '3D process flow simulation' }
+          ],
+          environments: [
+            { id: 'virtual', title: 'Virtual Environment', description: 'Immersive 3D learning space' }
           ]
         };
     }
@@ -90,16 +103,16 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
 
   const content3D = getSubjectSpecific3DContent();
 
-  const render3DModelCard = (item: any) => (
-    <Card key={item.id} className="group hover:shadow-lg transition-all duration-300">
+  const render3DCard = (item: any, type: string, icon: React.ReactNode) => (
+    <Card key={item.id} className="group hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {item.icon}
+            {icon}
             <CardTitle className="text-lg">{item.title}</CardTitle>
           </div>
-          <Badge variant="outline" className="text-xs">
-            3D Model
+          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+            3D • {subject}
           </Badge>
         </div>
       </CardHeader>
@@ -108,56 +121,53 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
           {item.description}
         </p>
         
-        {/* 3D Visualization Area */}
-        <div className="bg-gradient-to-br from-indigo-50 to-cyan-50 dark:from-indigo-950/30 dark:to-cyan-950/30 rounded-lg p-6 mb-4 min-h-[250px] flex items-center justify-center border-2 border-dashed border-indigo-200 dark:border-indigo-800">
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
-              {item.icon && React.cloneElement(item.icon, { className: "h-8 w-8 text-indigo-600" })}
+        {/* Interactive 3D Visualization Area */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg p-6 mb-4 min-h-[250px] relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
+          <div className="relative z-10 text-center flex flex-col items-center justify-center h-full">
+            <div className="w-20 h-20 mx-auto mb-4 bg-blue-600/10 rounded-full flex items-center justify-center animate-pulse">
+              {icon}
             </div>
-            <h4 className="font-medium mb-2">{item.title}</h4>
-            <p className="text-sm text-muted-foreground">
-              {activeVisualization === `model-${item.id}` && isPlaying 
-                ? `3D simulation active with detailed audio explanation`
-                : `Interactive 3D model for ${conceptName}`}
+            <h3 className="text-lg font-semibold mb-2 text-blue-800 dark:text-blue-300">
+              {item.title}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {activeVisualization === `${type}-${item.id}` && isPlaying 
+                ? `🔄 Active 3D simulation with real-time audio explanation for ${conceptName}`
+                : `Interactive 3D ${item.title.toLowerCase()} for ${conceptName}`}
             </p>
             
-            {/* 3D Controls */}
-            {activeVisualization === `model-${item.id}` && isPlaying && (
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-center gap-2 text-xs">
-                  <Badge variant="secondary">Rotate: Mouse Drag</Badge>
-                  <Badge variant="secondary">Zoom: Scroll</Badge>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1">
-                  <div className="bg-indigo-600 h-1 rounded-full w-3/4 animate-pulse"></div>
-                </div>
-              </div>
-            )}
+            {/* 3D Visual Elements */}
+            <div className="flex space-x-2 mb-4">
+              <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-4 h-4 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
           </div>
         </div>
 
-        {/* Controls */}
+        {/* Enhanced Controls */}
         <div className="flex gap-2">
           <Button
-            variant={activeVisualization === `model-${item.id}` && isPlaying ? "default" : "outline"}
-            onClick={() => handlePlayPause(`model-${item.id}`)}
+            variant={activeVisualization === `${type}-${item.id}` && isPlaying ? "default" : "outline"}
+            onClick={() => handlePlayPause(`${type}-${item.id}`)}
             className="flex items-center gap-2 flex-1"
           >
-            {activeVisualization === `model-${item.id}` && isPlaying ? (
+            {activeVisualization === `${type}-${item.id}` && isPlaying ? (
               <>
-                <pause className="h-4 w-4" />
-                Pause
+                <Pause className="h-4 w-4" />
+                Stop 3D Sim
               </>
             ) : (
               <>
-                <play className="h-4 w-4" />
-                Play 3D
+                <Play className="h-4 w-4" />
+                Start 3D Sim
               </>
             )}
           </Button>
           <Button
             variant="outline"
-            onClick={() => openTutor(`3D model of ${item.title} for ${conceptName}`)}
+            onClick={() => openTutor(`3D ${item.title} simulation for ${conceptName}`)}
             className="flex items-center gap-2"
           >
             <MessageSquare className="h-4 w-4" />
@@ -165,98 +175,11 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
           </Button>
         </div>
         
-        {activeVisualization === `model-${item.id}` && isPlaying && (
-          <div className="mt-3 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border border-indigo-200 dark:border-indigo-800">
-            <p className="text-sm text-indigo-800 dark:text-indigo-300">
-              🔊 Audio: Explaining 3D structure, interactions, and key features of {item.title}...
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const renderSimulationCard = (item: any) => (
-    <Card key={item.id} className="group hover:shadow-lg transition-all duration-300">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-emerald-600" />
-            <CardTitle className="text-lg">{item.title}</CardTitle>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            Live Simulation
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          {item.description}
-        </p>
-        
-        {/* Simulation Area */}
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-lg p-6 mb-4 min-h-[200px] flex items-center justify-center">
-          <div className="text-center">
-            <Globe className="w-16 h-16 mx-auto mb-3 text-emerald-600" />
-            <p className="text-sm text-muted-foreground">
-              {activeVisualization === `sim-${item.id}` && isPlaying 
-                ? `Live simulation running with audio commentary`
-                : `Interactive simulation for ${conceptName}`}
-            </p>
-            
-            {/* Simulation Parameters */}
-            {activeVisualization === `sim-${item.id}` && isPlaying && (
-              <div className="mt-4 grid grid-cols-2 gap-2 max-w-xs mx-auto">
-                <div className="p-2 bg-white dark:bg-gray-800 rounded text-xs">
-                  <div className="text-emerald-600 font-medium">Speed</div>
-                  <div className="w-full bg-gray-200 rounded h-1 mt-1">
-                    <div className="bg-emerald-600 h-1 rounded w-2/3"></div>
-                  </div>
-                </div>
-                <div className="p-2 bg-white dark:bg-gray-800 rounded text-xs">
-                  <div className="text-emerald-600 font-medium">Accuracy</div>
-                  <div className="w-full bg-gray-200 rounded h-1 mt-1">
-                    <div className="bg-emerald-600 h-1 rounded w-4/5"></div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div className="flex gap-2">
-          <Button
-            variant={activeVisualization === `sim-${item.id}` && isPlaying ? "default" : "outline"}
-            onClick={() => handlePlayPause(`sim-${item.id}`)}
-            className="flex items-center gap-2 flex-1"
-          >
-            {activeVisualization === `sim-${item.id}` && isPlaying ? (
-              <>
-                <pause className="h-4 w-4" />
-                Pause
-              </>
-            ) : (
-              <>
-                <play className="h-4 w-4" />
-                Run Simulation
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => openTutor(`Live simulation of ${item.title} for ${conceptName}`)}
-            className="flex items-center gap-2"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Ask AI
-          </Button>
-        </div>
-        
-        {activeVisualization === `sim-${item.id}` && isPlaying && (
-          <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <p className="text-sm text-emerald-800 dark:text-emerald-300">
-              🔊 Audio: Real-time explanation of simulation behavior and underlying principles...
+        {activeVisualization === `${type}-${item.id}` && isPlaying && (
+          <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              🔊 Audio: Interactive 3D simulation running with detailed explanations of {item.title} concepts...
             </p>
           </div>
         )}
@@ -268,127 +191,107 @@ const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) =
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">3D Analysis & Virtual Laboratory</h2>
+          <h2 className="text-2xl font-bold">Interactive 3D Analysis</h2>
           <p className="text-muted-foreground">
-            Explore {conceptName} through interactive 3D models and live simulations
+            Explore {conceptName} through immersive 3D visualizations with synchronized audio explanations
           </p>
         </div>
         <Badge variant="secondary" className="text-sm">
-          {subject} • 3D Enhanced
+          {subject} • 3D Interactive
         </Badge>
       </div>
 
       <Tabs defaultValue="models" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="models" className="flex items-center gap-2">
             <Box className="h-4 w-4" />
             3D Models
           </TabsTrigger>
           <TabsTrigger value="simulations" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            Live Simulations
+            <Zap className="h-4 w-4" />
+            Simulations
           </TabsTrigger>
-          <TabsTrigger value="laboratory" className="flex items-center gap-2">
-            <Microscope className="h-4 w-4" />
-            Virtual Laboratory
+          <TabsTrigger value="environments" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            Virtual Env
+          </TabsTrigger>
+          <TabsTrigger value="comparisons" className="flex items-center gap-2">
+            <GitCompare className="h-4 w-4" />
+            Compare 3D
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="models" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {content3D.models.map(render3DModelCard)}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {content3D.models.map((item) => 
+              render3DCard(item, 'model', <Box className="h-5 w-5 text-blue-600" />)
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="simulations" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {content3D.simulations.map(renderSimulationCard)}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {content3D.simulations.map((item) => 
+              render3DCard(item, 'simulation', <Zap className="h-5 w-5 text-purple-600" />)
+            )}
           </div>
         </TabsContent>
 
-        <TabsContent value="laboratory" className="mt-6">
+        <TabsContent value="environments" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {content3D.environments.map((item) => 
+              render3DCard(item, 'environment', <Globe className="h-5 w-5 text-green-600" />)
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="comparisons" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Microscope className="h-5 w-5 text-purple-600" />
-                Virtual Laboratory - {conceptName}
+                <GitCompare className="h-5 w-5 text-orange-600" />
+                3D Concept Comparison Tool
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-lg p-8 mb-4 min-h-[400px] flex items-center justify-center">
-                <div className="text-center max-w-md">
-                  <Microscope className="w-24 h-24 mx-auto mb-6 text-purple-600" />
-                  <h3 className="text-xl font-semibold mb-4">Advanced Virtual Laboratory</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    {activeVisualization === 'laboratory' && isPlaying 
-                      ? `Conducting virtual experiments for ${conceptName} with real-time audio guidance and 3D visualization`
-                      : `Experience hands-on learning with subject-specific virtual experiments for ${conceptName}`}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-lg p-6 mb-4 min-h-[300px] flex items-center justify-center">
+                <div className="text-center">
+                  <GitCompare className="w-16 h-16 mx-auto mb-3 text-orange-600" />
+                  <p className="text-sm text-muted-foreground">
+                    {activeVisualization === 'comparison' && isPlaying 
+                      ? `🔄 3D comparison of ${conceptName} with related concepts - Interactive audio guide active`
+                      : `Compare ${conceptName} with similar concepts in immersive 3D space`}
                   </p>
-                  
-                  {/* Laboratory Equipment */}
-                  {activeVisualization === 'laboratory' && isPlaying && (
-                    <div className="grid grid-cols-3 gap-4 mt-6">
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border">
-                        <Atom className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                        <p className="text-xs">Equipment A</p>
-                        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                          <div className="bg-purple-600 h-1 rounded-full w-4/5 animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border">
-                        <Calculator className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                        <p className="text-xs">Measurement</p>
-                        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                          <div className="bg-purple-600 h-1 rounded-full w-3/5 animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border">
-                        <Box className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                        <p className="text-xs">Analysis</p>
-                        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                          <div className="bg-purple-600 h-1 rounded-full w-2/3 animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
               
               <div className="flex gap-2">
                 <Button
-                  variant={activeVisualization === 'laboratory' && isPlaying ? "default" : "outline"}
-                  onClick={() => handlePlayPause('laboratory')}
+                  variant={activeVisualization === 'comparison' && isPlaying ? "default" : "outline"}
+                  onClick={() => handlePlayPause('comparison')}
                   className="flex items-center gap-2 flex-1"
                 >
-                  {activeVisualization === 'laboratory' && isPlaying ? (
+                  {activeVisualization === 'comparison' && isPlaying ? (
                     <>
-                      <pause className="h-4 w-4" />
-                      Pause Laboratory
+                      <Pause className="h-4 w-4" />
+                      Stop 3D Comparison
                     </>
                   ) : (
                     <>
-                      <play className="h-4 w-4" />
-                      Start Laboratory
+                      <Play className="h-4 w-4" />
+                      Start 3D Comparison
                     </>
                   )}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => openTutor(`Virtual laboratory experiment for ${conceptName} in ${subject}`)}
+                  onClick={() => openTutor(`3D comparison analysis of ${conceptName}`)}
                   className="flex items-center gap-2"
                 >
                   <MessageSquare className="h-4 w-4" />
                   Ask AI
                 </Button>
               </div>
-              
-              {activeVisualization === 'laboratory' && isPlaying && (
-                <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <p className="text-sm text-purple-800 dark:text-purple-300">
-                    🔊 Laboratory Audio Guide: Step-by-step experiment instructions, safety protocols, and real-time analysis for {conceptName}...
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
