@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -36,13 +35,20 @@ const AdminSidebar: React.FC = () => {
       ]
     },
     { 
-      section: "Content & Curriculum",
+      section: "Content & AI Management",
       items: [
-        { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
-        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
+        { icon: <BookOpen size={20} />, title: "Enhanced CMS", path: "/admin/dashboard", tab: "content" },
+        { icon: <Brain size={20} />, title: "AI Features", path: "/admin/dashboard", tab: "ai-features" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
-        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" },
         { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
+      ]
+    },
+    { 
+      section: "Batch & Group Management",
+      items: [
+        { icon: <Users size={20} />, title: "Batch Management", path: "/admin/dashboard", tab: "batch-management" },
+        { icon: <Award size={20} />, title: "Gamification", path: "/admin/dashboard", tab: "gamification-management" },
+        { icon: <MessageSquare size={20} />, title: "Communications", path: "/admin/dashboard", tab: "communication-management" }
       ]
     },
     { 
@@ -54,26 +60,10 @@ const AdminSidebar: React.FC = () => {
       ]
     },
     { 
-      section: "Communication & Engagement",
-      items: [
-        { icon: <MessageSquare size={20} />, title: "Communications", path: "/admin/dashboard", tab: "communication-management" },
-        { icon: <Bell size={20} />, title: "Notifications", path: "/admin/dashboard", tab: "notifications" },
-        { icon: <Award size={20} />, title: "Gamification", path: "/admin/dashboard", tab: "gamification-management" }
-      ]
-    },
-    { 
       section: "Subscriptions & Revenue",
       items: [
         { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
         { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
-      ]
-    },
-    { 
-      section: "Support & Analytics",
-      items: [
-        { icon: <HelpCircle size={20} />, title: "Support System", path: "/admin/dashboard", tab: "support-management" },
-        { icon: <BarChart3 size={20} />, title: "Advanced Analytics", path: "/admin/dashboard", tab: "advanced-analytics" },
-        { icon: <TrendingUp size={20} />, title: "User Journey", path: "/admin/dashboard", tab: "user-journey" }
       ]
     },
     { 
@@ -82,16 +72,14 @@ const AdminSidebar: React.FC = () => {
         { icon: <Database size={20} />, title: "Database Management", path: "/admin/dashboard", tab: "database" },
         { icon: <Cpu size={20} />, title: "API Management", path: "/admin/dashboard", tab: "api" },
         { icon: <Shield size={20} />, title: "Security", path: "/admin/dashboard", tab: "security" },
-        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" },
-        { icon: <Smartphone size={20} />, title: "Mobile Management", path: "/admin/dashboard", tab: "mobile-management" }
+        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" }
       ]
     },
     { 
       section: "Configuration",
       items: [
         { icon: <Settings size={20} />, title: "System Settings", path: "/admin/dashboard", tab: "settings" },
-        { icon: <Globe size={20} />, title: "Integrations", path: "/admin/dashboard", tab: "integration-management" },
-        { icon: <Lock size={20} />, title: "Access Control", path: "/admin/dashboard", tab: "access-control" }
+        { icon: <Globe size={20} />, title: "Integrations", path: "/admin/dashboard", tab: "integration-management" }
       ]
     }
   ];
