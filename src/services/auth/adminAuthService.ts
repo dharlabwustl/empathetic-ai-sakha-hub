@@ -24,7 +24,7 @@ const ADMIN_CREDENTIALS = {
 const adminAuthService = {
   // Admin login function with improved error handling
   async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
-    console.log("Admin auth service: login attempt for", credentials.email);
+    console.log("adminAuthService: login attempt for", credentials.email);
     
     try {
       // Validate against predefined credentials
@@ -43,6 +43,7 @@ const adminAuthService = {
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('new_user_signup');
+        localStorage.removeItem('google_signup');
         
         // Store admin data in localStorage 
         const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
@@ -53,7 +54,7 @@ const adminAuthService = {
         // Dispatch event to notify components about auth state change
         window.dispatchEvent(new Event('auth-state-changed'));
         
-        console.log("Admin login successful, data stored in localStorage");
+        console.log("adminAuthService: Admin login successful, data stored");
         
         return {
           success: true,
@@ -61,7 +62,7 @@ const adminAuthService = {
           message: "Login successful"
         };
       } else {
-        console.log("Admin login failed: invalid credentials");
+        console.log("adminAuthService: Admin login failed - invalid credentials");
         return {
           success: false,
           data: null,
@@ -69,7 +70,7 @@ const adminAuthService = {
         };
       }
     } catch (error) {
-      console.error("Admin login error:", error);
+      console.error("adminAuthService: Login error:", error);
       return {
         success: false,
         data: null,
@@ -81,7 +82,7 @@ const adminAuthService = {
   
   // Admin logout function with enhanced session clearing
   async adminLogout(): Promise<void> {
-    console.log("Admin auth service: executing logout");
+    console.log("adminAuthService: executing logout");
     
     // Clear admin-specific tokens
     localStorage.removeItem("adminToken");
@@ -95,7 +96,7 @@ const adminAuthService = {
     // Short delay to ensure localStorage changes have propagated
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    console.log("Admin logout complete, localStorage cleared");
+    console.log("adminAuthService: logout complete");
   },
   
   // Get current admin user with improved error handling
@@ -105,7 +106,7 @@ const adminAuthService = {
       const userJson = localStorage.getItem("adminUser");
       const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
       
-      console.log("Admin auth check:", { 
+      console.log("adminAuthService: getAdminUser check:", { 
         hasToken: !!token, 
         hasUserJson: !!userJson, 
         isAdminLoggedIn 
@@ -117,7 +118,7 @@ const adminAuthService = {
       
       return JSON.parse(userJson) as AdminUser;
     } catch (error) {
-      console.error("Error parsing admin user:", error);
+      console.error("adminAuthService: Error parsing admin user:", error);
       return null;
     }
   },
@@ -131,14 +132,14 @@ const adminAuthService = {
       if (token && isAdminLoggedIn) {
         const userJson = localStorage.getItem("adminUser");
         const isValid = !!userJson && JSON.parse(userJson) !== null;
-        console.log("Admin is authenticated:", isValid);
+        console.log("adminAuthService: isAuthenticated result:", isValid);
         return isValid;
       }
       
-      console.log("Admin is not authenticated");
+      console.log("adminAuthService: not authenticated");
       return false;
     } catch (error) {
-      console.error("Error checking admin authentication:", error);
+      console.error("adminAuthService: Error checking authentication:", error);
       return false;
     }
   }

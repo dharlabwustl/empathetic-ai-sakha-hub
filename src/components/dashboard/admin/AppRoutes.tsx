@@ -19,8 +19,8 @@ const AdminAppRoutes: React.FC = () => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Basic mock data for the dashboard stats
-  const mockDashboardStats: Partial<AdminDashboardStats> = {
+  // Basic mock data for the dashboard stats - fix TypeScript errors
+  const mockDashboardStats: AdminDashboardStats = {
     totalUsers: 250,
     activeUsers: 180,
     totalRevenue: 15780,
@@ -34,18 +34,16 @@ const AdminAppRoutes: React.FC = () => {
     verifiedMoodImprovement: 65,
     averageMoodScore: 7.8,
     averageTimeSavedPerWeek: 5.2,
-    // Adding required properties to fix TypeScript error
     studyPlanEfficiencyImprovement: 45,
     studentsWithVerifiedConsistentHabits: 87,
     studentsWithConsistentHabits: 120,
     totalStudents: 250,
-    retentionRate: 85,
+    verifiedRetentionRate: 72,
     activeMoodTrackers: 150,
     studyTimeConsistencyImprovement: 28,
     completedStudyPlans: 145,
     verifiedExamConfidenceImprovement: 70,
     averageConfidenceScore: 8.2,
-    verifiedRetentionRate: 72,
     activeStudents: 175,
     verifiedMoodFeatureUsage: 60,
     moodBasedSessionsCount: 3200,
@@ -55,7 +53,7 @@ const AdminAppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<DashboardStats stats={mockDashboardStats as AdminDashboardStats} />} />
+      <Route path="/" element={<DashboardStats stats={mockDashboardStats} />} />
       <Route path="/subscriptions" element={<SubscriptionManager />} />
     </Routes>
   );
