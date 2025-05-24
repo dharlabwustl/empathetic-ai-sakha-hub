@@ -62,6 +62,10 @@ const adminAuthService = {
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
         localStorage.setItem("admin_logged_in", "true");
         
+        // Force redirect immediately
+        console.log("🚀 adminAuthService: Forcing immediate redirect to dashboard");
+        window.location.href = "/admin/dashboard";
+        
         console.log("📊 adminAuthService: Verification - stored data check:", {
           token: !!localStorage.getItem("adminToken"),
           user: !!localStorage.getItem("adminUser"),

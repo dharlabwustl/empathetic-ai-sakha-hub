@@ -5,7 +5,6 @@ import DashboardStats from '@/components/admin/dashboard/DashboardStats';
 import SubscriptionManager from '@/components/admin/dashboard/SubscriptionManager';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingState from "@/components/admin/dashboard/LoadingState";
-import { DashboardStats as DashboardStatsType } from '@/types/admin';
 
 const AdminAppRoutes: React.FC = () => {
   const { isAdminAuthenticated, isLoading } = useAdminAuth();
@@ -24,8 +23,8 @@ const AdminAppRoutes: React.FC = () => {
 
   console.log("✅ AdminAppRoutes: Authenticated, showing dashboard");
 
-  // Fixed mock data for the dashboard stats - properly typed
-  const mockDashboardStats: DashboardStatsType = {
+  // Simple mock data for the dashboard stats
+  const mockDashboardStats = {
     totalUsers: 250,
     activeUsers: 180,
     totalRevenue: 15780,
@@ -44,7 +43,6 @@ const AdminAppRoutes: React.FC = () => {
     studentsWithConsistentHabits: 120,
     totalStudents: 250,
     verifiedRetentionRate: 72,
-    completedStudyPlans: 145,
     verifiedExamConfidenceImprovement: 70,
     averageConfidenceScore: 8.2,
     activeStudents: 175,

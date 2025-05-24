@@ -34,10 +34,10 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     console.log("🔍 AdminLogin: Auth state check - isAdminAuthenticated:", isAdminAuthenticated);
     if (isAdminAuthenticated) {
-      console.log("✅ AdminLogin: User already authenticated, redirecting to dashboard");
-      navigate('/admin/dashboard', { replace: true });
+      console.log("✅ AdminLogin: User already authenticated, forcing redirect to dashboard");
+      window.location.href = '/admin/dashboard';
     }
-  }, [isAdminAuthenticated, navigate]);
+  }, [isAdminAuthenticated]);
 
   useEffect(() => {
     if (error) {
@@ -71,8 +71,8 @@ const AdminLogin: React.FC = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        console.log("🎯 AdminLogin: Navigating to dashboard...");
-        navigate("/admin/dashboard", { replace: true });
+        console.log("🎯 AdminLogin: Forcing immediate redirect to dashboard");
+        window.location.href = "/admin/dashboard";
       } else {
         console.log("❌ AdminLogin: Login failed - setting error message");
         setLoginError("Invalid admin credentials");
